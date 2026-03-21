@@ -1133,6 +1133,84 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── SEO CONTENT BLOCK — keyword-rich, visually styled as an editorial section ── */}
+      <section className="py-20 lg:py-28" style={{ background: "oklch(0.12 0.012 265)" }}>
+        <div className="container max-w-4xl">
+          <Reveal>
+            <h2 className="font-display text-white mb-6" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+              SOLAR CONTRACT CANCELLATION: <span className="text-amber-gradient">KNOW YOUR RIGHTS</span>
+            </h2>
+          </Reveal>
+          <div className="grid md:grid-cols-2 gap-8 text-gray-400 text-sm leading-relaxed">
+            <Reveal delay={0.05}>
+              <div className="space-y-4">
+                <p>
+                  Millions of American homeowners signed <strong className="text-gray-200">solar panel contracts</strong> after being promised dramatic savings on their electricity bills. Instead, many are now trapped in 20-to-25-year agreements with escalating payments, underperforming systems, and no clear path to exit. If you are looking to <strong className="text-gray-200">cancel a solar contract</strong>, you are not alone — and you likely have more legal options than the solar company wants you to know about.
+                </p>
+                <p>
+                  The most common grounds for <strong className="text-gray-200">solar contract cancellation</strong> include violations of the Federal Truth in Lending Act (TILA), failure to honor the FTC's three-day right of rescission, material misrepresentation of projected savings, undisclosed escalator clauses, and breach of performance warranties. A qualified <strong className="text-gray-200">solar contract attorney</strong> can identify which of these apply to your specific agreement within hours of reviewing it.
+                </p>
+                <p>
+                  Whether you have a <strong className="text-gray-200">solar lease</strong>, a <strong className="text-gray-200">solar loan</strong>, or a Power Purchase Agreement (PPA), each contract type has distinct vulnerabilities. Solar leases are frequently challenged on misrepresentation grounds. Solar loans are often attacked via TILA violations. PPAs can be voided when the host property is sold and the buyer refuses assumption. Our attorneys have successfully pursued all three pathways.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <div className="space-y-4">
+                <p>
+                  <strong className="text-gray-200">Getting out of a solar panel contract</strong> is not as impossible as the solar industry claims. In fact, the Consumer Financial Protection Bureau (CFPB) has documented widespread predatory practices in the residential solar sales industry, and state attorneys general in California, Arizona, Texas, Florida, and Nevada have all opened investigations into major solar companies for deceptive sales practices.
+                </p>
+                <p>
+                  If your solar company has gone out of business — including companies like <strong className="text-gray-200">Pink Energy, Sungevity, Verengo Solar</strong>, or dozens of smaller regional installers — your contract may be voidable entirely. Bankruptcy by the original installer does not necessarily transfer your obligation to a third-party lender, particularly if the installation was never completed or the system never performed as promised.
+                </p>
+                <p>
+                  The first step in any <strong className="text-gray-200">solar contract dispute</strong> is a thorough legal review of your agreement. Our attorneys analyze every clause — the performance guarantee, the escalator rate, the transfer provisions, the dispute resolution clause, and the financing terms — to build the strongest possible case for cancellation. Start with a free review today.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+
+          {/* State targeting grid */}
+          <Reveal delay={0.15}>
+            <div className="mt-12 pt-8 border-t border-white/8">
+              <h3 className="font-display text-xl text-white mb-4">WE SERVE HOMEOWNERS IN ALL 50 STATES</h3>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "California","Texas","Florida","Arizona","Nevada","New Jersey","New York",
+                  "Colorado","Hawaii","Massachusetts","Maryland","Connecticut","North Carolina",
+                  "Georgia","Illinois","Pennsylvania","Virginia","Washington","Oregon","Utah",
+                  "Ohio","Michigan","Minnesota","Missouri","Tennessee","South Carolina",
+                  "Alabama","Louisiana","Oklahoma","Kansas","All Other States"
+                ].map((state) => (
+                  <span key={state} className="text-xs px-2.5 py-1 rounded border border-white/8 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors cursor-default">
+                    {state}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Company targeting */}
+          <Reveal delay={0.2}>
+            <div className="mt-8 pt-8 border-t border-white/8">
+              <h3 className="font-display text-xl text-white mb-4">SOLAR COMPANIES WE'VE FOUGHT</h3>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "Sunrun","SunPower","Tesla Solar","Vivint Solar","ADT Solar",
+                  "Freedom Forever","Sunnova","GoodLeap","Mosaic Solar","Loanpal",
+                  "Green Sky","Service Finance","Pink Energy","Sungevity","Verengo",
+                  "Solar City","NRG Solar","Titan Solar","Palmetto Solar","Momentum Solar"
+                ].map((co) => (
+                  <span key={co} className="text-xs px-2.5 py-1 rounded border border-white/8 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors cursor-default">
+                    {co}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ── FINAL CTA ── */}
       <section className="py-24 lg:py-32 relative overflow-hidden" style={{ background: "oklch(0.13 0.012 265)" }}>
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, oklch(0.72 0.19 50 / 6%) 0%, transparent 70%)" }} />
