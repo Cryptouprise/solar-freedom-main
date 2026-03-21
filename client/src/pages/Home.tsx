@@ -8,6 +8,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
+import { Link } from "wouter";
+import { CITIES } from "@/data/cities";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -1129,6 +1131,47 @@ export default function Home() {
               a="Absolutely. Solar companies routinely tell customers they have no options — because it's in their financial interest to do so. What a salesperson or customer service rep tells you is not the same as what a court or arbitrator would decide. We've won cases where customers were told cancellation was impossible."
               delay={0.3}
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ── CITY/STATE LOCATION PAGES GRID ── */}
+      <section className="py-20 lg:py-28" style={{ background: "oklch(0.10 0.01 265)" }}>
+        <div className="container">
+          <Reveal>
+            <div className="text-center mb-14">
+              <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-4" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
+                NATIONWIDE COVERAGE
+              </div>
+              <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+                WE FIGHT SOLAR CONTRACTS IN EVERY MAJOR CITY
+              </h2>
+              <p className="text-gray-500 max-w-2xl mx-auto text-sm">
+                Click your city for a dedicated case review page with local state laws, local solar companies, and city-specific legal strategies.
+              </p>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {CITIES.map((city, i) => (
+              <Reveal key={city.slug} delay={(i % 10) * 0.03}>
+                <Link href={`/cancel-solar-contract-${city.slug}`}>
+                  <div
+                    className="p-4 rounded-lg border cursor-pointer transition-all group"
+                    style={{ background: "oklch(0.13 0.012 265)", borderColor: "oklch(0.22 0.01 265)" }}
+                  >
+                    <div
+                      className="text-sm font-semibold text-gray-300 group-hover:text-amber-400 transition-colors leading-tight"
+                    >
+                      {city.city}
+                    </div>
+                    <div className="text-xs text-gray-600 font-mono mt-0.5">{city.stateAbbr}</div>
+                    <div className="mt-2 text-amber-500 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
+                      VIEW CITY →
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
