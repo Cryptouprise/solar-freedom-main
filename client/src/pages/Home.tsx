@@ -1154,7 +1154,7 @@ export default function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {CITIES.map((city, i) => (
               <Reveal key={city.slug} delay={(i % 10) * 0.03}>
-                <Link href={`/cancel-solar-contract-${city.slug}`}>
+                <Link href={`/cancel-solar-contract/${city.slug}`}>
                   <div
                     className="p-4 rounded-lg border cursor-pointer transition-all group"
                     style={{ background: "oklch(0.13 0.012 265)", borderColor: "oklch(0.22 0.01 265)" }}

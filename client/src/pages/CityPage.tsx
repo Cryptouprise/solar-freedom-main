@@ -366,7 +366,7 @@ export default function CityPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {relatedCities.map((c, i) => (
               <Reveal key={c.slug} delay={i * 0.04}>
-                <Link href={`/cancel-solar-contract-${c.slug}`}>
+                <Link href={`/cancel-solar-contract/${c.slug}`}>
                   <div className="p-3 rounded border text-center cursor-pointer transition-all hover:border-amber-500/40 group" style={{ background: "oklch(0.14 0.01 265)", borderColor: "oklch(0.25 0.01 265)" }}>
                     <div className="text-gray-300 text-sm font-medium group-hover:text-amber-400 transition-colors">{c.city}</div>
                     <div className="text-gray-600 text-xs">{c.stateAbbr}</div>

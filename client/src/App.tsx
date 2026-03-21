@@ -25,8 +25,7 @@ function Router() {
       <TrailingSlashRedirect />
       <Switch>
         <Route path={"/"} component={Home} />
-        <Route path={"/cancel-solar-contract-:slug"} component={CityPage} />
-        <Route path={"/cancel-solar-contract-:slug/"} component={CityPage} />
+        <Route path={"/cancel-solar-contract/:slug"} component={CityPage} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>

@@ -14,9 +14,9 @@ if (typeof window !== 'undefined') {
   ['/', '/404'].forEach((r: string) => {
     if (!w.__WOUTER_ROUTES__.includes(r)) w.__WOUTER_ROUTES__.push(r);
   });
-  // Register all 50 city routes
+  // Register all 50 city routes with the correct URL structure
   CITIES.forEach(city => {
-    const route = `/cancel-solar-contract-${city.slug}`;
+    const route = `/cancel-solar-contract/${city.slug}`;
     if (!w.__WOUTER_ROUTES__.includes(route)) {
       w.__WOUTER_ROUTES__.push(route);
     }
