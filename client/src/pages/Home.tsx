@@ -1,25 +1,1207 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
-
 /**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
+ * SOLAR FREEDOM — "The Reckoning" Design System
+ * Dark Industrial Brutalism meets Cinematic Legal Drama
+ * Colors: Charcoal #0D0F14 bg | Amber #F97316 accent | White #F8FAFC text
+ * Fonts: Bebas Neue (display) | DM Sans (body) | DM Mono (stats/legal)
+ * Philosophy: Psychological urgency, earned trust, controlled aggression
  */
-export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
+
+// ─── Image CDN URLs ────────────────────────────────────────────────────────────
+const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
+const FRUSTRATED_HOMEOWNER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/frustrated-homeowner-PQnVnTRrmQXJQnmBJ8whqw.webp";
+const FREEDOM_VISUAL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/freedom-visual-FjotebYoCq2THFJ9FesUTU.webp";
+const ATTORNEY_TEAM = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/attorney-team-babeeFpBFrVLC85VvSkpfJ.webp";
+
+// ─── Animated Counter ──────────────────────────────────────────────────────────
+function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const motionVal = useMotionValue(0);
+  const spring = useSpring(motionVal, { stiffness: 60, damping: 20 });
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (inView) motionVal.set(target);
+  }, [inView, target, motionVal]);
+
+  useEffect(() => {
+    return spring.on("change", (v) => setDisplay(Math.round(v)));
+  }, [spring]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
+    <span ref={ref}>
+      {prefix}{display.toLocaleString()}{suffix}
+    </span>
+  );
+}
+
+// ─── Scroll Reveal Wrapper ─────────────────────────────────────────────────────
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ─── Multi-Step Form ───────────────────────────────────────────────────────────
+const SOLAR_COMPANIES = [
+  "Sunrun", "SunPower", "Tesla Solar", "Vivint Solar", "ADT Solar",
+  "Freedom Forever", "Sunnova", "GoodLeap", "Mosaic", "Loanpal",
+  "Green Sky", "Service Finance", "Other"
+];
+
+const ISSUES = [
+  "Monthly payment too high",
+  "System doesn't work / underperforms",
+  "Was misled during the sale",
+  "Can't sell my home",
+  "Company went out of business",
+  "Hidden fees I wasn't told about",
+  "Other"
+];
+
+const PAYMENT_RANGES = ["Under $100", "$100–$150", "$150–$200", "$200–$250", "Over $250"];
+
+function MultiStepForm() {
+  const [step, setStep] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({
+    paying: "",
+    issue: "",
+    company: "",
+    payment: "",
+    intent: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    agree: false,
+  });
+
+  const totalSteps = 5;
+  const progress = ((step) / totalSteps) * 100;
+
+  const update = (key: string, val: string | boolean) =>
+    setForm((f) => ({ ...f, [key]: val }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="text-center py-12 px-6"
+      >
+        <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center mx-auto mb-6">
+          <svg className="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 className="font-display text-4xl text-white mb-3">YOU'RE IN THE QUEUE</h3>
+        <p className="text-gray-300 text-lg mb-2">A case specialist will contact you within <span className="text-amber-400 font-semibold">2 business hours</span>.</p>
+        <p className="text-gray-500 text-sm font-mono">Case #{Math.floor(Math.random() * 90000) + 10000} — {new Date().toLocaleDateString()}</p>
+      </motion.div>
+    );
+  }
+
+  const stepContent = [
+    // Step 0 — paying?
+    <div key="s0" className="space-y-4">
+      <h3 className="font-display text-3xl text-white">ARE YOU CURRENTLY PAYING ON A SOLAR CONTRACT?</h3>
+      <div className="grid grid-cols-2 gap-3">
+        {["Yes", "No — but I signed one", "Not sure"].map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => { update("paying", opt); setStep(1); }}
+            className={`p-4 rounded border text-left transition-all duration-200 font-medium ${
+              form.paying === opt
+                ? "border-amber-500 bg-amber-500/15 text-amber-300"
+                : "border-white/10 bg-white/5 text-gray-300 hover:border-amber-500/50 hover:bg-white/10"
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>,
+
+    // Step 1 — main issue
+    <div key="s1" className="space-y-4">
+      <h3 className="font-display text-3xl text-white">WHAT'S THE MAIN ISSUE YOU'RE DEALING WITH?</h3>
+      <div className="space-y-2">
+        {ISSUES.map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => { update("issue", opt); setStep(2); }}
+            className={`w-full p-3.5 rounded border text-left transition-all duration-200 font-medium text-sm ${
+              form.issue === opt
+                ? "border-amber-500 bg-amber-500/15 text-amber-300"
+                : "border-white/10 bg-white/5 text-gray-300 hover:border-amber-500/50 hover:bg-white/10"
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>,
+
+    // Step 2 — company + payment
+    <div key="s2" className="space-y-5">
+      <h3 className="font-display text-3xl text-white">WHO IS YOUR SOLAR FINANCE COMPANY?</h3>
+      <select
+        value={form.company}
+        onChange={(e) => update("company", e.target.value)}
+        className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-gray-200 focus:border-amber-500 focus:outline-none transition-colors"
+      >
+        <option value="">Select your company...</option>
+        {SOLAR_COMPANIES.map((c) => <option key={c} value={c}>{c}</option>)}
+      </select>
+      <h3 className="font-display text-2xl text-white">MONTHLY SOLAR PAYMENT?</h3>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {PAYMENT_RANGES.map((r) => (
+          <button
+            key={r}
+            type="button"
+            onClick={() => update("payment", r)}
+            className={`p-3 rounded border text-sm font-medium transition-all duration-200 ${
+              form.payment === r
+                ? "border-amber-500 bg-amber-500/15 text-amber-300"
+                : "border-white/10 bg-white/5 text-gray-300 hover:border-amber-500/50"
+            }`}
+          >
+            {r}
+          </button>
+        ))}
+      </div>
+      <button
+        type="button"
+        disabled={!form.company || !form.payment}
+        onClick={() => setStep(3)}
+        className="w-full btn-amber py-4 rounded text-base font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+      >
+        CONTINUE →
+      </button>
+    </div>,
+
+    // Step 3 — intent
+    <div key="s3" className="space-y-4">
+      <h3 className="font-display text-3xl text-white">ARE YOU LOOKING TO GET OUT OF YOUR SOLAR CONTRACT?</h3>
+      <div className="space-y-3">
+        {[
+          { val: "Yes — I want out ASAP", label: "Yes — I want out ASAP", desc: "I'm ready to start the process immediately" },
+          { val: "Possibly", label: "Possibly", desc: "I want to understand my options first" },
+          { val: "Just exploring", label: "Just exploring", desc: "I want to know if I even have a case" },
+        ].map((opt) => (
+          <button
+            key={opt.val}
+            type="button"
+            onClick={() => { update("intent", opt.val); setStep(4); }}
+            className={`w-full p-4 rounded border text-left transition-all duration-200 ${
+              form.intent === opt.val
+                ? "border-amber-500 bg-amber-500/15"
+                : "border-white/10 bg-white/5 hover:border-amber-500/50 hover:bg-white/10"
+            }`}
+          >
+            <div className={`font-semibold ${form.intent === opt.val ? "text-amber-300" : "text-white"}`}>{opt.label}</div>
+            <div className="text-gray-400 text-sm mt-0.5">{opt.desc}</div>
+          </button>
+        ))}
+      </div>
+    </div>,
+
+    // Step 4 — contact info
+    <div key="s4" className="space-y-4">
+      <h3 className="font-display text-3xl text-white">WHERE SHOULD WE SEND YOUR FREE CASE REVIEW?</h3>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">First Name *</label>
+          <input
+            type="text"
+            value={form.firstName}
+            onChange={(e) => update("firstName", e.target.value)}
+            placeholder="John"
+            className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
+          />
+        </div>
+        <div>
+          <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">Last Name *</label>
+          <input
+            type="text"
+            value={form.lastName}
+            onChange={(e) => update("lastName", e.target.value)}
+            placeholder="Smith"
+            className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
+          />
+        </div>
+      </div>
+      <div>
+        <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">Best Phone Number *</label>
+        <input
+          type="tel"
+          value={form.phone}
+          onChange={(e) => update("phone", e.target.value)}
+          placeholder="(555) 000-0000"
+          className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
+        />
+      </div>
+      <div>
+        <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">Email Address *</label>
+        <input
+          type="email"
+          value={form.email}
+          onChange={(e) => update("email", e.target.value)}
+          placeholder="john@example.com"
+          className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
+        />
+      </div>
+      <label className="flex items-start gap-3 cursor-pointer group">
+        <input
+          type="checkbox"
+          checked={form.agree}
+          onChange={(e) => update("agree", e.target.checked)}
+          className="mt-1 accent-amber-500 w-4 h-4 flex-shrink-0"
+        />
+        <span className="text-gray-400 text-xs leading-relaxed">
+          By submitting, I agree to be contacted by Solar Freedom via phone, text, and email including automated technology regarding my solar contract review. Reply STOP to opt out.{" "}
+          <a href="#" className="text-amber-400 underline">Privacy Policy</a> &{" "}
+          <a href="#" className="text-amber-400 underline">Terms</a>.
+        </span>
+      </label>
+      <button
+        type="submit"
+        disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
+        className="w-full btn-amber btn-amber-pulse py-5 rounded text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:animation-none"
+      >
+        GET MY FREE CASE REVIEW →
+      </button>
+    </div>,
+  ];
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Progress bar */}
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="text-gray-400 text-xs font-mono uppercase tracking-wider">Step {step + 1} of {totalSteps}</span>
+          <span className="text-amber-400 text-xs font-mono">{Math.round(((step + 1) / totalSteps) * 100)}% complete</span>
+        </div>
+        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: "linear-gradient(90deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
+            initial={{ width: "0%" }}
+            animate={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          />
+        </div>
+      </div>
+
+      {/* Step content */}
+      <motion.div
+        key={step}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        {stepContent[step]}
+      </motion.div>
+
+      {/* Back button */}
+      {step > 0 && (
+        <button
+          type="button"
+          onClick={() => setStep(s => s - 1)}
+          className="text-gray-500 text-sm hover:text-gray-300 transition-colors flex items-center gap-1"
+        >
+          ← Back
+        </button>
+      )}
+    </form>
+  );
+}
+
+// ─── AI Chat Widget ────────────────────────────────────────────────────────────
+type Message = { role: "user" | "ai"; text: string };
+
+const QUICK_REPLIES = [
+  "Can I really cancel my solar contract?",
+  "How long does this take?",
+  "What does it cost?",
+  "What if my company went bankrupt?",
+];
+
+const AI_RESPONSES: Record<string, string> = {
+  default: "Great question. Every solar contract is different, but our attorneys have found cancellation pathways in over 85% of cases we've reviewed. The best first step is a free contract review — it takes less than 24 hours and costs you nothing. Want to get started?",
+  cancel: "Yes — in most cases, absolutely. Solar contracts often contain misrepresentation clauses, TILA violations, and right-of-rescission windows that were never properly disclosed. Our attorneys have successfully cancelled contracts for 3,000+ homeowners. The key is knowing which legal angle applies to YOUR contract.",
+  long: "Most cases are resolved in 30–90 days. Some straightforward cases close in as little as 2 weeks. Complex cases with multiple parties can take up to 6 months. We handle all the negotiation and paperwork — you don't have to do anything except sign what we send you.",
+  cost: "Our initial contract review is completely FREE. If we take your case, we work on a contingency or flat-fee basis depending on your situation — meaning you don't pay us unless we succeed. We'll be 100% transparent about fees before you commit to anything.",
+  bankrupt: "This is actually one of the strongest cases we handle. When a solar company goes bankrupt, it often triggers contract voidability clauses. We've helped dozens of homeowners in this exact situation walk away from their contracts entirely. Tell me more about your situation.",
+};
+
+function getAIResponse(msg: string): string {
+  const lower = msg.toLowerCase();
+  if (lower.includes("cancel") || lower.includes("get out") || lower.includes("really")) return AI_RESPONSES.cancel;
+  if (lower.includes("long") || lower.includes("time") || lower.includes("fast")) return AI_RESPONSES.long;
+  if (lower.includes("cost") || lower.includes("price") || lower.includes("fee") || lower.includes("money")) return AI_RESPONSES.cost;
+  if (lower.includes("bankrupt") || lower.includes("went out") || lower.includes("closed")) return AI_RESPONSES.bankrupt;
+  return AI_RESPONSES.default;
+}
+
+function AIChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "ai", text: "Hi! I'm your Solar Freedom case assistant. I can answer questions about your contract, your rights, and how our process works. What's on your mind?" }
+  ]);
+  const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (open) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, open]);
+
+  const sendMessage = (text: string) => {
+    if (!text.trim()) return;
+    setMessages(m => [...m, { role: "user", text }]);
+    setInput("");
+    setTyping(true);
+    setTimeout(() => {
+      setMessages(m => [...m, { role: "ai", text: getAIResponse(text) }]);
+      setTyping(false);
+    }, 1200 + Math.random() * 600);
+  };
+
+  return (
+    <div className="chat-widget">
+      {/* Chat Panel */}
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          className="mb-4 w-80 sm:w-96 rounded-xl overflow-hidden shadow-2xl border border-white/10"
+          style={{ background: "oklch(0.14 0.012 265)" }}
+        >
+          {/* Header */}
+          <div className="px-4 py-3 flex items-center justify-between" style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))" }}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-black/30 flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-black font-bold text-sm">Solar Freedom AI</div>
+                <div className="text-black/60 text-xs flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
+                  Online — typically replies instantly
+                </div>
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)} className="text-black/60 hover:text-black transition-colors">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="h-72 overflow-y-auto p-4 space-y-3">
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[85%] px-3.5 py-2.5 rounded-xl text-sm leading-relaxed ${
+                    m.role === "user"
+                      ? "bg-amber-500 text-black font-medium rounded-br-sm"
+                      : "bg-white/8 text-gray-200 rounded-bl-sm border border-white/8"
+                  }`}
+                >
+                  {m.text}
+                </div>
+              </div>
+            ))}
+            {typing && (
+              <div className="flex justify-start">
+                <div className="bg-white/8 border border-white/8 px-4 py-3 rounded-xl rounded-bl-sm">
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map(i => (
+                      <motion.div
+                        key={i}
+                        className="w-1.5 h-1.5 rounded-full bg-amber-400"
+                        animate={{ y: [0, -4, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Quick replies */}
+          {messages.length <= 2 && (
+            <div className="px-4 pb-3 flex flex-wrap gap-1.5">
+              {QUICK_REPLIES.map((q) => (
+                <button
+                  key={q}
+                  onClick={() => sendMessage(q)}
+                  className="text-xs px-2.5 py-1.5 rounded-full border border-amber-500/40 text-amber-400 hover:bg-amber-500/15 transition-colors"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Input */}
+          <div className="px-4 pb-4">
+            <div className="flex gap-2 border border-white/10 rounded-lg overflow-hidden bg-white/5">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage(input)}
+                placeholder="Ask anything about your contract..."
+                className="flex-1 px-3.5 py-3 bg-transparent text-white text-sm placeholder-gray-600 focus:outline-none"
+              />
+              <button
+                onClick={() => sendMessage(input)}
+                className="px-4 btn-amber text-sm font-bold"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Toggle Button */}
+      <motion.button
+        onClick={() => setOpen(o => !o)}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="w-16 h-16 rounded-full btn-amber btn-amber-pulse flex items-center justify-center shadow-2xl relative"
+      >
+        {!open ? (
+          <>
+            <svg className="w-7 h-7 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">1</span>
+          </>
+        ) : (
+          <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        )}
+      </motion.button>
+    </div>
+  );
+}
+
+// ─── Testimonial Card ──────────────────────────────────────────────────────────
+function TestimonialCard({ name, location, quote, amount, company, delay }: {
+  name: string; location: string; quote: string; amount: string; company: string; delay: number;
+}) {
+  return (
+    <Reveal delay={delay}>
+      <div className="card-amber-border rounded-r-lg p-6 h-full">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="font-semibold text-white">{name}</div>
+            <div className="text-gray-500 text-sm font-mono">{location}</div>
+          </div>
+          <div className="text-right">
+            <div className="badge-success">FREED</div>
+            <div className="text-amber-400 font-mono text-sm mt-1">{amount}/mo saved</div>
+          </div>
+        </div>
+        <p className="text-gray-300 text-sm leading-relaxed italic mb-4">"{quote}"</p>
+        <div className="text-gray-600 text-xs font-mono">Former {company} customer</div>
+        <div className="flex mt-3">
+          {[...Array(5)].map((_, i) => (
+            <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          ))}
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
+// ─── FAQ Item ──────────────────────────────────────────────────────────────────
+function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Reveal delay={delay}>
+      <div className="border border-white/8 rounded-lg overflow-hidden">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-white/4 transition-colors"
+        >
+          <span className="font-semibold text-white pr-4">{q}</span>
+          <motion.span
+            animate={{ rotate: open ? 45 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="text-amber-400 text-2xl flex-shrink-0 font-light"
+          >
+            +
+          </motion.span>
+        </button>
+        <motion.div
+          initial={false}
+          animate={{ height: open ? "auto" : 0 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="overflow-hidden"
+        >
+          <div className="px-6 pb-5 text-gray-400 leading-relaxed border-t border-white/8 pt-4">{a}</div>
+        </motion.div>
+      </div>
+    </Reveal>
+  );
+}
+
+// ─── Main Page ─────────────────────────────────────────────────────────────────
+export default function Home() {
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  return (
+    <div className="min-h-screen bg-[oklch(0.11_0.012_265)] text-white overflow-x-hidden">
+
+      {/* ── NAVBAR ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/8" style={{ background: "oklch(0.11 0.012 265 / 90%)", backdropFilter: "blur(12px)" }}>
+        <div className="container flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center">
+              <svg className="w-4 h-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="font-display text-xl tracking-wider text-white">SOLAR FREEDOM</span>
+          </div>
+          <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">
+            <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
+            <a href="#testimonials" className="hover:text-white transition-colors">Results</a>
+            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+          </div>
+          <button onClick={scrollToForm} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">
+            FREE REVIEW
+          </button>
+        </div>
+      </nav>
+
+      {/* ── HERO ── */}
+      <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0">
+          <img src={HERO_BG} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 92%) 0%, oklch(0.1 0.015 265 / 75%) 50%, oklch(0.08 0.015 265 / 88%) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
+        </div>
+
+        <div className="container relative z-10 py-24 lg:py-32">
+          <div className="max-w-3xl">
+            {/* Pre-headline badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 mb-6"
+            >
+              <span className="badge-danger">⚠ SOLAR CONTRACT TRAP</span>
+              <span className="text-gray-500 text-xs font-mono">3,000+ homeowners helped</span>
+            </motion.div>
+
+            {/* Main headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="font-display leading-none mb-6"
+              style={{ fontSize: "clamp(3.5rem, 9vw, 7rem)" }}
+            >
+              <span className="text-white">THEY TRAPPED</span>
+              <br />
+              <span className="text-amber-gradient">YOU IN A</span>
+              <br />
+              <span className="text-white">CONTRACT.</span>
+              <br />
+              <span className="text-amber-gradient">WE GET YOU OUT.</span>
+            </motion.h1>
+
+            {/* Sub-headline */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-gray-300 text-xl leading-relaxed mb-8 max-w-xl"
+            >
+              Hidden fees. Broken promises. Aggressive sales tactics. You were misled — and our consumer protection attorneys know exactly how to prove it.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.45 }}
+              className="flex flex-col sm:flex-row gap-4 mb-12"
+            >
+              <button onClick={scrollToForm} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
+                GET MY FREE CASE REVIEW →
+              </button>
+              <a href="tel:+18005551234" className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
+                📞 Call (800) 555-1234
+              </a>
+            </motion.div>
+
+            {/* Trust micro-signals */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.6 }}
+              className="flex flex-wrap gap-6 text-sm text-gray-400"
+            >
+              {[
+                { icon: "✓", text: "No upfront cost" },
+                { icon: "✓", text: "Results in 30–90 days" },
+                { icon: "✓", text: "100% confidential" },
+                { icon: "✓", text: "No obligation to proceed" },
+              ].map((item) => (
+                <span key={item.text} className="flex items-center gap-1.5">
+                  <span className="text-amber-400 font-bold">{item.icon}</span>
+                  {item.text}
+                </span>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <svg className="w-6 h-6 text-amber-500/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </motion.div>
+      </section>
+
+      {/* ── STATS BAR ── */}
+      <section className="border-y border-white/8 py-10" style={{ background: "oklch(0.14 0.012 265)" }}>
+        <div className="container">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { value: 3000, suffix: "+", label: "Contracts Reviewed", prefix: "" },
+              { value: 89, suffix: "%", label: "Success Rate", prefix: "" },
+              { value: 47, suffix: " Days", label: "Avg. Resolution Time", prefix: "" },
+              { value: 2400, suffix: "+", label: "Homeowners Freed", prefix: "" },
+            ].map((stat, i) => (
+              <Reveal key={stat.label} delay={i * 0.1}>
+                <div className="text-center">
+                  <div className="font-display text-amber-gradient mb-1" style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}>
+                    <AnimatedCounter target={stat.value} suffix={stat.suffix} prefix={stat.prefix} />
+                  </div>
+                  <div className="text-gray-400 text-sm font-mono uppercase tracking-wider">{stat.label}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PAIN SECTION ── */}
+      <section className="py-24 lg:py-32">
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Image */}
+            <Reveal>
+              <div className="relative">
+                <img
+                  src={FRUSTRATED_HOMEOWNER}
+                  alt="Frustrated homeowner with solar contract paperwork"
+                  className="rounded-xl w-full object-cover shadow-2xl"
+                  style={{ maxHeight: "560px" }}
+                />
+                {/* Overlay badge */}
+                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-lg border border-red-500/30" style={{ background: "oklch(0.12 0.015 265 / 90%)", backdropFilter: "blur(8px)" }}>
+                  <div className="badge-danger mb-2">THE REALITY</div>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    The average trapped solar homeowner pays <span className="text-red-400 font-semibold">$180/month</span> for a system that underperforms — that's <span className="text-red-400 font-semibold">$43,200 over 20 years</span> for something they were deceived into buying.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+
+            {/* Content */}
+            <div className="space-y-8">
+              <Reveal>
+                <div className="badge-danger mb-4">YOU'RE NOT ALONE</div>
+                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                  THEY USED EVERY TRICK IN THE BOOK.
+                  <br />
+                  <span className="text-amber-gradient">WE WROTE THE COUNTER-PLAYBOOK.</span>
+                </h2>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <p className="text-gray-300 text-lg leading-relaxed">
+                  Solar salespeople are trained to close at any cost. They downplay the contract length, inflate savings projections, and bury the real terms in 60 pages of fine print. Thousands of homeowners are now stuck paying for systems that don't deliver.
+                </p>
+              </Reveal>
+
+              <div className="space-y-4">
+                {[
+                  { label: "Misrepresented savings projections", icon: "🔴" },
+                  { label: "Undisclosed contract escalator clauses", icon: "🔴" },
+                  { label: "Right of rescission never properly disclosed", icon: "🔴" },
+                  { label: "System performance guarantees not honored", icon: "🔴" },
+                  { label: "TILA and consumer protection violations", icon: "🔴" },
+                ].map((item, i) => (
+                  <Reveal key={item.label} delay={0.1 + i * 0.08}>
+                    <div className="flex items-center gap-3 p-4 rounded-lg border border-white/6 bg-white/3">
+                      <span className="text-lg">{item.icon}</span>
+                      <span className="text-gray-200 font-medium">{item.label}</span>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+
+              <Reveal delay={0.5}>
+                <button onClick={scrollToForm} className="btn-amber px-8 py-4 rounded text-base font-bold">
+                  SEE IF I HAVE A CASE →
+                </button>
+              </Reveal>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section id="how-it-works" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
+        <div className="container">
+          <Reveal>
+            <div className="text-center mb-16">
+              <div className="badge-success inline-block mb-4">THE PROCESS</div>
+              <h2 className="font-display text-white" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                FROM TRAPPED TO FREE IN <span className="text-amber-gradient">4 STEPS</span>
+              </h2>
+              <p className="text-gray-400 mt-4 max-w-xl mx-auto">We handle everything. You just tell us your situation — we do the rest.</p>
+            </div>
+          </Reveal>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { num: "01", title: "FREE REVIEW", desc: "Share your contract details. Our attorneys analyze it within 24 hours and identify every cancellation angle available to you.", icon: "📋" },
+              { num: "02", title: "CUSTOM STRATEGY", desc: "We build a case-specific legal strategy based on your contract terms, the sales tactics used, and applicable consumer protection laws.", icon: "⚖️" },
+              { num: "03", title: "WE FIGHT", desc: "Our team negotiates directly with the solar company and their lenders, files all necessary paperwork, and handles every communication.", icon: "🥊" },
+              { num: "04", title: "YOU'RE FREE", desc: "Contract cancelled. No more payments. No more obligations. You get written confirmation and we handle any credit reporting issues.", icon: "🔓" },
+            ].map((step, i) => (
+              <Reveal key={step.num} delay={i * 0.12}>
+                <div className="relative p-6 rounded-xl border border-white/8 bg-white/3 h-full group hover:border-amber-500/30 transition-colors duration-300">
+                  <div className="font-display text-6xl text-amber-gradient mb-4 leading-none">{step.num}</div>
+                  <div className="text-3xl mb-3">{step.icon}</div>
+                  <h3 className="font-display text-2xl text-white mb-3">{step.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                  {/* Connector arrow */}
+                  {i < 3 && (
+                    <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 text-amber-500/40 text-2xl z-10">→</div>
+                  )}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.5}>
+            <div className="text-center mt-12">
+              <button onClick={scrollToForm} className="btn-amber btn-amber-pulse px-10 py-5 rounded text-lg font-bold">
+                START MY FREE REVIEW →
+              </button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── FREEDOM VISUAL + WHY US ── */}
+      <section className="py-24 lg:py-32">
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8 order-2 lg:order-1">
+              <Reveal>
+                <div className="badge-success mb-4">WHY SOLAR FREEDOM</div>
+                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                  WE DON'T JUST REVIEW CONTRACTS.
+                  <br />
+                  <span className="text-amber-gradient">WE BREAK THEM.</span>
+                </h2>
+              </Reveal>
+
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  { title: "SOLAR-SPECIFIC LEGAL EXPERTISE", desc: "Our attorneys focus exclusively on solar contract law and consumer protection. We know every loophole, every violation pattern, and every leverage point." },
+                  { title: "NO WIN, NO FEE", desc: "We don't get paid unless you get results. That means we're 100% motivated to win your case — not just bill you for hours." },
+                  { title: "30–90 DAY RESOLUTION", desc: "We move fast. Most cases are fully resolved in under 90 days. We handle all negotiations, paperwork, and communications." },
+                  { title: "CREDIT PROTECTION INCLUDED", desc: "We monitor and dispute any negative credit reporting that results from the cancellation process at no additional cost." },
+                ].map((item, i) => (
+                  <Reveal key={item.title} delay={i * 0.1}>
+                    <div className="card-amber-border rounded-r-lg p-5">
+                      <div className="font-display text-amber-400 text-lg mb-1.5">{item.title}</div>
+                      <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+
+            <Reveal className="order-1 lg:order-2">
+              <div className="relative">
+                <img
+                  src={FREEDOM_VISUAL}
+                  alt="Breaking free from a solar contract"
+                  className="rounded-xl w-full object-cover shadow-2xl"
+                />
+                <div className="absolute inset-0 rounded-xl" style={{ background: "linear-gradient(to top, oklch(0.11 0.012 265 / 60%) 0%, transparent 50%)" }} />
+                <div className="absolute bottom-6 left-6">
+                  <div className="font-display text-5xl text-amber-gradient">FREEDOM</div>
+                  <div className="text-gray-300 text-sm font-mono">is just one review away</div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ── ATTORNEY TEAM ── */}
+      <section className="py-24 lg:py-32 relative overflow-hidden" style={{ background: "oklch(0.13 0.012 265)" }}>
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <Reveal>
+              <div className="relative">
+                <img
+                  src={ATTORNEY_TEAM}
+                  alt="Solar Freedom legal team"
+                  className="rounded-xl w-full object-cover shadow-2xl"
+                />
+                <div className="absolute inset-0 rounded-xl" style={{ background: "linear-gradient(to top, oklch(0.11 0.012 265 / 50%) 0%, transparent 60%)" }} />
+              </div>
+            </Reveal>
+
+            <div className="space-y-6">
+              <Reveal>
+                <div className="badge-success mb-4">THE TEAM</div>
+                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                  ATTORNEYS WHO FIGHT
+                  <br />
+                  <span className="text-amber-gradient">ON YOUR SIDE.</span>
+                </h2>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="text-gray-300 text-lg leading-relaxed">
+                  Our legal team specializes exclusively in consumer protection and solar contract law. We've gone up against every major solar company and lender in the country — and we know exactly how to win.
+                </p>
+              </Reveal>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { name: "James R.", role: "Lead Attorney", spec: "Consumer Protection" },
+                  { name: "Sarah M.", role: "Senior Counsel", spec: "Contract Law" },
+                  { name: "David K.", role: "Case Strategist", spec: "Solar Litigation" },
+                ].map((person, i) => (
+                  <Reveal key={person.name} delay={i * 0.1}>
+                    <div className="text-center p-4 rounded-lg border border-white/8 bg-white/3">
+                      <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto mb-3">
+                        <span className="text-amber-400 font-bold text-lg">{person.name[0]}</span>
+                      </div>
+                      <div className="font-semibold text-white text-sm">{person.name}</div>
+                      <div className="text-gray-500 text-xs">{person.role}</div>
+                      <div className="text-amber-400/70 text-xs font-mono mt-1">{person.spec}</div>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+              <Reveal delay={0.4}>
+                <div className="flex flex-wrap gap-3">
+                  {["BBB Accredited", "State Bar Certified", "TCPA Compliant", "CFPB Registered"].map((badge) => (
+                    <span key={badge} className="badge-success">{badge}</span>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section id="testimonials" className="py-24 lg:py-32">
+        <div className="container">
+          <Reveal>
+            <div className="text-center mb-16">
+              <div className="badge-success inline-block mb-4">REAL RESULTS</div>
+              <h2 className="font-display text-white" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                HOMEOWNERS WHO <span className="text-amber-gradient">BROKE FREE</span>
+              </h2>
+            </div>
+          </Reveal>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <TestimonialCard
+              name="Michael T."
+              location="Phoenix, AZ"
+              quote="I was paying $210 a month for a system that barely worked. Solar Freedom got my contract cancelled in 52 days. I wish I'd found them sooner."
+              amount="$210"
+              company="Sunrun"
+              delay={0}
+            />
+            <TestimonialCard
+              name="Jennifer & Mark S."
+              location="Las Vegas, NV"
+              quote="The salesperson told us we'd save $150/month. We were actually paying MORE than before. Solar Freedom proved the misrepresentation and got us out completely."
+              amount="$185"
+              company="Vivint Solar"
+              delay={0.1}
+            />
+            <TestimonialCard
+              name="Robert L."
+              location="San Diego, CA"
+              quote="I couldn't sell my house because of the solar lien. These attorneys cleared it in 6 weeks. My house sold within a month after that."
+              amount="$230"
+              company="SunPower"
+              delay={0.2}
+            />
+            <TestimonialCard
+              name="Patricia W."
+              location="Dallas, TX"
+              quote="My solar company went bankrupt and I was still expected to pay. Solar Freedom showed me I had zero obligation. Contract voided, credit protected."
+              amount="$165"
+              company="Freedom Forever"
+              delay={0.3}
+            />
+            <TestimonialCard
+              name="Carlos M."
+              location="Miami, FL"
+              quote="They found three TILA violations in my contract within 24 hours of reviewing it. The solar company settled within 45 days. Unbelievable team."
+              amount="$195"
+              company="Tesla Solar"
+              delay={0.4}
+            />
+            <TestimonialCard
+              name="Linda & Tom H."
+              location="Sacramento, CA"
+              quote="We were told the contract was 10 years. It was actually 25. Solar Freedom used that misrepresentation to get us out in under 60 days."
+              amount="$220"
+              company="Sunnova"
+              delay={0.5}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── FORM SECTION ── */}
+      <section id="get-review" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
+            {/* Left: Copy */}
+            <div className="space-y-8 lg:sticky lg:top-24">
+              <Reveal>
+                <div className="badge-danger mb-4">FREE CASE REVIEW</div>
+                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                  FIND OUT IF YOU
+                  <br />
+                  <span className="text-amber-gradient">HAVE A CASE</span>
+                  <br />
+                  IN 60 SECONDS.
+                </h2>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="text-gray-300 text-lg leading-relaxed">
+                  Answer 5 quick questions and our attorneys will review your contract within 24 hours. No obligation. No cost. No risk.
+                </p>
+              </Reveal>
+              <div className="space-y-3">
+                {[
+                  "Free contract analysis by licensed attorneys",
+                  "Identify all cancellation options available to you",
+                  "Learn your rights under consumer protection law",
+                  "No obligation to proceed after review",
+                  "100% confidential — your data is never sold",
+                ].map((item, i) => (
+                  <Reveal key={item} delay={0.1 + i * 0.07}>
+                    <div className="flex items-center gap-3 text-gray-300">
+                      <span className="text-amber-400 font-bold">✓</span>
+                      {item}
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+              <Reveal delay={0.5}>
+                <div className="p-5 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">⏰</div>
+                    <div>
+                      <div className="font-semibold text-amber-400 mb-1">Limited Review Slots Available</div>
+                      <p className="text-gray-400 text-sm">Our attorneys can only take on a limited number of new cases each week. Don't wait — the sooner you act, the more options you have.</p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Right: Form */}
+            <Reveal delay={0.2}>
+              <div ref={formRef} className="rounded-2xl border border-white/10 p-8" style={{ background: "oklch(0.15 0.012 265)" }}>
+                <MultiStepForm />
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section id="faq" className="py-24 lg:py-32">
+        <div className="container max-w-3xl">
+          <Reveal>
+            <div className="text-center mb-16">
+              <div className="badge-success inline-block mb-4">COMMON QUESTIONS</div>
+              <h2 className="font-display text-white" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                STRAIGHT ANSWERS. <span className="text-amber-gradient">NO RUNAROUND.</span>
+              </h2>
+            </div>
+          </Reveal>
+
+          <div className="space-y-3">
+            <FAQItem
+              q="Can I actually cancel my solar contract?"
+              a="In most cases, yes. Solar contracts frequently contain violations of the Truth in Lending Act (TILA), the FTC's cooling-off rule, state consumer protection statutes, and misrepresentation clauses. Our attorneys have found valid cancellation pathways in over 85% of contracts reviewed."
+              delay={0}
+            />
+            <FAQItem
+              q="What does this cost me?"
+              a="Your initial contract review is completely free. If we take your case, we work on a contingency or flat-fee basis — meaning you don't pay us unless we succeed. We are fully transparent about fees before you commit to anything."
+              delay={0.05}
+            />
+            <FAQItem
+              q="How long does the process take?"
+              a="Most cases are resolved in 30–90 days. Some straightforward cases close in as little as 2 weeks. Complex multi-party cases can take up to 6 months. We handle all negotiations and paperwork — you don't have to do anything except sign what we send you."
+              delay={0.1}
+            />
+            <FAQItem
+              q="What if my solar company went bankrupt?"
+              a="This is actually one of the strongest cases we handle. When a solar company goes bankrupt, it often triggers contract voidability clauses and eliminates the company's ability to enforce the agreement. We've helped dozens of homeowners in this exact situation."
+              delay={0.15}
+            />
+            <FAQItem
+              q="Will this hurt my credit score?"
+              a="We take credit protection seriously. Our process includes monitoring and disputing any negative credit reporting that results from the cancellation. In most cases, we can prevent any credit impact entirely."
+              delay={0.2}
+            />
+            <FAQItem
+              q="What if I have a solar loan, not a lease?"
+              a="Both loans and leases are covered. Solar loans often have TILA violations. Leases often have right-of-rescission issues. Both can be cancelled through the right legal strategy. We handle both types regularly."
+              delay={0.25}
+            />
+            <FAQItem
+              q="I already tried to cancel and was told I couldn't. Can you still help?"
+              a="Absolutely. Solar companies routinely tell customers they have no options — because it's in their financial interest to do so. What a salesperson or customer service rep tells you is not the same as what a court or arbitrator would decide. We've won cases where customers were told cancellation was impossible."
+              delay={0.3}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ── */}
+      <section className="py-24 lg:py-32 relative overflow-hidden" style={{ background: "oklch(0.13 0.012 265)" }}>
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, oklch(0.72 0.19 50 / 6%) 0%, transparent 70%)" }} />
+        <div className="container relative z-10 text-center">
+          <Reveal>
+            <h2 className="font-display text-white leading-none mb-6" style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}>
+              EVERY MONTH YOU WAIT
+              <br />
+              <span className="text-amber-gradient">COSTS YOU MONEY.</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="text-gray-300 text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+              The average homeowner who contacts us is paying <span className="text-red-400 font-semibold">$185/month</span> they shouldn't be. That's <span className="text-red-400 font-semibold">$2,220 every year</span> going to a contract you were misled into signing.
+            </p>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <button onClick={scrollToForm} className="btn-amber btn-amber-pulse px-12 py-6 rounded text-xl font-bold">
+              GET MY FREE CASE REVIEW NOW →
+            </button>
+          </Reveal>
+          <Reveal delay={0.3}>
+            <p className="text-gray-600 text-sm mt-6 font-mono">No cost. No obligation. Results in 24 hours.</p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-white/8 py-12" style={{ background: "oklch(0.09 0.01 265)" }}>
+        <div className="container">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded bg-amber-500 flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <span className="font-display text-lg text-white">SOLAR FREEDOM</span>
+              </div>
+              <p className="text-gray-500 text-sm leading-relaxed">Consumer protection attorneys specializing in solar contract cancellation. Fighting for homeowners since 2019.</p>
+            </div>
+            <div>
+              <div className="font-display text-white text-lg mb-4">CONTACT</div>
+              <div className="space-y-2 text-gray-500 text-sm font-mono">
+                <div>📞 (800) 555-1234</div>
+                <div>✉ cases@solarfreedom.com</div>
+                <div>⏰ Mon–Fri, 8am–8pm EST</div>
+              </div>
+            </div>
+            <div>
+              <div className="font-display text-white text-lg mb-4">LEGAL</div>
+              <div className="space-y-2">
+                <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Privacy Policy</a>
+                <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Terms of Service</a>
+                <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Attorney Advertising Disclosure</a>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-white/6 pt-8">
+            <p className="text-gray-600 text-xs leading-relaxed font-mono max-w-4xl">
+              <strong className="text-gray-500">DISCLAIMER:</strong> Results vary by case. Past results do not guarantee future outcomes. This website is attorney advertising. Consultation does not create an attorney-client relationship until a formal engagement agreement is signed. Solar Freedom is a trade name of [Law Firm Name], licensed in all 50 states. © {new Date().getFullYear()} Solar Freedom. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── AI CHAT WIDGET ── */}
+      <AIChatWidget />
     </div>
   );
 }
