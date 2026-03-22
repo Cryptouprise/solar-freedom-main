@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
-import { getCityBySlug, CITIES } from "@/data/cities";
+import { getCityBySlug, cities as CITIES } from "@/data/cities";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -172,7 +172,7 @@ export default function CityPage() {
   }
 
   // Related cities (same state or nearby)
-  const relatedCities = CITIES.filter((c) => c.slug !== slug && (c.stateAbbr === city.stateAbbr || c.state !== city.state)).slice(0, 6);
+  const relatedCities = CITIES.filter((c) => c.slug !== slug && (c.stateCode === city.stateCode || city.relatedCities.includes(c.slug))).slice(0, 6);
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.09 0.01 265)", fontFamily: "'DM Sans', sans-serif" }}>
@@ -205,7 +205,7 @@ export default function CityPage() {
         <div className="absolute inset-0">
           <img
             src={HERO_BG}
-            alt={`Solar contract cancellation attorneys serving ${city.city}, ${city.stateAbbr}`}
+            alt={`Solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}`}
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.25)" }}
           />
@@ -214,7 +214,7 @@ export default function CityPage() {
         <div className="container relative z-10 py-20">
           <Reveal>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/40 text-red-400 text-xs font-mono mb-6" style={{ background: "oklch(0.15 0.05 20 / 40%)" }}>
-              ⚠ SOLAR CONTRACT TRAP — {city.city.toUpperCase()}, {city.stateAbbr}
+              ⚠ SOLAR CONTRACT TRAP — {city.name.toUpperCase()}, {city.stateCode}
             </div>
           </Reveal>
           <Reveal delay={0.05}>
@@ -225,13 +225,13 @@ export default function CityPage() {
               CANCEL YOUR SOLAR CONTRACT
               <br />
               <span style={{ background: "linear-gradient(90deg, #f97316, #fb923c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                IN {city.city.toUpperCase()}, {city.stateAbbr}
+                IN {city.name.toUpperCase()}, {city.stateCode}
               </span>
             </h1>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-gray-300 text-lg max-w-2xl mb-8 leading-relaxed">
-              {city.city} is {city.solarRank}. Our consumer protection attorneys have helped hundreds of {city.state} homeowners escape predatory solar contracts — for free.
+              {city.name} is one of the fastest-growing solar markets in {city.state}. Our consumer protection attorneys have helped hundreds of {city.state} homeowners escape predatory solar contracts — for free.
             </p>
           </Reveal>
           <Reveal delay={0.15}>
@@ -278,10 +278,10 @@ export default function CityPage() {
               <Reveal>
                 <div>
                   <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
-                    THE {city.city.toUpperCase()} SOLAR PROBLEM
+                    THE {city.name.toUpperCase()} SOLAR PROBLEM
                   </h2>
                   <p className="text-gray-400 leading-relaxed">
-                    {city.localStat} Homeowners across {city.city} signed solar contracts after being promised dramatic savings — only to find themselves locked into agreements with escalating payments, underperforming systems, and no clear exit. If you are one of them, you have legal options.
+                    Thousands of homeowners across {city.name} signed solar contracts after being promised dramatic savings — only to find themselves locked into agreements with escalating payments, underperforming systems, and no clear exit. If you are one of them, you have legal options.
                   </p>
                 </div>
               </Reveal>
@@ -289,19 +289,19 @@ export default function CityPage() {
               <Reveal delay={0.05}>
                 <div className="p-6 rounded-lg border border-amber-500/20" style={{ background: "oklch(0.14 0.015 50 / 20%)" }}>
                   <h3 className="font-display text-amber-400 text-lg mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    {city.stateAbbr} STATE LAW IS ON YOUR SIDE
+                    {city.stateCode} STATE LAW IS ON YOUR SIDE
                   </h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">{city.localLaw}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{city.stateLaw}</p>
                 </div>
               </Reveal>
 
               <Reveal delay={0.1}>
                 <div>
                   <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    COMPANIES WE FIGHT IN {city.city.toUpperCase()}
+                    COMPANIES WE FIGHT IN {city.name.toUpperCase()}
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {city.topCompanies.map((co) => (
+                    {city.companies.map((co) => (
                       <span key={co} className="px-3 py-1.5 rounded border text-sm text-gray-300" style={{ background: "oklch(0.16 0.01 265)", borderColor: "oklch(0.28 0.01 265)" }}>
                         {co}
                       </span>
@@ -313,7 +313,7 @@ export default function CityPage() {
               <Reveal delay={0.15}>
                 <div>
                   <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    GROUNDS TO CANCEL YOUR {city.city.toUpperCase()} SOLAR CONTRACT
+                    GROUNDS TO CANCEL YOUR {city.name.toUpperCase()} SOLAR CONTRACT
                   </h3>
                   <div className="space-y-3">
                     {[
@@ -323,7 +323,7 @@ export default function CityPage() {
                       "Undisclosed escalator clauses in your contract",
                       "System performance below contractual guarantees",
                       "Solar company bankruptcy or change of ownership",
-                      "Deceptive sales practices under " + city.stateAbbr + " consumer protection law",
+                      "Deceptive sales practices under " + city.stateCode + " consumer protection law",
                     ].map((item, i) => (
                       <div key={i} className="flex items-start gap-3 text-gray-400 text-sm">
                         <span className="text-amber-400 font-bold mt-0.5 shrink-0">✓</span>
@@ -341,13 +341,13 @@ export default function CityPage() {
                 <div className="p-8 rounded-xl border border-white/10" style={{ background: "oklch(0.13 0.012 265)" }}>
                   <div className="mb-6">
                     <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-3" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                      FREE CASE REVIEW — {city.city.toUpperCase()}, {city.stateAbbr}
+                      FREE CASE REVIEW — {city.name.toUpperCase()}, {city.stateCode}
                     </div>
                     <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                       FIND OUT IF YOU HAVE A CASE IN 60 SECONDS
                     </h2>
                   </div>
-                  <CityForm city={city.city} state={city.stateAbbr} />
+                  <CityForm city={city.name} state={city.stateCode} />
                 </div>
               </Reveal>
             </div>
@@ -368,8 +368,8 @@ export default function CityPage() {
               <Reveal key={c.slug} delay={i * 0.04}>
                 <Link href={`/cancel-solar-contract/${c.slug}`}>
                   <div className="p-3 rounded border text-center cursor-pointer transition-all hover:border-amber-500/40 group" style={{ background: "oklch(0.14 0.01 265)", borderColor: "oklch(0.25 0.01 265)" }}>
-                    <div className="text-gray-300 text-sm font-medium group-hover:text-amber-400 transition-colors">{c.city}</div>
-                    <div className="text-gray-600 text-xs">{c.stateAbbr}</div>
+                    <div className="text-gray-300 text-sm font-medium group-hover:text-amber-400 transition-colors">{c.name}</div>
+                    <div className="text-gray-600 text-xs">{c.stateCode}</div>
                   </div>
                 </Link>
               </Reveal>
@@ -392,7 +392,7 @@ export default function CityPage() {
             </div>
           </Link>
           <p className="text-gray-600 text-xs font-mono text-center max-w-xl">
-            Solar contract cancellation attorneys serving {city.city}, {city.state} and all 50 states. Results vary by case. Free consultation does not create attorney-client relationship. © {new Date().getFullYear()} Solar Freedom.
+            Solar contract cancellation attorneys serving {city.name}, {city.state} and all 50 states. Results vary by case. Free consultation does not create attorney-client relationship. © {new Date().getFullYear()} Solar Freedom.
           </p>
         </div>
       </footer>

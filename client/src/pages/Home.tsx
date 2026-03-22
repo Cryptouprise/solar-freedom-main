@@ -9,7 +9,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { Link } from "wouter";
-import { CITIES } from "@/data/cities";
+import { cities as CITIES } from "@/data/cities";
+import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -1163,9 +1164,9 @@ export default function Home() {
                     <div
                       className="text-sm font-semibold text-gray-300 group-hover:text-amber-400 transition-colors leading-tight"
                     >
-                      {city.city}
+                      {city.name}
                     </div>
-                    <div className="text-xs text-gray-600 font-mono mt-0.5">{city.stateAbbr}</div>
+                    <div className="text-xs text-gray-600 font-mono mt-0.5">{city.stateCode}</div>
                     <div className="mt-2 text-amber-500 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
                       VIEW CITY →
                     </div>
@@ -1177,6 +1178,38 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── COMPANY PAGES GRID ── */}
+      <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
+        <div className="container">
+          <Reveal>
+            <div className="mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-mono mb-4" style={{ background: "oklch(0.15 0.05 20 / 30%)" }}>⚠ COMPANY-SPECIFIC LEGAL PAGES</div>
+              <h2 className="font-display text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>IS YOUR SOLAR COMPANY ON THIS LIST?</h2>
+              <p className="text-gray-400 mt-2 max-w-2xl">We have built dedicated legal case pages for every major solar company with documented fraud, bankruptcy, or consumer protection violations. Click your company to see exactly what your options are.</p>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {COMPANY_PAGES.map((company: CompanyData, i: number) => {
+              const statusColor = company.status === 'Bankrupt' ? '#ef4444' : company.status === 'Acquired' ? '#f59e0b' : '#22c55e';
+              return (
+                <Reveal key={company.slug} delay={(i % 4) * 0.05}>
+                  <Link href={`/cancel-${company.slug}-solar-contract`}>
+                    <div className="p-5 rounded-lg border cursor-pointer transition-all hover:border-amber-500/40 group h-full" style={{ background: "oklch(0.13 0.012 265)", borderColor: "oklch(0.22 0.01 265)" }}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="text-white font-semibold group-hover:text-amber-400 transition-colors">{company.name}</div>
+                        <div className="text-xs font-mono px-2 py-0.5 rounded-full" style={{ color: statusColor, background: statusColor + '18', border: `1px solid ${statusColor}30` }}>{company.status}</div>
+                      </div>
+                      <div className="text-gray-500 text-xs font-mono mb-3">{company.complaintCount} complaints · BBB {company.bbRating}</div>
+                      <div className="text-gray-600 text-xs leading-relaxed line-clamp-2">{company.topComplaints[0]}</div>
+                      <div className="mt-3 text-amber-500 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">SEE YOUR OPTIONS →</div>
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
       {/* ── SEO CONTENT BLOCK — keyword-rich, visually styled as an editorial section ── */}
       <section className="py-20 lg:py-28" style={{ background: "oklch(0.12 0.012 265)" }}>
         <div className="container max-w-4xl">

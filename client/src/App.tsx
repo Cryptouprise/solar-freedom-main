@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import CityPage from "./pages/CityPage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import CompanyPage from "./pages/CompanyPage";
 import { useEffect } from "react";
 
 // Normalize trailing slashes — redirect /foo/ → /foo so wouter routes always match
@@ -45,6 +46,7 @@ function Router() {
         <Route path={"/cancel-solar-contract/:slug"} component={CityPage} />
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/:slug"} component={BlogPost} />
+        <Route path={"/cancel-:slug-solar-contract"} component={CompanyPage} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>
