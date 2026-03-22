@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
@@ -156,6 +157,16 @@ export default function CityPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
   const city = getCityBySlug(slug);
+
+  useSeoMeta({
+    title: city
+      ? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`
+      : 'Cancel Solar Contract | Solar Freedom',
+    description: city
+      ? `Trapped in a solar contract in ${city.name}, ${city.stateCode}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`
+      : 'Expert legal help to cancel your solar contract. Free case review.',
+    canonical: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);

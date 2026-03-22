@@ -4,19 +4,44 @@
 
 import { Link } from 'wouter';
 import { blogPosts } from '@/data/blog';
-import { Clock, ArrowRight, BookOpen, TrendingUp } from 'lucide-react';
+import { Clock, ArrowRight, BookOpen, TrendingUp, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState, useMemo } from 'react';
 
 const categoryColors: Record<string, string> = {
   'Legal Guide': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
   'Company Guide': 'bg-red-500/20 text-red-400 border border-red-500/30',
   'Consumer Alert': 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
   'Home Sale Guide': 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+  'Legal Rights': 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
+  'Solar Fraud': 'bg-red-600/20 text-red-400 border border-red-600/30',
+  'Cost & Finance': 'bg-green-500/20 text-green-400 border border-green-500/30',
+  'Contract Types': 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+  'Home Sale': 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
 };
 
 export default function Blog() {
-  const featured = blogPosts[0];
-  const rest = blogPosts.slice(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(blogPosts.map(p => p.category)));
+    return ['All', ...cats];
+  }, []);
+
+  const filteredPosts = useMemo(() => {
+    return blogPosts.filter(post => {
+      const matchesSearch = searchQuery === '' ||
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, activeCategory]);
+
+  const featured = filteredPosts[0];
+  const rest = filteredPosts.slice(1);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -58,9 +83,9 @@ export default function Blog() {
           {/* Stats bar */}
           <div className="flex flex-wrap gap-8 mt-10 pt-10 border-t border-white/10">
             {[
-              { icon: <TrendingUp className="w-4 h-4" />, value: '5 Articles', label: 'Published' },
-              { icon: <BookOpen className="w-4 h-4" />, value: '50+ Cities', label: 'Covered' },
-              { icon: <Clock className="w-4 h-4" />, value: '6–9 min', label: 'Average Read' },
+              { icon: <TrendingUp className="w-4 h-4" />, value: `${blogPosts.length} Articles`, label: 'Published' },
+              { icon: <BookOpen className="w-4 h-4" />, value: '118+ Cities', label: 'Covered' },
+              { icon: <Clock className="w-4 h-4" />, value: '7–11 min', label: 'Average Read' },
             ].map((s, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="text-amber-500">{s.icon}</div>
@@ -74,105 +99,168 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* FEATURED ARTICLE */}
-      <section className="px-6 pb-12">
+      {/* SEARCH + FILTER BAR */}
+      <section className="px-6 pb-10">
         <div className="max-w-7xl mx-auto">
-          <div className="text-zinc-500 text-xs uppercase tracking-widest mb-6 font-mono">— Featured Article</div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Link href={`/blog/${featured.slug}`}>
-              <div className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 cursor-pointer bg-zinc-900/50">
-                <div className="grid md:grid-cols-2 gap-0">
-                  {/* Image */}
-                  <div className="relative h-64 md:h-auto overflow-hidden">
-                    <img
-                      src={featured.heroImage}
-                      alt={featured.heroAlt}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-zinc-900/60 md:block hidden" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent md:hidden" />
-                  </div>
-                  {/* Content */}
-                  <div className="p-8 md:p-10 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${categoryColors[featured.category] || 'bg-zinc-700 text-zinc-300'}`}>
-                        {featured.category}
-                      </span>
-                      <span className="text-zinc-500 text-xs flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {featured.readTime}
-                      </span>
+          {/* Search input */}
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search articles — e.g. 'cancel solar lease', 'Sunrun', 'Texas'..."
+              className="w-full bg-zinc-900 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Category pills */}
+          <div className="flex flex-wrap gap-2">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full border transition-all duration-200 ${
+                  activeCategory === cat
+                    ? 'bg-amber-500 text-black border-amber-500'
+                    : 'bg-transparent text-zinc-400 border-white/10 hover:border-amber-500/40 hover:text-white'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Results count */}
+          {(searchQuery || activeCategory !== 'All') && (
+            <p className="text-zinc-500 text-sm mt-4 font-mono">
+              {filteredPosts.length} article{filteredPosts.length !== 1 ? 's' : ''} found
+              {searchQuery && <span> for "<span className="text-amber-400">{searchQuery}</span>"</span>}
+              {activeCategory !== 'All' && <span> in <span className="text-amber-400">{activeCategory}</span></span>}
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* FEATURED ARTICLE */}
+      {featured && (
+        <section className="px-6 pb-12">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-zinc-500 text-xs uppercase tracking-widest mb-6 font-mono">— Featured Article</div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Link href={`/blog/${featured.slug}`}>
+                <div className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 cursor-pointer bg-zinc-900/50">
+                  <div className="grid md:grid-cols-2 gap-0">
+                    {/* Image */}
+                    <div className="relative h-64 md:h-auto overflow-hidden">
+                      <img
+                        src={featured.heroImage}
+                        alt={featured.heroAlt}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-zinc-900/60 md:block hidden" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent md:hidden" />
                     </div>
-                    <h2 className="text-white font-black text-2xl md:text-3xl leading-tight mb-4 group-hover:text-amber-400 transition-colors" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      {featured.title}
-                    </h2>
-                    <p className="text-zinc-400 leading-relaxed mb-6 text-sm">
-                      {featured.excerpt}
-                    </p>
-                    <div className="flex items-center gap-2 text-amber-500 font-bold text-sm uppercase tracking-wider">
-                      Read Full Article <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                    {/* Content */}
+                    <div className="p-8 md:p-10 flex flex-col justify-center">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${categoryColors[featured.category] || 'bg-zinc-700 text-zinc-300'}`}>
+                          {featured.category}
+                        </span>
+                        <span className="text-zinc-500 text-xs flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> {featured.readTime}
+                        </span>
+                      </div>
+                      <h2 className="text-white font-black text-2xl md:text-3xl leading-tight mb-4 group-hover:text-amber-400 transition-colors" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                        {featured.title}
+                      </h2>
+                      <p className="text-zinc-400 leading-relaxed mb-6 text-sm">
+                        {featured.excerpt}
+                      </p>
+                      <div className="flex items-center gap-2 text-amber-500 font-bold text-sm uppercase tracking-wider">
+                        Read Full Article <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+              </Link>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* ARTICLE GRID */}
       <section className="px-6 pb-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-zinc-500 text-xs uppercase tracking-widest mb-6 font-mono">— All Articles</div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {rest.map((post, i) => (
-              <motion.div
-                key={post.slug}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-              >
-                <Link href={`/blog/${post.slug}`}>
-                  <div className="group rounded-2xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 cursor-pointer bg-zinc-900/50 h-full flex flex-col">
-                    {/* Image */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={post.heroImage}
-                        alt={post.heroAlt}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
-                      <div className="absolute bottom-4 left-4">
-                        <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${categoryColors[post.category] || 'bg-zinc-700 text-zinc-300'}`}>
-                          {post.category}
-                        </span>
+          {rest.length > 0 && (
+            <div className="text-zinc-500 text-xs uppercase tracking-widest mb-6 font-mono">— All Articles</div>
+          )}
+          {filteredPosts.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="text-zinc-600 text-6xl mb-4">🔍</div>
+              <p className="text-zinc-400 text-lg mb-2">No articles found</p>
+              <p className="text-zinc-600 text-sm">Try a different search term or category</p>
+              <button onClick={() => { setSearchQuery(''); setActiveCategory('All'); }} className="mt-6 text-amber-500 font-bold text-sm uppercase tracking-wider hover:text-amber-400 transition-colors">
+                Clear filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6">
+              {rest.map((post, i) => (
+                <motion.div
+                  key={post.slug}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                >
+                  <Link href={`/blog/${post.slug}`}>
+                    <div className="group rounded-2xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 cursor-pointer bg-zinc-900/50 h-full flex flex-col">
+                      {/* Image */}
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={post.heroImage}
+                          alt={post.heroAlt}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
+                        <div className="absolute bottom-4 left-4">
+                          <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${categoryColors[post.category] || 'bg-zinc-700 text-zinc-300'}`}>
+                            {post.category}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Content */}
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center gap-2 text-zinc-500 text-xs mb-3">
+                          <Clock className="w-3 h-3" /> {post.readTime}
+                          <span className="mx-1">·</span>
+                          {post.publishDate}
+                        </div>
+                        <h3 className="text-white font-black text-xl leading-tight mb-3 group-hover:text-amber-400 transition-colors flex-1" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                          {post.title}
+                        </h3>
+                        <p className="text-zinc-500 text-sm leading-relaxed mb-4 line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                        <div className="flex items-center gap-2 text-amber-500 font-bold text-xs uppercase tracking-wider mt-auto">
+                          Read Article <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                        </div>
                       </div>
                     </div>
-                    {/* Content */}
-                    <div className="p-6 flex flex-col flex-1">
-                      <div className="flex items-center gap-2 text-zinc-500 text-xs mb-3">
-                        <Clock className="w-3 h-3" /> {post.readTime}
-                        <span className="mx-1">·</span>
-                        {post.publishDate}
-                      </div>
-                      <h3 className="text-white font-black text-xl leading-tight mb-3 group-hover:text-amber-400 transition-colors flex-1" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                        {post.title}
-                      </h3>
-                      <p className="text-zinc-500 text-sm leading-relaxed mb-4 line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center gap-2 text-amber-500 font-bold text-xs uppercase tracking-wider mt-auto">
-                        Read Article <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

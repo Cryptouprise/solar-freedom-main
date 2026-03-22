@@ -8,6 +8,7 @@ import TopicClusterWidget from '@/components/TopicClusterWidget';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement } from 'react';
+import { useSeoMeta } from '@/hooks/useSeoMeta';
 
 function renderSection(section: BlogSection, index: number) {
   switch (section.type) {
@@ -115,6 +116,12 @@ export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const post = getBlogPost(params.slug || '');
   const related = getRelatedPosts(params.slug || '', 3);
+
+  useSeoMeta({
+    title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
+    description: post?.metaDescription ?? post?.excerpt ?? 'Expert legal help to cancel your solar contract.',
+    canonical: `https://breakyoursolarcontract.com/blog/${params.slug ?? ''}`,
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);

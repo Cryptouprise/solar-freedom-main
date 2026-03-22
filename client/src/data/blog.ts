@@ -1,6 +1,7 @@
 // Solar Freedom — Blog Data
 // Master SEO Template: Primary keyword in H1, H2s as step/question structure,
 // FAQ schema-ready, internal linking, conversion CTAs every ~500 words
+import { extraBlogPosts } from './blog-extra';
 
 export interface BlogSection {
   type: 'h2' | 'h3' | 'p' | 'callout' | 'warning' | 'quote' | 'list' | 'stat-block' | 'image';
@@ -991,9 +992,9 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+  ...extraBlogPosts,
 ];
-
-// ─── Helper functions ─────────────────────────────────────────────────────────
+// ─── Helper functions ──────────────────────────────────────────────────────────
 
 export function getBlogPost(slug: string): BlogPost | undefined {
   return blogPosts.find(p => p.slug === slug);

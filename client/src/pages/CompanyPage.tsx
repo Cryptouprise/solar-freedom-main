@@ -5,6 +5,7 @@
  * Targets high-intent searches: "cancel sunrun contract", "pink energy bankruptcy", etc.
  */
 import { useEffect, useRef, useState } from "react";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCompanyBySlug, companies as COMPANIES, getRelatedCompanies } from "@/data/companies";
@@ -136,6 +137,16 @@ export default function CompanyPage() {
   const slug = params.slug || "";
   const company = getCompanyBySlug(slug);
   const relatedCompanies = getRelatedCompanies(slug, 4);
+
+  useSeoMeta({
+    title: company
+      ? `Cancel ${company.name} Solar Contract | Get Out Now | Solar Freedom`
+      : 'Cancel Solar Contract | Solar Freedom',
+    description: company
+      ? `${company.name} contract trapping you? Our attorneys have helped homeowners cancel ${company.name} solar agreements. ${company.complaintCount}+ complaints filed. Free case review.`
+      : 'Expert legal help to cancel your solar contract. Free case review.',
+    canonical: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract`,
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
