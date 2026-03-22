@@ -4,6 +4,7 @@
 
 import { Link, useParams } from 'wouter';
 import { getBlogPost, getRelatedPosts, BlogSection } from '@/data/blog';
+import TopicClusterWidget from '@/components/TopicClusterWidget';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement } from 'react';
@@ -249,6 +250,13 @@ export default function BlogPost() {
           </div>
         </div>
       </div>
+
+      {/* TOPIC CLUSTER INTERNAL LINKS */}
+      <section className="px-6 pb-0">
+        <div className="max-w-4xl mx-auto">
+          <TopicClusterWidget currentUrl={`/blog/${params.slug}`} />
+        </div>
+      </section>
 
       {/* RELATED ARTICLES */}
       {related.length > 0 && (

@@ -128,6 +128,116 @@
       ]
     }
     </script>
+    <!-- AEO: WebSite + SiteLinksSearchBox schema for AI and Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Solar Freedom",
+      "alternateName": ["Break Your Solar Contract", "Cancel My Solar", "Solar Contract Cancellation"],
+      "url": "https://breakyoursolarcontract.com",
+      "description": "The #1 legal resource for homeowners seeking to cancel solar panel contracts, solar leases, PPAs, and solar loans across all 50 US states.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://breakyoursolarcontract.com/blog?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <!-- AEO: Organization entity schema for AI knowledge graphs -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Solar Freedom",
+      "legalName": "Gosunlite, LLC",
+      "url": "https://breakyoursolarcontract.com",
+      "logo": "https://breakyoursolarcontract.com/favicon.ico",
+      "description": "Solar Freedom helps homeowners cancel solar panel contracts, solar leases, and solar loans through consumer protection law. Free case review. Serving all 50 US states.",
+      "foundingDate": "2022",
+      "areaServed": {
+        "@type": "Country",
+        "name": "United States"
+      },
+      "knowsAbout": [
+        "Solar contract cancellation",
+        "Solar lease termination",
+        "Power Purchase Agreement cancellation",
+        "Solar loan cancellation",
+        "TILA violations in solar contracts",
+        "Consumer protection law",
+        "Solar panel fraud",
+        "Pink Energy bankruptcy",
+        "SunPower bankruptcy",
+        "Sunrun complaints",
+        "Right of rescission solar contracts"
+      ],
+      "sameAs": [
+        "https://breakyoursolarcontract.com"
+      ]
+    }
+    </script>
+    <!-- AEO: HowTo schema — tells AI exactly how to cancel a solar contract -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Cancel a Solar Contract",
+      "description": "Step-by-step legal process to cancel a solar panel contract, lease, or PPA.",
+      "totalTime": "P90D",
+      "estimatedCost": {
+        "@type": "MonetaryAmount",
+        "currency": "USD",
+        "value": "0"
+      },
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Get a Free Contract Review",
+          "text": "Submit your solar contract details to Solar Freedom for a free legal review. Our attorneys identify cancellation grounds within 24 hours.",
+          "url": "https://breakyoursolarcontract.com/#form"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Identify Legal Grounds for Cancellation",
+          "text": "Our attorneys review your contract for TILA violations, misrepresentation, state consumer protection violations, and rescission rights.",
+          "url": "https://breakyoursolarcontract.com/blog/how-to-cancel-solar-contract"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "File Cancellation Paperwork",
+          "text": "We handle all negotiations, demand letters, and legal filings on your behalf. You do not need to contact the solar company directly."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Receive Confirmation of Cancellation",
+          "text": "Once the contract is canceled, you receive written confirmation. Most cases resolve in 30–90 days."
+        }
+      ]
+    }
+    </script>
+    <!-- AEO: Speakable schema — tells voice assistants and AI which content to read aloud -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Solar Freedom — Cancel Your Solar Contract",
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": ["h1", "h2", ".speakable"]
+      },
+      "url": "https://breakyoursolarcontract.com"
+    }
+    </script>
+    <!-- AI crawler permissions -->
+    <meta name="perplexity-bot" content="index, follow" />
+    <meta name="gptbot" content="index, follow" />
+    <meta name="anthropic-ai" content="index, follow" />
+    <meta name="google-extended" content="index, follow" />
+    <meta name="cohere-ai" content="index, follow" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
