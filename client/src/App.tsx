@@ -21,10 +21,25 @@ function TrailingSlashRedirect() {
   return null;
 }
 
+// Redirect legacy dash-format URLs → new slash-format
+// e.g. /cancel-solar-contract-dallas-tx → /cancel-solar-contract/dallas-tx
+function LegacyCityRedirect() {
+  const [location, navigate] = useLocation();
+  useEffect(() => {
+    // Match /cancel-solar-contract-{city}-{state} (old format)
+    const match = location.match(/^\/cancel-solar-contract-([a-z0-9-]+)$/);
+    if (match) {
+      navigate(`/cancel-solar-contract/${match[1]}`, { replace: true });
+    }
+  }, [location, navigate]);
+  return null;
+}
+
 function Router() {
   return (
     <>
       <TrailingSlashRedirect />
+      <LegacyCityRedirect />
       <Switch>
         <Route path={"/"} component={Home} />
         <Route path={"/cancel-solar-contract/:slug"} component={CityPage} />
