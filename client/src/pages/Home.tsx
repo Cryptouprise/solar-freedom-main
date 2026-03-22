@@ -610,6 +610,7 @@ export default function Home() {
             <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
             <a href="#testimonials" className="hover:text-white transition-colors">Results</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+            <a href="/blog" className="hover:text-amber-400 text-amber-500 transition-colors font-semibold">Blog</a>
           </div>
           <button onClick={scrollToForm} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">
             FREE REVIEW
@@ -1278,6 +1279,74 @@ export default function Home() {
           <Reveal delay={0.3}>
             <p className="text-gray-600 text-sm mt-6 font-mono">No cost. No obligation. Results in 24 hours.</p>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ── BLOG PREVIEW ── */}
+      <section className="py-24" style={{ background: "oklch(0.10 0.01 265)" }}>
+        <div className="container">
+          <Reveal>
+            <div className="flex items-center justify-between mb-12">
+              <div>
+                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-2">— Legal Intelligence</div>
+                <h2 className="font-black text-white uppercase leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 4vw, 3rem)' }}>KNOW YOUR RIGHTS</h2>
+              </div>
+              <a href="/blog" className="hidden md:flex items-center gap-2 text-amber-500 hover:text-amber-400 font-bold text-sm uppercase tracking-wider transition-colors">
+                All Articles →
+              </a>
+            </div>
+          </Reveal>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                slug: 'how-to-get-out-of-a-solar-contract',
+                title: 'How to Get Out of a Solar Contract (The Complete Legal Guide)',
+                excerpt: 'The exact legal strategies attorneys use — TILA violations, FTC Cooling-Off Rule, state DTPA claims, and more.',
+                category: 'Legal Guide',
+                readTime: '9 min read',
+                img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80',
+              },
+              {
+                slug: 'how-to-cancel-sunrun-solar-contract',
+                title: 'How to Cancel a Sunrun Solar Contract: What They Don\'t Tell You',
+                excerpt: 'Sunrun has 4,200+ BBB complaints. Here are the specific violations attorneys find in Sunrun agreements.',
+                category: 'Company Guide',
+                readTime: '8 min read',
+                img: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600&q=80',
+              },
+              {
+                slug: 'solar-contract-red-flags-and-scams',
+                title: '9 Solar Contract Red Flags That Mean You Were Scammed',
+                excerpt: 'If any of these 9 tactics were used on you, you may have legal grounds to cancel your contract entirely.',
+                category: 'Consumer Alert',
+                readTime: '6 min read',
+                img: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80',
+              },
+            ].map((post, i) => (
+              <Reveal key={post.slug} delay={i * 0.1}>
+                <a href={`/blog/${post.slug}`} className="group block rounded-xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 bg-zinc-900/50 h-full">
+                  <div className="relative h-44 overflow-hidden">
+                    <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
+                    <div className="absolute bottom-3 left-4">
+                      <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">{post.category}</span>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="text-zinc-500 text-xs mb-2">{post.readTime}</div>
+                    <h3 className="text-white font-black text-lg leading-tight group-hover:text-amber-400 transition-colors mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{post.title}</h3>
+                    <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 mb-4">{post.excerpt}</p>
+                    <div className="text-amber-500 text-xs font-bold uppercase tracking-wider">Read Article →</div>
+                  </div>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <a href="/blog" className="inline-block border border-amber-500/40 text-amber-500 hover:bg-amber-500 hover:text-black font-black uppercase tracking-widest px-8 py-3 rounded text-sm transition-all duration-200">
+              View All Articles →
+            </a>
+          </div>
         </div>
       </section>
 

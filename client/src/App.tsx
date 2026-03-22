@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import CityPage from "./pages/CityPage";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import { useEffect } from "react";
 
 // Normalize trailing slashes — redirect /foo/ → /foo so wouter routes always match
@@ -26,6 +28,8 @@ function Router() {
       <Switch>
         <Route path={"/"} component={Home} />
         <Route path={"/cancel-solar-contract/:slug"} component={CityPage} />
+        <Route path={"/blog"} component={Blog} />
+        <Route path={"/blog/:slug"} component={BlogPost} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>
