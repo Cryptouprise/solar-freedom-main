@@ -41,6 +41,8 @@ const TASKS: Task[] = [
   { id: "t18", title: "Hero image preload hint", description: "Link rel=preload for hero image — improves LCP (Largest Contentful Paint) Core Web Vital.", status: "done", impact: "medium", category: "Performance" },
   { id: "t19", title: "118 city/state landing pages", description: "Unique pages for every major US market across all 50 states. Each has unique state law, local companies, local stats, and lead form.", status: "done", impact: "critical", category: "Content" },
   { id: "t20", title: "13 company-specific SEO pages", description: "Sunrun, SunPower, Pink Energy, Vivint, Freedom Forever, ADT Solar, Sunnova, GoodLeap, Momentum Solar, Titan Solar, Tesla Solar, Palmetto, Sungevity — each with complaints, lawsuits, and cancellation guide.", status: "done", impact: "critical", category: "Content" },
+  { id: "t27", title: "59 SEO blog articles live", description: "59 total blog articles published — original 15 + 30 city-specific articles (Dallas, Houston, San Antonio, Austin, Phoenix, Tucson, Las Vegas, Orlando, Tampa, San Diego, Fort Worth, Miami, Jacksonville, Riverside, Bakersfield, Mesa, Henderson, El Paso, Colorado Springs, etc.) + 14 fully rewritten city articles (Houston, Phoenix, San Diego, Tampa, Orlando, Atlanta, Charlotte, Denver, Las Vegas, Boston, Seattle, Portland, Sacramento, Miami) with unique tones, hero images, and full SEO meta.", status: "done", impact: "critical", category: "Content" },
+  { id: "t28", title: "50 state solar law pages live", description: "Dedicated pages at /solar-contract-laws/[state] for all 50 states + DC. Each page covers: primary consumer protection statute, cooling-off rights, state-specific net metering reality, company-specific problems, psychology-driven hooks, and local FAQ. FAQPage schema injected on every page for AEO/rich results.", status: "done", impact: "critical", category: "Content" },
   { id: "t21", title: "45 SEO blog articles live", description: "Full articles targeting: how to cancel solar contract, red flags, rescission rights, Pink Energy, SunPower, TILA violations, sell home with solar lease, GoodLeap/Mosaic loans, Sunrun guide, solar company bankruptcy, PPA cancellation, loan cancellation, negotiation, attorney guide, state laws, plus 30 new city-specific and intent-based articles (Dallas, Houston, San Antonio, Austin, Phoenix, Tucson, Las Vegas, Orlando, Tampa, San Diego, Fort Worth, Miami, Jacksonville, Riverside, Bakersfield, Mesa, Henderson, El Paso, Colorado Springs, solar regret, payment shock, credit fears, underperformance, misleading savings, company won't help, selling with solar loan, door-to-door pressure, contract red flags, loan vs lease).", status: "done", impact: "critical", category: "Content" },
   { id: "t22", title: "5 topic clusters", description: "Internal linking architecture connecting pillar pages to spoke pages across blog, city, and company pages.", status: "done", impact: "high", category: "Content" },
   { id: "t23", title: "TopicClusterWidget on all pages", description: "Related content widget injected into blog posts, city pages, and company pages for internal link flow.", status: "done", impact: "high", category: "Content" },
@@ -178,10 +180,10 @@ export default function SeoCommandCenter() {
         {/* SITE INVENTORY */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
           {[
-            { label: "Blog Articles", value: 45, icon: <FileText className="w-4 h-4" />, href: "/blog" },
+            { label: "Blog Articles", value: 59, icon: <FileText className="w-4 h-4" />, href: "/blog" },
             { label: "City Pages", value: 118, icon: <MapPin className="w-4 h-4" />, href: "/cancel-solar-contract/dallas-tx" },
             { label: "Company Pages", value: 15, icon: <Building2 className="w-4 h-4" />, href: "/cancel-sunrun-solar-contract" },
-            { label: "Total Indexed Pages", value: 178, icon: <Globe className="w-4 h-4" />, href: "/" },
+            { label: "Total Indexed Pages", value: 374, icon: <Globe className="w-4 h-4" />, href: "/" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
               <div className="rounded-lg p-4 border border-white/8 hover:border-amber-500/30 transition-all cursor-pointer" style={{ background: "oklch(0.13 0.01 265)" }}>

@@ -13,6 +13,8 @@ import SeoCommandCenter from "./pages/SeoCommandCenter";
 import SolarFraudReport from "./pages/SolarFraudReport";
 import SolarContractHelp from "./pages/SolarContractHelp";
 import SolarExitOptions from "./pages/SolarExitOptions";
+import StateLawsIndex from "./pages/StateLawsIndex";
+import StateLawPage from "./pages/StateLawPage";
 import { useEffect } from "react";
 
 // Normalize trailing slashes — redirect /foo/ → /foo so wouter routes always match
@@ -55,6 +57,8 @@ function Router() {
         <Route path={"/solar-fraud-report"} component={SolarFraudReport} />
         <Route path={"/solar-contract-help"} component={SolarContractHelp} />
         <Route path={"/solar-exit-options"} component={SolarExitOptions} />
+        <Route path={"/solar-contract-laws"} component={StateLawsIndex} />
+        <Route path={"/solar-contract-laws/:state"} component={StateLawPage} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>
