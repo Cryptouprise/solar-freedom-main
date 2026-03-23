@@ -1,5 +1,5 @@
 // Solar Freedom — City Content Depth
-// Adds hyper-local content to the top 20 highest-value city pages
+// Adds hyper-local content to city pages
 // Following ChatGPT's framework: local hook, data block, company problems, why-it-happens, local FAQ
 
 export interface CityContentDepth {
@@ -587,5 +587,6 @@ export const cityContentDepth: CityContentDepth[] = [
 
 // Helper function to get content depth for a city slug
 export function getCityContentDepth(slug: string): CityContentDepth | undefined {
+  // Import is handled at module level via re-export in city-content-depth-all.ts
   return cityContentDepth.find(c => c.slug === slug);
 }
