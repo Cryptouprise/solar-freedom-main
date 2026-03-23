@@ -13,7 +13,7 @@ if (typeof window !== 'undefined') {
     w.__WOUTER_ROUTES__ = [];
   }
   // Register static routes
-  ['/', '/404', '/blog', '/seo-command-center'].forEach((r: string) => {
+  ['/', '/404', '/blog', '/seo-command-center', '/solar-fraud-report'].forEach((r: string) => {
     if (!w.__WOUTER_ROUTES__.includes(r)) w.__WOUTER_ROUTES__.push(r);
   });
   // Register all 50 city routes with the correct URL structure

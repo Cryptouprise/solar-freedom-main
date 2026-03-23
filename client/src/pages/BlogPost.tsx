@@ -9,6 +9,7 @@ import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
+import { SchemaInjector } from '@/components/SchemaInjector';
 
 function renderSection(section: BlogSection, index: number) {
   switch (section.type) {
@@ -141,6 +142,31 @@ export default function BlogPost() {
     );
   }
 
+  // Build Article + BreadcrumbList + FAQPage schemas for schema stacking
+  const schemas: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: post.title,
+      description: post.metaDescription ?? post.excerpt,
+      datePublished: post.publishDate ?? '2026-01-01',
+      dateModified: post.publishDate ?? '2026-01-01',
+      author: { '@type': 'Organization', name: 'Solar Freedom', url: 'https://breakyoursolarcontract.com' },
+      publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${params.slug}` },
+      image: post.heroImage ?? '',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://breakyoursolarcontract.com/blog' },
+        { '@type': 'ListItem', position: 3, name: post.title, item: `https://breakyoursolarcontract.com/blog/${params.slug}` },
+      ],
+    },
+  ];
+
   // Insert inline CTAs every 4 sections
   const sectionsWithCTAs: ReactElement[] = [];
   post.content.forEach((section, i) => {
@@ -154,6 +180,7 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
+      <SchemaInjector schemas={schemas} />
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">

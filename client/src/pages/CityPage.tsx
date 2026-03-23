@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
+import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
@@ -183,11 +184,34 @@ export default function CityPage() {
     );
   }
 
+  // LegalService + BreadcrumbList schema stacking for city pages
+  const citySchemas: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LegalService',
+      name: `Solar Freedom — ${city.name}, ${city.stateCode}`,
+      description: `Expert solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}. Cancel your solar lease, loan, or PPA legally.`,
+      url: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
+      areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
+      serviceType: 'Solar Contract Cancellation',
+      telephone: '(800) 555-1234',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
+        { '@type': 'ListItem', position: 2, name: `Cancel Solar Contract in ${city.name}, ${city.stateCode}`, item: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}` },
+      ],
+    },
+  ];
+
   // Related cities (same state or nearby)
   const relatedCities = CITIES.filter((c) => c.slug !== slug && (c.stateCode === city.stateCode || city.relatedCities.includes(c.slug))).slice(0, 6);
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.09 0.01 265)", fontFamily: "'DM Sans', sans-serif" }}>
+      <SchemaInjector schemas={citySchemas} />
 
       {/* NAV */}
       <nav className="sticky top-0 z-50 border-b border-white/8" style={{ background: "oklch(0.09 0.01 265 / 95%)", backdropFilter: "blur(12px)" }}>

@@ -61,8 +61,10 @@ User-agent: *
 Disallow: /seo-command-center
 Allow: /
 
-# Sitemap
+# Sitemap index (references main, image, and news sitemaps)
+Sitemap: https://breakyoursolarcontract.com/sitemap-index.xml
 Sitemap: https://breakyoursolarcontract.com/sitemap.xml
+Sitemap: https://breakyoursolarcontract.com/news-sitemap.xml
 
 # AI-readable content index
 # https://breakyoursolarcontract.com/llms.txt

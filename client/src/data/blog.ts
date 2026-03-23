@@ -2,6 +2,9 @@
 // Master SEO Template: Primary keyword in H1, H2s as step/question structure,
 // FAQ schema-ready, internal linking, conversion CTAs every ~500 words
 import { extraBlogPosts } from './blog-extra';
+import { blogArticlesBatch2 } from './blog-articles-batch2';
+import { blogArticlesBatch3 } from './blog-articles-batch3';
+import { blogArticlesBatch4 } from './blog-articles-batch4';
 
 export interface BlogSection {
   type: 'h2' | 'h3' | 'p' | 'callout' | 'warning' | 'quote' | 'list' | 'stat-block' | 'image';
@@ -993,6 +996,9 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   ...extraBlogPosts,
+  ...blogArticlesBatch2,
+  ...blogArticlesBatch3,
+  ...blogArticlesBatch4,
 ];
 // ─── Helper functions ──────────────────────────────────────────────────────────
 

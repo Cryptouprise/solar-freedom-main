@@ -6,6 +6,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
+import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCompanyBySlug, companies as COMPANIES, getRelatedCompanies } from "@/data/companies";
@@ -165,9 +166,29 @@ export default function CompanyPage() {
 
   const statusColor = company.status === "Bankrupt" ? "#ef4444" : company.status === "Acquired" ? "#f59e0b" : "#22c55e";
   const statusBg = company.status === "Bankrupt" ? "oklch(0.15 0.05 20 / 30%)" : company.status === "Acquired" ? "oklch(0.15 0.05 50 / 30%)" : "oklch(0.15 0.05 145 / 30%)";
+  const companySchemas: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LegalService',
+      name: `Cancel ${company.name} Solar Contract | Solar Freedom`,
+      description: `Expert attorneys helping homeowners cancel ${company.name} solar contracts. ${company.complaintCount}+ complaints. Free case review.`,
+      url: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract`,
+      serviceType: 'Solar Contract Cancellation',
+      telephone: '(800) 555-1234',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
+        { '@type': 'ListItem', position: 2, name: `Cancel ${company.name} Contract`, item: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract` },
+      ],
+    },
+  ];
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.09 0.01 265)", fontFamily: "'DM Sans', sans-serif" }}>
+      <SchemaInjector schemas={companySchemas} />
 
       {/* NAV */}
       <nav className="sticky top-0 z-50 border-b border-white/8" style={{ background: "oklch(0.09 0.01 265 / 95%)", backdropFilter: "blur(12px)" }}>
