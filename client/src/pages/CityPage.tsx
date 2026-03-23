@@ -2,7 +2,8 @@
  * SOLAR FREEDOM — City/State SEO Landing Page
  * Design: Dark Industrial Brutalism — same system as Home.tsx
  * Each city gets a unique, indexed page at /cancel-solar-contract-[slug]
- * Unique content: city name, state law, local stat, local companies
+ * Content depth: local hook, market stats, complaint data, company problems,
+ *   why-it-happens, expanded state law, local FAQ — targeting 800–1200 words per page
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +12,7 @@ import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
+import { getCityContentDepth } from "@/data/city-content-depth";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -42,21 +44,9 @@ function CityForm({ city, state }: { city: string; state: string }) {
   const PAYMENTS = ["Under $100", "$100–$150", "$150–$200", "$200–$250", "Over $250"];
 
   const steps = [
-    {
-      question: `Who is your solar finance company?`,
-      field: "company",
-      options: COMPANIES,
-    },
-    {
-      question: "What's your main issue?",
-      field: "issue",
-      options: ISSUES,
-    },
-    {
-      question: "What's your monthly solar payment?",
-      field: "payment",
-      options: PAYMENTS,
-    },
+    { question: `Who is your solar finance company?`, field: "company", options: COMPANIES },
+    { question: "What's your main issue?", field: "issue", options: ISSUES },
+    { question: "What's your monthly solar payment?", field: "payment", options: PAYMENTS },
   ];
 
   if (submitted) {
@@ -158,6 +148,7 @@ export default function CityPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
   const city = getCityBySlug(slug);
+  const depth = getCityContentDepth(slug);
 
   useSeoMeta({
     title: city
@@ -184,7 +175,14 @@ export default function CityPage() {
     );
   }
 
-  // LegalService + BreadcrumbList schema stacking for city pages
+  // Build FAQ schema — use depth FAQs if available, otherwise generic
+  const faqItems = depth?.localFaq ?? [
+    { q: `Can I cancel a solar contract in ${city.name}?`, a: `Yes. Many ${city.name} homeowners have grounds to cancel based on misrepresentation, TILA violations, or failure to provide required cancellation notices. A free case review identifies your specific options.` },
+    { q: `How long does it take to cancel a solar contract in ${city.stateCode}?`, a: `Depending on the path taken, resolution typically takes 30–90 days. Legal cancellation based on misrepresentation can sometimes be resolved in 30–45 days with an attorney demand letter.` },
+    { q: `What solar companies have the most complaints in ${city.name}?`, a: `Based on BBB and state AG complaint data, the most complained-about companies in ${city.name} include Sunrun, Freedom Forever, and ADT Solar. Common issues include undisclosed escalator clauses, dealer fees, and savings projections that did not materialize.` },
+  ];
+
+  // LegalService + BreadcrumbList + FAQ schema stacking for city pages
   const citySchemas: object[] = [
     {
       '@context': 'https://schema.org',
@@ -204,10 +202,27 @@ export default function CityPage() {
         { '@type': 'ListItem', position: 2, name: `Cancel Solar Contract in ${city.name}, ${city.stateCode}`, item: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}` },
       ],
     },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqItems.map(item => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    },
   ];
 
   // Related cities (same state or nearby)
   const relatedCities = CITIES.filter((c) => c.slug !== slug && (c.stateCode === city.stateCode || city.relatedCities.includes(c.slug))).slice(0, 6);
+
+  // Market stats — use depth stats if available, otherwise generic
+  const marketStats = depth?.marketStats ?? [
+    { label: "City Population", value: city.population },
+    { label: "Solar Market", value: city.solarActivity },
+    { label: "Avg. Resolution", value: "30–90 Days" },
+    { label: "Case Review", value: "FREE" },
+  ];
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.09 0.01 265)", fontFamily: "'DM Sans', sans-serif" }}>
@@ -267,7 +282,7 @@ export default function CityPage() {
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-gray-300 text-lg max-w-2xl mb-8 leading-relaxed">
-              {city.name} is one of the fastest-growing solar markets in {city.state}. Our consumer protection attorneys have helped hundreds of {city.state} homeowners escape predatory solar contracts — for free.
+              {depth?.localHook ?? `${city.name} is one of the fastest-growing solar markets in ${city.state}. Our consumer protection attorneys have helped hundreds of ${city.state} homeowners escape predatory solar contracts — for free.`}
             </p>
           </Reveal>
           <Reveal delay={0.15}>
@@ -289,12 +304,7 @@ export default function CityPage() {
       <div className="border-y border-white/8 py-6" style={{ background: "oklch(0.12 0.012 265)" }}>
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { label: "City Population", value: city.population },
-              { label: "Solar Market", value: "High Activity" },
-              { label: "Avg. Resolution", value: "30–90 Days" },
-              { label: "Case Review", value: "FREE" },
-            ].map((stat) => (
+            {marketStats.map((stat) => (
               <div key={stat.label}>
                 <div className="font-display text-2xl text-amber-400" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{stat.value}</div>
                 <div className="text-gray-500 text-xs font-mono mt-1">{stat.label}</div>
@@ -322,29 +332,82 @@ export default function CityPage() {
                 </div>
               </Reveal>
 
+              {/* Top Complaints — shown if depth data available */}
+              {depth?.topComplaints && (
+                <Reveal delay={0.04}>
+                  <div className="p-6 rounded-lg border border-red-500/20" style={{ background: "oklch(0.14 0.03 20 / 15%)" }}>
+                    <h3 className="font-display text-red-400 text-lg mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                      TOP COMPLAINTS WE SEE IN {city.name.toUpperCase()}
+                    </h3>
+                    <div className="space-y-2">
+                      {depth.topComplaints.map((complaint, i) => (
+                        <div key={i} className="flex items-start gap-3 text-gray-400 text-sm">
+                          <span className="text-red-400 font-bold mt-0.5 shrink-0">!</span>
+                          {complaint}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              )}
+
+              {/* Expanded State Law */}
               <Reveal delay={0.05}>
                 <div className="p-6 rounded-lg border border-amber-500/20" style={{ background: "oklch(0.14 0.015 50 / 20%)" }}>
                   <h3 className="font-display text-amber-400 text-lg mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                     {city.stateCode} STATE LAW IS ON YOUR SIDE
                   </h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">{city.stateLaw}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    {depth?.stateLawExpanded ?? city.stateLaw}
+                  </p>
                 </div>
               </Reveal>
 
-              <Reveal delay={0.1}>
-                <div>
-                  <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    COMPANIES WE FIGHT IN {city.name.toUpperCase()}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {city.companies.map((co) => (
-                      <span key={co} className="px-3 py-1.5 rounded border text-sm text-gray-300" style={{ background: "oklch(0.16 0.01 265)", borderColor: "oklch(0.28 0.01 265)" }}>
-                        {co}
-                      </span>
-                    ))}
+              {/* Company-specific problems — shown if depth data available */}
+              {depth?.companyProblems ? (
+                <Reveal delay={0.1}>
+                  <div>
+                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                      SOLAR COMPANIES WE FIGHT IN {city.name.toUpperCase()}
+                    </h3>
+                    <div className="space-y-4">
+                      {depth.companyProblems.map((cp, i) => (
+                        <div key={i} className="p-4 rounded border border-white/8" style={{ background: "oklch(0.13 0.01 265)" }}>
+                          <div className="font-bold text-white text-sm mb-1">{cp.company}</div>
+                          <div className="text-gray-400 text-sm leading-relaxed">{cp.issue}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              ) : (
+                <Reveal delay={0.1}>
+                  <div>
+                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                      COMPANIES WE FIGHT IN {city.name.toUpperCase()}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {city.companies.map((co) => (
+                        <span key={co} className="px-3 py-1.5 rounded border text-sm text-gray-300" style={{ background: "oklch(0.16 0.01 265)", borderColor: "oklch(0.28 0.01 265)" }}>
+                          {co}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              )}
+
+              {/* Why It Happens — shown if depth data available */}
+              {depth?.whyItHappens && (
+                <Reveal delay={0.12}>
+                  <div>
+                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                      WHY SO MANY {city.stateCode} SOLAR CONTRACTS GO WRONG
+                    </h3>
+                    <p className="text-gray-400 leading-relaxed text-sm">{depth.whyItHappens}</p>
+                  </div>
+                </Reveal>
+              )}
 
               <Reveal delay={0.15}>
                 <div>
@@ -388,6 +451,40 @@ export default function CityPage() {
               </Reveal>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* LOCAL FAQ — shown if depth data available, otherwise generic */}
+      <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
+        <div className="container max-w-3xl mx-auto">
+          <Reveal>
+            <h2 className="font-display text-white text-2xl mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+              FREQUENTLY ASKED QUESTIONS — {city.name.toUpperCase()}, {city.stateCode}
+            </h2>
+          </Reveal>
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <Reveal key={i} delay={i * 0.05}>
+                <details className="group rounded-lg border border-white/8 overflow-hidden" style={{ background: "oklch(0.13 0.01 265)" }}>
+                  <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none">
+                    <span className="text-white font-medium text-sm pr-4">{item.q}</span>
+                    <span className="text-amber-400 shrink-0 text-lg group-open:rotate-45 transition-transform">+</span>
+                  </summary>
+                  <div className="px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-white/8 pt-4">
+                    {item.a}
+                  </div>
+                </details>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal delay={0.3}>
+            <div className="mt-10 p-6 rounded-xl border border-amber-500/30 text-center" style={{ background: "oklch(0.72 0.19 50 / 8%)" }}>
+              <p className="text-gray-300 text-sm mb-4">Have a question not answered here? Our attorneys review every case for free.</p>
+              <a href="#city-form" className="inline-block px-8 py-3 rounded font-bold text-black text-sm" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
+                GET YOUR FREE CASE REVIEW →
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
