@@ -247,6 +247,43 @@
     <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Cancel Your Solar Contract | Solar Freedom</h1>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- GHL Widget Brand Color Override -->
+    <style>
+      /* GHL chat bubble button — force amber */
+      #chat-widget-container .chat-open-button,
+      #chat-widget-container button[class*="open"],
+      #chat-widget-container button[class*="launcher"],
+      #chat-widget-container > button,
+      div[id*="chat"] > button,
+      div[class*="chat-widget"] > button {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        box-shadow: 0 4px 24px rgba(245,158,11,0.45) !important;
+        border: none !important;
+      }
+      /* Proactive message bubble */
+      #chat-widget-container [class*="proactive"],
+      #chat-widget-container [class*="greeting"],
+      #chat-widget-container [class*="preview"] {
+        background: #1a1a2e !important;
+        border: 1px solid rgba(245,158,11,0.3) !important;
+        color: #f3f4f6 !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important;
+      }
+    </style>
+    <script>
+      /* Poll for GHL widget iframe and inject header color override */
+      (function() {
+        var attempts = 0;
+        var interval = setInterval(function() {
+          attempts++;
+          var btn = document.querySelector('#chat-widget-container > button, div[id*="leadconnector"] button, div[id*="chat-widget"] > button');
+          if (btn) {
+            btn.style.cssText += 'background: linear-gradient(135deg, #f59e0b, #d97706) !important; box-shadow: 0 4px 24px rgba(245,158,11,0.45) !important;';
+          }
+          if (attempts > 40) clearInterval(interval);
+        }, 500);
+      })();
+    </script>
     <!-- GHL AI Chat Widget -->
     <script
       src="https://widgets.leadconnectorhq.com/loader.js"
