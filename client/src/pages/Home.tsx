@@ -1473,8 +1473,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* ── AI CHAT WIDGET ── */}
-      <AIChatWidget />
+      {/* GHL chat widget loaded via index.html script tag */}
     </div>
   );
 }
