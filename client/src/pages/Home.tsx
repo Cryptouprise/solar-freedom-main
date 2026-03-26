@@ -99,8 +99,34 @@ function MultiStepForm() {
   const update = (key: string, val: string | boolean) =>
     setForm((f) => ({ ...f, [key]: val }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await fetch(
+        "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            first_name: form.firstName,
+            last_name: form.lastName,
+            email: form.email,
+            phone: form.phone,
+            full_name: `${form.firstName} ${form.lastName}`.trim(),
+            solar_company: form.company,
+            problem_type: form.issue,
+            contract_type: form.payment,
+            monthly_payment: form.paying,
+            intent: form.intent,
+            source: "breakyoursolarcontract.com",
+            form_name: "Solar Freedom Contact Form",
+            "contact.first_name": form.firstName,
+          }),
+        }
+      );
+    } catch (_) {
+      // Fail silently — still show success to user
+    }
     setSubmitted(true);
   };
 
