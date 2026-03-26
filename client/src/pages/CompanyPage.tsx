@@ -174,7 +174,7 @@ export default function CompanyPage() {
       description: `Expert attorneys helping homeowners cancel ${company.name} solar contracts. ${company.complaintCount}+ complaints. Free case review.`,
       url: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract`,
       serviceType: 'Solar Contract Cancellation',
-      telephone: '(800) 555-1234',
+      telephone: '(904) 921-4971',
     },
     {
       '@context': 'https://schema.org',

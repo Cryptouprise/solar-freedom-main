@@ -192,7 +192,7 @@ export default function CityPage() {
       url: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
       areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
       serviceType: 'Solar Contract Cancellation',
-      telephone: '(800) 555-1234',
+      telephone: '(904) 921-4971',
     },
     {
       '@context': 'https://schema.org',

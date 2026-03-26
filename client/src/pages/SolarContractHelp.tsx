@@ -107,8 +107,8 @@ export default function SolarContractHelp() {
               Get Free Case Review <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
-          <a href="tel:+18005551234" className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:border-white/40 transition-colors">
-            <Phone className="w-4 h-4" /> Call Now
+          <a href="tel:+19049214971" className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:border-white/40 transition-colors">
+            <Phone className="w-4 h-4" /> Call (904) 921-4971
           </a>
         </div>
       </section>

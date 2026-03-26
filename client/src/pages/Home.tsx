@@ -678,8 +678,8 @@ export default function Home() {
               <button onClick={scrollToForm} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
                 GET MY FREE CASE REVIEW →
               </button>
-              <a href="tel:+18005551234" className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
-                📞 Call (800) 555-1234
+              <a href="tel:+19049214971" className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
+                📞 Call (904) 921-4971
               </a>
             </motion.div>
 
@@ -1451,7 +1451,7 @@ export default function Home() {
             <div>
               <div className="font-display text-white text-lg mb-4">CONTACT</div>
               <div className="space-y-2 text-gray-500 text-sm font-mono">
-                <div>📞 (800) 555-1234</div>
+                <div>📞 (904) 921-4971</div>
                 <div>✉ cases@solarfreedom.com</div>
                 <div>⏰ Mon–Fri, 8am–8pm EST</div>
               </div>
