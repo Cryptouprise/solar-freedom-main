@@ -1025,6 +1025,56 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── VIDEO SECTION ── */}
+      <section className="py-24 lg:py-32" style={{ background: "oklch(0.11 0.012 265)" }}>
+        <div className="container">
+          <Reveal>
+            <div className="text-center mb-16">
+              <div className="badge-danger mb-4">REAL STORIES</div>
+              <h2 className="text-3xl lg:text-5xl font-black text-white mb-4">See What Homeowners Are Saying</h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Thousands of homeowners were sold solar contracts with hidden clauses, inflated savings, and broken promises. Here is what they discovered — and what you can do about it.</p>
+            </div>
+          </Reveal>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/gemini_generated_video_70bf9dcd_958ad7f4.mp4",
+                title: "Hidden Contract Clauses",
+                desc: "What solar companies don't want you to read in your contract"
+              },
+              {
+                src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/gemini_generated_video_9ac2e803_2f64531a.mp4",
+                title: "When Your Solar Company Goes Bankrupt",
+                desc: "Don't let a bankrupt company hold your home hostage"
+              },
+              {
+                src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/gemini_generated_video_6827b99f_3faf870c.mp4",
+                title: "Solar Payment Shock",
+                desc: "You went solar to save money. So why is your bill higher?"
+              }
+            ].map((vid, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:border-amber-500/40 transition-all duration-300 group">
+                  <div className="relative aspect-video bg-black">
+                    <video
+                      src={vid.src}
+                      className="w-full h-full object-cover"
+                      controls
+                      preload="metadata"
+                      playsInline
+                    />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-white font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors">{vid.title}</h3>
+                    <p className="text-gray-400 text-sm">{vid.desc}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── FORM SECTION ── */}
       <section id="get-review" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
         <div className="container">
