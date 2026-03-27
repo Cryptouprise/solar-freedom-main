@@ -43,3 +43,6 @@
 - [x] Update SolarLienRemoval.tsx form to use tRPC mutation
 - [x] Update SolarLoanHelp.tsx form to use tRPC mutation
 - [x] Write vitest tests for leads and exitIntent routers (11 tests passing)
+
+## Phase 6 — Apollo.io Visitor Tracking
+- [x] Add Apollo.io tracker script to client/index.html head
