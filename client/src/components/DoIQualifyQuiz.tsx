@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, ChevronRight, AlertTriangle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
 
@@ -95,25 +96,25 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
     }
   };
 
+  const submitLead = trpc.leads.submit.useMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const firstName = name.split(" ")[0] || name;
+    const lastName = name.split(" ").slice(1).join(" ") || "";
     try {
-      await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: name.split(" ")[0] || name,
-          last_name: name.split(" ").slice(1).join(" ") || "",
-          phone,
-          email,
-          source: "qualify_quiz",
-          form_name: "Do I Qualify Quiz — Solar Freedom",
-          quiz_answers: answers,
-          problem_type: answers.problem_type,
-          contract_type: answers.contract_type,
-          company_status: answers.company_status,
-        }),
+      // Persist to DB via tRPC (also forwards to GHL server-side)
+      await submitLead.mutateAsync({
+        firstName,
+        lastName,
+        phone,
+        email,
+        problemType: answers.problem_type,
+        contractType: answers.contract_type,
+        formName: "Do I Qualify Quiz — Solar Freedom",
+        sourcePage: window.location.pathname,
+        sourceUrl: window.location.href,
       });
     } catch (_) { /* silent */ }
     setLoading(false);

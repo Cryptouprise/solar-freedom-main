@@ -15,6 +15,7 @@ import SocialProofTicker from "@/components/SocialProofTicker";
 import UrgencyTimer from "@/components/UrgencyTimer";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trackPhoneClick, trackCTAClick, initScrollTracking } from "@/lib/analytics";
+import { trpc } from "@/lib/trpc";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -100,34 +101,29 @@ function MultiStepForm() {
   const totalSteps = 5;
   const progress = ((step) / totalSteps) * 100;
 
+  const submitLead = trpc.leads.submit.useMutation();
+
   const update = (key: string, val: string | boolean) =>
     setForm((f) => ({ ...f, [key]: val }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch(
-        "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            first_name: form.firstName,
-            last_name: form.lastName,
-            email: form.email,
-            phone: form.phone,
-            full_name: `${form.firstName} ${form.lastName}`.trim(),
-            solar_company: form.company,
-            problem_type: form.issue,
-            contract_type: form.payment,
-            monthly_payment: form.paying,
-            intent: form.intent,
-            source: "breakyoursolarcontract.com",
-            form_name: "Solar Freedom Contact Form",
-            "contact.first_name": form.firstName,
-          }),
-        }
-      );
+      // Submit via tRPC — persists to DB and forwards to GHL webhook server-side
+      await submitLead.mutateAsync({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        solarCompany: form.company,
+        problemType: form.issue,
+        contractType: form.payment,
+        monthlyPayment: form.paying,
+        intent: form.intent,
+        formName: "Solar Freedom Contact Form",
+        sourcePage: window.location.pathname,
+        sourceUrl: window.location.href,
+      });
     } catch (_) {
       // Fail silently — still show success to user
     }

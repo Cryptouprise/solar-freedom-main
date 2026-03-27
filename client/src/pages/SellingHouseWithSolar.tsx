@@ -17,6 +17,7 @@ import {
   Home, AlertTriangle, CheckCircle, DollarSign, FileText,
   ArrowRight, Phone, Scale, XCircle, Clock
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -62,13 +63,24 @@ function SellForm() {
     if (step < steps.length - 1) setStep(s => s + 1);
   };
 
+  const submitLead = trpc.leads.submit.useMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const firstName = form.name.split(" ")[0] || form.name;
+    const lastName = form.name.split(" ").slice(1).join(" ") || "";
     try {
-      await fetch("https://services.leadconnectorhq.com/hooks/gcV5XIBy7dCh1Vb0wQww/webhook-trigger/selling-house-solar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, source: "selling_house_with_solar", page: "/selling-house-with-solar" }),
+      // Persist to DB via tRPC
+      await submitLead.mutateAsync({
+        firstName,
+        lastName,
+        phone: form.phone,
+        email: form.email,
+        problemType: form.situation,
+        contractType: form.loanBalance,
+        formName: "Selling House With Solar Form",
+        sourcePage: "/selling-house-with-solar",
+        sourceUrl: window.location.href,
       });
     } catch (_) {}
     setSubmitted(true);

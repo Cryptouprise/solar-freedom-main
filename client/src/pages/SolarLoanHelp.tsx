@@ -16,6 +16,7 @@ import {
   AlertTriangle, CheckCircle, FileText, ArrowRight,
   Phone, Scale, DollarSign, Clock, XCircle, Zap
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -71,13 +72,24 @@ function LoanHelpForm() {
     if (step < steps.length - 1) setStep(s => s + 1);
   };
 
+  const submitLead = trpc.leads.submit.useMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const firstName = form.name.split(" ")[0] || form.name;
+    const lastName = form.name.split(" ").slice(1).join(" ") || "";
     try {
-      await fetch("https://services.leadconnectorhq.com/hooks/gcV5XIBy7dCh1Vb0wQww/webhook-trigger/solar-loan-help", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, source: "solar_loan_help", page: "/solar-loan-help" }),
+      // Persist to DB via tRPC
+      await submitLead.mutateAsync({
+        firstName,
+        lastName,
+        phone: form.phone,
+        email: form.email,
+        solarCompany: form.lender,
+        problemType: form.problem,
+        formName: "Solar Loan Help Form",
+        sourcePage: "/solar-loan-help",
+        sourceUrl: window.location.href,
       });
     } catch (_) {}
     setSubmitted(true);

@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
 
@@ -41,10 +42,18 @@ export default function ExitIntentPopup() {
     setDismissed(true);
   };
 
+  const captureExitIntent = trpc.exitIntent.capture.useMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     try {
+      // Persist to DB via tRPC
+      await captureExitIntent.mutateAsync({
+        email,
+        sourcePage: window.location.pathname,
+      });
+      // Also forward to GHL webhook
       await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

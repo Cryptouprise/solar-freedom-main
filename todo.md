@@ -24,3 +24,22 @@
 - [ ] Update /seo-command-center with all newly completed tasks
 - [ ] Add Bing submission status
 - [ ] Add new pages to the asset inventory
+
+## Phase 5 — Database & Lead Persistence
+- [x] Upgrade project to full-stack with database (web-db-user)
+- [x] Create leads table in drizzle/schema.ts (17 columns: contact info, solar details, status, GHL sync)
+- [x] Create exitIntentCaptures table in drizzle/schema.ts
+- [x] Run pnpm db:push to apply migrations
+- [x] Add insertLead, getLeads, updateLeadStatus, markLeadGhlSent helpers to server/db.ts
+- [x] Add insertExitIntentCapture helper to server/db.ts
+- [x] Add leads.submit tRPC procedure (persists to DB + forwards to GHL)
+- [x] Add leads.list tRPC procedure (admin only)
+- [x] Add leads.updateStatus tRPC procedure (admin only)
+- [x] Add exitIntent.capture tRPC procedure
+- [x] Update Home.tsx MultiStepForm to use tRPC mutation
+- [x] Update ExitIntentPopup.tsx to use tRPC mutation
+- [x] Update DoIQualifyQuiz.tsx to use tRPC mutation
+- [x] Update SellingHouseWithSolar.tsx form to use tRPC mutation
+- [x] Update SolarLienRemoval.tsx form to use tRPC mutation
+- [x] Update SolarLoanHelp.tsx form to use tRPC mutation
+- [x] Write vitest tests for leads and exitIntent routers (11 tests passing)
