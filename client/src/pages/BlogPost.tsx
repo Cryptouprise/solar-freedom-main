@@ -5,6 +5,7 @@
 import { Link, useParams } from 'wouter';
 import { getBlogPost, getRelatedPosts, BlogSection } from '@/data/blog';
 import TopicClusterWidget from '@/components/TopicClusterWidget';
+import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement } from 'react';
@@ -288,6 +289,8 @@ export default function BlogPost() {
       {/* TOPIC CLUSTER INTERNAL LINKS */}
       <section className="px-6 pb-0">
         <div className="max-w-4xl mx-auto">
+          {/* Do I Qualify Quiz — high-intent lead capture mid-article */}
+          <DoIQualifyQuiz />
           <TopicClusterWidget currentUrl={`/blog/${params.slug}`} />
         </div>
       </section>

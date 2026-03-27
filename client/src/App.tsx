@@ -16,6 +16,8 @@ import SolarExitOptions from "./pages/SolarExitOptions";
 import StateLawsIndex from "./pages/StateLawsIndex";
 import StateLawPage from "./pages/StateLawPage";
 import { useEffect } from "react";
+import ExitIntentPopup from "./components/ExitIntentPopup";
+import StickyMobileBar from "./components/StickyMobileBar";
 
 // Normalize trailing slashes — redirect /foo/ → /foo so wouter routes always match
 function TrailingSlashRedirect() {
@@ -73,6 +75,8 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <ExitIntentPopup />
+          <StickyMobileBar />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -11,6 +11,9 @@ import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { Link } from "wouter";
 import { cities as CITIES } from "@/data/cities";
 import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
+import SocialProofTicker from "@/components/SocialProofTicker";
+import UrgencyTimer from "@/components/UrgencyTimer";
+import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -1154,6 +1157,8 @@ export default function Home() {
             {/* Right: Form */}
             <Reveal delay={0.2}>
               <div ref={formRef} className="rounded-2xl border border-white/10 p-8" style={{ background: "oklch(0.15 0.012 265)" }}>
+                <SocialProofTicker />
+                <UrgencyTimer />
                 <MultiStepForm />
               </div>
             </Reveal>
