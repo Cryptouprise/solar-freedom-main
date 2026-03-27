@@ -12,6 +12,7 @@ import CompanyPage from "./pages/CompanyPage";
 import SeoCommandCenter from "./pages/SeoCommandCenter";
 import SolarFraudReport from "./pages/SolarFraudReport";
 import SolarContractHelp from "./pages/SolarContractHelp";
+import SolarPanelScam from "./pages/SolarPanelScam";
 import SolarExitOptions from "./pages/SolarExitOptions";
 import StateLawsIndex from "./pages/StateLawsIndex";
 import StateLawPage from "./pages/StateLawPage";
@@ -57,6 +58,7 @@ function Router() {
         <Route path={"/cancel-:slug-solar-contract"} component={CompanyPage} />
         <Route path={"/seo-command-center"} component={SeoCommandCenter} />
         <Route path={"/solar-fraud-report"} component={SolarFraudReport} />
+        <Route path={"/solar-panel-scam"} component={SolarPanelScam} />
         <Route path={"/solar-contract-help"} component={SolarContractHelp} />
         <Route path={"/solar-exit-options"} component={SolarExitOptions} />
         <Route path={"/solar-contract-laws"} component={StateLawsIndex} />

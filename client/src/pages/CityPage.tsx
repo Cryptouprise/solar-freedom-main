@@ -14,6 +14,7 @@ import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
 import { getCityContentDepthAll as getCityContentDepth } from "@/data/city-content-depth-all";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
+import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -491,6 +492,7 @@ export default function CityPage() {
       {/* TOPIC CLUSTER INTERNAL LINKS */}
       <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container">
+          <DoIQualifyQuiz />
           <TopicClusterWidget currentUrl={`/cancel-solar-contract/${params.slug}`} />
         </div>
       </section>
