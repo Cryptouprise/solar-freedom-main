@@ -1435,7 +1435,7 @@ export default function Home() {
               <Reveal key={post.slug} delay={i * 0.1}>
                 <a href={`/blog/${post.slug}`} className="group block rounded-xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 bg-zinc-900/50 h-full">
                   <div className="relative h-44 overflow-hidden">
-                    <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
                     <div className="absolute bottom-3 left-4">
                       <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">{post.category}</span>

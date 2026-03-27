@@ -84,7 +84,7 @@ function renderSection(section: BlogSection, index: number) {
     case 'image':
       return (
         <div key={index} className="my-8 rounded-xl overflow-hidden">
-          <img src={section.src} alt={section.alt} className="w-full object-cover" />
+          <img src={section.src} alt={section.alt} className="w-full object-cover" loading="lazy" decoding="async" />
           {section.caption && (
             <p className="text-zinc-500 text-xs text-center mt-2 italic">{section.caption}</p>
           )}
@@ -302,7 +302,7 @@ export default function BlogPost() {
                 <Link key={rp.slug} href={`/blog/${rp.slug}`}>
                   <div className="group rounded-xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all cursor-pointer bg-zinc-900/50">
                     <div className="relative h-40 overflow-hidden">
-                      <img src={rp.heroImage} alt={rp.heroAlt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={rp.heroImage} alt={rp.heroAlt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
                     </div>
                     <div className="p-5">
