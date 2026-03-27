@@ -5,6 +5,7 @@
  * Design: Dark Industrial Brutalism — matches site-wide system
  */
 import { useEffect } from "react";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { AlertTriangle, CheckCircle, XCircle, Phone, ArrowRight, Shield, FileText, DollarSign, Home, Zap } from "lucide-react";
@@ -82,6 +83,11 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 export default function SolarPanelScam() {
+  useSeoMeta({
+    title: 'Solar Panel Scam — Were You Deceived? | Solar Freedom',
+    description: 'Millions of homeowners were deceived by solar panel scams — fake tax credits, inflated savings, high-pressure door-to-door sales, and hidden contract terms. Find out if you qualify to cancel your contract and recover your money.',
+    canonical: 'https://breakyoursolarcontract.com/solar-panel-scam',
+  });
   useEffect(() => {
     document.title = "Solar Panel Scam — Were You Deceived? | Solar Freedom";
     const meta = document.querySelector('meta[name="description"]');

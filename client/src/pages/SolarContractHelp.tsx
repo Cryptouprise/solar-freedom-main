@@ -7,6 +7,7 @@ import { Link } from "wouter";
 import { ArrowRight, CheckCircle, Phone, Shield, FileText, Scale, Home, DollarSign, AlertTriangle, Clock } from "lucide-react";
 import { blogPosts } from "@/data/blog";
 import { useEffect } from "react";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 const exitOptions = [
   {
@@ -66,6 +67,11 @@ const featuredArticles = [
 ];
 
 export default function SolarContractHelp() {
+  useSeoMeta({
+    title: 'Solar Contract Help: All Your Options Explained | Solar Freedom',
+    description: 'Comprehensive solar contract help: legal cancellation, rescission rights, negotiated buyout, and transfer options. Free case review available.',
+    canonical: 'https://breakyoursolarcontract.com/solar-contract-help',
+  });
   useEffect(() => {
     document.title = "Solar Contract Help: All Your Options Explained | Solar Freedom";
     const meta = document.querySelector('meta[name="description"]');

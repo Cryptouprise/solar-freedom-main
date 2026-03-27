@@ -46,3 +46,13 @@
 
 ## Phase 6 — Apollo.io Visitor Tracking
 - [x] Add Apollo.io tracker script to client/index.html head
+
+## Phase 7 — SEO Indexing Fixes
+- [x] Check GSC performance data to protect ranking pages
+- [x] Audit 185 ghost city URLs in sitemap vs cities.ts data
+- [x] Added data for all 185 ghost cities (303 total cities now in cities.ts)
+- [x] Add canonicalUrl field support to BlogPost.tsx
+- [x] Canonicalize 17 duplicate blog posts to city pages (skipped houston-tx and sacramento-ca with GSC impressions)
+- [x] Add canonical tags to StateLawPage.tsx (52 pages)
+- [x] Add canonical tags to SolarContractHelp, SolarPanelScam, SolarExitOptions, StateLawsIndex
+- [x] Add /solar-lien-removal, /solar-loan-help, /solar-exit-options to sitemap (486 total URLs)

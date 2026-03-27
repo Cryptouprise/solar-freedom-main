@@ -236,6 +236,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['get-out-of-solar-contract-phoenix-az', 'phoenix-solar-scam-complaints', 'cancel-solar-contract-after-installation'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/phoenix-az',
   },
 
   // ─── SAN DIEGO ─────────────────────────────────────────────────────────────
@@ -332,6 +333,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['san-diego-solar-contract-exit-options', 'cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/san-diego-ca',
   },
 
   // ─── TAMPA ─────────────────────────────────────────────────────────────────
@@ -424,6 +426,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['tampa-solar-scam-questions', 'cancel-solar-contract-after-installation', 'solar-payments-too-high-help'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/tampa-fl',
   },
 
   // ─── ORLANDO ───────────────────────────────────────────────────────────────
@@ -516,6 +519,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['orlando-solar-regret', 'cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/orlando-fl',
   },
 
   // ─── ATLANTA ───────────────────────────────────────────────────────────────
@@ -612,6 +616,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['solar-panel-scam-signs-and-solutions', 'cancel-solar-contract-after-installation', 'solar-payments-too-high-help'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/atlanta-ga',
   },
 
   // ─── CHARLOTTE ─────────────────────────────────────────────────────────────
@@ -704,6 +709,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions', 'solar-payments-too-high-help'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/charlotte-nc',
   },
 
   // ─── DENVER ────────────────────────────────────────────────────────────────
@@ -796,6 +802,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['get-out-of-solar-contract-denver', 'cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/denver-co',
   },
 
   // ─── LAS VEGAS ─────────────────────────────────────────────────────────────
@@ -888,6 +895,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions', 'solar-payments-too-high-help'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/las-vegas-nv',
   },
 
   // ─── BOSTON ────────────────────────────────────────────────────────────────
@@ -972,6 +980,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions', 'solar-company-went-bankrupt'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/boston-ma',
   },
 
   // ─── SEATTLE ───────────────────────────────────────────────────────────────
@@ -1064,6 +1073,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions', 'solar-payments-too-high-help'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/seattle-wa',
   },
 
   // ─── PORTLAND ──────────────────────────────────────────────────────────────
@@ -1156,6 +1166,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions', 'solar-payments-too-high-help'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/portland-or',
   },
 
   // ─── SACRAMENTO ────────────────────────────────────────────────────────────
@@ -1344,5 +1355,6 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
     ],
     relatedSlugs: ['cancel-solar-contract-after-installation', 'solar-panel-scam-signs-and-solutions', 'solar-payments-too-high-help'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/miami-fl',
   },
 ];

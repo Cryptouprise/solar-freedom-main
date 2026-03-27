@@ -22,6 +22,7 @@ export const blogArticlesBatch2: BlogPost[] = [
       { q: 'How long do I have to cancel a solar contract in Texas?', a: 'The FTC cooling-off rule gives you 3 business days from signing. If you were never given written notice of this right, the window may still be open. DTPA claims have a 2-year statute of limitations.' },
     ],
     relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-payments-too-high-help', 'get-out-of-solar-contract-by-state'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/dallas-tx',
     content: [
       { type: 'p', content: 'Dallas homeowners are asking a simple question: "Am I actually stuck with this solar deal?" Maybe the monthly payment is higher than expected. Maybe the projected savings never showed up. Maybe the contract felt clear at signing and confusing the second the install was done. If that sounds familiar, you\'re not crazy, and you\'re not the only one searching for answers.' },
       { type: 'stat-block', stats: [{ value: '47%', label: 'of Dallas solar complaints involve misrepresented savings' }, { value: '3 days', label: 'FTC cooling-off window — often never disclosed' }, { value: '118', label: 'cities where we\'ve helped homeowners review contracts' }] },
@@ -162,6 +163,7 @@ export const blogArticlesBatch2: BlogPost[] = [
       { q: 'How long do I have to file a solar fraud claim in Arizona?', a: 'Arizona has a 1-year statute of limitations for some consumer fraud claims, but the clock may not start until you discovered or should have discovered the fraud. Consult an attorney promptly.' },
     ],
     relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'get-out-of-solar-contract-by-state', 'solar-panel-scam-signs-and-solutions'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/phoenix-az',
     content: [
       { type: 'p', content: 'Phoenix should feel like one of the easiest places in America to make solar work. More sun than almost anywhere. High utility rates. Perfect conditions. So when a Phoenix homeowner feels trapped in a solar contract, the frustration hits even harder. Because now it is not just: "this is expensive." It is: "How is this expensive in Phoenix of all places?"' },
       { type: 'stat-block', stats: [{ value: '#3', label: 'Arizona ranks in US solar installations' }, { value: '299', label: 'sunny days per year in Phoenix' }, { value: '1,200+', label: 'solar complaints filed with Arizona AG in 2024' }] },

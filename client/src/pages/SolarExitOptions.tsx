@@ -6,6 +6,7 @@
 import { Link } from "wouter";
 import { ArrowRight, CheckCircle, Shield, Scale, FileText, DollarSign, Home, AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 const steps = [
   {
@@ -75,6 +76,11 @@ const stateLinks = [
 ];
 
 export default function SolarExitOptions() {
+  useSeoMeta({
+    title: 'Solar Exit Options: Every Way to Get Out of a Solar Contract | Solar Freedom',
+    description: 'All solar exit options explained: legal cancellation, negotiated buyout, lease transfer, and refinancing. Find out which path fits your situation.',
+    canonical: 'https://breakyoursolarcontract.com/solar-exit-options',
+  });
   useEffect(() => {
     document.title = "Solar Exit Options: Every Way to Get Out of a Solar Contract | Solar Freedom";
     const meta = document.querySelector('meta[name="description"]');

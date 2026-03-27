@@ -22,6 +22,7 @@ export const blogArticlesBatch3: BlogPost[] = [
       { q: 'How do I know if I was misled by a solar salesperson in Texas?', a: 'Compare what you were told verbally and in any written projections against your actual bills and system output. If there is a significant gap, that may indicate misrepresentation under the Texas DTPA.' },
     ],
     relatedSlugs: ['get-out-of-solar-contract-dallas-tx', 'houston-solar-contract-problems', 'get-out-of-solar-contract-by-state'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/fort-worth-tx',
     content: [
       { type: 'p', content: 'Fort Worth homeowners are not searching for solar help because things are going well. They are searching because something feels off. The payment feels heavy. The savings feel light. The whole thing feels different than what was explained at the kitchen table when the salesperson came by.' },
       { type: 'stat-block', stats: [{ value: '4th', label: 'Fort Worth is the 4th largest city in Texas by solar installations' }, { value: '2-3x', label: 'typical solar payment vs. what was projected at signing' }, { value: '$0', label: 'cost for an initial contract review' }] },
@@ -85,6 +86,7 @@ export const blogArticlesBatch3: BlogPost[] = [
       { q: 'What happens if my Jacksonville solar company went out of business?', a: 'You may still have claims against the financing company. Solar loans and leases are often held by third-party lenders who remain liable even if the installer closes.' },
     ],
     relatedSlugs: ['orlando-solar-regret', 'tampa-solar-scam-questions', 'get-out-of-solar-contract-by-state'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/jacksonville-fl',
     content: [
       { type: 'p', content: 'A lot of Jacksonville homeowners are asking this exact question. Because something does not feel right anymore. The payments feel too high. The savings did not show up. The expectations changed when reality hit. And now the question is simple: "What can I actually do about this?"' },
       { type: 'h2', content: 'Why This Question Comes Up' },

@@ -4,6 +4,7 @@
 
 import { Link } from 'wouter';
 import { useEffect } from 'react';
+import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { getAllStateLaws } from '@/data/state-laws';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,11 @@ const aggressivenessLabels: Record<number, string> = {
 
 export default function StateLawsIndex() {
   const states = getAllStateLaws();
+  useSeoMeta({
+    title: 'Solar Contract Rights by State: All 50 States (2026) | Break Your Solar Contract',
+    description: "Find your state's solar consumer protection laws, cooling-off rights, and legal options for canceling a predatory solar contract. Updated for 2026.",
+    canonical: 'https://breakyoursolarcontract.com/solar-contract-laws',
+  });
 
   useEffect(() => {
     document.title = 'Solar Contract Rights by State: All 50 States (2026) | Break Your Solar Contract';

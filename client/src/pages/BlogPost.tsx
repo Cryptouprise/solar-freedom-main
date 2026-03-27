@@ -122,7 +122,7 @@ export default function BlogPost() {
   useSeoMeta({
     title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
     description: post?.metaDescription ?? post?.excerpt ?? 'Expert legal help to cancel your solar contract.',
-    canonical: `https://breakyoursolarcontract.com/blog/${params.slug ?? ''}`,
+    canonical: post?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${params.slug ?? ''}`,
   });
 
   useEffect(() => {

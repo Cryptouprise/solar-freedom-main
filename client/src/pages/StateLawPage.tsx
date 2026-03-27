@@ -5,6 +5,7 @@
 
 import { useParams, Link } from 'wouter';
 import { useEffect } from 'react';
+import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { getStateLaw, StateLawSection } from '@/data/state-laws';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -135,6 +136,12 @@ export default function StateLawPage() {
   const params = useParams<{ state: string }>();
   const stateSlug = params.state;
   const law = getStateLaw(stateSlug || '');
+
+  useSeoMeta({
+    title: law ? law.metaTitle : 'Solar Contract Laws by State | Solar Freedom',
+    description: law ? law.metaDescription : 'Understand your state\'s solar contract laws and consumer protections.',
+    canonical: `https://breakyoursolarcontract.com/solar-contract-laws/${stateSlug ?? ''}`,
+  });
 
   useEffect(() => {
     if (law) {

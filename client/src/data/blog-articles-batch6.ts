@@ -505,6 +505,7 @@ You deserve to feel safe and secure in your own home. You deserve a financial fu
     ],
     faq: [],
     relatedSlugs: [],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-vivint-solar-solar-contract',
   },
   {
     slug: `cancel-freedom-forever-contract`,

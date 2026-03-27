@@ -36,6 +36,7 @@ export interface BlogPost {
   content: BlogSection[];
   faq: { q: string; a: string }[];
   relatedSlugs: string[];
+  canonicalUrl?: string; // Override canonical — use when this post duplicates a city/company page
 }
 
 export const blogPosts: BlogPost[] = [
@@ -350,6 +351,7 @@ export const blogPosts: BlogPost[] = [
       { q: 'Which solar companies are most active in Denver?', a: 'Sunrun, Tesla Solar, Sunnova, Freedom Forever, and ADT Solar are among the most active in the Denver metro area. Each has its own contract structure and exit provisions.' },
     ],
     relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-panels-not-working-what-to-do', 'cancel-solar-contract-after-installation'],
+    canonicalUrl: 'https://breakyoursolarcontract.com/cancel-solar-contract/denver-co',
     content: [
       {
         type: 'p',
