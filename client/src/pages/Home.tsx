@@ -14,6 +14,7 @@ import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
 import SocialProofTicker from "@/components/SocialProofTicker";
 import UrgencyTimer from "@/components/UrgencyTimer";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import { trackPhoneClick, trackCTAClick, initScrollTracking } from "@/lib/analytics";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -130,6 +131,9 @@ function MultiStepForm() {
     } catch (_) {
       // Fail silently — still show success to user
     }
+    // Track conversion in GA4
+    const { trackFormSubmit } = await import("@/lib/analytics");
+    trackFormSubmit("main_contact_form", "/");
     setSubmitted(true);
   };
 
@@ -618,7 +622,13 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
 export default function Home() {
   const formRef = useRef<HTMLDivElement>(null);
 
-  const scrollToForm = () => {
+  useEffect(() => {
+    const cleanup = initScrollTracking("home");
+    return cleanup;
+  }, []);
+
+  const scrollToForm = (label = "generic_cta") => {
+    trackCTAClick(label, "/");
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
@@ -643,7 +653,7 @@ export default function Home() {
             <a href="/solar-loan-help" className="hover:text-white transition-colors">Loan Help</a>
             <a href="/blog" className="hover:text-amber-400 text-amber-500 transition-colors font-semibold">Blog</a>
           </div>
-          <button onClick={scrollToForm} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">
+          <button onClick={() => scrollToForm("nav_free_review")} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">
             FREE REVIEW
           </button>
         </div>
@@ -705,10 +715,10 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.45 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <button onClick={scrollToForm} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
+              <button onClick={() => scrollToForm("hero_get_free_review")} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
                 GET MY FREE CASE REVIEW →
               </button>
-              <a href="tel:+19049214971" className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
+              <a href="tel:+19049214971" onClick={() => trackPhoneClick("hero_phone")} className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
                 📞 Call (904) 921-4971
               </a>
             </motion.div>
@@ -828,7 +838,7 @@ export default function Home() {
               </div>
 
               <Reveal delay={0.5}>
-                <button onClick={scrollToForm} className="btn-amber px-8 py-4 rounded text-base font-bold">
+                <button onClick={() => scrollToForm("mid_see_if_i_qualify")} className="btn-amber px-8 py-4 rounded text-base font-bold">
                   SEE IF I HAVE A CASE →
                 </button>
               </Reveal>
@@ -874,7 +884,7 @@ export default function Home() {
 
           <Reveal delay={0.5}>
             <div className="text-center mt-12">
-              <button onClick={scrollToForm} className="btn-amber btn-amber-pulse px-10 py-5 rounded text-lg font-bold">
+              <button onClick={() => scrollToForm("how_it_works_start_review")} className="btn-amber btn-amber-pulse px-10 py-5 rounded text-lg font-bold">
                 START MY FREE REVIEW →
               </button>
             </div>
@@ -1387,7 +1397,7 @@ export default function Home() {
             </p>
           </Reveal>
           <Reveal delay={0.2}>
-            <button onClick={scrollToForm} className="btn-amber btn-amber-pulse px-12 py-6 rounded text-xl font-bold">
+            <button onClick={() => scrollToForm("footer_final_cta")} className="btn-amber btn-amber-pulse px-12 py-6 rounded text-xl font-bold">
               GET MY FREE CASE REVIEW NOW →
             </button>
           </Reveal>
