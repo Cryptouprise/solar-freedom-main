@@ -638,8 +638,9 @@ export default function Home() {
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">
             <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
-            <a href="#testimonials" className="hover:text-white transition-colors">Results</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+            <a href="/selling-house-with-solar" className="hover:text-white transition-colors">Selling With Solar</a>
+            <a href="/solar-lien-removal" className="hover:text-white transition-colors">Lien Removal</a>
+            <a href="/solar-loan-help" className="hover:text-white transition-colors">Loan Help</a>
             <a href="/blog" className="hover:text-amber-400 text-amber-500 transition-colors font-semibold">Blog</a>
           </div>
           <button onClick={scrollToForm} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">

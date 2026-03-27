@@ -15,7 +15,10 @@ import SolarContractHelp from "./pages/SolarContractHelp";
 import SolarPanelScam from "./pages/SolarPanelScam";
 import SolarExitOptions from "./pages/SolarExitOptions";
 import StateLawsIndex from "./pages/StateLawsIndex";
-import StateLawPage from "./pages/StateLawPage";
+import StateLawPage from "@/pages/StateLawPage";
+import SellingHouseWithSolar from "@/pages/SellingHouseWithSolar";
+import SolarLienRemoval from "@/pages/SolarLienRemoval";
+import SolarLoanHelp from "@/pages/SolarLoanHelp";
 import { useEffect } from "react";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
@@ -63,6 +66,9 @@ function Router() {
         <Route path={"/solar-exit-options"} component={SolarExitOptions} />
         <Route path={"/solar-contract-laws"} component={StateLawsIndex} />
         <Route path={"/solar-contract-laws/:state"} component={StateLawPage} />
+        <Route path={"/selling-house-with-solar"} component={SellingHouseWithSolar} />
+        <Route path={"/solar-lien-removal"} component={SolarLienRemoval} />
+        <Route path={"/solar-loan-help"} component={SolarLoanHelp} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>
