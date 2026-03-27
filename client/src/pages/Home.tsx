@@ -287,7 +287,7 @@ function MultiStepForm() {
           type="tel"
           value={form.phone}
           onChange={(e) => update("phone", e.target.value)}
-          placeholder="(555) 000-0000"
+          placeholder="(904) 000-0000"
           className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
         />
       </div>

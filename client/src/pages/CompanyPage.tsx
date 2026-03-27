@@ -105,7 +105,7 @@ function CompanyForm({ companyName }: { companyName: string }) {
       <div className="space-y-3">
         {[
           { key: "name", label: "Full Name", type: "text", placeholder: "John Smith" },
-          { key: "phone", label: "Phone Number", type: "tel", placeholder: "(555) 000-0000" },
+          { key: "phone", label: "Phone Number", type: "tel", placeholder: "(904) 000-0000" },
           { key: "email", label: "Email Address", type: "email", placeholder: "john@email.com" },
         ].map(({ key, label, type, placeholder }) => (
           <div key={key}>
