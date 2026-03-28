@@ -15,6 +15,13 @@
       "when": 1774638500014,
       "tag": "0001_freezing_charles_xavier",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1774719833126,
+      "tag": "0002_organic_spectrum",
+      "breakpoints": true
     }
   ]
 }

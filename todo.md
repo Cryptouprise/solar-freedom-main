@@ -72,9 +72,19 @@
 - [x] Add SolarFraudReport canonical tag and Dataset schema
 
 ## Phase 9 — Bing Verification & Deployment Checklist
-- [ ] Save checkpoint with all SEO changes for publish
-- [ ] Fix Bing registration to non-www domain (breakyoursolarcontract.com)
-- [ ] Complete Bing ownership verification after publish
-- [ ] Submit sitemap.xml and image-sitemap.xml to Bing
-- [ ] Resubmit sitemap.xml to Google Search Console
-- [ ] Write DEPLOY_CHECKLIST.md to prevent future missed steps
+- [x] Save checkpoint with all SEO changes for publish
+- [x] Fix Bing registration to non-www domain (breakyoursolarcontract.com)
+- [x] Complete Bing ownership verification after publish
+- [x] Submit sitemap.xml and image-sitemap.xml to Bing
+- [x] Write DEPLOY_CHECKLIST.md to prevent future missed steps
+
+## Phase 10 — Schema Expansion, Content, Admin Dashboard & SEO Documentation
+- [ ] Design and push seo_strategy + seo_pages database tables
+- [ ] Add LegalService schema to all 53 state law pages (StateLawPage.tsx)
+- [ ] Write 30 company-targeted blog posts (cancel/complaints per company)
+- [ ] Add all 30 new blog posts to sitemap.xml and image-sitemap.xml
+- [x] Build /admin/leads protected dashboard with filters and status management
+- [x] Add admin leads tRPC procedures (list with filters, updateStatus)
+- [ ] Populate SEO strategy database with full journey + page inventory
+- [ ] Write PLAYBOOK.md — full duplication guide for replicating this site on any niche
+- [ ] Write vitest tests for admin leads procedures

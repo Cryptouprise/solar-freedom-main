@@ -77,3 +77,106 @@ export const exitIntentCaptures = mysqlTable("exitIntentCaptures", {
 
 export type ExitIntentCapture = typeof exitIntentCaptures.$inferSelect;
 export type InsertExitIntentCapture = typeof exitIntentCaptures.$inferInsert;
+
+/**
+ * SEO Strategy table — documents every SEO tactic, decision, and action taken.
+ * This is the master playbook record. Every change to the site's SEO should
+ * be logged here so the strategy can be fully duplicated on any future site.
+ *
+ * Categories: technical_seo, content, schema, link_building, indexing, analytics, tooling
+ * Status: planned, in_progress, completed, skipped
+ * Impact: high, medium, low
+ */
+export const seoStrategy = mysqlTable("seoStrategy", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // What was done
+  category: mysqlEnum("category", [
+    "technical_seo",
+    "content",
+    "schema",
+    "link_building",
+    "indexing",
+    "analytics",
+    "tooling",
+  ]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(), // Full explanation of what was done and why
+  implementation: text("implementation"),     // Exact steps taken — code changes, tools used, commands run
+  result: text("result"),                     // What happened after — GSC data, impressions, clicks, etc.
+  duplicationNotes: text("duplicationNotes"), // How to replicate this on a new site
+
+  // Metadata
+  status: mysqlEnum("status", ["planned", "in_progress", "completed", "skipped"])
+    .default("planned")
+    .notNull(),
+  impact: mysqlEnum("impact", ["high", "medium", "low"]).default("medium").notNull(),
+  pagesAffected: int("pagesAffected").default(0), // How many pages this change touched
+  completedAt: timestamp("completedAt"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SeoStrategy = typeof seoStrategy.$inferSelect;
+export type InsertSeoStrategy = typeof seoStrategy.$inferInsert;
+
+/**
+ * SEO Pages table — inventory of every page on the site with its SEO status.
+ * Tracks indexing status, canonical, schema coverage, internal links, and GSC data.
+ * This is the single source of truth for what's on the site and how it's performing.
+ *
+ * pageType: homepage, city, state_law, company, blog, service, report
+ * indexStatus: indexed, not_indexed, excluded, unknown
+ */
+export const seoPages = mysqlTable("seoPages", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Page identity
+  url: varchar("url", { length: 500 }).notNull().unique(), // Full canonical URL
+  slug: varchar("slug", { length: 255 }).notNull(),
+  pageType: mysqlEnum("pageType", [
+    "homepage",
+    "city",
+    "state_law",
+    "company",
+    "blog",
+    "service",
+    "report",
+    "other",
+  ]).notNull(),
+  title: varchar("title", { length: 255 }),
+  metaDescription: text("metaDescription"),
+
+  // SEO coverage flags
+  hasCanonical: int("hasCanonical").default(0).notNull(),    // 1=yes
+  hasSchema: int("hasSchema").default(0).notNull(),          // 1=yes
+  schemaTypes: varchar("schemaTypes", { length: 500 }),      // comma-separated: "LegalService,FAQPage,BreadcrumbList"
+  inSitemap: int("inSitemap").default(0).notNull(),          // 1=yes
+  inImageSitemap: int("inImageSitemap").default(0).notNull(),// 1=yes
+  hasInternalLinksOut: int("hasInternalLinksOut").default(0).notNull(), // links to other pages
+  hasInternalLinksIn: int("hasInternalLinksIn").default(0).notNull(),   // other pages link to it
+
+  // GSC data (updated manually or via future API sync)
+  gscIndexStatus: mysqlEnum("gscIndexStatus", ["indexed", "not_indexed", "excluded", "unknown"])
+    .default("unknown")
+    .notNull(),
+  gscClicks: int("gscClicks").default(0),
+  gscImpressions: int("gscImpressions").default(0),
+  gscAvgPosition: varchar("gscAvgPosition", { length: 10 }),
+  gscLastChecked: timestamp("gscLastChecked"),
+
+  // Canonicalization
+  canonicalUrl: varchar("canonicalUrl", { length: 500 }), // null = self-canonical
+  isDuplicate: int("isDuplicate").default(0).notNull(),   // 1 = this page canonicalizes to another
+  duplicateOf: varchar("duplicateOf", { length: 500 }),   // URL of the canonical version
+
+  // Notes
+  notes: text("notes"), // Any manual observations, issues, or action items
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SeoPage = typeof seoPages.$inferSelect;
+export type InsertSeoPage = typeof seoPages.$inferInsert;

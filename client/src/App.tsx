@@ -19,6 +19,7 @@ import StateLawPage from "@/pages/StateLawPage";
 import SellingHouseWithSolar from "@/pages/SellingHouseWithSolar";
 import SolarLienRemoval from "@/pages/SolarLienRemoval";
 import SolarLoanHelp from "@/pages/SolarLoanHelp";
+import AdminLeads from "@/pages/AdminLeads";
 import { useEffect } from "react";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
@@ -69,6 +70,7 @@ function Router() {
         <Route path={"/selling-house-with-solar"} component={SellingHouseWithSolar} />
         <Route path={"/solar-lien-removal"} component={SolarLienRemoval} />
         <Route path={"/solar-loan-help"} component={SolarLoanHelp} />
+        <Route path={"/admin/leads"} component={AdminLeads} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>

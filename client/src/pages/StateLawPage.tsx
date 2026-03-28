@@ -6,6 +6,7 @@
 import { useParams, Link } from 'wouter';
 import { useEffect } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
+import { SchemaInjector } from '@/components/SchemaInjector';
 import { getStateLaw, StateLawSection } from '@/data/state-laws';
 import { cities as ALL_CITIES } from '@/data/cities';
 import { Button } from '@/components/ui/button';
@@ -144,28 +145,47 @@ export default function StateLawPage() {
     canonical: `https://breakyoursolarcontract.com/solar-contract-laws/${stateSlug ?? ''}`,
   });
 
+  const stateLawSchemas = law ? [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LegalService',
+      name: `Solar Contract Help — ${law.state}`,
+      description: law.metaDescription,
+      url: `https://breakyoursolarcontract.com/solar-contract-laws/${law.slug}`,
+      areaServed: { '@type': 'State', name: law.state },
+      serviceType: 'Solar Contract Cancellation Assistance',
+      provider: {
+        '@type': 'Organization',
+        name: 'Solar Freedom',
+        url: 'https://breakyoursolarcontract.com',
+        telephone: '+1-904-664-0877',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: law.faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
+        { '@type': 'ListItem', position: 2, name: 'Solar Contract Laws', item: 'https://breakyoursolarcontract.com/solar-contract-help' },
+        { '@type': 'ListItem', position: 3, name: `${law.state} Solar Contract Laws`, item: `https://breakyoursolarcontract.com/solar-contract-laws/${law.slug}` },
+      ],
+    },
+  ] : [];
+
   useEffect(() => {
     if (law) {
       document.title = law.metaTitle;
       const desc = document.querySelector('meta[name="description"]');
       if (desc) desc.setAttribute('content', law.metaDescription);
-
-      // Inject FAQPage schema for AEO
-      const existing = document.getElementById('state-law-schema');
-      if (existing) existing.remove();
-      const script = document.createElement('script');
-      script.id = 'state-law-schema';
-      script.type = 'application/ld+json';
-      script.textContent = JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: law.faq.map((f) => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
-        })),
-      });
-      document.head.appendChild(script);
     }
   }, [law]);
 
@@ -184,6 +204,7 @@ export default function StateLawPage() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
+      <SchemaInjector schemas={stateLawSchemas} />
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <div
         className="relative min-h-[480px] flex items-end pb-12 pt-24"
