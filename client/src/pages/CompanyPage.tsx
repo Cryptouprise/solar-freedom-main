@@ -185,6 +185,32 @@ export default function CompanyPage() {
         { '@type': 'ListItem', position: 2, name: `Cancel ${company.name} Contract`, item: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract` },
       ],
     },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: `Can I cancel my ${company.name} solar contract?`,
+          acceptedAnswer: { '@type': 'Answer', text: `Yes. ${company.name} contracts frequently contain grounds for cancellation including ${company.cancellationGrounds.slice(0, 2).join(' and ')}. Our attorneys have helped hundreds of ${company.name} customers cancel their agreements. Start with a free case review.` },
+        },
+        {
+          '@type': 'Question',
+          name: `How many complaints has ${company.name} received?`,
+          acceptedAnswer: { '@type': 'Answer', text: `${company.name} has received ${company.complaintCount} complaints. Common issues include: ${company.topComplaints.slice(0, 3).join('; ')}.` },
+        },
+        {
+          '@type': 'Question',
+          name: `What is ${company.name}'s BBB rating?`,
+          acceptedAnswer: { '@type': 'Answer', text: `${company.name} currently holds a ${company.bbRating} rating from the Better Business Bureau. Their current status is: ${company.status}.` },
+        },
+        {
+          '@type': 'Question',
+          name: `What are the legal grounds to cancel a ${company.name} solar contract?`,
+          acceptedAnswer: { '@type': 'Answer', text: `Common legal grounds to cancel a ${company.name} contract include: ${company.cancellationGrounds.join('; ')}.` },
+        },
+      ],
+    },
   ];
 
   return (

@@ -56,3 +56,25 @@
 - [x] Add canonical tags to StateLawPage.tsx (52 pages)
 - [x] Add canonical tags to SolarContractHelp, SolarPanelScam, SolarExitOptions, StateLawsIndex
 - [x] Add /solar-lien-removal, /solar-loan-help, /solar-exit-options to sitemap (486 total URLs)
+
+## Phase 8 — High-Impact SEO Execution
+- [x] Add city→state law internal links in CityPage.tsx (303 pages)
+- [x] Add state law→city internal links in StateLawPage.tsx (53 pages)
+- [x] Add Organization schema to homepage
+- [x] Add FAQPage schema to homepage
+- [x] Add HowTo schema to homepage process section
+- [x] Add BreadcrumbList schema to BlogPost.tsx (already existed)
+- [x] Add FAQPage schema to CompanyPage.tsx
+- [x] Create image-sitemap.xml (68 image URLs)
+- [x] Update robots.txt to reference image sitemap
+- [x] Add Bing verification meta tag to index.html
+- [x] Register breakyoursolarcontract.com in Bing Webmaster Tools
+- [x] Add SolarFraudReport canonical tag and Dataset schema
+
+## Phase 9 — Bing Verification & Deployment Checklist
+- [ ] Save checkpoint with all SEO changes for publish
+- [ ] Fix Bing registration to non-www domain (breakyoursolarcontract.com)
+- [ ] Complete Bing ownership verification after publish
+- [ ] Submit sitemap.xml and image-sitemap.xml to Bing
+- [ ] Resubmit sitemap.xml to Google Search Console
+- [ ] Write DEPLOY_CHECKLIST.md to prevent future missed steps

@@ -16,6 +16,7 @@ import UrgencyTimer from "@/components/UrgencyTimer";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trackPhoneClick, trackCTAClick, initScrollTracking } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
+import { SchemaInjector } from "@/components/SchemaInjector";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -628,10 +629,53 @@ export default function Home() {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
+  const homeSchemas: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Solar Freedom',
+      url: 'https://breakyoursolarcontract.com',
+      logo: 'https://breakyoursolarcontract.com/favicon.ico',
+      description: 'Solar contract cancellation attorneys helping homeowners escape predatory solar agreements. Free case review. 3,000+ contracts cancelled.',
+      telephone: '(904) 921-4971',
+      areaServed: 'US',
+      serviceType: 'Solar Contract Cancellation',
+      sameAs: [
+        'https://www.facebook.com/solarfreedom',
+        'https://www.instagram.com/solarfreedom',
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        { '@type': 'Question', name: 'Can I actually cancel my solar contract?', acceptedAnswer: { '@type': 'Answer', text: 'In most cases, yes. Solar contracts frequently contain violations of the Truth in Lending Act (TILA), the FTC cooling-off rule, state consumer protection statutes, and misrepresentation clauses. Our attorneys have found valid cancellation pathways in over 85% of contracts reviewed.' } },
+        { '@type': 'Question', name: 'What does solar contract cancellation cost?', acceptedAnswer: { '@type': 'Answer', text: 'Your initial contract review is completely free. If we take your case, we work on a contingency or flat-fee basis — meaning you do not pay us unless we succeed.' } },
+        { '@type': 'Question', name: 'How long does the solar contract cancellation process take?', acceptedAnswer: { '@type': 'Answer', text: 'Most cases are resolved in 30–90 days. Some straightforward cases close in as little as 2 weeks. Complex multi-party cases can take up to 6 months.' } },
+        { '@type': 'Question', name: 'Will cancelling my solar contract hurt my credit score?', acceptedAnswer: { '@type': 'Answer', text: 'We take credit protection seriously. Our process includes monitoring and disputing any negative credit reporting that results from the cancellation. In most cases, we can prevent any credit impact entirely.' } },
+        { '@type': 'Question', name: 'What if I have a solar loan instead of a lease?', acceptedAnswer: { '@type': 'Answer', text: 'Both loans and leases are covered. Solar loans often have TILA violations. Leases often have right-of-rescission issues. Both can be cancelled through the right legal strategy.' } },
+        { '@type': 'Question', name: 'What if my solar company went bankrupt?', acceptedAnswer: { '@type': 'Answer', text: 'This is actually one of the strongest cases we handle. When a solar company goes bankrupt, it often triggers contract voidability clauses and eliminates the company ability to enforce the agreement.' } },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: 'How to Cancel Your Solar Contract',
+      description: 'Step-by-step process for cancelling a solar lease, loan, or PPA with the help of Solar Freedom attorneys.',
+      totalTime: 'P90D',
+      step: [
+        { '@type': 'HowToStep', position: 1, name: 'Free Case Review', text: 'Share your contract details. Our attorneys analyze it within 24 hours and identify every cancellation angle available to you.' },
+        { '@type': 'HowToStep', position: 2, name: 'Custom Legal Strategy', text: 'We build a case-specific legal strategy based on your contract terms, the sales tactics used, and applicable consumer protection laws.' },
+        { '@type': 'HowToStep', position: 3, name: 'We Fight the Solar Company', text: 'Our team negotiates directly with the solar company and their lenders, files all necessary paperwork, and handles every communication.' },
+        { '@type': 'HowToStep', position: 4, name: 'Contract Cancelled', text: 'Contract cancelled. No more payments. No more obligations. You get written confirmation and we handle any credit reporting issues.' },
+      ],
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-[oklch(0.11_0.012_265)] text-white overflow-x-hidden">
-
-      {/* ── NAVBAR ── */}
+      <SchemaInjector schemas={homeSchemas} />
+       {/* ── NAVBAR ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/8" style={{ background: "oklch(0.11 0.012 265 / 90%)", backdropFilter: "blur(12px)" }}>
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-2">

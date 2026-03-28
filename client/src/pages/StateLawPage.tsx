@@ -7,6 +7,7 @@ import { useParams, Link } from 'wouter';
 import { useEffect } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { getStateLaw, StateLawSection } from '@/data/state-laws';
+import { cities as ALL_CITIES } from '@/data/cities';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -278,31 +279,29 @@ export default function StateLawPage() {
               </Accordion>
             </div>
 
-            {/* Related cities */}
-            {law.relatedCities.length > 0 && (
-              <div className="mt-12 bg-slate-800/40 border border-slate-700 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <BookOpen size={18} className="text-amber-400" />
-                  {law.state} City-Specific Resources
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {law.relatedCities.map((citySlug) => {
-                    const cityName = citySlug
-                      .split('-')
-                      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                      .join(' ')
-                      .replace(/ [A-Z]{2}$/, '');
-                    return (
-                      <Link key={citySlug} href={`/city/${citySlug}`}>
+            {/* Related cities — pull from main cities data for this state */}
+            {(() => {
+              const stateCities = ALL_CITIES.filter((c) => c.state === law.state).slice(0, 12);
+              if (stateCities.length === 0) return null;
+              return (
+                <div className="mt-12 bg-slate-800/40 border border-slate-700 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <BookOpen size={18} className="text-amber-400" />
+                    Cancel Your Solar Contract in {law.state} — City Resources
+                  </h3>
+                  <p className="text-slate-400 text-sm mb-4">We serve homeowners across all of {law.state}. Select your city for local attorney resources and case reviews.</p>
+                  <div className="flex flex-wrap gap-2">
+                    {stateCities.map((city) => (
+                      <Link key={city.slug} href={`/cancel-solar-contract/${city.slug}`}>
                         <Badge className="bg-slate-700 hover:bg-amber-400/20 text-slate-300 hover:text-amber-400 border-slate-600 hover:border-amber-400/30 cursor-pointer transition-all">
-                          {cityName}
+                          {city.name}
                         </Badge>
                       </Link>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Sidebar */}

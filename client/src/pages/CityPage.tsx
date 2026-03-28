@@ -13,6 +13,7 @@ import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
 import { getCityContentDepthAll as getCityContentDepth } from "@/data/city-content-depth-all";
+import { stateLaws } from "@/data/state-laws";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 
@@ -216,6 +217,10 @@ export default function CityPage() {
 
   // Related cities (same state or nearby)
   const relatedCities = CITIES.filter((c) => c.slug !== slug && (c.stateCode === city.stateCode || city.relatedCities.includes(c.slug))).slice(0, 6);
+
+  // State law page link
+  const stateLawEntry = stateLaws.find((s) => s.state === city.state);
+  const stateLawSlug = stateLawEntry?.slug ?? null;
 
   // Market stats — use depth stats if available, otherwise generic
   const marketStats = depth?.marketStats ?? [
@@ -488,6 +493,37 @@ export default function CityPage() {
           </Reveal>
         </div>
       </section>
+
+      {/* STATE LAW INTERNAL LINK */}
+      {stateLawSlug && (
+        <section className="py-10 border-t border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
+          <div className="container max-w-3xl mx-auto">
+            <Reveal>
+              <div className="rounded-xl border border-amber-500/20 p-6" style={{ background: "oklch(0.72 0.19 50 / 6%)" }}>
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.72 0.19 50 / 15%)" }}>
+                    <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-gray-400 text-xs font-mono uppercase tracking-wider mb-1">{city.state} Consumer Protection Law</p>
+                    <h3 className="text-white font-semibold text-base mb-2">
+                      Know Your {city.state} Solar Contract Rights
+                    </h3>
+                    <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                      {city.state} has specific statutes governing solar sales, cooling-off periods, and required contract disclosures. Understanding your state rights is the first step to cancellation.
+                    </p>
+                    <Link href={`/solar-contract-laws/${stateLawSlug}`} className="inline-flex items-center gap-2 text-amber-400 text-sm font-semibold hover:text-amber-300 transition-colors">
+                      View {city.state} Solar Contract Laws →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* TOPIC CLUSTER INTERNAL LINKS */}
       <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>

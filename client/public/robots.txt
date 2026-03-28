@@ -65,6 +65,7 @@ Allow: /
 Sitemap: https://breakyoursolarcontract.com/sitemap-index.xml
 Sitemap: https://breakyoursolarcontract.com/sitemap.xml
 Sitemap: https://breakyoursolarcontract.com/news-sitemap.xml
+Sitemap: https://www.breakyoursolarcontract.com/image-sitemap.xml
 
 # AI-readable content index
 # https://breakyoursolarcontract.com/llms.txt
