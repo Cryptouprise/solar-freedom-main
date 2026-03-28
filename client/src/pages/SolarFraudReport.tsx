@@ -6,6 +6,7 @@
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
+import { SchemaInjector } from '@/components/SchemaInjector';
 import {
   AlertTriangle, TrendingUp, DollarSign, Users, FileText,
   MapPin, Building2, Scale, ArrowRight, ExternalLink, BarChart3
@@ -97,11 +98,42 @@ const legalGrounds = [
 export default function SolarFraudReport() {
   useSeoMeta({
     title: 'State of Solar Fraud Report 2026 | Solar Contract Complaints & Statistics',
-    description: 'Annual report on solar contract fraud: 3.2M homeowners affected, $2.1B in consumer losses, top complaints, state-by-state data, and company complaint rankings.'
+    description: 'Annual report on solar contract fraud: 3.2M homeowners affected, $2.1B in consumer losses, top complaints, state-by-state data, and company complaint rankings.',
+    canonical: 'https://breakyoursolarcontract.com/solar-fraud-report',
   });
+
+  const fraudReportSchemas = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Report',
+      name: 'State of Solar Fraud Report 2026',
+      description: 'Annual report on solar contract fraud affecting 3.2 million homeowners with $2.1 billion in consumer losses.',
+      url: 'https://breakyoursolarcontract.com/solar-fraud-report',
+      datePublished: '2026-01-01',
+      dateModified: '2026-03-01',
+      publisher: {
+        '@type': 'Organization',
+        name: 'Solar Freedom',
+        url: 'https://breakyoursolarcontract.com'
+      },
+      about: {
+        '@type': 'Thing',
+        name: 'Solar Contract Fraud'
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
+        { '@type': 'ListItem', position: 2, name: 'Solar Fraud Report', item: 'https://breakyoursolarcontract.com/solar-fraud-report' }
+      ]
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
+      <SchemaInjector schemas={fraudReportSchemas} />
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
