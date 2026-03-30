@@ -88,3 +88,17 @@
 - [ ] Populate SEO strategy database with full journey + page inventory
 - [ ] Write PLAYBOOK.md — full duplication guide for replicating this site on any niche
 - [ ] Write vitest tests for admin leads procedures
+
+## Phase 11 — Analytics Audit & Tracking Infrastructure
+- [ ] Full site audit: webhook submissions, GHL contacts, indexing status, ranking, tracking gaps
+- [ ] Build persistent DB tracking for: page views, CTA clicks, form submissions, webhook fires, GHL sync
+- [ ] Add analytics/tracking tab to admin dashboard
+- [ ] Wire GA4 Data API once service account key is provided
+- [ ] Fix conversion event tracking (fire gtag generate_lead on form submit)
+- [ ] Add siteEvents table to DB schema for click/engagement tracking
+
+## Phase 12 — Keyword Ranking Reports
+- [x] Build keyword ranking Excel report (40 keywords, Mar 30 2026 baseline, matches leadflowpartners.com format)
+- [ ] Add monthly snapshot update script (run 1st of each month, appends new column)
+- [ ] Wire GA4 API to auto-populate positions when service account key is provided
+- [ ] Add keyword ranking tab to admin dashboard

@@ -1,0 +1,22 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total_leads,\n  SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new_leads,\n  SUM(CASE WHEN status = 'contacted' THEN 1 ELSE 0 END) as contacted,\n  SUM(CASE WHEN status = 'qualified' THEN 1 ELSE 0 END) as qualified,\n  SUM(CASE WHEN status = 'closed_won' THEN 1 ELSE 0 END) as won,\n  SUM(CASE WHEN status = 'closed_lost' THEN 1 ELSE 0 END) as lost,\n  SUM(CASE WHEN ghlWebhookSent = 1 THEN 1 ELSE 0 END) as ghl_webhook_sent,\n  SUM(CASE WHEN ghlWebhookSent = 0 THEN 1 ELSE 0 END) as ghl_webhook_not_sent,\n  SUM(CASE WHEN createdAt >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 ELSE 0 END) as last_24h,\n  SUM(CASE WHEN createdAt >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as last_7_days\nFROM leads;\n\nSELECT sourcePage, COUNT(*) as count FROM leads GROUP BY sourcePage ORDER BY count DESC;\n\nSELECT formName, COUNT(*) as count FROM leads GROUP BY formName ORDER BY count DESC;\n\nSELECT DATE(createdAt) as date, COUNT(*) as leads_per_day FROM leads GROUP BY DATE(createdAt) ORDER BY date DESC LIMIT 14;\n\nSELECT * FROM leads ORDER BY createdAt DESC LIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4XRmbfpNqYjx7w8.1fca292f6148 --database 46qo2AwgwNWJ4wJwr8EnH8 --execute \nSELECT \n  COUNT(*) as total_leads,\n  SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new_leads,\n  SUM(CASE WHEN status = 'contacted' THEN 1 ELSE 0 END) as contacted,\n  SUM(CASE WHEN status = 'qualified' THEN 1 ELSE 0 END) as qualified,\n  SUM(CASE WHEN status = 'closed_won' THEN 1 ELSE 0 END) as won,\n  SUM(CASE WHEN status = 'closed_lost' THEN 1 ELSE 0 END) as lost,\n  SUM(CASE WHEN ghlWebhookSent = 1 THEN 1 ELSE 0 END) as ghl_webhook_sent,\n  SUM(CASE WHEN ghlWebhookSent = 0 THEN 1 ELSE 0 END) as ghl_webhook_not_sent,\n  SUM(CASE WHEN createdAt >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 ELSE 0 END) as last_24h,\n  SUM(CASE WHEN createdAt >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as last_7_days\nFROM leads;\n\nSELECT sourcePage, COUNT(*) as count FROM leads GROUP BY sourcePage ORDER BY count DESC;\n\nSELECT formName, COUNT(*) as count FROM leads GROUP BY formName ORDER BY count DESC;\n\nSELECT DATE(createdAt) as date, COUNT(*) as leads_per_day FROM leads GROUP BY DATE(createdAt) ORDER BY date DESC LIMIT 14;\n\nSELECT * FROM leads ORDER BY createdAt DESC LIMIT 10;\n",
+  "rows": [
+    {
+      "total_leads": "0",
+      "new_leads": "NULL",
+      "contacted": "NULL",
+      "qualified": "NULL",
+      "won": "NULL",
+      "lost": "NULL",
+      "ghl_webhook_sent": "NULL",
+      "ghl_webhook_not_sent": "NULL",
+      "last_24h": "NULL",
+      "last_7_days": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_leads\tnew_leads\tcontacted\tqualified\twon\tlost\tghl_webhook_sent\tghl_webhook_not_sent\tlast_24h\tlast_7_days\n0\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 151
+}
