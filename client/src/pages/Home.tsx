@@ -330,20 +330,38 @@ function MultiStepForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Progress bar */}
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-gray-400 text-xs font-mono uppercase tracking-wider">Step {step + 1} of {totalSteps}</span>
-          <span className="text-amber-400 text-xs font-mono">{Math.round(((step + 1) / totalSteps) * 100)}% complete</span>
+      {/* Step indicator */}
+      <div className="space-y-3">
+        {/* Step labels */}
+        <div className="flex items-center justify-between gap-1">
+          {["Situation", "Issue", "Company", "Intent", "Contact"].map((label, i) => (
+            <div key={i} className="flex flex-col items-center gap-1 flex-1">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                i < step ? "bg-amber-500 text-black" :
+                i === step ? "border-2 border-amber-500 text-amber-400 bg-amber-500/15" :
+                "border border-white/20 text-gray-600 bg-white/5"
+              }`}>
+                {i < step ? "✓" : i + 1}
+              </div>
+              <span className={`text-xs font-mono hidden sm:block transition-colors duration-300 ${
+                i === step ? "text-amber-400" : i < step ? "text-amber-600" : "text-gray-600"
+              }`}>{label}</span>
+            </div>
+          ))}
         </div>
-        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+        {/* Progress bar */}
+        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
           <motion.div
             className="h-full rounded-full"
             style={{ background: "linear-gradient(90deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
             initial={{ width: "0%" }}
-            animate={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+            animate={{ width: `${(step / totalSteps) * 100}%` }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           />
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-gray-500 text-xs font-mono uppercase tracking-wider">Step {step + 1} of {totalSteps}</span>
+          <span className="text-amber-400 text-xs font-mono font-semibold">{Math.round(((step + 1) / totalSteps) * 100)}% complete</span>
         </div>
       </div>
 
@@ -1207,7 +1225,19 @@ export default function Home() {
 
             {/* Right: Form */}
             <Reveal delay={0.2}>
-              <div ref={formRef} className="rounded-2xl border border-white/10 p-8" style={{ background: "oklch(0.15 0.012 265)" }}>
+              <div ref={formRef} className="rounded-2xl p-8 relative" style={{ background: "oklch(0.13 0.012 265)", border: "2px solid oklch(0.72 0.19 50 / 70%)", boxShadow: "0 0 32px oklch(0.72 0.19 50 / 30%), 0 0 64px oklch(0.72 0.19 50 / 15%), inset 0 0 32px oklch(0.72 0.19 50 / 5%)" }}>
+                {/* Glowing corner accent */}
+                <div className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl" style={{ background: "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)" }} />
+                <div className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl" style={{ background: "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)" }} />
+                {/* Form header */}
+                <div className="mb-6 text-center relative">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3" style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    FREE CASE REVIEW — NO OBLIGATION
+                  </div>
+                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">FIND OUT IF YOU QUALIFY</h3>
+                  <p className="text-gray-400 text-sm">Answer 5 quick questions. A case specialist reviews your situation within 2 hours.</p>
+                </div>
                 <SocialProofTicker />
                 <UrgencyTimer />
                 <MultiStepForm />

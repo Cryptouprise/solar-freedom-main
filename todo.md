@@ -102,3 +102,10 @@
 - [ ] Add monthly snapshot update script (run 1st of each month, appends new column)
 - [ ] Wire GA4 API to auto-populate positions when service account key is provided
 - [ ] Add keyword ranking tab to admin dashboard
+
+## Phase 14 — Form UX Redesign
+
+- [x] Add glowing amber border to multi-step form container
+- [x] Add clear form header with instructions ("Step 1 of 5 — Tell us about your situation")
+- [x] Improve visual hierarchy so form is unmistakably a form, not a content section
+- [x] Add visual step indicator with labels

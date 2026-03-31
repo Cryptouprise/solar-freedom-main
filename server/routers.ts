@@ -10,6 +10,7 @@ import {
   markLeadGhlSent,
   updateLeadStatus,
 } from "./db";
+import { getGA4Report } from "./ga4";
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
 const GHL_WEBHOOK_URL =
@@ -131,6 +132,24 @@ export const appRouter = router({
         }
         await updateLeadStatus(input.id, input.status);
         return { success: true };
+      }),
+  }),
+
+  // ── Analytics (GA4) ──────────────────────────────────────────────────────────
+  analytics: router({
+    /**
+     * Pull a live GA4 report for breakyoursolarcontract.com.
+     * Admin only. Supports 7d, 30d, 90d date ranges.
+     */
+    report: protectedProcedure
+      .input(
+        z.object({
+          range: z.enum(["7daysAgo", "30daysAgo", "90daysAgo"]).default("7daysAgo"),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        return getGA4Report(input.range, "today");
       }),
   }),
 
