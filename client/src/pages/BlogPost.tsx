@@ -123,6 +123,8 @@ export default function BlogPost() {
     title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
     description: post?.metaDescription ?? post?.excerpt ?? 'Expert legal help to cancel your solar contract.',
     canonical: post?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${params.slug ?? ''}`,
+    ogType: 'article',
+    ogImage: post?.heroImage,
   });
 
   useEffect(() => {

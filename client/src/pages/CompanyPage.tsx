@@ -167,7 +167,33 @@ export default function CompanyPage() {
 
   const statusColor = company.status === "Bankrupt" ? "#ef4444" : company.status === "Acquired" ? "#f59e0b" : "#22c55e";
   const statusBg = company.status === "Bankrupt" ? "oklch(0.15 0.05 20 / 30%)" : company.status === "Acquired" ? "oklch(0.15 0.05 50 / 30%)" : "oklch(0.15 0.05 145 / 30%)";
+  // Convert BBB letter grade to numeric score for AggregateRating schema
+  const bbbToScore: Record<string, number> = {
+    'A+': 5.0, 'A': 4.5, 'A-': 4.0,
+    'B+': 3.8, 'B': 3.5, 'B-': 3.2,
+    'C+': 2.8, 'C': 2.5, 'C-': 2.2,
+    'D+': 1.8, 'D': 1.5, 'D-': 1.2,
+    'F': 1.0, 'NR': 1.5,
+  };
+  const ratingValue = bbbToScore[company.bbRating] ?? 2.0;
+  const reviewCount = parseInt(company.complaintCount.replace(/[^0-9]/g, ''), 10) || 100;
+
   const companySchemas: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: company.name,
+      description: `${company.name} solar company — ${company.complaintCount} BBB complaints, ${company.bbRating} BBB rating. ${company.status} status.`,
+      url: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract`,
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: ratingValue.toFixed(1),
+        bestRating: '5',
+        worstRating: '1',
+        reviewCount: reviewCount,
+        ratingExplanation: `Based on ${company.complaintCount} BBB complaints. BBB rating: ${company.bbRating}.`,
+      },
+    },
     {
       '@context': 'https://schema.org',
       '@type': 'LegalService',

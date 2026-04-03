@@ -1,6 +1,6 @@
 // ─── useSeoMeta ──────────────────────────────────────────────────────────────
 // Dynamically sets <title> and <meta name="description"> per page.
-// Also updates og:title, og:description, canonical URL, and robots directive.
+// Also updates og:title, og:description, og:url, og:type, canonical URL, and robots directive.
 
 import { useEffect } from "react";
 
@@ -9,6 +9,8 @@ interface SeoMeta {
   description: string;
   canonical?: string;
   ogImage?: string;
+  /** og:type — "article" for blog posts, defaults to "website" */
+  ogType?: "website" | "article";
   /** Set to true for thin/duplicate pages that should not be indexed */
   noindex?: boolean;
 }
@@ -16,7 +18,7 @@ interface SeoMeta {
 const DEFAULT_OG_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
-export function useSeoMeta({ title, description, canonical, ogImage, noindex }: SeoMeta) {
+export function useSeoMeta({ title, description, canonical, ogImage, ogType, noindex }: SeoMeta) {
   useEffect(() => {
     // Title
     document.title = title;
@@ -71,6 +73,10 @@ export function useSeoMeta({ title, description, canonical, ogImage, noindex }: 
     let ogImgEl = document.querySelector<HTMLMetaElement>('meta[property="og:image"]');
     if (ogImgEl) ogImgEl.content = img;
 
+    // OG type — "article" for blog posts, "website" for everything else
+    let ogTypeEl = document.querySelector<HTMLMetaElement>('meta[property="og:type"]');
+    if (ogTypeEl) ogTypeEl.content = ogType ?? "website";
+
     // Twitter title
     let twTitleEl = document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]');
     if (twTitleEl) twTitleEl.content = title;
@@ -86,6 +92,8 @@ export function useSeoMeta({ title, description, canonical, ogImage, noindex }: 
       if (d) d.content = "Trapped in a solar contract? Our attorneys cancel solar agreements for 3,000+ homeowners. Free case review. Results in 30–90 days.";
       const r = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
       if (r) r.content = "index, follow";
+      const t = document.querySelector<HTMLMetaElement>('meta[property="og:type"]');
+      if (t) t.content = "website";
     };
-  }, [title, description, canonical, ogImage, noindex]);
+  }, [title, description, canonical, ogImage, ogType, noindex]);
 }

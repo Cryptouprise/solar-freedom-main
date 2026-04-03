@@ -128,3 +128,15 @@
 - [ ] Submit updated sitemap.xml to GSC for re-crawl
 - [ ] Use GSC URL Inspection to request indexing on top 10 city pages
 - [ ] Monitor indexing report in 2 weeks
+
+## Phase 17 — SEO Audit Implementation (Priority Action Plan)
+
+- [x] Create/fix LLMs.txt — already comprehensive; updated coverage numbers to 123 cities, 51 states, 127 blog posts
+- [x] Verify OG tags on all page types — useSeoMeta dynamically updates og:title, og:description, og:url, og:image on all pages
+- [x] Add og:type support to useSeoMeta — blog posts now set og:type=article; all others use website
+- [x] Add ogImage to BlogPost.tsx — blog hero image now used as og:image
+- [x] BreadcrumbList schema — already on BlogPost, CityPage, CompanyPage, StateLawPage; added to StateLawsIndex
+- [x] FAQPage schema — added to StateLawsIndex (2 questions); already on all other key page types
+- [x] Add AggregateRating schema to all 13 company pages — BBB grade converted to 1-5 numeric score; reviewCount from complaint count
+- [x] Verify unique title tags — all page types use dynamic titles via useSeoMeta
+- [x] Verify meta descriptions — all page types have unique descriptions via useSeoMeta

@@ -5,6 +5,7 @@
 import { Link } from 'wouter';
 import { useEffect } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
+import { SchemaInjector } from '@/components/SchemaInjector';
 import { getAllStateLaws } from '@/data/state-laws';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -58,8 +59,36 @@ export default function StateLawsIndex() {
   const highActivityStates = states.filter((s) => s.aggressivenessRating >= 4);
   const otherStates = states.filter((s) => s.aggressivenessRating < 4);
 
+  const stateIndexSchemas: object[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
+        { '@type': 'ListItem', position: 2, name: 'Solar Contract Rights by State', item: 'https://breakyoursolarcontract.com/solar-contract-laws' },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What are my rights when canceling a solar contract?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Your rights depend on your state. Most states provide a 3-day right of rescission for contracts signed at home. Many states have additional consumer protection laws covering solar contracts, including extended cancellation windows, mandatory disclosures, and contractor licensing requirements. Find your state above for specific rights.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Which states have the strongest solar consumer protection laws?',
+          acceptedAnswer: { '@type': 'Answer', text: 'California, Florida, Texas, Arizona, and Nevada have the most active solar markets and the most developed consumer protection frameworks. California in particular has strong CSLB licensing requirements and the PACE financing consumer protection law.' },
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-900 text-white">
+      <SchemaInjector schemas={stateIndexSchemas} />
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <div
         className="relative min-h-[400px] flex items-end pb-12 pt-24"
