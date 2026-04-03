@@ -109,3 +109,22 @@
 - [x] Add clear form header with instructions ("Step 1 of 5 — Tell us about your situation")
 - [x] Improve visual hierarchy so form is unmistakably a form, not a content section
 - [x] Add visual step indicator with labels
+
+## Phase 15 — Hero Animation & Blog Fixes
+
+- [ ] Add looping animated ambient light/glow effect to hero section background
+- [ ] Fix 404 on /blog/solar-contract-rescission-rights (create page or fix routing)
+- [ ] Audit all blog URLs for 404s and fix any broken routes
+
+## Phase 16 — GSC Indexing Fixes (490 pages not indexed)
+
+- [x] Fix "Page with redirect" issues — image-sitemap.xml had www URLs causing 301 redirects; fixed to non-www
+- [x] Fix "Alternate page with proper canonical tag" — removed 18 blog posts with canonical overrides from sitemap
+- [x] Fix "Discovered - currently not indexed" — added noindex to 179 thin city pages (no depth data) to preserve crawl budget
+- [x] Fix "Duplicate, Google chose different canonical than user" — removed 18 duplicate blog posts from sitemap
+- [x] Fix robots.txt — removed www image-sitemap reference, cleaned up non-existent sitemap-index.xml
+- [x] Update all sitemap lastmod dates to 2026-04-02 for freshness signal
+- [x] Sitemap now has 321 clean URLs (123 city, 127 blog, 51 state law, 13 company, misc)
+- [ ] Submit updated sitemap.xml to GSC for re-crawl
+- [ ] Use GSC URL Inspection to request indexing on top 10 city pages
+- [ ] Monitor indexing report in 2 weeks
