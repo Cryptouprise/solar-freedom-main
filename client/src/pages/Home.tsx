@@ -900,7 +900,7 @@ export default function Home() {
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                     FREE CASE REVIEW — NO OBLIGATION
                   </div>
-                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">FIND OUT IF WE CAN HELP YOU</h3>
+                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT</h3>
                   <p className="text-gray-300 text-sm font-semibold">Most people have their solar canceled and still get to keep their equipment.</p>
                 </div>
                 <SocialProofTicker />

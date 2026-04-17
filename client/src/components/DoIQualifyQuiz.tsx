@@ -155,9 +155,9 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
         style={{ background: "oklch(0.10 0.01 265)", borderBottom: "1px solid oklch(0.2 0.01 265)" }}
       >
         <div>
-          <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-0.5">Free Qualification Check</div>
+          <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-0.5">FREE CASE REVIEW — NO OBLIGATION</div>
           <div className="font-black text-white text-sm" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-            DO I QUALIFY TO CANCEL MY SOLAR CONTRACT?
+            60 SECONDS — FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
           </div>
         </div>
         <div className="text-zinc-500 text-xs font-mono shrink-0">
