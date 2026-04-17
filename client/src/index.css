@@ -150,6 +150,59 @@
     animation: amberPulse 2.5s ease-in-out infinite;
   }
 
+  /* Form box — rotating conic glow border */
+  @keyframes rotateBorder {
+    0% { --border-angle: 0deg; }
+    100% { --border-angle: 360deg; }
+  }
+  @property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes formGlowPulse {
+    0%, 100% {
+      box-shadow:
+        0 0 40px oklch(0.85 0.22 50 / 80%),
+        0 0 80px oklch(0.72 0.19 50 / 50%),
+        0 0 120px oklch(0.72 0.19 50 / 25%),
+        inset 0 0 40px oklch(0.72 0.19 50 / 8%);
+    }
+    50% {
+      box-shadow:
+        0 0 60px oklch(0.90 0.24 50 / 95%),
+        0 0 120px oklch(0.80 0.22 50 / 70%),
+        0 0 180px oklch(0.72 0.19 50 / 40%),
+        inset 0 0 60px oklch(0.72 0.19 50 / 15%);
+    }
+  }
+  .form-glow-box {
+    position: relative;
+    animation: formGlowPulse 2.5s ease-in-out infinite;
+    border: 2px solid oklch(0.85 0.22 50 / 90%) !important;
+  }
+  .form-glow-box::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    padding: 3px;
+    background: conic-gradient(
+      from var(--border-angle),
+      oklch(0.72 0.19 50 / 0%) 0%,
+      oklch(0.90 0.24 50) 25%,
+      oklch(1 0.20 60) 50%,
+      oklch(0.90 0.24 50) 75%,
+      oklch(0.72 0.19 50 / 0%) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rotateBorder 3s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
   /* Counter animation */
   @keyframes countUp {
     from { opacity: 0; transform: translateY(10px); }

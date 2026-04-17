@@ -890,7 +890,7 @@ export default function Home() {
 
             {/* Right: Form */}
             <Reveal delay={0.2}>
-              <div ref={formRef} className="rounded-2xl p-8 relative" style={{ background: "oklch(0.13 0.012 265)", border: "2px solid oklch(0.72 0.19 50 / 70%)", boxShadow: "0 0 32px oklch(0.72 0.19 50 / 30%), 0 0 64px oklch(0.72 0.19 50 / 15%), inset 0 0 32px oklch(0.72 0.19 50 / 5%)" }}>
+              <div ref={formRef} className="rounded-2xl p-8 relative form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
                 {/* Glowing corner accent */}
                 <div className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl" style={{ background: "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)" }} />
                 <div className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl" style={{ background: "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)" }} />
