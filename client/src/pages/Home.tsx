@@ -726,80 +726,91 @@ export default function Home() {
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
         </div>
 
-        <div className="container relative z-10 py-24 lg:py-32">
-          <div className="max-w-3xl">
-            {/* Pre-headline badge */}
+        <div className="container relative z-10 py-20 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            {/* LEFT — Headline & trust signals */}
+            <div>
+              {/* Pre-headline badge */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2 mb-6"
+              >
+                <span className="badge-danger">⚠ SOLAR CONTRACT TRAP</span>
+                <span className="text-gray-500 text-xs font-mono">3,000+ homeowners helped</span>
+              </motion.div>
+
+              {/* Main headline */}
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="font-display leading-none mb-6"
+                style={{ fontSize: "clamp(2.8rem, 5.5vw, 5.5rem)" }}
+              >
+                <span className="text-white">THEY TRAPPED</span>
+                <br />
+                <span className="text-amber-gradient">YOU IN A</span>
+                <br />
+                <span className="text-white">CONTRACT.</span>
+                <br />
+                <span className="text-amber-gradient">WE GET YOU OUT.</span>
+              </motion.h1>
+
+              {/* Sub-headline */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="text-gray-300 text-lg leading-relaxed mb-8"
+              >
+                Hidden fees. Broken promises. Aggressive sales tactics. You were misled — and our consumer protection attorneys know exactly how to prove it.
+              </motion.p>
+
+              {/* Phone CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.45 }}
+                className="mb-8"
+              >
+                <a href="tel:+19049214971" onClick={() => trackPhoneClick("hero_phone")} className="inline-flex items-center gap-3 px-6 py-4 rounded text-base font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors">
+                  📞 Call (904) 921-4971
+                </a>
+              </motion.div>
+
+              {/* Trust micro-signals */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.6 }}
+                className="flex flex-wrap gap-5 text-sm text-gray-400"
+              >
+                {[
+                  { icon: "✓", text: "No upfront cost" },
+                  { icon: "✓", text: "Results in 30–90 days" },
+                  { icon: "✓", text: "100% confidential" },
+                  { icon: "✓", text: "No obligation to proceed" },
+                ].map((item) => (
+                  <span key={item.text} className="flex items-center gap-1.5">
+                    <span className="text-amber-400 font-bold">{item.icon}</span>
+                    {item.text}
+                  </span>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* RIGHT — Quiz/Form above the fold */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 mb-6"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="badge-danger">⚠ SOLAR CONTRACT TRAP</span>
-              <span className="text-gray-500 text-xs font-mono">3,000+ homeowners helped</span>
+              <MultiStepForm />
             </motion.div>
 
-            {/* Main headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display leading-none mb-6"
-              style={{ fontSize: "clamp(3.5rem, 9vw, 7rem)" }}
-            >
-              <span className="text-white">THEY TRAPPED</span>
-              <br />
-              <span className="text-amber-gradient">YOU IN A</span>
-              <br />
-              <span className="text-white">CONTRACT.</span>
-              <br />
-              <span className="text-amber-gradient">WE GET YOU OUT.</span>
-            </motion.h1>
-
-            {/* Sub-headline */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="text-gray-300 text-xl leading-relaxed mb-8 max-w-xl"
-            >
-              Hidden fees. Broken promises. Aggressive sales tactics. You were misled — and our consumer protection attorneys know exactly how to prove it.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.45 }}
-              className="flex flex-col sm:flex-row gap-4 mb-12"
-            >
-              <button onClick={() => scrollToForm("hero_get_free_review")} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
-                GET MY FREE CASE REVIEW →
-              </button>
-              <a href="tel:+19049214971" onClick={() => trackPhoneClick("hero_phone")} className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
-                📞 Call (904) 921-4971
-              </a>
-            </motion.div>
-
-            {/* Trust micro-signals */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.6 }}
-              className="flex flex-wrap gap-6 text-sm text-gray-400"
-            >
-              {[
-                { icon: "✓", text: "No upfront cost" },
-                { icon: "✓", text: "Results in 30–90 days" },
-                { icon: "✓", text: "100% confidential" },
-                { icon: "✓", text: "No obligation to proceed" },
-              ].map((item) => (
-                <span key={item.text} className="flex items-center gap-1.5">
-                  <span className="text-amber-400 font-bold">{item.icon}</span>
-                  {item.text}
-                </span>
-              ))}
-            </motion.div>
           </div>
         </div>
 

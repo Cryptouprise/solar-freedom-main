@@ -259,8 +259,8 @@ export default function CityPage() {
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="relative min-h-[60vh] flex items-center overflow-hidden">
+      {/* HERO — two-column split with form above the fold */}
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src={HERO_BG}
@@ -271,40 +271,71 @@ export default function CityPage() {
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.09 0.01 265 / 80%) 0%, transparent 60%)" }} />
         </div>
         <div className="container relative z-10 py-20">
-          <Reveal>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/40 text-red-400 text-xs font-mono mb-6" style={{ background: "oklch(0.15 0.05 20 / 40%)" }}>
-              ⚠ SOLAR CONTRACT TRAP — {city.name.toUpperCase()}, {city.stateCode}
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            {/* LEFT — Headline & trust signals */}
+            <div>
+              <Reveal>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/40 text-red-400 text-xs font-mono mb-6" style={{ background: "oklch(0.15 0.05 20 / 40%)" }}>
+                  ⚠ SOLAR CONTRACT TRAP — {city.name.toUpperCase()}, {city.stateCode}
+                </div>
+              </Reveal>
+              <Reveal delay={0.05}>
+                <h1
+                  className="text-white leading-none mb-4"
+                  style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem, 5vw, 4.5rem)", letterSpacing: "0.02em" }}
+                >
+                  CANCEL YOUR SOLAR CONTRACT
+                  <br />
+                  <span style={{ background: "linear-gradient(90deg, #f97316, #fb923c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    IN {city.name.toUpperCase()}, {city.stateCode}
+                  </span>
+                </h1>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="text-gray-300 text-base max-w-lg mb-8 leading-relaxed">
+                  {depth?.localHook ?? `${city.name} is one of the fastest-growing solar markets in ${city.state}. Our consumer protection attorneys have helped hundreds of ${city.state} homeowners escape predatory solar contracts — for free.`}
+                </p>
+              </Reveal>
+              <Reveal delay={0.15}>
+                <div className="flex flex-wrap gap-4 items-center">
+                  <a href="tel:+19049214971" className="px-6 py-3 rounded font-semibold text-white text-base border border-white/20 hover:border-amber-500/50 transition-colors">
+                    📞 Call (904) 921-4971
+                  </a>
+                  <Link href="/">
+                    <span className="text-gray-400 text-sm hover:text-white transition-colors cursor-pointer">
+                      ← Back to Home
+                    </span>
+                  </Link>
+                </div>
+              </Reveal>
+              <Reveal delay={0.2}>
+                <div className="flex flex-wrap gap-4 mt-6 text-sm text-gray-400">
+                  {["No upfront cost", "Results in 30–90 days", "100% confidential"].map((t) => (
+                    <span key={t} className="flex items-center gap-1.5">
+                      <span className="text-amber-400 font-bold">✓</span>{t}
+                    </span>
+                  ))}
+                </div>
+              </Reveal>
             </div>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <h1
-              className="text-white leading-none mb-4"
-              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.5rem, 6vw, 5rem)", letterSpacing: "0.02em" }}
-            >
-              CANCEL YOUR SOLAR CONTRACT
-              <br />
-              <span style={{ background: "linear-gradient(90deg, #f97316, #fb923c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                IN {city.name.toUpperCase()}, {city.stateCode}
-              </span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="text-gray-300 text-lg max-w-2xl mb-8 leading-relaxed">
-              {depth?.localHook ?? `${city.name} is one of the fastest-growing solar markets in ${city.state}. Our consumer protection attorneys have helped hundreds of ${city.state} homeowners escape predatory solar contracts — for free.`}
-            </p>
-          </Reveal>
-          <Reveal delay={0.15}>
-            <div className="flex flex-wrap gap-4">
-              <a href="#city-form" className="px-8 py-4 rounded font-bold text-black text-lg" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-                GET FREE CASE REVIEW →
-              </a>
-              <Link href="/">
-                <span className="px-8 py-4 rounded font-bold text-white text-lg border border-white/20 hover:border-amber-500/50 transition-colors cursor-pointer">
-                  ← BACK TO HOME
-                </span>
-              </Link>
-            </div>
-          </Reveal>
+
+            {/* RIGHT — Form above the fold */}
+            <Reveal delay={0.1}>
+              <div id="city-form" className="p-8 rounded-xl border border-white/10" style={{ background: "oklch(0.13 0.012 265)" }}>
+                <div className="mb-6">
+                  <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-3" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
+                    FREE CASE REVIEW — {city.name.toUpperCase()}, {city.stateCode}
+                  </div>
+                  <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                    FIND OUT IF YOU HAVE A CASE IN 60 SECONDS
+                  </h2>
+                </div>
+                <CityForm city={city.name} state={city.stateCode} />
+              </div>
+            </Reveal>
+
+          </div>
         </div>
       </section>
 
@@ -322,13 +353,10 @@ export default function CityPage() {
         </div>
       </div>
 
-      {/* MAIN CONTENT + FORM */}
+      {/* MAIN CONTENT */}
       <section className="py-20 lg:py-28">
         <div className="container">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-
-            {/* Left: Local content */}
-            <div className="space-y-10">
+          <div className="max-w-3xl mx-auto space-y-10">
               <Reveal>
                 <div>
                   <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
@@ -440,24 +468,6 @@ export default function CityPage() {
                   </div>
                 </div>
               </Reveal>
-            </div>
-
-            {/* Right: Form */}
-            <div id="city-form" className="lg:sticky lg:top-24">
-              <Reveal delay={0.1}>
-                <div className="p-8 rounded-xl border border-white/10" style={{ background: "oklch(0.13 0.012 265)" }}>
-                  <div className="mb-6">
-                    <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-3" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                      FREE CASE REVIEW — {city.name.toUpperCase()}, {city.stateCode}
-                    </div>
-                    <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      FIND OUT IF YOU HAVE A CASE IN 60 SECONDS
-                    </h2>
-                  </div>
-                  <CityForm city={city.name} state={city.stateCode} />
-                </div>
-              </Reveal>
-            </div>
           </div>
         </div>
       </section>
