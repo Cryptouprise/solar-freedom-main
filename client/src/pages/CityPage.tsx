@@ -445,14 +445,15 @@ export default function CityPage() {
             {/* Right: Form */}
             <div id="city-form" className="lg:sticky lg:top-24">
               <Reveal delay={0.1}>
-                <div className="p-8 rounded-xl border border-white/10" style={{ background: "oklch(0.13 0.012 265)" }}>
+                <div className="p-8 rounded-xl form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
                   <div className="mb-6">
                     <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-3" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                      FREE CASE REVIEW — {city.name.toUpperCase()}, {city.stateCode}
+                      FREE CASE REVIEW — NO OBLIGATION
                     </div>
                     <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      FIND OUT IF YOU HAVE A CASE IN 60 SECONDS
+                      60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
                     </h2>
+                    <p className="text-gray-400 text-sm mt-2">Most people have their solar canceled and still get to keep their equipment.</p>
                   </div>
                   <CityForm city={city.name} state={city.stateCode} />
                 </div>
