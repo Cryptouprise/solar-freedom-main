@@ -838,6 +838,80 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── FORM SECTION — moved right after stats bar ── */}
+      <section id="get-review" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
+            {/* Left: Copy */}
+            <div className="space-y-8 lg:sticky lg:top-24">
+              <Reveal>
+                <div className="badge-danger mb-4">FREE CASE REVIEW</div>
+                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
+                  FIND OUT IF WE CAN HELP YOU
+                  <br />
+                  <span className="text-amber-gradient">GET YOUR SOLAR CONTRACT</span>
+                  <br />
+                  CANCELED.
+                </h2>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="text-gray-300 text-xl leading-relaxed font-semibold">
+                  Most people have their solar canceled and still get to keep their equipment.
+                </p>
+              </Reveal>
+              <div className="space-y-3">
+                {[
+                  "Free contract analysis by licensed attorneys",
+                  "Identify all cancellation options available to you",
+                  "Learn your rights under consumer protection law",
+                  "No obligation to proceed after review",
+                  "100% confidential — your data is never sold",
+                ].map((item, i) => (
+                  <Reveal key={item} delay={0.1 + i * 0.07}>
+                    <div className="flex items-center gap-3 text-gray-300">
+                      <span className="text-amber-400 font-bold">✓</span>
+                      {item}
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+              <Reveal delay={0.5}>
+                <div className="p-5 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">⏰</div>
+                    <div>
+                      <div className="font-semibold text-amber-400 mb-1">Limited Review Slots Available</div>
+                      <p className="text-gray-400 text-sm">Our attorneys can only take on a limited number of new cases each week. Don't wait — the sooner you act, the more options you have.</p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Right: Form */}
+            <Reveal delay={0.2}>
+              <div ref={formRef} className="rounded-2xl p-8 relative" style={{ background: "oklch(0.13 0.012 265)", border: "2px solid oklch(0.72 0.19 50 / 70%)", boxShadow: "0 0 32px oklch(0.72 0.19 50 / 30%), 0 0 64px oklch(0.72 0.19 50 / 15%), inset 0 0 32px oklch(0.72 0.19 50 / 5%)" }}>
+                {/* Glowing corner accent */}
+                <div className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl" style={{ background: "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)" }} />
+                <div className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl" style={{ background: "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)" }} />
+                {/* Form header */}
+                <div className="mb-6 text-center relative">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3" style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    FREE CASE REVIEW — NO OBLIGATION
+                  </div>
+                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">FIND OUT IF WE CAN HELP YOU</h3>
+                  <p className="text-gray-300 text-sm font-semibold">Most people have their solar canceled and still get to keep their equipment.</p>
+                </div>
+                <SocialProofTicker />
+                <UrgencyTimer />
+                <MultiStepForm />
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
       {/* ── PAIN SECTION ── */}
       <section className="py-24 lg:py-32">
         <div className="container">
@@ -1169,80 +1243,6 @@ export default function Home() {
                 </div>
               </Reveal>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FORM SECTION ── */}
-      <section id="get-review" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            {/* Left: Copy */}
-            <div className="space-y-8 lg:sticky lg:top-24">
-              <Reveal>
-                <div className="badge-danger mb-4">FREE CASE REVIEW</div>
-                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                  FIND OUT IF YOU
-                  <br />
-                  <span className="text-amber-gradient">HAVE A CASE</span>
-                  <br />
-                  IN 60 SECONDS.
-                </h2>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  Answer 5 quick questions and our attorneys will review your contract within 24 hours. No obligation. No cost. No risk.
-                </p>
-              </Reveal>
-              <div className="space-y-3">
-                {[
-                  "Free contract analysis by licensed attorneys",
-                  "Identify all cancellation options available to you",
-                  "Learn your rights under consumer protection law",
-                  "No obligation to proceed after review",
-                  "100% confidential — your data is never sold",
-                ].map((item, i) => (
-                  <Reveal key={item} delay={0.1 + i * 0.07}>
-                    <div className="flex items-center gap-3 text-gray-300">
-                      <span className="text-amber-400 font-bold">✓</span>
-                      {item}
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-              <Reveal delay={0.5}>
-                <div className="p-5 rounded-xl border border-amber-500/20 bg-amber-500/5">
-                  <div className="flex items-start gap-3">
-                    <div className="text-2xl">⏰</div>
-                    <div>
-                      <div className="font-semibold text-amber-400 mb-1">Limited Review Slots Available</div>
-                      <p className="text-gray-400 text-sm">Our attorneys can only take on a limited number of new cases each week. Don't wait — the sooner you act, the more options you have.</p>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-
-            {/* Right: Form */}
-            <Reveal delay={0.2}>
-              <div ref={formRef} className="rounded-2xl p-8 relative" style={{ background: "oklch(0.13 0.012 265)", border: "2px solid oklch(0.72 0.19 50 / 70%)", boxShadow: "0 0 32px oklch(0.72 0.19 50 / 30%), 0 0 64px oklch(0.72 0.19 50 / 15%), inset 0 0 32px oklch(0.72 0.19 50 / 5%)" }}>
-                {/* Glowing corner accent */}
-                <div className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl" style={{ background: "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)" }} />
-                <div className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl" style={{ background: "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)" }} />
-                {/* Form header */}
-                <div className="mb-6 text-center relative">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3" style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                    FREE CASE REVIEW — NO OBLIGATION
-                  </div>
-                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">FIND OUT IF YOU QUALIFY</h3>
-                  <p className="text-gray-400 text-sm">Answer 5 quick questions. A case specialist reviews your situation within 2 hours.</p>
-                </div>
-                <SocialProofTicker />
-                <UrgencyTimer />
-                <MultiStepForm />
-              </div>
-            </Reveal>
           </div>
         </div>
       </section>
