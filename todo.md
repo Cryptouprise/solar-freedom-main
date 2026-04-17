@@ -140,9 +140,3 @@
 - [x] Add AggregateRating schema to all 13 company pages — BBB grade converted to 1-5 numeric score; reviewCount from complaint count
 - [x] Verify unique title tags — all page types use dynamic titles via useSeoMeta
 - [x] Verify meta descriptions — all page types have unique descriptions via useSeoMeta
-
-## Phase 18 — CTA/Quiz Move to Top of Page
-- [x] Move multi-step quiz/form to top of homepage hero (above the fold, right side of split layout)
-- [x] Move CityForm quiz to hero section on all city pages (two-column split: headline left, form right)
-- [x] Remove duplicate form from lower section of city pages
-- [x] Keep phone CTA and trust signals visible alongside the form
