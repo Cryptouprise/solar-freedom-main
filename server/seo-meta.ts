@@ -147,47 +147,49 @@ export function injectMeta(html: string, path: string): string {
   const meta = map[normalizedPath];
   if (!meta) return html; // Unknown path — serve as-is (homepage meta is fine)
 
-  const escapedTitle = escapeHtml(meta.title);
-  const escapedDesc = escapeHtml(meta.description);
-  const escapedCanonical = escapeHtml(meta.canonical);
+  // Escape only < and > for text content (title, description)
+  // Do NOT escape quotes — they are needed inside HTML attribute values
+  const safeTitle = meta.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const safeDesc = meta.description.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const safeCanonical = meta.canonical; // URLs don't need escaping
 
   return html
     // <title>
-    .replace(/<title>[^<]*<\/title>/, `<title>${escapedTitle}</title>`)
+    .replace(/<title>[^<]*<\/title>/, `<title>${safeTitle}</title>`)
     // meta description
     .replace(
       /<meta\s+name="description"\s+content="[^"]*"/,
-      `<meta name="description" content="${escapedDesc}"`
+      `<meta name="description" content="${safeDesc}"`
     )
     // canonical
     .replace(
       /<link\s+rel="canonical"\s+href="[^"]*"/,
-      `<link rel="canonical" href="${escapedCanonical}"`
+      `<link rel="canonical" href="${safeCanonical}"`
     )
     // og:url
     .replace(
       /<meta\s+property="og:url"\s+content="[^"]*"/,
-      `<meta property="og:url" content="${escapedCanonical}"`
+      `<meta property="og:url" content="${safeCanonical}"`
     )
     // og:title
     .replace(
       /<meta\s+property="og:title"\s+content="[^"]*"/,
-      `<meta property="og:title" content="${escapedTitle}"`
+      `<meta property="og:title" content="${safeTitle}"`
     )
     // og:description
     .replace(
       /<meta\s+property="og:description"\s+content="[^"]*"/,
-      `<meta property="og:description" content="${escapedDesc}"`
+      `<meta property="og:description" content="${safeDesc}"`
     )
     // twitter:title
     .replace(
       /<meta\s+name="twitter:title"\s+content="[^"]*"/,
-      `<meta name="twitter:title" content="${escapedTitle}"`
+      `<meta name="twitter:title" content="${safeTitle}"`
     )
     // twitter:description
     .replace(
       /<meta\s+name="twitter:description"\s+content="[^"]*"/,
-      `<meta name="twitter:description" content="${escapedDesc}"`
+      `<meta name="twitter:description" content="${safeDesc}"`
     );
 }
 
