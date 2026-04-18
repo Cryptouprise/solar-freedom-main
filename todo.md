@@ -140,3 +140,18 @@
 - [x] Add AggregateRating schema to all 13 company pages — BBB grade converted to 1-5 numeric score; reviewCount from complaint count
 - [x] Verify unique title tags — all page types use dynamic titles via useSeoMeta
 - [x] Verify meta descriptions — all page types have unique descriptions via useSeoMeta
+
+## Phase 19 — GSC Full Audit & Indexing Push
+
+- [x] Audit canonical errors (6 pages) — HTTP versions; clicked Validate Fix in GSC
+- [x] Audit redirect issues (3 pages) — www versions; clicked Validate Fix in GSC
+- [x] Audit soft 404 (1 page) — /city/west-valley-city-ut old route; added 301 redirect in server
+- [x] Fix FAQ schema — 86 invalid items (duplicate FAQPage); removed static FAQPage from client/index.html
+- [x] Check sitemap status in GSC — all 3 sitemaps Success, 321 pages discovered
+- [x] ROOT CAUSE FOUND: SPA Soft 404 — all non-homepage pages invisible to Googlebot (no JS execution)
+- [x] Fix: server-side meta injection (server/seo-meta.ts + server/_core/vite.ts) — 469 URLs mapped
+- [x] Write reusable AI prompt guide + 4 lesson files in docs/lessons-learned/
+- [ ] Publish site so fixes go live
+- [ ] After publish: validate Soft 404 fix via GSC URL Inspection on company pages
+- [ ] After publish: request indexing for top 20 priority pages (company + state law)
+- [ ] Monitor indexing report in 2 weeks — expect 200+ pages to move to Indexed
