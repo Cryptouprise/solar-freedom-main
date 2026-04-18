@@ -19,6 +19,7 @@
  * See docs/lessons-learned/01-spa-soft-404-seo.md for full details.
  */
 
+import * as cheerio from "cheerio";
 import { cities } from "../client/src/data/cities";
 import { companies } from "../client/src/data/companies";
 import { stateLaws } from "../client/src/data/state-laws";
@@ -134,6 +135,9 @@ export function buildMetaMap(): Record<string, MetaEntry> {
 
 /**
  * Inject page-specific meta tags into the index.html string.
+ * Uses cheerio (server-side DOM parser) instead of regex for robust handling
+ * of Vite-built HTML which may have different attribute ordering/whitespace.
+ *
  * Replaces: <title>, meta description, canonical, og:url, og:title, og:description,
  *           twitter:title, twitter:description
  */
@@ -147,50 +151,34 @@ export function injectMeta(html: string, path: string): string {
   const meta = map[normalizedPath];
   if (!meta) return html; // Unknown path — serve as-is (homepage meta is fine)
 
-  // Escape only < and > for text content (title, description)
-  // Do NOT escape quotes — they are needed inside HTML attribute values
-  const safeTitle = meta.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const safeDesc = meta.description.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const safeCanonical = meta.canonical; // URLs don't need escaping
+  const $ = cheerio.load(html);
 
-  return html
-    // <title>
-    .replace(/<title>[^<]*<\/title>/, `<title>${safeTitle}</title>`)
-    // meta description
-    .replace(
-      /<meta\s+name="description"\s+content="[^"]*"/,
-      `<meta name="description" content="${safeDesc}"`
-    )
-    // canonical
-    .replace(
-      /<link\s+rel="canonical"\s+href="[^"]*"/,
-      `<link rel="canonical" href="${safeCanonical}"`
-    )
-    // og:url
-    .replace(
-      /<meta\s+property="og:url"\s+content="[^"]*"/,
-      `<meta property="og:url" content="${safeCanonical}"`
-    )
-    // og:title
-    .replace(
-      /<meta\s+property="og:title"\s+content="[^"]*"/,
-      `<meta property="og:title" content="${safeTitle}"`
-    )
-    // og:description
-    .replace(
-      /<meta\s+property="og:description"\s+content="[^"]*"/,
-      `<meta property="og:description" content="${safeDesc}"`
-    )
-    // twitter:title
-    .replace(
-      /<meta\s+name="twitter:title"\s+content="[^"]*"/,
-      `<meta name="twitter:title" content="${safeTitle}"`
-    )
-    // twitter:description
-    .replace(
-      /<meta\s+name="twitter:description"\s+content="[^"]*"/,
-      `<meta name="twitter:description" content="${safeDesc}"`
-    );
+  // <title>
+  $('title').text(meta.title);
+
+  // meta description
+  $('meta[name="description"]').attr('content', meta.description);
+
+  // canonical — remove all existing canonicals first, then set one
+  $('link[rel="canonical"]').remove();
+  $('head').append(`<link rel="canonical" href="${meta.canonical}" />`);
+
+  // og:url
+  $('meta[property="og:url"]').attr('content', meta.canonical);
+
+  // og:title
+  $('meta[property="og:title"]').attr('content', meta.title);
+
+  // og:description
+  $('meta[property="og:description"]').attr('content', meta.description);
+
+  // twitter:title
+  $('meta[name="twitter:title"]').attr('content', meta.title);
+
+  // twitter:description
+  $('meta[name="twitter:description"]').attr('content', meta.description);
+
+  return $.html();
 }
 
 function escapeHtml(str: string): string {
