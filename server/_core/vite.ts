@@ -49,14 +49,28 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath =
+  // Try import.meta.dirname first (esbuild sets this to the dir of dist/index.js)
+  // Fall back to process.cwd()/dist/public if that doesn't exist
+  let distPath =
     process.env.NODE_ENV === "development"
       ? path.resolve(import.meta.dirname, "../..", "dist", "public")
       : path.resolve(import.meta.dirname, "public");
+
+  // Fallback: if import.meta.dirname-based path doesn't exist, try process.cwd()
   if (!fs.existsSync(distPath)) {
-    console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
-    );
+    const cwdPath = path.resolve(process.cwd(), "dist", "public");
+    console.log(`[serveStatic] Primary distPath not found: ${distPath}`);
+    console.log(`[serveStatic] Trying fallback: ${cwdPath}`);
+    if (fs.existsSync(cwdPath)) {
+      distPath = cwdPath;
+      console.log(`[serveStatic] Using fallback distPath: ${distPath}`);
+    } else {
+      console.error(`[serveStatic] Could not find the build directory. Tried:\n  ${distPath}\n  ${cwdPath}`);
+      console.log(`[serveStatic] import.meta.dirname = ${import.meta.dirname}`);
+      console.log(`[serveStatic] process.cwd() = ${process.cwd()}`);
+    }
+  } else {
+    console.log(`[serveStatic] distPath OK: ${distPath}`);
   }
 
   app.use(express.static(distPath));
