@@ -99,11 +99,32 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   }
 
   // ─── City pages ───────────────────────────────────────────────────────────
+  // City-specific overrides for high-opportunity pages
+  const cityOverrides: Record<string, { title: string; description: string }> = {
+    'phoenix-az': {
+      title: 'Cancel Solar Contract in Phoenix, AZ | Get Out of Your Solar Lease',
+      description: 'Phoenix homeowners: APS net metering changes may have voided your solar contract\'s savings promises. Our attorneys cancel solar leases and loans. Free case review.',
+    },
+    'los-angeles-ca': {
+      title: 'Cancel Solar Contract in Los Angeles, CA | NEM 3.0 Rights',
+      description: 'Los Angeles homeowners: NEM 3.0 cut solar export credits by 75%. If your savings projections were based on NEM 2.0, you may have grounds to cancel. Free legal review.',
+    },
+    'north-las-vegas-nv': {
+      title: 'Cancel Solar Contract in North Las Vegas, NV | NV Energy Rights',
+      description: 'North Las Vegas homeowners: NV Energy net metering changes may have invalidated your solar contract. Nevada law requires specific disclosures. Free case review.',
+    },
+    'denver-co': {
+      title: 'Cancel Solar Contract in Denver, CO | Colorado Solar Rights',
+      description: 'Denver homeowners trapped in solar contracts: Colorado consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.',
+    },
+  };
+
   for (const city of cities) {
     const path = `/cancel-solar-contract/${city.slug}`;
+    const override = cityOverrides[city.slug];
     map[path] = {
-      title: `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
-      description: `Trapped in a solar contract in ${city.name}, ${city.state}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`,
+      title: override?.title ?? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
+      description: override?.description ?? `Trapped in a solar contract in ${city.name}, ${city.state}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`,
       canonical: BASE_URL + path,
     };
   }
