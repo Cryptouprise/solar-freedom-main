@@ -2,8 +2,6 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import fs from "fs";
-import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -40,16 +38,10 @@ async function startServer() {
     res.redirect(301, `/cancel-solar-contract/${req.params.slug}`);
   });
 
-  // Minimal diagnostic endpoint to check path resolution on live server
-  app.get('/api/diag', (_req, res) => {
-    const cwd = process.cwd();
-    const cwdDist = path.resolve(cwd, 'dist', 'public');
-    const cwdDistExists = fs.existsSync(cwdDist);
-    const sunrunPath = path.resolve(cwdDist, 'cancel-sunrun-solar-contract', 'index.html');
-    const sunrunExists = fs.existsSync(sunrunPath);
-    let cwdContents: string[] = [];
-    try { cwdContents = fs.readdirSync(cwdDist).filter(f => !f.startsWith('assets')).slice(0, 15); } catch(e) { cwdContents = ['ERR: ' + e]; }
-    res.json({ cwd, cwdDist, cwdDistExists, sunrunExists, cwdContents });
+  // IndexNow key verification file for Bing/Yandex URL submission
+  app.get('/bysolarcontract2026.txt', (_req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.send('bysolarcontract2026');
   });
 
   // OAuth callback under /api/oauth/callback
