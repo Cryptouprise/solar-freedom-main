@@ -52,6 +52,8 @@ async function startServer() {
     let cwdContents: string[] = [];
     try { distContents = fs.readdirSync(distPath).slice(0, 25); } catch(e: unknown) { distContents = ['ERROR: ' + e]; }
     try { cwdContents = fs.readdirSync(cwdPath).slice(0, 25); } catch(e: unknown) { cwdContents = ['ERROR: ' + e]; }
+    let sunrunContent = '';
+    try { sunrunContent = fs.readFileSync(sunrunPath, 'utf-8').slice(0, 300); } catch(e: unknown) { sunrunContent = 'ERROR: ' + e; }
     res.json({
       dirname,
       cwd: process.cwd(),
@@ -61,6 +63,7 @@ async function startServer() {
       cwdPathExists: fs.existsSync(cwdPath),
       sunrunExists: fs.existsSync(sunrunPath),
       sunrunCwdExists: fs.existsSync(sunrunCwdPath),
+      sunrunContent,
       distContents,
       cwdContents,
     });

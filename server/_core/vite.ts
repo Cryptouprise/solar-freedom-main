@@ -88,8 +88,11 @@ export function serveStatic(app: Express) {
       // Check if a pre-rendered HTML file exists for this path
       const urlPath = req.path === "/" ? "" : req.path;
       const prerenderedPath = path.resolve(distPath, urlPath.replace(/^\//, ""), "index.html");
+      const prerenderedExists = urlPath ? fs.existsSync(prerenderedPath) : false;
+      // Log for debugging (remove after fix is confirmed)
+      console.log(`[catch-all] path=${req.path} urlPath=${urlPath} prerenderedPath=${prerenderedPath} exists=${prerenderedExists}`);
       
-      if (urlPath && fs.existsSync(prerenderedPath)) {
+      if (urlPath && prerenderedExists) {
         // Serve the pre-rendered file with correct meta tags already baked in
         res
           .set("Content-Type", "text/html")
