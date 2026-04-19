@@ -72,7 +72,12 @@ export function serveStatic(app: Express) {
     try {
       const html = fs.readFileSync(indexPath, "utf-8");
       const injected = injectMeta(html, req.path);
-      res.set("Content-Type", "text/html").send(injected);
+      res
+        .set("Content-Type", "text/html")
+        .set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+        .set("Surrogate-Control", "no-store")
+        .set("CDN-Cache-Control", "no-store")
+        .send(injected);
     } catch {
       res.sendFile(indexPath);
     }
