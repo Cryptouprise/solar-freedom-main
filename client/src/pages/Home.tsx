@@ -721,7 +721,7 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
-          <img src={HERO_BG} alt="Solar contract cancellation attorneys helping homeowners get out of solar agreements" className="w-full h-full object-cover" />
+          <img src={HERO_BG} alt="Solar contract cancellation attorneys helping homeowners get out of solar agreements" className="w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 92%) 0%, oklch(0.1 0.015 265 / 75%) 50%, oklch(0.08 0.015 265 / 88%) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
         </div>
@@ -924,6 +924,7 @@ export default function Home() {
                   alt="Frustrated homeowner with solar contract paperwork"
                   className="rounded-xl w-full object-cover shadow-2xl"
                   style={{ maxHeight: "560px" }}
+                  loading="lazy" decoding="async"
                 />
                 {/* Overlay badge */}
                 <div className="absolute bottom-6 left-6 right-6 p-4 rounded-lg border border-red-500/30" style={{ background: "oklch(0.12 0.015 265 / 90%)", backdropFilter: "blur(8px)" }}>
@@ -1061,6 +1062,7 @@ export default function Home() {
                   src={FREEDOM_VISUAL}
                   alt="Breaking free from a solar contract"
                   className="rounded-xl w-full object-cover shadow-2xl"
+                  loading="lazy" decoding="async"
                 />
                 <div className="absolute inset-0 rounded-xl" style={{ background: "linear-gradient(to top, oklch(0.11 0.012 265 / 60%) 0%, transparent 50%)" }} />
                 <div className="absolute bottom-6 left-6">
@@ -1083,6 +1085,7 @@ export default function Home() {
                   src={ATTORNEY_TEAM}
                   alt="Solar Freedom legal team"
                   className="rounded-xl w-full object-cover shadow-2xl"
+                  loading="lazy" decoding="async"
                 />
                 <div className="absolute inset-0 rounded-xl" style={{ background: "linear-gradient(to top, oklch(0.11 0.012 265 / 50%) 0%, transparent 60%)" }} />
               </div>

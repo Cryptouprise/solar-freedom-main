@@ -1,0 +1,167 @@
+/**
+ * Sitemap Generator
+ *
+ * Generates sitemap.xml covering ALL pages:
+ * - Homepage + static pages
+ * - 301 city pages (/cancel-solar-contract/{slug})
+ * - 13 company pages (/cancel-{slug}-solar-contract)
+ * - 51 state law pages (/solar-contract-laws/{slug})
+ * - All blog articles
+ *
+ * Run: node scripts/generate-sitemap.mjs
+ */
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+const BASE_URL = "https://breakyoursolarcontract.com";
+const TODAY = new Date().toISOString().split("T")[0];
+
+// ─── Load data files ──────────────────────────────────────────────────────────
+function loadData() {
+  const citiesFile = fs.readFileSync(
+    path.resolve(ROOT, "client/src/data/cities.ts"),
+    "utf-8"
+  );
+  const companiesFile = fs.readFileSync(
+    path.resolve(ROOT, "client/src/data/companies.ts"),
+    "utf-8"
+  );
+  const stateLawsFile = fs.readFileSync(
+    path.resolve(ROOT, "client/src/data/state-laws.ts"),
+    "utf-8"
+  );
+
+  // Extract city slugs
+  const cityEntries = [];
+  const cityRegex = /\{\s*name:\s*["']([^"']+)["'][^}]*slug:\s*["']([^"']+)["']/g;
+  let m;
+  while ((m = cityRegex.exec(citiesFile)) !== null) {
+    cityEntries.push({ slug: m[2], name: m[1] });
+  }
+
+  // Extract company slugs
+  const companyEntries = [];
+  const companyRegex = /slug:\s*["']([^"']+)["'],[\s\S]*?name:\s*["']([^"']+)["']/g;
+  while ((m = companyRegex.exec(companiesFile)) !== null) {
+    companyEntries.push({ slug: m[1], name: m[2] });
+  }
+
+  // Extract state law slugs
+  const stateEntries = [];
+  const stateRegex = /slug:\s*["']([^"']+)["'],[\s\S]*?state:\s*["']([^"']+)["']/g;
+  while ((m = stateRegex.exec(stateLawsFile)) !== null) {
+    stateEntries.push({ slug: m[1], state: m[2] });
+  }
+
+  // Extract blog article slugs from all blog data files
+  const blogSlugs = new Set();
+  const blogFiles = fs.readdirSync(path.resolve(ROOT, "client/src/data"))
+    .filter(f => f.startsWith("blog"));
+  for (const blogFile of blogFiles) {
+    const content = fs.readFileSync(
+      path.resolve(ROOT, "client/src/data", blogFile),
+      "utf-8"
+    );
+    // Match slug: "some-slug" patterns
+    const slugRegex = /\bslug:\s*["']([^"']+)["']/g;
+    while ((m = slugRegex.exec(content)) !== null) {
+      blogSlugs.add(m[1]);
+    }
+  }
+
+  return { cityEntries, companyEntries, stateEntries, blogSlugs: [...blogSlugs] };
+}
+
+// ─── Build URL entries ────────────────────────────────────────────────────────
+function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
+  const entries = [];
+
+  // Homepage
+  entries.push({ url: `${BASE_URL}/`, priority: "1.0", changefreq: "weekly" });
+
+  // Static pages
+  const staticPages = [
+    { path: "/blog", priority: "0.9", changefreq: "weekly" },
+    { path: "/how-it-works", priority: "0.9", changefreq: "monthly" },
+    { path: "/solar-lien-removal", priority: "0.8", changefreq: "monthly" },
+    { path: "/solar-loan-help", priority: "0.8", changefreq: "monthly" },
+    { path: "/selling-home-with-solar", priority: "0.8", changefreq: "monthly" },
+    { path: "/state-solar-laws", priority: "0.8", changefreq: "monthly" },
+    { path: "/solar-contract-laws", priority: "0.8", changefreq: "monthly" },
+  ];
+  for (const p of staticPages) {
+    entries.push({ url: `${BASE_URL}${p.path}`, priority: p.priority, changefreq: p.changefreq });
+  }
+
+  // Company pages (highest priority after homepage)
+  for (const company of companyEntries) {
+    entries.push({
+      url: `${BASE_URL}/cancel-${company.slug}-solar-contract`,
+      priority: "0.9",
+      changefreq: "monthly",
+    });
+  }
+
+  // City pages
+  for (const city of cityEntries) {
+    entries.push({
+      url: `${BASE_URL}/cancel-solar-contract/${city.slug}`,
+      priority: "0.8",
+      changefreq: "monthly",
+    });
+  }
+
+  // State law pages
+  for (const state of stateEntries) {
+    entries.push({
+      url: `${BASE_URL}/solar-contract-laws/${state.slug}`,
+      priority: "0.7",
+      changefreq: "monthly",
+    });
+  }
+
+  // Blog articles
+  for (const slug of blogSlugs) {
+    entries.push({
+      url: `${BASE_URL}/blog/${slug}`,
+      priority: "0.7",
+      changefreq: "monthly",
+    });
+  }
+
+  return entries;
+}
+
+// ─── Generate XML ─────────────────────────────────────────────────────────────
+function generateXml(entries) {
+  const urls = entries.map(e => `  <url>
+    <loc>${e.url}</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>${e.changefreq}</changefreq>
+    <priority>${e.priority}</priority>
+  </url>`).join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`;
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+const { cityEntries, companyEntries, stateEntries, blogSlugs } = loadData();
+const entries = buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs);
+const xml = generateXml(entries);
+
+const outPath = path.resolve(ROOT, "client/public/sitemap.xml");
+fs.writeFileSync(outPath, xml, "utf-8");
+
+console.log(`✅ Generated sitemap.xml with ${entries.length} URLs`);
+console.log(`   Homepage + static: ${7 + 1} pages`);
+console.log(`   Company pages: ${companyEntries.length}`);
+console.log(`   City pages: ${cityEntries.length}`);
+console.log(`   State law pages: ${stateEntries.length}`);
+console.log(`   Blog articles: ${blogSlugs.length}`);
+console.log(`   Output: ${outPath}`);

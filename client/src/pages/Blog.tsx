@@ -166,6 +166,7 @@ export default function Blog() {
                         src={featured.heroImage}
                         alt={featured.heroAlt}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy" decoding="async"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent to-zinc-900/60 md:block hidden" />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent md:hidden" />
@@ -230,6 +231,7 @@ export default function Blog() {
                           src={post.heroImage}
                           alt={post.heroAlt}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          loading="lazy" decoding="async"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
                         <div className="absolute bottom-4 left-4">

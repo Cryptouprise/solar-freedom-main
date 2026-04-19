@@ -2,8 +2,6 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import fs from "fs";
-import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -38,35 +36,6 @@ async function startServer() {
   // Redirect legacy /city/* paths to /cancel-solar-contract/* (fixes soft 404 in GSC)
   app.get('/city/:slug', (req, res) => {
     res.redirect(301, `/cancel-solar-contract/${req.params.slug}`);
-  });
-
-  // Debug endpoint: check what pre-rendered files exist on the server
-  // TODO: Remove after debugging is complete
-  app.get('/api/debug-prerender', (_req, res) => {
-    const dirname = import.meta.dirname;
-    const distPath = path.resolve(dirname, 'public');
-    const cwdPath = path.resolve(process.cwd(), 'dist', 'public');
-    const sunrunPath = path.resolve(distPath, 'cancel-sunrun-solar-contract', 'index.html');
-    const sunrunCwdPath = path.resolve(cwdPath, 'cancel-sunrun-solar-contract', 'index.html');
-    let distContents: string[] = [];
-    let cwdContents: string[] = [];
-    try { distContents = fs.readdirSync(distPath).slice(0, 25); } catch(e: unknown) { distContents = ['ERROR: ' + e]; }
-    try { cwdContents = fs.readdirSync(cwdPath).slice(0, 25); } catch(e: unknown) { cwdContents = ['ERROR: ' + e]; }
-    let sunrunContent = '';
-    try { sunrunContent = fs.readFileSync(sunrunPath, 'utf-8').slice(0, 300); } catch(e: unknown) { sunrunContent = 'ERROR: ' + e; }
-    res.json({
-      dirname,
-      cwd: process.cwd(),
-      distPath,
-      cwdPath,
-      distPathExists: fs.existsSync(distPath),
-      cwdPathExists: fs.existsSync(cwdPath),
-      sunrunExists: fs.existsSync(sunrunPath),
-      sunrunCwdExists: fs.existsSync(sunrunCwdPath),
-      sunrunContent,
-      distContents,
-      cwdContents,
-    });
   });
 
   // OAuth callback under /api/oauth/callback

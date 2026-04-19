@@ -209,6 +209,7 @@ export default function BlogPost() {
           src={post.heroImage}
           alt={post.heroAlt}
           className="w-full h-full object-cover"
+          loading="eager" fetchPriority="high" decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-10">

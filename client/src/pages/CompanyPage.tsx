@@ -273,6 +273,7 @@ export default function CompanyPage() {
             alt={`Cancel ${company.name} solar contract — legal help for ${company.name} customers`}
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.2)" }}
+            loading="eager" fetchPriority="high" decoding="async"
           />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.09 0.01 265 / 90%) 0%, transparent 60%)" }} />
         </div>
