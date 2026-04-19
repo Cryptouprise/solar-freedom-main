@@ -240,8 +240,17 @@ def format_as_typescript(post: dict, publish_date: str) -> str:
     """Format the generated post as a TypeScript object matching the BlogPost type."""
 
     def ts_string(s: str) -> str:
-        """Escape a string for TypeScript."""
-        return s.replace("\\", "\\\\").replace("'", "\\'").replace("`", "\\`")
+        """Escape a string for TypeScript single-quoted string literals."""
+        return (
+            s.replace("\\", "\\\\")
+            .replace("\r\n", " ")
+            .replace("\n", " ")
+            .replace("\r", " ")
+            .replace("\\n", " ")  # LLM sometimes outputs literal \n
+            .replace("\\t", " ")  # and \t
+            .replace("'", "\\'")
+            .replace("`", "\\`")
+        )
 
     slug = post["slug"]
     lines = [f"  {{"]
