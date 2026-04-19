@@ -44,6 +44,12 @@ async function startServer() {
     res.send('bysolarcontract2026');
   });
 
+  // Google Search Console ownership verification file for service account
+  app.get('/google8d9f2c5b033c587b.html', (_req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send('google-site-verification: google8d9f2c5b033c587b.html');
+  });
+
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API
