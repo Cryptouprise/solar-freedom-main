@@ -26,7 +26,7 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
   {
     id: "cancel-solar-contract",
     pillarTitle: "How to Get Out of a Solar Contract",
-    pillarUrl: "/blog/how-to-cancel-solar-contract",
+    pillarUrl: "/blog/how-to-get-out-of-a-solar-contract",
     pillarKeyword: "how to cancel solar contract",
     pillarDescription:
       "The definitive guide to canceling any solar panel agreement — lease, PPA, or loan — with legal strategies that actually work.",
@@ -390,7 +390,7 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
       },
       {
         title: "How to Cancel Solar Contract",
-        url: "/blog/how-to-cancel-solar-contract",
+        url: "/blog/how-to-get-out-of-a-solar-contract",
         type: "blog",
         description: "The complete legal guide to canceling any solar contract",
         targetKeyword: "how to cancel solar contract",

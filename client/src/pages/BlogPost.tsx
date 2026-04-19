@@ -170,6 +170,19 @@ export default function BlogPost() {
     },
   ];
 
+  // Add FAQPage schema if post has FAQ items
+  if (post.faq && post.faq.length > 0) {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: post.faq.map(item => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    });
+  }
+
   // Insert inline CTAs every 4 sections
   const sectionsWithCTAs: ReactElement[] = [];
   post.content.forEach((section, i) => {
