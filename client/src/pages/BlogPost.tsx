@@ -91,6 +91,22 @@ function renderSection(section: BlogSection, index: number) {
           )}
         </div>
       );
+    case 'video':
+      return (
+        <div key={index} className="my-8 rounded-xl overflow-hidden bg-zinc-900 border border-white/10">
+          <video
+            src={section.src}
+            poster={section.poster}
+            controls
+            playsInline
+            className="w-full"
+            preload="metadata"
+          />
+          {section.caption && (
+            <p className="text-zinc-500 text-xs text-center mt-2 italic px-4 pb-3">{section.caption}</p>
+          )}
+        </div>
+      );
     default:
       return null;
   }

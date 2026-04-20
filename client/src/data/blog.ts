@@ -12,7 +12,7 @@ import { blogArticlesBatch8 } from './blog-articles-batch8';
 import { batch9BlogPosts } from './blog-articles-batch9';
 
 export interface BlogSection {
-  type: 'h2' | 'h3' | 'p' | 'callout' | 'warning' | 'quote' | 'list' | 'stat-block' | 'image';
+  type: 'h2' | 'h3' | 'p' | 'callout' | 'warning' | 'quote' | 'list' | 'stat-block' | 'image' | 'video';
   content?: string;
   items?: string[];
   stats?: { value: string; label: string }[];
@@ -20,6 +20,7 @@ export interface BlogSection {
   alt?: string;
   caption?: string;
   author?: string;
+  poster?: string; // for video type — thumbnail shown before play
 }
 
 export interface BlogPost {
