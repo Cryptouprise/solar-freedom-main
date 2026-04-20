@@ -61,6 +61,13 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
         targetKeyword: "Mosaic solar loan problems",
       },
       {
+        title: "Cancel Sunrun Before Installation",
+        url: "/blog/cancel-sunrun-solar-contract-before-installation",
+        type: "blog",
+        description: "How to cancel a Sunrun contract before panels go up",
+        targetKeyword: "cancel Sunrun solar contract before installation",
+      },
+      {
         title: "Cancel Solar Contract in Texas",
         url: "/cancel-solar-contract/dallas-tx",
         type: "city",
@@ -294,11 +301,11 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
         targetKeyword: "cancel SunPower contract",
       },
       {
-        title: "Cancel Freedom Forever Contract",
-        url: "/cancel-freedom-forever-solar-contract",
-        type: "company",
-        description: "Freedom Forever complaints and exit guide",
-        targetKeyword: "cancel Freedom Forever solar contract",
+        title: "Freedom Forever Solar Bankruptcy 2026",
+        url: "/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026",
+        type: "blog",
+        description: "Freedom Forever bankruptcy — what homeowners can do in 2026",
+        targetKeyword: "Freedom Forever solar bankruptcy homeowners",
       },
       {
         title: "Cancel ADT Solar Contract",
@@ -308,11 +315,11 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
         targetKeyword: "cancel ADT Solar contract",
       },
       {
-        title: "Sunrun Contract Cancellation Guide",
-        url: "/blog/sunrun-contract-cancellation",
+        title: "Sunrun Contract Cancellation 2026",
+        url: "/blog/sunrun-solar-contract-cancellation-2026",
         type: "blog",
-        description: "Step-by-step Sunrun cancellation guide",
-        targetKeyword: "Sunrun contract cancellation guide",
+        description: "Step-by-step Sunrun cancellation guide with 2026 legal updates",
+        targetKeyword: "Sunrun contract cancellation 2026",
       },
       {
         title: "Pink Energy Bankruptcy",
