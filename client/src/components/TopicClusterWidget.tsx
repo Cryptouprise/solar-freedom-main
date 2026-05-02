@@ -47,6 +47,11 @@ const COLOR_MAP: Record<string, { border: string; badge: string; glow: string }>
     badge: "bg-purple-500/10 text-purple-400 border border-purple-500/30",
     glow: "hover:border-purple-500/60 hover:shadow-purple-500/10",
   },
+  orange: {
+    border: "border-orange-500/30",
+    badge: "bg-orange-500/10 text-orange-400 border border-orange-500/30",
+    glow: "hover:border-orange-500/60 hover:shadow-orange-500/10",
+  },
 };
 
 interface TopicClusterWidgetProps {
@@ -60,7 +65,7 @@ export default function TopicClusterWidget({ currentUrl, showAllClusters = false
 
   if (!cluster && !showAllClusters) return null;
 
-  const colors = COLOR_MAP[cluster?.color || "amber"];
+  const colors = COLOR_MAP[cluster?.color || "amber"] || COLOR_MAP.amber;
 
   if (showAllClusters) {
     // Show all 5 clusters (used on homepage / blog index)
@@ -75,7 +80,7 @@ export default function TopicClusterWidget({ currentUrl, showAllClusters = false
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {TOPIC_CLUSTERS.map((tc) => {
-            const c = COLOR_MAP[tc.color];
+            const c = COLOR_MAP[tc.color] || COLOR_MAP.amber;
             return (
               <Link key={tc.id} href={tc.pillarUrl}>
                 <div className={`group p-4 rounded-lg bg-white/3 border ${c.border} ${c.glow} hover:shadow-lg transition-all duration-200 cursor-pointer`}>

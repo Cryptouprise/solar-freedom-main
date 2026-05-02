@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
-import { useParams, Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { getCompanyBySlug, companies as COMPANIES, getRelatedCompanies } from "@/data/companies";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
@@ -135,8 +135,11 @@ function CompanyForm({ companyName }: { companyName: string }) {
 }
 
 export default function CompanyPage() {
-  const params = useParams<{ slug: string }>();
-  const slug = params.slug || "";
+  const [location] = useLocation();
+  // Extract company slug from URL: /cancel-{slug}-solar-contract
+  // Must use regex to handle slugs containing 'solar' (e.g., vivint-solar, tesla-solar)
+  const urlMatch = location.match(/^\/cancel-(.+)-solar-contract$/);
+  const slug = urlMatch?.[1] || "";
   const company = getCompanyBySlug(slug);
   const relatedCompanies = getRelatedCompanies(slug, 4);
 
@@ -495,7 +498,7 @@ export default function CompanyPage() {
       <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container">
           <DoIQualifyQuiz />
-          <TopicClusterWidget currentUrl={`/cancel-${params.slug}-solar-contract`} />
+          <TopicClusterWidget currentUrl={`/cancel-${slug}-solar-contract`} />
         </div>
       </section>
 

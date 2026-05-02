@@ -61,7 +61,11 @@ function Router() {
         <Route path={"/cancel-solar-contract/:slug"} component={CityPage} />
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/:slug"} component={BlogPost} />
-        <Route path={"/cancel-:slug-solar-contract"} component={CompanyPage} />
+        <Route path={/^\/cancel-(.+)-solar-contract$/}>{() => {
+          // RegExp route: matches /cancel-{any-slug}-solar-contract
+          // CompanyPage extracts slug from URL via useLocation()
+          return <CompanyPage />;
+        }}</Route>
         <Route path={"/seo-command-center"} component={SeoCommandCenter} />
         <Route path={"/solar-fraud-report"} component={SolarFraudReport} />
         <Route path={"/solar-panel-scam"} component={SolarPanelScam} />

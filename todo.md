@@ -174,3 +174,11 @@
 - [x] Submitted 6 new URLs to Bing IndexNow (202) and Yandex IndexNow (202)
 - [x] Confirmed Bing IndexNow working: 924 URLs received in Bing Webmaster Tools
 - [x] Google Indexing API: 145/462 done, scheduled batches for May 3 and May 4
+
+## Bug Fix — Solar Company Pages 404
+- [ ] Diagnose 404 errors when clicking company pages from /solar-companies hub
+- [ ] Fix broken links/routes for all 13 company pages
+- [ ] Verify all company pages load correctly
+- [x] Fix company page 404 errors — root cause: regexparam doesn't support :slug in middle of path segment
+- [x] Switch to RegExp route pattern for company pages
+- [x] Fix TopicClusterWidget crash — missing "orange" color in COLOR_MAP
