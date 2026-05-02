@@ -10,6 +10,7 @@ import { batch6Articles } from './blog-articles-batch6';
 import { blogArticlesBatch7 } from './blog-articles-batch7';
 import { blogArticlesBatch8 } from './blog-articles-batch8';
 import { batch9BlogPosts } from './blog-articles-batch9';
+import { batch10BlogPosts } from './blog-articles-batch10';
 
 export interface BlogSection {
   type: 'h2' | 'h3' | 'p' | 'callout' | 'warning' | 'quote' | 'list' | 'stat-block' | 'image' | 'video';
@@ -1012,6 +1013,7 @@ export const blogPosts: BlogPost[] = [
   ...blogArticlesBatch7,
   ...blogArticlesBatch8,
   ...batch9BlogPosts,
+  ...batch10BlogPosts,
 ];
 // ─── Helper functions ──────────────────────────────────────────────────────────
 

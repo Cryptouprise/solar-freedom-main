@@ -48,7 +48,7 @@ export const extraBlogPosts: BlogPost[] = [
       { type: 'h2', content: 'States Where Solar Lease Home Sale Problems Are Most Common' },
       { type: 'p', content: 'California, Arizona, Nevada, Texas, and Florida account for the majority of solar lease home sale complications in the United States. California homeowners face the additional complexity of PACE loans, which appear on the property title. Arizona and Nevada homeowners face complications from net metering changes that have reduced the value of the solar system, making buyers even less willing to assume the lease. Texas and Florida homeowners often deal with aggressive lease terms and escalator clauses that buyers find unacceptable.' },
       { type: 'h2', content: 'What Happens If You Do Nothing and List the House Anyway' },
-      { type: 'p', content: 'Some homeowners try to list without addressing the solar lease, hoping the buyer will not notice or will agree to assume it. This rarely works. Most buyers\' agents are now trained to ask about solar agreements. If the lease is discovered after an offer is accepted, it can cause the deal to fall apart at the last minute. In some states, failure to disclose a solar lease can expose you to post-sale legal liability from the buyer.' },
+      { type: 'p', content: 'Some homeowners try to list without addressing the solar lease, hoping the buyer will not notice or will agree to assume it. This rarely works. Most buyers agents are now trained to ask about solar agreements. If the lease is discovered after an offer is accepted, it can cause the deal to fall apart at the last minute. In some states, failure to disclose a solar lease can expose you to post-sale legal liability from the buyer.' },
     ],
   },
 

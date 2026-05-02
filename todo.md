@@ -155,3 +155,22 @@
 - [ ] After publish: validate Soft 404 fix via GSC URL Inspection on company pages
 - [ ] After publish: request indexing for top 20 priority pages (company + state law)
 - [ ] Monitor indexing report in 2 weeks — expect 200+ pages to move to Indexed
+
+## Phase 20 — SEO Sprint: Quiz Placement, Author Bios, Company Hub
+- [ ] Move DoIQualifyQuiz to top of blog posts (after lead paragraph) for higher conversion
+- [ ] Add author/attorney bio section to blog posts for E-E-A-T signals
+- [ ] Build Solar Company Hub page (/solar-companies) — master page with cards for all companies
+- [ ] Generate 5 new articles via content pipeline (Vivint, Tesla, Sunnova, escalator clause, GoodLeap)
+- [ ] Submit all new pages to Google Indexing API and IndexNow
+
+## Phase 20 — SEO Sprint: Quiz Placement, Author Bio, Company Hub, Batch 10 Articles
+- [x] Solar Company Hub page (/solar-companies) — master directory of all 13 companies
+- [x] Added /solar-companies to sitemap, SEO meta, and homepage nav
+- [x] Moved DoIQualifyQuiz to top of BlogPost (after lead paragraph, above fold)
+- [x] Added AuthorBio E-E-A-T section to all blog posts
+- [x] Enhanced Article schema with Organization author
+- [x] Created batch 10: 5 new articles (Vivint 2026, escalator clause, Sunnova transfer, Tesla/SolarCity, GoodLeap fees)
+- [x] Added all 5 new articles to sitemap
+- [x] Submitted 6 new URLs to Bing IndexNow (202) and Yandex IndexNow (202)
+- [x] Confirmed Bing IndexNow working: 924 URLs received in Bing Webmaster Tools
+- [x] Google Indexing API: 145/462 done, scheduled batches for May 3 and May 4

@@ -77,6 +77,11 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       description:
         "Were you misled by a solar salesperson? Report solar fraud to the right agencies and explore your legal options. Free case review.",
     },
+    "/solar-companies": {
+      title: "Solar Company Complaints & Cancellation Guide 2026 | Solar Freedom",
+      description:
+        "Complete guide to canceling contracts with Sunrun, SunPower, Vivint Solar, Freedom Forever, GoodLeap, Sunnova, Tesla Solar & more. BBB ratings, complaint data, and legal grounds.",
+    },
   };
 
   for (const [path, meta] of Object.entries(staticPages)) {
