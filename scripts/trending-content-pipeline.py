@@ -352,8 +352,18 @@ def ts_string(s: str) -> str:
         .replace("\\n", " ")       # LLM sometimes outputs literal \n escape sequences
         .replace("\\t", " ")       # and \t
         .replace("\\r", " ")       # and \r
-        .replace("'", "\\'")       # escape single quotes
-        .replace("`", "\\`")       # escape backticks
+        .replace("'", "\'")       # escape single quotes
+        .replace("`", "\`")       # escape backticks
+        # Sanitize non-ASCII chars that esbuild cannot handle (LESSON LEARNED: never allow these in TS strings)
+        .replace("\u00a7", " Section ")  # section sign
+        .replace("\u2019", "'")           # right single quote
+        .replace("\u2018", "'")           # left single quote
+        .replace("\u201c", '"')           # left double quote
+        .replace("\u201d", '"')           # right double quote
+        .replace("\u2013", "-")           # en dash
+        .replace("\u2014", "--")          # em dash
+        .replace("\u2026", "...")         # ellipsis
+        .replace("\u00a0", " ")           # non-breaking space
     )
 
 

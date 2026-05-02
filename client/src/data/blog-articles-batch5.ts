@@ -18,7 +18,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     content: [
       {
         type: 'p',
-        content: 'The promise was simple: beat CenterPoint Energy, lock in a low rate, and let the Texas sun pay your bills. In neighborhoods from Katy to Sugar Land to Pearland, solar sales teams moved fast — and so did the signatures. Now, years later, many Houston homeowners are staring at a solar loan payment AND a utility bill, wondering what went wrong.',
+        content: 'The promise was simple: beat CenterPoint Energy, lock in a low rate, and let the Texas sun pay your bills. In neighborhoods from Katy to Sugar Land to Pearland, solar sales teams moved fast -- and so did the signatures. Now, years later, many Houston homeowners are staring at a solar loan payment AND a utility bill, wondering what went wrong.',
       },
       {
         type: 'h2',
@@ -31,8 +31,8 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'Net Metering Myth: Texas\'s deregulated market means your Retail Electric Provider (REP) pays pennies for power you send back to the grid — not the retail rate you were promised.',
-          'Hidden Dealer Fees: 20–30% of your total loan amount may be "dealer fees" baked into the principal, meaning you owe far more than the system is worth.',
+          'Net Metering Myth: Texas\'s deregulated market means your Retail Electric Provider (REP) pays pennies for power you send back to the grid -- not the retail rate you were promised.',
+          'Hidden Dealer Fees: 20-30% of your total loan amount may be "dealer fees" baked into the principal, meaning you owe far more than the system is worth.',
           'Roof Damage from Poor Installs: Houston\'s heavy rain and hurricane season expose bad workmanship fast. Many companies refuse to fix the resulting leaks.',
           'Rising PPA Escalators: Power Purchase Agreements with 2.9% annual rate increases will eventually cost more than staying on the grid.',
         ],
@@ -43,7 +43,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'Texas has some of the strongest consumer protection statutes in the country. If you were misled during the sales process, you have real legal options — not just the option to complain.',
+        content: 'Texas has some of the strongest consumer protection statutes in the country. If you were misled during the sales process, you have real legal options -- not just the option to complain.',
       },
       {
         type: 'h3',
@@ -59,7 +59,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'If you signed your contract in your home, federal law gives you three business days to cancel for any reason. If the company failed to give you proper written notice of this right, your cancellation window may still be legally open — even months later.',
+        content: 'If you signed your contract in your home, federal law gives you three business days to cancel for any reason. If the company failed to give you proper written notice of this right, your cancellation window may still be legally open -- even months later.',
       },
       {
         type: 'h3',
@@ -67,7 +67,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'If your solar loan paperwork was missing key disclosures — the total finance charge, the APR, or the full payment schedule — federal law may allow you to rescind the entire loan agreement.',
+        content: 'If your solar loan paperwork was missing key disclosures -- the total finance charge, the APR, or the full payment schedule -- federal law may allow you to rescind the entire loan agreement.',
       },
       {
         type: 'h2',
@@ -89,7 +89,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'Breaking a 25-year legal agreement requires a strategic approach. The goal is not to simply ask the company to let you go — it is to build a documented case based on their failures and your legal rights.',
+        content: 'Breaking a 25-year legal agreement requires a strategic approach. The goal is not to simply ask the company to let you go -- it is to build a documented case based on their failures and your legal rights.',
       },
       {
         type: 'list',
@@ -102,7 +102,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'callout',
-        content: 'Houston homeowners have rights under both state and federal law. If you were misled about tax credits, net metering, or the true cost of your system, you may have grounds to cancel — even if the panels are already on your roof.',
+        content: 'Houston homeowners have rights under both state and federal law. If you were misled about tax credits, net metering, or the true cost of your system, you may have grounds to cancel -- even if the panels are already on your roof.',
       },
     ],
     faq: [
@@ -116,11 +116,11 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         q: 'What if my solar company went out of business?',
-        a: 'This is common in the Texas market. If your installer is gone, the focus shifts to the lender — like GoodLeap or Mosaic — who is still collecting your money for a system that may have no valid warranty.',
+        a: 'This is common in the Texas market. If your installer is gone, the focus shifts to the lender -- like GoodLeap or Mosaic -- who is still collecting your money for a system that may have no valid warranty.',
       },
       {
         q: 'How much does it cost to get out?',
-        a: 'Every case is different, but the cost of professional help is typically a fraction of the $30,000–$60,000 you would pay over the life of a predatory 25-year loan.',
+        a: 'Every case is different, but the cost of professional help is typically a fraction of the $30,000-$60,000 you would pay over the life of a predatory 25-year loan.',
       },
     ],
     relatedSlugs: ['houston-solar-contract-problems', 'solar-panel-scam-signs-and-solutions', 'cancel-solar-loan-or-lease-early'],
@@ -135,11 +135,11 @@ export const blogArticlesBatch5: BlogPost[] = [
     category: 'City Guides',
     readTime: '8 min read',
     publishDate: '2026-03-22',
-    excerpt: 'The Valley of the Sun is ground zero for aggressive solar sales tactics. Arizona law gives you specific tools to dismantle a bad deal — even after installation.',
+    excerpt: 'The Valley of the Sun is ground zero for aggressive solar sales tactics. Arizona law gives you specific tools to dismantle a bad deal -- even after installation.',
     heroImage: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80',
     heroAlt: 'Solar panels on a Phoenix Arizona home in the desert sun',
     ctaText: 'Get Your Free Phoenix Case Review',
-    ctaSubtext: 'Arizona law may give you the right to cancel — find out in 60 seconds.',
+    ctaSubtext: 'Arizona law may give you the right to cancel -- find out in 60 seconds.',
     content: [
       {
         type: 'p',
@@ -156,7 +156,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'The APS/SRP Rate Reality: Phoenix utilities have complex demand charges and grid access fees. Even with panels, your monthly utility bill may stay high — making the solar loan a redundant expense.',
+          'The APS/SRP Rate Reality: Phoenix utilities have complex demand charges and grid access fees. Even with panels, your monthly utility bill may stay high -- making the solar loan a redundant expense.',
           'The 25-Year Lien: Companies like GoodLeap or Sunnova place a UCC-1 fixture filing on your home, making it extremely difficult to sell in competitive markets like Gilbert or Chandler.',
           'Heat Degradation: Extreme Phoenix heat wears out cheap inverters and panels faster than promised, causing underproduction the company refuses to acknowledge.',
           'The Transfer Myth: You were told the next buyer would gladly take over the lease. In reality, most buyers refuse to assume a $40,000 debt, forcing you to pay it off at closing.',
@@ -168,11 +168,11 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'h3',
-        content: 'Arizona Consumer Fraud Act (A.R.S. § 44-1522)',
+        content: 'Arizona Consumer Fraud Act (A.R.S.  Section  44-1522)',
       },
       {
         type: 'p',
-        content: 'Any deception, false promise, or misrepresentation in connection with a sale is unlawful under Arizona law. If a rep lied about your savings, tax credits, or the "no-cost" nature of the program, they violated state law — and that violation can be the basis for voiding your contract.',
+        content: 'Any deception, false promise, or misrepresentation in connection with a sale is unlawful under Arizona law. If a rep lied about your savings, tax credits, or the "no-cost" nature of the program, they violated state law -- and that violation can be the basis for voiding your contract.',
       },
       {
         type: 'h3',
@@ -212,7 +212,7 @@ export const blogArticlesBatch5: BlogPost[] = [
         items: [
           'Contract Deep-Dive: We find the loopholes and unconscionable clauses the sales rep didn\'t mention.',
           'Production Audit: We prove the system isn\'t saving you what was promised using your actual utility data.',
-          'Lender Dispute: We challenge the financing company directly — when they realize the contract is flawed, they are more likely to settle.',
+          'Lender Dispute: We challenge the financing company directly -- when they realize the contract is flawed, they are more likely to settle.',
           'Resolution: We push for a total release of the lien and, where possible, removal of the equipment.',
         ],
       },
@@ -224,7 +224,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         q: 'How does this affect my credit?',
-        a: 'The process focuses on a legal rescission or mutual release — a formal legal resolution, not a default. This is designed to protect your credit score.',
+        a: 'The process focuses on a legal rescission or mutual release -- a formal legal resolution, not a default. This is designed to protect your credit score.',
       },
       {
         q: 'What if my system isn\'t working?',
@@ -248,7 +248,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     category: 'City Guides',
     readTime: '9 min read',
     publishDate: '2026-03-22',
-    excerpt: 'San Diego is the solar capital of California — and the fraud capital too. California\'s strict disclosure laws give you more legal leverage than almost any other state.',
+    excerpt: 'San Diego is the solar capital of California -- and the fraud capital too. California\'s strict disclosure laws give you more legal leverage than almost any other state.',
     heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80',
     heroAlt: 'San Diego California neighborhood with solar panels on rooftops',
     ctaText: 'Get Your Free San Diego Case Review',
@@ -265,10 +265,10 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'NEM 3.0 Deception: Many homeowners were rushed into contracts with promises of being "grandfathered" into better net metering rates — only to find the paperwork was never filed correctly, slashing their expected savings by 75% or more.',
+          'NEM 3.0 Deception: Many homeowners were rushed into contracts with promises of being "grandfathered" into better net metering rates -- only to find the paperwork was never filed correctly, slashing their expected savings by 75% or more.',
           'Unrealistic True-Up Bills: Sales reps promise your SDGE bill will disappear. Instead, homeowners face massive annual "True-Up" charges because the system was undersized or underperformed.',
           'The Transfer Trap: Selling a home in San Diego is competitive enough without a $50,000 solar lien. Most buyers walk away the moment they see a solar lease they must assume.',
-          'Property Damage: San Diego\'s coastal salt air and Santa Ana winds require high-quality installs. Roof leaks and hardware corrosion are common — and companies often refuse to service them.',
+          'Property Damage: San Diego\'s coastal salt air and Santa Ana winds require high-quality installs. Roof leaks and hardware corrosion are common -- and companies often refuse to service them.',
         ],
       },
       {
@@ -281,7 +281,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'If your contract was signed anywhere other than the seller\'s place of business — like your kitchen table — you have a legal right to cancel. If the company didn\'t provide a specific "Notice of Cancellation" form in the correct font size, your right to cancel may extend indefinitely.',
+        content: 'If your contract was signed anywhere other than the seller\'s place of business -- like your kitchen table -- you have a legal right to cancel. If the company didn\'t provide a specific "Notice of Cancellation" form in the correct font size, your right to cancel may extend indefinitely.',
       },
       {
         type: 'h3',
@@ -315,7 +315,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'callout',
-        content: 'California has the most robust solar consumer protection laws in the country. If your San Diego contract is missing required disclosures, you may have the right to cancel — regardless of how long ago you signed.',
+        content: 'California has the most robust solar consumer protection laws in the country. If your San Diego contract is missing required disclosures, you may have the right to cancel -- regardless of how long ago you signed.',
       },
     ],
     faq: [
@@ -349,7 +349,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80',
     heroAlt: 'Tampa Florida home with solar panels and blue sky',
     ctaText: 'Get Your Free Tampa Case Review',
-    ctaSubtext: 'Florida law requires specific disclosures — find out if yours were missing.',
+    ctaSubtext: 'Florida law requires specific disclosures -- find out if yours were missing.',
     content: [
       {
         type: 'p',
@@ -362,10 +362,10 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'The Insurance Nightmare: Homeowners insurance premiums often skyrocket — or policies are canceled entirely — once panels are installed. Solar companies rarely mention this during the pitch.',
+          'The Insurance Nightmare: Homeowners insurance premiums often skyrocket -- or policies are canceled entirely -- once panels are installed. Solar companies rarely mention this during the pitch.',
           'HOA and Permitting Hurdles: Systems installed without proper HOA approval or finalized City of Tampa permits leave homeowners in legal limbo with a system that isn\'t even turned on.',
           'Hurricane Resilience Failures: Panels not installed to Florida\'s strict wind-load standards are a liability, not an asset. Poor mounts can cause catastrophic roof failure during a tropical storm.',
-          'The "No-Cost" Lie: The phrase "government-funded solar" is a massive red flag. There is no free solar program in Florida — yet thousands were told they wouldn\'t pay a dime.',
+          'The "No-Cost" Lie: The phrase "government-funded solar" is a massive red flag. There is no free solar program in Florida -- yet thousands were told they wouldn\'t pay a dime.',
         ],
       },
       {
@@ -378,7 +378,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'This is the primary weapon in Florida consumer law. If a company used unfair methods of competition or unconscionable acts — including lying about tax credits, utility savings, or the impact on your roof — they can be held liable and the contract can be voided.',
+        content: 'This is the primary weapon in Florida consumer law. If a company used unfair methods of competition or unconscionable acts -- including lying about tax credits, utility savings, or the impact on your roof -- they can be held liable and the contract can be voided.',
       },
       {
         type: 'h3',
@@ -386,7 +386,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'Under Florida Statute § 501.021, home solicitors must have a permit and provide a specific "Notice of Right to Cancel." If they missed these steps, your window to cancel may still be legally open.',
+        content: 'Under Florida Statute  Section  501.021, home solicitors must have a permit and provide a specific "Notice of Right to Cancel." If they missed these steps, your window to cancel may still be legally open.',
       },
       {
         type: 'h3',
@@ -434,7 +434,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     slug: 'cancel-solar-contract-orlando-fl',
     title: 'Orlando Solar Contract Problems? Florida Law Gives You Options',
     metaTitle: 'Cancel Your Solar Contract in Orlando, FL | Central Florida Legal Guide',
-    metaDescription: 'Orlando homeowners: learn how FDUTPA, Florida Statute § 520.73, and the FTC cooling-off rule can help you cancel a predatory solar contract.',
+    metaDescription: 'Orlando homeowners: learn how FDUTPA, Florida Statute  Section  520.73, and the FTC cooling-off rule can help you cancel a predatory solar contract.',
     category: 'City Guides',
     readTime: '8 min read',
     publishDate: '2026-03-22',
@@ -446,7 +446,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     content: [
       {
         type: 'p',
-        content: 'The classic Central Florida pitch: "The sunshine is free, so your electricity should be, too." From the master-planned streets of Lake Nona to the established neighborhoods of Winter Park and Kissimmee, thousands of homeowners were lured into solar contracts under the guise of "state-sponsored programs" or "zero-cost" initiatives. The reality is that many Orlando residents now carry two power bills — one to Duke Energy or OUC, and a massive monthly loan payment to a solar financier.',
+        content: 'The classic Central Florida pitch: "The sunshine is free, so your electricity should be, too." From the master-planned streets of Lake Nona to the established neighborhoods of Winter Park and Kissimmee, thousands of homeowners were lured into solar contracts under the guise of "state-sponsored programs" or "zero-cost" initiatives. The reality is that many Orlando residents now carry two power bills -- one to Duke Energy or OUC, and a massive monthly loan payment to a solar financier.',
       },
       {
         type: 'h2',
@@ -456,8 +456,8 @@ export const blogArticlesBatch5: BlogPost[] = [
         type: 'list',
         items: [
           'The Net Metering Trap: Duke Energy and OUC policies are shifting, and many homeowners find their credits are worth far less than what was promised during the sales pitch.',
-          'HOA and Aesthetic Disputes: In many Orlando-area HOAs, unapproved or poorly placed panels lead to fines — yet the solar company often pushes through the install anyway.',
-          'The 18-Month Balloon Payment: Many reps fail to mention that monthly payments spike by 30–50% after 18 months if you don\'t hand over your entire federal tax credit to the lender.',
+          'HOA and Aesthetic Disputes: In many Orlando-area HOAs, unapproved or poorly placed panels lead to fines -- yet the solar company often pushes through the install anyway.',
+          'The 18-Month Balloon Payment: Many reps fail to mention that monthly payments spike by 30-50% after 18 months if you don\'t hand over your entire federal tax credit to the lender.',
           'Hurricane Resilience Concerns: Central Florida is Lightning Alley. Systems without high-grade surge protection or proper wind-load mounts are a serious liability.',
         ],
       },
@@ -471,11 +471,11 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'If a salesperson misrepresented government incentives, lied about future utility savings, or used high-pressure "sign today or lose out" tactics, they likely violated FDUTPA — making the contract voidable.',
+        content: 'If a salesperson misrepresented government incentives, lied about future utility savings, or used high-pressure "sign today or lose out" tactics, they likely violated FDUTPA -- making the contract voidable.',
       },
       {
         type: 'h3',
-        content: 'Florida Statute § 520.73 (Home Improvement Contracts)',
+        content: 'Florida Statute  Section  520.73 (Home Improvement Contracts)',
       },
       {
         type: 'p',
@@ -535,11 +535,11 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
     heroAlt: 'Atlanta Georgia neighborhood with residential solar panels on homes',
     ctaText: 'Get Your Free Atlanta Case Review',
-    ctaSubtext: 'Georgia expanded solar cancellation rights in 2023 — find out if you qualify.',
+    ctaSubtext: 'Georgia expanded solar cancellation rights in 2023 -- find out if you qualify.',
     content: [
       {
         type: 'p',
-        content: 'The Peach State has become a prime target for high-pressure solar sales teams. In Buckhead, Marietta, and the growing suburbs of Gwinnett County, homeowners heard the same pitch: "Georgia Power rates are skyrocketing, and this no-cost program is the only way to save." For many Atlanta residents, the reality has been a 25-year financial weight — not savings.',
+        content: 'The Peach State has become a prime target for high-pressure solar sales teams. In Buckhead, Marietta, and the growing suburbs of Gwinnett County, homeowners heard the same pitch: "Georgia Power rates are skyrocketing, and this no-cost program is the only way to save." For many Atlanta residents, the reality has been a 25-year financial weight -- not savings.',
       },
       {
         type: 'h2',
@@ -548,8 +548,8 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'The "Avoided Cost" Trap: Georgia Power pays roughly 3–4 cents per kWh for power you send back to the grid, while charging you triple that for what you use at night. Most sales reps hide this math entirely.',
-          'The "Free Solar" Fallacy: There is no Georgia State Solar Program that gives away panels. If you were told your system was government-funded, you were likely misled into a private $30,000–$50,000 loan.',
+          'The "Avoided Cost" Trap: Georgia Power pays roughly 3-4 cents per kWh for power you send back to the grid, while charging you triple that for what you use at night. Most sales reps hide this math entirely.',
+          'The "Free Solar" Fallacy: There is no Georgia State Solar Program that gives away panels. If you were told your system was government-funded, you were likely misled into a private $30,000-$50,000 loan.',
           'HOA Red Tape: Many Atlanta-area HOAs have strict rules about panel placement. Installers often proceed without proper approval, leaving homeowners facing fines and legal threats from their board.',
           'Service Ghosts: Companies like ADT Solar have exited the market, leaving families with broken inverters and roof leaks but no one to call for the "25-year warranty" they were promised.',
         ],
@@ -592,7 +592,7 @@ export const blogArticlesBatch5: BlogPost[] = [
           'Sunnova: Frequent reports of billing discrepancies and massive delays in hardware repairs.',
           'Freedom Forever: Many homeowners report systems taking 6+ months to reach "Permission to Operate" while loan payments start immediately.',
           'Momentum Solar: High-pressure door-to-door tactics in Alpharetta and Cumming that gloss over the true cost of financing.',
-          'Palmetto: Complex digital contracts that hide dealer fees — sometimes adding $10,000 or more to the system\'s actual price.',
+          'Palmetto: Complex digital contracts that hide dealer fees -- sometimes adding $10,000 or more to the system\'s actual price.',
           'Tesla Solar: Customer support is famously difficult to reach, leaving Atlanta homeowners with "dark" systems during peak summer.',
         ],
       },
@@ -604,11 +604,11 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         q: 'What about the 30% Federal Tax Credit?',
-        a: 'Salespeople often promise this as a refund check. In reality, it\'s a non-refundable tax credit. If you don\'t owe enough in federal taxes, you don\'t get the savings they used to calculate your monthly payment — and that misrepresentation is a point of legal dispute.',
+        a: 'Salespeople often promise this as a refund check. In reality, it\'s a non-refundable tax credit. If you don\'t owe enough in federal taxes, you don\'t get the savings they used to calculate your monthly payment -- and that misrepresentation is a point of legal dispute.',
       },
       {
         q: 'Will this hurt my credit?',
-        a: 'A formal legal dispute focuses on the company\'s failure to provide a valid product or service — not on defaulting. The goal is a resolution that protects your credit.',
+        a: 'A formal legal dispute focuses on the company\'s failure to provide a valid product or service -- not on defaulting. The goal is a resolution that protects your credit.',
       },
       {
         q: 'How long does the process take?',
@@ -632,7 +632,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80',
     heroAlt: 'Charlotte North Carolina home with solar panels on roof',
     ctaText: 'Get Your Free Charlotte Case Review',
-    ctaSubtext: 'NC law requires specific disclosures — find out if yours were provided.',
+    ctaSubtext: 'NC law requires specific disclosures -- find out if yours were provided.',
     content: [
       {
         type: 'p',
@@ -642,7 +642,7 @@ export const blogArticlesBatch5: BlogPost[] = [
         type: 'stat-block',
         stats: [
           { value: '75%', label: 'Reduction in export credits under Duke\'s NMB tariff vs. legacy net metering' },
-          { value: '20–30%', label: 'Typical "dealer fee" hidden in solar loan principal' },
+          { value: '20-30%', label: 'Typical "dealer fee" hidden in solar loan principal' },
           { value: '$30k+', label: 'Average solar lien that must be paid off to sell a Charlotte home' },
         ],
       },
@@ -653,8 +653,8 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'The Net Metering Bait-and-Switch: Many residents signed contracts based on Legacy Net Metering math. If your system wasn\'t interconnected by the 2023–2024 deadlines, you may have been forced onto a "Bridge" rate that significantly reduces your ROI.',
-          'The HOA Aesthetic Trap: While NC General Statute § 22B-20 protects your right to solar, it allows HOAs to restrict panels visible from public areas. Installers often put panels in the wrong spot, leaving homeowners with HOA fines and zero energy production.',
+          'The Net Metering Bait-and-Switch: Many residents signed contracts based on Legacy Net Metering math. If your system wasn\'t interconnected by the 2023-2024 deadlines, you may have been forced onto a "Bridge" rate that significantly reduces your ROI.',
+          'The HOA Aesthetic Trap: While NC General Statute  Section  22B-20 protects your right to solar, it allows HOAs to restrict panels visible from public areas. Installers often put panels in the wrong spot, leaving homeowners with HOA fines and zero energy production.',
           'Roof Integrity Issues: Charlotte\'s heavy spring storms and humidity require expert installation. Roof leaks and structural damage caused by subcontracted crews are common.',
           'Unclear Financing Terms: Many loans from GoodLeap or Solar Mosaic include massive dealer fees hidden from the homeowner until the first statement arrives.',
         ],
@@ -669,7 +669,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'Under N.C. Gen. Stat. § 75-1.1, any "unfair or deceptive acts" in commerce are illegal. If a salesperson lied about Duke Energy credits, misrepresented federal tax incentives, or used high-pressure "sign now" tactics, your contract may be voidable.',
+        content: 'Under N.C. Gen. Stat.  Section  75-1.1, any "unfair or deceptive acts" in commerce are illegal. If a salesperson lied about Duke Energy credits, misrepresented federal tax incentives, or used high-pressure "sign now" tactics, your contract may be voidable.',
       },
       {
         type: 'h3',
@@ -701,7 +701,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         q: 'Is it too late to cancel if the panels are already installed?',
-        a: 'Not necessarily. Many cases of fraud or breach of contract — like roof damage or poor performance — provide grounds for removal and debt termination even years after installation.',
+        a: 'Not necessarily. Many cases of fraud or breach of contract -- like roof damage or poor performance -- provide grounds for removal and debt termination even years after installation.',
       },
       {
         q: 'The rep said I\'d get a check from the government. Is that true?',
@@ -725,11 +725,11 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1546156929-a4c0ac411f47?w=1200&q=80',
     heroAlt: 'Denver Colorado home with solar panels and Rocky Mountains in background',
     ctaText: 'Get Your Free Denver Case Review',
-    ctaSubtext: 'SB25-299 requires specific disclosures — find out if yours were provided.',
+    ctaSubtext: 'SB25-299 requires specific disclosures -- find out if yours were provided.',
     content: [
       {
         type: 'p',
-        content: 'The "300 days of sunshine" in the Mile High City is more than a tourism slogan — it is the primary weapon used by aggressive solar sales teams targeting homeowners from Highlands Ranch to Boulder. You have seen them in your neighborhood: reps promising you can "stop paying Xcel Energy" and "lock in 2024 rates forever." But as the 2026 energy landscape shifts, many Denver residents are realizing the math they were shown at the kitchen table does not match their actual bills.',
+        content: 'The "300 days of sunshine" in the Mile High City is more than a tourism slogan -- it is the primary weapon used by aggressive solar sales teams targeting homeowners from Highlands Ranch to Boulder. You have seen them in your neighborhood: reps promising you can "stop paying Xcel Energy" and "lock in 2024 rates forever." But as the 2026 energy landscape shifts, many Denver residents are realizing the math they were shown at the kitchen table does not match their actual bills.',
       },
       {
         type: 'h2',
@@ -758,11 +758,11 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'h3',
-        content: 'Home Solicitation Sales Act (C.R.S. § 5-3-402)',
+        content: 'Home Solicitation Sales Act (C.R.S.  Section  5-3-402)',
       },
       {
         type: 'p',
-        content: 'If a salesperson came to your door, you have a 3-business-day cooling-off period to cancel. If the company failed to provide the mandatory 10-point font "Notice of Cancellation," your right to cancel may technically still be open — even months later.',
+        content: 'If a salesperson came to your door, you have a 3-business-day cooling-off period to cancel. If the company failed to provide the mandatory 10-point font "Notice of Cancellation," your right to cancel may technically still be open -- even months later.',
       },
       {
         type: 'h3',
@@ -770,7 +770,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'Colorado\'s 2025–2026 "Click to Cancel" rules require companies to provide a simple way to exit service agreements. If your solar provider is making it impossible to reach support or process a cancellation, they are in direct violation of state law.',
+        content: 'Colorado\'s 2025-2026 "Click to Cancel" rules require companies to provide a simple way to exit service agreements. If your solar provider is making it impossible to reach support or process a cancellation, they are in direct violation of state law.',
       },
       {
         type: 'h2',
@@ -794,7 +794,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         q: 'What about the 30% Federal Tax Credit?',
-        a: 'Reps often tell Denver homeowners they\'ll get a tax refund check. In reality, it\'s a non-refundable credit. If you don\'t owe enough in federal taxes, you get nothing — yet the solar company still expects you to pay down the loan.',
+        a: 'Reps often tell Denver homeowners they\'ll get a tax refund check. In reality, it\'s a non-refundable credit. If you don\'t owe enough in federal taxes, you get nothing -- yet the solar company still expects you to pay down the loan.',
       },
       {
         q: 'Will this hurt my credit score?',
@@ -818,7 +818,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&q=80',
     heroAlt: 'Las Vegas Nevada suburban home with solar panels in desert landscape',
     ctaText: 'Get Your Free Las Vegas Case Review',
-    ctaSubtext: 'Nevada SB 440 requires 16-point font disclosures — find out if yours were missing.',
+    ctaSubtext: 'Nevada SB 440 requires 16-point font disclosures -- find out if yours were missing.',
     content: [
       {
         type: 'p',
@@ -831,10 +831,10 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'The Demand Charge Disaster: NV Energy has shifted toward a Demand Charge billing model. Even with panels, your bill can spike based on a single 15-minute window of high usage — like running your A/C and dryer simultaneously.',
-          'Hidden Dealer Fees: The average solar loan in Vegas includes a 22–30% dealer fee baked into the principal. You might think you have a 1.99% APR, but you actually owe $8,000 more than the system is worth on day one.',
+          'The Demand Charge Disaster: NV Energy has shifted toward a Demand Charge billing model. Even with panels, your bill can spike based on a single 15-minute window of high usage -- like running your A/C and dryer simultaneously.',
+          'Hidden Dealer Fees: The average solar loan in Vegas includes a 22-30% dealer fee baked into the principal. You might think you have a 1.99% APR, but you actually owe $8,000 more than the system is worth on day one.',
           'The Tax Credit Trap: Many residents were told they\'d get a "check in the mail" for 30% of the cost. With the 25D tax credit expiring, thousands of Nevadans are being left with a massive balloon payment they weren\'t prepared for.',
-          'Abandoned Warranties: With many local installers folding or leaving the state, Vegas homeowners are left with zombie systems — panels that don\'t work and no one to call for the 25-year guarantee.',
+          'Abandoned Warranties: With many local installers folding or leaving the state, Vegas homeowners are left with zombie systems -- panels that don\'t work and no one to call for the 25-year guarantee.',
         ],
       },
       {
@@ -843,7 +843,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'h3',
-        content: 'Senate Bill 440 and AB 458 (2025–2026)',
+        content: 'Senate Bill 440 and AB 458 (2025-2026)',
       },
       {
         type: 'p',
@@ -863,7 +863,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'The Nevada State Contractors Board now has a dedicated unit to investigate solar scams. If your installer lied about your net metering tier — Tier 4 is only 75% credit, not 100% — they are in direct violation of state consumer protections.',
+        content: 'The Nevada State Contractors Board now has a dedicated unit to investigate solar scams. If your installer lied about your net metering tier -- Tier 4 is only 75% credit, not 100% -- they are in direct violation of state consumer protections.',
       },
       {
         type: 'h2',
@@ -911,7 +911,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
     heroAlt: 'Boston Massachusetts neighborhood home with solar panels on roof',
     ctaText: 'Get Your Free Boston Case Review',
-    ctaSubtext: 'Chapter 93A allows triple damages — find out if your contract qualifies.',
+    ctaSubtext: 'Chapter 93A allows triple damages -- find out if your contract qualifies.',
     content: [
       {
         type: 'p',
@@ -924,7 +924,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       {
         type: 'list',
         items: [
-          'The SMART Confusion: The Solar Massachusetts Renewable Target program is great — if you understand it. Many reps promised "free checks from the state," failing to explain that the incentive rate is fixed for 20 years and can be offset by rising energy values. If your installer messed up the SMART 3.0 application, you could be losing thousands.',
+          'The SMART Confusion: The Solar Massachusetts Renewable Target program is great -- if you understand it. Many reps promised "free checks from the state," failing to explain that the incentive rate is fixed for 20 years and can be offset by rising energy values. If your installer messed up the SMART 3.0 application, you could be losing thousands.',
           'The Zombie Installer Crisis: 2025 and 2026 have seen a wave of bankruptcies for major providers like Sunnova. If your installer has shuttered, you\'re left with a 25-year loan to a bank but no one to honor the warranty.',
           'Winter Production Plummets: Boston winters are tough on solar. If your sales rep used California-style projections that didn\'t account for Nor\'easters, snow cover, or shorter New England days, your system is likely underproducing by 30% or more.',
           'Municipal Light Plant Issues: If you live in a town with its own light department like Belmont or Reading, you may not be eligible for the same net metering as Eversource customers. Many out-of-state reps sell systems without checking local utility rules.',
@@ -940,11 +940,11 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'This is the most powerful tool available. If a solar company used unfair or deceptive acts — lying about tax credits, promising zero-cost systems that were actually loans, or using high-pressure tactics — they violated Chapter 93A. This allows you to seek contract voidance and, in some cases, triple damages.',
+        content: 'This is the most powerful tool available. If a solar company used unfair or deceptive acts -- lying about tax credits, promising zero-cost systems that were actually loans, or using high-pressure tactics -- they violated Chapter 93A. This allows you to seek contract voidance and, in some cases, triple damages.',
       },
       {
         type: 'h3',
-        content: '3-Day Cooling-Off Rule (M.G.L. ch. 93, § 48)',
+        content: '3-Day Cooling-Off Rule (M.G.L. ch. 93,  Section  48)',
       },
       {
         type: 'p',
@@ -996,7 +996,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
     heroAlt: 'Seattle Washington home with solar panels and overcast Pacific Northwest sky',
     ctaText: 'Get Your Free Seattle Case Review',
-    ctaSubtext: 'Washington\'s Solar Consumer Protection Act — find out if your contract complies.',
+    ctaSubtext: 'Washington\'s Solar Consumer Protection Act -- find out if your contract complies.',
     content: [
       {
         type: 'p',
@@ -1051,7 +1051,7 @@ export const blogArticlesBatch5: BlogPost[] = [
         type: 'list',
         items: [
           'Sunrun: Frequent issues with PPAs that create massive liens, making it difficult to sell your home in the competitive Seattle market.',
-          'Tesla Solar: Local residents report service blackouts — waiting 6+ months for a simple inverter repair while loan payments never stop.',
+          'Tesla Solar: Local residents report service blackouts -- waiting 6+ months for a simple inverter repair while loan payments never stop.',
           'Sunnova: High volume of complaints regarding billing errors and misrepresented state incentives that don\'t actually exist.',
           'Freedom Forever: High-pressure door-to-door teams that often gloss over the true-up costs you\'ll owe the utility at the end of the year.',
           'Palmetto: Complex digital platforms that make it nearly impossible for homeowners to find their original Notice of Cancellation documents.',
@@ -1085,11 +1085,11 @@ export const blogArticlesBatch5: BlogPost[] = [
     category: 'City Guides',
     readTime: '8 min read',
     publishDate: '2026-03-22',
-    excerpt: 'Oregon\'s HB 4029 took effect January 1, 2026 — and it specifically targets the deceptive sales tactics that flooded Portland neighborhoods. Here is how to use it.',
+    excerpt: 'Oregon\'s HB 4029 took effect January 1, 2026 -- and it specifically targets the deceptive sales tactics that flooded Portland neighborhoods. Here is how to use it.',
     heroImage: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80',
     heroAlt: 'Portland Oregon home with solar panels and green Pacific Northwest surroundings',
     ctaText: 'Get Your Free Portland Case Review',
-    ctaSubtext: 'HB 4029 requires plain-language disclosures — find out if yours were provided.',
+    ctaSubtext: 'HB 4029 requires plain-language disclosures -- find out if yours were provided.',
     content: [
       {
         type: 'p',
@@ -1104,7 +1104,7 @@ export const blogArticlesBatch5: BlogPost[] = [
         items: [
           'The Net Metering Bridge Trap: Oregon still supports net metering, but the transition for many PGE and Pacific Power customers into new Virtual Power Plant tariffs in 2026 has left many homeowners receiving lower credits than promised.',
           'Shadow Dealer Fees: Many Portland solar loans are packed with dealer fees that can add 25% or more to the actual cost. If your $25,000 quote turned into a $35,000 loan balance on day one, you\'ve been hit with a hidden fee.',
-          'The Free Solar Fallacy: Reps often point to the Energy Trust of Oregon or Solar Within Reach grants to claim the system is "free." In reality, these are modest rebates — and the salesperson is actually signing you up for a high-interest, 25-year private loan.',
+          'The Free Solar Fallacy: Reps often point to the Energy Trust of Oregon or Solar Within Reach grants to claim the system is "free." In reality, these are modest rebates -- and the salesperson is actually signing you up for a high-interest, 25-year private loan.',
           'Substandard PNW Installs: Portland\'s heavy moss and persistent moisture require precision. Roof leaks and micro-cracks caused by subcontracted crews who rushed the job before rainy season are common.',
         ],
       },
@@ -1154,7 +1154,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     faq: [
       {
         q: 'The rep said I\'d get a $10,000 check from the government. Where is it?',
-        a: 'The federal tax credit expired on December 31, 2025. If a rep promised you a 30% refund check in 2026, they committed fraud in the inducement — which is a major legal lever for canceling your deal.',
+        a: 'The federal tax credit expired on December 31, 2025. If a rep promised you a 30% refund check in 2026, they committed fraud in the inducement -- which is a major legal lever for canceling your deal.',
       },
       {
         q: 'What if the panels are already on my roof?',
@@ -1182,7 +1182,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80',
     heroAlt: 'Sacramento California home with solar panels in the Central Valley sun',
     ctaText: 'Get Your Free Sacramento Case Review',
-    ctaSubtext: 'SB 784 extends your cancellation window to 5 days — find out if it applies to you.',
+    ctaSubtext: 'SB 784 extends your cancellation window to 5 days -- find out if it applies to you.',
     content: [
       {
         type: 'p',
@@ -1196,7 +1196,7 @@ export const blogArticlesBatch5: BlogPost[] = [
         type: 'list',
         items: [
           'The SMUD Export Credit Reality: SMUD now credits exported energy at a flat rate of 7.4 cents per kWh. If your sales rep promised "retail parity" or that your bill would go to zero, they used deceptive math to close the deal.',
-          'The Tax Credit Balloon Shock: Many 2025 contracts were sold with the promise of a 30% federal tax credit. Now that it\'s 2026 and the credit has expired, many homeowners won\'t get the "refund check" they were told to use to pay down their loan — causing monthly payments to spike.',
+          'The Tax Credit Balloon Shock: Many 2025 contracts were sold with the promise of a 30% federal tax credit. Now that it\'s 2026 and the credit has expired, many homeowners won\'t get the "refund check" they were told to use to pay down their loan -- causing monthly payments to spike.',
           'The PG&E NEM 3.0 Cliff: For those in PG&E territory like parts of Natomas or West Sac, the transition to the Net Billing Tariff slashed export values by 80%. Without a battery, you are likely paying more for the loan than you are saving on power.',
           'Aggressive Door-to-Door Swelling: Sacramento has become a hub for out-of-state sales crews who often disappear once the contract is signed, leaving you with a zombie system and a 25-year debt.',
         ],
@@ -1211,7 +1211,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'This 2026 law is a game-changer. It mandates that lenders must perform a live Confirmation Call before a loan is finalized to ensure you understand the terms. Crucially, it extends the legal right to cancel for home solicitation contracts from 3 days to 5 business days — and 7 days for seniors. If your company rushed the install or skipped these disclosures, your contract may be voidable.',
+        content: 'This 2026 law is a game-changer. It mandates that lenders must perform a live Confirmation Call before a loan is finalized to ensure you understand the terms. Crucially, it extends the legal right to cancel for home solicitation contracts from 3 days to 5 business days -- and 7 days for seniors. If your company rushed the install or skipped these disclosures, your contract may be voidable.',
       },
       {
         type: 'h3',
@@ -1219,7 +1219,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'Under the California Civil Code, if your solar rep spoke to you in a language other than English — such as Spanish, Hmong, or Russian — they were legally required to provide you with a copy of the contract in that same language before you signed. Failure to do so is a major legal lever used to rescind contracts.',
+        content: 'Under the California Civil Code, if your solar rep spoke to you in a language other than English -- such as Spanish, Hmong, or Russian -- they were legally required to provide you with a copy of the contract in that same language before you signed. Failure to do so is a major legal lever used to rescind contracts.',
       },
       {
         type: 'h3',
@@ -1247,7 +1247,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     faq: [
       {
         q: 'Is it true the 30% tax credit is gone?',
-        a: 'Yes. For systems placed in service on or after January 1, 2026, the federal residential credit for homeowners who buy their systems has expired. If a rep promised you this credit in 2026, they committed fraud in the inducement — which is a primary reason we can cancel your contract.',
+        a: 'Yes. For systems placed in service on or after January 1, 2026, the federal residential credit for homeowners who buy their systems has expired. If a rep promised you this credit in 2026, they committed fraud in the inducement -- which is a primary reason we can cancel your contract.',
       },
       {
         q: 'Can I cancel if the panels are already on my roof?',
@@ -1274,11 +1274,11 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&q=80',
     heroAlt: 'Miami Florida home with solar panels and palm trees in South Florida',
     ctaText: 'Get Your Free Miami Case Review',
-    ctaSubtext: 'The 30% tax credit expired December 31, 2025 — find out if your contract was built on that promise.',
+    ctaSubtext: 'The 30% tax credit expired December 31, 2025 -- find out if your contract was built on that promise.',
     content: [
       {
         type: 'p',
-        content: 'In the 305, we are used to the heat — but the high-pressure "Solar Gold Rush" is reaching a boiling point. From the historic homes in Coral Gables to the modern builds in Doral and Homestead, Miami homeowners have been flooded with pitches promising to "cancel your FPL bill" and "get paid by the government to go green." As we navigate 2026, the tide has turned. With the expiration of the federal 30% residential tax credit on December 31, 2025, and recent FPL base-rate hikes approved by the PSC, the "savings" promised a year ago may no longer exist.',
+        content: 'In the 305, we are used to the heat -- but the high-pressure "Solar Gold Rush" is reaching a boiling point. From the historic homes in Coral Gables to the modern builds in Doral and Homestead, Miami homeowners have been flooded with pitches promising to "cancel your FPL bill" and "get paid by the government to go green." As we navigate 2026, the tide has turned. With the expiration of the federal 30% residential tax credit on December 31, 2025, and recent FPL base-rate hikes approved by the PSC, the "savings" promised a year ago may no longer exist.',
       },
       {
         type: 'h2',
@@ -1288,7 +1288,7 @@ export const blogArticlesBatch5: BlogPost[] = [
         type: 'list',
         items: [
           'The Tax Credit Cliff: Most 2025 contracts relied on the 30% federal tax credit to keep payments low. Since that credit expired for residential systems on January 1, 2026, many Miami families are facing massive re-amortization payments they weren\'t prepared for.',
-          'Insurance Non-Renewals: South Florida\'s insurance market is already fragile. Many homeowners are finding their policies canceled or premiums doubled after installing panels — a hidden cost almost never disclosed by sales reps.',
+          'Insurance Non-Renewals: South Florida\'s insurance market is already fragile. Many homeowners are finding their policies canceled or premiums doubled after installing panels -- a hidden cost almost never disclosed by sales reps.',
           'Hurricane Resilience and Roof Damage: A poorly installed system is a liability during a Category 3 storm. Roof leaks and structural compromises caused by rush-job installers who bypassed Miami-Dade\'s strict wind-load protocols are common.',
           'The Zero Bill Myth: FPL residential customers in 2026 still face mandatory minimum base charges and storm protection fees, even with 100% solar offset. If you were told you\'d "never pay FPL again," you were lied to.',
         ],
@@ -1303,7 +1303,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'If a company used unfair methods of competition or unconscionable acts — such as lying about government rebates or using fake FPL affiliations — they are in violation. This is the primary legal lever used to void predatory contracts in Miami.',
+        content: 'If a company used unfair methods of competition or unconscionable acts -- such as lying about government rebates or using fake FPL affiliations -- they are in violation. This is the primary legal lever used to void predatory contracts in Miami.',
       },
       {
         type: 'h3',
@@ -1339,7 +1339,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     faq: [
       {
         q: 'Can I cancel if the panels are already on my roof?',
-        a: 'Yes. If the contract was based on fraud — like promising a tax credit that has expired — or if the installation didn\'t pass Miami-Dade inspection, you can still pursue a post-install rescission.',
+        a: 'Yes. If the contract was based on fraud -- like promising a tax credit that has expired -- or if the installation didn\'t pass Miami-Dade inspection, you can still pursue a post-install rescission.',
       },
       {
         q: 'What if my installer went out of business?',

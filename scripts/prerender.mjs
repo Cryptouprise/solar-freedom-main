@@ -9,7 +9,19 @@
  * time, we ensure every page has the correct meta tags without needing server
  * injection at runtime.
  *
- * OUTPUT: dist/public/cancel-sunrun-solar-contract/index.html, etc.
+ * CRITICAL LESSONS LEARNED (do not remove this comment):
+ * 1. The injectMeta function MUST remove all existing canonical tags and append
+ *    a new one — NOT use .attr() which fails silently if the element is missing.
+ * 2. Blog posts MUST be included in the meta map — the prerender script must
+ *    read all batch files and extract slugs/metaTitle/metaDescription.
+ * 3. The index.html template has a hardcoded canonical pointing to / — this
+ *    MUST be replaced for every non-homepage URL or Google will treat all pages
+ *    as duplicates of the homepage (causing "Duplicate without user-selected canonical"
+ *    in GSC and preventing indexing of 300+ pages).
+ * 4. When adding new blog batch files, MUST update loadBlogData() to include them.
+ * 5. City pages need state codes in titles for geo-targeting (e.g., "Phoenix, AZ").
+ *
+ * OUTPUT: dist/public/cancel-solar-contract/phoenix-az/index.html, etc.
  *
  * See docs/lessons-learned/01-spa-soft-404-seo.md for full context.
  */
@@ -24,11 +36,8 @@ const ROOT = path.resolve(__dirname, "..");
 const DIST = path.resolve(ROOT, "dist", "public");
 const BASE_URL = "https://breakyoursolarcontract.com";
 
-// ─── Load data files ──────────────────────────────────────────────────────────
-// We use dynamic import with tsx to handle TypeScript data files
+// ─── Load city/company/state data ────────────────────────────────────────────
 async function loadData() {
-  // Read the compiled data by requiring the source TypeScript files via tsx
-  // Since this script runs after build, we read from source files directly
   const citiesFile = fs.readFileSync(
     path.resolve(ROOT, "client/src/data/cities.ts"),
     "utf-8"
@@ -42,13 +51,19 @@ async function loadData() {
     "utf-8"
   );
 
-  // Extract slugs/names using regex since we can't import TS directly in .mjs
   const cityEntries = [];
-  // Cities are inline objects: { name: "Dallas", ..., slug: "dallas-tx", ... }
-  const cityNameRegex = /\{\s*name:\s*["']([^"']+)["'][^}]*slug:\s*["']([^"']+)["']/g;
+  // Match: { name: "Dallas", state: "Texas", stateCode: "TX", slug: "dallas-tx", ... }
+  const cityRegex = /\{\s*name:\s*["']([^"']+)["'][\s\S]*?stateCode:\s*["']([^"']+)["'][\s\S]*?slug:\s*["']([^"']+)["']/g;
   let m;
-  while ((m = cityNameRegex.exec(citiesFile)) !== null) {
-    cityEntries.push({ slug: m[2], name: m[1] });
+  while ((m = cityRegex.exec(citiesFile)) !== null) {
+    cityEntries.push({ name: m[1], stateCode: m[2], slug: m[3] });
+  }
+  // Fallback: simpler regex if stateCode not found
+  if (cityEntries.length === 0) {
+    const cityNameRegex = /\{\s*name:\s*["']([^"']+)["'][^}]*slug:\s*["']([^"']+)["']/g;
+    while ((m = cityNameRegex.exec(citiesFile)) !== null) {
+      cityEntries.push({ name: m[1], stateCode: '', slug: m[2] });
+    }
   }
 
   const companyEntries = [];
@@ -66,8 +81,105 @@ async function loadData() {
   return { cityEntries, companyEntries, stateEntries };
 }
 
+// ─── Load ALL blog posts from all batch files ─────────────────────────────────
+// IMPORTANT: When adding new blog batch files, add them to this list.
+function loadBlogData() {
+  const blogFiles = [
+    'blog.ts',
+    'blog-extra.ts',
+    'blog-articles-batch2.ts',
+    'blog-articles-batch3.ts',
+    'blog-articles-batch4.ts',
+    'blog-articles-batch5.ts',
+    'blog-articles-batch6.ts',
+    'blog-articles-batch7.ts',
+    'blog-articles-batch8.ts',
+    'blog-articles-batch9.ts',
+    // ADD NEW BATCH FILES HERE when created
+  ];
+
+  const blogEntries = {};
+
+  for (const filename of blogFiles) {
+    const filePath = path.resolve(ROOT, 'client/src/data', filename);
+    if (!fs.existsSync(filePath)) continue;
+    const content = fs.readFileSync(filePath, 'utf-8');
+
+    // Extract slug + metaTitle + metaDescription (batch files)
+    const batchRegex = /slug:\s*['"]([^'"]+)['"][\s\S]*?metaTitle:\s*['"]([^'"]+)['"][\s\S]*?metaDescription:\s*['"]([^'"]+)['"]/g;
+    let m;
+    while ((m = batchRegex.exec(content)) !== null) {
+      const [, slug, metaTitle, metaDesc] = m;
+      if (slug && !slug.includes('${') && slug.length > 5) {
+        blogEntries[slug] = {
+          title: `${metaTitle} | Solar Freedom`,
+          description: metaDesc,
+        };
+      }
+    }
+
+    // Extract slug + title (core blog.ts format — no metaTitle)
+    const coreRegex = /slug:\s*['"]([^'"]+)['"][\s\S]*?title:\s*['"]([^'"]+)['"][\s\S]*?excerpt:\s*['"]([^'"]+)['"]/g;
+    while ((m = coreRegex.exec(content)) !== null) {
+      const [, slug, title, excerpt] = m;
+      if (slug && !slug.includes('${') && slug.length > 5 && !blogEntries[slug]) {
+        blogEntries[slug] = {
+          title: `${title} | Solar Freedom`,
+          description: excerpt.length > 155 ? excerpt.slice(0, 152) + '...' : excerpt,
+        };
+      }
+    }
+  }
+
+  return blogEntries;
+}
+
+// ─── City-specific meta overrides for high-opportunity pages ─────────────────
+const CITY_OVERRIDES = {
+  'phoenix-az': {
+    title: 'Cancel Solar Contract in Phoenix, AZ | Get Out of Your Solar Lease',
+    description: 'Phoenix homeowners: APS net metering changes may have voided your solar contract\'s savings promises. Our attorneys cancel solar leases and loans. Free case review.',
+  },
+  'los-angeles-ca': {
+    title: 'Cancel Solar Contract in Los Angeles, CA | NEM 3.0 Rights',
+    description: 'Los Angeles homeowners: NEM 3.0 cut solar export credits by 75%. If your savings projections were based on NEM 2.0, you may have grounds to cancel. Free legal review.',
+  },
+  'north-las-vegas-nv': {
+    title: 'Cancel Solar Contract in North Las Vegas, NV | NV Energy Rights',
+    description: 'North Las Vegas homeowners: NV Energy net metering changes may have invalidated your solar contract. Nevada law requires specific disclosures. Free case review.',
+  },
+  'denver-co': {
+    title: 'Cancel Solar Contract in Denver, CO | Colorado Solar Rights',
+    description: 'Denver homeowners trapped in solar contracts: Colorado consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.',
+  },
+  'san-diego-ca': {
+    title: 'Cancel Solar Contract in San Diego, CA | NEM 3.0 Legal Help',
+    description: 'San Diego homeowners: SDG&E NEM 3.0 cut solar export credits by 75%. If your savings projections were based on NEM 2.0, you have legal grounds to cancel. Free review.',
+  },
+  'las-vegas-nv': {
+    title: 'Cancel Solar Contract in Las Vegas, NV | Nevada Solar Rights',
+    description: 'Las Vegas homeowners: Nevada net metering changes may have invalidated your solar contract\'s savings promises. Our attorneys cancel solar leases and loans. Free review.',
+  },
+  'houston-tx': {
+    title: 'Cancel Solar Contract in Houston, TX | Texas Solar Rights',
+    description: 'Houston homeowners: Texas has strong consumer protection laws for solar contracts. Our attorneys cancel solar leases and loans across the Houston metro. Free case review.',
+  },
+  'dallas-tx': {
+    title: 'Cancel Solar Contract in Dallas, TX | Texas Solar Rights',
+    description: 'Dallas homeowners trapped in solar contracts: Texas consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.',
+  },
+  'orlando-fl': {
+    title: 'Cancel Solar Contract in Orlando, FL | Florida Solar Rights',
+    description: 'Orlando homeowners: Florida\'s solar contract laws include a 3-day rescission right. Our attorneys cancel solar leases and loans across Central Florida. Free case review.',
+  },
+  'tampa-fl': {
+    title: 'Cancel Solar Contract in Tampa, FL | Florida Solar Rights',
+    description: 'Tampa homeowners trapped in solar contracts: Florida consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.',
+  },
+};
+
 // ─── Build meta map ───────────────────────────────────────────────────────────
-function buildMetaMap(cityEntries, companyEntries, stateEntries) {
+function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   const map = {};
 
   // Homepage
@@ -78,12 +190,14 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries) {
     canonical: `${BASE_URL}/`,
   };
 
-  // City pages
+  // City pages — 303 pages
   for (const city of cityEntries) {
     const urlPath = `/cancel-solar-contract/${city.slug}`;
+    const override = CITY_OVERRIDES[city.slug];
+    const cityLabel = city.stateCode ? `${city.name}, ${city.stateCode}` : city.name;
     map[urlPath] = {
-      title: `Cancel Solar Contract in ${city.name} | Solar Freedom`,
-      description: `Trapped in a solar contract in ${city.name}? Our attorneys can help you cancel. Free case review — no obligation.`,
+      title: override?.title ?? `Cancel Solar Contract in ${cityLabel} | Solar Freedom`,
+      description: override?.description ?? `Trapped in a solar contract in ${city.name}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`,
       canonical: `${BASE_URL}${urlPath}`,
     };
   }
@@ -91,32 +205,42 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries) {
   // Company pages
   for (const company of companyEntries) {
     const urlPath = `/cancel-${company.slug}-solar-contract`;
-    const displayName = company.name;
     map[urlPath] = {
-      title: `Cancel ${displayName} Solar Contract | Solar Freedom`,
-      description: `Trapped in a ${displayName} solar contract? Our attorneys specialize in ${displayName} cancellations. Free case review — no obligation.`,
+      title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
+      description: `Trapped in a ${company.name} solar contract? Our attorneys specialize in ${company.name} cancellations. Free case review — no obligation.`,
       canonical: `${BASE_URL}${urlPath}`,
     };
   }
 
-  // State law pages
+  // State law pages — 51 pages
   for (const state of stateEntries) {
     const urlPath = `/solar-contract-laws/${state.slug}`;
     map[urlPath] = {
-      title: `${state.state} Solar Contract Laws | Solar Freedom`,
-      description: `Learn about ${state.state} solar contract laws and your rights. Find out if you can cancel your solar contract under ${state.state} law.`,
+      title: `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`,
+      description: `Learn your legal rights under ${state.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`,
+      canonical: `${BASE_URL}${urlPath}`,
+    };
+  }
+
+  // Blog posts — ALL 100+ posts
+  for (const [slug, data] of Object.entries(blogEntries)) {
+    const urlPath = `/blog/${slug}`;
+    map[urlPath] = {
+      title: data.title,
+      description: data.description,
       canonical: `${BASE_URL}${urlPath}`,
     };
   }
 
   // Static pages
   const staticPages = [
-    { path: "/blog", title: "Solar Contract Blog | Solar Freedom", desc: "Expert articles on solar contracts, cancellations, and homeowner rights." },
-    { path: "/how-it-works", title: "How It Works | Solar Freedom", desc: "Learn how Solar Freedom helps homeowners cancel solar contracts." },
-    { path: "/solar-lien-removal", title: "Solar Lien Removal | Solar Freedom", desc: "Remove solar liens from your property title. Free consultation." },
-    { path: "/solar-loan-help", title: "Solar Loan Help | Solar Freedom", desc: "Struggling with solar loan payments? We can help. Free case review." },
-    { path: "/selling-home-with-solar", title: "Selling Home With Solar | Solar Freedom", desc: "Learn how to sell your home with a solar contract. Free consultation." },
-    { path: "/state-solar-laws", title: "State Solar Contract Laws | Solar Freedom", desc: "Solar contract laws by state. Know your rights as a homeowner." },
+    { path: "/blog", title: "Solar Contract Help Blog | Solar Freedom", desc: "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner." },
+    { path: "/how-it-works", title: "How It Works | Solar Freedom", desc: "Learn how Solar Freedom helps homeowners cancel solar contracts through consumer protection law. Free case review." },
+    { path: "/solar-lien-removal", title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom", desc: "A solar lien (UCC-1 fixture filing) on your home can block a sale or refinance. Our attorneys remove solar liens. Free review." },
+    { path: "/solar-loan-help", title: "Solar Loan Help | Fight Predatory Solar Loans | Solar Freedom", desc: "Trapped in a high-interest solar loan with hidden dealer fees? Our attorneys challenge solar loans under TILA and consumer protection law." },
+    { path: "/solar-exit-options", title: "Solar Exit Options | How to Get Out of a Solar Contract", desc: "Explore every legal path to exit your solar contract — rescission, fraud claims, lender disputes, and more. Free case review." },
+    { path: "/solar-fraud-report", title: "Report Solar Fraud | File a Solar Complaint | Solar Freedom", desc: "Were you misled by a solar salesperson? Report solar fraud to the right agencies and explore your legal options. Free case review." },
+    { path: "/solar-contract-laws", title: "Solar Contract Laws by State | Your Legal Rights | Solar Freedom", desc: "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights." },
   ];
   for (const p of staticPages) {
     map[p.path] = { title: p.title, description: p.desc, canonical: `${BASE_URL}${p.path}` };
@@ -126,15 +250,28 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries) {
 }
 
 // ─── Inject meta into HTML ────────────────────────────────────────────────────
+// CRITICAL: Must REMOVE existing canonical and APPEND new one.
+// Using .attr() fails if the element doesn't exist; using remove()+append() is bulletproof.
 function injectMeta(html, meta) {
   const $ = cheerio.load(html, { decodeEntities: false });
 
+  // Title
   $("title").text(meta.title);
+
+  // Meta description
   $('meta[name="description"]').attr("content", meta.description);
-  $('link[rel="canonical"]').attr("href", meta.canonical);
+
+  // Canonical — REMOVE ALL EXISTING, then APPEND correct one
+  // This prevents duplicate canonicals (the #1 indexing killer)
+  $('link[rel="canonical"]').remove();
+  $('head').append(`<link rel="canonical" href="${meta.canonical}" />`);
+
+  // Open Graph
   $('meta[property="og:title"]').attr("content", meta.title);
   $('meta[property="og:description"]').attr("content", meta.description);
   $('meta[property="og:url"]').attr("content", meta.canonical);
+
+  // Twitter
   $('meta[name="twitter:title"]').attr("content", meta.title);
   $('meta[name="twitter:description"]').attr("content", meta.description);
 
@@ -147,11 +284,17 @@ async function main() {
 
   const indexHtml = fs.readFileSync(path.resolve(DIST, "index.html"), "utf-8");
   const { cityEntries, companyEntries, stateEntries } = await loadData();
-  const metaMap = buildMetaMap(cityEntries, companyEntries, stateEntries);
+  const blogEntries = loadBlogData();
+  const metaMap = buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries);
 
   let count = 0;
   for (const [urlPath, meta] of Object.entries(metaMap)) {
-    if (urlPath === "/") continue; // index.html already handles homepage
+    if (urlPath === "/") {
+      // Fix the homepage index.html canonical too (it has the hardcoded one)
+      const injected = injectMeta(indexHtml, meta);
+      fs.writeFileSync(path.resolve(DIST, "index.html"), injected, "utf-8");
+      continue;
+    }
 
     const injected = injectMeta(indexHtml, meta);
 
@@ -162,10 +305,11 @@ async function main() {
     count++;
   }
 
-  console.log(`✅ Pre-rendered ${count} pages`);
+  console.log(`✅ Pre-rendered ${count + 1} pages (including homepage)`);
   console.log(`   City pages: ${cityEntries.length}`);
   console.log(`   Company pages: ${companyEntries.length}`);
   console.log(`   State law pages: ${stateEntries.length}`);
+  console.log(`   Blog posts: ${Object.keys(blogEntries).length}`);
 }
 
 main().catch((err) => {
