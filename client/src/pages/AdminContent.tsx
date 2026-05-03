@@ -42,6 +42,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   FileText,
   Globe,
@@ -60,6 +69,8 @@ import {
   AlertCircle,
   Copy,
   Check,
+  Plus,
+  Loader2,
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -221,6 +232,65 @@ export default function AdminContent() {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    category: "",
+    tags: "",
+    metaTitle: "",
+    metaDescription: "",
+    heroImage: "",
+    readTime: "",
+    relatedSlugs: "",
+    published: true,
+  });
+
+  // Auto-generate slug from title
+  const autoSlug = (title: string) =>
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.title || !createForm.slug || !createForm.content) {
+      toast.error("Title, slug, and content are required.");
+      return;
+    }
+    setCreating(true);
+    try {
+      const res = await fetch("/api/admin/posts", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${CLAUDE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...createForm,
+          tags: createForm.tags ? createForm.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
+          relatedSlugs: createForm.relatedSlugs ? createForm.relatedSlugs.split(",").map(s => s.trim()).filter(Boolean) : [],
+          metaTitle: createForm.metaTitle || createForm.title,
+          readTime: createForm.readTime || "5 min read",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Create failed");
+      toast.success(`Post "${createForm.title}" created and ${createForm.published ? "published" : "saved as draft"}!`);
+      setCreateOpen(false);
+      setCreateForm({ title: "", slug: "", excerpt: "", content: "", category: "", tags: "", metaTitle: "", metaDescription: "", heroImage: "", readTime: "", relatedSlugs: "", published: true });
+      refetchDb();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to create post.");
+    } finally {
+      setCreating(false);
+    }
+  };
 
   // Fetch DB posts
   const {
@@ -335,6 +405,14 @@ export default function AdminContent() {
             >
               <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
               Refresh
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setCreateOpen(true)}
+              className="bg-green-600 hover:bg-green-500 text-white font-semibold"
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              Create Post
             </Button>
             <a href="/blog" target="_blank" rel="noopener noreferrer">
               <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-black font-semibold">
@@ -727,6 +805,203 @@ When creating articles:
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Create Post Modal */}
+      <Dialog open={createOpen} onOpenChange={(v) => !v && setCreateOpen(false)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-[#0D0F14] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white font-display text-xl">CREATE NEW POST</DialogTitle>
+            <DialogDescription className="text-gray-400 text-sm">
+              Fill in the fields below. Title, slug, and content are required. HTML is supported in the content field.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreate} className="space-y-4 mt-2">
+            {/* Title + Slug */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Title *</Label>
+                <Input
+                  value={createForm.title}
+                  onChange={(e) => setCreateForm(f => ({ ...f, title: e.target.value, slug: autoSlug(e.target.value) }))}
+                  placeholder="How to Cancel Your Sunrun Contract"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Slug * (auto-generated)</Label>
+                <Input
+                  value={createForm.slug}
+                  onChange={(e) => setCreateForm(f => ({ ...f, slug: e.target.value }))}
+                  placeholder="how-to-cancel-sunrun-contract"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 font-mono text-sm"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Category + Read Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Category</Label>
+                <Select
+                  value={createForm.category}
+                  onValueChange={(v) => setCreateForm(f => ({ ...f, category: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue placeholder="Select category..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1c22] border-white/10 text-white">
+                    <SelectItem value="contract-cancellation">Contract Cancellation</SelectItem>
+                    <SelectItem value="company-complaints">Company Complaints</SelectItem>
+                    <SelectItem value="legal-rights">Legal Rights</SelectItem>
+                    <SelectItem value="loan-issues">Loan Issues</SelectItem>
+                    <SelectItem value="home-sale">Home Sale</SelectItem>
+                    <SelectItem value="state-guide">State Guide</SelectItem>
+                    <SelectItem value="city-guide">City Guide</SelectItem>
+                    <SelectItem value="general">General</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Read Time</Label>
+                <Input
+                  value={createForm.readTime}
+                  onChange={(e) => setCreateForm(f => ({ ...f, readTime: e.target.value }))}
+                  placeholder="7 min read"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* Excerpt */}
+            <div className="space-y-1.5">
+              <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Excerpt</Label>
+              <Textarea
+                value={createForm.excerpt}
+                onChange={(e) => setCreateForm(f => ({ ...f, excerpt: e.target.value }))}
+                placeholder="A brief 1-2 sentence summary shown in blog listings..."
+                className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 resize-none h-16"
+              />
+            </div>
+
+            {/* Content */}
+            <div className="space-y-1.5">
+              <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Content (HTML) *</Label>
+              <Textarea
+                value={createForm.content}
+                onChange={(e) => setCreateForm(f => ({ ...f, content: e.target.value }))}
+                placeholder="<h2>Introduction</h2><p>Your article content here...</p>"
+                className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 resize-none h-48 font-mono text-xs"
+                required
+              />
+              <p className="text-gray-500 text-xs">Use HTML tags: &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;a href="..."&gt;</p>
+            </div>
+
+            {/* Meta Title + Meta Description */}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Meta Title (defaults to title)</Label>
+                <Input
+                  value={createForm.metaTitle}
+                  onChange={(e) => setCreateForm(f => ({ ...f, metaTitle: e.target.value }))}
+                  placeholder="SEO-optimized title (50-60 chars)"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Meta Description</Label>
+                <Textarea
+                  value={createForm.metaDescription}
+                  onChange={(e) => setCreateForm(f => ({ ...f, metaDescription: e.target.value }))}
+                  placeholder="150-160 char description for Google search results..."
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 resize-none h-16"
+                />
+              </div>
+            </div>
+
+            {/* Hero Image + Tags */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Hero Image URL</Label>
+                <Input
+                  value={createForm.heroImage}
+                  onChange={(e) => setCreateForm(f => ({ ...f, heroImage: e.target.value }))}
+                  placeholder="https://images.unsplash.com/..."
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Tags (comma-separated)</Label>
+                <Input
+                  value={createForm.tags}
+                  onChange={(e) => setCreateForm(f => ({ ...f, tags: e.target.value }))}
+                  placeholder="sunrun, contract, cancel, california"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* Related Slugs */}
+            <div className="space-y-1.5">
+              <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Related Post Slugs (comma-separated, for interlinking)</Label>
+              <Input
+                value={createForm.relatedSlugs}
+                onChange={(e) => setCreateForm(f => ({ ...f, relatedSlugs: e.target.value }))}
+                placeholder="how-to-get-out-of-a-solar-contract, sunrun-complaints-2024"
+                className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 font-mono text-xs"
+              />
+            </div>
+
+            {/* Published toggle */}
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setCreateForm(f => ({ ...f, published: !f.published }))}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  createForm.published ? "bg-green-500" : "bg-white/20"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                    createForm.published ? "translate-x-4" : "translate-x-1"
+                  }`}
+                />
+              </button>
+              <span className="text-sm text-gray-300">
+                {createForm.published ? (
+                  <span className="text-green-400 font-medium">Publish immediately</span>
+                ) : (
+                  <span className="text-gray-400">Save as draft</span>
+                )}
+              </span>
+            </div>
+
+            {/* Submit */}
+            <div className="flex gap-3 pt-2 border-t border-white/10">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCreateOpen(false)}
+                className="border-white/10 text-gray-300 hover:text-white"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={creating}
+                className="flex-1 bg-green-600 hover:bg-green-500 text-white font-semibold"
+              >
+                {creating ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</>
+                ) : (
+                  <><Plus className="h-4 w-4 mr-2" /> {createForm.published ? "Publish Post" : "Save Draft"}</>
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Post Detail Modal */}
       <PostDetailModal

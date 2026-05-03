@@ -55,11 +55,15 @@ Keys begin with `sf_` followed by 64 hex characters. If the key is invalid or mi
 
 | Method | Path | Permission | Description |
 |--------|------|-----------|-------------|
-| GET | `/api/admin/posts` | `posts:read` | List all posts (no body) |
-| GET | `/api/admin/posts/:slug` | `posts:read` | Get single post with full content |
+| GET | `/api/admin/posts/all` | `posts:read` | **All posts (static + DB)** — use for interlinking |
+| GET | `/api/admin/posts/slugs` | `posts:read` | **Lightweight slug list** — all 160+ articles |
+| GET | `/api/admin/posts` | `posts:read` | List DB-managed posts only |
+| GET | `/api/admin/posts/:slug` | `posts:read` | Get single DB post with full content |
 | POST | `/api/admin/posts` | `posts:write` | Create new post |
 | PUT | `/api/admin/posts/:slug` | `posts:write` | Update existing post |
 | DELETE | `/api/admin/posts/:slug` | `posts:delete` | Delete a post |
+
+> **Interlinking Workflow:** Before writing a new article, call `GET /api/admin/posts/slugs` to get all 160+ existing article slugs and titles. Pick 3-5 relevant ones and include them in the `relatedSlugs` field and as `<a href="/blog/SLUG">` links within your content.
 
 #### Create a Blog Post
 
@@ -243,10 +247,16 @@ Content guidelines:
 - Slugs should be lowercase, hyphenated, keyword-rich
 
 When creating articles:
-1. Research the topic thoroughly
-2. Write the full HTML content
-3. POST to /api/admin/posts with all fields
-4. Confirm the post was created successfully
+1. Call GET /api/admin/posts/slugs to get all existing article slugs for interlinking
+2. Research the topic thoroughly
+3. Write the full HTML content (1,200-2,000 words) with 3-5 internal links to existing articles
+4. POST to /api/admin/posts with all fields including relatedSlugs
+5. Confirm the post was created and return the URL
+
+When updating articles:
+1. Call GET /api/admin/posts/all to find the post by slug
+2. Call GET /api/admin/posts/:slug to read the current content
+3. PUT to /api/admin/posts/:slug with only the changed fields
 ```
 
 ### Example Claude Workflow

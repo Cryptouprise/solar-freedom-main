@@ -206,3 +206,13 @@
 - [x] Add delete button for DB posts
 - [x] Add quick-view modal for post content
 - [x] Add Content Manager nav link to AdminLeads header
+
+## Phase 23 — Create Post Form + Full Content API
+- [ ] Add /api/admin/posts/all endpoint (static + DB posts combined)
+- [ ] Add /api/admin/posts/slugs endpoint (just slugs for interlinking)
+- [ ] Update Claude system prompt in AdminContent to reference /all endpoint
+- [ ] Build Create Post modal form in AdminContent
+- [ ] Form fields: title, slug, excerpt, content (HTML), category, tags, metaTitle, metaDescription, heroImage, readTime, relatedSlugs, published toggle
+- [ ] Auto-generate slug from title
+- [ ] Preview related posts picker (search existing slugs)
+- [ ] Submit creates post via /api/admin/posts

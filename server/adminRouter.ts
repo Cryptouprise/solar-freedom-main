@@ -101,6 +101,98 @@ router.get("/posts", requirePermission("posts:read"), async (req: AdminRequest, 
   }
 });
 
+// GET /api/admin/posts/all — returns EVERY post: static files + DB posts combined
+// Claude should use this to find existing articles for interlinking
+router.get("/posts/all", requirePermission("posts:read"), async (req: AdminRequest, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(503).json({ error: "Database unavailable" });
+
+    const { blogPosts: staticPosts } = await import("../client/src/data/blog.js").catch(() =>
+      import("../client/src/data/blog")
+    ) as { blogPosts: Array<{ slug: string; title: string; category?: string; excerpt?: string; tags?: string[]; readTime?: string }> };
+
+    const dbRows = await db
+      .select({
+        id: blogPosts.id,
+        slug: blogPosts.slug,
+        title: blogPosts.title,
+        category: blogPosts.category,
+        excerpt: blogPosts.excerpt,
+        readTime: blogPosts.readTime,
+        tags: blogPosts.tags,
+        published: blogPosts.published,
+        publishedAt: blogPosts.publishedAt,
+      })
+      .from(blogPosts)
+      .orderBy(desc(blogPosts.publishedAt));
+
+    const staticMapped = staticPosts.map(p => ({
+      source: "static" as const,
+      slug: p.slug,
+      title: p.title,
+      category: p.category ?? null,
+      excerpt: p.excerpt ?? null,
+      readTime: p.readTime ?? null,
+      tags: Array.isArray(p.tags) ? p.tags : [],
+      url: `/blog/${p.slug}`,
+    }));
+
+    const dbMapped = dbRows.map(p => ({
+      source: "database" as const,
+      slug: p.slug,
+      title: p.title,
+      category: p.category ?? null,
+      excerpt: p.excerpt ?? null,
+      readTime: p.readTime ?? null,
+      tags: safeParseJson(p.tags, []) as string[],
+      published: p.published === 1,
+      url: `/blog/${p.slug}`,
+    }));
+
+    const dbSlugs = new Set(dbMapped.map(p => p.slug));
+    const merged = [
+      ...dbMapped,
+      ...staticMapped.filter(p => !dbSlugs.has(p.slug)),
+    ];
+
+    res.json({
+      total: merged.length,
+      staticCount: staticMapped.length,
+      dbCount: dbMapped.length,
+      posts: merged,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error", details: String(err) });
+  }
+});
+
+// GET /api/admin/posts/slugs — lightweight list of all slugs + titles for interlinking
+router.get("/posts/slugs", requirePermission("posts:read"), async (req: AdminRequest, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(503).json({ error: "Database unavailable" });
+
+    const { blogPosts: staticPosts } = await import("../client/src/data/blog.js").catch(() =>
+      import("../client/src/data/blog")
+    ) as { blogPosts: Array<{ slug: string; title: string; category?: string }> };
+
+    const dbRows = await db
+      .select({ slug: blogPosts.slug, title: blogPosts.title, category: blogPosts.category })
+      .from(blogPosts);
+
+    const dbSlugs = new Set(dbRows.map(p => p.slug));
+    const all = [
+      ...dbRows.map(p => ({ slug: p.slug, title: p.title, category: p.category, source: "database", url: `/blog/${p.slug}` })),
+      ...staticPosts.filter(p => !dbSlugs.has(p.slug)).map(p => ({ slug: p.slug, title: p.title, category: p.category, source: "static", url: `/blog/${p.slug}` })),
+    ];
+
+    res.json({ total: all.length, slugs: all });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error", details: String(err) });
+  }
+});
+
 // GET /api/admin/posts/:slug
 router.get("/posts/:slug", requirePermission("posts:read"), async (req: AdminRequest, res) => {
   try {
