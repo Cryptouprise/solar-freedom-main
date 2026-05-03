@@ -197,3 +197,12 @@
 - [x] Secure all admin endpoints with API key auth middleware
 - [x] Add tRPC content procedures (listPosts, getPost, listCompanies, getCompany)
 - [x] Write API documentation and Claude usage guide (docs/ADMIN-API.md)
+
+## Phase 22 — Admin Content Panel UI
+- [x] Create /admin/content page (owner-only route)
+- [x] Show DB-managed posts (Claude-published) with status badges
+- [x] Show static posts count and list
+- [x] Add publish/unpublish toggle for DB posts
+- [x] Add delete button for DB posts
+- [x] Add quick-view modal for post content
+- [x] Add Content Manager nav link to AdminLeads header

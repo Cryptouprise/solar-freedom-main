@@ -21,6 +21,7 @@ import SolarLienRemoval from "@/pages/SolarLienRemoval";
 import SolarLoanHelp from "@/pages/SolarLoanHelp";
 import AdminLeads from "@/pages/AdminLeads";
 import AdminAnalytics from "@/pages/AdminAnalytics";
+import AdminContent from "@/pages/AdminContent";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import { useEffect } from "react";
 import ExitIntentPopup from "./components/ExitIntentPopup";
@@ -79,6 +80,7 @@ function Router() {
         <Route path={"/solar-companies"} component={SolarCompanyHub} />
         <Route path={"/admin/leads"} component={AdminLeads} />
         <Route path={"/admin/analytics"} component={AdminAnalytics} />
+        <Route path={"/admin/content"} component={AdminContent} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>

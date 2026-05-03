@@ -181,15 +181,27 @@ export default function AdminLeads() {
               <p className="text-xs text-gray-500 font-mono">Solar Freedom Admin</p>
             </div>
           </div>
-          <Button
-            onClick={() => refetch()}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-gray-300 hover:text-white gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link href="/admin/analytics">
+              <Button variant="outline" size="sm" className="border-white/10 text-gray-300 hover:text-white text-xs">
+                Analytics
+              </Button>
+            </Link>
+            <Link href="/admin/content">
+              <Button variant="outline" size="sm" className="border-amber-500/30 text-amber-400 hover:text-amber-300 text-xs">
+                Content Manager
+              </Button>
+            </Link>
+            <Button
+              onClick={() => refetch()}
+              variant="outline"
+              size="sm"
+              className="border-white/20 text-gray-300 hover:text-white gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
