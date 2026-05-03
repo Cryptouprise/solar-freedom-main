@@ -511,10 +511,137 @@ router.delete("/keys/:id", requirePermission("keys:manage"), async (req: AdminRe
   }
 });
 
+/// ─── IMAGE UPLOAD ───────────────────────────────────────────────────────────
+// POST /api/admin/upload
+// Accepts: base64 image data OR a URL to fetch
+// Returns: { url: "https://cdn.../image.png", key: "images/..." }
+router.post("/upload", requirePermission("posts:write"), async (req: AdminRequest, res) => {
+  try {
+    const { storagePut } = await import("./storage");
+    const { data, url: sourceUrl, filename, contentType: ct } = req.body;
+
+    let buffer: Buffer;
+    let mimeType = ct || "image/png";
+    let name = filename || `image-${Date.now()}`;
+
+    if (data) {
+      // Base64 encoded image data
+      const base64 = data.replace(/^data:[^;]+;base64,/, "");
+      buffer = Buffer.from(base64, "base64");
+      // Detect mime from data URI prefix if present
+      const mimeMatch = data.match(/^data:([^;]+);base64,/);
+      if (mimeMatch) mimeType = mimeMatch[1];
+    } else if (sourceUrl) {
+      // Fetch image from URL
+      const response = await fetch(sourceUrl);
+      if (!response.ok) {
+        return res.status(400).json({ error: `Failed to fetch image from URL: ${response.status}` });
+      }
+      const arrayBuf = await response.arrayBuffer();
+      buffer = Buffer.from(arrayBuf);
+      mimeType = response.headers.get("content-type") || mimeType;
+      // Extract filename from URL if not provided
+      if (!filename) {
+        const urlPath = new URL(sourceUrl).pathname;
+        name = urlPath.split("/").pop()?.split("?")[0] || name;
+      }
+    } else {
+      return res.status(400).json({ 
+        error: "Provide either 'data' (base64) or 'url' (image URL to fetch)",
+        example: {
+          option1: { data: "base64-encoded-image-data", filename: "hero.png", contentType: "image/png" },
+          option2: { url: "https://example.com/image.png", filename: "hero.png" }
+        }
+      });
+    }
+
+    // Ensure filename has extension
+    const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
+    if (!name.includes(".")) name = `${name}.${ext}`;
+
+    // Generate unique path to prevent enumeration
+    const randomSuffix = crypto.randomBytes(8).toString("hex");
+    const fileKey = `blog-images/${name.replace(/\.[^.]+$/, "")}-${randomSuffix}.${ext}`;
+
+    const result = await storagePut(fileKey, buffer, mimeType);
+
+    res.status(201).json({
+      success: true,
+      url: result.url,
+      key: result.key,
+      mimeType,
+      size: buffer.length,
+      filename: name
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Upload failed", details: String(err) });
+  }
+});
+
+// POST /api/admin/upload/batch
+// Upload multiple images at once
+router.post("/upload/batch", requirePermission("posts:write"), async (req: AdminRequest, res) => {
+  try {
+    const { storagePut } = await import("./storage");
+    const { images } = req.body;
+
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ 
+        error: "Provide 'images' array with objects containing 'data' or 'url'",
+        example: { images: [{ url: "https://...", filename: "hero.png" }] }
+      });
+    }
+
+    if (images.length > 10) {
+      return res.status(400).json({ error: "Maximum 10 images per batch" });
+    }
+
+    const results = [];
+    for (const img of images) {
+      try {
+        let buffer: Buffer;
+        let mimeType = img.contentType || "image/png";
+        let name = img.filename || `image-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+        if (img.data) {
+          const base64 = img.data.replace(/^data:[^;]+;base64,/, "");
+          buffer = Buffer.from(base64, "base64");
+          const mimeMatch = img.data.match(/^data:([^;]+);base64,/);
+          if (mimeMatch) mimeType = mimeMatch[1];
+        } else if (img.url) {
+          const response = await fetch(img.url);
+          if (!response.ok) {
+            results.push({ error: `Failed to fetch: ${img.url}`, status: response.status });
+            continue;
+          }
+          buffer = Buffer.from(await response.arrayBuffer());
+          mimeType = response.headers.get("content-type") || mimeType;
+        } else {
+          results.push({ error: "Each image needs 'data' or 'url'" });
+          continue;
+        }
+
+        const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
+        if (!name.includes(".")) name = `${name}.${ext}`;
+        const randomSuffix = crypto.randomBytes(8).toString("hex");
+        const fileKey = `blog-images/${name.replace(/\.[^.]+$/, "")}-${randomSuffix}.${ext}`;
+
+        const result = await storagePut(fileKey, buffer, mimeType);
+        results.push({ success: true, url: result.url, key: result.key, filename: name });
+      } catch (imgErr) {
+        results.push({ error: String(imgErr) });
+      }
+    }
+
+    res.status(201).json({ success: true, uploaded: results.filter(r => r.success).length, results });
+  } catch (err) {
+    res.status(500).json({ error: "Batch upload failed", details: String(err) });
+  }
+});
+
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 function safeParseJson(val: string | null | undefined, fallback: unknown) {
   if (!val) return fallback;
   try { return JSON.parse(val); } catch { return fallback; }
 }
-
 export default router;
