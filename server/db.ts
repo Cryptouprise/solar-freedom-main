@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, users } from "../drizzle/schema";
+import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -147,6 +147,127 @@ export async function markLeadGhlSent(id: number) {
   if (!db) return;
 
   await db.update(leads).set({ ghlWebhookSent: 1 }).where(eq(leads.id, id));
+}
+
+// ─── Blog post helpers (DB-backed content) ────────────────────────────────────
+
+function safeJson(val: string | null | undefined, fallback: unknown) {
+  if (!val) return fallback;
+  try { return JSON.parse(val); } catch { return fallback; }
+}
+
+/**
+ * List published blog posts (lightweight — no content body).
+ */
+export async function getDbBlogPosts(limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      metaTitle: blogPosts.metaTitle,
+      metaDescription: blogPosts.metaDescription,
+      heroImage: blogPosts.heroImage,
+      category: blogPosts.category,
+      tags: blogPosts.tags,
+      excerpt: blogPosts.excerpt,
+      readTime: blogPosts.readTime,
+      relatedSlugs: blogPosts.relatedSlugs,
+      published: blogPosts.published,
+      publishedAt: blogPosts.publishedAt,
+      updatedAt: blogPosts.updatedAt,
+    })
+    .from(blogPosts)
+    .where(eq(blogPosts.published, 1))
+    .orderBy(desc(blogPosts.publishedAt))
+    .limit(limit)
+    .offset(offset);
+
+  return rows.map(r => ({
+    ...r,
+    tags: safeJson(r.tags, []),
+    relatedSlugs: safeJson(r.relatedSlugs, []),
+  }));
+}
+
+/**
+ * Get a single published blog post by slug (includes full content).
+ */
+export async function getDbBlogPost(slug: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [post] = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.slug, slug))
+    .limit(1);
+
+  if (!post || !post.published) return null;
+
+  return {
+    ...post,
+    tags: safeJson(post.tags, []),
+    relatedSlugs: safeJson(post.relatedSlugs, []),
+    faqItems: safeJson(post.faqItems, []),
+  };
+}
+
+// ─── Company helpers (DB-backed content) ──────────────────────────────────────
+
+/**
+ * List all published companies.
+ */
+export async function getDbCompanies() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select()
+    .from(companies)
+    .where(eq(companies.published, 1))
+    .orderBy(companies.name);
+
+  return rows.map(c => ({
+    ...c,
+    contractTypes: safeJson(c.contractTypes, []),
+    customerComplaints: safeJson(c.customerComplaints, []),
+    documentedIssues: safeJson(c.documentedIssues, []),
+    legalGrounds: safeJson(c.legalGrounds, []),
+    lawsuits: safeJson(c.lawsuits, []),
+    statesCovered: safeJson(c.statesCovered, []),
+    relatedSlugs: safeJson(c.relatedSlugs, []),
+  }));
+}
+
+/**
+ * Get a single published company by slug.
+ */
+export async function getDbCompany(slug: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [company] = await db
+    .select()
+    .from(companies)
+    .where(eq(companies.slug, slug))
+    .limit(1);
+
+  if (!company || !company.published) return null;
+
+  return {
+    ...company,
+    contractTypes: safeJson(company.contractTypes, []),
+    customerComplaints: safeJson(company.customerComplaints, []),
+    documentedIssues: safeJson(company.documentedIssues, []),
+    legalGrounds: safeJson(company.legalGrounds, []),
+    lawsuits: safeJson(company.lawsuits, []),
+    statesCovered: safeJson(company.statesCovered, []),
+    relatedSlugs: safeJson(company.relatedSlugs, []),
+  };
 }
 
 // ─── Exit intent helpers ───────────────────────────────────────────────────────

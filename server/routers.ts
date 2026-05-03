@@ -9,6 +9,10 @@ import {
   insertLead,
   markLeadGhlSent,
   updateLeadStatus,
+  getDbBlogPosts,
+  getDbBlogPost,
+  getDbCompanies,
+  getDbCompany,
 } from "./db";
 import { getGA4Report } from "./ga4";
 
@@ -150,6 +154,48 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
         return getGA4Report(input.range, "today");
+      }),
+  }),
+
+  // ── Content (DB-backed blog posts + companies) ──────────────────────────────
+  content: router({
+    /**
+     * List published blog posts from the database.
+     * Returns lightweight list (no full content body).
+     */
+    listPosts: publicProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(200).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        return getDbBlogPosts(input.limit, input.offset);
+      }),
+
+    /**
+     * Get a single blog post by slug.
+     */
+    getPost: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        return getDbBlogPost(input.slug);
+      }),
+
+    /**
+     * List all published companies from the database.
+     */
+    listCompanies: publicProcedure
+      .query(async () => {
+        return getDbCompanies();
+      }),
+
+    /**
+     * Get a single company by slug.
+     */
+    getCompany: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        return getDbCompany(input.slug);
       }),
   }),
 

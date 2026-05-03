@@ -182,3 +182,18 @@
 - [x] Fix company page 404 errors — root cause: regexparam doesn't support :slug in middle of path segment
 - [x] Switch to RegExp route pattern for company pages
 - [x] Fix TopicClusterWidget crash — missing "orange" color in COLOR_MAP
+
+## Phase 21 — Admin Content API (Claude / External AI Integration)
+- [x] Add blog_posts table to database schema
+- [x] Add companies table to database schema
+- [x] Add site_config table to database schema
+- [x] Add api_keys table to database schema
+- [ ] Seed database with all static blog posts (optional — static files still work)
+- [ ] Seed database with all company data (optional — static files still work)
+- [x] Build /api/admin/posts CRUD endpoints
+- [x] Build /api/admin/companies CRUD endpoints
+- [x] Build /api/admin/config endpoints
+- [x] Build /api/admin/keys endpoint (generate/revoke API keys)
+- [x] Secure all admin endpoints with API key auth middleware
+- [x] Add tRPC content procedures (listPosts, getPost, listCompanies, getCompany)
+- [x] Write API documentation and Claude usage guide (docs/ADMIN-API.md)

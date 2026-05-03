@@ -180,3 +180,98 @@ export const seoPages = mysqlTable("seoPages", {
 
 export type SeoPage = typeof seoPages.$inferSelect;
 export type InsertSeoPage = typeof seoPages.$inferInsert;
+
+/**
+ * Blog posts table — dynamic content managed via Admin API.
+ * Replaces static TypeScript data files for AI-editable content.
+ */
+export const blogPosts = mysqlTable("blogPosts", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  title: varchar("title", { length: 500 }).notNull(),
+  metaTitle: varchar("metaTitle", { length: 500 }),
+  metaDescription: text("metaDescription"),
+  heroImage: text("heroImage"),           // CDN URL
+  category: varchar("category", { length: 100 }),
+  tags: text("tags"),                     // JSON array of strings
+  content: text("content").notNull(),     // Full HTML/markdown body
+  excerpt: text("excerpt"),               // Short summary for cards
+  readTime: varchar("readTime", { length: 20 }),
+  relatedSlugs: text("relatedSlugs"),     // JSON array of slugs
+  faqItems: text("faqItems"),             // JSON array of {q, a} objects
+  canonicalUrl: varchar("canonicalUrl", { length: 500 }),
+  published: int("published").default(1).notNull(), // 1=live, 0=draft
+  publishedAt: timestamp("publishedAt").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+/**
+ * Companies table — dynamic company data managed via Admin API.
+ * Replaces static companies.ts data file.
+ */
+export const companies = mysqlTable("companies", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  name: varchar("name", { length: 200 }).notNull(),
+  legalName: varchar("legalName", { length: 200 }),
+  status: mysqlEnum("status", ["active", "bankrupt", "acquired", "dissolved"]).default("active").notNull(),
+  bbbRating: varchar("bbbRating", { length: 10 }),
+  complaintCount: varchar("complaintCount", { length: 50 }),
+  avgMonthlyPayment: varchar("avgMonthlyPayment", { length: 50 }),
+  avgContractLength: varchar("avgContractLength", { length: 50 }),
+  founded: varchar("founded", { length: 10 }),
+  headquarters: varchar("headquarters", { length: 200 }),
+  contractTypes: text("contractTypes"),   // JSON array
+  heroHeadline: varchar("heroHeadline", { length: 500 }),
+  heroSubheadline: varchar("heroSubheadline", { length: 500 }),
+  problemSummary: text("problemSummary"),
+  customerComplaints: text("customerComplaints"), // JSON array of strings
+  documentedIssues: text("documentedIssues"),     // JSON array of strings
+  legalGrounds: text("legalGrounds"),             // JSON array of strings
+  lawsuits: text("lawsuits"),                     // JSON array of strings
+  statesCovered: text("statesCovered"),           // JSON array of state codes
+  relatedSlugs: text("relatedSlugs"),             // JSON array of blog slugs
+  published: int("published").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Company = typeof companies.$inferSelect;
+export type InsertCompany = typeof companies.$inferInsert;
+
+/**
+ * Site config table — key/value store for dynamic site settings.
+ * Allows AI to update CTAs, phone numbers, nav links, etc.
+ */
+export const siteConfig = mysqlTable("siteConfig", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 100 }).notNull().unique(),
+  value: text("value").notNull(),
+  description: varchar("description", { length: 500 }),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteConfig = typeof siteConfig.$inferSelect;
+export type InsertSiteConfig = typeof siteConfig.$inferInsert;
+
+/**
+ * API keys table — for external AI tools (Claude, etc.) to authenticate
+ * with the Admin API without using Manus OAuth.
+ */
+export const apiKeys = mysqlTable("apiKeys", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),   // e.g. "Claude Desktop", "Cursor"
+  keyHash: varchar("keyHash", { length: 255 }).notNull().unique(), // bcrypt hash of the key
+  keyPrefix: varchar("keyPrefix", { length: 10 }).notNull(), // first 8 chars for display
+  permissions: text("permissions").notNull(),         // JSON array: ["posts:read","posts:write","companies:write",...]
+  lastUsedAt: timestamp("lastUsedAt"),
+  active: int("active").default(1).notNull(),         // 1=active, 0=revoked
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type InsertApiKey = typeof apiKeys.$inferInsert;
