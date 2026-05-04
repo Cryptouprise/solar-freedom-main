@@ -3,7 +3,8 @@
 // Purpose: SEO hub for all solar contract cancellation articles
 
 import { Link } from 'wouter';
-import { blogPosts } from '@/data/blog';
+import { blogPosts as staticBlogPosts } from '@/data/blog';
+import { trpc } from '@/lib/trpc';
 import { Clock, ArrowRight, BookOpen, TrendingUp, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useMemo } from 'react';
@@ -24,10 +25,47 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
+  // Fetch DB-managed posts (Claude-published articles) and merge with static posts
+  const { data: dbData } = trpc.content.listPosts.useQuery({ limit: 200, offset: 0 });
+  const dbPosts = dbData ?? [];
+
+  // Normalize DB posts to the shape Blog.tsx expects
+  const staticSlugs = new Set(staticBlogPosts.map(p => p.slug));
+  const dbOnlyPosts = useMemo(() => {
+    if (!dbPosts.length) return [];
+    return dbPosts
+      .filter(p => !staticSlugs.has(p.slug))
+      .map(p => ({
+        slug: p.slug,
+        title: p.title,
+        metaTitle: p.metaTitle ?? p.title,
+        metaDescription: p.metaDescription ?? '',
+        category: p.category ?? 'Article',
+        readTime: p.readTime ?? '7 min read',
+        publishDate: p.publishedAt
+          ? new Date(p.publishedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+          : '2026',
+        excerpt: p.excerpt ?? '',
+        heroImage: p.heroImage ?? 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80',
+        heroAlt: p.title,
+        ctaText: 'Get a Free Solar Contract Review',
+        ctaSubtext: 'Our attorneys review your agreement at no cost.',
+        content: [],
+        faq: [],
+        relatedSlugs: (p.relatedSlugs as string[]) ?? [],
+      }));
+  }, [dbPosts]);
+
+  // Combined list: DB-only posts first (newest), then all static posts
+  const blogPosts = useMemo(
+    () => [...dbOnlyPosts, ...staticBlogPosts],
+    [dbOnlyPosts]
+  );
+
   const categories = useMemo(() => {
     const cats = Array.from(new Set(blogPosts.map(p => p.category)));
     return ['All', ...cats];
-  }, []);
+  }, [blogPosts]);
 
   const filteredPosts = useMemo(() => {
     return blogPosts.filter(post => {

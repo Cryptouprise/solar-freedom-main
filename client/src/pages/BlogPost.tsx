@@ -3,6 +3,7 @@
 // Psychology: Loss aversion, social proof, urgency, authority signals throughout
 import { Link, useParams } from 'wouter';
 import { getBlogPost, getRelatedPosts, BlogSection } from '@/data/blog';
+import { trpc } from '@/lib/trpc';
 import TopicClusterWidget from '@/components/TopicClusterWidget';
 import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2, Shield, Scale } from 'lucide-react';
@@ -170,22 +171,40 @@ function AuthorBio() {
 
 export default function BlogPost() {
   const params = useParams<{ slug: string }>();
-  const post = getBlogPost(params.slug || '');
-  const related = getRelatedPosts(params.slug || '', 3);
+  const slug = params.slug || '';
+  const staticPost = getBlogPost(slug);
+  const related = getRelatedPosts(slug, 3);
+
+  // Only query the DB when the slug isn't in the bundled static data
+  const { data: dbPost, isLoading: dbLoading } = trpc.content.getPost.useQuery(
+    { slug },
+    { enabled: !staticPost }
+  );
+
+  const anyPost = staticPost || dbPost;
 
   useSeoMeta({
-    title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
-    description: post?.metaDescription ?? post?.excerpt ?? 'Expert legal help to cancel your solar contract.',
-    canonical: post?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${params.slug ?? ''}`,
+    title: anyPost ? `${anyPost.metaTitle ?? anyPost.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
+    description: anyPost?.metaDescription ?? anyPost?.excerpt ?? 'Expert legal help to cancel your solar contract.',
+    canonical: (anyPost as { canonicalUrl?: string | null } | undefined)?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${slug}`,
     ogType: 'article',
-    ogImage: post?.heroImage,
+    ogImage: anyPost?.heroImage ?? undefined,
   });
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [params.slug]);
+  }, [slug]);
 
-  if (!post) {
+  // Waiting on DB lookup
+  if (!staticPost && dbLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-zinc-500 text-sm">Loading…</div>
+      </div>
+    );
+  }
+
+  if (!staticPost && !dbPost) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
@@ -198,6 +217,234 @@ export default function BlogPost() {
       </div>
     );
   }
+
+  // ─── DB post render path (content stored as HTML) ────────────────────────────
+  if (!staticPost && dbPost) {
+    const faq = (dbPost.faqItems as { q: string; a: string }[] | null) ?? [];
+    const publishDate = dbPost.publishedAt
+      ? new Date(dbPost.publishedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      : '2026';
+
+    const dbSchemas: object[] = [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: dbPost.title,
+        description: dbPost.metaDescription ?? dbPost.excerpt,
+        datePublished: dbPost.publishedAt ?? '2026-01-01',
+        dateModified: dbPost.updatedAt ?? dbPost.publishedAt ?? '2026-01-01',
+        author: {
+          '@type': 'Organization',
+          name: 'Solar Freedom Legal Team',
+          url: 'https://breakyoursolarcontract.com',
+          description: 'Licensed consumer protection attorneys specializing in solar contract disputes and cancellations.',
+        },
+        publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${slug}` },
+        image: dbPost.heroImage ?? '',
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://breakyoursolarcontract.com/blog' },
+          { '@type': 'ListItem', position: 3, name: dbPost.title, item: `https://breakyoursolarcontract.com/blog/${slug}` },
+        ],
+      },
+    ];
+
+    if (faq.length > 0) {
+      dbSchemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faq.map(item => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: { '@type': 'Answer', text: item.a },
+        })),
+      });
+    }
+
+    return (
+      <div className="min-h-screen bg-[#0a0a0a]">
+        <SchemaInjector schemas={dbSchemas} />
+        {/* NAV */}
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <Link href="/">
+              <span className="flex items-center gap-2 cursor-pointer">
+                <div className="w-8 h-8 bg-amber-500 rounded flex items-center justify-center">
+                  <span className="text-black font-black text-sm">SF</span>
+                </div>
+                <span className="font-black text-white tracking-wider text-sm uppercase">Solar Freedom</span>
+              </span>
+            </Link>
+            <Link href="/#form">
+              <span className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded cursor-pointer transition-colors">
+                Free Review
+              </span>
+            </Link>
+          </div>
+        </nav>
+
+        {/* HERO */}
+        <div className="relative pt-16 h-[50vh] min-h-[360px] max-h-[520px] overflow-hidden">
+          {dbPost.heroImage ? (
+            <>
+              <img
+                src={dbPost.heroImage}
+                alt={dbPost.title}
+                className="w-full h-full object-cover"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
+            </>
+          ) : (
+            <div className="w-full h-full bg-zinc-900" />
+          )}
+          <div className="absolute bottom-0 left-0 right-0 px-6 pb-10">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-3 mb-4">
+                {dbPost.category && (
+                  <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                    {dbPost.category}
+                  </span>
+                )}
+                {dbPost.readTime && (
+                  <span className="text-zinc-400 text-xs flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> {dbPost.readTime}
+                  </span>
+                )}
+                <span className="text-zinc-500 text-xs">{publishDate}</span>
+              </div>
+              <h1 className="font-black text-white leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
+                {dbPost.title}
+              </h1>
+            </div>
+          </div>
+        </div>
+
+        {/* BREADCRUMB */}
+        <div className="px-6 py-4 border-b border-white/5">
+          <div className="max-w-4xl mx-auto flex items-center gap-2 text-xs text-zinc-500">
+            <Link href="/"><span className="hover:text-zinc-300 cursor-pointer transition-colors">Home</span></Link>
+            <span>/</span>
+            <Link href="/blog"><span className="hover:text-zinc-300 cursor-pointer transition-colors">Blog</span></Link>
+            <span>/</span>
+            <span className="text-zinc-400 truncate max-w-xs">{dbPost.title}</span>
+          </div>
+        </div>
+
+        {/* ARTICLE BODY */}
+        <div className="px-6 py-12">
+          <div className="max-w-4xl mx-auto">
+            {dbPost.excerpt && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-zinc-200 text-xl leading-relaxed mb-8 border-l-4 border-amber-500 pl-6 italic"
+              >
+                {dbPost.excerpt}
+              </motion.p>
+            )}
+
+            <DoIQualifyQuiz />
+            <AuthorBio />
+
+            {/* HTML content from database */}
+            <div
+              className="prose prose-invert max-w-none prose-headings:font-black prose-h2:text-white prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-amber-400 prose-h3:mt-8 prose-h3:mb-3 prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-5 prose-li:text-zinc-300 prose-a:text-amber-400 prose-a:no-underline hover:prose-a:text-amber-300 prose-strong:text-white"
+              dangerouslySetInnerHTML={{ __html: dbPost.content }}
+            />
+
+            {/* Final CTA */}
+            <div className="mt-16 rounded-2xl bg-amber-500 p-10 text-center relative overflow-hidden">
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
+              <h2 className="font-black text-black uppercase mb-3 relative" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+                Ready to Escape Your Solar Contract?
+              </h2>
+              <p className="text-black/70 mb-6 relative max-w-lg mx-auto">Our attorneys review your contract for free. No obligation. Results in 48 hours.</p>
+              <Link href="/#form">
+                <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">
+                  Start My Free Review
+                </span>
+              </Link>
+            </div>
+
+            <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
+              <Link href="/blog">
+                <span className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm font-bold transition-colors cursor-pointer">
+                  <ArrowLeft className="w-4 h-4" /> Back to Blog
+                </span>
+              </Link>
+              <button
+                onClick={() => navigator.share?.({ title: dbPost.title, url: window.location.href })}
+                className="flex items-center gap-2 text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors"
+              >
+                <Share2 className="w-4 h-4" /> Share Article
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* TOPIC CLUSTER INTERNAL LINKS */}
+        <section className="px-6 pb-0">
+          <div className="max-w-4xl mx-auto">
+            <TopicClusterWidget currentUrl={`/blog/${slug}`} />
+          </div>
+        </section>
+
+        {/* RELATED ARTICLES */}
+        {related.length > 0 && (
+          <section className="px-6 pb-24 border-t border-white/10 pt-16">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-zinc-500 text-xs uppercase tracking-widest mb-8 font-mono">-- Related Articles</div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {related.map((rp) => (
+                  <Link key={rp.slug} href={`/blog/${rp.slug}`}>
+                    <div className="group rounded-xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all cursor-pointer bg-zinc-900/50">
+                      <div className="relative h-40 overflow-hidden">
+                        <img src={rp.heroImage} alt={rp.heroAlt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
+                      </div>
+                      <div className="p-5">
+                        <div className="text-zinc-500 text-xs mb-2 flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> {rp.readTime}
+                        </div>
+                        <h4 className="text-white font-black text-base leading-tight group-hover:text-amber-400 transition-colors mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                          {rp.title}
+                        </h4>
+                        <div className="flex items-center gap-1 text-amber-500 text-xs font-bold uppercase tracking-wider">
+                          Read <ArrowRight className="w-3 h-3" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        <footer className="border-t border-white/10 px-6 py-10">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-zinc-600 text-sm">&copy; 2026 Solar Freedom. All rights reserved.</div>
+            <div className="flex gap-6">
+              <Link href="/"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Home</span></Link>
+              <Link href="/blog"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Blog</span></Link>
+              <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Free Review</span></Link>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // ─── Static post render path (existing logic) ────────────────────────────────
+  const post = staticPost;
 
   // Build Article + BreadcrumbList + FAQPage schemas for schema stacking
   const schemas: object[] = [
