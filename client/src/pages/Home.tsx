@@ -1197,7 +1197,7 @@ export default function Home() {
               </div>
               <Reveal delay={0.4}>
                 <div className="flex flex-wrap gap-3">
-                  {["Bar-Licensed Attorneys", "Consumer Protection Focus", "TCPA-Compliant Outreach", "Case Documentation Protocols"].map((badge) => (
+                  {["BBB Profile Available", "State Bar-Licensed Counsel", "TCPA-Compliant Outreach", "Documented Case Outcomes"].map((badge) => (
                     <span key={badge} className="badge-success">{badge}</span>
                   ))}
                 </div>
