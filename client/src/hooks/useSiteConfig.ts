@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { SITE_CONFIG_DEFAULTS } from "@shared/const";
 
 type SiteConfigPayload = {
   phone_number?: string;
@@ -7,10 +8,7 @@ type SiteConfigPayload = {
   assistant_title?: string;
 };
 
-const DEFAULT_PHONE_DISPLAY = "(904) 921-4971";
-const DEFAULT_PHONE_E164 = "+19049214971";
-const DEFAULT_ASSISTANT_NAME = "Grace Silver";
-const DEFAULT_ASSISTANT_TITLE = "AI Executive Assistant";
+const MIN_E164_LENGTH = 8;
 
 function normalizePhoneDigits(phone: string): string {
   return phone.replace(/\D/g, "");
@@ -18,12 +16,12 @@ function normalizePhoneDigits(phone: string): string {
 
 function normalizeE164(phoneE164: string, fallbackFromDisplay: string): string {
   const cleaned = phoneE164.replace(/[^\d+]/g, "");
-  if (cleaned.startsWith("+") && cleaned.length >= 8) return cleaned;
+  if (cleaned.startsWith("+") && cleaned.length >= MIN_E164_LENGTH) return cleaned;
 
   const digits = normalizePhoneDigits(fallbackFromDisplay);
   if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
   if (digits.length === 10) return `+1${digits}`;
-  return DEFAULT_PHONE_E164;
+  return SITE_CONFIG_DEFAULTS.phone_number_e164;
 }
 
 export function useSiteConfig() {
@@ -33,14 +31,14 @@ export function useSiteConfig() {
   });
 
   const cfg: SiteConfigPayload = query.data ?? {};
-  const phoneDisplay = (cfg.phone_number || DEFAULT_PHONE_DISPLAY).trim();
+  const phoneDisplay = (cfg.phone_number || SITE_CONFIG_DEFAULTS.phone_number).trim();
   const phoneE164 = normalizeE164(
     (cfg.phone_number_e164 || "").trim(),
     phoneDisplay
   );
   const phoneDigits = normalizePhoneDigits(phoneE164);
-  const assistantName = (cfg.assistant_name || DEFAULT_ASSISTANT_NAME).trim();
-  const assistantTitle = (cfg.assistant_title || DEFAULT_ASSISTANT_TITLE).trim();
+  const assistantName = (cfg.assistant_name || SITE_CONFIG_DEFAULTS.assistant_name).trim();
+  const assistantTitle = (cfg.assistant_title || SITE_CONFIG_DEFAULTS.assistant_title).trim();
 
   return {
     ...query,

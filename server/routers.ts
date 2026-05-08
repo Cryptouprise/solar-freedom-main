@@ -1,4 +1,4 @@
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, SITE_CONFIG_DEFAULTS } from "@shared/const";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -203,13 +203,6 @@ export const appRouter = router({
      * Values are managed through /api/admin/config/:key.
      */
     getSiteConfig: publicProcedure.query(async () => {
-      const defaults = {
-        phone_number: "(904) 921-4971",
-        phone_number_e164: "+19049214971",
-        assistant_name: "Grace Silver",
-        assistant_title: "AI Executive Assistant",
-      };
-
       const configured = await getSiteConfigValues([
         "phone_number",
         "phone_number_e164",
@@ -217,7 +210,7 @@ export const appRouter = router({
         "assistant_title",
       ]);
 
-      return { ...defaults, ...configured };
+      return { ...SITE_CONFIG_DEFAULTS, ...configured };
     }),
   }),
 
