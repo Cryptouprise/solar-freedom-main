@@ -6,6 +6,7 @@ import { getBlogPost, getRelatedPosts, BlogSection } from '@/data/blog';
 import { trpc } from '@/lib/trpc';
 import TopicClusterWidget from '@/components/TopicClusterWidget';
 import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
+import QuickCallbackForm from '@/components/QuickCallbackForm';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2, Shield, Scale } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement } from 'react';
@@ -127,6 +128,50 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
       </Link>
     </div>
   );
+}
+
+const BLOG_INLINE_CTA_INTERVAL = 4;
+
+function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
+  const sections: ReactElement[] = [];
+  const paragraphRegex = /<p\b[\s\S]*?<\/p>/gi;
+  let paragraphCount = 0;
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = paragraphRegex.exec(content)) !== null) {
+    const end = match.index + match[0].length;
+    const chunk = content.slice(cursor, end);
+    if (chunk.trim()) {
+      sections.push(
+        <div
+          key={`db-chunk-${key++}`}
+          className="prose prose-invert max-w-none prose-headings:font-black prose-h2:text-white prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-amber-400 prose-h3:mt-8 prose-h3:mb-3 prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-5 prose-li:text-zinc-300 prose-a:text-amber-400 prose-a:no-underline hover:prose-a:text-amber-300 prose-strong:text-white"
+          dangerouslySetInnerHTML={{ __html: chunk }}
+        />
+      );
+    }
+
+    paragraphCount += 1;
+    if (paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0) {
+      sections.push(<InlineCTA key={`db-cta-${key++}`} text={ctaText} subtext={ctaSubtext} />);
+    }
+    cursor = end;
+  }
+
+  const tail = content.slice(cursor);
+  if (tail.trim()) {
+    sections.push(
+      <div
+        key={`db-tail-${key++}`}
+        className="prose prose-invert max-w-none prose-headings:font-black prose-h2:text-white prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-amber-400 prose-h3:mt-8 prose-h3:mb-3 prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-5 prose-li:text-zinc-300 prose-a:text-amber-400 prose-a:no-underline hover:prose-a:text-amber-300 prose-strong:text-white"
+        dangerouslySetInnerHTML={{ __html: tail }}
+      />
+    );
+  }
+
+  return sections;
 }
 
 // Author/Attorney Bio Section — E-E-A-T signal for Google
@@ -340,53 +385,68 @@ export default function BlogPost() {
 
         {/* ARTICLE BODY */}
         <div className="px-6 py-12">
-          <div className="max-w-4xl mx-auto">
-            {dbPost.excerpt && (
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-zinc-200 text-xl leading-relaxed mb-8 border-l-4 border-amber-500 pl-6 italic"
-              >
-                {dbPost.excerpt}
-              </motion.p>
-            )}
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
+            <div>
+              {dbPost.excerpt && (
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-zinc-200 text-xl leading-relaxed mb-8 border-l-4 border-amber-500 pl-6 italic"
+                >
+                  {dbPost.excerpt}
+                </motion.p>
+              )}
 
-            <DoIQualifyQuiz />
-            <AuthorBio />
+              <DoIQualifyQuiz />
+              <AuthorBio />
 
-            {/* HTML content from database */}
-            <div
-              className="prose prose-invert max-w-none prose-headings:font-black prose-h2:text-white prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-amber-400 prose-h3:mt-8 prose-h3:mb-3 prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-5 prose-li:text-zinc-300 prose-a:text-amber-400 prose-a:no-underline hover:prose-a:text-amber-300 prose-strong:text-white"
-              dangerouslySetInnerHTML={{ __html: dbPost.content }}
-            />
+              {/* HTML content from database with inline CTA cadence */}
+              <div className="space-y-0">
+                {renderDbContentWithInlineCtas(
+                  dbPost.content,
+                  "Still Paying on a Solar Contract?",
+                  "Get a free legal review and find out if you can cancel."
+                )}
+              </div>
 
-            {/* Final CTA */}
-            <div className="mt-16 rounded-2xl bg-amber-500 p-10 text-center relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
-              <h2 className="font-black text-black uppercase mb-3 relative" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-                Ready to Escape Your Solar Contract?
-              </h2>
-              <p className="text-black/70 mb-6 relative max-w-lg mx-auto">Our attorneys review your contract for free. No obligation. Results in 48 hours.</p>
-              <Link href="/#form">
-                <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">
-                  Start My Free Review
-                </span>
-              </Link>
+              {/* Final CTA */}
+              <div className="mt-16 rounded-2xl bg-amber-500 p-10 text-center relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
+                <h2 className="font-black text-black uppercase mb-3 relative" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+                  Ready to Escape Your Solar Contract?
+                </h2>
+                <p className="text-black/70 mb-6 relative max-w-lg mx-auto">Our attorneys review your contract for free. No obligation. Results in 48 hours.</p>
+                <Link href="/#form">
+                  <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">
+                    Start My Free Review
+                  </span>
+                </Link>
+              </div>
+
+              <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
+                <Link href="/blog">
+                  <span className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm font-bold transition-colors cursor-pointer">
+                    <ArrowLeft className="w-4 h-4" /> Back to Blog
+                  </span>
+                </Link>
+                <button
+                  onClick={() => navigator.share?.({ title: dbPost.title, url: window.location.href })}
+                  className="flex items-center gap-2 text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors"
+                >
+                  <Share2 className="w-4 h-4" /> Share Article
+                </button>
+              </div>
             </div>
 
-            <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
-              <Link href="/blog">
-                <span className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm font-bold transition-colors cursor-pointer">
-                  <ArrowLeft className="w-4 h-4" /> Back to Blog
-                </span>
-              </Link>
-              <button
-                onClick={() => navigator.share?.({ title: dbPost.title, url: window.location.href })}
-                className="flex items-center gap-2 text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors"
-              >
-                <Share2 className="w-4 h-4" /> Share Article
-              </button>
-            </div>
+            <aside className="hidden lg:block lg:sticky lg:top-24">
+              <QuickCallbackForm
+                formName="sticky_blog_sidebar"
+                title="Free Case Review"
+                subtitle="Skip the long form — leave your name and phone and we’ll call you back."
+                buttonLabel="Request Callback"
+                showSchedule
+              />
+            </aside>
           </div>
         </div>
 
@@ -520,11 +580,15 @@ export default function BlogPost() {
     url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
   });
 
-  // Insert inline CTAs every 6 sections
+  // Insert inline CTAs every 4 paragraph sections
   const sectionsWithCTAs: ReactElement[] = [];
+  let paragraphCount = 0;
   post.content.forEach((section, i) => {
     sectionsWithCTAs.push(<div key={`s-${i}`}>{renderSection(section, i)}</div>);
-    if ((i + 1) % 6 === 0 && i < post.content.length - 2) {
+    if (section.type === "p") {
+      paragraphCount += 1;
+    }
+    if (paragraphCount > 0 && paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0 && i < post.content.length - 2) {
       sectionsWithCTAs.push(
         <InlineCTA key={`cta-${i}`} text={post.ctaText} subtext={post.ctaSubtext} />
       );
@@ -593,7 +657,8 @@ export default function BlogPost() {
 
       {/* ARTICLE BODY */}
       <div className="px-6 py-12">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
+          <div>
           {/* Excerpt / lead paragraph */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -642,6 +707,17 @@ export default function BlogPost() {
               <Share2 className="w-4 h-4" /> Share Article
             </button>
           </div>
+          </div>
+
+          <aside className="hidden lg:block lg:sticky lg:top-24">
+            <QuickCallbackForm
+              formName="sticky_blog_sidebar"
+              title="Free Case Review"
+              subtitle="Skip the long form — leave your name and phone and we’ll call you back."
+              buttonLabel="Request Callback"
+              showSchedule
+            />
+          </aside>
         </div>
       </div>
 

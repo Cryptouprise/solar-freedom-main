@@ -145,6 +145,48 @@ describe("leads.list", () => {
   });
 });
 
+describe("leads.quickCallback", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true } as Response);
+  });
+
+  it("persists a phone-first callback lead and returns success", async () => {
+    const caller = createCaller(makePublicCtx());
+
+    const result = await caller.leads.quickCallback({
+      phone: "9049214971",
+      name: "Grace Hopper",
+      sourcePage: "/blog/example",
+      sourceUrl: "https://example.com/blog/example",
+      formName: "sticky_blog_sidebar",
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.leadId).toBe(42);
+    expect(insertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        firstName: "Grace",
+        lastName: "Hopper",
+        phone: "9049214971",
+        formName: "sticky_blog_sidebar",
+        status: "new",
+      })
+    );
+    expect(markLeadGhlSent).toHaveBeenCalledWith(42);
+  });
+
+  it("accepts callback requests with only phone number", async () => {
+    const caller = createCaller(makePublicCtx());
+
+    await expect(
+      caller.leads.quickCallback({
+        phone: "5551234567",
+      })
+    ).resolves.toEqual({ success: true, leadId: 42 });
+  });
+});
+
 describe("leads.updateStatus", () => {
   it("allows admin to update lead status", async () => {
     const caller = createCaller(makeAdminCtx());

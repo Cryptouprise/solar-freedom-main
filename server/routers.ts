@@ -34,6 +34,11 @@ async function sendToGHL(payload: Record<string, string | undefined>) {
   }
 }
 
+function buildSmsConfirmation(firstName?: string) {
+  const safeName = firstName?.trim() ? firstName.trim() : "there";
+  return `Hi ${safeName}, this is Grace from Solar Freedom. Your case review request was received — I’ll be reaching out within the hour. Reply with any questions!`;
+}
+
 // ─── Routers ───────────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -93,9 +98,61 @@ export const appRouter = router({
           source: input.sourcePage ?? "solar-freedom",
           form_name: input.formName ?? "main_contact_form",
           "contact.first_name": input.firstName,
+          trigger_sms_confirmation: "1",
+          sms_confirmation_message: buildSmsConfirmation(input.firstName),
         });
 
         // 3. Mark GHL sent status in DB
+        if (leadId && ghlSuccess) {
+          await markLeadGhlSent(leadId);
+        }
+
+        return { success: true, leadId };
+      }),
+
+    /**
+     * Quick callback capture — phone-first fallback for visitors who don't
+     * want to complete the full multi-step flow yet.
+     */
+    quickCallback: publicProcedure
+      .input(
+        z.object({
+          phone: z.string().min(7),
+          name: z.string().optional(),
+          sourcePage: z.string().optional(),
+          sourceUrl: z.string().optional(),
+          formName: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const firstName = (input.name?.trim().split(" ")[0] || "").trim();
+        const lastName = input.name?.trim().split(" ").slice(1).join(" ") || "";
+
+        const leadId = await insertLead({
+          firstName: firstName || null,
+          lastName: lastName || null,
+          phone: input.phone,
+          email: null,
+          formName: input.formName ?? "quick_callback_request",
+          sourcePage: input.sourcePage ?? "unknown",
+          sourceUrl: input.sourceUrl,
+          status: "new",
+          ghlWebhookSent: 0,
+        });
+
+        const ghlSuccess = await sendToGHL({
+          phone: input.phone,
+          first_name: firstName || "Website",
+          last_name: lastName || "Visitor",
+          full_name: input.name?.trim() || "Website Visitor",
+          source: input.sourcePage ?? "solar-freedom",
+          form_name: input.formName ?? "quick_callback_request",
+          callback_request: "1",
+          callback_priority: "high",
+          trigger_sms_confirmation: "1",
+          sms_confirmation_message: buildSmsConfirmation(firstName),
+        });
+
         if (leadId && ghlSuccess) {
           await markLeadGhlSent(leadId);
         }
