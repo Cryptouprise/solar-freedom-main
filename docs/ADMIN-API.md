@@ -168,6 +168,15 @@ curl -X POST \
 | GET | `/api/admin/config` | `config:read` | Get all config key/value pairs |
 | PUT | `/api/admin/config/:key` | `config:write` | Set a config value |
 
+#### Runtime keys currently wired into the website
+
+| Key | Purpose | Example |
+|-----|---------|---------|
+| `phone_number` | Displayed contact phone in homepage schema + footer + sticky mobile CTA | `(888) 555-0123` |
+| `phone_number_e164` | Dial/SMS phone for `tel:` and `sms:` links | `+18885550123` |
+| `assistant_name` | Sticky mobile assistant name label | `Grace Silver` |
+| `assistant_title` | Sticky mobile assistant title label | `AI Executive Assistant` |
+
 #### Example: Update Phone Number
 
 ```bash
@@ -176,6 +185,55 @@ curl -X PUT \
   -H "Content-Type: application/json" \
   -d '{"value": "(888) 555-0123", "description": "Main contact phone number"}' \
   https://breakyoursolarcontract.com/api/admin/config/phone_number
+```
+
+```bash
+curl -X PUT \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"value": "+18885550123", "description": "Dial/SMS phone in E.164 format"}' \
+  https://breakyoursolarcontract.com/api/admin/config/phone_number_e164
+```
+
+---
+
+### Automation (Allowlisted file edits + schema migrations)
+
+| Method | Path | Permission | Description |
+|--------|------|-----------|-------------|
+| POST | `/api/admin/automation/apply` | `automation:execute` | Apply a batch of allowlisted file writes and/or schema migrations |
+
+Safeguards:
+- Max 20 operations per request
+- File writes are restricted to allowlisted paths under `client/src`, `server`, `shared`, `drizzle`, and `docs`
+- File extensions are restricted (`.ts`, `.tsx`, `.js`, `.mjs`, `.json`, `.md`, `.sql`, `.css`)
+- Optional optimistic locking via `expectedSha256`
+- SQL migrations only allow statements starting with `CREATE TABLE`, `ALTER TABLE`, `CREATE INDEX`, `DROP INDEX`
+- SQL containing destructive data/table commands (`DROP TABLE`, `TRUNCATE`, `DELETE`, `UPDATE`, `INSERT`) is blocked
+- SQL comments and `CREATE TABLE ... AS SELECT` are blocked
+- Every request is audit-logged to `siteConfig` under an `automation_audit_*` key
+
+#### Example: Dry run
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dryRun": true,
+    "operations": [
+      {
+        "type": "write_file",
+        "path": "shared/const.ts",
+        "content": "export const EXAMPLE = true;"
+      },
+      {
+        "type": "sql_migration",
+        "statement": "ALTER TABLE siteConfig ADD COLUMN source varchar(100) NULL"
+      }
+    ]
+  }' \
+  https://breakyoursolarcontract.com/api/admin/automation/apply
 ```
 
 ---
@@ -273,9 +331,9 @@ curl -X POST \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Cursor IDE",
-    "permissions": ["posts:read", "posts:write", "companies:read"]
-  }' \
+     "name": "Cursor IDE",
+     "permissions": ["posts:read", "posts:write", "companies:read", "automation:execute"]
+   }' \
   https://breakyoursolarcontract.com/api/admin/keys
 ```
 
@@ -294,6 +352,7 @@ The response includes the full key — **save it immediately, it will not be sho
 | `companies:write` | Create and update companies |
 | `config:read` | Read site config values |
 | `config:write` | Set site config values |
+| `automation:execute` | Apply allowlisted file edits and schema migrations |
 | `keys:manage` | List, create, and revoke API keys |
 | `*` | All permissions |
 

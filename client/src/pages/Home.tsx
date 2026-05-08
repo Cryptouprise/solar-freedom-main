@@ -17,6 +17,7 @@ import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trackPhoneClick, trackCTAClick, initScrollTracking, trackFormSubmit } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -692,6 +693,7 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const formRef = useRef<HTMLDivElement>(null);
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
 
   useEffect(() => {
     const cleanup = initScrollTracking("home");
@@ -711,7 +713,7 @@ export default function Home() {
       url: 'https://breakyoursolarcontract.com',
       logo: 'https://breakyoursolarcontract.com/favicon.ico',
       description: 'Solar contract cancellation attorneys helping homeowners escape predatory solar agreements. Free case review. 3,000+ contracts cancelled.',
-      telephone: '(904) 921-4971',
+      telephone: phoneDisplay,
       areaServed: 'US',
       serviceType: 'Solar Contract Cancellation',
       sameAs: [
@@ -848,8 +850,8 @@ export default function Home() {
               <button onClick={() => scrollToForm("hero_get_free_review")} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
                 GET MY FREE CASE REVIEW →
               </button>
-              <a href="tel:+19049214971" onClick={() => trackPhoneClick("hero_phone")} className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
-                📞 Call (904) 921-4971
+              <a href={phoneHref} onClick={() => trackPhoneClick("hero_phone", phoneDigits)} className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
+                📞 Call {phoneDisplay}
               </a>
             </motion.div>
 
@@ -1638,7 +1640,7 @@ export default function Home() {
             <div>
               <div className="font-display text-white text-lg mb-4">CONTACT</div>
               <div className="space-y-2 text-gray-500 text-sm font-mono">
-                <div>📞 (904) 921-4971</div>
+                <div>📞 {phoneDisplay}</div>
                 <div>✉ cases@solarfreedom.com</div>
                 <div>⏰ Mon–Fri, 8am–8pm EST</div>
               </div>

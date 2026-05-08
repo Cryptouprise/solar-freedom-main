@@ -25,19 +25,33 @@
  *   GET    /api/admin/keys               - List API keys (names/prefixes only)
  *   POST   /api/admin/keys               - Generate new API key
  *   DELETE /api/admin/keys/:id           - Revoke API key
+ *
+ *   POST   /api/admin/automation/apply   - Allowlisted file edits + schema migrations
  * 
  *   GET    /api/admin/status             - Health check + site stats
  */
 
-import { Router } from "express";
+import { Router, Response } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { eq, desc, like, and } from "drizzle-orm";
+import path from "path";
+import { mkdir, readFile, writeFile } from "fs/promises";
+import { eq, desc, like, and, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { blogPosts, companies, siteConfig, apiKeys } from "../drizzle/schema";
 import { adminAuthMiddleware, requirePermission, AdminRequest } from "./adminAuth";
 
 const router = Router();
+const REPO_ROOT = process.cwd();
+const MAX_AUTOMATION_OPERATIONS = 20;
+const MAX_AUTOMATION_FILE_BYTES = 300_000;
+const MAX_SQL_MIGRATION_LENGTH = 8_000;
+const ALLOWED_AUTOMATION_PATH_PREFIXES = ["client/src/", "server/", "shared/", "drizzle/", "docs/"];
+const ALLOWED_AUTOMATION_FILE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".mjs", ".json", ".md", ".sql", ".css"]);
+const SQL_MIGRATION_ALLOWED_PREFIXES = ["CREATE TABLE", "ALTER TABLE", "CREATE INDEX", "DROP INDEX"];
+const SQL_MIGRATION_BLOCKLIST = /(^|;)\s*(DROP\s+TABLE|TRUNCATE|DELETE\s+FROM|UPDATE\s+\w+|INSERT\s+INTO|REPLACE\s+INTO)\b/i;
+const SQL_COMMENT_PATTERN = /(--|\/\*|\*\/)/;
+const SQL_CREATE_AS_SELECT_PATTERN = /\bCREATE\s+TABLE\b[\s\S]*\bAS\s+SELECT\b/i;
 
 // ─── Apply auth to all admin routes ────────────────────────────────────────
 router.use(adminAuthMiddleware);
@@ -431,6 +445,158 @@ router.put("/config/:key", requirePermission("config:write"), async (req: AdminR
   }
 });
 
+// ─── AUTOMATION (ALLOWLISTED EDITS + MIGRATIONS) ──────────────────────────────
+type AutomationWriteFileOperation = {
+  type: "write_file";
+  path: string;
+  content: string;
+  expectedSha256?: string;
+};
+
+type AutomationSqlMigrationOperation = {
+  type: "sql_migration";
+  statement: string;
+};
+
+type AutomationOperation = AutomationWriteFileOperation | AutomationSqlMigrationOperation;
+
+router.post("/automation/apply", requirePermission("automation:execute"), async (req: AdminRequest, res: Response) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(503).json({ error: "Database unavailable" });
+
+    const { operations, dryRun } = req.body ?? {};
+    if (!Array.isArray(operations) || operations.length === 0) {
+      return res.status(400).json({ error: "operations array is required" });
+    }
+    if (operations.length > MAX_AUTOMATION_OPERATIONS) {
+      return res.status(400).json({ error: `Maximum ${MAX_AUTOMATION_OPERATIONS} operations per request` });
+    }
+
+    const applyDryRun = Boolean(dryRun);
+    const results: Array<Record<string, unknown>> = [];
+    const auditOperations: Array<Record<string, unknown>> = [];
+
+    for (let i = 0; i < operations.length; i++) {
+      const op = operations[i] as AutomationOperation;
+
+      if (op?.type === "write_file") {
+        if (typeof op.path !== "string" || typeof op.content !== "string") {
+          return res.status(400).json({ error: `write_file operation ${i} requires path and content` });
+        }
+
+        let targetPath: string;
+        try {
+          targetPath = resolveAllowlistedAutomationPath(op.path);
+        } catch (pathErr) {
+          return res.status(400).json({ error: `write_file operation ${i} has invalid path`, details: String(pathErr) });
+        }
+        const contentBytes = Buffer.byteLength(op.content, "utf8");
+        if (contentBytes > MAX_AUTOMATION_FILE_BYTES) {
+          return res.status(400).json({ error: `write_file operation ${i} exceeds ${MAX_AUTOMATION_FILE_BYTES} bytes` });
+        }
+
+        const existingContents = await readFileIfExists(targetPath);
+        const beforeSha256 = existingContents ? sha256(existingContents) : null;
+        if (op.expectedSha256 && beforeSha256 && op.expectedSha256 !== beforeSha256) {
+          return res.status(409).json({
+            error: `write_file operation ${i} failed optimistic lock`,
+            path: op.path,
+            expectedSha256: op.expectedSha256,
+            actualSha256: beforeSha256,
+          });
+        }
+
+        if (!applyDryRun) {
+          await mkdir(path.dirname(targetPath), { recursive: true });
+          await writeFile(targetPath, op.content, "utf8");
+        }
+
+        results.push({
+          index: i,
+          type: op.type,
+          path: op.path,
+          dryRun: applyDryRun,
+          beforeSha256,
+          afterSha256: sha256(op.content),
+          bytes: contentBytes,
+        });
+        auditOperations.push({
+          index: i,
+          type: op.type,
+          path: op.path,
+          bytes: contentBytes,
+          expectedSha256: op.expectedSha256 ?? null,
+        });
+        continue;
+      }
+
+      if (op?.type === "sql_migration") {
+        if (typeof op.statement !== "string" || op.statement.trim().length === 0) {
+          return res.status(400).json({ error: `sql_migration operation ${i} requires statement` });
+        }
+
+        const statement = op.statement.trim();
+        if (statement.length > MAX_SQL_MIGRATION_LENGTH) {
+          return res.status(400).json({ error: `sql_migration operation ${i} exceeds ${MAX_SQL_MIGRATION_LENGTH} chars` });
+        }
+        if (SQL_COMMENT_PATTERN.test(statement)) {
+          return res.status(400).json({ error: `sql_migration operation ${i} cannot include SQL comments` });
+        }
+        if (SQL_CREATE_AS_SELECT_PATTERN.test(statement)) {
+          return res.status(400).json({ error: `sql_migration operation ${i} cannot use CREATE TABLE ... AS SELECT` });
+        }
+
+        const normalized = statement.replace(/\s+/g, " ").toUpperCase();
+        if (!SQL_MIGRATION_ALLOWED_PREFIXES.some(prefix => normalized.startsWith(prefix))) {
+          return res.status(400).json({
+            error: `sql_migration operation ${i} must start with one of: ${SQL_MIGRATION_ALLOWED_PREFIXES.join(", ")}`,
+          });
+        }
+        if (SQL_MIGRATION_BLOCKLIST.test(normalized)) {
+          return res.status(400).json({ error: `sql_migration operation ${i} contains a blocked SQL command` });
+        }
+
+        if (!applyDryRun) {
+          await db.execute(sql.raw(statement));
+        }
+
+        results.push({
+          index: i,
+          type: op.type,
+          dryRun: applyDryRun,
+          statementSha256: sha256(statement),
+          statementPreview: statement.slice(0, 160),
+        });
+        auditOperations.push({
+          index: i,
+          type: op.type,
+          statementSha256: sha256(statement),
+          statementPreview: statement.slice(0, 160),
+        });
+        continue;
+      }
+
+      return res.status(400).json({ error: `Unsupported operation type at index ${i}` });
+    }
+
+    const auditPayload = {
+      apiKeyName: req.apiKey?.name ?? null,
+      apiKeyId: req.apiKey?.id ?? null,
+      dryRun: applyDryRun,
+      operationCount: operations.length,
+      operations: auditOperations,
+      results,
+      createdAt: new Date().toISOString(),
+    };
+
+    const auditKey = await writeAutomationAuditLog(db, auditPayload);
+    res.status(200).json({ success: true, dryRun: applyDryRun, applied: results.length, results, auditKey });
+  } catch (err) {
+    res.status(500).json({ error: "Automation apply failed", details: String(err) });
+  }
+});
+
 // ─── API KEY MANAGEMENT ──────────────────────────────────────────────────────
 
 // GET /api/admin/keys — list keys (no hashes exposed)
@@ -644,4 +810,55 @@ function safeParseJson(val: string | null | undefined, fallback: unknown) {
   if (!val) return fallback;
   try { return JSON.parse(val); } catch { return fallback; }
 }
+
+function resolveAllowlistedAutomationPath(relativePath: string) {
+  const trimmed = relativePath.trim();
+  if (!trimmed || path.isAbsolute(trimmed)) {
+    throw new Error("Path must be a non-empty relative path");
+  }
+
+  const absolutePath = path.resolve(REPO_ROOT, trimmed);
+  const repoRootWithSep = REPO_ROOT.endsWith(path.sep) ? REPO_ROOT : `${REPO_ROOT}${path.sep}`;
+  if (!absolutePath.startsWith(repoRootWithSep)) {
+    throw new Error("Path traversal is not allowed");
+  }
+
+  const normalizedRelative = path.relative(REPO_ROOT, absolutePath).split("\\").join("/");
+  if (!ALLOWED_AUTOMATION_PATH_PREFIXES.some(prefix => normalizedRelative.startsWith(prefix))) {
+    throw new Error(`Path is outside allowlist: ${normalizedRelative}`);
+  }
+
+  const ext = path.extname(normalizedRelative).toLowerCase();
+  if (!ALLOWED_AUTOMATION_FILE_EXTENSIONS.has(ext)) {
+    throw new Error(`File extension '${ext}' is not allowed`);
+  }
+
+  return absolutePath;
+}
+
+function sha256(value: string) {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+async function readFileIfExists(filePath: string) {
+  try {
+    return await readFile(filePath, "utf8");
+  } catch (err: unknown) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "ENOENT") {
+      return null;
+    }
+    throw err;
+  }
+}
+
+async function writeAutomationAuditLog(db: NonNullable<Awaited<ReturnType<typeof getDb>>>, payload: Record<string, unknown>) {
+  const auditKey = `automation_audit_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
+  await db.insert(siteConfig).values({
+    key: auditKey,
+    value: JSON.stringify(payload),
+    description: "Admin automation audit log",
+  });
+  return auditKey;
+}
+
 export default router;

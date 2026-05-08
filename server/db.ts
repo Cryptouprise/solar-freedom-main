@@ -1,6 +1,6 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, users } from "../drizzle/schema";
+import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -268,6 +268,31 @@ export async function getDbCompany(slug: string) {
     statesCovered: safeJson(company.statesCovered, []),
     relatedSlugs: safeJson(company.relatedSlugs, []),
   };
+}
+
+/**
+ * Fetch site config key/value entries for runtime website configuration.
+ */
+export async function getSiteConfigValues(keys?: string[]) {
+  const db = await getDb();
+  if (!db) return {} as Record<string, string>;
+
+  const selectQuery = db
+    .select({
+      key: siteConfig.key,
+      value: siteConfig.value,
+    })
+    .from(siteConfig);
+
+  const rows =
+    keys && keys.length > 0
+      ? await selectQuery.where(inArray(siteConfig.key, keys))
+      : await selectQuery;
+
+  return rows.reduce<Record<string, string>>((acc, row) => {
+    acc[row.key] = row.value;
+    return acc;
+  }, {});
 }
 
 // ─── Exit intent helpers ───────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, SITE_CONFIG_DEFAULTS } from "@shared/const";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -13,6 +13,7 @@ import {
   getDbBlogPost,
   getDbCompanies,
   getDbCompany,
+  getSiteConfigValues,
 } from "./db";
 import { getGA4Report } from "./ga4";
 
@@ -254,6 +255,20 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return getDbCompany(input.slug);
       }),
+    /**
+     * Get runtime site config values used by public pages.
+     * Values are managed through /api/admin/config/:key.
+     */
+    getSiteConfig: publicProcedure.query(async () => {
+      const configured = await getSiteConfigValues([
+        "phone_number",
+        "phone_number_e164",
+        "assistant_name",
+        "assistant_title",
+      ]);
+
+      return { ...SITE_CONFIG_DEFAULTS, ...configured };
+    }),
   }),
 
   // ── Exit intent captures ─────────────────────────────────────────────────────
