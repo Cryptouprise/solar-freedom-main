@@ -210,6 +210,7 @@ Safeguards:
 - Optional optimistic locking via `expectedSha256`
 - SQL migrations only allow statements starting with `CREATE TABLE`, `ALTER TABLE`, `CREATE INDEX`, `DROP INDEX`
 - SQL containing destructive data/table commands (`DROP TABLE`, `TRUNCATE`, `DELETE`, `UPDATE`, `INSERT`) is blocked
+- SQL comments and `CREATE TABLE ... AS SELECT` are blocked
 - Every request is audit-logged to `siteConfig` under an `automation_audit_*` key
 
 #### Example: Dry run

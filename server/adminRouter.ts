@@ -50,6 +50,8 @@ const ALLOWED_AUTOMATION_PATH_PREFIXES = ["client/src/", "server/", "shared/", "
 const ALLOWED_AUTOMATION_FILE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".mjs", ".json", ".md", ".sql", ".css"]);
 const SQL_MIGRATION_ALLOWED_PREFIXES = ["CREATE TABLE", "ALTER TABLE", "CREATE INDEX", "DROP INDEX"];
 const SQL_MIGRATION_BLOCKLIST = /(^|;)\s*(DROP\s+TABLE|TRUNCATE|DELETE\s+FROM|UPDATE\s+\w+|INSERT\s+INTO|REPLACE\s+INTO)\b/i;
+const SQL_COMMENT_PATTERN = /(--|\/\*|\*\/)/;
+const SQL_CREATE_AS_SELECT_PATTERN = /\bCREATE\s+TABLE\b[\s\S]*\bAS\s+SELECT\b/i;
 
 // ─── Apply auth to all admin routes ────────────────────────────────────────
 router.use(adminAuthMiddleware);
@@ -473,6 +475,7 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
 
     const applyDryRun = Boolean(dryRun);
     const results: Array<Record<string, unknown>> = [];
+    const auditOperations: Array<Record<string, unknown>> = [];
 
     for (let i = 0; i < operations.length; i++) {
       const op = operations[i] as AutomationOperation;
@@ -493,7 +496,7 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
           return res.status(400).json({ error: `write_file operation ${i} exceeds ${MAX_AUTOMATION_FILE_BYTES} bytes` });
         }
 
-        const existingContents = await readFile(targetPath, "utf8").catch(() => null);
+        const existingContents = await readFileIfExists(targetPath);
         const beforeSha256 = existingContents ? sha256(existingContents) : null;
         if (op.expectedSha256 && beforeSha256 && op.expectedSha256 !== beforeSha256) {
           return res.status(409).json({
@@ -518,6 +521,13 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
           afterSha256: sha256(op.content),
           bytes: contentBytes,
         });
+        auditOperations.push({
+          index: i,
+          type: op.type,
+          path: op.path,
+          bytes: contentBytes,
+          expectedSha256: op.expectedSha256 ?? null,
+        });
         continue;
       }
 
@@ -529,6 +539,12 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
         const statement = op.statement.trim();
         if (statement.length > MAX_SQL_MIGRATION_LENGTH) {
           return res.status(400).json({ error: `sql_migration operation ${i} exceeds ${MAX_SQL_MIGRATION_LENGTH} chars` });
+        }
+        if (SQL_COMMENT_PATTERN.test(statement)) {
+          return res.status(400).json({ error: `sql_migration operation ${i} cannot include SQL comments` });
+        }
+        if (SQL_CREATE_AS_SELECT_PATTERN.test(statement)) {
+          return res.status(400).json({ error: `sql_migration operation ${i} cannot use CREATE TABLE ... AS SELECT` });
         }
 
         const normalized = statement.replace(/\s+/g, " ").toUpperCase();
@@ -552,6 +568,12 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
           statementSha256: sha256(statement),
           statementPreview: statement.slice(0, 160),
         });
+        auditOperations.push({
+          index: i,
+          type: op.type,
+          statementSha256: sha256(statement),
+          statementPreview: statement.slice(0, 160),
+        });
         continue;
       }
 
@@ -563,21 +585,7 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
       apiKeyId: req.apiKey?.id ?? null,
       dryRun: applyDryRun,
       operationCount: operations.length,
-      operations: operations.map((op: AutomationOperation) => {
-        if (op.type === "write_file") {
-          return {
-            type: op.type,
-            path: op.path,
-            bytes: Buffer.byteLength(op.content, "utf8"),
-            expectedSha256: op.expectedSha256 ?? null,
-          };
-        }
-        return {
-          type: op.type,
-          statementSha256: sha256(op.statement),
-          statementPreview: op.statement.slice(0, 160),
-        };
-      }),
+      operations: auditOperations,
       results,
       createdAt: new Date().toISOString(),
     };
@@ -815,7 +823,7 @@ function resolveAllowlistedAutomationPath(relativePath: string) {
     throw new Error("Path traversal is not allowed");
   }
 
-  const normalizedRelative = path.relative(REPO_ROOT, absolutePath).replaceAll("\\", "/");
+  const normalizedRelative = path.relative(REPO_ROOT, absolutePath).split("\\").join("/");
   if (!ALLOWED_AUTOMATION_PATH_PREFIXES.some(prefix => normalizedRelative.startsWith(prefix))) {
     throw new Error(`Path is outside allowlist: ${normalizedRelative}`);
   }
@@ -830,6 +838,17 @@ function resolveAllowlistedAutomationPath(relativePath: string) {
 
 function sha256(value: string) {
   return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+async function readFileIfExists(filePath: string) {
+  try {
+    return await readFile(filePath, "utf8");
+  } catch (err: unknown) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "ENOENT") {
+      return null;
+    }
+    throw err;
+  }
 }
 
 async function writeAutomationAuditLog(db: NonNullable<Awaited<ReturnType<typeof getDb>>>, payload: Record<string, unknown>) {
