@@ -185,7 +185,7 @@ export default function CityPage() {
     { q: `What solar companies have the most complaints in ${city.name}?`, a: `Based on BBB and state AG complaint data, the most complained-about companies in ${city.name} include Sunrun, Freedom Forever, and ADT Solar. Common issues include undisclosed escalator clauses, dealer fees, and savings projections that did not materialize.` },
   ];
 
-  // LegalService + BreadcrumbList + FAQ schema stacking for city pages
+  // LegalService + LocalBusiness + BreadcrumbList + FAQ schema stacking for city pages
   const citySchemas: object[] = [
     {
       '@context': 'https://schema.org',
@@ -196,6 +196,23 @@ export default function CityPage() {
       areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
       serviceType: 'Solar Contract Cancellation',
       telephone: '(904) 921-4971',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: 'Solar Freedom',
+      description: `Solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}.`,
+      url: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
+      telephone: '(904) 921-4971',
+      areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: city.name,
+        addressRegion: city.stateCode,
+        addressCountry: 'US',
+      },
+      priceRange: 'Free Consultation',
+      openingHours: 'Mo-Fr 09:00-17:00',
     },
     {
       '@context': 'https://schema.org',

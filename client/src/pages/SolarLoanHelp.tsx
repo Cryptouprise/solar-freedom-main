@@ -17,6 +17,7 @@ import {
   Phone, Scale, DollarSign, Clock, XCircle, Zap
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { trackFormSubmit } from "@/lib/analytics";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -92,6 +93,7 @@ function LoanHelpForm() {
         sourceUrl: window.location.href,
       });
     } catch (_) {}
+    trackFormSubmit("solar_loan_help_form", "/solar-loan-help");
     setSubmitted(true);
   };
 

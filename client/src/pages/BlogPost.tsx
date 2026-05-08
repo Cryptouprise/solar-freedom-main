@@ -487,7 +487,38 @@ export default function BlogPost() {
         acceptedAnswer: { '@type': 'Answer', text: item.a },
       })),
     });
+
+    // Add Speakable schema for AEO — point to FAQ Q&A for voice/AI answer engines
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: ['article h2', 'article h3', '.faq-section'],
+        xpath: [
+          "/html/head/title",
+          "/html/head/meta[@name='description']/@content",
+        ],
+      },
+      url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
+    });
   }
+
+  // Add VideoObject schema placeholder — future YouTube embeds will populate this
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: `${post.title} — Solar Freedom Video`,
+    description: post.metaDescription ?? post.excerpt,
+    thumbnailUrl: post.heroImage ?? 'https://breakyoursolarcontract.com/favicon.ico',
+    uploadDate: post.publishDate ?? '2026-01-01',
+    publisher: {
+      '@type': 'Organization',
+      name: 'Solar Freedom',
+      logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' },
+    },
+    url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
+  });
 
   // Insert inline CTAs every 6 sections
   const sectionsWithCTAs: ReactElement[] = [];

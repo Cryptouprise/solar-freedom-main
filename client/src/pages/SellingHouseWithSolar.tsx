@@ -18,6 +18,7 @@ import {
   ArrowRight, Phone, Scale, XCircle, Clock
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { trackFormSubmit } from "@/lib/analytics";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -83,6 +84,7 @@ function SellForm() {
         sourceUrl: window.location.href,
       });
     } catch (_) {}
+    trackFormSubmit("selling_house_with_solar_form", "/selling-house-with-solar");
     setSubmitted(true);
   };
 
