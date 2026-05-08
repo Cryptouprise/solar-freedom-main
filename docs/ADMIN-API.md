@@ -168,6 +168,15 @@ curl -X POST \
 | GET | `/api/admin/config` | `config:read` | Get all config key/value pairs |
 | PUT | `/api/admin/config/:key` | `config:write` | Set a config value |
 
+#### Runtime keys currently wired into the website
+
+| Key | Purpose | Example |
+|-----|---------|---------|
+| `phone_number` | Displayed contact phone in homepage schema + footer + sticky mobile CTA | `(888) 555-0123` |
+| `phone_number_e164` | Dial/SMS phone for `tel:` and `sms:` links | `+18885550123` |
+| `assistant_name` | Sticky mobile assistant name label | `Grace Silver` |
+| `assistant_title` | Sticky mobile assistant title label | `AI Executive Assistant` |
+
 #### Example: Update Phone Number
 
 ```bash
@@ -176,6 +185,14 @@ curl -X PUT \
   -H "Content-Type: application/json" \
   -d '{"value": "(888) 555-0123", "description": "Main contact phone number"}' \
   https://breakyoursolarcontract.com/api/admin/config/phone_number
+```
+
+```bash
+curl -X PUT \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"value": "+18885550123", "description": "Dial/SMS phone in E.164 format"}' \
+  https://breakyoursolarcontract.com/api/admin/config/phone_number_e164
 ```
 
 ---

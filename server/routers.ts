@@ -13,6 +13,7 @@ import {
   getDbBlogPost,
   getDbCompanies,
   getDbCompany,
+  getSiteConfigValues,
 } from "./db";
 import { getGA4Report } from "./ga4";
 
@@ -197,6 +198,27 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return getDbCompany(input.slug);
       }),
+    /**
+     * Get runtime site config values used by public pages.
+     * Values are managed through /api/admin/config/:key.
+     */
+    getSiteConfig: publicProcedure.query(async () => {
+      const defaults = {
+        phone_number: "(904) 921-4971",
+        phone_number_e164: "+19049214971",
+        assistant_name: "Grace Silver",
+        assistant_title: "AI Executive Assistant",
+      };
+
+      const configured = await getSiteConfigValues([
+        "phone_number",
+        "phone_number_e164",
+        "assistant_name",
+        "assistant_title",
+      ]);
+
+      return { ...defaults, ...configured };
+    }),
   }),
 
   // ── Exit intent captures ─────────────────────────────────────────────────────

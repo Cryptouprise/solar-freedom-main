@@ -26,11 +26,11 @@ export function trackEvent(
 }
 
 /** Track a phone number click */
-export function trackPhoneClick(source: string) {
+export function trackPhoneClick(source: string, phoneNumber = "9049214971") {
   trackEvent("phone_click", {
     event_category: "engagement",
     event_label: source,
-    phone_number: "9049214971",
+    phone_number: phoneNumber,
   });
 }
 

@@ -5,9 +5,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone } from "lucide-react";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 export default function StickyMobileBar() {
   const [visible, setVisible] = useState(false);
+  const { phoneDisplay, phoneHref, smsHref, assistantName, assistantTitle } = useSiteConfig();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,7 +39,7 @@ export default function StickyMobileBar() {
           >
             {/* Call button */}
             <a
-              href="tel:9049214971"
+              href={phoneHref}
               className="flex items-center justify-center gap-2 flex-1 py-3 rounded-lg font-black text-black text-sm uppercase tracking-wider transition-all active:scale-[0.97]"
               style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
             >
@@ -46,7 +48,7 @@ export default function StickyMobileBar() {
             </a>
             {/* Text button */}
             <a
-              href="sms:9049214971"
+              href={smsHref}
               className="flex items-center justify-center gap-2 flex-1 py-3 rounded-lg font-black text-sm uppercase tracking-wider transition-all active:scale-[0.97]"
               style={{
                 background: "oklch(0.18 0.012 265)",
@@ -61,7 +63,7 @@ export default function StickyMobileBar() {
             className="text-center text-zinc-500 text-[10px] py-1"
             style={{ background: "oklch(0.10 0.01 265)" }}
           >
-            Grace Silver · AI Executive Assistant · (904) 921-4971
+            {assistantName} · {assistantTitle} · {phoneDisplay}
           </div>
         </motion.div>
       )}
