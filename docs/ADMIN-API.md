@@ -197,6 +197,46 @@ curl -X PUT \
 
 ---
 
+### Automation (Allowlisted file edits + schema migrations)
+
+| Method | Path | Permission | Description |
+|--------|------|-----------|-------------|
+| POST | `/api/admin/automation/apply` | `automation:execute` | Apply a batch of allowlisted file writes and/or schema migrations |
+
+Safeguards:
+- Max 20 operations per request
+- File writes are restricted to allowlisted paths under `client/src`, `server`, `shared`, `drizzle`, and `docs`
+- File extensions are restricted (`.ts`, `.tsx`, `.js`, `.mjs`, `.json`, `.md`, `.sql`, `.css`)
+- Optional optimistic locking via `expectedSha256`
+- SQL migrations only allow statements starting with `CREATE TABLE`, `ALTER TABLE`, `CREATE INDEX`, `DROP INDEX`
+- SQL containing destructive data/table commands (`DROP TABLE`, `TRUNCATE`, `DELETE`, `UPDATE`, `INSERT`) is blocked
+- Every request is audit-logged to `siteConfig` under an `automation_audit_*` key
+
+#### Example: Dry run
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dryRun": true,
+    "operations": [
+      {
+        "type": "write_file",
+        "path": "shared/const.ts",
+        "content": "export const EXAMPLE = true;"
+      },
+      {
+        "type": "sql_migration",
+        "statement": "ALTER TABLE siteConfig ADD COLUMN source varchar(100) NULL"
+      }
+    ]
+  }' \
+  https://breakyoursolarcontract.com/api/admin/automation/apply
+```
+
+---
+
 ### Image Upload
 
 | Method | Path | Permission | Description |
@@ -290,9 +330,9 @@ curl -X POST \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Cursor IDE",
-    "permissions": ["posts:read", "posts:write", "companies:read"]
-  }' \
+     "name": "Cursor IDE",
+     "permissions": ["posts:read", "posts:write", "companies:read", "automation:execute"]
+   }' \
   https://breakyoursolarcontract.com/api/admin/keys
 ```
 
@@ -311,6 +351,7 @@ The response includes the full key — **save it immediately, it will not be sho
 | `companies:write` | Create and update companies |
 | `config:read` | Read site config values |
 | `config:write` | Set site config values |
+| `automation:execute` | Apply allowlisted file edits and schema migrations |
 | `keys:manage` | List, create, and revoke API keys |
 | `*` | All permissions |
 
