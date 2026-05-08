@@ -305,3 +305,9 @@
   ::-webkit-scrollbar-thumb { background: oklch(0.72 0.19 50 / 50%); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: oklch(0.72 0.19 50); }
 }
+
+/* Hero ambient glow — slow-breathing animation */
+@keyframes ambientGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}

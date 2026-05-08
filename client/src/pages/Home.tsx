@@ -14,7 +14,7 @@ import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
 import SocialProofTicker from "@/components/SocialProofTicker";
 import UrgencyTimer from "@/components/UrgencyTimer";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
-import { trackPhoneClick, trackCTAClick, initScrollTracking } from "@/lib/analytics";
+import { trackPhoneClick, trackCTAClick, initScrollTracking, trackFormSubmit } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
 
@@ -86,6 +86,8 @@ const PAYMENT_RANGES = ["Under $100", "$100–$150", "$150–$200", "$200–$250
 function MultiStepForm() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [fallbackName, setFallbackName] = useState("");
+  const [fallbackPhone, setFallbackPhone] = useState("");
   const [form, setForm] = useState({
     paying: "",
     issue: "",
@@ -103,6 +105,7 @@ function MultiStepForm() {
   const progress = ((step) / totalSteps) * 100;
 
   const submitLead = trpc.leads.submit.useMutation();
+  const quickCallback = trpc.leads.quickCallback.useMutation();
 
   const update = (key: string, val: string | boolean) =>
     setForm((f) => ({ ...f, [key]: val }));
@@ -128,9 +131,25 @@ function MultiStepForm() {
     } catch (_) {
       // Fail silently — still show success to user
     }
-    // Track conversion in GA4
-    const { trackFormSubmit } = await import("@/lib/analytics");
     trackFormSubmit("main_contact_form", "/");
+    setSubmitted(true);
+  };
+
+  const handleQuickCallback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fallbackPhone.trim()) return;
+    try {
+      await quickCallback.mutateAsync({
+        name: fallbackName.trim() || undefined,
+        phone: fallbackPhone.trim(),
+        formName: "main_form_step1_callback_fallback",
+        sourcePage: window.location.pathname,
+        sourceUrl: window.location.href,
+      });
+    } catch (_) {
+      // silent
+    }
+    trackFormSubmit("main_form_step1_callback_fallback", "/");
     setSubmitted(true);
   };
 
@@ -193,6 +212,34 @@ function MultiStepForm() {
             {opt}
           </button>
         ))}
+      </div>
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+        <div className="text-amber-400 text-xs font-mono uppercase tracking-wider mb-1">Not ready for full form?</div>
+        <div className="text-white font-semibold text-sm mb-3">Just want a call back?</div>
+        <form onSubmit={handleQuickCallback} className="space-y-2.5">
+          <input
+            type="text"
+            value={fallbackName}
+            onChange={(e) => setFallbackName(e.target.value)}
+            placeholder="Your name (optional)"
+            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
+          />
+          <input
+            type="tel"
+            value={fallbackPhone}
+            onChange={(e) => setFallbackPhone(e.target.value)}
+            placeholder="Phone number"
+            required
+            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
+          />
+          <button
+            type="submit"
+            disabled={quickCallback.isPending || !fallbackPhone.trim()}
+            className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40"
+          >
+            {quickCallback.isPending ? "REQUESTING..." : "REQUEST A CALL BACK IN 60 SECONDS →"}
+          </button>
+        </form>
       </div>
     </div>,
 
@@ -258,6 +305,15 @@ function MultiStepForm() {
           </button>
         ))}
       </div>
+      <a
+        href={import.meta.env.VITE_SCHEDULING_URL || "https://calendly.com/solarfreedom/free-consultation"}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => trackCTAClick("main_form_schedule_consult_step3", "/")}
+        className="block text-center text-amber-400 hover:text-amber-300 text-sm font-semibold"
+      >
+        Just researching? Schedule a free 15-min consultation instead →
+      </a>
     </div>,
 
     // Step 4 — contact info
@@ -725,6 +781,21 @@ export default function Home() {
           <img src={HERO_BG} alt="Solar contract cancellation attorneys helping homeowners get out of solar agreements" className="w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 92%) 0%, oklch(0.1 0.015 265 / 75%) 50%, oklch(0.08 0.015 265 / 88%) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
+          {/* Looping ambient glow — slow-breathing amber radial light */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 70% 60% at 15% 55%, oklch(0.72 0.19 50 / 12%) 0%, transparent 65%)",
+              animation: "ambientGlow 6s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 50% 40% at 80% 30%, oklch(0.72 0.19 50 / 7%) 0%, transparent 60%)",
+              animation: "ambientGlow 8s ease-in-out infinite reverse",
+            }}
+          />
         </div>
 
         <div className="container relative z-10 py-24 lg:py-32">
@@ -840,7 +911,7 @@ export default function Home() {
       </section>
 
       {/* ── FORM SECTION — moved right after stats bar ── */}
-      <section id="get-review" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
+      <section id="form" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Left: Copy */}
@@ -1108,9 +1179,9 @@ export default function Home() {
               </Reveal>
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { name: "James R.", role: "Lead Attorney", spec: "Consumer Protection" },
-                  { name: "Sarah M.", role: "Senior Counsel", spec: "Contract Law" },
-                  { name: "David K.", role: "Case Strategist", spec: "Solar Litigation" },
+                  { name: "Legal Operations Team", role: "Consumer Protection Counsel", spec: "Multi-state attorney network" },
+                  { name: "Case Review Unit", role: "Contract & TILA Analysis", spec: "Loan, lease, and PPA review" },
+                  { name: "Client Advocacy Desk", role: "Escalation & Resolution", spec: "Lender + installer negotiations" },
                 ].map((person, i) => (
                   <Reveal key={person.name} delay={i * 0.1}>
                     <div className="text-center p-4 rounded-lg border border-white/8 bg-white/3">
@@ -1126,7 +1197,7 @@ export default function Home() {
               </div>
               <Reveal delay={0.4}>
                 <div className="flex flex-wrap gap-3">
-                  {["BBB Accredited", "State Bar Certified", "TCPA Compliant", "CFPB Registered"].map((badge) => (
+                  {["BBB Profile Available", "State Bar-Licensed Counsel", "TCPA-Compliant Outreach", "Documented Case Outcomes"].map((badge) => (
                     <span key={badge} className="badge-success">{badge}</span>
                   ))}
                 </div>

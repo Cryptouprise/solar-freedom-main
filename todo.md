@@ -1,24 +1,24 @@
 # SEO Autonomous Task List
 
 ## Phase 1 — State of Solar Fraud Report Page
-- [ ] Build /solar-fraud-report page (high-authority linkable asset)
-- [ ] Add to App.tsx routing
-- [ ] Add to main.tsx pre-registration
-- [ ] Add to sitemap.xml
+- [x] Build /solar-fraud-report page (high-authority linkable asset)
+- [x] Add to App.tsx routing
+- [x] Add to main.tsx pre-registration
+- [x] Add to sitemap.xml
 
 ## Phase 2 — AEO & Schema Stacking
-- [ ] Add breadcrumb schema to BlogPost, CityPage, CompanyPage
-- [ ] Add AEO Q&A speakable blocks to BlogPost
-- [ ] Add HowTo schema to process section on homepage
-- [ ] Add video schema placeholder for future YouTube content
-- [ ] Add Article schema to BlogPost pages
-- [ ] Add LocalBusiness schema to CityPage pages
+- [x] Add breadcrumb schema to BlogPost, CityPage, CompanyPage
+- [x] Add AEO Q&A speakable blocks to BlogPost
+- [x] Add HowTo schema to process section on homepage
+- [x] Add video schema placeholder for future YouTube content
+- [x] Add Article schema to BlogPost pages
+- [x] Add LocalBusiness schema to CityPage pages
 
 ## Phase 3 — Sitemaps & Bing Submission
-- [ ] Create image sitemap (image-sitemap.xml)
-- [ ] Create news sitemap (news-sitemap.xml)
-- [ ] Submit sitemap to Bing Webmaster Tools via API
-- [ ] Update robots.txt to reference all sitemaps
+- [x] Create image sitemap (image-sitemap.xml)
+- [x] Create news sitemap (news-sitemap.xml)
+- [x] Submit sitemap to Bing Webmaster Tools via API
+- [x] Update robots.txt to reference all sitemaps
 
 ## Phase 4 — SEO Command Center Update
 - [ ] Update /seo-command-center with all newly completed tasks
@@ -80,7 +80,7 @@
 
 ## Phase 10 — Schema Expansion, Content, Admin Dashboard & SEO Documentation
 - [ ] Design and push seo_strategy + seo_pages database tables
-- [ ] Add LegalService schema to all 53 state law pages (StateLawPage.tsx)
+- [x] Add LegalService schema to all 53 state law pages (StateLawPage.tsx)
 - [ ] Write 30 company-targeted blog posts (cancel/complaints per company)
 - [ ] Add all 30 new blog posts to sitemap.xml and image-sitemap.xml
 - [x] Build /admin/leads protected dashboard with filters and status management
@@ -94,8 +94,8 @@
 - [ ] Build persistent DB tracking for: page views, CTA clicks, form submissions, webhook fires, GHL sync
 - [ ] Add analytics/tracking tab to admin dashboard
 - [ ] Wire GA4 Data API once service account key is provided
-- [ ] Fix conversion event tracking (fire gtag generate_lead on form submit)
-- [ ] Add siteEvents table to DB schema for click/engagement tracking
+- [x] Fix conversion event tracking (fire gtag generate_lead on form submit)
+- [x] Add siteEvents table to DB schema for click/engagement tracking
 
 ## Phase 12 — Keyword Ranking Reports
 - [x] Build keyword ranking Excel report (40 keywords, Mar 30 2026 baseline, matches leadflowpartners.com format)
@@ -112,8 +112,8 @@
 
 ## Phase 15 — Hero Animation & Blog Fixes
 
-- [ ] Add looping animated ambient light/glow effect to hero section background
-- [ ] Fix 404 on /blog/solar-contract-rescission-rights (create page or fix routing)
+- [x] Add looping animated ambient light/glow effect to hero section background
+- [x] Fix 404 on /blog/solar-contract-rescission-rights (create page or fix routing)
 - [ ] Audit all blog URLs for 404s and fix any broken routes
 
 ## Phase 16 — GSC Indexing Fixes (490 pages not indexed)
@@ -208,11 +208,11 @@
 - [x] Add Content Manager nav link to AdminLeads header
 
 ## Phase 23 — Create Post Form + Full Content API
-- [ ] Add /api/admin/posts/all endpoint (static + DB posts combined)
-- [ ] Add /api/admin/posts/slugs endpoint (just slugs for interlinking)
-- [ ] Update Claude system prompt in AdminContent to reference /all endpoint
-- [ ] Build Create Post modal form in AdminContent
-- [ ] Form fields: title, slug, excerpt, content (HTML), category, tags, metaTitle, metaDescription, heroImage, readTime, relatedSlugs, published toggle
-- [ ] Auto-generate slug from title
+- [x] Add /api/admin/posts/all endpoint (static + DB posts combined)
+- [x] Add /api/admin/posts/slugs endpoint (just slugs for interlinking)
+- [x] Update Claude system prompt in AdminContent to reference /all endpoint
+- [x] Build Create Post modal form in AdminContent
+- [x] Form fields: title, slug, excerpt, content (HTML), category, tags, metaTitle, metaDescription, heroImage, readTime, relatedSlugs, published toggle
+- [x] Auto-generate slug from title
 - [ ] Preview related posts picker (search existing slugs)
-- [ ] Submit creates post via /api/admin/posts
+- [x] Submit creates post via /api/admin/posts

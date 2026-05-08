@@ -6,6 +6,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, ChevronRight, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { trackFormSubmit } from "@/lib/analytics";
 
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
 
@@ -117,6 +118,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
         sourceUrl: window.location.href,
       });
     } catch (_) { /* silent */ }
+    trackFormSubmit("do_i_qualify_quiz", window.location.pathname);
     setLoading(false);
     setSubmitted(true);
   };

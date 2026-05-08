@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { trackFormSubmit } from "@/lib/analytics";
 
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
 
@@ -13,6 +14,7 @@ export default function ExitIntentPopup() {
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [email, setEmail] = useState("");
+  const [wantsGuide, setWantsGuide] = useState(true);
   const [submitted, setSubmitted] = useState(false);
 
   const handleMouseLeave = useCallback((e: MouseEvent) => {
@@ -62,9 +64,12 @@ export default function ExitIntentPopup() {
           source: "exit_intent_popup",
           form_name: "Exit Intent — Solar Freedom",
           intent: "exit_intent",
+          lead_magnet: wantsGuide ? "solar_contract_escape_guide" : "none",
+          workflow: wantsGuide ? "escape_guide_day1_day3_day7" : "standard_exit_intent",
         }),
       });
     } catch (_) { /* silent */ }
+    trackFormSubmit("exit_intent_popup", window.location.pathname);
     setSubmitted(true);
   };
 
@@ -142,8 +147,19 @@ export default function ExitIntentPopup() {
                         className="w-full py-3.5 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
                         style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
                       >
-                        GET MY FREE CASE REVIEW →
+                        GET MY FREE CASE REVIEW + GUIDE →
                       </button>
+                      <label className="flex items-start gap-2 text-zinc-500 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={wantsGuide}
+                          onChange={(e) => setWantsGuide(e.target.checked)}
+                          className="mt-0.5 accent-amber-500"
+                        />
+                        <span>
+                          Email me the free PDF: <span className="text-zinc-400">The Solar Contract Escape Guide (7 legal loopholes)</span>.
+                        </span>
+                      </label>
                     </form>
 
                     <p className="text-zinc-600 text-xs text-center mt-3">
@@ -166,7 +182,7 @@ export default function ExitIntentPopup() {
                       YOU'RE IN.
                     </div>
                     <p className="text-white font-semibold mb-2">Check your inbox within 24 hours.</p>
-                    <p className="text-zinc-400 text-sm">Our attorneys will review your situation and reach out with your options. Grace Silver will also text you at the number you provided.</p>
+                    <p className="text-zinc-400 text-sm">Our attorneys will review your situation and reach out with your options. You’ll also receive immediate SMS confirmation and, if selected, your Solar Contract Escape Guide email sequence.</p>
                     <button
                       onClick={handleDismiss}
                       className="mt-6 text-amber-500 text-sm font-bold hover:text-amber-400 transition-colors"

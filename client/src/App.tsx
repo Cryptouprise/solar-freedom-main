@@ -26,6 +26,8 @@ import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import { useEffect } from "react";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
+import CallbackWidget from "./components/CallbackWidget";
+import DesktopCallButton from "./components/DesktopCallButton";
 
 // Normalize trailing slashes — redirect /foo/ → /foo so wouter routes always match
 function TrailingSlashRedirect() {
@@ -97,6 +99,8 @@ function App() {
           <Router />
           <ExitIntentPopup />
           <StickyMobileBar />
+          <DesktopCallButton />
+          <CallbackWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
