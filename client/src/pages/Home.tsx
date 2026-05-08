@@ -725,6 +725,21 @@ export default function Home() {
           <img src={HERO_BG} alt="Solar contract cancellation attorneys helping homeowners get out of solar agreements" className="w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 92%) 0%, oklch(0.1 0.015 265 / 75%) 50%, oklch(0.08 0.015 265 / 88%) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
+          {/* Looping ambient glow — slow-breathing amber radial light */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 70% 60% at 15% 55%, oklch(0.72 0.19 50 / 12%) 0%, transparent 65%)",
+              animation: "ambientGlow 6s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 50% 40% at 80% 30%, oklch(0.72 0.19 50 / 7%) 0%, transparent 60%)",
+              animation: "ambientGlow 8s ease-in-out infinite reverse",
+            }}
+          />
         </div>
 
         <div className="container relative z-10 py-24 lg:py-32">

@@ -275,3 +275,23 @@ export const apiKeys = mysqlTable("apiKeys", {
 
 export type ApiKey = typeof apiKeys.$inferSelect;
 export type InsertApiKey = typeof apiKeys.$inferInsert;
+
+/**
+ * Site events table — lightweight analytics for page views, CTA clicks, form submissions, etc.
+ * Lets the admin dashboard show engagement without a third-party analytics dependency.
+ */
+export const siteEvents = mysqlTable("siteEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  eventType: varchar("eventType", { length: 100 }).notNull(), // 'page_view' | 'cta_click' | 'form_submit' | 'phone_click' | 'scroll_depth'
+  pagePath: varchar("pagePath", { length: 500 }).notNull(),
+  formName: varchar("formName", { length: 200 }),             // populated for form_submit events
+  ctaLabel: varchar("ctaLabel", { length: 200 }),             // populated for cta_click events
+  scrollDepth: int("scrollDepth"),                            // percentage (25/50/75/100) for scroll_depth
+  sessionId: varchar("sessionId", { length: 64 }),            // anonymous session identifier
+  referrer: varchar("referrer", { length: 500 }),
+  userAgent: varchar("userAgent", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SiteEvent = typeof siteEvents.$inferSelect;
+export type InsertSiteEvent = typeof siteEvents.$inferInsert;

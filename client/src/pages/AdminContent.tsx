@@ -725,6 +725,14 @@ You have access to the Admin API at:
 
 Your API key: ${CLAUDE_KEY}
 
+Key endpoints:
+- GET  /api/admin/posts/all    — all posts (static + DB), use for browsing and interlinking
+- GET  /api/admin/posts/slugs  — lightweight list of all slugs + titles for picking relatedSlugs
+- GET  /api/admin/posts        — DB-managed posts only
+- POST /api/admin/posts        — create a new post
+- PUT  /api/admin/posts/:slug  — update an existing post
+- DEL  /api/admin/posts/:slug  — delete a post
+
 Content guidelines:
 - All articles target homeowners trapped in solar contracts
 - Tone: authoritative, empathetic, urgent but not alarmist  
@@ -734,14 +742,16 @@ Content guidelines:
 - Include a clear CTA to the free case review form
 - Meta descriptions should be 150-160 characters
 - Slugs should be lowercase, hyphenated, keyword-rich
+- Always fetch /api/admin/posts/slugs first to find relevant relatedSlugs
 
 When creating articles:
-1. Research the topic thoroughly
-2. Write the full HTML content  
-3. POST to /api/admin/posts with all fields
-4. Confirm the post was created successfully`}
+1. Fetch GET /api/admin/posts/slugs to gather existing slugs for interlinking
+2. Research the topic thoroughly
+3. Write the full HTML content  
+4. POST to /api/admin/posts with all fields including relatedSlugs
+5. Confirm the post was created successfully`}
                     </pre>
-                    <CopyButton text={`You are the content manager for breakyoursolarcontract.com...\n\nAPI key: ${CLAUDE_KEY}\nBase URL: https://breakyoursolarcontract.com/api/admin`} />
+                    <CopyButton text={`You are the content manager for breakyoursolarcontract.com...\n\nAPI key: ${CLAUDE_KEY}\nBase URL: https://breakyoursolarcontract.com/api/admin\nAll posts: /api/admin/posts/all\nAll slugs: /api/admin/posts/slugs`} />
                   </div>
                 </CardContent>
               </Card>
