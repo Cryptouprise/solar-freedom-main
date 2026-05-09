@@ -257,7 +257,7 @@ export const appRouter = router({
       }),
     /**
      * Get runtime site config values used by public pages.
-     * Values are managed through /api/admin/config/:key.
+     * Values are managed through /api/admin/config.
      */
     getSiteConfig: publicProcedure.query(async () => {
       const configured = await getSiteConfigValues([

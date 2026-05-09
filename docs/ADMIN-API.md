@@ -137,6 +137,8 @@ Only include the fields you want to change — all other fields are preserved.
 | GET | `/api/admin/companies/:slug` | `companies:read` | Get single company |
 | POST | `/api/admin/companies` | `companies:write` | Create company |
 | PUT | `/api/admin/companies/:slug` | `companies:write` | Update company |
+| POST | `/api/admin/companies/:slug/archive` | `companies:write` | Archive (soft-delete) a company |
+| DELETE | `/api/admin/companies/:slug` | `companies:write` | Delete a company |
 
 #### Create / Update a Company
 
@@ -166,7 +168,9 @@ curl -X POST \
 | Method | Path | Permission | Description |
 |--------|------|-----------|-------------|
 | GET | `/api/admin/config` | `config:read` | Get all config key/value pairs |
-| PUT | `/api/admin/config/:key` | `config:write` | Set a config value |
+| POST | `/api/admin/config` | `config:write` | Upsert one key/value (`{ key, value }`) |
+| PUT | `/api/admin/config` | `config:write` | Bulk upsert key/value pairs from request body |
+| DELETE | `/api/admin/config/:key` | `config:write` | Delete a config key |
 
 #### Runtime keys currently wired into the website
 
@@ -177,22 +181,24 @@ curl -X POST \
 | `assistant_name` | Sticky mobile assistant name label | `Grace Silver` |
 | `assistant_title` | Sticky mobile assistant title label | `AI Executive Assistant` |
 
-#### Example: Update Phone Number
+#### Example: Upsert One Key
 
 ```bash
 curl -X PUT \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"value": "(888) 555-0123", "description": "Main contact phone number"}' \
-  https://breakyoursolarcontract.com/api/admin/config/phone_number
+  -d '{"key": "phone_number", "value": "(888) 555-0123"}' \
+  https://breakyoursolarcontract.com/api/admin/config
 ```
 
+#### Example: Bulk Upsert
+
 ```bash
 curl -X PUT \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"value": "+18885550123", "description": "Dial/SMS phone in E.164 format"}' \
-  https://breakyoursolarcontract.com/api/admin/config/phone_number_e164
+  -d '{"phone_number": "(888) 555-0123", "phone_number_e164": "+18885550123"}' \
+  https://breakyoursolarcontract.com/api/admin/config
 ```
 
 ---

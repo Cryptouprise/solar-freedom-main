@@ -1,6 +1,6 @@
 import { desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
+import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfigValues, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -279,14 +279,14 @@ export async function getSiteConfigValues(keys?: string[]) {
 
   const selectQuery = db
     .select({
-      key: siteConfig.key,
-      value: siteConfig.value,
+      key: siteConfigValues.key,
+      value: siteConfigValues.value,
     })
-    .from(siteConfig);
+    .from(siteConfigValues);
 
   const rows =
     keys && keys.length > 0
-      ? await selectQuery.where(inArray(siteConfig.key, keys))
+      ? await selectQuery.where(inArray(siteConfigValues.key, keys))
       : await selectQuery;
 
   return rows.reduce<Record<string, string>>((acc, row) => {

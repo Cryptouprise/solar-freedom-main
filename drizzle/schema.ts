@@ -218,7 +218,7 @@ export const companies = mysqlTable("companies", {
   slug: varchar("slug", { length: 100 }).notNull().unique(),
   name: varchar("name", { length: 200 }).notNull(),
   legalName: varchar("legalName", { length: 200 }),
-  status: mysqlEnum("status", ["active", "bankrupt", "acquired", "dissolved"]).default("active").notNull(),
+  status: mysqlEnum("status", ["active", "inactive", "archived", "bankrupt", "acquired", "dissolved"]).default("active").notNull(),
   bbbRating: varchar("bbbRating", { length: 10 }),
   complaintCount: varchar("complaintCount", { length: 50 }),
   avgMonthlyPayment: varchar("avgMonthlyPayment", { length: 50 }),
@@ -257,6 +257,18 @@ export const siteConfig = mysqlTable("siteConfig", {
 
 export type SiteConfig = typeof siteConfig.$inferSelect;
 export type InsertSiteConfig = typeof siteConfig.$inferInsert;
+
+/**
+ * Site config v2 table — key/value store for runtime website settings.
+ */
+export const siteConfigValues = mysqlTable("site_config", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteConfigValue = typeof siteConfigValues.$inferSelect;
+export type InsertSiteConfigValue = typeof siteConfigValues.$inferInsert;
 
 /**
  * API keys table — for external AI tools (Claude, etc.) to authenticate

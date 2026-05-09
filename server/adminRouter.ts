@@ -18,9 +18,13 @@
  *   GET    /api/admin/companies/:slug    - Get single company
  *   POST   /api/admin/companies          - Create company
  *   PUT    /api/admin/companies/:slug    - Update company
+ *   POST   /api/admin/companies/:slug/archive - Archive (soft-delete) company
+ *   DELETE /api/admin/companies/:slug    - Delete company
  * 
  *   GET    /api/admin/config             - Get all site config
- *   PUT    /api/admin/config/:key        - Set config value
+ *   POST   /api/admin/config             - Upsert one config value
+ *   PUT    /api/admin/config             - Bulk upsert config values
+ *   DELETE /api/admin/config/:key        - Delete config value
  * 
  *   GET    /api/admin/keys               - List API keys (names/prefixes only)
  *   POST   /api/admin/keys               - Generate new API key
@@ -38,7 +42,7 @@ import path from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { eq, desc, like, and, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { blogPosts, companies, siteConfig, apiKeys } from "../drizzle/schema";
+import { blogPosts, companies, siteConfig, siteConfigValues, apiKeys } from "../drizzle/schema";
 import { adminAuthMiddleware, requirePermission, AdminRequest } from "./adminAuth";
 
 const router = Router();
@@ -404,6 +408,39 @@ router.put("/companies/:slug", requirePermission("companies:write"), async (req:
   }
 });
 
+// POST /api/admin/companies/:slug/archive
+router.post("/companies/:slug/archive", requirePermission("companies:write"), async (req: AdminRequest, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(503).json({ error: "Database unavailable" });
+
+    const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, req.params.slug));
+    if (!existing) return res.status(404).json({ error: "Company not found" });
+
+    await db.update(companies).set({ status: "archived", published: 0 }).where(eq(companies.slug, req.params.slug));
+    const [updated] = await db.select().from(companies).where(eq(companies.slug, req.params.slug));
+    res.json({ success: true, message: `Company '${req.params.slug}' archived`, company: updated });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error", details: String(err) });
+  }
+});
+
+// DELETE /api/admin/companies/:slug
+router.delete("/companies/:slug", requirePermission("companies:write"), async (req: AdminRequest, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(503).json({ error: "Database unavailable" });
+
+    const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, req.params.slug));
+    if (!existing) return res.status(404).json({ error: "Company not found" });
+
+    await db.delete(companies).where(eq(companies.slug, req.params.slug));
+    res.json({ success: true, message: `Company '${req.params.slug}' deleted` });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error", details: String(err) });
+  }
+});
+
 // ─── SITE CONFIG ─────────────────────────────────────────────────────────────
 
 // GET /api/admin/config
@@ -412,7 +449,7 @@ router.get("/config", requirePermission("config:read"), async (req: AdminRequest
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
-    const rows = await db.select().from(siteConfig).orderBy(siteConfig.key);
+    const rows = await db.select().from(siteConfigValues).orderBy(siteConfigValues.key);
     const config: Record<string, string> = {};
     for (const row of rows) config[row.key] = row.value;
     res.json({ config, raw: rows });
@@ -421,25 +458,85 @@ router.get("/config", requirePermission("config:read"), async (req: AdminRequest
   }
 });
 
-// PUT /api/admin/config/:key
-router.put("/config/:key", requirePermission("config:write"), async (req: AdminRequest, res) => {
+// POST /api/admin/config
+router.post("/config", requirePermission("config:write"), async (req: AdminRequest, res) => {
   try {
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
-    const { value, description } = req.body;
-    if (value === undefined) return res.status(400).json({ error: "value is required" });
-
-    const [existing] = await db.select({ id: siteConfig.id }).from(siteConfig).where(eq(siteConfig.key, req.params.key));
-
-    if (existing) {
-      await db.update(siteConfig).set({ value: String(value), description }).where(eq(siteConfig.key, req.params.key));
-    } else {
-      await db.insert(siteConfig).values({ key: req.params.key, value: String(value), description });
+    const { key, value } = req.body ?? {};
+    if (!key || value === undefined) {
+      return res.status(400).json({ error: "key and value are required" });
     }
 
-    const [updated] = await db.select().from(siteConfig).where(eq(siteConfig.key, req.params.key));
+    const normalizedKey = String(key).trim();
+    if (!normalizedKey) return res.status(400).json({ error: "key must be a non-empty string" });
+
+    const [existing] = await db.select({ key: siteConfigValues.key }).from(siteConfigValues).where(eq(siteConfigValues.key, normalizedKey));
+    if (existing) {
+      await db.update(siteConfigValues).set({ value: String(value) }).where(eq(siteConfigValues.key, normalizedKey));
+    } else {
+      await db.insert(siteConfigValues).values({ key: normalizedKey, value: String(value) });
+    }
+
+    const [updated] = await db.select().from(siteConfigValues).where(eq(siteConfigValues.key, normalizedKey));
     res.json({ success: true, config: updated });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error", details: String(err) });
+  }
+});
+
+// PUT /api/admin/config
+router.put("/config", requirePermission("config:write"), async (req: AdminRequest, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(503).json({ error: "Database unavailable" });
+
+    const source = req.body?.config && typeof req.body.config === "object" && !Array.isArray(req.body.config)
+      ? req.body.config
+      : req.body;
+    if (!source || typeof source !== "object" || Array.isArray(source)) {
+      return res.status(400).json({ error: "Request body must be an object of key/value pairs" });
+    }
+
+    const entries = Object.entries(source as Record<string, unknown>)
+      .map(([key, value]) => [String(key).trim(), value] as const)
+      .filter(([key]) => key.length > 0);
+    if (entries.length === 0) return res.status(400).json({ error: "At least one config entry is required" });
+
+    for (const [key, value] of entries) {
+      if (value === undefined) continue;
+      const [existing] = await db.select({ key: siteConfigValues.key }).from(siteConfigValues).where(eq(siteConfigValues.key, key));
+      if (existing) {
+        await db.update(siteConfigValues).set({ value: String(value) }).where(eq(siteConfigValues.key, key));
+      } else {
+        await db.insert(siteConfigValues).values({ key, value: String(value) });
+      }
+    }
+
+    const rows = await db.select().from(siteConfigValues).orderBy(siteConfigValues.key);
+    const config: Record<string, string> = {};
+    for (const row of rows) config[row.key] = row.value;
+    res.json({ success: true, count: rows.length, config, raw: rows });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error", details: String(err) });
+  }
+});
+
+// DELETE /api/admin/config/:key
+router.delete("/config/:key", requirePermission("config:write"), async (req: AdminRequest, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(503).json({ error: "Database unavailable" });
+
+    const key = String(req.params.key || "").trim();
+    if (!key) return res.status(400).json({ error: "key is required" });
+
+    const [existing] = await db.select({ key: siteConfigValues.key }).from(siteConfigValues).where(eq(siteConfigValues.key, key));
+    if (!existing) return res.status(404).json({ error: "Config key not found" });
+
+    await db.delete(siteConfigValues).where(eq(siteConfigValues.key, key));
+    res.json({ success: true, message: `Config key '${key}' deleted` });
   } catch (err) {
     res.status(500).json({ error: "Internal server error", details: String(err) });
   }
