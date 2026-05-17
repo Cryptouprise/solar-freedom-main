@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { useEffect, ReactElement } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
+import { trpc } from '@/lib/trpc';
 function renderSection(section: BlogSection, index: number) {
   switch (section.type) {
     case 'h2':
@@ -214,8 +215,40 @@ function AuthorBio() {
   );
 }
 
+// Converts a DB post (with HTML content string) into a BlogPost-compatible shape
+function dbPostToBlogPost(dbPost: Record<string, unknown>) {
+  const content = typeof dbPost.content === 'string' && dbPost.content.trim().startsWith('<')
+    ? [{ type: 'p' as const, content: dbPost.content }]
+    : (Array.isArray(dbPost.content) ? dbPost.content : [{ type: 'p' as const, content: String(dbPost.content || '') }]);
+  return {
+    slug: String(dbPost.slug || ''),
+    title: String(dbPost.title || ''),
+    metaTitle: dbPost.metaTitle ? String(dbPost.metaTitle) : undefined,
+    metaDescription: dbPost.metaDescription ? String(dbPost.metaDescription) : undefined,
+    excerpt: String(dbPost.excerpt || ''),
+    heroImage: dbPost.heroImage ? String(dbPost.heroImage) : undefined,
+    category: String(dbPost.category || 'LEGAL GUIDE'),
+    readTime: String(dbPost.readTime || '8 min read'),
+    publishDate: dbPost.publishedAt ? new Date(dbPost.publishedAt as string).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'May 2026',
+    tags: Array.isArray(dbPost.tags) ? dbPost.tags as string[] : [],
+    relatedSlugs: Array.isArray(dbPost.relatedSlugs) ? dbPost.relatedSlugs as string[] : [],
+    faqItems: Array.isArray(dbPost.faqItems) ? dbPost.faqItems as Array<{ question: string; answer: string }> : [],
+    canonicalUrl: dbPost.canonicalUrl ? String(dbPost.canonicalUrl) : `https://breakyoursolarcontract.com/blog/${dbPost.slug}`,
+    content,
+    isDbPost: true,
+    // Optional fields that static posts may have but DB posts don't
+    faq: Array.isArray(dbPost.faqItems) && (dbPost.faqItems as Array<{question:string;answer:string}>).length > 0
+      ? (dbPost.faqItems as Array<{question:string;answer:string}>).map(f => ({ q: f.question, a: f.answer }))
+      : undefined,
+    ctaText: undefined as string | undefined,
+    ctaSubtext: undefined as string | undefined,
+    heroAlt: dbPost.title ? String(dbPost.title) : undefined,
+  };
+}
+
 export default function BlogPost() {
   const params = useParams<{ slug: string }>();
+<<<<<<< Updated upstream
   const slug = params.slug || '';
   const staticPost = getBlogPost(slug);
   const related = getRelatedPosts(slug, 3);
@@ -227,6 +260,19 @@ export default function BlogPost() {
   );
 
   const anyPost = staticPost || dbPost;
+=======
+  const staticPost = getBlogPost(params.slug || '');
+  const related = getRelatedPosts(params.slug || '', 3);
+>>>>>>> Stashed changes
+
+  // Only fetch from DB if static post not found
+  const { data: dbPostRaw, isLoading: dbLoading } = trpc.content.getPost.useQuery(
+    { slug: params.slug || '' },
+    { enabled: !staticPost && !!params.slug }
+  );
+
+  const dbPost = dbPostRaw ? dbPostToBlogPost(dbPostRaw as Record<string, unknown>) : null;
+  const post = staticPost || dbPost;
 
   useSeoMeta({
     title: anyPost ? `${anyPost.metaTitle ?? anyPost.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
@@ -249,7 +295,23 @@ export default function BlogPost() {
     );
   }
 
+<<<<<<< Updated upstream
   if (!staticPost && !dbPost) {
+=======
+  // Show loading spinner while fetching from DB
+  if (!staticPost && dbLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-zinc-400">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+>>>>>>> Stashed changes
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
@@ -590,7 +652,7 @@ export default function BlogPost() {
     }
     if (paragraphCount > 0 && paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0 && i < post.content.length - 2) {
       sectionsWithCTAs.push(
-        <InlineCTA key={`cta-${i}`} text={post.ctaText} subtext={post.ctaSubtext} />
+        <InlineCTA key={`cta-${i}`} text={post.ctaText ?? 'Trapped in a Solar Contract? Get Out.'} subtext={post.ctaSubtext ?? 'Our attorneys have helped 3,000+ homeowners cancel. Free case review.'} />
       );
     }
   });

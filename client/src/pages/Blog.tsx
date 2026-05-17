@@ -8,6 +8,7 @@ import { trpc } from '@/lib/trpc';
 import { Clock, ArrowRight, BookOpen, TrendingUp, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useMemo } from 'react';
+import { trpc } from '@/lib/trpc';
 
 const categoryColors: Record<string, string> = {
   'Legal Guide': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
@@ -25,6 +26,7 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
+<<<<<<< Updated upstream
   // Fetch DB-managed posts (Claude-published articles) and merge with static posts
   const { data: dbData } = trpc.content.listPosts.useQuery({ limit: 200, offset: 0 });
   const dbPosts = dbData ?? [];
@@ -61,14 +63,42 @@ export default function Blog() {
     () => [...dbOnlyPosts, ...staticBlogPosts],
     [dbOnlyPosts]
   );
+=======
+  // Fetch DB-backed posts (Claude-published) and merge with static posts
+  const { data: dbPostsData } = trpc.content.listPosts.useQuery({ limit: 200, offset: 0 });
+  const dbPosts = useMemo(() => {
+    if (!dbPostsData) return [];
+    const rows = Array.isArray(dbPostsData) ? dbPostsData : (dbPostsData as { posts?: unknown[] }).posts ?? [];
+    const staticSlugs = new Set(blogPosts.map(p => p.slug));
+    return (rows as Record<string, unknown>[])
+      .filter((p) => !staticSlugs.has(String(p.slug || '')) && p.published)
+      .map((p: Record<string, unknown>) => ({
+        slug: String(p.slug || ''),
+        title: String(p.title || ''),
+        excerpt: String(p.excerpt || ''),
+        category: String(p.category || 'Legal Guide'),
+        readTime: String(p.readTime || '8 min read'),
+        heroImage: p.heroImage ? String(p.heroImage) : undefined,
+        publishDate: p.publishedAt ? new Date(p.publishedAt as string).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'May 2026',
+        tags: Array.isArray(p.tags) ? p.tags as string[] : [],
+        isDbPost: true,
+      }));
+  }, [dbPostsData]);
+
+  const allPosts = useMemo(() => [...dbPosts, ...blogPosts], [dbPosts]);
+>>>>>>> Stashed changes
 
   const categories = useMemo(() => {
-    const cats = Array.from(new Set(blogPosts.map(p => p.category)));
+    const cats = Array.from(new Set(allPosts.map(p => p.category)));
     return ['All', ...cats];
+<<<<<<< Updated upstream
   }, [blogPosts]);
+=======
+  }, [allPosts]);
+>>>>>>> Stashed changes
 
   const filteredPosts = useMemo(() => {
-    return blogPosts.filter(post => {
+    return allPosts.filter(post => {
       const matchesSearch = searchQuery === '' ||
         post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -76,7 +106,7 @@ export default function Blog() {
       const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, allPosts]);
 
   const featured = filteredPosts[0];
   const rest = filteredPosts.slice(1);
@@ -202,7 +232,7 @@ export default function Blog() {
                     <div className="relative h-64 md:h-auto overflow-hidden">
                       <img
                         src={featured.heroImage}
-                        alt={featured.heroAlt}
+                        alt={(featured as { heroAlt?: string }).heroAlt ?? featured.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy" decoding="async"
                       />
@@ -267,7 +297,7 @@ export default function Blog() {
                       <div className="relative h-48 overflow-hidden">
                         <img
                           src={post.heroImage}
-                          alt={post.heroAlt}
+                          alt={(post as { heroAlt?: string }).heroAlt ?? post.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           loading="lazy" decoding="async"
                         />
