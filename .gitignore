@@ -111,3 +111,16 @@ temp/
 
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
+
+# Binary/media files in docs — large files that bloat deployment image
+# These are reference files only; use CDN URLs for any media needed at runtime
+docs/*.ppm
+docs/*.png
+docs/*.jpg
+docs/*.jpeg
+docs/*.gif
+docs/*.webp
+docs/*.pdf
+docs/*.xlsx
+docs/*.xls
+*.ppm
