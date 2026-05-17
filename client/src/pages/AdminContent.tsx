@@ -71,6 +71,7 @@ import {
   Check,
   Plus,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -234,6 +235,85 @@ export default function AdminContent() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editPost, setEditPost] = useState<DbPost | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    category: "",
+    tags: "",
+    metaTitle: "",
+    metaDescription: "",
+    heroImage: "",
+    readTime: "",
+    relatedSlugs: "",
+    published: true,
+  });
+
+  const openEdit = (post: DbPost) => {
+    setEditPost(post);
+    setEditForm({
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt ?? "",
+      content: "", // will be fetched
+      category: post.category ?? "",
+      tags: Array.isArray(post.tags) ? post.tags.join(", ") : "",
+      metaTitle: post.metaTitle ?? "",
+      metaDescription: post.metaDescription ?? "",
+      heroImage: post.heroImage ?? "",
+      readTime: post.readTime ?? "",
+      relatedSlugs: Array.isArray(post.relatedSlugs) ? post.relatedSlugs.join(", ") : "",
+      published: post.published === 1,
+    });
+    // Fetch full content
+    fetch(`/api/admin/posts/${post.slug}`, {
+      headers: { Authorization: `Bearer ${CLAUDE_KEY}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.post) {
+          setEditForm((f) => ({ ...f, content: data.post.content ?? "" }));
+        }
+      });
+    setEditOpen(true);
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editPost) return;
+    setEditing(true);
+    try {
+      const res = await fetch(`/api/admin/posts/${editPost.slug}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${CLAUDE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...editForm,
+          tags: editForm.tags ? editForm.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+          relatedSlugs: editForm.relatedSlugs ? editForm.relatedSlugs.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          metaTitle: editForm.metaTitle || editForm.title,
+          readTime: editForm.readTime || "5 min read",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Update failed");
+      toast.success(`Post "${editForm.title}" updated successfully!`);
+      setEditOpen(false);
+      setEditPost(null);
+      refetchDb();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update post.");
+    } finally {
+      setEditing(false);
+    }
+  };
+
   const [createForm, setCreateForm] = useState({
     title: "",
     slug: "",
@@ -610,6 +690,13 @@ export default function AdminContent() {
                               >
                                 <ExternalLink className="h-3.5 w-3.5" />
                               </a>
+                              <button
+                                onClick={() => openEdit(post)}
+                                className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-amber-400 transition-colors"
+                                title="Edit post"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
                               <button
                                 onClick={() => handleTogglePublish(post.slug, post.published)}
                                 className={`p-1.5 rounded hover:bg-white/10 transition-colors ${
@@ -1006,6 +1093,193 @@ When creating articles:
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</>
                 ) : (
                   <><Plus className="h-4 w-4 mr-2" /> {createForm.published ? "Publish Post" : "Save Draft"}</>
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Post Modal */}
+      <Dialog open={editOpen} onOpenChange={(v) => !v && setEditOpen(false)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-[#0D0F14] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white font-display text-xl">EDIT POST</DialogTitle>
+            <DialogDescription className="text-gray-400 text-sm">
+              Editing: <span className="font-mono text-amber-400">/blog/{editPost?.slug}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4 mt-2">
+            {/* Title + Slug */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Title *</Label>
+                <Input
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Slug (read-only)</Label>
+                <Input
+                  value={editForm.slug}
+                  readOnly
+                  className="bg-white/5 border-white/10 text-gray-500 font-mono text-sm cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            {/* Category + Read Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Category</Label>
+                <Select
+                  value={editForm.category}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, category: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue placeholder="Select category..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1c22] border-white/10 text-white">
+                    <SelectItem value="contract-cancellation">Contract Cancellation</SelectItem>
+                    <SelectItem value="company-complaints">Company Complaints</SelectItem>
+                    <SelectItem value="legal-rights">Legal Rights</SelectItem>
+                    <SelectItem value="loan-issues">Loan Issues</SelectItem>
+                    <SelectItem value="home-sale">Home Sale</SelectItem>
+                    <SelectItem value="state-guide">State Guide</SelectItem>
+                    <SelectItem value="city-guide">City Guide</SelectItem>
+                    <SelectItem value="general">General</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Read Time</Label>
+                <Input
+                  value={editForm.readTime}
+                  onChange={(e) => setEditForm((f) => ({ ...f, readTime: e.target.value }))}
+                  placeholder="7 min read"
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* Excerpt */}
+            <div className="space-y-1.5">
+              <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Excerpt</Label>
+              <Textarea
+                value={editForm.excerpt}
+                onChange={(e) => setEditForm((f) => ({ ...f, excerpt: e.target.value }))}
+                className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 resize-none h-16"
+              />
+            </div>
+
+            {/* Content */}
+            <div className="space-y-1.5">
+              <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Content (HTML) *</Label>
+              <Textarea
+                value={editForm.content}
+                onChange={(e) => setEditForm((f) => ({ ...f, content: e.target.value }))}
+                className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 resize-none h-48 font-mono text-xs"
+                required
+              />
+              <p className="text-gray-500 text-xs">Use HTML tags: &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;a href="..."&gt;</p>
+            </div>
+
+            {/* Meta */}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Meta Title</Label>
+                <Input
+                  value={editForm.metaTitle}
+                  onChange={(e) => setEditForm((f) => ({ ...f, metaTitle: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Meta Description</Label>
+                <Textarea
+                  value={editForm.metaDescription}
+                  onChange={(e) => setEditForm((f) => ({ ...f, metaDescription: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 resize-none h-16"
+                />
+              </div>
+            </div>
+
+            {/* Hero Image + Tags */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Hero Image URL</Label>
+                <Input
+                  value={editForm.heroImage}
+                  onChange={(e) => setEditForm((f) => ({ ...f, heroImage: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Tags (comma-separated)</Label>
+                <Input
+                  value={editForm.tags}
+                  onChange={(e) => setEditForm((f) => ({ ...f, tags: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* Related Slugs */}
+            <div className="space-y-1.5">
+              <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Related Post Slugs (comma-separated)</Label>
+              <Input
+                value={editForm.relatedSlugs}
+                onChange={(e) => setEditForm((f) => ({ ...f, relatedSlugs: e.target.value }))}
+                className="bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-amber-500 font-mono text-xs"
+              />
+            </div>
+
+            {/* Published toggle */}
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setEditForm((f) => ({ ...f, published: !f.published }))}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  editForm.published ? "bg-green-500" : "bg-white/20"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                    editForm.published ? "translate-x-4" : "translate-x-1"
+                  }`}
+                />
+              </button>
+              <span className="text-sm text-gray-300">
+                {editForm.published ? (
+                  <span className="text-green-400 font-medium">Published (live)</span>
+                ) : (
+                  <span className="text-gray-400">Draft (hidden)</span>
+                )}
+              </span>
+            </div>
+
+            {/* Submit */}
+            <div className="flex gap-3 pt-2 border-t border-white/10">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditOpen(false)}
+                className="border-white/10 text-gray-300 hover:text-white"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={editing}
+                className="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-semibold"
+              >
+                {editing ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
+                ) : (
+                  <><Pencil className="h-4 w-4 mr-2" /> Save Changes</>
                 )}
               </Button>
             </div>

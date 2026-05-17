@@ -216,3 +216,8 @@
 - [x] Auto-generate slug from title
 - [ ] Preview related posts picker (search existing slugs)
 - [x] Submit creates post via /api/admin/posts
+
+## Phase 24 — Edit Post + SEO Audit + API Docs
+- [ ] Add Edit Post modal to AdminContent page
+- [ ] Run comprehensive SEO audit via Google Search Console
+- [ ] Compile full Admin API capabilities reference document
