@@ -30,7 +30,6 @@ import * as cheerio from "cheerio";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createConnection } from "mysql2/promise";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -250,84 +249,83 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   return map;
 }
 
-// ─── Inject meta into HTML ────────────────────────────────────────────────────
-// CRITICAL: Must REMOVE existing canonical and APPEND new one.
-// Using .attr() fails if the element doesn't exist; using remove()+append() is bulletproof.
+// ─── Build lightweight shell HTML ────────────────────────────────────────────
+// Instead of copying the full 381 KB index.html into every directory,
+// generate a minimal shell that has the correct meta tags + references to
+// the hashed JS/CSS assets. This keeps each file ~3 KB instead of 381 KB,
+// reducing the total dist from 121 MB to under 6 MB so deployment doesn't time out.
+function buildShellHtml(meta, jsFile, cssFile) {
+  const title = meta.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const desc = meta.description.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const canonical = meta.canonical;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>${title}</title>
+  <meta name="description" content="${desc}">
+  <link rel="canonical" href="${canonical}">
+  <meta property="og:title" content="${title}">
+  <meta property="og:description" content="${desc}">
+  <meta property="og:url" content="${canonical}">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${title}">
+  <meta name="twitter:description" content="${desc}">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="theme-color" content="#1a1a2e">
+  ${cssFile ? `<link rel="stylesheet" crossorigin href="/assets/${cssFile}">` : ''}
+</head>
+<body>
+  <div id="root"></div>
+  ${jsFile ? `<script type="module" crossorigin src="/assets/${jsFile}"></script>` : ''}
+</body>
+</html>`;
+}
+
+// Keep injectMeta for homepage (which already exists as index.html and needs full content)
 function injectMeta(html, meta) {
   const $ = cheerio.load(html, { decodeEntities: false });
-
-  // Title
   $("title").text(meta.title);
-
-  // Meta description
   $('meta[name="description"]').attr("content", meta.description);
-
-  // Canonical — REMOVE ALL EXISTING, then APPEND correct one
-  // This prevents duplicate canonicals (the #1 indexing killer)
   $('link[rel="canonical"]').remove();
   $('head').append(`<link rel="canonical" href="${meta.canonical}" />`);
-
-  // Open Graph
   $('meta[property="og:title"]').attr("content", meta.title);
   $('meta[property="og:description"]').attr("content", meta.description);
   $('meta[property="og:url"]').attr("content", meta.canonical);
-
-  // Twitter
   $('meta[name="twitter:title"]').attr("content", meta.title);
   $('meta[name="twitter:description"]').attr("content", meta.description);
-
   return $.html();
 }
 
-// ─── Load DB blog posts from database ────────────────────────────────────────
+// DB blog posts are intentionally NOT loaded at build time.
+// The deployment environment has no DB access, and any connection attempt
+// (even with a timeout) leaves the mysql2 socket open and hangs the build.
+// DB-published posts get their SEO meta at runtime via injectMetaDynamic()
+// in server/_core/vite.ts, which does a live DB lookup on first request.
 async function loadDbBlogPosts() {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) {
-    console.log("  ⚠️  DATABASE_URL not set — skipping DB blog posts");
-    return {};
-  }
-  // Wrap in a 10-second timeout so the build never hangs if DB is unreachable
-  const timeoutPromise = new Promise((resolve) =>
-    setTimeout(() => {
-      console.warn("  ⚠️  DB connection timed out after 10s — skipping DB blog posts");
-      resolve({});
-    }, 10000)
-  );
-  const fetchPromise = (async () => {
-    try {
-      const conn = await createConnection(dbUrl);
-      const [rows] = await conn.execute(
-        "SELECT slug, metaTitle, metaDescription FROM blog_posts WHERE published = 1"
-      );
-      await conn.end();
-      const entries = {};
-      for (const row of rows) {
-        if (row.slug && row.metaTitle) {
-          entries[row.slug] = {
-            title: `${row.metaTitle} | Solar Freedom`,
-            description: row.metaDescription || `Learn how to cancel your solar contract. Free case review from Solar Freedom attorneys.`,
-          };
-        }
-      }
-      console.log(`  📦 Loaded ${Object.keys(entries).length} DB blog posts for pre-rendering`);
-      return entries;
-    } catch (err) {
-      console.warn(`  ⚠️  Could not load DB blog posts: ${err.message}`);
-      return {};
-    }
-  })();
-  return Promise.race([fetchPromise, timeoutPromise]);
+  return {};
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────
 async function main() {
   console.log("🔧 Pre-rendering static HTML files...");
   const indexHtml = fs.readFileSync(path.resolve(DIST, "index.html"), "utf-8");
+
+  // Extract hashed asset filenames from the built index.html
+  // These are needed so shell pages can reference the correct versioned JS/CSS
+  const jsMatch = indexHtml.match(/assets\/(index-[^"']+\.js)/);
+  const cssMatch = indexHtml.match(/assets\/(index-[^"']+\.css)/);
+  const jsFile = jsMatch ? jsMatch[1] : null;
+  const cssFile = cssMatch ? cssMatch[1] : null;
+  console.log(`  📦 Assets: JS=${jsFile} CSS=${cssFile}`);
+
   const { cityEntries, companyEntries, stateEntries } = await loadData();
   const blogEntries = loadBlogData();
-  // Merge DB posts into blog entries (DB posts take precedence over static)
-  const dbBlogEntries = await loadDbBlogPosts();
-  const allBlogEntries = { ...blogEntries, ...dbBlogEntries };
+  // DB posts are handled at runtime by injectMetaDynamic() — not at build time.
+  const allBlogEntries = { ...blogEntries };
   const metaMap = buildMetaMap(cityEntries, companyEntries, stateEntries, allBlogEntries);
 
   let count = 0;
@@ -339,12 +337,15 @@ async function main() {
       continue;
     }
 
-    const injected = injectMeta(indexHtml, meta);
+    // Use lightweight shell HTML for all non-homepage pages.
+    // This keeps each file ~3 KB instead of 381 KB, reducing total dist
+    // from 121 MB to under 6 MB so the deployment image builder doesn't time out.
+    const shellHtml = buildShellHtml(meta, jsFile, cssFile);
 
     // Create directory and write index.html
     const dir = path.resolve(DIST, urlPath.slice(1)); // remove leading /
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.resolve(dir, "index.html"), injected, "utf-8");
+    fs.writeFileSync(path.resolve(dir, "index.html"), shellHtml, "utf-8");
     count++;
   }
 
@@ -353,6 +354,12 @@ async function main() {
   console.log(`   Company pages: ${companyEntries.length}`);
   console.log(`   State law pages: ${stateEntries.length}`);
   console.log(`   Blog posts: ${Object.keys(blogEntries).length}`);
+  // Report final dist size
+  try {
+    const { execSync } = await import('child_process');
+    const size = execSync('du -sh ' + DIST).toString().split('\t')[0];
+    console.log(`   📁 dist/public size: ${size}`);
+  } catch (_) {}
 }
 
 main().catch((err) => {
