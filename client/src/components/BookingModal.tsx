@@ -6,8 +6,9 @@
  * the site's dark industrial design system.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { X, CheckCircle, Clock, Shield, Phone, Star } from "lucide-react";
+import { useContactInfo } from "@/hooks/useContactInfo";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -17,9 +18,26 @@ interface BookingModalProps {
 }
 
 const CALENDAR_ID = "3v6GXFtDrHMzs1j2DBkI";
-const GHL_EMBED_URL = `https://api.leadconnectorhq.com/widget/booking/${CALENDAR_ID}`;
+const GHL_BASE_URL = `https://api.leadconnectorhq.com/widget/booking/${CALENDAR_ID}`;
 
 export default function BookingModal({ isOpen, onClose, firstName }: BookingModalProps) {
+  const { contactInfo } = useContactInfo();
+
+  // Build the calendar URL with pre-filled contact info from localStorage.
+  // GHL supports: first_name, last_name, email, phone query params.
+  const calendarUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    const fn = firstName || contactInfo.firstName;
+    const ln = contactInfo.lastName;
+    const ph = contactInfo.phone;
+    const em = contactInfo.email;
+    if (fn) params.set("first_name", fn);
+    if (ln) params.set("last_name", ln);
+    if (ph) params.set("phone", ph);
+    if (em) params.set("email", em);
+    const qs = params.toString();
+    return qs ? `${GHL_BASE_URL}?${qs}` : GHL_BASE_URL;
+  }, [firstName, contactInfo.firstName, contactInfo.lastName, contactInfo.phone, contactInfo.email]);
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Lock body scroll when modal is open
@@ -178,7 +196,7 @@ export default function BookingModal({ isOpen, onClose, firstName }: BookingModa
           />
 
           <iframe
-            src={GHL_EMBED_URL}
+            src={calendarUrl}
             title="Book Your Free Case Review"
             className="w-full h-full min-h-[520px]"
             style={{
