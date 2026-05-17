@@ -227,3 +227,12 @@
 - [x] Add injectMetaDynamic() to seo-meta.ts for runtime DB post meta lookup
 - [x] Update serveStatic() in vite.ts to use async injectMetaDynamic
 - [x] Root cause: sunrun-solar-contract-cancellation-2026 had 2,994 impressions but 0.1% CTR due to generic homepage meta showing in Google
+
+## Phase 26 — Post-Quiz GHL Booking Modal
+- [x] Fix prerender.mjs DB connection timeout (deployment build hang)
+- [x] Create BookingModal component with branded Solar Freedom design
+- [x] Embed GHL calendar widget (ID: 3v6GXFtDrHMzs1j2DBkI) in modal
+- [x] Show modal after quiz form submission (after "thank you" state) — auto-opens after 1.2s, also has manual button
+- [x] Add call prep instructions inside modal (what to expect on the call)
+- [x] Match site design: dark charcoal bg, amber accents, Bebas Neue headings
+- [x] Wire modal to both MultiStepForm (homepage) and DoIQualifyQuiz (blog posts)

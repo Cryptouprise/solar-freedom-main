@@ -286,27 +286,37 @@ async function loadDbBlogPosts() {
     console.log("  ⚠️  DATABASE_URL not set — skipping DB blog posts");
     return {};
   }
-  try {
-    const conn = await createConnection(dbUrl);
-    const [rows] = await conn.execute(
-      "SELECT slug, metaTitle, metaDescription FROM blog_posts WHERE published = 1"
-    );
-    await conn.end();
-    const entries = {};
-    for (const row of rows) {
-      if (row.slug && row.metaTitle) {
-        entries[row.slug] = {
-          title: `${row.metaTitle} | Solar Freedom`,
-          description: row.metaDescription || `Learn how to cancel your solar contract. Free case review from Solar Freedom attorneys.`,
-        };
+  // Wrap in a 10-second timeout so the build never hangs if DB is unreachable
+  const timeoutPromise = new Promise((resolve) =>
+    setTimeout(() => {
+      console.warn("  ⚠️  DB connection timed out after 10s — skipping DB blog posts");
+      resolve({});
+    }, 10000)
+  );
+  const fetchPromise = (async () => {
+    try {
+      const conn = await createConnection(dbUrl);
+      const [rows] = await conn.execute(
+        "SELECT slug, metaTitle, metaDescription FROM blog_posts WHERE published = 1"
+      );
+      await conn.end();
+      const entries = {};
+      for (const row of rows) {
+        if (row.slug && row.metaTitle) {
+          entries[row.slug] = {
+            title: `${row.metaTitle} | Solar Freedom`,
+            description: row.metaDescription || `Learn how to cancel your solar contract. Free case review from Solar Freedom attorneys.`,
+          };
+        }
       }
+      console.log(`  📦 Loaded ${Object.keys(entries).length} DB blog posts for pre-rendering`);
+      return entries;
+    } catch (err) {
+      console.warn(`  ⚠️  Could not load DB blog posts: ${err.message}`);
+      return {};
     }
-    console.log(`  📦 Loaded ${Object.keys(entries).length} DB blog posts for pre-rendering`);
-    return entries;
-  } catch (err) {
-    console.warn(`  ⚠️  Could not load DB blog posts: ${err.message}`);
-    return {};
-  }
+  })();
+  return Promise.race([fetchPromise, timeoutPromise]);
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────

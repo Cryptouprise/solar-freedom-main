@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, ChevronRight, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { trackFormSubmit } from "@/lib/analytics";
+import BookingModal from "@/components/BookingModal";
 
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
 
@@ -82,6 +83,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
 
   const currentQ = QUESTIONS[step];
   const progress = ((step) / QUESTIONS.length) * 100;
@@ -121,28 +123,47 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
     trackFormSubmit("do_i_qualify_quiz", window.location.pathname);
     setLoading(false);
     setSubmitted(true);
+    // Show booking modal after a short delay so the success state is visible first
+    setTimeout(() => setShowBooking(true), 1200);
   };
+
+  const firstName = name.split(" ")[0] || "";
 
   if (submitted) {
     return (
-      <div
-        className={`rounded-2xl p-8 text-center ${compact ? "" : "my-10"}`}
-        style={{ background: "oklch(0.13 0.012 265)", border: "1px solid oklch(0.72 0.19 50 / 0.4)" }}
-      >
-        <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-amber-500" />
-        </div>
-        <h3
-          className="font-black text-white mb-2"
-          style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.6rem, 3vw, 2rem)" }}
+      <>
+        <div
+          className={`rounded-2xl p-8 text-center ${compact ? "" : "my-10"}`}
+          style={{ background: "oklch(0.13 0.012 265)", border: "1px solid oklch(0.72 0.19 50 / 0.4)" }}
         >
-          YOU LIKELY QUALIFY
-        </h3>
-        <p className="text-zinc-400 text-sm leading-relaxed mb-4">
-          Based on your answers, our attorneys will review your case within 24 hours. Grace Silver will reach out to schedule your free 15-minute consultation.
-        </p>
-        <div className="text-amber-500 text-sm font-bold">📞 (904) 921-4971 — Text or Call Grace Silver</div>
-      </div>
+          <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-amber-500" />
+          </div>
+          <h3
+            className="font-black text-white mb-2"
+            style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.6rem, 3vw, 2rem)" }}
+          >
+            YOU LIKELY QUALIFY
+          </h3>
+          <p className="text-zinc-400 text-sm leading-relaxed mb-4">
+            Based on your answers, our attorneys will review your case. Click below to book your free 30-minute case review call.
+          </p>
+          <button
+            onClick={() => setShowBooking(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
+            style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
+          >
+            📅 Book My Free Case Review
+          </button>
+          <div className="text-amber-500 text-sm font-bold mt-4">📞 (904) 921-4971 — Text or Call Grace Silver</div>
+        </div>
+
+        <BookingModal
+          isOpen={showBooking}
+          onClose={() => setShowBooking(false)}
+          firstName={firstName}
+        />
+      </>
     );
   }
 

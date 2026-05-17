@@ -14,6 +14,7 @@ import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
 import SocialProofTicker from "@/components/SocialProofTicker";
 import UrgencyTimer from "@/components/UrgencyTimer";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import BookingModal from "@/components/BookingModal";
 import { trackPhoneClick, trackCTAClick, initScrollTracking, trackFormSubmit } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
@@ -87,6 +88,7 @@ const PAYMENT_RANGES = ["Under $100", "$100–$150", "$150–$200", "$200–$250
 function MultiStepForm() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
   const [fallbackName, setFallbackName] = useState("");
   const [fallbackPhone, setFallbackPhone] = useState("");
   const [form, setForm] = useState({
@@ -134,6 +136,8 @@ function MultiStepForm() {
     }
     trackFormSubmit("main_contact_form", "/");
     setSubmitted(true);
+    // Show booking modal after brief delay so success state is visible first
+    setTimeout(() => setShowBooking(true), 1200);
   };
 
   const handleQuickCallback = async (e: React.FormEvent) => {
@@ -152,24 +156,39 @@ function MultiStepForm() {
     }
     trackFormSubmit("main_form_step1_callback_fallback", "/");
     setSubmitted(true);
+    setTimeout(() => setShowBooking(true), 1200);
   };
 
   if (submitted) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-center py-12 px-6"
-      >
-        <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h3 className="font-display text-4xl text-white mb-3">YOU'RE IN THE QUEUE</h3>
-        <p className="text-gray-300 text-lg mb-2">A case specialist will contact you within <span className="text-amber-400 font-semibold">2 business hours</span>.</p>
-        <p className="text-gray-500 text-sm font-mono">Case #{Math.floor(Math.random() * 90000) + 10000} — {new Date().toLocaleDateString()}</p>
-      </motion.div>
+      <>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-12 px-6"
+        >
+          <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="font-display text-4xl text-white mb-3">YOU'RE IN THE QUEUE</h3>
+          <p className="text-gray-300 text-lg mb-2">A case specialist will contact you within <span className="text-amber-400 font-semibold">2 business hours</span>.</p>
+          <p className="text-gray-500 text-sm font-mono mb-6">Case #{Math.floor(Math.random() * 90000) + 10000} — {new Date().toLocaleDateString()}</p>
+          <button
+            onClick={() => setShowBooking(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
+            style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
+          >
+            📅 Book My Free Case Review
+          </button>
+        </motion.div>
+        <BookingModal
+          isOpen={showBooking}
+          onClose={() => setShowBooking(false)}
+          firstName={form.firstName}
+        />
+      </>
     );
   }
 
