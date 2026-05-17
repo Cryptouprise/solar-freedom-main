@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { useContactInfo } from "@/hooks/useContactInfo";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { Link } from "wouter";
 import { cities as CITIES } from "@/data/cities";
@@ -91,18 +92,20 @@ function MultiStepForm() {
   const [showBooking, setShowBooking] = useState(false);
   const [fallbackName, setFallbackName] = useState("");
   const [fallbackPhone, setFallbackPhone] = useState("");
-  const [form, setForm] = useState({
+  const { contactInfo, updateContactInfo } = useContactInfo();
+  const [form, setForm] = useState(() => ({
     paying: "",
     issue: "",
     company: "",
     payment: "",
     intent: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
+    // Pre-fill from localStorage if available
+    firstName: contactInfo.firstName,
+    lastName: contactInfo.lastName,
+    phone: contactInfo.phone,
+    email: contactInfo.email,
     agree: false,
-  });
+  }));
 
   const totalSteps = 5;
   const progress = ((step) / totalSteps) * 100;
@@ -110,8 +113,13 @@ function MultiStepForm() {
   const submitLead = trpc.leads.submit.useMutation();
   const quickCallback = trpc.leads.quickCallback.useMutation();
 
-  const update = (key: string, val: string | boolean) =>
+  const update = (key: string, val: string | boolean) => {
     setForm((f) => ({ ...f, [key]: val }));
+    // Persist contact fields to localStorage as user types
+    if (key === "firstName" || key === "lastName" || key === "phone" || key === "email") {
+      updateContactInfo({ [key]: val as string });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

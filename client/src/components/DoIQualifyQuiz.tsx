@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, ChevronRight, AlertTriangle } from "lucide-react"
 import { trpc } from "@/lib/trpc";
 import { trackFormSubmit } from "@/lib/analytics";
 import BookingModal from "@/components/BookingModal";
+import { useContactInfo } from "@/hooks/useContactInfo";
 
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
 
@@ -78,9 +79,11 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showCapture, setShowCapture] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  const { contactInfo, updateContactInfo } = useContactInfo();
+  // Pre-fill from localStorage; the quiz uses a single "full name" field
+  const [name, setName] = useState(contactInfo.fullName);
+  const [phone, setPhone] = useState(contactInfo.phone);
+  const [email, setEmail] = useState(contactInfo.email);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
@@ -255,7 +258,11 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
                 <input
                   type="text"
                   value={name}
-                  onChange={e => setName(e.target.value)}
+                  onChange={e => {
+                    setName(e.target.value);
+                    const parts = e.target.value.trim().split(" ");
+                    updateContactInfo({ firstName: parts[0] || "", lastName: parts.slice(1).join(" ") || "" });
+                  }}
                   placeholder="Your full name"
                   required
                   className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 focus:ring-amber-500/50"
@@ -264,7 +271,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
                 <input
                   type="tel"
                   value={phone}
-                  onChange={e => setPhone(e.target.value)}
+                  onChange={e => { setPhone(e.target.value); updateContactInfo({ phone: e.target.value }); }}
                   placeholder="Phone number"
                   required
                   className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 focus:ring-amber-500/50"
@@ -273,7 +280,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
                 <input
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => { setEmail(e.target.value); updateContactInfo({ email: e.target.value }); }}
                   placeholder="Email address"
                   required
                   className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 focus:ring-amber-500/50"
