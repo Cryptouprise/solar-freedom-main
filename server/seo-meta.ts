@@ -130,6 +130,130 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       title: 'Cancel Solar Contract in Hartford, CT | Connecticut CUTPA Rights',
       description: 'Hartford homeowners: Connecticut CUTPA gives you strong grounds to cancel a predatory solar contract. Our attorneys have helped 200+ CT homeowners get out of solar agreements. Free case review.',
     },
+    'dallas-tx': {
+      title: 'Cancel Solar Contract in Dallas, TX | Texas DTPA Triple Damages',
+      description: 'Dallas homeowners, escape predatory solar contracts now! Texas DTPA offers triple damages for deceptive sales. Don\'t wait, get your free case review today.',
+    },
+    'san-francisco-ca': {
+      title: 'Cancel Solar Contract in San Francisco, CA | NEM 3.0 Impact',
+      description: 'San Francisco homeowners, NEM 3.0 voided solar savings. Fight back under California CLRA & UCL. Get triple damages & free case review.',
+    },
+    'houston-tx': {
+      title: 'Cancel Solar Contract in Houston, TX | Texas DTPA Rights',
+      description: 'Houston homeowners, trapped by solar contracts? Fight back with Texas DTPA! Seek triple damages for deceptive sales. Get help now. Free case review.',
+    },
+    'san-antonio-tx': {
+      title: 'Cancel Solar Contract in San Antonio, TX | Texas DTPA Rights',
+      description: 'San Antonio homeowners, escape deceptive solar contracts now! Texas DTPA protects you, offering triple damages for unfair sales. Get help today. Free case review.',
+    },
+    'miami-fl': {
+      title: 'Cancel Solar Contract in Miami, FL | FDUTPA Rights & Attorney Fees',
+      description: 'Miami homeowners trapped by solar contracts? Florida FDUTPA protects you! Get attorney fees awarded & cancel your solar contract now. Free case review.',
+    },
+    'cincinnati-oh': {
+      title: 'Cancel Solar Contract in Cincinnati, OH | Ohio Rescission Rights',
+      description: 'Cincinnati homeowners trapped by solar contracts? The Ohio Consumer Sales Practices Act grants rescission rights. Act now to explore your options. Free case review.',
+    },
+    'greenville-sc': {
+      title: 'Cancel Solar Contract in Greenville, SC | Triple Damages',
+      description: 'Greenville, SC homeowners trapped by solar contracts from Freedom Forever or Sunrun, act now! Fight back under the SC Unfair Trade Practices Act for triple damages. Free case review.',
+    },
+    'west-valley-city-ut': {
+      title: 'Cancel Solar Contract in West Valley City, UT | Consumer Rights',
+      description: 'Trapped by a Vivint Solar contract in West Valley City, UT? The Utah Consumer Sales Practices Act protects you. Get triple damages & a free case review.',
+    },
+    'santa-ana-ca': {
+      title: 'Cancel Solar Contract in Santa Ana, CA | Consumer Rights',
+      description: 'Trapped by a solar contract in Santa Ana, CA? NEM 3.0 cut credits 75%! Fight back with California CLRA & UCL. You could recover triple damages. Free case review.',
+    },
+    'new-haven-ct': {
+      title: 'Cancel Solar Contract in New Haven, CT | Free Case Review',
+      description: 'New Haven homeowners, escape costly 20-year solar leases now! Connecticut CUTPA protects you with attorney fees & punitive damages. Don\'t wait, get a free case review today.',
+    },
+    'savannah-ga': {
+      title: 'Cancel Solar Contract in Savannah, GA | Georgia Fair Business Act',
+      description: 'Savannah, GA homeowners trapped by solar contracts? The Georgia Fair Business Practices Act protects you. Get out of your Sunrun/Freedom Forever contract now. Free case review.',
+    },
+    'san-diego-ca': {
+      title: 'Cancel Solar Contract in San Diego, CA | Fight NEM 3.0',
+      description: 'San Diego homeowners, trapped by solar contracts? Fight back with California CLRA & UCL! Recover triple damages. Act now to protect your investment. Free case review.',
+    },
+    'san-jose-ca': {
+      title: 'Cancel Solar Contract in San Jose, CA | NEM 3.0 Relief & Rights',
+      description: 'San Jose homeowners, trapped by NEM 3.0 & predatory solar contracts? Fight back with California CLRA & UCL for triple damages. Free case review.',
+    },
+    'austin-tx': {
+      title: 'Cancel Solar Contract in Austin, TX | DTPA Rights',
+      description: 'Trapped by a solar contract in Austin, TX? Texas DTPA protects you with triple damages for deceptive sales. GoodLeap/Mosaic loan issues? Get help now. Free case review.',
+    },
+    'peoria-az': {
+      title: 'Cancel Solar Contract in Peoria, AZ | Triple Damages & Free Review',
+      description: 'Peoria, AZ homeowners, trapped by solar contracts? The Arizona Consumer Fraud Act offers relief! Discover if you qualify for triple damages. Act now! Free case review.',
+    },
+    'topeka-ks': {
+      title: 'Cancel Solar Contract in Topeka, KS | Kansas Consumer Protection',
+      description: 'Topeka, KS homeowners trapped by solar contracts can fight back under the Kansas Consumer Protection Act. Seek triple damages & escape your solar burden now. Free case review.',
+    },
+    'little-rock-ar': {
+      title: 'Cancel Solar Contract in Little Rock, AR | AR Consumer Rights',
+      description: 'Trapped by a solar contract in Little Rock, AR? The Arkansas Deceptive Trade Practices Act protects you. Recover triple damages & cancel NOW. Free case review.',
+    },
+    'nampa-id': {
+      title: 'Cancel Solar Contract in Nampa, ID | Idaho Consumer Protection Act',
+      description: 'Trapped by a Vivint Solar contract in Nampa, ID? The Idaho Consumer Protection Act protects you. Fight back for triple damages. Don\'t wait! Free case review.',
+    },
+    'nashville-tn': {
+      title: 'Cancel Solar Contract in Nashville, TN | TN Consumer Protection',
+      description: 'Nashville, TN homeowners, fight back! The Tennessee Consumer Protection Act protects you. Seek triple damages & escape bad solar contracts now. Free case review.',
+    },
+    'columbus-ga': {
+      title: 'Cancel Solar Contract in Columbus, GA | Fight for Triple Damages',
+      description: 'Trapped by a solar contract in Columbus, GA? The Georgia Fair Business Practices Act protects you. Get help now and claim triple damages. Free case review.',
+    },
+    'costa-mesa-ca': {
+      title: 'Cancel Solar Contract in Costa Mesa, CA | Fight NEM 3.0 & Get Triple Damages',
+      description: 'Costa Mesa homeowners, NEM 3.0 cut solar credits 75%! Fight back with CA CLRA & UCL. Get triple damages & escape your solar trap NOW. Free case review.',
+    },
+    'erie-pa': {
+      title: 'Cancel Solar Contract in Erie, PA | PA Consumer Law Help',
+      description: 'Erie, PA homeowners trapped by solar contracts? Fight back under Pennsylvania Unfair Trade Practices and Consumer Protection Law. Get a free case review and seek triple damages now!',
+    },
+    'fishers-in': {
+      title: 'Cancel Solar Contract in Fishers, IN | Indiana Consumer Protection',
+      description: 'Fishers, IN homeowners, trapped by solar? The Indiana Deceptive Consumer Sales Act protects you. Get triple damages. Don\'t wait, act now! Free case review.',
+    },
+    'athens-ga': {
+      title: 'Cancel Solar Contract in Athens, GA | Georgia Fair Business Act Rights',
+      description: 'Athens, GA homeowners, trapped by solar contracts? The Georgia Fair Business Practices Act protects you! Act now for a free case review and potential triple damages.',
+    },
+    'macon-ga': {
+      title: 'Cancel Solar Contract in Macon, GA | Georgia Fair Business Act',
+      description: 'Trapped by a solar contract in Macon, GA? The Georgia Fair Business Practices Act protects you. Get triple damages & cancel your solar contract now. Free case review.',
+    },
+    'montgomery-al': {
+      title: 'Cancel Solar Contract in Montgomery, AL | Alabama DTPA Rights',
+      description: 'Montgomery, AL homeowners trapped by solar contracts need help now! Fight back under the Alabama Deceptive Trade Practices Act. Secure triple damages. Free case review.',
+    },
+    'roseville-ca': {
+      title: 'Cancel Solar Contract in Roseville, CA | CLRA & UCL Rights',
+      description: 'Roseville, CA homeowners, trapped by solar? California CLRA & UCL can help reclaim lost solar credits, potentially triple damages. NEM 3.0 cuts hit hard. Free case review.',
+    },
+    'santa-clara-ca': {
+      title: 'Cancel Solar Contract in Santa Clara, CA | Fight NEM 3.0',
+      description: 'Trapped by a solar contract in Santa Clara, CA? NEM 3.0 cuts credits. Know your California CLRA & UCL rights. Fight back against SunPower/Tesla Solar. Free case review.',
+    },
+    'escondido-ca': {
+      title: 'Cancel Solar Contract in Escondido, CA | CLRA & UCL Rights',
+      description: 'Escondido homeowners trapped by solar contracts? Act now! California CLRA & UCL laws protect you. Fight for triple damages & escape NEM 3.0 impact. Free case review.',
+    },
+    'fort-collins-co': {
+      title: 'Cancel Solar Contract in Fort Collins, CO | Get Triple Damages',
+      description: 'Fort Collins homeowners, escape bad solar contracts now! The Colorado Consumer Protection Act may secure triple damages. Free case review.',
+    },
+    'murfreesboro-tn': {
+      title: 'Cancel Solar Contract in Murfreesboro, TN | TN Consumer Rights',
+      description: 'Murfreesboro, TN homeowners, escape bad solar contracts now! The Tennessee Consumer Protection Act protects your rights. Seek triple damages. Free case review.',
+    },
   };
 
   for (const city of cities) {

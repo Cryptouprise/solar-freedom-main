@@ -1,0 +1,5 @@
+=== Bulk Indexing Run: https://breakyoursolarcontract.com/ ===
+Total URLs: 10
+
+[1/10] ⏳ QUEUED https://breakyoursolarcontract.com/blog/tesla-solar-contract-cancellation
+         Coverage: URL is unknown to Google

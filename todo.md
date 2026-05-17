@@ -250,3 +250,15 @@
 - [x] Wire BookingModal + useContactInfo sticky pre-fill to SolarLienRemoval form
 - [x] Wire BookingModal + useContactInfo sticky pre-fill to SolarLoanHelp form
 - [x] Add blog-articles-batch10.ts to prerender.mjs blog loading list
+
+## Phase 28 — Comprehensive Meta Description Audit & Fix (All 87 Impression Pages)
+
+- [x] Pulled full GSC impressions list (87 pages, last 90 days, 7,244 total impressions, 60 clicks, 0.8% avg CTR)
+- [x] Identified all pages with 1+ impressions: 38 blog, 37 city, 10 state law, 2 static
+- [x] Rewrote all 38 blog article meta descriptions with click-compelling, specific copy
+- [x] Generated and applied 31 new city page meta overrides in seo-meta.ts (all cities with impressions)
+- [x] Fixed 8 state law meta descriptions that were too long (150-160 char limit) or broken (Hawaii truncated)
+- [x] Fixed all TypeScript syntax errors from apostrophes in single-quoted strings (batch5, batch6, batch9, state-laws.ts)
+- [x] Fixed all corrupted metaDescription fields where new text was prepended to old text
+- [x] Verified 0 TypeScript errors across all data files
+- [x] Submitted all 87 pages to Google Indexing API for priority re-crawl

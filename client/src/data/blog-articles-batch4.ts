@@ -42,7 +42,7 @@ export const blogArticlesBatch4: BlogPost[] = [
     slug: 'solar-payment-shock-help',
     title: 'Solar Payment Shock: Why Your Bill Is Higher Than Expected',
     metaTitle: 'Solar Payment Shock: Why Your Solar Bill Is Higher Than Expected (2026)',
-    metaDescription: 'Experiencing solar payment shock? Learn why solar payments are often higher than expected and what homeowners can do about it.',
+    metaDescription: 'Shocked by your solar bill? Fight back against high payments & escalator clauses. Explore legal options to save thousands. Free case review.',
     category: 'Consumer Guide',
     readTime: '7 min read',
     publishDate: 'March 22, 2026',

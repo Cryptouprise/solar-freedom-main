@@ -1,0 +1,8 @@
+[1/482] ✓ https://breakyoursolarcontract.com/
+    Coverage: Submitted and indexed
+[2/482] ✗ https://breakyoursolarcontract.com/blog
+    Coverage: Discovered - currently not indexed
+[3/482] ✗ https://breakyoursolarcontract.com/how-it-works
+    Coverage: Discovered - currently not indexed
+[4/482] ✓ https://breakyoursolarcontract.com/solar-lien-removal
+    Coverage: Submitted and indexed
