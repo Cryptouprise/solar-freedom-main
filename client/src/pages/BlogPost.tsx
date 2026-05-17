@@ -12,7 +12,6 @@ import { motion } from 'framer-motion';
 import { useEffect, ReactElement } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
-import { trpc } from '@/lib/trpc';
 function renderSection(section: BlogSection, index: number) {
   switch (section.type) {
     case 'h2':
@@ -248,38 +247,25 @@ function dbPostToBlogPost(dbPost: Record<string, unknown>) {
 
 export default function BlogPost() {
   const params = useParams<{ slug: string }>();
-<<<<<<< Updated upstream
   const slug = params.slug || '';
   const staticPost = getBlogPost(slug);
   const related = getRelatedPosts(slug, 3);
 
-  // Only query the DB when the slug isn't in the bundled static data
-  const { data: dbPost, isLoading: dbLoading } = trpc.content.getPost.useQuery(
-    { slug },
-    { enabled: !staticPost }
-  );
-
-  const anyPost = staticPost || dbPost;
-=======
-  const staticPost = getBlogPost(params.slug || '');
-  const related = getRelatedPosts(params.slug || '', 3);
->>>>>>> Stashed changes
-
   // Only fetch from DB if static post not found
   const { data: dbPostRaw, isLoading: dbLoading } = trpc.content.getPost.useQuery(
-    { slug: params.slug || '' },
-    { enabled: !staticPost && !!params.slug }
+    { slug },
+    { enabled: !staticPost && !!slug }
   );
 
   const dbPost = dbPostRaw ? dbPostToBlogPost(dbPostRaw as Record<string, unknown>) : null;
   const post = staticPost || dbPost;
 
   useSeoMeta({
-    title: anyPost ? `${anyPost.metaTitle ?? anyPost.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
-    description: anyPost?.metaDescription ?? anyPost?.excerpt ?? 'Expert legal help to cancel your solar contract.',
-    canonical: (anyPost as { canonicalUrl?: string | null } | undefined)?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${slug}`,
+    title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
+    description: post?.metaDescription ?? post?.excerpt ?? 'Expert legal help to cancel your solar contract.',
+    canonical: (post as { canonicalUrl?: string | null } | undefined)?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${slug}`,
     ogType: 'article',
-    ogImage: anyPost?.heroImage ?? undefined,
+    ogImage: post?.heroImage ?? undefined,
   });
 
   useEffect(() => {
@@ -287,18 +273,6 @@ export default function BlogPost() {
   }, [slug]);
 
   // Waiting on DB lookup
-  if (!staticPost && dbLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-zinc-500 text-sm">Loading…</div>
-      </div>
-    );
-  }
-
-<<<<<<< Updated upstream
-  if (!staticPost && !dbPost) {
-=======
-  // Show loading spinner while fetching from DB
   if (!staticPost && dbLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -311,7 +285,6 @@ export default function BlogPost() {
   }
 
   if (!post) {
->>>>>>> Stashed changes
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
@@ -327,9 +300,16 @@ export default function BlogPost() {
 
   // ─── DB post render path (content stored as HTML) ────────────────────────────
   if (!staticPost && dbPost) {
-    const faq = (dbPost.faqItems as { q: string; a: string }[] | null) ?? [];
-    const publishDate = dbPost.publishedAt
-      ? new Date(dbPost.publishedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    const rawFaqItems = (dbPostRaw as Record<string,unknown>)?.faqItems;
+    const faq: { q: string; a: string }[] = Array.isArray(rawFaqItems)
+      ? (rawFaqItems as Array<{question?: string; answer?: string; q?: string; a?: string}>).map(f => ({
+          q: f.q ?? f.question ?? '',
+          a: f.a ?? f.answer ?? ''
+        }))
+      : [];
+    const rawPublishedAt = (dbPostRaw as Record<string,unknown>)?.publishedAt;
+    const publishDate = rawPublishedAt
+      ? new Date(String(rawPublishedAt)).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       : '2026';
 
     const dbSchemas: object[] = [
@@ -338,8 +318,8 @@ export default function BlogPost() {
         '@type': 'Article',
         headline: dbPost.title,
         description: dbPost.metaDescription ?? dbPost.excerpt,
-        datePublished: dbPost.publishedAt ?? '2026-01-01',
-        dateModified: dbPost.updatedAt ?? dbPost.publishedAt ?? '2026-01-01',
+        datePublished: (dbPostRaw as Record<string,unknown>)?.publishedAt ? String((dbPostRaw as Record<string,unknown>).publishedAt) : '2026-01-01',
+        dateModified: (dbPostRaw as Record<string,unknown>)?.updatedAt ? String((dbPostRaw as Record<string,unknown>).updatedAt) : '2026-01-01',
         author: {
           '@type': 'Organization',
           name: 'Solar Freedom Legal Team',
@@ -465,7 +445,7 @@ export default function BlogPost() {
               {/* HTML content from database with inline CTA cadence */}
               <div className="space-y-0">
                 {renderDbContentWithInlineCtas(
-                  dbPost.content,
+                  Array.isArray(dbPost.content) ? (dbPost.content[0]?.content ?? '') : String(dbPost.content ?? ''),
                   "Still Paying on a Solar Contract?",
                   "Get a free legal review and find out if you can cancel."
                 )}
@@ -566,7 +546,6 @@ export default function BlogPost() {
   }
 
   // ─── Static post render path (existing logic) ────────────────────────────────
-  const post = staticPost;
 
   // Build Article + BreadcrumbList + FAQPage schemas for schema stacking
   const schemas: object[] = [

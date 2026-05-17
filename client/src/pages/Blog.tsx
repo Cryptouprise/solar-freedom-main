@@ -8,7 +8,6 @@ import { trpc } from '@/lib/trpc';
 import { Clock, ArrowRight, BookOpen, TrendingUp, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useMemo } from 'react';
-import { trpc } from '@/lib/trpc';
 
 const categoryColors: Record<string, string> = {
   'Legal Guide': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
@@ -26,7 +25,6 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
-<<<<<<< Updated upstream
   // Fetch DB-managed posts (Claude-published articles) and merge with static posts
   const { data: dbData } = trpc.content.listPosts.useQuery({ limit: 200, offset: 0 });
   const dbPosts = dbData ?? [];
@@ -59,43 +57,15 @@ export default function Blog() {
   }, [dbPosts]);
 
   // Combined list: DB-only posts first (newest), then all static posts
-  const blogPosts = useMemo(
+  const allPosts = useMemo(
     () => [...dbOnlyPosts, ...staticBlogPosts],
     [dbOnlyPosts]
   );
-=======
-  // Fetch DB-backed posts (Claude-published) and merge with static posts
-  const { data: dbPostsData } = trpc.content.listPosts.useQuery({ limit: 200, offset: 0 });
-  const dbPosts = useMemo(() => {
-    if (!dbPostsData) return [];
-    const rows = Array.isArray(dbPostsData) ? dbPostsData : (dbPostsData as { posts?: unknown[] }).posts ?? [];
-    const staticSlugs = new Set(blogPosts.map(p => p.slug));
-    return (rows as Record<string, unknown>[])
-      .filter((p) => !staticSlugs.has(String(p.slug || '')) && p.published)
-      .map((p: Record<string, unknown>) => ({
-        slug: String(p.slug || ''),
-        title: String(p.title || ''),
-        excerpt: String(p.excerpt || ''),
-        category: String(p.category || 'Legal Guide'),
-        readTime: String(p.readTime || '8 min read'),
-        heroImage: p.heroImage ? String(p.heroImage) : undefined,
-        publishDate: p.publishedAt ? new Date(p.publishedAt as string).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'May 2026',
-        tags: Array.isArray(p.tags) ? p.tags as string[] : [],
-        isDbPost: true,
-      }));
-  }, [dbPostsData]);
-
-  const allPosts = useMemo(() => [...dbPosts, ...blogPosts], [dbPosts]);
->>>>>>> Stashed changes
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(allPosts.map(p => p.category)));
     return ['All', ...cats];
-<<<<<<< Updated upstream
-  }, [blogPosts]);
-=======
   }, [allPosts]);
->>>>>>> Stashed changes
 
   const filteredPosts = useMemo(() => {
     return allPosts.filter(post => {
@@ -151,7 +121,7 @@ export default function Blog() {
           {/* Stats bar */}
           <div className="flex flex-wrap gap-8 mt-10 pt-10 border-t border-white/10">
             {[
-              { icon: <TrendingUp className="w-4 h-4" />, value: `${blogPosts.length} Articles`, label: 'Published' },
+              { icon: <TrendingUp className="w-4 h-4" />, value: `${allPosts.length} Articles`, label: 'Published' },
               { icon: <BookOpen className="w-4 h-4" />, value: '118+ Cities', label: 'Covered' },
               { icon: <Clock className="w-4 h-4" />, value: '7–11 min', label: 'Average Read' },
             ].map((s, i) => (
