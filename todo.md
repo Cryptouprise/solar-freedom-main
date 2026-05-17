@@ -218,6 +218,12 @@
 - [x] Submit creates post via /api/admin/posts
 
 ## Phase 24 — Edit Post + SEO Audit + API Docs
-- [ ] Add Edit Post modal to AdminContent page
-- [ ] Run comprehensive SEO audit via Google Search Console
-- [ ] Compile full Admin API capabilities reference document
+- [x] Add Edit Post modal to AdminContent page
+- [x] Run comprehensive SEO audit via Google Search Console
+- [x] Compile full Admin API capabilities reference document (docs/CLAUDE-CAPABILITIES.md)
+
+## Phase 25 — DB Post SEO Meta Fix
+- [x] Fix prerender.mjs to fetch DB blog posts from database at build time
+- [x] Add injectMetaDynamic() to seo-meta.ts for runtime DB post meta lookup
+- [x] Update serveStatic() in vite.ts to use async injectMetaDynamic
+- [x] Root cause: sunrun-solar-contract-cancellation-2026 had 2,994 impressions but 0.1% CTR due to generic homepage meta showing in Google

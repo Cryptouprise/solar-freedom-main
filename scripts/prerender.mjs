@@ -30,6 +30,7 @@ import * as cheerio from "cheerio";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createConnection } from "mysql2/promise";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -278,14 +279,46 @@ function injectMeta(html, meta) {
   return $.html();
 }
 
+// ─── Load DB blog posts from database ────────────────────────────────────────
+async function loadDbBlogPosts() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.log("  ⚠️  DATABASE_URL not set — skipping DB blog posts");
+    return {};
+  }
+  try {
+    const conn = await createConnection(dbUrl);
+    const [rows] = await conn.execute(
+      "SELECT slug, metaTitle, metaDescription FROM blog_posts WHERE published = 1"
+    );
+    await conn.end();
+    const entries = {};
+    for (const row of rows) {
+      if (row.slug && row.metaTitle) {
+        entries[row.slug] = {
+          title: `${row.metaTitle} | Solar Freedom`,
+          description: row.metaDescription || `Learn how to cancel your solar contract. Free case review from Solar Freedom attorneys.`,
+        };
+      }
+    }
+    console.log(`  📦 Loaded ${Object.keys(entries).length} DB blog posts for pre-rendering`);
+    return entries;
+  } catch (err) {
+    console.warn(`  ⚠️  Could not load DB blog posts: ${err.message}`);
+    return {};
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
   console.log("🔧 Pre-rendering static HTML files...");
-
   const indexHtml = fs.readFileSync(path.resolve(DIST, "index.html"), "utf-8");
   const { cityEntries, companyEntries, stateEntries } = await loadData();
   const blogEntries = loadBlogData();
-  const metaMap = buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries);
+  // Merge DB posts into blog entries (DB posts take precedence over static)
+  const dbBlogEntries = await loadDbBlogPosts();
+  const allBlogEntries = { ...blogEntries, ...dbBlogEntries };
+  const metaMap = buildMetaMap(cityEntries, companyEntries, stateEntries, allBlogEntries);
 
   let count = 0;
   for (const [urlPath, meta] of Object.entries(metaMap)) {

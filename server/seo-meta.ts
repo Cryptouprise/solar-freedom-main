@@ -214,3 +214,70 @@ function escapeHtml(str: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
+
+/**
+ * Async version of injectMeta that also handles DB-published blog posts.
+ *
+ * DB posts are created after the build, so they don't have pre-rendered HTML files
+ * and aren't in the static meta map. This function does a live DB lookup for
+ * /blog/* paths that aren't in the static map, ensuring Googlebot always gets
+ * the correct title and meta description even for newly published DB posts.
+ */
+export async function injectMetaDynamic(html: string, path: string): Promise<string> {
+  const map = buildMetaMap();
+
+  // Normalize path: strip trailing slash (except root), strip query string
+  const normalizedPath =
+    path === "/" ? "/" : path.replace(/\/$/, "").split("?")[0];
+
+  let meta = map[normalizedPath];
+
+  // If not in static map and it's a blog path, try DB lookup
+  if (!meta && normalizedPath.startsWith("/blog/")) {
+    try {
+      const { getDbBlogPost } = await import("./db");
+      const slug = normalizedPath.replace("/blog/", "");
+      const post = await getDbBlogPost(slug);
+      if (post && post.metaTitle) {
+        meta = {
+          title: `${post.metaTitle} | Solar Freedom`,
+          description: post.metaDescription || `Learn how to cancel your solar contract. Free case review from Solar Freedom attorneys.`,
+          canonical: `${BASE_URL}${normalizedPath}`,
+        };
+      }
+    } catch (err) {
+      console.warn(`[SEO] DB lookup failed for ${normalizedPath}:`, err);
+    }
+  }
+
+  if (!meta) return html; // Unknown path — serve as-is
+
+  const $ = cheerio.load(html);
+
+  // <title>
+  $('title').text(meta.title);
+
+  // meta description
+  $('meta[name="description"]').attr('content', meta.description);
+
+  // canonical — remove all existing canonicals first, then set one
+  $('link[rel="canonical"]').remove();
+  $('head').append(`<link rel="canonical" href="${meta.canonical}" />`);
+
+  // og:url
+  $('meta[property="og:url"]').attr('content', meta.canonical);
+
+  // og:title
+  $('meta[property="og:title"]').attr('content', meta.title);
+
+  // og:description
+  $('meta[property="og:description"]').attr('content', meta.description);
+
+  // twitter:title
+  $('meta[name="twitter:title"]').attr('content', meta.title);
+
+  // twitter:description
+  $('meta[name="twitter:description"]').attr('content', meta.description);
+
+  return $.html();
+}
