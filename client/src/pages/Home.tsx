@@ -274,14 +274,22 @@ function MultiStepForm() {
     // Step 2 — company + payment
     <div key="s2" className="space-y-5">
       <h3 className="font-display text-3xl text-white">WHO IS YOUR SOLAR FINANCE COMPANY?</h3>
-      <select
-        value={form.company}
-        onChange={(e) => update("company", e.target.value)}
-        className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-gray-200 focus:border-amber-500 focus:outline-none transition-colors"
-      >
-        <option value="">Select your company...</option>
-        {SOLAR_COMPANIES.map((c) => <option key={c} value={c}>{c}</option>)}
-      </select>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {SOLAR_COMPANIES.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => update("company", c)}
+            className={`p-3 rounded border text-sm font-medium transition-all duration-200 text-left ${
+              form.company === c
+                ? "border-amber-500 bg-amber-500/15 text-amber-300"
+                : "border-white/10 bg-white/5 text-gray-300 hover:border-amber-500/50 hover:bg-white/10"
+            }`}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
       <h3 className="font-display text-2xl text-white">MONTHLY SOLAR PAYMENT?</h3>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {PAYMENT_RANGES.map((r) => (
@@ -808,7 +816,7 @@ export default function Home() {
         {/* Background */}
         <div className="absolute inset-0">
           <img src={HERO_BG} alt="Solar contract cancellation attorneys helping homeowners get out of solar agreements" className="w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 92%) 0%, oklch(0.1 0.015 265 / 75%) 50%, oklch(0.08 0.015 265 / 88%) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 65%) 0%, oklch(0.1 0.015 265 / 50%) 50%, oklch(0.08 0.015 265 / 60%) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
           {/* Looping ambient glow — slow-breathing amber radial light */}
           <div
@@ -831,7 +839,7 @@ export default function Home() {
           <div className="max-w-3xl">
             {/* Pre-headline badge */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 mb-6"
@@ -842,7 +850,7 @@ export default function Home() {
 
             {/* Main headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="font-display leading-none mb-6"
@@ -859,7 +867,7 @@ export default function Home() {
 
             {/* Sub-headline */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.3 }}
               className="text-gray-300 text-xl leading-relaxed mb-8 max-w-xl"
@@ -869,7 +877,7 @@ export default function Home() {
 
             {/* CTAs */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.45 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
@@ -884,7 +892,7 @@ export default function Home() {
 
             {/* Trust micro-signals */}
             <motion.div
-              initial={{ opacity: 0 }}
+              initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.6 }}
               className="flex flex-wrap gap-6 text-sm text-gray-400"
@@ -921,19 +929,17 @@ export default function Home() {
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { value: 3000, suffix: "+", label: "Contracts Reviewed", prefix: "" },
-              { value: 89, suffix: "%", label: "Success Rate", prefix: "" },
-              { value: 47, suffix: " Days", label: "Avg. Resolution Time", prefix: "" },
-              { value: 2400, suffix: "+", label: "Homeowners Freed", prefix: "" },
-            ].map((stat, i) => (
-              <Reveal key={stat.label} delay={i * 0.1}>
-                <div className="text-center">
-                  <div className="font-display text-amber-gradient mb-1" style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}>
-                    <AnimatedCounter target={stat.value} suffix={stat.suffix} prefix={stat.prefix} />
-                  </div>
-                  <div className="text-gray-400 text-sm font-mono uppercase tracking-wider">{stat.label}</div>
+              { display: "3,000+", label: "Contracts Reviewed" },
+              { display: "89%", label: "Success Rate" },
+              { display: "47 Days", label: "Avg. Resolution Time" },
+              { display: "2,400+", label: "Homeowners Freed" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="font-display text-amber-gradient mb-1" style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}>
+                  {stat.display}
                 </div>
-              </Reveal>
+                <div className="text-gray-400 text-sm font-mono uppercase tracking-wider">{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>

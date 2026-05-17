@@ -33,7 +33,13 @@ export default function BookingModal({ isOpen, onClose, firstName }: BookingModa
     const em = contactInfo.email;
     if (fn) params.set("first_name", fn);
     if (ln) params.set("last_name", ln);
-    if (ph) params.set("phone", ph);
+    if (ph) {
+      // GHL phone widget requires E.164 format (+1XXXXXXXXXX)
+      // Strip all non-digits, then prepend +1 if it's a 10-digit US number
+      const digits = ph.replace(/\D/g, "");
+      const e164 = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith("1") ? `+${digits}` : ph;
+      params.set("phone", e164);
+    }
     if (em) params.set("email", em);
     const qs = params.toString();
     return qs ? `${GHL_BASE_URL}?${qs}` : GHL_BASE_URL;
