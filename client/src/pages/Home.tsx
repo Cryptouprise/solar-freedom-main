@@ -1604,20 +1604,21 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
+                slug: 'sunrun-solar-contract-cancellation-2026',
+                title: 'Sunrun Solar Contract Cancellation 2026: Your Legal Options',
+                excerpt: 'Sunrun locked you into a 20-year contract with a 2.9% annual escalator. Our attorneys have helped hundreds of Sunrun customers cancel. Free case review.',
+                category: 'Most Read',
+                readTime: '11 min read',
+                img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+                featured: true,
+              },
+              {
                 slug: 'how-to-get-out-of-a-solar-contract',
                 title: 'How to Get Out of a Solar Contract (Step-by-Step Guide)',
                 excerpt: 'The exact legal strategies attorneys use — TILA violations, FTC Cooling-Off Rule, state DTPA claims, and more.',
                 category: 'Legal Guide',
                 readTime: '9 min read',
                 img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80',
-              },
-              {
-                slug: 'solar-company-went-bankrupt',
-                title: 'Solar Company Went Bankrupt – What Are Your Options?',
-                excerpt: 'SunPower, Pink Energy, Sungevity — solar company bankruptcies leave homeowners paying for systems with zero support. Here\'s what to do.',
-                category: 'Consumer Alert',
-                readTime: '7 min read',
-                img: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80',
               },
               {
                 slug: 'cancel-solar-contract-after-installation',
@@ -1629,10 +1630,19 @@ export default function Home() {
               },
             ].map((post, i) => (
               <Reveal key={post.slug} delay={i * 0.1}>
-                <a href={`/blog/${post.slug}`} className="group block rounded-xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 bg-zinc-900/50 h-full">
+                <a href={`/blog/${post.slug}`} className={`group block rounded-xl overflow-hidden border transition-all duration-300 bg-zinc-900/50 h-full ${
+                  (post as any).featured
+                    ? 'border-amber-500/60 hover:border-amber-400 ring-1 ring-amber-500/20'
+                    : 'border-white/10 hover:border-amber-500/40'
+                }`}>
                   <div className="relative h-44 overflow-hidden">
                     <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
+                    {(post as any).featured && (
+                      <div className="absolute top-3 right-3">
+                        <span className="bg-amber-500 text-black text-xs font-black uppercase tracking-wider px-2 py-1 rounded">🔥 Most Read</span>
+                      </div>
+                    )}
                     <div className="absolute bottom-3 left-4">
                       <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">{post.category}</span>
                     </div>

@@ -23,6 +23,7 @@ import AdminLeads from "@/pages/AdminLeads";
 import AdminAnalytics from "@/pages/AdminAnalytics";
 import AdminContent from "@/pages/AdminContent";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
+import SunrunPage from "@/pages/SunrunPage";
 import { useEffect } from "react";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
@@ -74,6 +75,7 @@ function Router() {
         <Route path={"/solar-panel-scam"} component={SolarPanelScam} />
         <Route path={"/solar-contract-help"} component={SolarContractHelp} />
         <Route path={"/solar-exit-options"} component={SolarExitOptions} />
+        <Route path={"/sunrun"} component={SunrunPage} />
         <Route path={"/solar-contract-laws"} component={StateLawsIndex} />
         <Route path={"/solar-contract-laws/:state"} component={StateLawPage} />
         <Route path={"/selling-house-with-solar"} component={SellingHouseWithSolar} />

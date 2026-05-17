@@ -262,3 +262,12 @@
 - [x] Fixed all corrupted metaDescription fields where new text was prepended to old text
 - [x] Verified 0 TypeScript errors across all data files
 - [x] Submitted all 87 pages to Google Indexing API for priority re-crawl
+
+## Phase 29 — Sunrun Featured Placement & Dedicated Company Page
+
+- [x] Check Google Indexing API submission results — top pages already indexed, new meta will be picked up on next crawl
+- [x] Add sunrun-solar-contract-cancellation-2026 to homepage Featured Articles section with amber "Most Read" badge
+- [x] Build dedicated /sunrun company page (cancellation focus, attorney CTAs, contract clause breakdown, case form)
+- [x] Wire /sunrun into App.tsx routing
+- [x] Add /sunrun to sitemap.xml (483 total URLs) and seo-meta.ts
+- [x] Submit /sunrun to Google Indexing API (queued for crawl within 1-7 days)

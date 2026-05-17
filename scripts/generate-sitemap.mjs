@@ -90,6 +90,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     { path: "/solar-loan-help", priority: "0.8", changefreq: "monthly" },
     { path: "/selling-home-with-solar", priority: "0.8", changefreq: "monthly" },
     { path: "/solar-contract-laws", priority: "0.8", changefreq: "monthly" },
+    { path: "/sunrun", priority: "0.9", changefreq: "monthly" },
   ];
   for (const p of staticPages) {
     entries.push({ url: `${BASE_URL}${p.path}`, priority: p.priority, changefreq: p.changefreq });

@@ -52,6 +52,11 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       description:
         "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner.",
     },
+    "/sunrun": {
+      title: "Sunrun Solar Contract Cancellation — Free Legal Review | Solar Freedom",
+      description:
+        "Sunrun locked you into a 20-year contract with a 2.9% annual escalator. Our attorneys have cancelled hundreds of Sunrun agreements. Free case review — no obligation.",
+    },
     "/solar-exit-options": {
       title: "Solar Exit Options | How to Get Out of a Solar Contract",
       description:
