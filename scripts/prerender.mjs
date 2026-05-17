@@ -73,9 +73,17 @@ async function loadData() {
   }
 
   const stateEntries = [];
-  const stateRegex = /slug:\s*["']([^"']+)["'],[\s\S]*?state:\s*["']([^"']+)["']/g;
+  // Extract slug + state + metaTitle + metaDescription from state-laws.ts
+  const stateRegex = /slug:\s*["']([^"']+)["'][\s\S]*?state:\s*["']([^"']+)["'][\s\S]*?metaTitle:\s*["']([^"']+)["'][\s\S]*?metaDescription:\s*["']([^"']+)["']/g;
   while ((m = stateRegex.exec(stateLawsFile)) !== null) {
-    stateEntries.push({ slug: m[1], state: m[2] });
+    stateEntries.push({ slug: m[1], state: m[2], metaTitle: m[3], metaDescription: m[4] });
+  }
+  // Fallback: simpler regex if metaTitle not captured
+  if (stateEntries.length === 0) {
+    const fallbackRegex = /slug:\s*["']([^"']+)["'],[\s\S]*?state:\s*["']([^"']+)["']/g;
+    while ((m = fallbackRegex.exec(stateLawsFile)) !== null) {
+      stateEntries.push({ slug: m[1], state: m[2], metaTitle: null, metaDescription: null });
+    }
   }
 
   return { cityEntries, companyEntries, stateEntries };
@@ -95,6 +103,7 @@ function loadBlogData() {
     'blog-articles-batch7.ts',
     'blog-articles-batch8.ts',
     'blog-articles-batch9.ts',
+    'blog-articles-batch10.ts',
     // ADD NEW BATCH FILES HERE when created
   ];
 
@@ -212,14 +221,16 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     };
   }
 
-  // State law pages — 51 pages
+  // State law pages — 51 pages (use per-state metaTitle/metaDescription if available)
   for (const state of stateEntries) {
     const urlPath = `/solar-contract-laws/${state.slug}`;
-    map[urlPath] = {
-      title: `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`,
-      description: `Learn your legal rights under ${state.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`,
-      canonical: `${BASE_URL}${urlPath}`,
-    };
+    const title = state.metaTitle
+      ? `${state.metaTitle} | Solar Freedom`
+      : `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`;
+    const description = state.metaDescription
+      ? state.metaDescription
+      : `Learn your legal rights under ${state.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`;
+    map[urlPath] = { title, description, canonical: `${BASE_URL}${urlPath}` };
   }
 
   // Blog posts — ALL 100+ posts

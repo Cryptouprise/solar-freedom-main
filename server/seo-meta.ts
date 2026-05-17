@@ -122,6 +122,14 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       title: 'Cancel Solar Contract in Denver, CO | Colorado Solar Rights',
       description: 'Denver homeowners trapped in solar contracts: Colorado consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.',
     },
+    'las-vegas-nv': {
+      title: 'Cancel Solar Contract in Las Vegas, NV — Free Case Review 2026',
+      description: 'Las Vegas homeowners: trapped in a solar contract you didn\'t fully understand? Nevada SB 440 and NRS 598 protect you. Our attorneys have helped NV homeowners cancel solar contracts. Free review.',
+    },
+    'hartford-ct': {
+      title: 'Cancel Solar Contract in Hartford, CT | Connecticut CUTPA Rights',
+      description: 'Hartford homeowners: Connecticut CUTPA gives you strong grounds to cancel a predatory solar contract. Our attorneys have helped 200+ CT homeowners get out of solar agreements. Free case review.',
+    },
   };
 
   for (const city of cities) {
@@ -137,11 +145,14 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   // ─── State law pages ──────────────────────────────────────────────────────
   for (const law of stateLaws) {
     const path = `/solar-contract-laws/${law.slug}`;
-    map[path] = {
-      title: `${law.state} Solar Contract Laws | Your Rights | Solar Freedom`,
-      description: `Learn your legal rights under ${law.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`,
-      canonical: BASE_URL + path,
-    };
+    // Use the data file's metaTitle/metaDescription (they are specific and compelling)
+    const title = law.metaTitle
+      ? `${law.metaTitle} | Solar Freedom`
+      : `${law.state} Solar Contract Laws | Your Rights | Solar Freedom`;
+    const description = law.metaDescription
+      ? law.metaDescription
+      : `Learn your legal rights under ${law.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`;
+    map[path] = { title, description, canonical: BASE_URL + path };
   }
 
   // ─── Blog posts ───────────────────────────────────────────────────────────

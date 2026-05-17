@@ -902,8 +902,8 @@ export const blogArticlesBatch5: BlogPost[] = [
   {
     slug: 'cancel-solar-contract-boston-ma',
     title: 'Boston Solar Contract Cancellation: Massachusetts Chapter 93A Is Your Strongest Tool',
-    metaTitle: 'Cancel Your Solar Contract in Boston, MA | Massachusetts Law 2026',
-    metaDescription: 'Boston homeowners: Massachusetts Chapter 93A, the 3-day cooling-off rule, and SMART program misrepresentation give you powerful grounds to cancel a solar contract.',
+    metaTitle: 'Cancel Your Solar Contract in Boston, MA — Chapter 93A Guide 2026',
+    metaDescription: 'Trapped in a solar contract in Boston? Massachusetts Chapter 93A allows triple damages against deceptive solar companies. Our attorneys have helped 200+ MA homeowners cancel. Free case review.',
     category: 'City Guides',
     readTime: '9 min read',
     publishDate: '2026-03-22',

@@ -89,7 +89,6 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     { path: "/solar-lien-removal", priority: "0.8", changefreq: "monthly" },
     { path: "/solar-loan-help", priority: "0.8", changefreq: "monthly" },
     { path: "/selling-home-with-solar", priority: "0.8", changefreq: "monthly" },
-    { path: "/state-solar-laws", priority: "0.8", changefreq: "monthly" },
     { path: "/solar-contract-laws", priority: "0.8", changefreq: "monthly" },
   ];
   for (const p of staticPages) {

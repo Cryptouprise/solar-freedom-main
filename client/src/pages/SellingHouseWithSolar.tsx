@@ -7,12 +7,14 @@
  * NOTE: We do NOT help with leases — purchase/loan customers only
  */
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "wouter";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import BookingModal from "@/components/BookingModal";
+import { useContactInfo } from "@/hooks/useContactInfo";
 import {
   Home, AlertTriangle, CheckCircle, DollarSign, FileText,
   ArrowRight, Phone, Scale, XCircle, Clock
@@ -38,11 +40,26 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
-// ─── Lead Form ─────────────────────────────────────────────────────────────────
+// ─── Lead Form ──────────────────────────────────────────────────────
 function SellForm() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ situation: "", loanBalance: "", name: "", phone: "", email: "" });
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const { contactInfo, updateContactInfo } = useContactInfo();
+  const [form, setForm] = useState({
+    situation: "", loanBalance: "",
+    name: contactInfo.fullName || "",
+    phone: contactInfo.phone || "",
+    email: contactInfo.email || ""
+  });
+
+  // Sync contact info from localStorage on mount
+  useEffect(() => {
+    if (contactInfo.fullName && !form.name) setForm(f => ({ ...f, name: contactInfo.fullName }));
+    if (contactInfo.phone && !form.phone) setForm(f => ({ ...f, phone: contactInfo.phone }));
+    if (contactInfo.email && !form.email) setForm(f => ({ ...f, email: contactInfo.email }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);  // run once on mount
 
   const SITUATIONS = [
     "Buyer's lender won't approve with solar loan",
@@ -84,22 +101,35 @@ function SellForm() {
         sourceUrl: window.location.href,
       });
     } catch (_) {}
+    // Save contact info to localStorage for sticky pre-fill
+    const fn = form.name.split(" ")[0] || form.name;
+    const ln = form.name.split(" ").slice(1).join(" ") || "";
+    updateContactInfo({ firstName: fn, lastName: ln, phone: form.phone, email: form.email });
     trackFormSubmit("selling_house_with_solar_form", "/selling-house-with-solar");
     setSubmitted(true);
+    // Auto-open booking modal after 1.2s
+    setTimeout(() => setBookingOpen(true), 1200);
   };
 
   if (submitted) {
     return (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
-          <CheckCircle className="w-8 h-8 text-amber-400" />
+      <>
+        <div className="text-center py-8">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
+            <CheckCircle className="w-8 h-8 text-amber-400" />
+          </div>
+          <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
+          <p className="text-slate-400 mb-4">Grace will reach out within minutes to discuss your options for closing the sale.</p>
+          <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
+            <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
+          </a>
         </div>
-        <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
-        <p className="text-slate-400 mb-4">Grace will reach out within minutes to discuss your options for closing the sale.</p>
-        <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
-          <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
-        </a>
-      </div>
+        <BookingModal
+          isOpen={bookingOpen}
+          onClose={() => setBookingOpen(false)}
+          firstName={form.name.split(" ")[0] || form.name}
+        />
+      </>
     );
   }
 
@@ -140,13 +170,16 @@ function SellForm() {
       <p className="text-slate-400 text-sm mb-2">Step {steps.length + 1} of {steps.length + 1}</p>
       <h3 className="font-display text-xl text-white mb-5">Where should we send your options?</h3>
       <div className="space-y-3">
-        <input required placeholder="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+        <input required placeholder="Full Name" value={form.name}
+          onChange={e => { setForm(f => ({ ...f, name: e.target.value })); }}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
           style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 20%)" }} />
-        <input required type="tel" placeholder="Phone Number" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+        <input required type="tel" placeholder="Phone Number" value={form.phone}
+          onChange={e => { setForm(f => ({ ...f, phone: e.target.value })); }}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
           style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 20%)" }} />
-        <input required type="email" placeholder="Email Address" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+        <input required type="email" placeholder="Email Address" value={form.email}
+          onChange={e => { setForm(f => ({ ...f, email: e.target.value })); }}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
           style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 20%)" }} />
         <button type="submit" className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90"

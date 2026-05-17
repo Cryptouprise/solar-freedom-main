@@ -139,8 +139,8 @@ export const blogArticlesBatch8: BlogPost[] = [
 {
   slug: 'sunlight-financial-solar-loan-complaints',
   title: 'Sunlight Financial Solar Loan Complaints: How to Fight Back and Protect Your Home',
-  metaTitle: 'Sunlight Financial Solar Loan Complaints: How to Fight Back and Protect Your Home',
-  metaDescription: 'Struggling with a Sunlight Financial solar loan? Learn about common complaints, predatory lending tactics, and your legal options for canceling unfair contra...',
+  metaTitle: 'Sunlight Financial Solar Loan Complaints 2026 — How to Fight Back',
+  metaDescription: 'Sunlight Financial hides dealer fees that inflate your loan by $10,000+. Learn the tax credit trap, common complaints, and your legal options to cancel. Free attorney review.',
   category: 'Loan Problems',
   readTime: '12 min read',
   publishDate: 'March 2026',

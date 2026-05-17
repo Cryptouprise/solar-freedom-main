@@ -271,7 +271,7 @@ export const batch10BlogPosts: BlogPost[] = [
     slug: 'goodleap-solar-loan-hidden-dealer-fees-2026',
     title: 'GoodLeap Solar Loan Hidden Dealer Fees: What You Were Never Told',
     metaTitle: 'GoodLeap Solar Loan Hidden Dealer Fees 2026 — How to Fight Back',
-    metaDescription: 'GoodLeap solar loans contain hidden dealer fees of 20-30% that inflate your loan balance. Learn how these fees work, why they are predatory, and your legal options.',
+    metaDescription: 'GoodLeap adds $7,000–$10,500 in hidden dealer fees to your solar loan without telling you. Minnesota AG sued them for it. Learn your legal options. Free attorney review.',
     category: 'Legal Guide',
     readTime: '10 min read',
     publishDate: 'May 2, 2026',

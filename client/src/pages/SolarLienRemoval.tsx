@@ -6,12 +6,14 @@
  * Target: Homeowners with PACE loans or secured solar loans with liens on title
  */
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "wouter";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import BookingModal from "@/components/BookingModal";
+import { useContactInfo } from "@/hooks/useContactInfo";
 import {
   AlertTriangle, CheckCircle, FileText, ArrowRight,
   Phone, Scale, XCircle, Clock, Home, Gavel
@@ -37,11 +39,25 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
-// ─── Lead Form ─────────────────────────────────────────────────────────────────
+// // ─── Lead Form ──────────────────────────────────────────────────────
 function LienForm() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ lienType: "", goal: "", name: "", phone: "", email: "" });
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const { contactInfo, updateContactInfo } = useContactInfo();
+  const [form, setForm] = useState({
+    lienType: "", goal: "",
+    name: contactInfo.fullName || "",
+    phone: contactInfo.phone || "",
+    email: contactInfo.email || ""
+  });
+
+  useEffect(() => {
+    if (contactInfo.fullName && !form.name) setForm(f => ({ ...f, name: contactInfo.fullName }));
+    if (contactInfo.phone && !form.phone) setForm(f => ({ ...f, phone: contactInfo.phone }));
+    if (contactInfo.email && !form.email) setForm(f => ({ ...f, email: contactInfo.email }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const LIEN_TYPES = [
     "PACE loan (Property Assessed Clean Energy)",
@@ -87,22 +103,33 @@ function LienForm() {
         sourceUrl: window.location.href,
       });
     } catch (_) {}
+    const fn = form.name.split(" ")[0] || form.name;
+    const ln = form.name.split(" ").slice(1).join(" ") || "";
+    updateContactInfo({ firstName: fn, lastName: ln, phone: form.phone, email: form.email });
     trackFormSubmit("solar_lien_removal_form", "/solar-lien-removal");
     setSubmitted(true);
+    setTimeout(() => setBookingOpen(true), 1200);
   };
 
   if (submitted) {
     return (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
-          <CheckCircle className="w-8 h-8 text-amber-400" />
+      <>
+        <div className="text-center py-8">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
+            <CheckCircle className="w-8 h-8 text-amber-400" />
+          </div>
+          <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
+          <p className="text-slate-400 mb-4">Grace will reach out within minutes to discuss your lien removal options.</p>
+          <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
+            <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
+          </a>
         </div>
-        <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
-        <p className="text-slate-400 mb-4">Grace will reach out within minutes to discuss your lien removal options.</p>
-        <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
-          <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
-        </a>
-      </div>
+        <BookingModal
+          isOpen={bookingOpen}
+          onClose={() => setBookingOpen(false)}
+          firstName={form.name.split(" ")[0] || form.name}
+        />
+      </>
     );
   }
 

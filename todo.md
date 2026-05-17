@@ -236,3 +236,17 @@
 - [x] Add call prep instructions inside modal (what to expect on the call)
 - [x] Match site design: dark charcoal bg, amber accents, Bebas Neue headings
 - [x] Wire modal to both MultiStepForm (homepage) and DoIQualifyQuiz (blog posts)
+
+## Phase 27 — SEO CTR Optimization & Form UX
+- [x] Rewrite meta description for cancel-solar-contract-boston (CTR improvement)
+- [x] Rewrite meta description for selling-home-with-solar-ppa (CTR improvement)
+- [x] Rewrite meta description for adt-solar-complaints (CTR improvement)
+- [x] Rewrite meta description for sunlight-financial-solar-loan-complaints (CTR improvement)
+- [x] Rewrite meta description for goodleap-solar-loan-hidden-dealer-fees-2024 (CTR improvement)
+- [x] Fix state law prerender to use per-state metaTitle/metaDescription (51 pages now have unique meta)
+- [x] Fix /state-solar-laws 301 redirect → /solar-contract-laws (GSC soft 404 fix)
+- [x] Remove /state-solar-laws from sitemap.xml (was causing GSC soft 404)
+- [x] Wire BookingModal + useContactInfo sticky pre-fill to SellingHouseWithSolar form
+- [x] Wire BookingModal + useContactInfo sticky pre-fill to SolarLienRemoval form
+- [x] Wire BookingModal + useContactInfo sticky pre-fill to SolarLoanHelp form
+- [x] Add blog-articles-batch10.ts to prerender.mjs blog loading list

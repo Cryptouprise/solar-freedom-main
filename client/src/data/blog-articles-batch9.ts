@@ -426,8 +426,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'selling-home-with-solar-ppa-panels-transfer-or-cancel',
     title: 'Selling Home with Solar PPA Panels: Transfer or Cancel Your Contract?',
-    metaTitle: 'Selling Home with Solar PPA Panels: Transfer or Cancel?',
-    metaDescription: 'Selling your home with solar PPA panels can be complex. Learn your options for transferring or canceling your solar PPA contract and protect your sale. Get legal help today.',
+    metaTitle: 'Selling Your Home With Solar PPA Panels? Transfer or Cancel 2026',
+    metaDescription: 'Solar PPA blocking your home sale? You have 3 options: transfer, buyout, or cancel. We\'ve helped hundreds of homeowners sell their homes free of solar contracts. Free legal review.',
     category: 'Home Sale',
     readTime: '10 min read',
     publishDate: 'April 19, 2026',

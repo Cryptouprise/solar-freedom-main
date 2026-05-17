@@ -40,6 +40,11 @@ async function startServer() {
     res.redirect(301, `/cancel-solar-contract/${req.params.slug}`);
   });
 
+  // Redirect legacy /state-solar-laws to the correct /solar-contract-laws (fixes GSC soft 404)
+  app.get('/state-solar-laws', (_req, res) => {
+    res.redirect(301, '/solar-contract-laws');
+  });
+
   // IndexNow key verification file for Bing/Yandex URL submission
   app.get('/bysolarcontract2026.txt', (_req, res) => {
     res.setHeader('Content-Type', 'text/plain');
