@@ -609,10 +609,14 @@ function SettingsTab() {
   });
 
   const MODELS = [
-    { value: "qwen/qwen3-8b:free", label: "Qwen 3 8B (Free) — Best value" },
-    { value: "google/gemini-flash-1.5:free", label: "Gemini Flash 1.5 (Free) — Fast" },
+    { value: "openrouter/owl-alpha", label: "Owl Alpha (Free) ⭐ Recommended" },
+    { value: "qwen/qwen3-8b:free", label: "Qwen 3 8B (Free)" },
+    { value: "google/gemini-flash-1.5:free", label: "Gemini Flash 1.5 (Free)" },
     { value: "meta-llama/llama-3.1-8b-instruct:free", label: "Llama 3.1 8B (Free)" },
-    { value: "qwen/qwen3-14b", label: "Qwen 3 14B (~$0.001/run) — Better quality" },
+    { value: "tencent/hunyuan-a13b-instruct:free", label: "Tencent HunyuanT1 Preview (Free)" },
+    { value: "deepseek/deepseek-chat-v3-0324:free", label: "DeepSeek V4 Flash (Free)" },
+    { value: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash Preview (~$0.001/run)" },
+    { value: "qwen/qwen3-14b", label: "Qwen 3 14B (~$0.001/run)" },
     { value: "google/gemini-flash-2.0", label: "Gemini Flash 2.0 (~$0.001/run)" },
     { value: "anthropic/claude-3-haiku", label: "Claude 3 Haiku (~$0.005/run) — Premium" },
   ];

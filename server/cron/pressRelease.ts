@@ -41,7 +41,7 @@ import {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const DEFAULT_MODEL = "qwen/qwen3-8b:free";   // Free tier on OpenRouter — excellent for writing
+const DEFAULT_MODEL = "openrouter/owl-alpha";  // Free tier on OpenRouter — excellent writing quality
 const FALLBACK_MODEL = "google/gemini-flash-1.5:free"; // Fallback if Qwen is unavailable
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
