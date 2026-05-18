@@ -305,3 +305,16 @@
 - [ ] Wire Playwright browser automation for sites requiring form-based submission
 - [ ] Add PRLog and NewsByWire account credentials to settings
 - [ ] Test end-to-end dry run from admin panel
+
+## Phase 26 — Extended PR Distribution + High-DA Publishing
+
+- [x] Add Playwright submitter for 1888PressRelease.com (form-based, no login)
+- [x] Add Playwright submitter for OpenPR.com (form-based, no login)
+- [x] Add Playwright submitter for PRFree.com (form-based, no login)
+- [x] Add Playwright submitter for PRBuzz.com (form-based, no login)
+- [x] Add Playwright submitter for Medium.com (Google OAuth login, DA 95)
+- [x] Add Playwright submitter for LinkedIn Articles (Google OAuth login, DA 98)
+- [x] Add Playwright submitter for Substack (Google OAuth login, DA 90)
+- [x] Wire all new submitters into runPressReleaseCycle
+- [x] Update admin panel to show all 9 distribution sites with per-site enable/disable toggles
+- [x] Test dry run end-to-end from admin panel

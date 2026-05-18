@@ -25,6 +25,19 @@ import { getDb } from "../db";
 import { pressReleaseLogs, pressReleaseSettings, pressReleaseTopics } from "../../drizzle/schema";
 import { eq, asc, and } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
+import {
+  submitTo1888,
+  submitToOpenPR,
+  submitToPRFree,
+  submitToPRBuzz,
+  type GeneratedPR as WirePR,
+} from "./prWireSubmitters";
+import {
+  submitToMedium,
+  submitToLinkedIn,
+  submitToSubstack,
+  type GeneratedPR as HighDaPR,
+} from "./highDaSubmitters";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -418,18 +431,71 @@ export async function runPressReleaseCycle(options?: {
   // 5. Submit to distribution sites
   const prlogKey = await getSetting("prlog_api_key", "");
   const newsbywireKey = await getSetting("newsbywire_api_key", "");
+  const openprEmail = await getSetting("openpr_email", "");
+  const openprPassword = await getSetting("openpr_password", "");
+  const substackUrl = await getSetting("substack_url", "");
+  const playwrightEnabled = await getSetting("playwright_enabled", "true");
+  const mediumEnabled = await getSetting("medium_enabled", "true");
+  const linkedinEnabled = await getSetting("linkedin_enabled", "true");
+  const substackEnabled = await getSetting("substack_enabled", "false"); // off by default until URL configured
 
   const submissions: SubmissionResult[] = [];
 
-  // PRLog
+  // Cast pr to wire/high-da compatible type (same shape)
+  const prForWire = pr as unknown as WirePR;
+  const prForHighDa = pr as unknown as HighDaPR;
+
+  // PRLog (HTTP)
   const prlogResult = await submitToPRLog(pr, prlogKey || undefined);
   submissions.push(prlogResult);
   await logResult(topic.id, pr, prlogResult, model);
 
-  // NewsByWire
+  // NewsByWire (HTTP)
   const nbwResult = await submitToNewsByWire(pr, newsbywireKey || undefined);
   submissions.push(nbwResult);
   await logResult(topic.id, pr, nbwResult, model);
+
+  // Playwright-based wire sites
+  if (playwrightEnabled === "true") {
+    // 1888PressRelease
+    const r1888 = await submitTo1888(prForWire);
+    submissions.push(r1888 as SubmissionResult);
+    await logResult(topic.id, pr, r1888 as SubmissionResult, model);
+
+    // OpenPR
+    const rOpenPR = await submitToOpenPR(prForWire, openprEmail || undefined, openprPassword || undefined);
+    submissions.push(rOpenPR as SubmissionResult);
+    await logResult(topic.id, pr, rOpenPR as SubmissionResult, model);
+
+    // PRFree
+    const rPRFree = await submitToPRFree(prForWire);
+    submissions.push(rPRFree as SubmissionResult);
+    await logResult(topic.id, pr, rPRFree as SubmissionResult, model);
+
+    // PRBuzz
+    const rPRBuzz = await submitToPRBuzz(prForWire);
+    submissions.push(rPRBuzz as SubmissionResult);
+    await logResult(topic.id, pr, rPRBuzz as SubmissionResult, model);
+  }
+
+  // High-DA platforms (Google login)
+  if (mediumEnabled === "true") {
+    const rMedium = await submitToMedium(prForHighDa);
+    submissions.push(rMedium as SubmissionResult);
+    await logResult(topic.id, pr, rMedium as SubmissionResult, model);
+  }
+
+  if (linkedinEnabled === "true") {
+    const rLinkedIn = await submitToLinkedIn(prForHighDa);
+    submissions.push(rLinkedIn as SubmissionResult);
+    await logResult(topic.id, pr, rLinkedIn as SubmissionResult, model);
+  }
+
+  if (substackEnabled === "true" && substackUrl) {
+    const rSubstack = await submitToSubstack(prForHighDa, substackUrl);
+    submissions.push(rSubstack as SubmissionResult);
+    await logResult(topic.id, pr, rSubstack as SubmissionResult, model);
+  }
 
   // 6. Mark topic as published (if at least one succeeded or all skipped)
   const successCount = submissions.filter((s) => s.status === "success").length;

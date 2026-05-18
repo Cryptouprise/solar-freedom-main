@@ -665,6 +665,37 @@ function SettingsTab() {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
+          <CardTitle className="text-white text-base">Distribution Sites</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-gray-400 text-sm">Enable or disable each distribution site. Sites marked <span className="text-orange-400">needs login</span> require one-time authentication via a browser session.</p>
+          {[
+            { key: "playwright_enabled", label: "Playwright Browser Automation", desc: "Master toggle for all browser-based submissions (1888, OpenPR, PRFree, PRBuzz)", default: "true" },
+            { key: "medium_enabled", label: "Medium.com (DA 95)", desc: "Requires Google login saved in browser profile", default: "true" },
+            { key: "linkedin_enabled", label: "LinkedIn Articles (DA 98)", desc: "Requires LinkedIn login saved in browser profile", default: "true" },
+            { key: "substack_enabled", label: "Substack (DA 90)", desc: "Requires Substack URL configured below", default: "false" },
+          ].map((toggle) => {
+            const val = (settings as any)[toggle.key] ?? toggle.default;
+            return (
+              <div key={toggle.key} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+                <Switch
+                  id={toggle.key}
+                  checked={val === "true"}
+                  onCheckedChange={(v) => updateSetting.mutate({ key: toggle.key, value: v ? "true" : "false" })}
+                  className="mt-0.5"
+                />
+                <div>
+                  <Label htmlFor={toggle.key} className="text-gray-200 text-sm cursor-pointer">{toggle.label}</Label>
+                  <p className="text-gray-500 text-xs mt-0.5">{toggle.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
           <CardTitle className="text-white text-base">Site Credentials</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -673,14 +704,11 @@ function SettingsTab() {
             Credentials are stored in the database and never exposed to the frontend.
           </p>
           {[
-            { key: "prlog_email", label: "PRLog.com Email" },
-            { key: "prlog_password", label: "PRLog.com Password", type: "password" },
+            { key: "prlog_api_key", label: "PRLog.com API Key" },
+            { key: "newsbywire_api_key", label: "NewsByWire API Key" },
             { key: "openpr_email", label: "OpenPR.com Email" },
             { key: "openpr_password", label: "OpenPR.com Password", type: "password" },
-            { key: "1888_email", label: "1888PressRelease Email" },
-            { key: "1888_password", label: "1888PressRelease Password", type: "password" },
-            { key: "prfree_email", label: "PRFree.com Email" },
-            { key: "prfree_password", label: "PRFree.com Password", type: "password" },
+            { key: "substack_url", label: "Substack URL (e.g. https://yourname.substack.com)" },
           ].map((field) => (
             <CredentialField
               key={field.key}
