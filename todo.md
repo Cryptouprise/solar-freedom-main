@@ -330,3 +330,10 @@
 - [x] Add image model selector to admin Settings tab (Seedream 4.5, Gemini 3.1 Flash Image, Gemini 2.5 Flash Image)
 - [x] Add embedding model selector to admin Settings tab (Qwen3 Embedding 8B nitro/exacto)
 - [x] Add Cost Dashboard tab to admin panel (total spend, per-model breakdown, per-run cost)
+
+## Phase 28 — Capabilities Manifest & AI API
+
+- [x] Audit all routers, cron jobs, DB tables for full inventory
+- [x] Write CAPABILITIES.md with full feature map, endpoint reference, AI usage guide
+- [x] Add /api/capabilities public endpoint (returns JSON + Markdown)
+- [x] Add /api/capabilities.md endpoint for raw Markdown fetch

@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
+import fs from "fs";
+import path from "path";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
@@ -65,6 +67,52 @@ async function startServer() {
   registerOAuthRoutes(app);
   // Admin Content API (for external AI tools like Claude)
   app.use("/api/admin", adminRouter);
+
+  // ─── Capabilities Manifest (public — for AI agent discovery) ─────────────────
+  const CAPABILITIES_PATH = path.resolve(process.cwd(), "CAPABILITIES.md");
+
+  app.get("/api/capabilities.md", (_req, res) => {
+    try {
+      const md = fs.readFileSync(CAPABILITIES_PATH, "utf-8");
+      res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.send(md);
+    } catch {
+      res.status(404).json({ error: "CAPABILITIES.md not found" });
+    }
+  });
+
+  app.get("/api/capabilities", (_req, res) => {
+    try {
+      const md = fs.readFileSync(CAPABILITIES_PATH, "utf-8");
+      // Parse sections for structured JSON
+      const sections: Record<string, string> = {};
+      let currentSection = "overview";
+      for (const line of md.split("\n")) {
+        if (line.startsWith("## ")) {
+          currentSection = line.replace("## ", "").toLowerCase().replace(/[^a-z0-9]+/g, "_");
+          sections[currentSection] = "";
+        } else if (sections[currentSection] !== undefined) {
+          sections[currentSection] += line + "\n";
+        }
+      }
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.json({
+        name: "Solar Freedom — breakyoursolarcontract.com",
+        version: "1.0",
+        manifestUrl: "https://breakyoursolarcontract.com/api/capabilities",
+        markdownUrl: "https://breakyoursolarcontract.com/api/capabilities.md",
+        adminApiBase: "https://breakyoursolarcontract.com/api/admin",
+        trpcBase: "https://breakyoursolarcontract.com/api/trpc",
+        authHeader: "X-API-Key",
+        sections: Object.keys(sections),
+        markdown: md,
+      });
+    } catch {
+      res.status(404).json({ error: "CAPABILITIES.md not found" });
+    }
+  });
 
   // tRPC API
   app.use(
