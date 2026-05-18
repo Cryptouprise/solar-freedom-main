@@ -285,6 +285,229 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // ── Press Release Automation (admin only) ────────────────────────────────────
+  pressRelease: router({
+    /**
+     * Get all topics in the queue.
+     */
+    getTopics: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { getDb } = await import("./db");
+      const { pressReleaseTopics } = await import("../drizzle/schema");
+      const { asc } = await import("drizzle-orm");
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(pressReleaseTopics).orderBy(asc(pressReleaseTopics.sortOrder), asc(pressReleaseTopics.createdAt));
+    }),
+
+    /**
+     * Add a new topic to the queue.
+     */
+    addTopic: protectedProcedure
+      .input(z.object({
+        title: z.string().min(5),
+        angle: z.string().optional(),
+        targetKeywords: z.string().optional(),
+        targetUrl: z.string().optional(),
+        sortOrder: z.number().default(50),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getDb } = await import("./db");
+        const { pressReleaseTopics } = await import("../drizzle/schema");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        await db.insert(pressReleaseTopics).values({
+          title: input.title,
+          angle: input.angle ?? null,
+          targetKeywords: input.targetKeywords ?? null,
+          targetUrl: input.targetUrl ?? null,
+          sortOrder: input.sortOrder,
+          status: "pending",
+        });
+        return { success: true };
+      }),
+
+    /**
+     * Delete a topic from the queue.
+     */
+    deleteTopic: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getDb } = await import("./db");
+        const { pressReleaseTopics } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        await db.delete(pressReleaseTopics).where(eq(pressReleaseTopics.id, input.id));
+        return { success: true };
+      }),
+
+    /**
+     * Update topic status (e.g. reset failed → pending).
+     */
+    updateTopicStatus: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["pending", "running", "published", "failed"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getDb } = await import("./db");
+        const { pressReleaseTopics } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        await db.update(pressReleaseTopics).set({ status: input.status }).where(eq(pressReleaseTopics.id, input.id));
+        return { success: true };
+      }),
+
+    /**
+     * Get all press release logs.
+     */
+    getLogs: protectedProcedure
+      .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getDb } = await import("./db");
+        const { pressReleaseLogs } = await import("../drizzle/schema");
+        const { desc } = await import("drizzle-orm");
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(pressReleaseLogs).orderBy(desc(pressReleaseLogs.createdAt)).limit(input.limit).offset(input.offset);
+      }),
+
+    /**
+     * Get press release settings.
+     */
+    getSettings: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { getDb } = await import("./db");
+      const { pressReleaseSettings } = await import("../drizzle/schema");
+      const db = await getDb();
+      if (!db) return {};
+      const rows = await db.select().from(pressReleaseSettings);
+      return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+    }),
+
+    /**
+     * Update a press release setting.
+     */
+    updateSetting: protectedProcedure
+      .input(z.object({ key: z.string(), value: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getDb } = await import("./db");
+        const { pressReleaseSettings } = await import("../drizzle/schema");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        await db.insert(pressReleaseSettings).values({ key: input.key, value: input.value })
+          .onDuplicateKeyUpdate({ set: { value: input.value } });
+        return { success: true };
+      }),
+
+    /**
+     * Manually trigger a press release run (runs next pending topic).
+     * Returns the result immediately (runs synchronously for admin feedback).
+     */
+    runNow: protectedProcedure
+      .input(z.object({
+        topicId: z.number().optional(),
+        dryRun: z.boolean().default(false),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { runPressReleaseCycle } = await import("./cron/pressRelease");
+        return runPressReleaseCycle({ topicId: input.topicId, dryRun: input.dryRun });
+      }),
+
+    /**
+     * Run backlink discovery now.
+     */
+    runDiscovery: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { runBacklinkDiscovery } = await import("./cron/backlinkDiscovery");
+      return runBacklinkDiscovery();
+    }),
+  }),
+
+  // ── Backlink Manager (admin only) ─────────────────────────────────────────────
+  backlinks: router({
+    /**
+     * Get all backlink opportunities (for review).
+     */
+    getOpportunities: protectedProcedure
+      .input(z.object({
+        status: z.enum(["new", "approved", "rejected", "promoted"]).optional(),
+        limit: z.number().default(100),
+        offset: z.number().default(0),
+      }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getDb } = await import("./db");
+        const { backlinkOpportunities } = await import("../drizzle/schema");
+        const { eq, desc } = await import("drizzle-orm");
+        const db = await getDb();
+        if (!db) return [];
+        const query = db.select().from(backlinkOpportunities)
+          .orderBy(desc(backlinkOpportunities.relevanceScore))
+          .limit(input.limit).offset(input.offset);
+        if (input.status) {
+          return db.select().from(backlinkOpportunities)
+            .where(eq(backlinkOpportunities.status, input.status))
+            .orderBy(desc(backlinkOpportunities.relevanceScore))
+            .limit(input.limit).offset(input.offset);
+        }
+        return query;
+      }),
+
+    /**
+     * Update opportunity status (approve/reject/promote).
+     */
+    updateOpportunity: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["new", "approved", "rejected", "promoted"]),
+        reviewNotes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getDb } = await import("./db");
+        const { backlinkOpportunities } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        await db.update(backlinkOpportunities)
+          .set({ status: input.status, reviewNotes: input.reviewNotes ?? null, reviewedAt: new Date() })
+          .where(eq(backlinkOpportunities.id, input.id));
+        return { success: true };
+      }),
+
+    /**
+     * Get all active backlink targets.
+     */
+    getTargets: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { getDb } = await import("./db");
+      const { backlinkTargets } = await import("../drizzle/schema");
+      const { asc } = await import("drizzle-orm");
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(backlinkTargets).orderBy(asc(backlinkTargets.priority));
+    }),
+
+    /**
+     * Seed known PR sites into the opportunities table.
+     */
+    seedKnownSites: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { seedKnownPRSites } = await import("./cron/backlinkDiscovery");
+      await seedKnownPRSites();
+      return { success: true };
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

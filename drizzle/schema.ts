@@ -295,3 +295,183 @@ export const siteEvents = mysqlTable("siteEvents", {
 
 export type SiteEvent = typeof siteEvents.$inferSelect;
 export type InsertSiteEvent = typeof siteEvents.$inferInsert;
+
+/**
+ * Press release topics queue — each row is a topic waiting to be written and distributed.
+ * Topics are pulled in order of sortOrder (ascending), lowest first.
+ * Once published, status moves to 'published' and the row stays for history.
+ *
+ * status: pending → running → published | failed
+ */
+export const pressReleaseTopics = mysqlTable("pressReleaseTopics", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // What to write about
+  title: varchar("title", { length: 500 }).notNull(),          // Working title / angle
+  angle: text("angle"),                                         // Extra context / talking points for the AI
+  targetKeywords: varchar("targetKeywords", { length: 500 }),   // Comma-separated SEO keywords to weave in
+  targetUrl: varchar("targetUrl", { length: 500 }),             // Page on site to link back to
+
+  // Queue management
+  sortOrder: int("sortOrder").default(0).notNull(),             // Lower = runs first
+  status: mysqlEnum("status", ["pending", "running", "published", "failed"])
+    .default("pending")
+    .notNull(),
+
+  // Scheduling
+  scheduledFor: timestamp("scheduledFor"),                      // null = run at next cron tick
+
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PressReleaseTopic = typeof pressReleaseTopics.$inferSelect;
+export type InsertPressReleaseTopic = typeof pressReleaseTopics.$inferInsert;
+
+/**
+ * Press release log — one row per distribution attempt.
+ * Records the generated content, which site it was submitted to, and the result.
+ *
+ * site: prlog | newsbywire | openpr | 1888pressrelease | einpresswire | pressranger
+ * status: success | failed | skipped
+ */
+export const pressReleaseLogs = mysqlTable("pressReleaseLogs", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Link back to the topic
+  topicId: int("topicId").notNull(),
+
+  // Generated content
+  headline: varchar("headline", { length: 500 }).notNull(),
+  body: text("body").notNull(),                                  // Full press release text (plain text)
+  boilerplate: text("boilerplate"),                             // About section appended at end
+  modelUsed: varchar("modelUsed", { length: 100 }),             // e.g. "qwen/qwen-3-8b"
+  tokensUsed: int("tokensUsed"),
+
+  // Distribution
+  site: varchar("site", { length: 100 }).notNull(),             // e.g. "prlog"
+  siteLabel: varchar("siteLabel", { length: 200 }),             // Human-readable: "PRLog.com"
+  submittedAt: timestamp("submittedAt"),
+  publishedUrl: varchar("publishedUrl", { length: 1000 }),       // URL of the live press release
+
+  // Result
+  status: mysqlEnum("status", ["success", "failed", "skipped"])
+    .default("failed")
+    .notNull(),
+  errorMessage: text("errorMessage"),                           // If failed, what went wrong
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PressReleaseLog = typeof pressReleaseLogs.$inferSelect;
+export type InsertPressReleaseLog = typeof pressReleaseLogs.$inferInsert;
+
+/**
+ * Press release settings — key/value config for the automation system.
+ * Keys: model, schedule_enabled, schedule_cron, boilerplate, sites_enabled
+ */
+export const pressReleaseSettings = mysqlTable("pressReleaseSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 100 }).notNull().unique(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PressReleaseSetting = typeof pressReleaseSettings.$inferSelect;
+export type InsertPressReleaseSetting = typeof pressReleaseSettings.$inferInsert;
+
+/**
+ * Backlink targets — the master list of sites we actively submit to or pursue.
+ * Each row is one external site. Tracks submission history and link status.
+ *
+ * type: press_release | directory | guest_post | resource_page | forum | social
+ * status: active | inactive | banned
+ */
+export const backlinkTargets = mysqlTable("backlinkTargets", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Site info
+  name: varchar("name", { length: 200 }).notNull(),
+  url: varchar("url", { length: 500 }).notNull().unique(),
+  submitUrl: varchar("submitUrl", { length: 500 }),
+  type: mysqlEnum("type", [
+    "press_release",
+    "directory",
+    "guest_post",
+    "resource_page",
+    "forum",
+    "social",
+    "other",
+  ]).notNull(),
+
+  // Quality metrics
+  domainAuthority: int("domainAuthority"),
+  domainRating: int("domainRating"),
+  estimatedTraffic: int("estimatedTraffic"),
+  doFollow: int("doFollow").default(1).notNull(),
+  requiresAccount: int("requiresAccount").default(0),
+  requiresPayment: int("requiresPayment").default(0),
+  submissionMethod: mysqlEnum("submissionMethod", ["http_api", "playwright", "manual"])
+    .default("playwright")
+    .notNull(),
+
+  // Account credentials
+  accountEmail: varchar("accountEmail", { length: 320 }),
+  accountPassword: varchar("accountPassword", { length: 500 }),
+  accountUsername: varchar("accountUsername", { length: 200 }),
+  accountNotes: text("accountNotes"),
+
+  // Submission tracking
+  lastSubmittedAt: timestamp("lastSubmittedAt"),
+  lastPublishedUrl: varchar("lastPublishedUrl", { length: 1000 }),
+  totalSubmissions: int("totalSubmissions").default(0).notNull(),
+  successfulSubmissions: int("successfulSubmissions").default(0).notNull(),
+
+  // Status
+  status: mysqlEnum("status", ["active", "inactive", "banned"])
+    .default("active")
+    .notNull(),
+  notes: text("notes"),
+  priority: int("priority").default(50).notNull(),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BacklinkTarget = typeof backlinkTargets.$inferSelect;
+export type InsertBacklinkTarget = typeof backlinkTargets.$inferInsert;
+
+/**
+ * Backlink opportunities — discovered sites not yet submitted to.
+ * Populated by the backlink discovery cron. Admin reviews and promotes or discards.
+ */
+export const backlinkOpportunities = mysqlTable("backlinkOpportunities", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }),
+  url: varchar("url", { length: 500 }).notNull().unique(),
+  type: mysqlEnum("type", [
+    "press_release",
+    "directory",
+    "guest_post",
+    "resource_page",
+    "forum",
+    "social",
+    "other",
+  ]).notNull(),
+  discoveredVia: varchar("discoveredVia", { length: 200 }),
+  relevanceScore: int("relevanceScore"),
+  relevanceReason: text("relevanceReason"),
+  domainAuthority: int("domainAuthority"),
+  doFollow: int("doFollow").default(1),
+  status: mysqlEnum("status", ["new", "approved", "rejected", "promoted"])
+    .default("new")
+    .notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+  reviewNotes: text("reviewNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BacklinkOpportunity = typeof backlinkOpportunities.$inferSelect;
+export type InsertBacklinkOpportunity = typeof backlinkOpportunities.$inferInsert;

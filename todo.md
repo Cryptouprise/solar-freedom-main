@@ -271,3 +271,37 @@
 - [x] Wire /sunrun into App.tsx routing
 - [x] Add /sunrun to sitemap.xml (483 total URLs) and seo-meta.ts
 - [x] Submit /sunrun to Google Indexing API (queued for crawl within 1-7 days)
+
+## Phase 30 — Press Releases + Priority 200-URL Indexing API Submission
+
+- [x] Identify 200 highest-priority unindexed URLs for Indexing API submission
+- [x] Submit 104 priority URLs to Google Indexing API (real URL_UPDATED publish calls — hit 200/day quota at URL 104, 96 remaining for tomorrow)
+- [x] Write Press Release 1: Broad awareness — solar contract cancellation cases surge 2026
+- [x] Write Press Release 2: Sunrun escalator clause — payment increases
+- [x] Write Press Release 3: State-by-state solar contract rights resource launch
+- [x] Save all three press releases as downloadable Markdown files
+
+## Phase 31 — Complete 200-URL Daily Quota + Schedule Monday/Tuesday Batches
+
+- [ ] Submit remaining 96 high-priority city URLs to hit full 200/day quota today
+- [ ] Schedule Monday batch: 200 URLs (remaining city pages + more state law pages)
+- [ ] Schedule Tuesday batch: ~80 URLs (final remaining pages to complete all 483)
+
+## Phase 25 — Press Release & Backlink Acquisition Engine
+
+- [x] Add pressReleaseTopics, pressReleaseLogs, pressReleaseSettings DB tables
+- [x] Add backlinkTargets, backlinkOpportunities DB tables
+- [x] Run pnpm db:push to create all new tables
+- [x] Build server/cron/pressRelease.ts — OpenRouter AI generation + PRLog + NewsByWire submitters
+- [x] Build server/cron/backlinkDiscovery.ts — weekly backlink opportunity scanner
+- [x] Wire cron jobs to server startup (server/_core/index.ts)
+- [x] Add pressRelease.* and backlinks.* tRPC procedures to routers.ts
+- [x] Build /admin/press-releases admin-only control panel page
+- [x] Add route to App.tsx (/admin/press-releases)
+- [x] Add OPENROUTER_API_KEY secret
+- [x] Validate OpenRouter API key with vitest (2 tests passing)
+- [x] Seed 7 default press release topics into DB
+- [ ] Add more free PR distribution sites (1888PressRelease, OpenPR, PRFree, PRBuzz)
+- [ ] Wire Playwright browser automation for sites requiring form-based submission
+- [ ] Add PRLog and NewsByWire account credentials to settings
+- [ ] Test end-to-end dry run from admin panel

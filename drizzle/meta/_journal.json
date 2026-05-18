@@ -36,6 +36,20 @@
       "when": 1779026359943,
       "tag": "0004_safe_daimon_hellstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1779064764614,
+      "tag": "0005_true_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1779065180187,
+      "tag": "0006_cooing_the_call",
+      "breakpoints": true
     }
   ]
 }
