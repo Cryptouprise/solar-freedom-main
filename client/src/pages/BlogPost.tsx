@@ -130,12 +130,14 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
   );
 }
 
-const BLOG_INLINE_CTA_INTERVAL = 4;
+const BLOG_INLINE_CTA_INTERVAL = 8;
+const MAX_BLOG_INLINE_CTAS = 1;
 
 function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
   const sections: ReactElement[] = [];
   const paragraphRegex = /<p\b[\s\S]*?<\/p>/gi;
   let paragraphCount = 0;
+  let ctaCount = 0;
   let cursor = 0;
   let match: RegExpExecArray | null;
   let key = 0;
@@ -154,8 +156,9 @@ function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubt
     }
 
     paragraphCount += 1;
-    if (paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0) {
+    if (paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0 && ctaCount < MAX_BLOG_INLINE_CTAS) {
       sections.push(<InlineCTA key={`db-cta-${key++}`} text={ctaText} subtext={ctaSubtext} />);
+      ctaCount += 1;
     }
     cursor = end;
   }
@@ -621,18 +624,20 @@ export default function BlogPost() {
     url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
   });
 
-  // Insert inline CTAs every 4 paragraph sections
+  // Insert inline CTAs (max 1, at the midpoint) for static posts
   const sectionsWithCTAs: ReactElement[] = [];
   let paragraphCount = 0;
+  let inlineCtaCount = 0;
   post.content.forEach((section, i) => {
     sectionsWithCTAs.push(<div key={`s-${i}`}>{renderSection(section, i)}</div>);
     if (section.type === "p") {
       paragraphCount += 1;
     }
-    if (paragraphCount > 0 && paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0 && i < post.content.length - 2) {
+    if (paragraphCount > 0 && paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0 && i < post.content.length - 2 && inlineCtaCount < MAX_BLOG_INLINE_CTAS) {
       sectionsWithCTAs.push(
         <InlineCTA key={`cta-${i}`} text={post.ctaText ?? 'Trapped in a Solar Contract? Get Out.'} subtext={post.ctaSubtext ?? 'Our attorneys have helped 3,000+ homeowners cancel. Free case review.'} />
       );
+      inlineCtaCount += 1;
     }
   });
 
