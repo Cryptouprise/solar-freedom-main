@@ -1,8 +1,10 @@
 import { COOKIE_NAME, SITE_CONFIG_DEFAULTS } from "@shared/const";
+import { desc } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { getDb } from "./db";
 import {
   getLeads,
   insertExitIntentCapture,
@@ -507,6 +509,107 @@ export const appRouter = router({
       await seedKnownPRSites();
       return { success: true };
     }),
+  }),
+
+  // ─── AI Cost Tracking ────────────────────────────────────────────────────────
+  aiCost: router({
+    /**
+     * Overall cost summary: total spend, breakdown by day/week/month
+     */
+    getSummary: protectedProcedure
+      .input(z.object({ days: z.number().default(30) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return { totalUsd: 0, byDay: [], byCallType: [], totalCalls: 0 };
+        const { aiCostLog } = await import("../drizzle/schema");
+        const { gte, sql } = await import("drizzle-orm");
+        const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+        const rows = await db
+          .select()
+          .from(aiCostLog)
+          .where(gte(aiCostLog.createdAt, since))
+          .orderBy(desc(aiCostLog.createdAt));
+        const totalUsd = rows.reduce((sum, r) => sum + parseFloat(r.costUsd ?? "0"), 0);
+        const totalCalls = rows.length;
+        // Group by day
+        const dayMap: Record<string, number> = {};
+        for (const r of rows) {
+          const day = r.createdAt.toISOString().slice(0, 10);
+          dayMap[day] = (dayMap[day] ?? 0) + parseFloat(r.costUsd ?? "0");
+        }
+        const byDay = Object.entries(dayMap).map(([date, usd]) => ({ date, usd })).sort((a, b) => a.date.localeCompare(b.date));
+        // Group by call type
+        const typeMap: Record<string, number> = {};
+        for (const r of rows) {
+          typeMap[r.callType] = (typeMap[r.callType] ?? 0) + parseFloat(r.costUsd ?? "0");
+        }
+        const byCallType = Object.entries(typeMap).map(([type, usd]) => ({ type, usd }));
+        return { totalUsd, byDay, byCallType, totalCalls };
+      }),
+
+    /**
+     * Cost breakdown by model
+     */
+    getByModel: protectedProcedure
+      .input(z.object({ days: z.number().default(30) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return [];
+        const { aiCostLog } = await import("../drizzle/schema");
+        const { gte } = await import("drizzle-orm");
+        const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+        const rows = await db.select().from(aiCostLog).where(gte(aiCostLog.createdAt, since));
+        const modelMap: Record<string, { usd: number; calls: number; tokensIn: number; tokensOut: number }> = {};
+        for (const r of rows) {
+          if (!modelMap[r.model]) modelMap[r.model] = { usd: 0, calls: 0, tokensIn: 0, tokensOut: 0 };
+          modelMap[r.model].usd += parseFloat(r.costUsd ?? "0");
+          modelMap[r.model].calls += 1;
+          modelMap[r.model].tokensIn += r.tokensIn ?? 0;
+          modelMap[r.model].tokensOut += r.tokensOut ?? 0;
+        }
+        return Object.entries(modelMap)
+          .map(([model, stats]) => ({ model, ...stats }))
+          .sort((a, b) => b.usd - a.usd);
+      }),
+
+    /**
+     * Cost breakdown by feature (press_release, blog, embedding, etc.)
+     */
+    getByFeature: protectedProcedure
+      .input(z.object({ days: z.number().default(30) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return [];
+        const { aiCostLog } = await import("../drizzle/schema");
+        const { gte } = await import("drizzle-orm");
+        const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+        const rows = await db.select().from(aiCostLog).where(gte(aiCostLog.createdAt, since));
+        const featureMap: Record<string, { usd: number; calls: number }> = {};
+        for (const r of rows) {
+          if (!featureMap[r.feature]) featureMap[r.feature] = { usd: 0, calls: 0 };
+          featureMap[r.feature].usd += parseFloat(r.costUsd ?? "0");
+          featureMap[r.feature].calls += 1;
+        }
+        return Object.entries(featureMap)
+          .map(([feature, stats]) => ({ feature, ...stats }))
+          .sort((a, b) => b.usd - a.usd);
+      }),
+
+    /**
+     * Recent cost log entries
+     */
+    getRecentLogs: protectedProcedure
+      .input(z.object({ limit: z.number().default(50) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return [];
+        const { aiCostLog } = await import("../drizzle/schema");
+        return db.select().from(aiCostLog).orderBy(desc(aiCostLog.createdAt)).limit(input.limit);
+      }),
   }),
 });
 

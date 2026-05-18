@@ -318,3 +318,15 @@
 - [x] Wire all new submitters into runPressReleaseCycle
 - [x] Update admin panel to show all 9 distribution sites with per-site enable/disable toggles
 - [x] Test dry run end-to-end from admin panel
+
+## Phase 27 — Image Models, Embedding Models, Cost Tracking
+
+- [x] Add ai_cost_log DB table (model, type, tokens_in, tokens_out, cost_usd, feature, createdAt)
+- [x] Add image_model and embedding_model settings to pressReleaseSettings
+- [x] Add image generation call to press release cycle using selected image model
+- [x] Add embedding generation call using selected embedding model
+- [x] Wire cost tracking into every LLM/image/embedding call
+- [x] Add tRPC procedures: getCostSummary, getCostByModel, getCostByFeature
+- [x] Add image model selector to admin Settings tab (Seedream 4.5, Gemini 3.1 Flash Image, Gemini 2.5 Flash Image)
+- [x] Add embedding model selector to admin Settings tab (Qwen3 Embedding 8B nitro/exacto)
+- [x] Add Cost Dashboard tab to admin panel (total spend, per-model breakdown, per-run cost)

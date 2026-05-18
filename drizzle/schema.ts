@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { decimal, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -475,3 +475,24 @@ export const backlinkOpportunities = mysqlTable("backlinkOpportunities", {
 
 export type BacklinkOpportunity = typeof backlinkOpportunities.$inferSelect;
 export type InsertBacklinkOpportunity = typeof backlinkOpportunities.$inferInsert;
+
+/**
+ * AI Cost Log — tracks every LLM, image generation, and embedding call.
+ * Used to build the cost dashboard in the admin panel.
+ */
+export const aiCostLog = mysqlTable("aiCostLog", {
+  id: int("id").autoincrement().primaryKey(),
+  feature: varchar("feature", { length: 100 }).notNull(), // e.g. 'press_release', 'blog', 'embedding'
+  callType: mysqlEnum("callType", ["text", "image", "embedding"]).notNull(),
+  model: varchar("model", { length: 200 }).notNull(),
+  tokensIn: int("tokensIn").default(0),
+  tokensOut: int("tokensOut").default(0),
+  imageCount: int("imageCount").default(0),
+  costUsd: decimal("costUsd", { precision: 10, scale: 6 }).notNull().default("0"),
+  referenceId: int("referenceId"),   // optional FK to press_release_logs.id or blog post id
+  referenceType: varchar("referenceType", { length: 50 }), // 'press_release', 'blog', etc.
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AiCostLog = typeof aiCostLog.$inferSelect;
+export type InsertAiCostLog = typeof aiCostLog.$inferInsert;

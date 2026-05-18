@@ -53,6 +53,8 @@ import {
   Search,
   ChevronRight,
   RotateCcw,
+  DollarSign,
+  TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -621,14 +623,29 @@ function SettingsTab() {
     { value: "anthropic/claude-3-haiku", label: "Claude 3 Haiku (~$0.005/run) — Premium" },
   ];
 
-  const currentModel = (settings as any)["model"] ?? "qwen/qwen3-8b:free";
+  const IMAGE_MODELS = [
+    { value: "none", label: "Disabled — no image generation" },
+    { value: "bytedance-seed/seedream-4.5", label: "Seedream 4.5 (~$0.025/image) — High quality" },
+    { value: "google/gemini-3.1-flash-image-preview", label: "Gemini 3.1 Flash Image (~$0.020/image)" },
+    { value: "google/gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image (~$0.020/image)" },
+  ];
+
+  const EMBEDDING_MODELS = [
+    { value: "none", label: "Disabled — no embeddings" },
+    { value: "qwen/qwen3-embedding-8b:nitro", label: "Qwen3 Embedding 8B Nitro (~$0.05/1M tokens) — Fast" },
+    { value: "qwen/qwen3-embedding-8b:exacto", label: "Qwen3 Embedding 8B Exacto (~$0.05/1M tokens) — Precise" },
+  ];
+
+  const currentModel = (settings as any)["model"] ?? "openrouter/owl-alpha";
+  const currentImageModel = (settings as any)["image_model"] ?? "none";
+  const currentEmbeddingModel = (settings as any)["embedding_model"] ?? "none";
   const scheduleEnabled = (settings as any)["schedule_enabled"] ?? "true";
 
   return (
     <div className="space-y-6 max-w-lg">
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base">AI Model</CardTitle>
+          <CardTitle className="text-white text-base">AI Writing Model</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-gray-400 text-sm">Choose the model used to write press releases. Free models cost $0/run. Paid models offer higher quality.</p>
@@ -641,6 +658,50 @@ function SettingsTab() {
             </SelectTrigger>
             <SelectContent className="bg-[#1a1d24] border-white/10 text-white">
               {MODELS.map((m) => (
+                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-base">Image Generation Model</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-gray-400 text-sm">When enabled, generates a featured image for each press release and blog post. Images are stored in S3.</p>
+          <Select
+            value={currentImageModel}
+            onValueChange={(v) => updateSetting.mutate({ key: "image_model", value: v })}
+          >
+            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1a1d24] border-white/10 text-white">
+              {IMAGE_MODELS.map((m) => (
+                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-base">Embedding Model</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-gray-400 text-sm">Used for semantic search, content deduplication, and finding related articles. Qwen3 Embedding is highly accurate for English legal/consumer content.</p>
+          <Select
+            value={currentEmbeddingModel}
+            onValueChange={(v) => updateSetting.mutate({ key: "embedding_model", value: v })}
+          >
+            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1a1d24] border-white/10 text-white">
+              {EMBEDDING_MODELS.map((m) => (
                 <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
               ))}
             </SelectContent>
@@ -772,6 +833,153 @@ function CredentialField({
   );
 }
 
+// ─── Cost Dashboard Tab ─────────────────────────────────────────────────────
+
+function CostDashboardTab() {
+  const [days, setDays] = useState(30);
+  const { data: summary, isLoading } = trpc.aiCost.getSummary.useQuery({ days });
+  const { data: byModel = [] } = trpc.aiCost.getByModel.useQuery({ days });
+  const { data: byFeature = [] } = trpc.aiCost.getByFeature.useQuery({ days });
+  const { data: recentLogs = [] } = trpc.aiCost.getRecentLogs.useQuery({ limit: 20 });
+
+  const totalUsd = summary?.totalUsd ?? 0;
+  const totalCalls = summary?.totalCalls ?? 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-white font-semibold text-lg">AI Cost Dashboard</h2>
+          <p className="text-gray-400 text-sm">Tracks every LLM, image, and embedding call across all features.</p>
+        </div>
+        <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
+          <SelectTrigger className="bg-white/5 border-white/10 text-white w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-[#1a1d24] border-white/10 text-white">
+            <SelectItem value="7">Last 7 days</SelectItem>
+            <SelectItem value="30">Last 30 days</SelectItem>
+            <SelectItem value="90">Last 90 days</SelectItem>
+            <SelectItem value="365">Last 365 days</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: "Total Spend", value: `$${totalUsd.toFixed(4)}`, sub: `last ${days} days` },
+          { label: "Total Calls", value: totalCalls.toLocaleString(), sub: "API calls" },
+          { label: "Avg Cost/Call", value: totalCalls > 0 ? `$${(totalUsd / totalCalls).toFixed(6)}` : "$0", sub: "per call" },
+          { label: "Projected/Month", value: `$${((totalUsd / days) * 30).toFixed(4)}`, sub: "at current rate" },
+        ].map((card) => (
+          <Card key={card.label} className="bg-white/5 border-white/10">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-gray-400 text-xs mb-1">{card.label}</p>
+              <p className="text-white text-xl font-mono font-bold">{card.value}</p>
+              <p className="text-gray-600 text-xs mt-0.5">{card.sub}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* By Model */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm flex items-center gap-2"><TrendingUp className="w-4 h-4 text-amber-500" /> Cost by Model</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {byModel.length === 0 ? (
+              <p className="text-gray-500 text-sm">No data yet. Run a press release to start tracking.</p>
+            ) : (
+              <div className="space-y-2">
+                {byModel.map((row) => (
+                  <div key={row.model} className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-200 text-xs font-mono truncate">{row.model}</p>
+                      <p className="text-gray-500 text-xs">{row.calls} calls · {((row.tokensIn + row.tokensOut) / 1000).toFixed(1)}K tokens</p>
+                    </div>
+                    <span className="text-amber-400 font-mono text-sm flex-shrink-0">${row.usd.toFixed(4)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* By Feature */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm flex items-center gap-2"><DollarSign className="w-4 h-4 text-amber-500" /> Cost by Feature</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {byFeature.length === 0 ? (
+              <p className="text-gray-500 text-sm">No data yet. Run a press release to start tracking.</p>
+            ) : (
+              <div className="space-y-2">
+                {byFeature.map((row) => (
+                  <div key={row.feature} className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-200 text-sm capitalize">{row.feature.replace(/_/g, " ")}</p>
+                      <p className="text-gray-500 text-xs">{row.calls} calls</p>
+                    </div>
+                    <span className="text-amber-400 font-mono text-sm flex-shrink-0">${row.usd.toFixed(4)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent log */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-white text-sm">Recent API Calls</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {recentLogs.length === 0 ? (
+            <p className="text-gray-500 text-sm">No API calls logged yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-500 border-b border-white/10">
+                    <th className="text-left py-2 pr-4">Time</th>
+                    <th className="text-left py-2 pr-4">Feature</th>
+                    <th className="text-left py-2 pr-4">Model</th>
+                    <th className="text-left py-2 pr-4">Type</th>
+                    <th className="text-right py-2">Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentLogs.map((log) => (
+                    <tr key={log.id} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="py-1.5 pr-4 text-gray-500 font-mono whitespace-nowrap">{new Date(log.createdAt).toLocaleString()}</td>
+                      <td className="py-1.5 pr-4 text-gray-300 capitalize">{log.feature.replace(/_/g, " ")}</td>
+                      <td className="py-1.5 pr-4 text-gray-400 font-mono truncate max-w-[160px]">{log.model}</td>
+                      <td className="py-1.5 pr-4">
+                        <span className={`px-1.5 py-0.5 rounded text-xs ${
+                          log.callType === "image" ? "bg-purple-500/20 text-purple-300" :
+                          log.callType === "embedding" ? "bg-blue-500/20 text-blue-300" :
+                          "bg-green-500/20 text-green-300"
+                        }`}>{log.callType}</span>
+                      </td>
+                      <td className="py-1.5 text-right text-amber-400 font-mono">${parseFloat(log.costUsd ?? "0").toFixed(6)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function PressReleaseAdmin() {
@@ -826,6 +1034,9 @@ export default function PressReleaseAdmin() {
             <TabsTrigger value="settings" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300">
               <Settings className="w-3.5 h-3.5 mr-1.5" /> Settings
             </TabsTrigger>
+            <TabsTrigger value="costs" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300">
+              <DollarSign className="w-3.5 h-3.5 mr-1.5" /> Costs
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="queue"><TopicQueueTab /></TabsContent>
@@ -833,6 +1044,7 @@ export default function PressReleaseAdmin() {
           <TabsContent value="logs"><LogsTab /></TabsContent>
           <TabsContent value="backlinks"><BacklinksTab /></TabsContent>
           <TabsContent value="settings"><SettingsTab /></TabsContent>
+          <TabsContent value="costs"><CostDashboardTab /></TabsContent>
         </Tabs>
       </div>
     </div>
