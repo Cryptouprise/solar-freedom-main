@@ -23,6 +23,7 @@ import AdminLeads from "@/pages/AdminLeads";
 import AdminAnalytics from "@/pages/AdminAnalytics";
 import AdminContent from "@/pages/AdminContent";
 import PressReleaseAdmin from "@/pages/admin/PressReleaseAdmin";
+import Login from "@/pages/Login";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import SunrunPage from "@/pages/SunrunPage";
 import { useEffect } from "react";
@@ -87,6 +88,7 @@ function Router() {
         <Route path={"/admin/analytics"} component={AdminAnalytics} />
         <Route path={"/admin/content"} component={AdminContent} />
         <Route path={"/admin/press-releases"} component={PressReleaseAdmin} />
+        <Route path={"/login"} component={Login} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>
