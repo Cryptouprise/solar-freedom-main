@@ -770,9 +770,13 @@ function SettingsTab() {
           </p>
           {[
             { key: "prlog_api_key", label: "PRLog.com API Key" },
-            { key: "newsbywire_api_key", label: "NewsByWire API Key" },
+            { key: "newsbywire_api_key", label: "NewsByWire API Key (optional — use email+password if no API key)" },
+            { key: "newsbywire_email", label: "NewsByWire Email / Username" },
+            { key: "newsbywire_password", label: "NewsByWire Password", type: "password" },
             { key: "openpr_email", label: "OpenPR.com Email" },
             { key: "openpr_password", label: "OpenPR.com Password", type: "password" },
+            { key: "prlog_email", label: "PRLog.com Email / Username" },
+            { key: "prlog_password", label: "PRLog.com Password", type: "password" },
             { key: "substack_url", label: "Substack URL (e.g. https://yourname.substack.com)" },
           ].map((field) => (
             <CredentialField

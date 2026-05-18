@@ -235,18 +235,28 @@ async function submitToPRLog(pr: GeneratedPR, apiKey?: string): Promise<Submissi
 
 // ─── Distribution: NewsByWire ─────────────────────────────────────────────────
 
-async function submitToNewsByWire(pr: GeneratedPR, apiKey?: string): Promise<SubmissionResult> {
+async function submitToNewsByWire(
+  pr: GeneratedPR,
+  apiKey?: string,
+  email?: string,
+  password?: string
+): Promise<SubmissionResult> {
   const site = "newsbywire";
   const siteLabel = "NewsByWire.com";
 
-  if (!apiKey) {
-    console.log(`[PR] NewsByWire: No API key configured — logging for manual submission`);
+  if (!apiKey && (!email || !password)) {
+    console.log(`[PR] NewsByWire: No API key or email+password configured — skipping`);
     return {
       site,
       siteLabel,
       status: "skipped",
-      errorMessage: "No NewsByWire API key configured. Add NEWSBYWIRE_API_KEY to settings.",
+      errorMessage: "NewsByWire: Add an API key OR email+password in Settings to enable submissions.",
     };
+  }
+
+  // If no API key but we have email+password, use Playwright browser login
+  if (!apiKey && email && password) {
+    return submitToNewsByWirePlaywright(pr, email, password);
   }
 
   try {
@@ -292,6 +302,65 @@ async function submitToNewsByWire(pr: GeneratedPR, apiKey?: string): Promise<Sub
       status: "failed",
       errorMessage: String(err),
     };
+  }
+}
+
+// ─── NewsByWire Playwright fallback (email+password login) ──────────────────────
+
+async function submitToNewsByWirePlaywright(
+  pr: GeneratedPR,
+  email: string,
+  password: string
+): Promise<SubmissionResult> {
+  const site = "newsbywire";
+  const siteLabel = "NewsByWire.com";
+  let browser: import('playwright').Browser | null = null;
+  try {
+    const { chromium } = await import('playwright');
+    browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    // Login
+    await page.goto('https://www.newsbywire.com/login', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.fill('input[name="email"], input[type="email"]', email);
+    await page.fill('input[name="password"], input[type="password"]', password);
+    await page.click('button[type="submit"], input[type="submit"]');
+    await page.waitForNavigation({ timeout: 15000 }).catch(() => {});
+
+    // Check login succeeded
+    const loginFailed = await page.$('text=Invalid credentials, text=Login failed, .error-message');
+    if (loginFailed) {
+      return { site, siteLabel, status: 'failed', errorMessage: 'NewsByWire: Login failed — check email/password in Settings.' };
+    }
+
+    // Navigate to submit page
+    await page.goto('https://www.newsbywire.com/submit', { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    // Fill the press release form
+    const titleSel = 'input[name="title"], #title, input[placeholder*="title" i]';
+    const bodySel = 'textarea[name="body"], textarea[name="content"], #body, #content';
+    await page.fill(titleSel, pr.headline).catch(() => {});
+    await page.fill(bodySel, `${pr.body}\n\n${pr.boilerplate}`).catch(() => {});
+
+    // Submit
+    await page.click('button[type="submit"], input[type="submit"], button:has-text("Submit")');
+    await page.waitForNavigation({ timeout: 20000 }).catch(() => {});
+
+    const successEl = await page.$('text=successfully submitted, text=press release submitted, .success');
+    const currentUrl = page.url();
+
+    return {
+      site,
+      siteLabel,
+      status: successEl || currentUrl.includes('thank') || currentUrl.includes('success') ? 'success' : 'failed',
+      publishedUrl: currentUrl.includes('thank') || currentUrl.includes('success') ? currentUrl : undefined,
+      errorMessage: !successEl && !currentUrl.includes('thank') ? 'NewsByWire: Submission may have failed — check logs.' : undefined,
+    };
+  } catch (err) {
+    return { site, siteLabel, status: 'failed', errorMessage: `NewsByWire Playwright error: ${String(err)}` };
+  } finally {
+    if (browser) await browser.close();
   }
 }
 
@@ -430,7 +499,11 @@ export async function runPressReleaseCycle(options?: {
 
   // 5. Submit to distribution sites
   const prlogKey = await getSetting("prlog_api_key", "");
+  const prlogEmail = await getSetting("prlog_email", "");
+  const prlogPassword = await getSetting("prlog_password", "");
   const newsbywireKey = await getSetting("newsbywire_api_key", "");
+  const newsbywireEmail = await getSetting("newsbywire_email", "");
+  const newsbywirePassword = await getSetting("newsbywire_password", "");
   const openprEmail = await getSetting("openpr_email", "");
   const openprPassword = await getSetting("openpr_password", "");
   const substackUrl = await getSetting("substack_url", "");
@@ -450,8 +523,13 @@ export async function runPressReleaseCycle(options?: {
   submissions.push(prlogResult);
   await logResult(topic.id, pr, prlogResult, model);
 
-  // NewsByWire (HTTP)
-  const nbwResult = await submitToNewsByWire(pr, newsbywireKey || undefined);
+  // NewsByWire (HTTP) — API key takes priority; falls back to email+password Playwright login
+  const nbwResult = await submitToNewsByWire(
+    pr,
+    newsbywireKey || undefined,
+    newsbywireEmail || undefined,
+    newsbywirePassword || undefined
+  );
   submissions.push(nbwResult);
   await logResult(topic.id, pr, nbwResult, model);
 
