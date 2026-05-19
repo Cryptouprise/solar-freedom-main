@@ -26,6 +26,7 @@ import PressReleaseAdmin from "@/pages/admin/PressReleaseAdmin";
 import PostEditor from "@/pages/admin/PostEditor";
 import BlogStudio from "@/pages/admin/BlogStudio";
 import Login from "@/pages/Login";
+import YouTubeLanding from "@/pages/YouTubeLanding";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import SunrunPage from "@/pages/SunrunPage";
 import { useEffect } from "react";
@@ -92,6 +93,8 @@ function Router() {
         <Route path={"/admin/press-releases"} component={PressReleaseAdmin} />
         <Route path={"/admin/posts"} component={PostEditor} />
         <Route path={"/admin/blog-studio"} component={BlogStudio} />
+        <Route path={"/youtube"} component={YouTubeLanding} />
+        <Route path={"/yt"} component={YouTubeLanding} />
         <Route path={"/login"} component={Login} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
