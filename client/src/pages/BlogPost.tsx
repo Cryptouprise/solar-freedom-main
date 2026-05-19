@@ -130,19 +130,17 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
   );
 }
 
+const BLOG_INLINE_CTA_INTERVAL = 8;
+const MAX_BLOG_INLINE_CTAS = 1;
+
 function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
   const sections: ReactElement[] = [];
   const paragraphRegex = /<p\b[\s\S]*?<\/p>/gi;
   let paragraphCount = 0;
+  let ctaCount = 0;
   let cursor = 0;
   let match: RegExpExecArray | null;
   let key = 0;
-  let midpointCtaInserted = false;
-
-  // Count total paragraphs to find midpoint
-  const allMatches = Array.from(content.matchAll(/<p\b[\s\S]*?<\/p>/gi));
-  const totalParagraphs = allMatches.length;
-  const midpoint = Math.floor(totalParagraphs / 2);
 
   while ((match = paragraphRegex.exec(content)) !== null) {
     const end = match.index + match[0].length;
@@ -158,10 +156,9 @@ function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubt
     }
 
     paragraphCount += 1;
-    // Insert exactly ONE inline CTA at the midpoint of the article
-    if (!midpointCtaInserted && paragraphCount >= midpoint && midpoint > 2) {
-      sections.push(<InlineCTA key={`db-cta-mid`} text={ctaText} subtext={ctaSubtext} />);
-      midpointCtaInserted = true;
+    if (paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0 && ctaCount < MAX_BLOG_INLINE_CTAS) {
+      sections.push(<InlineCTA key={`db-cta-${key++}`} text={ctaText} subtext={ctaSubtext} />);
+      ctaCount += 1;
     }
     cursor = end;
   }
@@ -627,23 +624,20 @@ export default function BlogPost() {
     url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
   });
 
-  // Insert exactly ONE inline CTA at the midpoint of the article
+  // Insert inline CTAs (max 1, at the midpoint) for static posts
   const sectionsWithCTAs: ReactElement[] = [];
   let paragraphCount = 0;
-  let midpointCtaInserted = false;
-  const totalParagraphs = post.content.filter((s) => s.type === 'p').length;
-  const midpoint = Math.floor(totalParagraphs / 2);
+  let inlineCtaCount = 0;
   post.content.forEach((section, i) => {
     sectionsWithCTAs.push(<div key={`s-${i}`}>{renderSection(section, i)}</div>);
     if (section.type === "p") {
       paragraphCount += 1;
     }
-    // Insert ONE CTA at midpoint only
-    if (!midpointCtaInserted && paragraphCount >= midpoint && midpoint > 2) {
+    if (paragraphCount > 0 && paragraphCount % BLOG_INLINE_CTA_INTERVAL === 0 && i < post.content.length - 2 && inlineCtaCount < MAX_BLOG_INLINE_CTAS) {
       sectionsWithCTAs.push(
-        <InlineCTA key="cta-mid" text={post.ctaText ?? 'Trapped in a Solar Contract? Get Out.'} subtext={post.ctaSubtext ?? 'Our attorneys have helped 3,000+ homeowners cancel. Free case review.'} />
+        <InlineCTA key={`cta-${i}`} text={post.ctaText ?? 'Trapped in a Solar Contract? Get Out.'} subtext={post.ctaSubtext ?? 'Our attorneys have helped 3,000+ homeowners cancel. Free case review.'} />
       );
-      midpointCtaInserted = true;
+      inlineCtaCount += 1;
     }
   });
 
