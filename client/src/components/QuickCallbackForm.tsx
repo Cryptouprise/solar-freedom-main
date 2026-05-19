@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { trackCTAClick, trackFormSubmit } from "@/lib/analytics";
 
@@ -13,7 +13,9 @@ interface QuickCallbackFormProps {
   className?: string;
 }
 
-const DEFAULT_SCHEDULE_URL = "https://calendly.com/solarfreedom/free-consultation";
+// Same GHL calendar used by BookingModal — calendar ID: 3v6GXFtDrHMzs1j2DBkI
+const CALENDAR_ID = "3v6GXFtDrHMzs1j2DBkI";
+const GHL_CALENDAR_BASE = `https://api.leadconnectorhq.com/widget/booking/${CALENDAR_ID}`;
 
 export default function QuickCallbackForm({
   formName,
@@ -22,13 +24,37 @@ export default function QuickCallbackForm({
   buttonLabel = "Get My Call Back",
   showName = true,
   showSchedule = false,
-  scheduleUrl = import.meta.env.VITE_SCHEDULING_URL || DEFAULT_SCHEDULE_URL,
+  scheduleUrl,
   className = "",
 }: QuickCallbackFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const callbackMutation = trpc.leads.quickCallback.useMutation();
+
+  // Build the GHL calendar URL with pre-filled name/phone from the form.
+  // Falls back to the prop scheduleUrl if explicitly provided, otherwise uses GHL.
+  const calendarUrl = useMemo(() => {
+    if (scheduleUrl) return scheduleUrl;
+    const params = new URLSearchParams();
+    const nameParts = name.trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+    if (firstName) params.set("first_name", firstName);
+    if (lastName) params.set("last_name", lastName);
+    if (phone.trim()) {
+      const digits = phone.replace(/\D/g, "");
+      const e164 =
+        digits.length === 10
+          ? `+1${digits}`
+          : digits.length === 11 && digits.startsWith("1")
+          ? `+${digits}`
+          : phone;
+      params.set("phone", e164);
+    }
+    const qs = params.toString();
+    return qs ? `${GHL_CALENDAR_BASE}?${qs}` : GHL_CALENDAR_BASE;
+  }, [scheduleUrl, name, phone]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,22 +74,20 @@ export default function QuickCallbackForm({
     return (
       <div className={`rounded-xl border border-green-500/30 bg-green-500/10 p-4 ${className}`}>
         <div className="text-green-400 font-bold text-sm mb-2">✅ Callback requested!</div>
-        <p className="text-zinc-300 text-xs mb-3">We'll call you shortly. Want to lock in a specific time?</p>
-        {showSchedule && (
-          <div className="rounded-lg overflow-hidden border border-amber-500/20">
-            <iframe
-              src={scheduleUrl}
-              width="100%"
-              height="480"
-              frameBorder="0"
-              title="Schedule a free consultation"
-              className="block"
-            />
-          </div>
-        )}
-        {!showSchedule && (
-          <p className="text-zinc-400 text-xs">We'll call or text you shortly from (904) 921-4971.</p>
-        )}
+        <p className="text-zinc-300 text-xs mb-3">
+          We'll call you shortly. Want to lock in a specific time?
+        </p>
+        {/* Always show the GHL calendar after submit — no showSchedule gate needed */}
+        <div className="rounded-lg overflow-hidden border border-amber-500/20">
+          <iframe
+            src={calendarUrl}
+            width="100%"
+            height="500"
+            frameBorder="0"
+            title="Book a free consultation"
+            className="block"
+          />
+        </div>
       </div>
     );
   }
@@ -71,7 +95,10 @@ export default function QuickCallbackForm({
   return (
     <div className={`rounded-xl border border-amber-500/30 bg-zinc-900/80 p-4 ${className}`}>
       <div className="text-amber-400 text-[10px] font-mono uppercase tracking-widest mb-2">Quick Callback</div>
-      <h3 className="text-white font-black text-lg leading-tight mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+      <h3
+        className="text-white font-black text-lg leading-tight mb-2"
+        style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+      >
         {title}
       </h3>
       {subtitle && <p className="text-zinc-400 text-xs mb-3">{subtitle}</p>}
@@ -107,10 +134,15 @@ export default function QuickCallbackForm({
 
       {showSchedule && (
         <a
-          href={scheduleUrl}
+          href={calendarUrl}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => trackCTAClick(`${formName}_schedule_consult`, typeof window !== "undefined" ? window.location.pathname : "unknown")}
+          onClick={() =>
+            trackCTAClick(
+              `${formName}_schedule_consult`,
+              typeof window !== "undefined" ? window.location.pathname : "unknown"
+            )
+          }
           className="block text-center mt-2.5 text-amber-400 hover:text-amber-300 text-xs font-semibold"
         >
           Prefer to pick a time? Schedule a free 15-min consultation →
