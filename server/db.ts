@@ -314,3 +314,77 @@ export async function insertExitIntentCapture(data: InsertExitIntentCapture): Pr
     throw error;
   }
 }
+
+// ─── Admin blog post helpers ───────────────────────────────────────────────────
+
+/**
+ * List ALL blog posts (including drafts) for the admin editor.
+ */
+export async function getAllBlogPostsAdmin(limit = 200, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      published: blogPosts.published,
+      updatedAt: blogPosts.updatedAt,
+      publishedAt: blogPosts.publishedAt,
+    })
+    .from(blogPosts)
+    .orderBy(desc(blogPosts.updatedAt))
+    .limit(limit)
+    .offset(offset);
+
+  return rows;
+}
+
+/**
+ * Get a single blog post by slug for admin editing (includes drafts).
+ */
+export async function getAdminBlogPost(slug: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [post] = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.slug, slug))
+    .limit(1);
+
+  return post ?? null;
+}
+
+/**
+ * Update a blog post by slug.
+ */
+export async function updateBlogPost(
+  slug: string,
+  data: Partial<{
+    title: string;
+    metaTitle: string;
+    metaDescription: string;
+    heroImage: string;
+    category: string;
+    tags: string;
+    content: string;
+    excerpt: string;
+    readTime: string;
+    relatedSlugs: string;
+    faqItems: string;
+    canonicalUrl: string;
+    published: number;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(blogPosts)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(blogPosts.slug, slug));
+
+  return { success: true };
+}

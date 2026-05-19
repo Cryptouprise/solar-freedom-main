@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -33,11 +33,10 @@ import {
   TrendingUp,
   Search,
   RefreshCw,
-  ArrowLeft,
   Zap,
   XCircle,
 } from "lucide-react";
-import { Link } from "wouter";
+
 
 type LeadStatus = "new" | "contacted" | "qualified" | "closed_won" | "closed_lost";
 
@@ -119,91 +118,16 @@ export default function AdminLeads() {
     return Array.from(pages) as string[];
   }, [leads]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0D0F14]">
-        <RefreshCw className="h-6 w-6 text-amber-400 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0D0F14]">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-white">Sign in required</h1>
-          <Button onClick={() => { window.location.href = getLoginUrl(); }} className="bg-amber-500 hover:bg-amber-400 text-black font-bold">
-            Sign In
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (user.role !== "admin") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0D0F14]">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-white">Access Denied</h1>
-          <p className="text-gray-400">This page requires admin privileges.</p>
-          <Link href="/">
-            <Button variant="outline" className="border-white/20 text-white">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Site
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // Auth is handled by AdminLayout
 
   return (
-    <div className="min-h-screen bg-[#0D0F14] text-white">
+    <AdminLayout title="Leads" subtitle="All form submissions and lead activity">
       {/* Toast notification */}
       {toastMsg && (
         <div className="fixed bottom-4 right-4 z-50 bg-amber-500 text-black font-medium px-4 py-2 rounded-lg shadow-lg text-sm">
           {toastMsg}
         </div>
       )}
-
-      {/* Header */}
-      <div className="border-b border-white/10 bg-[#0D0F14]/95 sticky top-0 z-40 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Site
-              </Button>
-            </Link>
-            <div className="h-5 w-px bg-white/20" />
-            <div>
-              <h1 className="text-lg font-bold text-white">Leads Dashboard</h1>
-              <p className="text-xs text-gray-500 font-mono">Solar Freedom Admin</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/admin/analytics">
-              <Button variant="outline" size="sm" className="border-white/10 text-gray-300 hover:text-white text-xs">
-                Analytics
-              </Button>
-            </Link>
-            <Link href="/admin/content">
-              <Button variant="outline" size="sm" className="border-amber-500/30 text-amber-400 hover:text-amber-300 text-xs">
-                Content Manager
-              </Button>
-            </Link>
-            <Button
-              onClick={() => refetch()}
-              variant="outline"
-              size="sm"
-              className="border-white/20 text-gray-300 hover:text-white gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Stats Row */}
@@ -386,6 +310,6 @@ export default function AdminLeads() {
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

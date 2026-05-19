@@ -337,3 +337,15 @@
 - [x] Write CAPABILITIES.md with full feature map, endpoint reference, AI usage guide
 - [x] Add /api/capabilities public endpoint (returns JSON + Markdown)
 - [x] Add /api/capabilities.md endpoint for raw Markdown fetch
+
+## Phase 29 — Unified Admin Layout & Post Editor
+
+- [x] Build AdminLayout sidebar component linking all admin pages
+- [x] Wrap AdminAnalytics in AdminLayout
+- [x] Wrap AdminLeads in AdminLayout
+- [x] Wrap PressReleaseAdmin in AdminLayout
+- [x] Add /admin/posts route for PostEditor
+- [x] Add SEO Command Center to AdminLayout nav
+- [x] Build PostEditor with TipTap rich text, image upload, link editing
+- [x] Add listAllPosts and getAdminPost tRPC procedures
+- [x] Add updatePost and uploadImage tRPC procedures

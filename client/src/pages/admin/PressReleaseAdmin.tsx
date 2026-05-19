@@ -15,6 +15,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
+import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -990,36 +991,10 @@ export default function PressReleaseAdmin() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center">
-        <RefreshCw className="w-8 h-8 text-amber-500 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user || user.role !== "admin") {
-    navigate("/");
-    return null;
-  }
+  // Auth is handled by AdminLayout
 
   return (
-    <div className="min-h-screen bg-[#0D0F14] text-white">
-      {/* Header */}
-      <div className="border-b border-white/10 bg-[#0D0F14]/95 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
-              <Newspaper className="w-5 h-5 text-amber-500" />
-              Press Release & Backlink Engine
-            </h1>
-            <p className="text-gray-400 text-xs mt-0.5">Admin only · breakyoursolarcontract.com</p>
-          </div>
-          <a href="/" className="text-gray-400 hover:text-white text-sm">← Back to site</a>
-        </div>
-      </div>
-
-      {/* Content */}
+    <AdminLayout title="Press Release & Backlink Engine" subtitle="Auto-distribution engine · breakyoursolarcontract.com">
       <div className="max-w-5xl mx-auto px-4 py-6">
         <Tabs defaultValue="queue">
           <TabsList className="bg-white/5 border border-white/10 mb-6">
@@ -1051,6 +1026,6 @@ export default function PressReleaseAdmin() {
           <TabsContent value="costs"><CostDashboardTab /></TabsContent>
         </Tabs>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

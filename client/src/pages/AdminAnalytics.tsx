@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Link } from "wouter";
+import AdminLayout from "@/components/AdminLayout";
 import {
   BarChart,
   Bar,
@@ -73,28 +73,7 @@ export default function AdminAnalytics() {
     { enabled: !!user && user.role === "admin" }
   );
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center">
-        <div className="text-gray-400 font-mono text-sm animate-pulse">
-          Loading...
-        </div>
-      </div>
-    );
-  }
-
-  if (!user || user.role !== "admin") {
-    return (
-      <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 font-mono text-lg mb-4">Access Denied</p>
-          <Link href="/" className="text-amber-400 underline text-sm">
-            Return home
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // Auth is handled by AdminLayout
 
   const conversionRate =
     data && data.summary.sessions > 0
@@ -102,19 +81,10 @@ export default function AdminAnalytics() {
       : "0.00";
 
   return (
-    <div className="min-h-screen bg-[#0D0F14] text-white">
-      {/* Header */}
-      <div className="border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/leads" className="text-gray-400 hover:text-white text-sm font-mono transition-colors">
-            ← Leads
-          </Link>
-          <h1 className="font-mono text-lg font-bold text-white">
-            Analytics — breakyoursolarcontract.com
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Range selector */}
+    <AdminLayout title="Analytics" subtitle="Live GA4 traffic data for breakyoursolarcontract.com">
+      <div className="p-6">
+        {/* Range + Refresh controls */}
+        <div className="flex items-center gap-3 mb-6">
           <div className="flex gap-1 bg-white/5 rounded-lg p-1 border border-white/10">
             {(Object.keys(RANGE_LABELS) as Range[]).map((r) => (
               <button
@@ -137,9 +107,8 @@ export default function AdminAnalytics() {
             Refresh
           </button>
         </div>
-      </div>
 
-      <div className="p-6 space-y-8">
+        <div className="space-y-8">
         {isLoading && (
           <div className="text-center py-20 text-gray-400 font-mono text-sm animate-pulse">
             Pulling live data from GA4...
@@ -286,7 +255,8 @@ export default function AdminAnalytics() {
             </div>
           </>
         )}
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

@@ -16,7 +16,11 @@ import {
   getDbCompanies,
   getDbCompany,
   getSiteConfigValues,
+  getAllBlogPostsAdmin,
+  getAdminBlogPost,
+  updateBlogPost,
 } from "./db";
+import { storagePut } from "./storage";
 import { getGA4Report } from "./ga4";
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
@@ -271,6 +275,71 @@ export const appRouter = router({
 
       return { ...SITE_CONFIG_DEFAULTS, ...configured };
     }),
+
+    /**
+     * List ALL posts (including drafts) for admin editor.
+     */
+    listAllPosts: protectedProcedure
+      .input(z.object({ limit: z.number().default(200), offset: z.number().default(0) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        return getAllBlogPostsAdmin(input.limit, input.offset);
+      }),
+
+    /**
+     * Get a single post by slug for admin editing (includes drafts + full content).
+     */
+    getAdminPost: protectedProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        return getAdminBlogPost(input.slug);
+      }),
+
+    /**
+     * Update a blog post — admin only.
+     */
+    updatePost: protectedProcedure
+      .input(z.object({
+        slug: z.string(),
+        title: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        heroImage: z.string().optional(),
+        category: z.string().optional(),
+        tags: z.string().optional(),
+        content: z.string().optional(),
+        excerpt: z.string().optional(),
+        readTime: z.string().optional(),
+        relatedSlugs: z.string().optional(),
+        faqItems: z.string().optional(),
+        canonicalUrl: z.string().optional(),
+        published: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { slug, ...data } = input;
+        return updateBlogPost(slug, data);
+      }),
+
+    /**
+     * Upload an image to S3 and return the CDN URL.
+     * Accepts base64-encoded file content.
+     */
+    uploadImage: protectedProcedure
+      .input(z.object({
+        filename: z.string(),
+        contentType: z.string(),
+        base64: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const buffer = Buffer.from(input.base64, "base64");
+        const ext = input.filename.split(".").pop() ?? "jpg";
+        const key = `blog-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { url } = await storagePut(key, buffer, input.contentType);
+        return { url, key };
+      }),
   }),
 
   // ── Exit intent captures ─────────────────────────────────────────────────────
