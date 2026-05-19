@@ -1,24 +1,24 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { TextStyle } from "@tiptap/extension-text-style";
+import { marked } from "marked";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link2,
   ImageIcon, Mic, Video, Search, Wand2, RefreshCw, Save, Eye, EyeOff,
   Upload, Plus, Trash2, CheckCircle, AlertTriangle, Info, ChevronDown,
-  ChevronUp, Loader2, FileText, Globe, Sparkles, AlignLeft, X
+  ChevronUp, Loader2, FileText, Globe, Sparkles, AlignLeft, X, Clock,
+  BookOpen, FolderOpen
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -47,6 +47,16 @@ const REWRITE_TONES = [
   { id: "more_authoritative", label: "More Authoritative" },
   { id: "conversational", label: "More Conversational" },
 ];
+
+const AUTOSAVE_INTERVAL_MS = 30_000; // 30 seconds
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Convert AI markdown output to HTML for TipTap insertion */
+function markdownToHtml(md: string): string {
+  // marked.parse returns string synchronously when not using async option
+  return marked.parse(md, { async: false }) as string;
+}
 
 // ─── Toolbar Button ────────────────────────────────────────────────────────────
 
@@ -91,6 +101,8 @@ export default function BlogStudio() {
   // Post selection
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState(false);
+  const [lastAutosaved, setLastAutosaved] = useState<Date | null>(null);
+  const [autosaving, setAutosaving] = useState(false);
 
   // Post fields
   const [title, setTitle] = useState("");
@@ -135,12 +147,18 @@ export default function BlogStudio() {
   } | null>(null);
   const [seoLoading, setSeoLoading] = useState(false);
 
+  // Draft state
+  const [showDraftPanel, setShowDraftPanel] = useState(false);
+  const [draftName, setDraftName] = useState("");
+  const [savingDraft, setSavingDraft] = useState(false);
+
   // UI state
   const [activePanel, setActivePanel] = useState<"ai" | "seo" | "media" | "podcast" | "video">("ai");
   const [showMetaPanel, setShowMetaPanel] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
+  const autosaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // tRPC
   const { data: posts = [] } = trpc.content.listAllPosts.useQuery({ limit: 500, offset: 0 });
@@ -150,6 +168,24 @@ export default function BlogStudio() {
   const analyzeSeo = trpc.blogStudio.analyzeSeo.useMutation();
   const generateImageMutation = trpc.blogStudio.generateImage.useMutation();
   const uploadImageMutation = trpc.content.uploadImage.useMutation();
+  const saveDraftMutation = trpc.blogDrafts.save.useMutation();
+  const deleteDraftMutation = trpc.blogDrafts.delete.useMutation();
+  const utils = trpc.useUtils();
+
+  // Get the slug for the selected post
+  const selectedPost = (posts as any[]).find((p: any) => p.id === selectedPostId);
+  const selectedSlug = selectedPost?.slug;
+
+  const { data: postData } = trpc.content.getAdminPost.useQuery(
+    { slug: selectedSlug! },
+    { enabled: !!selectedSlug }
+  );
+
+  // Drafts for current post
+  const { data: drafts = [], refetch: refetchDrafts } = trpc.blogDrafts.list.useQuery(
+    { postSlug: selectedSlug! },
+    { enabled: !!selectedSlug }
+  );
 
   // Editor
   const editor = useEditor({
@@ -170,15 +206,6 @@ export default function BlogStudio() {
   });
 
   // Load post when selected
-  // Get the slug for the selected post
-  const selectedPost = (posts as any[]).find((p: any) => p.id === selectedPostId);
-  const selectedSlug = selectedPost?.slug;
-
-  const { data: postData } = trpc.content.getAdminPost.useQuery(
-    { slug: selectedSlug! },
-    { enabled: !!selectedSlug }
-  );
-
   useEffect(() => {
     if (!postData || !editor) return;
     setTitle(postData.title || "");
@@ -200,10 +227,60 @@ export default function BlogStudio() {
     setVideoThumbnail((postData as any).videoThumbnail || "");
     editor.commands.setContent(postData.content || "");
     setIsDirty(false);
+    setLastAutosaved(null);
     setSeoData(null);
   }, [postData, editor]);
 
-  // Save post
+  // ─── Autosave ────────────────────────────────────────────────────────────────
+  const doAutosave = useCallback(async () => {
+    if (!selectedSlug || !editor) return;
+    setAutosaving(true);
+    try {
+      await saveDraftMutation.mutateAsync({
+        postSlug: selectedSlug,
+        name: "autosave",
+        title,
+        content: editor.getHTML(),
+        metaTitle,
+        metaDescription,
+        excerpt,
+        heroImage,
+        targetKeyword,
+      });
+      setLastAutosaved(new Date());
+      setIsDirty(false);
+    } catch {
+      // Autosave failures are silent — don't interrupt the user
+    } finally {
+      setAutosaving(false);
+    }
+  }, [selectedSlug, editor, title, metaTitle, metaDescription, excerpt, heroImage, targetKeyword, saveDraftMutation]);
+
+  // Set up autosave interval when a post is selected
+  useEffect(() => {
+    if (!selectedSlug) return;
+    if (autosaveTimerRef.current) clearInterval(autosaveTimerRef.current);
+    autosaveTimerRef.current = setInterval(() => {
+      doAutosave();
+    }, AUTOSAVE_INTERVAL_MS);
+    return () => {
+      if (autosaveTimerRef.current) clearInterval(autosaveTimerRef.current);
+    };
+  }, [selectedSlug, doAutosave]);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  // ─── Save post ───────────────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!selectedPostId || !editor) return;
     try {
@@ -218,13 +295,66 @@ export default function BlogStudio() {
         published: published ? 1 : 0,
       } as any);
       setIsDirty(false);
+      setLastAutosaved(new Date());
       toast.success("Post saved successfully");
     } catch (err) {
       toast.error("Failed to save post");
     }
   };
 
-  // AI generate
+  // ─── Draft management ────────────────────────────────────────────────────────
+  const handleSaveNamedDraft = async () => {
+    if (!selectedSlug || !editor) return;
+    const name = draftName.trim() || `Draft ${new Date().toLocaleString()}`;
+    setSavingDraft(true);
+    try {
+      await saveDraftMutation.mutateAsync({
+        postSlug: selectedSlug,
+        name,
+        title,
+        content: editor.getHTML(),
+        metaTitle,
+        metaDescription,
+        excerpt,
+        heroImage,
+        targetKeyword,
+      });
+      toast.success(`Draft "${name}" saved`);
+      setDraftName("");
+      refetchDrafts();
+    } catch {
+      toast.error("Failed to save draft");
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  const handleRestoreDraft = (draft: any) => {
+    if (!editor) return;
+    if (isDirty && !confirm("Restoring this draft will overwrite your current unsaved changes. Continue?")) return;
+    setTitle(draft.title || title);
+    setMetaTitle(draft.metaTitle || metaTitle);
+    setMetaDescription(draft.metaDescription || metaDescription);
+    setExcerpt(draft.excerpt || excerpt);
+    setHeroImage(draft.heroImage || heroImage);
+    setTargetKeyword(draft.targetKeyword || targetKeyword);
+    if (draft.content) editor.commands.setContent(draft.content);
+    setIsDirty(true);
+    toast.success(`Draft "${draft.name}" restored — remember to Save when done`);
+  };
+
+  const handleDeleteDraft = async (id: number, name: string) => {
+    if (!confirm(`Delete draft "${name}"?`)) return;
+    try {
+      await deleteDraftMutation.mutateAsync({ id });
+      toast.success("Draft deleted");
+      refetchDrafts();
+    } catch {
+      toast.error("Failed to delete draft");
+    }
+  };
+
+  // ─── AI generate ─────────────────────────────────────────────────────────────
   const handleAiGenerate = async () => {
     if (!aiPrompt.trim()) return;
     setAiLoading(true);
@@ -286,10 +416,11 @@ export default function BlogStudio() {
     }
   };
 
-  // Insert AI output into editor
+  // ─── Insert AI output into editor (FIXED: markdown → HTML) ───────────────────
   const handleInsertOutput = () => {
     if (!editor || !aiOutput) return;
-    editor.commands.insertContent(aiOutput);
+    const html = markdownToHtml(aiOutput);
+    editor.chain().focus().insertContent(html).run();
     setAiOutput("");
     setIsDirty(true);
     toast.success("Content inserted into editor");
@@ -298,13 +429,20 @@ export default function BlogStudio() {
   // Replace selection with AI output
   const handleReplaceSelection = () => {
     if (!editor || !aiOutput) return;
-    editor.commands.insertContent(aiOutput);
+    const { from, to } = editor.state.selection;
+    if (from !== to) {
+      // Replace selected text
+      editor.chain().focus().deleteRange({ from, to }).insertContent(markdownToHtml(aiOutput)).run();
+    } else {
+      // No selection — just insert at cursor
+      editor.chain().focus().insertContent(markdownToHtml(aiOutput)).run();
+    }
     setAiOutput("");
     setIsDirty(true);
-    toast.success("Selection replaced");
+    toast.success("Content inserted");
   };
 
-  // SEO analysis
+  // ─── SEO analysis ────────────────────────────────────────────────────────────
   const handleAnalyzeSeo = async () => {
     if (!editor) return;
     setSeoLoading(true);
@@ -323,7 +461,7 @@ export default function BlogStudio() {
     }
   };
 
-  // Generate image
+  // ─── Image handlers ──────────────────────────────────────────────────────────
   const handleGenerateImage = async () => {
     if (!imagePrompt.trim()) return;
     setImageLoading(true);
@@ -343,7 +481,6 @@ export default function BlogStudio() {
     }
   };
 
-  // Import image from URL
   const handleImportImageUrl = async () => {
     if (!imageImportUrl.trim()) return;
     setHeroImage(imageImportUrl);
@@ -352,7 +489,6 @@ export default function BlogStudio() {
     toast.success("Hero image updated");
   };
 
-  // Upload image file
   const handleImageFileUpload = async (file: File) => {
     if (!file) return;
     setImageLoading(true);
@@ -377,7 +513,6 @@ export default function BlogStudio() {
     }
   };
 
-  // Insert image into editor body
   const handleInsertImageIntoEditor = (url: string) => {
     if (!editor || !url) return;
     editor.commands.setImage({ src: url });
@@ -386,6 +521,10 @@ export default function BlogStudio() {
 
   const wordCount = editor ? editor.state.doc.textContent.split(/\s+/).filter(Boolean).length : 0;
   const readingTime = Math.ceil(wordCount / 200);
+
+  // Non-autosave drafts (for display in draft panel)
+  const namedDrafts = (drafts as any[]).filter((d: any) => d.name !== "autosave");
+  const autosaveDraft = (drafts as any[]).find((d: any) => d.name === "autosave");
 
   return (
     <AdminLayout>
@@ -415,9 +554,34 @@ export default function BlogStudio() {
             </Select>
           </div>
           <div className="flex items-center gap-3">
-            {isDirty && <span className="text-amber-400 text-xs font-mono">● Unsaved changes</span>}
+            {/* Autosave status */}
+            {autosaving && (
+              <span className="text-gray-500 text-xs font-mono flex items-center gap-1">
+                <Loader2 className="w-3 h-3 animate-spin" /> Autosaving...
+              </span>
+            )}
+            {!autosaving && lastAutosaved && (
+              <span className="text-gray-600 text-xs font-mono flex items-center gap-1">
+                <Clock className="w-3 h-3" /> Saved {lastAutosaved.toLocaleTimeString()}
+              </span>
+            )}
+            {isDirty && !autosaving && (
+              <span className="text-amber-400 text-xs font-mono">● Unsaved changes</span>
+            )}
             <span className="text-gray-500 text-xs font-mono">{wordCount} words · {readingTime} min read</span>
             {seoData && <SeoScoreBadge score={Math.min(100, seoData.suggestions.filter(s => s.type === "success").length * 20)} />}
+            {/* Drafts button */}
+            {selectedSlug && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDraftPanel(!showDraftPanel)}
+                className={`border-white/10 text-xs ${showDraftPanel ? "text-amber-400 border-amber-500/50" : "text-gray-400"}`}
+              >
+                <FolderOpen className="w-3.5 h-3.5 mr-1" />
+                Drafts {namedDrafts.length > 0 ? `(${namedDrafts.length})` : ""}
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -438,6 +602,84 @@ export default function BlogStudio() {
             </Button>
           </div>
         </div>
+
+        {/* Draft Panel (slide-down) */}
+        {showDraftPanel && selectedSlug && (
+          <div className="border-b border-white/10 bg-[#12141a] px-6 py-4">
+            <div className="flex items-start gap-6">
+              {/* Save new named draft */}
+              <div className="flex-1 space-y-2">
+                <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Save Current State as Draft</label>
+                <div className="flex gap-2">
+                  <Input
+                    value={draftName}
+                    onChange={e => setDraftName(e.target.value)}
+                    placeholder="Draft name (e.g. 'Version 2 — more aggressive')"
+                    className="bg-white/5 border-white/10 text-gray-200 text-sm flex-1"
+                    onKeyDown={e => e.key === "Enter" && handleSaveNamedDraft()}
+                  />
+                  <Button
+                    onClick={handleSaveNamedDraft}
+                    disabled={savingDraft}
+                    size="sm"
+                    className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs whitespace-nowrap"
+                  >
+                    {savingDraft ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1" />}
+                    Save Draft
+                  </Button>
+                </div>
+                {autosaveDraft && (
+                  <p className="text-gray-600 text-xs">
+                    Last autosave: {new Date(autosaveDraft.updatedAt).toLocaleString()}
+                    {" · "}
+                    <button
+                      type="button"
+                      onClick={() => handleRestoreDraft(autosaveDraft)}
+                      className="text-amber-400 hover:underline"
+                    >
+                      Restore autosave
+                    </button>
+                  </p>
+                )}
+              </div>
+
+              {/* Named drafts list */}
+              {namedDrafts.length > 0 && (
+                <div className="w-80 space-y-1.5">
+                  <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Saved Drafts</label>
+                  <div className="space-y-1 max-h-40 overflow-y-auto">
+                    {namedDrafts.map((d: any) => (
+                      <div key={d.id} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-200 text-xs font-medium truncate">{d.name}</p>
+                          <p className="text-gray-600 text-xs">{new Date(d.updatedAt).toLocaleString()}</p>
+                        </div>
+                        <div className="flex gap-1 ml-2">
+                          <button
+                            type="button"
+                            onClick={() => handleRestoreDraft(d)}
+                            className="text-amber-400 hover:text-amber-300 text-xs px-2 py-1 rounded hover:bg-amber-500/10 transition-colors"
+                            title="Restore this draft"
+                          >
+                            Restore
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteDraft(d.id, d.name)}
+                            className="text-gray-600 hover:text-red-400 p-1 rounded hover:bg-red-500/10 transition-colors"
+                            title="Delete draft"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Main 3-panel layout */}
         <div className="flex flex-1 overflow-hidden">
@@ -693,12 +935,13 @@ export default function BlogStudio() {
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleInsertOutput} size="sm" className="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs">
-                        <Plus className="w-3.5 h-3.5 mr-1" /> Insert
+                        <Plus className="w-3.5 h-3.5 mr-1" /> Insert into Body
                       </Button>
                       <Button onClick={handleReplaceSelection} size="sm" variant="outline" className="flex-1 border-white/10 text-gray-300 text-xs">
-                        <RefreshCw className="w-3.5 h-3.5 mr-1" /> Replace
+                        <RefreshCw className="w-3.5 h-3.5 mr-1" /> Replace Selection
                       </Button>
                     </div>
+                    <p className="text-gray-600 text-xs text-center">Markdown is automatically converted to formatted HTML</p>
                   </div>
                 )}
               </div>

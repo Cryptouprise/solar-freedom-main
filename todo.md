@@ -386,3 +386,12 @@
 - [x] Add pressRelease.browserLogin tRPC mutation (opens visible browser for admin login)
 - [x] Add pressRelease.checkLoginStatus tRPC query (reads cookies from storage state file)
 - [x] Add Login with Browser buttons + Connected/Not logged in status indicators to Settings tab
+
+## Phase 33 — Blog Studio: Insert Fix + Autosave + Drafts
+
+- [x] Fix "Insert into body" — AI markdown output now converted to HTML via marked before TipTap insertion
+- [x] Add autosave every 30s — silently saves to blogDrafts table as name="autosave"
+- [x] Add beforeunload warning when there are unsaved changes
+- [x] Add draft panel (Drafts button in top bar) — save named drafts, restore, delete
+- [x] Add blogDrafts table to schema + db:push migration
+- [x] Add blogDrafts tRPC procedures (save, list, get, delete)

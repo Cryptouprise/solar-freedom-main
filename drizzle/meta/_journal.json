@@ -64,6 +64,13 @@
       "when": 1779153640821,
       "tag": "0008_lucky_turbo",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1779198058974,
+      "tag": "0009_perfect_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }

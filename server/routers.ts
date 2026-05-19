@@ -847,5 +847,62 @@ export const appRouter = router({
         }
       }),
   }),
+
+  // ─── Blog Drafts ──────────────────────────────────────────────────────────
+  blogDrafts: router({
+    /**
+     * Upsert a draft (autosave or named). name="autosave" is reserved for autosave.
+     */
+    save: protectedProcedure
+      .input(z.object({
+        postSlug: z.string(),
+        name: z.string().default("autosave"),
+        title: z.string().optional(),
+        content: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        excerpt: z.string().optional(),
+        heroImage: z.string().optional(),
+        targetKeyword: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { upsertBlogDraft } = await import("./db");
+        return upsertBlogDraft(input);
+      }),
+
+    /**
+     * List all drafts for a post slug.
+     */
+    list: protectedProcedure
+      .input(z.object({ postSlug: z.string() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { listBlogDrafts } = await import("./db");
+        return listBlogDrafts(input.postSlug);
+      }),
+
+    /**
+     * Get a single draft by id.
+     */
+    get: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getBlogDraft } = await import("./db");
+        return getBlogDraft(input.id);
+      }),
+
+    /**
+     * Delete a draft by id.
+     */
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { deleteBlogDraft } = await import("./db");
+        return deleteBlogDraft(input.id);
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;
