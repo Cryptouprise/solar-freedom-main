@@ -378,3 +378,11 @@
 - [x] Fix inline CTA duplication on blog posts — changed from every 4 paragraphs to ONE midpoint CTA only
 - [x] Fix QuickCallbackForm — after submit, auto-opens GHL/Calendly calendar iframe inline
 - [x] Confirmed form stickiness — StickyMobileBar is global in App.tsx, works on all pages
+
+## Phase 32 — AdminContent Sidebar + Browser Login for High-DA Sites
+
+- [x] Wrap AdminContent in AdminLayout sidebar (remove standalone header, fix div nesting)
+- [x] Create server/cron/browserLoginSession.ts — Playwright login helper for Medium, LinkedIn, Substack
+- [x] Add pressRelease.browserLogin tRPC mutation (opens visible browser for admin login)
+- [x] Add pressRelease.checkLoginStatus tRPC query (reads cookies from storage state file)
+- [x] Add Login with Browser buttons + Connected/Not logged in status indicators to Settings tab

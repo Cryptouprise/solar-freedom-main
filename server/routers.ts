@@ -502,6 +502,29 @@ export const appRouter = router({
       const { runBacklinkDiscovery } = await import("./cron/backlinkDiscovery");
       return runBacklinkDiscovery();
     }),
+
+    /**
+     * Open a Playwright browser window for the user to log in to Medium, LinkedIn, or Substack.
+     * The session is saved to the persistent profile so future automated runs work without re-auth.
+     */
+    browserLogin: protectedProcedure
+      .input(z.object({
+        site: z.enum(["medium", "linkedin", "substack"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { launchBrowserLoginSession } = await import("./cron/browserLoginSession");
+        return launchBrowserLoginSession(input.site);
+      }),
+
+    /**
+     * Check login status for Medium, LinkedIn, and Substack.
+     */
+    checkLoginStatus: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { checkLoginStatus } = await import("./cron/browserLoginSession");
+      return checkLoginStatus();
+    }),
   }),
 
   // ── Backlink Manager (admin only) ─────────────────────────────────────────────

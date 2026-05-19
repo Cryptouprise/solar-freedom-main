@@ -56,6 +56,10 @@ import {
   RotateCcw,
   DollarSign,
   TrendingUp,
+  LogIn,
+  Loader2,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -603,8 +607,26 @@ function BacklinksTab() {
 
 function SettingsTab() {
   const { data: settings = {} } = trpc.pressRelease.getSettings.useQuery();
+  const { data: loginStatus, refetch: refetchLoginStatus } = trpc.pressRelease.checkLoginStatus.useQuery();
+  const [loginPending, setLoginPending] = useState<string | null>(null);
   
   const utils = trpc.useUtils();
+
+  const browserLoginMutation = trpc.pressRelease.browserLogin.useMutation({
+    onSuccess: (result) => {
+      setLoginPending(null);
+      if (result.success) {
+        toast.success('Login successful!', { description: result.message });
+      } else {
+        toast.warning('Browser session ended', { description: result.message });
+      }
+      refetchLoginStatus();
+    },
+    onError: (e) => {
+      setLoginPending(null);
+      toast.error('Login failed', { description: e.message });
+    },
+  });
 
   const updateSetting = trpc.pressRelease.updateSetting.useMutation({
     onSuccess: () => { toast.success('Setting saved'); utils.pressRelease.getSettings.invalidate(); },
@@ -734,16 +756,13 @@ function SettingsTab() {
           <CardTitle className="text-white text-base">Distribution Sites</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-gray-400 text-sm">Enable or disable each distribution site. Sites marked <span className="text-orange-400">needs login</span> require one-time authentication via a browser session.</p>
-          {[
-            { key: "playwright_enabled", label: "Playwright Browser Automation", desc: "Master toggle for all browser-based submissions (1888, OpenPR, PRFree, PRBuzz)", default: "true" },
-            { key: "medium_enabled", label: "Medium.com (DA 95)", desc: "Requires Google login saved in browser profile", default: "true" },
-            { key: "linkedin_enabled", label: "LinkedIn Articles (DA 98)", desc: "Requires LinkedIn login saved in browser profile", default: "true" },
-            { key: "substack_enabled", label: "Substack (DA 90)", desc: "Requires Substack URL configured below", default: "false" },
-          ].map((toggle) => {
+          <p className="text-gray-400 text-sm">Enable or disable each distribution site. Sites marked <span className="text-orange-400">needs login</span> require one-time browser authentication — click the button to open a browser window and log in once.</p>
+
+          {/* Playwright master toggle */}
+          {[{ key: "playwright_enabled", label: "Playwright Browser Automation", desc: "Master toggle for all browser-based submissions (1888, OpenPR, PRFree, PRBuzz)", default: "true" }].map((toggle) => {
             const val = (settings as any)[toggle.key] ?? toggle.default;
             return (
-              <div key={toggle.key} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+              <div key={toggle.key} className="flex items-start gap-3 py-2 border-b border-white/5">
                 <Switch
                   id={toggle.key}
                   checked={val === "true"}
@@ -753,6 +772,69 @@ function SettingsTab() {
                 <div>
                   <Label htmlFor={toggle.key} className="text-gray-200 text-sm cursor-pointer">{toggle.label}</Label>
                   <p className="text-gray-500 text-xs mt-0.5">{toggle.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* High-DA sites with login buttons */}
+          {([
+            { key: "medium_enabled", site: "medium" as const, label: "Medium.com", da: "DA 95", desc: "Publishes as a story on your Medium account" },
+            { key: "linkedin_enabled", site: "linkedin" as const, label: "LinkedIn Articles", da: "DA 98", desc: "Publishes as a long-form article on your LinkedIn profile" },
+            { key: "substack_enabled", site: "substack" as const, label: "Substack", da: "DA 90", desc: "Publishes as a post to your Substack newsletter" },
+          ] as const).map((item) => {
+            const val = (settings as any)[item.key] ?? "false";
+            const isLoggedIn = loginStatus?.[item.site] ?? false;
+            const isPending = loginPending === item.site;
+            return (
+              <div key={item.key} className="py-3 border-b border-white/5 last:border-0 space-y-2">
+                <div className="flex items-start gap-3">
+                  <Switch
+                    id={item.key}
+                    checked={val === "true"}
+                    onCheckedChange={(v) => updateSetting.mutate({ key: item.key, value: v ? "true" : "false" })}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={item.key} className="text-gray-200 text-sm cursor-pointer">{item.label}</Label>
+                      <span className="text-xs text-gray-500 font-mono">{item.da}</span>
+                      {isLoggedIn ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-green-400">
+                          <Wifi className="w-3 h-3" /> Connected
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs text-orange-400">
+                          <WifiOff className="w-3 h-3" /> Not logged in
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-500 text-xs mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+                <div className="ml-11">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs border-white/20 text-gray-300 hover:text-white hover:border-amber-500/50 hover:bg-amber-500/10"
+                    disabled={isPending}
+                    onClick={() => {
+                      setLoginPending(item.site);
+                      toast.info(`Opening ${item.label} login...`, { description: 'A browser window will open on the server. Log in and the session will be saved automatically.' });
+                      browserLoginMutation.mutate({ site: item.site });
+                    }}
+                  >
+                    {isPending ? (
+                      <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Waiting for login...</>
+                    ) : (
+                      <><LogIn className="w-3 h-3 mr-1.5" /> {isLoggedIn ? 'Re-authenticate' : 'Login with Browser'}</>
+                    )}
+                  </Button>
+                  {isPending && (
+                    <p className="text-amber-400 text-xs mt-1.5">
+                      Browser is open on the server — log in to {item.label} and the session saves automatically (3 min timeout).
+                    </p>
+                  )}
                 </div>
               </div>
             );
