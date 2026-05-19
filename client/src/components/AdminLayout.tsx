@@ -16,6 +16,7 @@ import {
   ExternalLink,
   PenSquare,
   Target,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -46,6 +47,12 @@ const NAV_ITEMS = [
     href: "/admin/posts",
     icon: PenSquare,
     description: "Edit posts, images & links",
+  },
+  {
+    label: "Blog Studio",
+    href: "/admin/blog-studio",
+    icon: Wand2,
+    description: "AI writing, SEO, media",
   },
   {
     label: "Press Releases",

@@ -24,6 +24,7 @@ import AdminAnalytics from "@/pages/AdminAnalytics";
 import AdminContent from "@/pages/AdminContent";
 import PressReleaseAdmin from "@/pages/admin/PressReleaseAdmin";
 import PostEditor from "@/pages/admin/PostEditor";
+import BlogStudio from "@/pages/admin/BlogStudio";
 import Login from "@/pages/Login";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import SunrunPage from "@/pages/SunrunPage";
@@ -90,6 +91,7 @@ function Router() {
         <Route path={"/admin/content"} component={AdminContent} />
         <Route path={"/admin/press-releases"} component={PressReleaseAdmin} />
         <Route path={"/admin/posts"} component={PostEditor} />
+        <Route path={"/admin/blog-studio"} component={BlogStudio} />
         <Route path={"/login"} component={Login} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />

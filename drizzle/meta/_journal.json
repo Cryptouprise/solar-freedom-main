@@ -57,6 +57,13 @@
       "when": 1779074625183,
       "tag": "0007_slow_young_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1779153640821,
+      "tag": "0008_lucky_turbo",
+      "breakpoints": true
     }
   ]
 }

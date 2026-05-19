@@ -349,3 +349,17 @@
 - [x] Build PostEditor with TipTap rich text, image upload, link editing
 - [x] Add listAllPosts and getAdminPost tRPC procedures
 - [x] Add updatePost and uploadImage tRPC procedures
+
+## Phase 30 — Blog Writing Studio
+
+- [x] Add blogStudio.analyze tRPC procedure (fetch GSC top posts + run SEO analysis)
+- [x] Add blogStudio.generate tRPC procedure (streaming AI writing with model switcher)
+- [x] Add blogStudio.generateImage tRPC procedure (Seedream 4.5 / Gemini 2.5 Flash Image)
+- [x] Build /admin/blog-studio 3-panel layout (editor | AI assistant | SEO analysis)
+- [x] TipTap editor with full toolbar (headings, bold, italic, lists, blockquotes, links, code, images)
+- [x] AI assistant panel: model selector (Owl Alpha, DeepSeek, Gemini, HunyuanT1, Claude Haiku), prompt input, streaming output
+- [x] SEO analysis panel: top GSC posts, live keyword density, heading structure, internal link suggestions
+- [x] Image panel: upload or AI-generate with prompt, insert into editor
+- [x] Meta panel: title, slug, excerpt, category, tags, hero image, read time, publish status
+- [x] Add /admin/blog-studio route to App.tsx and AdminLayout nav
+- [x] TypeScript check, save checkpoint
