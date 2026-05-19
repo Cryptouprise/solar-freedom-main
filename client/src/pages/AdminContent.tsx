@@ -74,6 +74,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { Link } from "wouter";
+import AdminLayout from "@/components/AdminLayout";
 import { toast } from "sonner";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -227,7 +228,6 @@ function PostDetailModal({
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function AdminContent() {
-  const { user, loading, isAuthenticated } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -431,50 +431,15 @@ export default function AdminContent() {
     }
   };
 
-  // Auth guard
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center">
-        <RefreshCw className="h-8 w-8 animate-spin text-amber-400" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    window.location.href = getLoginUrl();
-    return null;
-  }
-
-  if (user?.role !== "admin") {
-    return (
-      <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center text-white">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
-          <p className="text-gray-400">Admin access required.</p>
-          <Link href="/">
-            <Button className="mt-4" variant="outline">Go Home</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+  // Auth guard is handled by AdminLayout
   return (
-    <div className="min-h-screen bg-[#0D0F14] text-white">
-      {/* Header */}
-      <div className="border-b border-white/10 bg-[#0D0F14]/95 sticky top-0 z-10 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/admin/leads">
-              <button className="text-gray-400 hover:text-white transition-colors">
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-            </Link>
-            <div>
-              <h1 className="font-display text-2xl text-white tracking-wide">CONTENT MANAGER</h1>
-              <p className="text-gray-400 text-xs font-mono">breakyoursolarcontract.com</p>
-            </div>
+    <AdminLayout>
+      <div className="text-white p-6 space-y-6">
+        {/* Page header with action buttons */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-display text-2xl text-white tracking-wide">CONTENT MANAGER</h1>
+            <p className="text-gray-400 text-xs font-mono">breakyoursolarcontract.com</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -502,9 +467,6 @@ export default function AdminContent() {
             </a>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="bg-white/5 border-white/10">
@@ -901,7 +863,6 @@ When creating articles:
             </div>
           </TabsContent>
         </Tabs>
-      </div>
 
       {/* Create Post Modal */}
       <Dialog open={createOpen} onOpenChange={(v) => !v && setCreateOpen(false)}>
@@ -1324,5 +1285,6 @@ When creating articles:
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </AdminLayout>
   );
 }

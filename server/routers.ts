@@ -16,7 +16,11 @@ import {
   getDbCompanies,
   getDbCompany,
   getSiteConfigValues,
+  getAllBlogPostsAdmin,
+  getAdminBlogPost,
+  updateBlogPost,
 } from "./db";
+import { storagePut } from "./storage";
 import { getGA4Report } from "./ga4";
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
@@ -271,6 +275,71 @@ export const appRouter = router({
 
       return { ...SITE_CONFIG_DEFAULTS, ...configured };
     }),
+
+    /**
+     * List ALL posts (including drafts) for admin editor.
+     */
+    listAllPosts: protectedProcedure
+      .input(z.object({ limit: z.number().default(200), offset: z.number().default(0) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        return getAllBlogPostsAdmin(input.limit, input.offset);
+      }),
+
+    /**
+     * Get a single post by slug for admin editing (includes drafts + full content).
+     */
+    getAdminPost: protectedProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        return getAdminBlogPost(input.slug);
+      }),
+
+    /**
+     * Update a blog post — admin only.
+     */
+    updatePost: protectedProcedure
+      .input(z.object({
+        slug: z.string(),
+        title: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        heroImage: z.string().optional(),
+        category: z.string().optional(),
+        tags: z.string().optional(),
+        content: z.string().optional(),
+        excerpt: z.string().optional(),
+        readTime: z.string().optional(),
+        relatedSlugs: z.string().optional(),
+        faqItems: z.string().optional(),
+        canonicalUrl: z.string().optional(),
+        published: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { slug, ...data } = input;
+        return updateBlogPost(slug, data);
+      }),
+
+    /**
+     * Upload an image to S3 and return the CDN URL.
+     * Accepts base64-encoded file content.
+     */
+    uploadImage: protectedProcedure
+      .input(z.object({
+        filename: z.string(),
+        contentType: z.string(),
+        base64: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const buffer = Buffer.from(input.base64, "base64");
+        const ext = input.filename.split(".").pop() ?? "jpg";
+        const key = `blog-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { url } = await storagePut(key, buffer, input.contentType);
+        return { url, key };
+      }),
   }),
 
   // ── Exit intent captures ─────────────────────────────────────────────────────
@@ -432,6 +501,29 @@ export const appRouter = router({
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
       const { runBacklinkDiscovery } = await import("./cron/backlinkDiscovery");
       return runBacklinkDiscovery();
+    }),
+
+    /**
+     * Open a Playwright browser window for the user to log in to Medium, LinkedIn, or Substack.
+     * The session is saved to the persistent profile so future automated runs work without re-auth.
+     */
+    browserLogin: protectedProcedure
+      .input(z.object({
+        site: z.enum(["medium", "linkedin", "substack"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { launchBrowserLoginSession } = await import("./cron/browserLoginSession");
+        return launchBrowserLoginSession(input.site);
+      }),
+
+    /**
+     * Check login status for Medium, LinkedIn, and Substack.
+     */
+    checkLoginStatus: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { checkLoginStatus } = await import("./cron/browserLoginSession");
+      return checkLoginStatus();
     }),
   }),
 
@@ -611,6 +703,206 @@ export const appRouter = router({
         return db.select().from(aiCostLog).orderBy(desc(aiCostLog.createdAt)).limit(input.limit);
       }),
   }),
-});
+  blogStudio: router({
+    /**
+     * Get top-performing pages from GA4 for SEO analysis reference
+     */
+    getTopPages: protectedProcedure
+      .input(z.object({ limit: z.number().default(20) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        try {
+          const report = await getGA4Report("90daysAgo", "today");
+          return report.topPages.slice(0, input.limit);
+        } catch (err) {
+          console.error("[BlogStudio] GA4 fetch failed:", err);
+          return [];
+        }
+      }),
 
+    /**
+     * Analyze a post's SEO quality and return suggestions
+     */
+    analyzeSeo: protectedProcedure
+      .input(z.object({
+        title: z.string(),
+        content: z.string(),
+        targetKeyword: z.string().optional(),
+        slug: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { title, content, targetKeyword } = input;
+        // Strip HTML tags for text analysis
+        const text = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const wordCount = text.split(/\s+/).filter(Boolean).length;
+        const readingTime = Math.ceil(wordCount / 200);
+        // Count headings
+        const h2Count = (content.match(/<h2/gi) || []).length;
+        const h3Count = (content.match(/<h3/gi) || []).length;
+        // Count internal links
+        const internalLinks = (content.match(/href="\//g) || []).length;
+        const externalLinks = (content.match(/href="https?:\/\//g) || []).length;
+        // Keyword density
+        let keywordDensity = 0;
+        let keywordCount = 0;
+        if (targetKeyword && wordCount > 0) {
+          const kw = targetKeyword.toLowerCase();
+          keywordCount = (text.toLowerCase().match(new RegExp(kw, "g")) || []).length;
+          keywordDensity = parseFloat(((keywordCount / wordCount) * 100).toFixed(2));
+        }
+        // Build suggestions
+        const suggestions: Array<{ type: "warning" | "success" | "info"; message: string }> = [];
+        if (wordCount < 800) suggestions.push({ type: "warning", message: `Word count is ${wordCount} — aim for 1,200+ for competitive solar keywords` });
+        else if (wordCount >= 1500) suggestions.push({ type: "success", message: `Great word count: ${wordCount} words` });
+        else suggestions.push({ type: "info", message: `Word count: ${wordCount} — consider expanding to 1,500+ for better rankings` });
+        if (h2Count === 0) suggestions.push({ type: "warning", message: "No H2 headings found — add at least 3 H2s with keyword variations" });
+        else if (h2Count < 3) suggestions.push({ type: "info", message: `Only ${h2Count} H2 heading(s) — aim for 4-6 H2s to improve structure` });
+        else suggestions.push({ type: "success", message: `Good heading structure: ${h2Count} H2s, ${h3Count} H3s` });
+        if (internalLinks === 0) suggestions.push({ type: "warning", message: "No internal links — add links to city pages, state law pages, or company pages" });
+        else if (internalLinks < 3) suggestions.push({ type: "info", message: `${internalLinks} internal link(s) — aim for 5-8 internal links per post` });
+        else suggestions.push({ type: "success", message: `Good internal linking: ${internalLinks} internal links` });
+        if (externalLinks === 0) suggestions.push({ type: "info", message: "No external links — add 1-2 authoritative sources (FTC, CFPB, state AG) for E-E-A-T" });
+        if (targetKeyword) {
+          if (keywordDensity === 0) suggestions.push({ type: "warning", message: `Target keyword "${targetKeyword}" not found in content` });
+          else if (keywordDensity < 0.5) suggestions.push({ type: "info", message: `Keyword density ${keywordDensity}% — slightly low, aim for 0.8-1.5%` });
+          else if (keywordDensity > 3) suggestions.push({ type: "warning", message: `Keyword density ${keywordDensity}% — too high, risk of keyword stuffing` });
+          else suggestions.push({ type: "success", message: `Keyword density ${keywordDensity}% — in the ideal range` });
+          if (!title.toLowerCase().includes(targetKeyword.toLowerCase())) {
+            suggestions.push({ type: "warning", message: `Target keyword not in title — include "${targetKeyword}" in the title tag` });
+          }
+        }
+        if (title.length < 30) suggestions.push({ type: "warning", message: `Title is too short (${title.length} chars) — aim for 50-60 characters` });
+        else if (title.length > 65) suggestions.push({ type: "warning", message: `Title is too long (${title.length} chars) — keep under 65 characters to avoid truncation` });
+        else suggestions.push({ type: "success", message: `Title length is good: ${title.length} characters` });
+        return { wordCount, readingTime, h2Count, h3Count, internalLinks, externalLinks, keywordDensity, keywordCount, suggestions };
+      }),
+
+    /**
+     * Generate AI content via OpenRouter with model selection
+     * Returns full text (streaming handled client-side via SSE endpoint)
+     */
+    generateContent: protectedProcedure
+      .input(z.object({
+        prompt: z.string(),
+        model: z.string().default("openrouter/owl-alpha"),
+        systemPrompt: z.string().optional(),
+        existingContent: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const apiKey = process.env.OPENROUTER_API_KEY;
+        if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
+        const messages: Array<{ role: string; content: string }> = [];
+        const systemMsg = input.systemPrompt || `You are an expert SEO content writer specializing in solar contract law, consumer protection, and homeowner rights. Write compelling, authoritative content for breakyoursolarcontract.com. Use proper HTML formatting with <h2>, <h3>, <p>, <ul>, <li>, <strong> tags. Target 1,200-2,000 words for full articles. Include internal link placeholders like [LINK:/city/phoenix-az|Phoenix homeowners] where relevant.`;
+        messages.push({ role: "system", content: systemMsg });
+        if (input.existingContent) {
+          messages.push({ role: "user", content: `Here is the existing content:\n\n${input.existingContent}\n\nNow: ${input.prompt}` });
+        } else {
+          messages.push({ role: "user", content: input.prompt });
+        }
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://breakyoursolarcontract.com",
+            "X-Title": "Solar Freedom Blog Studio",
+          },
+          body: JSON.stringify({ model: input.model, messages, max_tokens: 4096 }),
+        });
+        if (!response.ok) {
+          const err = await response.text();
+          throw new Error(`OpenRouter error: ${response.status} ${err}`);
+        }
+        const data = await response.json() as { choices: Array<{ message: { content: string } }> };
+        const content = data.choices[0]?.message?.content ?? "";
+        return { content };
+      }),
+
+    /**
+     * Generate an image for a blog post via OpenRouter image models
+     */
+    generateImage: protectedProcedure
+      .input(z.object({
+        prompt: z.string(),
+        model: z.string().default("bytedance-seed/seedream-4.5"),
+        postSlug: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        try {
+          const { generateImage } = await import("./_core/imageGeneration");
+          const result = await generateImage({ prompt: input.prompt });
+          if (!result.url) throw new Error("Image generation returned no URL");
+          // Store in S3 for reuse
+          const imageResponse = await fetch(result.url);
+          const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+          const key = `blog-images/${input.postSlug ?? "generated"}-${Date.now()}.jpg`;
+          const { storagePut } = await import("./storage");
+          const stored = await storagePut(key, imageBuffer, "image/jpeg");
+          return { url: stored.url, key: stored.key };
+        } catch (err) {
+          throw new Error(`Image generation failed: ${err}`);
+        }
+      }),
+  }),
+
+  // ─── Blog Drafts ──────────────────────────────────────────────────────────
+  blogDrafts: router({
+    /**
+     * Upsert a draft (autosave or named). name="autosave" is reserved for autosave.
+     */
+    save: protectedProcedure
+      .input(z.object({
+        postSlug: z.string(),
+        name: z.string().default("autosave"),
+        title: z.string().optional(),
+        content: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        excerpt: z.string().optional(),
+        heroImage: z.string().optional(),
+        targetKeyword: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { upsertBlogDraft } = await import("./db");
+        return upsertBlogDraft(input);
+      }),
+
+    /**
+     * List all drafts for a post slug.
+     */
+    list: protectedProcedure
+      .input(z.object({ postSlug: z.string() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { listBlogDrafts } = await import("./db");
+        return listBlogDrafts(input.postSlug);
+      }),
+
+    /**
+     * Get a single draft by id.
+     */
+    get: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getBlogDraft } = await import("./db");
+        return getBlogDraft(input.id);
+      }),
+
+    /**
+     * Delete a draft by id.
+     */
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { deleteBlogDraft } = await import("./db");
+        return deleteBlogDraft(input.id);
+      }),
+  }),
+});
 export type AppRouter = typeof appRouter;

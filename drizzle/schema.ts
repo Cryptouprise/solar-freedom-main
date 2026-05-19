@@ -200,6 +200,23 @@ export const blogPosts = mysqlTable("blogPosts", {
   relatedSlugs: text("relatedSlugs"),     // JSON array of slugs
   faqItems: text("faqItems"),             // JSON array of {q, a} objects
   canonicalUrl: varchar("canonicalUrl", { length: 500 }),
+  // Podcast fields
+  podcastAudioUrl: text("podcastAudioUrl"),       // S3 or external URL to MP3/audio
+  podcastTitle: varchar("podcastTitle", { length: 500 }),
+  podcastDescription: text("podcastDescription"),
+  podcastTranscript: text("podcastTranscript"),   // Full transcript text
+  podcastDuration: varchar("podcastDuration", { length: 20 }), // e.g. "12:34"
+  podcastEmbedUrl: text("podcastEmbedUrl"),       // NotebookLM or Spotify embed URL
+  // Video/Vlog fields
+  videoUrl: text("videoUrl"),                     // YouTube/Vimeo URL or S3 video URL
+  videoTitle: varchar("videoTitle", { length: 500 }),
+  videoDescription: text("videoDescription"),
+  videoThumbnail: text("videoThumbnail"),         // Thumbnail image URL
+  videoDuration: varchar("videoDuration", { length: 20 }),
+  // Additional media
+  galleryImages: text("galleryImages"),           // JSON array of {url, alt, caption}
+  targetKeyword: varchar("targetKeyword", { length: 255 }), // Primary SEO keyword
+  seoScore: int("seoScore"),                      // 0-100 SEO score from last analysis
   published: int("published").default(1).notNull(), // 1=live, 0=draft
   publishedAt: timestamp("publishedAt").defaultNow(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -496,3 +513,24 @@ export const aiCostLog = mysqlTable("aiCostLog", {
 
 export type AiCostLog = typeof aiCostLog.$inferSelect;
 export type InsertAiCostLog = typeof aiCostLog.$inferInsert;
+
+/**
+ * Blog Drafts — named draft versions per blog post.
+ * Supports autosave (name="autosave") and manual named drafts.
+ */
+export const blogDrafts = mysqlTable("blogDrafts", {
+  id: int("id").autoincrement().primaryKey(),
+  postSlug: varchar("postSlug", { length: 300 }).notNull(),
+  name: varchar("name", { length: 200 }).notNull().default("autosave"),
+  title: varchar("title", { length: 500 }),
+  content: text("content"),
+  metaTitle: varchar("metaTitle", { length: 300 }),
+  metaDescription: text("metaDescription"),
+  excerpt: text("excerpt"),
+  heroImage: varchar("heroImage", { length: 1000 }),
+  targetKeyword: varchar("targetKeyword", { length: 200 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type BlogDraft = typeof blogDrafts.$inferSelect;
+export type InsertBlogDraft = typeof blogDrafts.$inferInsert;

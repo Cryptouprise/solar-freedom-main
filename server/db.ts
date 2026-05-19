@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -313,4 +313,161 @@ export async function insertExitIntentCapture(data: InsertExitIntentCapture): Pr
     console.error("[Database] Failed to insert exit intent capture:", error);
     throw error;
   }
+}
+
+// ─── Admin blog post helpers ───────────────────────────────────────────────────
+
+/**
+ * List ALL blog posts (including drafts) for the admin editor.
+ */
+export async function getAllBlogPostsAdmin(limit = 200, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      published: blogPosts.published,
+      updatedAt: blogPosts.updatedAt,
+      publishedAt: blogPosts.publishedAt,
+    })
+    .from(blogPosts)
+    .orderBy(desc(blogPosts.updatedAt))
+    .limit(limit)
+    .offset(offset);
+
+  return rows;
+}
+
+/**
+ * Get a single blog post by slug for admin editing (includes drafts).
+ */
+export async function getAdminBlogPost(slug: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [post] = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.slug, slug))
+    .limit(1);
+
+  return post ?? null;
+}
+
+/**
+ * Update a blog post by slug.
+ */
+export async function updateBlogPost(
+  slug: string,
+  data: Partial<{
+    title: string;
+    metaTitle: string;
+    metaDescription: string;
+    heroImage: string;
+    category: string;
+    tags: string;
+    content: string;
+    excerpt: string;
+    readTime: string;
+    relatedSlugs: string;
+    faqItems: string;
+    canonicalUrl: string;
+    published: number;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(blogPosts)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(blogPosts.slug, slug));
+
+  return { success: true };
+}
+
+// ─── Blog Drafts ──────────────────────────────────────────────────────────────
+
+/**
+ * Upsert a draft for a post slug + name.
+ * If a draft with the same slug+name already exists, update it.
+ * Otherwise insert a new row.
+ */
+export async function upsertBlogDraft(data: {
+  postSlug: string;
+  name: string;
+  title?: string;
+  content?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  excerpt?: string;
+  heroImage?: string;
+  targetKeyword?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { blogDrafts } = await import("../drizzle/schema");
+  const existing = await db
+    .select({ id: blogDrafts.id })
+    .from(blogDrafts)
+    .where(
+      and(
+        eq(blogDrafts.postSlug, data.postSlug),
+        eq(blogDrafts.name, data.name)
+      )
+    )
+    .limit(1);
+  if (existing.length > 0) {
+    await db
+      .update(blogDrafts)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(blogDrafts.id, existing[0].id));
+    return { id: existing[0].id };
+  } else {
+    const result = await db.insert(blogDrafts).values({
+      ...data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return { id: (result as any).insertId };
+  }
+}
+
+/**
+ * List all drafts for a post slug (newest first).
+ */
+export async function listBlogDrafts(postSlug: string) {
+  const db = await getDb();
+  if (!db) return [];
+  const { blogDrafts } = await import("../drizzle/schema");
+  return db
+    .select()
+    .from(blogDrafts)
+    .where(eq(blogDrafts.postSlug, postSlug))
+    .orderBy(desc(blogDrafts.updatedAt));
+}
+
+/**
+ * Get a single draft by id.
+ */
+export async function getBlogDraft(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const { blogDrafts } = await import("../drizzle/schema");
+  const rows = await db.select().from(blogDrafts).where(eq(blogDrafts.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Delete a draft by id.
+ */
+export async function deleteBlogDraft(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { blogDrafts } = await import("../drizzle/schema");
+  await db.delete(blogDrafts).where(eq(blogDrafts.id, id));
+  return { success: true };
 }

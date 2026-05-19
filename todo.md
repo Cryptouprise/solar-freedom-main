@@ -337,3 +337,61 @@
 - [x] Write CAPABILITIES.md with full feature map, endpoint reference, AI usage guide
 - [x] Add /api/capabilities public endpoint (returns JSON + Markdown)
 - [x] Add /api/capabilities.md endpoint for raw Markdown fetch
+
+## Phase 29 — Unified Admin Layout & Post Editor
+
+- [x] Build AdminLayout sidebar component linking all admin pages
+- [x] Wrap AdminAnalytics in AdminLayout
+- [x] Wrap AdminLeads in AdminLayout
+- [x] Wrap PressReleaseAdmin in AdminLayout
+- [x] Add /admin/posts route for PostEditor
+- [x] Add SEO Command Center to AdminLayout nav
+- [x] Build PostEditor with TipTap rich text, image upload, link editing
+- [x] Add listAllPosts and getAdminPost tRPC procedures
+- [x] Add updatePost and uploadImage tRPC procedures
+
+## Phase 30 — Blog Writing Studio
+
+- [x] Add blogStudio.analyze tRPC procedure (fetch GSC top posts + run SEO analysis)
+- [x] Add blogStudio.generate tRPC procedure (streaming AI writing with model switcher)
+- [x] Add blogStudio.generateImage tRPC procedure (Seedream 4.5 / Gemini 2.5 Flash Image)
+- [x] Build /admin/blog-studio 3-panel layout (editor | AI assistant | SEO analysis)
+- [x] TipTap editor with full toolbar (headings, bold, italic, lists, blockquotes, links, code, images)
+- [x] AI assistant panel: model selector (Owl Alpha, DeepSeek, Gemini, HunyuanT1, Claude Haiku), prompt input, streaming output
+- [x] SEO analysis panel: top GSC posts, live keyword density, heading structure, internal link suggestions
+- [x] Image panel: upload or AI-generate with prompt, insert into editor
+- [x] Meta panel: title, slug, excerpt, category, tags, hero image, read time, publish status
+- [x] Add /admin/blog-studio route to App.tsx and AdminLayout nav
+- [x] TypeScript check, save checkpoint
+
+## Phase 31 — UX Bug Fixes
+
+- [ ] Audit all pages for form stickiness issues
+- [ ] Fix form not sticky on scroll on non-homepage pages
+- [ ] Wire GHL calendar booking widget to open after form submit (success state)
+- [ ] Audit blog posts for CTA duplication (4+ instances)
+- [ ] Consolidate blog post CTAs to max 2: one inline mid-post, one sticky bottom bar
+- [ ] Remove duplicate "Get Your Free Review" CTAs from blog post template
+
+## Phase 31 — UX Bug Fixes
+
+- [x] Fix inline CTA duplication on blog posts — changed from every 4 paragraphs to ONE midpoint CTA only
+- [x] Fix QuickCallbackForm — after submit, auto-opens GHL/Calendly calendar iframe inline
+- [x] Confirmed form stickiness — StickyMobileBar is global in App.tsx, works on all pages
+
+## Phase 32 — AdminContent Sidebar + Browser Login for High-DA Sites
+
+- [x] Wrap AdminContent in AdminLayout sidebar (remove standalone header, fix div nesting)
+- [x] Create server/cron/browserLoginSession.ts — Playwright login helper for Medium, LinkedIn, Substack
+- [x] Add pressRelease.browserLogin tRPC mutation (opens visible browser for admin login)
+- [x] Add pressRelease.checkLoginStatus tRPC query (reads cookies from storage state file)
+- [x] Add Login with Browser buttons + Connected/Not logged in status indicators to Settings tab
+
+## Phase 33 — Blog Studio: Insert Fix + Autosave + Drafts
+
+- [x] Fix "Insert into body" — AI markdown output now converted to HTML via marked before TipTap insertion
+- [x] Add autosave every 30s — silently saves to blogDrafts table as name="autosave"
+- [x] Add beforeunload warning when there are unsaved changes
+- [x] Add draft panel (Drafts button in top bar) — save named drafts, restore, delete
+- [x] Add blogDrafts table to schema + db:push migration
+- [x] Add blogDrafts tRPC procedures (save, list, get, delete)
