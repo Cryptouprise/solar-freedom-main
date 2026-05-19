@@ -363,3 +363,18 @@
 - [x] Meta panel: title, slug, excerpt, category, tags, hero image, read time, publish status
 - [x] Add /admin/blog-studio route to App.tsx and AdminLayout nav
 - [x] TypeScript check, save checkpoint
+
+## Phase 31 — UX Bug Fixes
+
+- [ ] Audit all pages for form stickiness issues
+- [ ] Fix form not sticky on scroll on non-homepage pages
+- [ ] Wire GHL calendar booking widget to open after form submit (success state)
+- [ ] Audit blog posts for CTA duplication (4+ instances)
+- [ ] Consolidate blog post CTAs to max 2: one inline mid-post, one sticky bottom bar
+- [ ] Remove duplicate "Get Your Free Review" CTAs from blog post template
+
+## Phase 31 — UX Bug Fixes
+
+- [x] Fix inline CTA duplication on blog posts — changed from every 4 paragraphs to ONE midpoint CTA only
+- [x] Fix QuickCallbackForm — after submit, auto-opens GHL/Calendly calendar iframe inline
+- [x] Confirmed form stickiness — StickyMobileBar is global in App.tsx, works on all pages

@@ -46,9 +46,24 @@ export default function QuickCallbackForm({
 
   if (submitted) {
     return (
-      <div className={`rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-center ${className}`}>
-        <div className="text-green-400 font-bold text-sm mb-1">✅ Callback requested.</div>
-        <p className="text-zinc-300 text-xs">We’ll call or text you shortly from (904) 921-4971.</p>
+      <div className={`rounded-xl border border-green-500/30 bg-green-500/10 p-4 ${className}`}>
+        <div className="text-green-400 font-bold text-sm mb-2">✅ Callback requested!</div>
+        <p className="text-zinc-300 text-xs mb-3">We'll call you shortly. Want to lock in a specific time?</p>
+        {showSchedule && (
+          <div className="rounded-lg overflow-hidden border border-amber-500/20">
+            <iframe
+              src={scheduleUrl}
+              width="100%"
+              height="480"
+              frameBorder="0"
+              title="Schedule a free consultation"
+              className="block"
+            />
+          </div>
+        )}
+        {!showSchedule && (
+          <p className="text-zinc-400 text-xs">We'll call or text you shortly from (904) 921-4971.</p>
+        )}
       </div>
     );
   }
