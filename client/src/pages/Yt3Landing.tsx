@@ -739,6 +739,61 @@ export default function Yt3Landing() {
         </div>
       </section>
 
+      {/* ── FEATURED VIDEOS: EXPLAINER + PODCAST ── */}
+      <section className="py-24 lg:py-32" style={{ background: "oklch(0.12 0.012 265)" }}>
+        <div className="container max-w-5xl">
+          <Reveal>
+            <div className="text-center mb-14">
+              <div className="badge-success inline-block mb-4">WATCH & LISTEN</div>
+              <h2 className="font-display text-white mb-4" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
+                LEARN EXACTLY <span className="text-amber-gradient">HOW WE DO IT</span>
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Watch our explainer video and listen to our podcast episode — real cases, real strategies, real results.</p>
+            </div>
+          </Reveal>
+          <div className="grid md:grid-cols-2 gap-8">
+            <Reveal delay={0}>
+              <div className="rounded-2xl overflow-hidden border border-amber-500/30 bg-white/5 hover:border-amber-500/60 transition-all duration-300 group">
+                <div className="relative aspect-video bg-black">
+                  <iframe
+                    src="https://www.youtube.com/embed/s6V76pijGKI?rel=0&modestbranding=1"
+                    title="Escaping the Solar Trap — Get your contract canceled!"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-5">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider mb-2" style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)" }}>▶ Explainer Video</div>
+                  <h3 className="text-white font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors">Escaping the Solar Trap — Get Your Contract Canceled!</h3>
+                  <p className="text-gray-400 text-sm">Our most-watched video. See exactly how we find the loopholes in your solar contract and get you out legally.</p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <div className="rounded-2xl overflow-hidden border border-white/20 bg-white/5 hover:border-amber-500/40 transition-all duration-300 group">
+                <div className="relative aspect-video bg-black">
+                  <iframe
+                    src="https://www.youtube.com/embed/l0A3I_CvI0c?rel=0&modestbranding=1"
+                    title="Elite Solar Recovery Podcast: How to Legally Cancel or Break Your Solar Contract"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-5">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider mb-2" style={{ background: "oklch(0.55 0.15 265 / 20%)", color: "oklch(0.75 0.12 265)" }}>🎙 Podcast Episode</div>
+                  <h3 className="text-white font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors">Elite Solar Recovery Podcast</h3>
+                  <p className="text-gray-400 text-sm">How to legally cancel or break your solar contract — real strategies from our attorneys, explained in plain English.</p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
       {/* ── VIDEO SECTION ── */}
       <section className="py-24 lg:py-32" style={{ background: "oklch(0.11 0.012 265)" }}>
         <div className="container">
