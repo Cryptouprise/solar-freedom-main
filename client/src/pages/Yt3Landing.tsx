@@ -118,12 +118,12 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
         contractType: form.payment,
         monthlyPayment: form.paying,
         intent: form.intent,
-        formName: "YouTube Landing Page Form",
-        sourcePage: "/youtube",
+        formName: "YouTube Landing Page C Form",
+        sourcePage: "/yt3",
         sourceUrl: window.location.href,
       });
     } catch (_) { /* silent */ }
-    trackFormSubmit("youtube_landing_form", "/youtube");
+    trackFormSubmit("yt3_landing_form", "/yt3");
     setSubmitted(true);
     setTimeout(() => setShowBooking(true), 1200);
   };
@@ -135,12 +135,12 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
       await quickCallback.mutateAsync({
         name: fallbackName.trim() || undefined,
         phone: fallbackPhone.trim(),
-        formName: "youtube_landing_callback",
-        sourcePage: "/youtube",
+        formName: "yt3_landing_callback",
+        sourcePage: "/yt3",
         sourceUrl: window.location.href,
       });
     } catch (_) { /* silent */ }
-    trackFormSubmit("youtube_landing_callback", "/youtube");
+    trackFormSubmit("yt3_landing_callback", "/yt3");
     setSubmitted(true);
     setTimeout(() => setShowBooking(true), 1200);
   };
@@ -384,12 +384,12 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-export default function YouTubeLanding() {
+export default function Yt3Landing() {
   const formRef = useRef<HTMLDivElement>(null);
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
 
   const scrollToForm = (label = "yt_cta") => {
-    trackCTAClick(label, "/youtube");
+    trackCTAClick(label, "/yt3");
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
@@ -412,7 +412,7 @@ export default function YouTubeLanding() {
             <span className="font-display text-white text-lg tracking-wide">SOLAR FREEDOM</span>
           </div>
           <div className="flex items-center gap-3">
-            <a href={phoneHref} onClick={() => trackPhoneClick("yt_topbar_phone", phoneDigits)}
+            <a href={phoneHref} onClick={() => trackPhoneClick("yt3_topbar_phone", phoneDigits)}
               className="hidden sm:flex items-center gap-1.5 text-gray-300 hover:text-white text-sm transition-colors">
               📞 {phoneDisplay}
             </a>
@@ -436,22 +436,21 @@ export default function YouTubeLanding() {
           {/* Centered headline */}
           <div className="text-center mb-10">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 mb-6">
-              <span className="badge-danger">⚠ AS SEEN ON YOUTUBE</span>
+              <span className="badge-danger">⚠ AS SEEN ON YOUTUBE — VARIANT C</span>
               <span className="text-gray-400 text-xs font-mono">3,000+ homeowners helped</span>
             </motion.div>
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
               className="font-display leading-none mb-6" style={{ fontSize: "clamp(2.8rem, 7vw, 5.5rem)" }}>
-              <span className="text-white">FIND OUT IF</span>
-              {" "}<span className="text-amber-gradient">WE CAN HELP</span>
+              <span className="text-amber-gradient">IS YOUR SOLAR COMPANY</span>
               <br />
-              <span className="text-white">YOU CANCEL YOUR</span>
-              {" "}<span className="text-amber-gradient">SOLAR CONTRACT.</span>
+              <span className="text-white">RIPPING</span>
+              {" "}<span className="text-amber-gradient">YOU OFF?</span>
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
               className="text-gray-300 text-lg leading-relaxed mb-6 max-w-2xl mx-auto">
-              Most people have their solar canceled and still get to keep their equipment. Take 60 seconds to find out if you qualify.
+              Overpriced payments. Underperforming panels. Contracts you can't escape. Our attorneys have seen it all — and cancelled thousands of them. Find out in 60 seconds if you have a case.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.45 }}
@@ -464,7 +463,7 @@ export default function YouTubeLanding() {
               ))}
             </motion.div>
 
-            <motion.a href={phoneHref} onClick={() => trackPhoneClick("yt_hero_phone", phoneDigits)}
+            <motion.a href={phoneHref} onClick={() => trackPhoneClick("yt3_hero_phone", phoneDigits)}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
               className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 font-semibold text-lg transition-colors">
               📞 Call {phoneDisplay}
