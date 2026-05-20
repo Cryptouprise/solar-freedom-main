@@ -433,70 +433,66 @@ export default function Yt2Landing() {
         </div>
 
         <div className="container relative z-10 py-16 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-
-            {/* Left: Headline */}
-            <div>
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 mb-6">
-                <span className="badge-danger">⚠ AS SEEN ON YOUTUBE — VARIANT B</span>
-                <span className="text-gray-400 text-xs font-mono">3,000+ homeowners helped</span>
-              </motion.div>
-
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-                className="font-display leading-none mb-6" style={{ fontSize: "clamp(3rem, 7vw, 5.5rem)" }}>
-                <span className="text-white">TRAPPED IN A</span>
-                <br />
-                <span className="text-amber-gradient">SOLAR CONTRACT?</span>
-                <br />
-                <span className="text-white">WE GET</span>
-                <br />
-                <span className="text-amber-gradient">YOU OUT.</span>
-              </motion.h1>
-
-              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
-                className="text-gray-300 text-lg leading-relaxed mb-8 max-w-lg">
-You didn't sign up to be stuck. Our attorneys have cancelled thousands of solar contracts — and most clients keep their equipment. Find out if you qualify in 60 seconds.
-              </motion.p>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.45 }}
-                className="flex flex-wrap gap-4 text-sm text-gray-400 mb-8">
-                {["✓ No upfront cost", "✓ Results in 30–90 days", "✓ 100% confidential", "✓ No obligation"].map((item) => (
-                  <span key={item} className="flex items-center gap-1.5">
-                    <span className="text-amber-400 font-bold">{item.slice(0, 1)}</span>
-                    {item.slice(2)}
-                  </span>
-                ))}
-              </motion.div>
-
-              <motion.a href={phoneHref} onClick={() => trackPhoneClick("yt2_hero_phone", phoneDigits)}
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-                className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 font-semibold text-lg transition-colors">
-                📞 Call {phoneDisplay}
-              </motion.a>
-            </div>
-
-            {/* Right: Form */}
-            <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
-              <div ref={formRef} className="rounded-2xl p-8 relative form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
-                <div className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl" style={{ background: "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)" }} />
-                <div className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl" style={{ background: "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)" }} />
-                <div className="mb-6 text-center relative">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3"
-                    style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                    FREE CASE REVIEW — NO OBLIGATION
-                  </div>
-                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">
-                    60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
-                  </h3>
-                  <p className="text-gray-300 text-sm font-semibold">Most people have their solar canceled and still get to keep their equipment.</p>
-                </div>
-                <SocialProofTicker />
-                <UrgencyTimer />
-                <MultiStepForm onScrollToTop={scrollToTop} />
-              </div>
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 mb-6 justify-center">
+              <span className="badge-danger">⚠ AS SEEN ON YOUTUBE — VARIANT B</span>
+              <span className="text-gray-400 text-xs font-mono">3,000+ homeowners helped</span>
             </motion.div>
+
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
+              className="font-display leading-none mb-6" style={{ fontSize: "clamp(3rem, 7vw, 5.5rem)" }}>
+              <span className="text-white">TRAPPED IN A</span>
+              <br />
+              <span className="text-amber-gradient">SOLAR CONTRACT?</span>
+              <br />
+              <span className="text-white">WE GET</span>
+              <br />
+              <span className="text-amber-gradient">YOU OUT.</span>
+            </motion.h1>
+
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-gray-300 text-lg leading-relaxed mb-8 max-w-xl mx-auto">
+              You didn't sign up to be stuck. Our attorneys have cancelled thousands of solar contracts — and most clients keep their equipment. Find out if you qualify in 60 seconds.
+            </motion.p>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.45 }}
+              className="flex flex-wrap gap-4 text-sm text-gray-400 mb-8 justify-center">
+              {["✓ No upfront cost", "✓ Results in 30–90 days", "✓ 100% confidential", "✓ No obligation"].map((item) => (
+                <span key={item} className="flex items-center gap-1.5">
+                  <span className="text-amber-400 font-bold">{item.slice(0, 1)}</span>
+                  {item.slice(2)}
+                </span>
+              ))}
+            </motion.div>
+
+            <motion.a href={phoneHref} onClick={() => trackPhoneClick("yt2_hero_phone", phoneDigits)}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+              className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 font-semibold text-lg transition-colors mb-10">
+              📞 Call {phoneDisplay}
+            </motion.a>
           </div>
+
+          {/* Form — centered below headline */}
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="max-w-2xl mx-auto mt-2">
+            <div ref={formRef} className="rounded-2xl p-8 relative form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
+              <div className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl" style={{ background: "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)" }} />
+              <div className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl" style={{ background: "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)" }} />
+              <div className="mb-6 text-center relative">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3"
+                  style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  FREE CASE REVIEW — NO OBLIGATION
+                </div>
+                <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">
+                  FILL OUT THE QUIZ AND BOOK YOUR FREE 15-MINUTE SOLAR CANCELLATION REVIEW CALL WITH ONE OF OUR SOLAR ADVOCATES
+                </h3>
+                <p className="text-gray-300 text-sm font-semibold">Most people have their solar canceled and still get to keep their equipment.</p>
+              </div>
+              <SocialProofTicker />
+              <UrgencyTimer />
+              <MultiStepForm onScrollToTop={scrollToTop} />
+            </div>
+          </motion.div>
         </div>
       </section>
 
