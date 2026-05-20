@@ -20,6 +20,7 @@ import { trackPhoneClick, trackCTAClick, initScrollTracking, trackFormSubmit } f
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import OutcomesSection from "@/components/OutcomesSection";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -1018,6 +1019,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <OutcomesSection onBookCall={() => scrollToForm("outcomes_cta")} />
 
       {/* ── PAIN SECTION ── */}
       <section className="py-24 lg:py-32">

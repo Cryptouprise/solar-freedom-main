@@ -14,6 +14,7 @@ import BookingModal from "@/components/BookingModal";
 import { trackPhoneClick, trackCTAClick, trackFormSubmit } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import OutcomesSection from "@/components/OutcomesSection";
 
 // ─── CDN Assets ───────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -386,6 +387,7 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Yt2Landing() {
   const formRef = useRef<HTMLDivElement>(null);
+  const [pageBookingOpen, setPageBookingOpen] = useState(false);
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
 
   const scrollToForm = (label = "yt_cta") => {
@@ -516,6 +518,9 @@ export default function Yt2Landing() {
           </div>
         </div>
       </section>
+
+      <OutcomesSection onBookCall={() => setPageBookingOpen(true)} />
+      <BookingModal isOpen={pageBookingOpen} onClose={() => setPageBookingOpen(false)} firstName="" />
 
       {/* ── COUNTER PLAYBOOK ── */}
       <section className="py-24 lg:py-32">
