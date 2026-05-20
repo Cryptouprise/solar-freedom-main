@@ -27,6 +27,7 @@ import PostEditor from "@/pages/admin/PostEditor";
 import BlogStudio from "@/pages/admin/BlogStudio";
 import Login from "@/pages/Login";
 import YouTubeLanding from "@/pages/YouTubeLanding";
+import Yt2Landing from "@/pages/Yt2Landing";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import SunrunPage from "@/pages/SunrunPage";
 import { useEffect } from "react";
@@ -95,6 +96,7 @@ function Router() {
         <Route path={"/admin/blog-studio"} component={BlogStudio} />
         <Route path={"/youtube"} component={YouTubeLanding} />
         <Route path={"/yt"} component={YouTubeLanding} />
+        <Route path={"/yt2"} component={Yt2Landing} />
         <Route path={"/login"} component={Login} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
