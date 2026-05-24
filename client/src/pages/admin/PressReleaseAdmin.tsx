@@ -96,7 +96,7 @@ function AddTopicDialog({ onAdded }: { onAdded: () => void }) {
     title: "",
     angle: "",
     targetKeywords: "",
-    targetUrl: "https://www.breakyoursolarcontract.com",
+    targetUrl: "https://breakyoursolarcontract.com",
     sortOrder: 50,
   });
   
@@ -106,7 +106,7 @@ function AddTopicDialog({ onAdded }: { onAdded: () => void }) {
     onSuccess: () => {
       toast.success('Topic added to queue');
       setOpen(false);
-      setForm({ title: "", angle: "", targetKeywords: "", targetUrl: "https://www.breakyoursolarcontract.com", sortOrder: 50 });
+      setForm({ title: "", angle: "", targetKeywords: "", targetUrl: "https://breakyoursolarcontract.com", sortOrder: 50 });
       utils.pressRelease.getTopics.invalidate();
       onAdded();
     },

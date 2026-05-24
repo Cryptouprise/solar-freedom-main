@@ -258,7 +258,7 @@ export async function submitToPRFree(pr: GeneratedPR): Promise<PRWireResult> {
 
     const websiteField = page.locator('input[name="website"], input[name="url"]').first();
     if (await websiteField.isVisible()) {
-      await websiteField.fill("https://www.breakyoursolarcontract.com");
+      await websiteField.fill("https://breakyoursolarcontract.com");
     }
 
     // Submit
@@ -330,7 +330,7 @@ export async function submitToPRBuzz(pr: GeneratedPR): Promise<PRWireResult> {
 
     const websiteField = page.locator('input[name="website"], input[name="url"]').first();
     if (await websiteField.isVisible()) {
-      await websiteField.fill("https://www.breakyoursolarcontract.com");
+      await websiteField.fill("https://breakyoursolarcontract.com");
     }
 
     // Submit

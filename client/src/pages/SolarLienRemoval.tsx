@@ -224,7 +224,7 @@ export default function SolarLienRemoval() {
   useSeoMeta({
     title: "Solar Lien Removal | Remove PACE Loan & Solar Liens From Your Property",
     description: "Solar lien on your title? We help homeowners remove PACE loans, solar deed liens, and UCC filings so you can sell, refinance, or clear your property. Free review.",
-    canonical: "https://www.breakyoursolarcontract.com/solar-lien-removal",
+    canonical: "https://breakyoursolarcontract.com/solar-lien-removal",
   });
 
   return (

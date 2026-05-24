@@ -123,7 +123,7 @@ function withDefaults(pr: PRContent): Required<PRContent> {
     contactName: pr.contactName ?? "Solar Freedom Media",
     contactEmail: pr.contactEmail ?? "media@breakyoursolarcontract.com",
     contactPhone: pr.contactPhone ?? "",
-    websiteUrl: pr.websiteUrl ?? "https://www.breakyoursolarcontract.com",
+    websiteUrl: pr.websiteUrl ?? "https://breakyoursolarcontract.com",
     city: pr.city ?? "Jacksonville",
     state: pr.state ?? "FL",
     country: pr.country ?? "US",
