@@ -55,8 +55,8 @@ export const extraBlogPosts: BlogPost[] = [
   {
     slug: 'solar-contract-rescission-rights',
     title: 'Your 3-Day Right to Cancel a Solar Contract: What the Company Will Not Tell You',
-    metaTitle: 'Solar Contract 3-Day Cancellation Right -- Federal Law Protects You',
-    metaDescription: `Cancel your solar contract! 3-day window, or years later due to fraud, misrepresentation, or TILA violations. Get a free case review.`,
+    metaTitle: 'Solar Contract Rescission Rights | 3-Day Cancel Guide',
+    metaDescription: `Need to cancel a solar contract? Learn the 3-day rescission rule, defective notice issues, certified-mail steps, and options after the window closes.`,
     category: 'Legal Rights',
     readTime: '7 min read',
     publishDate: 'March 12, 2026',
@@ -65,7 +65,7 @@ export const extraBlogPosts: BlogPost[] = [
     heroAlt: 'person reviewing contract with pen ready to sign cancellation notice',
     ctaText: 'Check If Your Cancellation Notice Was Defective',
     ctaSubtext: 'A defective notice may extend your cancellation window indefinitely. Free review.',
-    relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-panel-scam-signs-and-solutions', 'get-out-of-solar-contract-by-state'],
+    relatedSlugs: ['how-to-file-a-complaint-against-solar-company-attorney-general', 'new-jersey-solar-contract-rights', 'sunrun-solar-contract-cancellation-2026', 'how-to-get-out-of-a-solar-contract'],
     faq: [
       { q: 'How long do I have to cancel a solar contract?', a: 'Federal law gives you 3 business days to cancel any contract signed at your home. Some states extend this window. If the required cancellation notice was not properly provided, the window may be extended indefinitely.' },
       { q: 'How do I cancel a solar contract within 3 days?', a: 'Write a cancellation notice stating you are canceling under the FTC Cooling-Off Rule. Send it via certified mail with return receipt. Keep a copy. Do not rely on phone or email alone.' },

@@ -522,7 +522,7 @@ function classifyPath(urlPath) {
 }
 
 function buildInternalLinks(urlPath) {
-  const links = [
+  const defaultLinks = [
     ["/", "Solar Freedom home"],
     ["/blog", "Solar contract help blog"],
     ["/solar-contract-laws", "Solar contract laws by state"],
@@ -540,8 +540,53 @@ function buildInternalLinks(urlPath) {
     ],
   ];
 
+  const contextualLinks = {
+    "/blog/sunrun-solar-contract-cancellation-2026": [
+      ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
+      ["/blog/sunrun-complaints-california", "Sunrun complaints in California"],
+      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
+      ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
+    ],
+    "/blog/solar-contract-rescission-rights": [
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
+      ["/blog/new-jersey-solar-contract-rights", "New Jersey solar contract rights"],
+      ["/blog/cancel-solar-contract-rescission-rights", "Cancel solar contract rescission"],
+      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
+    ],
+    "/blog/new-jersey-solar-contract-rights": [
+      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
+      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
+      ["/solar-contract-laws", "Solar contract laws by state"],
+    ],
+    "/blog/how-to-file-a-complaint-against-solar-company-attorney-general": [
+      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
+      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
+      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
+      ["/blog/solar-fraud-warning-signs", "Solar fraud warning signs"],
+    ],
+    "/blog/sunrun-complaints-california": [
+      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
+      ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
+      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
+      ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
+    ],
+  };
+
+  const links = [
+    ...(contextualLinks[urlPath] || []),
+    ...defaultLinks,
+  ];
+  const seen = new Set();
+
   return links
     .filter(([href]) => href !== urlPath)
+    .filter(([href]) => {
+      if (seen.has(href)) return false;
+      seen.add(href);
+      return true;
+    })
     .slice(0, 8)
     .map(
       ([href, label]) => `<li><a href="${href}">${escapeHtml(label)}</a></li>`

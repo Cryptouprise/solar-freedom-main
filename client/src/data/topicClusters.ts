@@ -227,6 +227,27 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
         targetKeyword: "solar contract rescission rights",
       },
       {
+        title: "File an Attorney General Complaint",
+        url: "/blog/how-to-file-a-complaint-against-solar-company-attorney-general",
+        type: "blog",
+        description: "How AG complaints support solar contract disputes",
+        targetKeyword: "file complaint against solar company attorney general",
+      },
+      {
+        title: "New Jersey Solar Contract Rights",
+        url: "/blog/new-jersey-solar-contract-rights",
+        type: "blog",
+        description: "New Jersey rescission and Consumer Fraud Act options",
+        targetKeyword: "New Jersey solar contract rights",
+      },
+      {
+        title: "Cancel Solar Contract Rescission",
+        url: "/blog/cancel-solar-contract-rescission-rights",
+        type: "blog",
+        description: "Extended rescission rights after deceptive solar sales",
+        targetKeyword: "cancel solar contract rescission",
+      },
+      {
         title: "Selling House With Solar Lease",
         url: "/blog/selling-house-with-solar-lease-complete-guide",
         type: "blog",
@@ -320,6 +341,20 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
         type: "blog",
         description: "Step-by-step Sunrun cancellation guide with 2026 legal updates",
         targetKeyword: "Sunrun contract cancellation 2026",
+      },
+      {
+        title: "Sunrun Complaints in California",
+        url: "/blog/sunrun-complaints-california",
+        type: "blog",
+        description: "California Sunrun complaints, NEM 3.0, and legal rights",
+        targetKeyword: "Sunrun complaints California",
+      },
+      {
+        title: "Cancel Sunrun Before Installation",
+        url: "/blog/cancel-sunrun-solar-contract-before-installation",
+        type: "blog",
+        description: "How to cancel a Sunrun agreement before panels go up",
+        targetKeyword: "cancel Sunrun solar contract before installation",
       },
       {
         title: "Pink Energy Bankruptcy",
@@ -417,7 +452,14 @@ export function getClusterForPage(url: string): TopicCluster | undefined {
 export function getRelatedSpokes(url: string, limit = 4): ClusterSpoke[] {
   const cluster = getClusterForPage(url);
   if (!cluster) return [];
-  return cluster.spokes
-    .filter((s) => s.url !== url)
-    .slice(0, limit);
+  const currentIndex = cluster.spokes.findIndex((s) => s.url === url);
+  const orderedSpokes =
+    currentIndex >= 0
+      ? [
+          ...cluster.spokes.slice(currentIndex + 1),
+          ...cluster.spokes.slice(0, currentIndex),
+        ]
+      : cluster.spokes;
+
+  return orderedSpokes.filter((s) => s.url !== url).slice(0, limit);
 }
