@@ -89,7 +89,7 @@ export function serveStatic(app: Express) {
   // We handle HTML serving ourselves in the catch-all below so we can inject correct meta tags.
   // Setting index:false prevents express.static from serving index.html for directory requests,
   // which would bypass our pre-rendered file serving logic.
-  app.use(express.static(distPath, { index: false }));
+  app.use(express.static(distPath, { index: false, redirect: false }));
 
   // Pre-build the meta map at startup so first request is fast
   buildMetaMap();

@@ -49,6 +49,11 @@ async function startServer() {
     res.redirect(301, '/solar-contract-laws');
   });
 
+  // Redirect legacy wording to the canonical route used by the React app and sitemap
+  app.get('/selling-home-with-solar', (_req, res) => {
+    res.redirect(301, '/selling-house-with-solar');
+  });
+
   // IndexNow key verification file for Bing/Yandex URL submission
   app.get('/bysolarcontract2026.txt', (_req, res) => {
     res.setHeader('Content-Type', 'text/plain');

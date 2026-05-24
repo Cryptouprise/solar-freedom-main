@@ -293,9 +293,18 @@
       data-widget-id="69c5a012bf76e38a0757edf8"
       defer>
     </script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <script>
+      (function() {
+        var analyticsEndpoint = "%VITE_ANALYTICS_ENDPOINT%";
+        var websiteId = "%VITE_ANALYTICS_WEBSITE_ID%";
+        if (!analyticsEndpoint || !websiteId || analyticsEndpoint.indexOf("%") === 0 || websiteId.indexOf("%") === 0) return;
+
+        var script = document.createElement("script");
+        script.defer = true;
+        script.src = analyticsEndpoint.replace(/\/$/, "") + "/umami";
+        script.setAttribute("data-website-id", websiteId);
+        document.head.appendChild(script);
+      })();
+    </script>
   </body>
 </html>

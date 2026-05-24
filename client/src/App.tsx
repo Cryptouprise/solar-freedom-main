@@ -72,11 +72,14 @@ function Router() {
         <Route path={"/cancel-solar-contract/:slug"} component={CityPage} />
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/:slug"} component={BlogPost} />
-        <Route path={/^\/cancel-(.+)-solar-contract$/}>{() => {
-          // RegExp route: matches /cancel-{any-slug}-solar-contract
-          // CompanyPage extracts slug from URL via useLocation()
-          return <CompanyPage />;
-        }}</Route>
+        <Route path={/^\/cancel-(.+)-solar-contract$/}>
+          {() => {
+            // RegExp route: matches /cancel-{any-slug}-solar-contract
+            // CompanyPage extracts slug from URL via useLocation()
+            return <CompanyPage />;
+          }}
+        </Route>
+        <Route path={"/how-it-works"} component={Home} />
         <Route path={"/seo-command-center"} component={SeoCommandCenter} />
         <Route path={"/solar-fraud-report"} component={SolarFraudReport} />
         <Route path={"/solar-panel-scam"} component={SolarPanelScam} />
@@ -85,7 +88,10 @@ function Router() {
         <Route path={"/sunrun"} component={SunrunPage} />
         <Route path={"/solar-contract-laws"} component={StateLawsIndex} />
         <Route path={"/solar-contract-laws/:state"} component={StateLawPage} />
-        <Route path={"/selling-house-with-solar"} component={SellingHouseWithSolar} />
+        <Route
+          path={"/selling-house-with-solar"}
+          component={SellingHouseWithSolar}
+        />
         <Route path={"/solar-lien-removal"} component={SolarLienRemoval} />
         <Route path={"/solar-loan-help"} component={SolarLoanHelp} />
         <Route path={"/solar-companies"} component={SolarCompanyHub} />
