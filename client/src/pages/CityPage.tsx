@@ -16,6 +16,8 @@ import { getCityContentDepthAll as getCityContentDepth } from "@/data/city-conte
 import { stateLaws } from "@/data/state-laws";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import { trpc } from "@/lib/trpc";
+import { trackFormSubmit } from "@/lib/analytics";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -39,7 +41,9 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 function CityForm({ city, state }: { city: string; state: string }) {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ company: "", issue: "", payment: "", name: "", phone: "", email: "" });
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({ company: "", issue: "", payment: "", firstName: "", lastName: "", phone: "", email: "" });
+  const submitLead = trpc.leads.submit.useMutation();
 
   const COMPANIES = ["Sunrun", "SunPower", "Tesla Solar", "Vivint Solar", "ADT Solar", "Freedom Forever", "Sunnova", "GoodLeap", "Mosaic", "Loanpal", "Other"];
   const ISSUES = ["Monthly payment too high", "System underperforms", "Was misled during sale", "Can't sell my home", "Company went bankrupt", "Hidden fees", "Other"];
@@ -50,6 +54,30 @@ function CityForm({ city, state }: { city: string; state: string }) {
     { question: "What's your main issue?", field: "issue", options: ISSUES },
     { question: "What's your monthly solar payment?", field: "payment", options: PAYMENTS },
   ];
+
+  const handleSubmit = async () => {
+    if (!form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.email.trim()) return;
+    setError("");
+    try {
+      await submitLead.mutateAsync({
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        solarCompany: form.company,
+        problemType: form.issue,
+        monthlyPayment: form.payment,
+        intent: `City landing page case review for ${city}, ${state}`,
+        formName: "city_landing_case_review",
+        sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
+        sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
+      });
+      trackFormSubmit("city_landing_case_review", typeof window !== "undefined" ? window.location.pathname : "unknown");
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong submitting your review. Please try again or call us directly.");
+    }
+  };
 
   if (submitted) {
     return (
@@ -107,14 +135,15 @@ function CityForm({ city, state }: { city: string; state: string }) {
       <div className="grid grid-cols-2 gap-3">
         <input
           placeholder="First Name"
-          value={form.name.split(" ")[0] || ""}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value + " " + (f.name.split(" ")[1] || "") }))}
+          value={form.firstName}
+          onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
           className="px-4 py-3 rounded text-white text-sm outline-none"
           style={{ background: "oklch(0.18 0.01 265)", border: "1px solid oklch(0.3 0.01 265)" }}
         />
         <input
           placeholder="Last Name"
-          onChange={(e) => setForm((f) => ({ ...f, name: (f.name.split(" ")[0] || "") + " " + e.target.value }))}
+          value={form.lastName}
+          onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
           className="px-4 py-3 rounded text-white text-sm outline-none"
           style={{ background: "oklch(0.18 0.01 265)", border: "1px solid oklch(0.3 0.01 265)" }}
         />
@@ -133,9 +162,10 @@ function CityForm({ city, state }: { city: string; state: string }) {
         className="w-full px-4 py-3 rounded text-white text-sm outline-none"
         style={{ background: "oklch(0.18 0.01 265)", border: "1px solid oklch(0.3 0.01 265)" }}
       />
+      {error && <p className="text-red-400 text-xs text-center">{error}</p>}
       <button
-        onClick={() => setSubmitted(true)}
-        disabled={!form.name || !form.phone || !form.email}
+        onClick={handleSubmit}
+        disabled={!form.firstName || !form.lastName || !form.phone || !form.email || submitLead.isPending}
         className="w-full py-4 rounded font-bold text-black text-lg transition-all disabled:opacity-40"
         style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
       >

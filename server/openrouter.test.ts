@@ -5,7 +5,9 @@
 import { describe, it, expect } from "vitest";
 import "dotenv/config";
 
-describe("OpenRouter API Key", () => {
+const describeOpenRouter = process.env.OPENROUTER_API_KEY ? describe : describe.skip;
+
+describeOpenRouter("OpenRouter API Key", () => {
   it("should have OPENROUTER_API_KEY set", () => {
     expect(process.env.OPENROUTER_API_KEY).toBeTruthy();
     expect(process.env.OPENROUTER_API_KEY!.length).toBeGreaterThan(10);
