@@ -10,6 +10,8 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
+    "seo:audit": "node scripts/seo-agent-audit.mjs",
+    "seo:agent": "node scripts/seo-growth-agent.mjs",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
   "dependencies": {

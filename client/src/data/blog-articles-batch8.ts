@@ -5,754 +5,1686 @@
 import { BlogPost } from "./blog";
 
 export const blogArticlesBatch8: BlogPost[] = [
-{
-  slug: 'goodleap-solar-loan-problems',
-  title: 'GoodLeap Solar Loan Problems: How to Fight Back Against Predatory Financing',
-  metaTitle: 'GoodLeap Solar Loan Problems: How to Fight Back Against Predatory Financing',
-  metaDescription: `Discover the truth about GoodLeap solar loan problems, from hidden fees to deceptive sales tactics. Learn how to protect your rights and fight back against p...`,
-  category: 'Loan Problems',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Discover the truth about GoodLeap solar loan problems, from hidden fees to deceptive sales tactics. Learn how to protect your rights and fight back against predatory solar financing today.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of GoodLeap Solar Loans' },
-    { type: 'p', content: 'GoodLeap, formerly known as Loanpal, has positioned itself as a leader in the residential solar financing market, but for many homeowners, the experience has been anything but bright. While the promise of low monthly payments and zero-down installation is enticing, the underlying reality often involves complex financial structures that can leave families trapped in decades of debt. Many consumers report that the sales process was rushed, with critical details about the loan terms buried in digital documents they were never given a fair chance to review. This lack of transparency is at the heart of the growing number of complaints against the company.' },
-    { type: 'p', content: 'The financial burden of a GoodLeap loan often extends far beyond the initial cost of the solar panels themselves. Homeowners frequently find that their total loan balance is significantly higher than the cash price of the system, sometimes by as much as 30% or more. This discrepancy is often due to \'dealer fees\' or \'origination fees\' that are baked into the principal of the loan to subsidize the low interest rates advertised by sales representatives. When these systems fail to perform as promised, or when the installation company goes out of business, homeowners are left paying for a \'zombie\' system that provides no benefit while their debt continues to accrue interest.' },
-    { type: 'h2', content: 'The \\"GoodLeap Special\\": Hidden Fees and Deceptive Pricing' },
-    { type: 'p', content: 'One of the most significant issues facing GoodLeap borrowers is the practice of charging massive hidden fees, which some consumer advocates have dubbed the \\"GoodLeap Special.\\" In March 2024, Minnesota Attorney General Keith Ellison filed a major lawsuit against GoodLeap and several other solar lenders, alleging they charged over $35 million in deceptive hidden fees to nearly 5,000 Minnesota consumers. These fees, which typically range from 15% to 30% of the total loan amount, are often not disclosed in the initial sales proposals or the loan origination documents.' },
-    { type: 'p', content: 'For a typical $40,000 solar installation, a 25% hidden fee adds $10,000 to the principal balance before a single kilowatt-hour of energy is even produced. This means the homeowner is paying interest on a much larger sum than they realized, effectively canceling out the financial benefits of going solar. The lawsuit asserts that these practices violate state consumer fraud statutes and deceptive trade practices laws. By concealing the true cost of financing, GoodLeap and its partners prevent homeowners from accurately comparing the cost of their loans with other financing options, such as home equity lines of credit or traditional bank loans.' },
-    { type: 'warning', content: 'Be extremely cautious of any solar loan that offers an interest rate significantly lower than current market rates (e.g., 1.99% or 2.99%). These \\"teaser\\" rates are almost always subsidized by massive upfront \\"dealer fees\\" that are added to your loan principal, often increasing your total debt by $10,000 to $20,000 without your knowledge.' },
-    { type: 'h2', content: 'Predatory Sales Tactics and Agency Liability' },
-    { type: 'p', content: 'GoodLeap operates through a network of independent solar installers who act as the primary point of contact for homeowners. However, recent legal developments have challenged GoodLeap\'s attempt to distance itself from the predatory tactics used by these partners. In a landmark arbitration case in July 2024, a former Chief Justice of the Georgia Supreme Court ruled that GoodLeap was legally responsible for the deceptive actions of its partner, Pink Energy (formerly Power Home Solar). The arbitrator found that GoodLeap exercised such extensive control over the sales process that the installer was effectively acting as GoodLeap\'s agent.' },
-    { type: 'p', content: 'The tactics described in these cases are often harrowing. Sales representatives may spend four or more hours in a homeowner\'s living room, using high-pressure techniques to secure a signature. In many instances, the contracts are presented on an iPad, and the salesperson quickly scrolls to the signature lines without allowing the homeowner to read the fine print. Homeowners are often told that they can cancel the contract orally, but the written terms usually require a formal \\"Notice of Cancellation\\" to be sent via certified mail within a strict three-day window. When the installer goes bankrupt--as Pink Energy and Titan Solar have done--homeowners are often told by GoodLeap that they are still responsible for the full loan balance, regardless of whether the system works.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'loanpal-solar-loan-complaints',
-  title: 'Solar Contract Help',
-  metaTitle: 'Solar Contract Help',
-  metaDescription: ``,
-  category: 'Contract Help',
-  readTime: '8 min read',
-  publishDate: 'March 2026',
-  excerpt: '',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'Learn about Solar Contract Help and your rights as a homeowner.' },
-    { type: 'callout', content: 'Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'service-finance-solar-loan-problems',
-  title: 'Service Finance Solar Loan Problems: A Homeowner\'s Guide to Getting Out',
-  metaTitle: 'Service Finance Solar Loan Problems: A Homeowner\'s Guide to Getting Out',
-  metaDescription: `Break your solar contract! Uncover legal methods like rescission, fraud claims, and TILA violations to cancel. Avoid 20-year payments. Free case review.`,
-  category: 'Loan Problems',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Are you struggling with a Service Finance solar loan that feels more like a burden than a benefit? Learn how to navigate UCC-1 filings, high interest rates, and predatory contracts to reclaim your financial freedom.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Service Finance Solar Loans' },
-    { type: 'p', content: 'Many homeowners enter into a Service Finance Company (SFC) agreement with the promise of lower utility bills and a greener footprint. However, the reality often sets in a few months later when the first bill arrives, and the "savings" don\'t materialize. Service Finance is a third-party lender that provides installment loans for home improvements, including solar panels. Unlike a lease, you own the equipment, but you also own a massive debt that can span 20 to 25 years. For a typical $35,000 system, you might find yourself paying back over $60,000 once interest and fees are factored in. This long-term commitment is often sold as a simple monthly payment, but it is a complex financial instrument that can have lasting effects on your credit and your home\'s equity.' },
-    { type: 'p', content: 'The problem isn\'t the solar technology itself; it\'s the predatory sales tactics used by some contractors who partner with Service Finance. These sales reps often gloss over the long-term financial implications, focusing instead on "zero down" and "low monthly payments." What they don\'t tell you is that these loans are often secured by a fixture filing on your home, which can make selling or refinancing your property a nightmare. If you feel like you were misled during the sales process, you aren\'t alone, and there are steps you can take to fight back. Many homeowners report that the actual energy production of their panels is significantly lower than what was promised in the initial sales pitch, leading to a "double bill" situation where they pay both the solar loan and a substantial utility bill.' },
-    { type: 'h2', content: 'The UCC-1 Fixture Filing: The Invisible Lien on Your Home' },
-    { type: 'p', content: 'One of the most common "surprises" homeowners face with Service Finance is the UCC-1 fixture filing. While SFC will tell you this isn\'t a mortgage lien, it functions very similarly in the eyes of a title company. When you sign that loan agreement, you are giving Service Finance a legal interest in the solar equipment attached to your home. This filing is recorded in the public records of your county, effectively "clouding" your title. This means that any search of your property records will show Service Finance as a creditor with a claim on your home\'s fixtures.' },
-    { type: 'p', content: 'If you try to sell your home, the buyer\'s lender will likely demand that the UCC-1 filing be removed before closing. This usually means you have to pay off the entire remaining balance of the solar loan--which could be $30,000 or more--out of your home equity. Many homeowners don\'t realize this until they are weeks away from closing, leading to frantic negotiations and, in some cases, the entire sale falling through. It\'s a high-stakes trap that keeps you tethered to a loan that may no longer serve you. Even if you find a buyer willing to assume the loan, Service Finance has strict credit requirements for the new homeowner, and many buyers are unwilling to take on a 20-year debt for used solar equipment.' },
-    { type: 'h3', content: 'Why Your Realtor and Lender are Worried' },
-    { type: 'p', content: 'Realtors often cringe when they see solar panels on a listing because they know the complications that come with lenders like Service Finance. A UCC-1 filing isn\'t just a note in a file; it\'s a public declaration that someone else has a claim on a part of your property. For a new buyer, this represents a risk they aren\'t willing to take. Lenders are equally hesitant, as they want to ensure their mortgage holds the primary position without any competing "fixture" claims that could complicate a foreclosure or insurance claim. This can lead to delays in the appraisal process and may even require a specialized "solar addendum" to the sales contract, which can scare off potential buyers in a competitive market.' },
-    { type: 'h2', content: 'High Interest Rates and the "Dealer Fee" Trap' },
-    { type: 'p', content: 'Service Finance offers a variety of loan products, some with seemingly low interest rates like 2.99% or 3.99%. However, these "low" rates often come with a massive "dealer fee" or "origination fee" that is added to the principal of your loan. It is not uncommon for a contractor to add a 25% to 30% markup to the price of the solar system just to buy down the interest rate from Service Finance. This means you are paying interest on a fee that provided you no tangible value. This practice is often hidden in the fine print of the contract, and many homeowners don\'t realize they are paying thousands of dollars just for the privilege of a lower interest rate.' },
-    { type: 'p', content: 'For example, if the actual cost of the solar installation is $25,000, the contractor might submit a loan application to Service Finance for $32,500 to cover the dealer fee. You are now starting your solar journey $7,500 in the hole before the first panel is even bolted to your roof. Over a 20-year term, even at a "low" rate, the total cost of the loan becomes astronomical. If you have a standard rate loan, which can jump to 9.99% or higher depending on your credit score, the financial burden becomes even more significant. This "hidden" debt is one of the primary reasons homeowners find themselves underwater on their solar loans, owing more than the system is actually worth from day one.' },
-    { type: 'warning', content: 'Beware of the "Solar Tax Credit" Misconception: Many sales reps tell homeowners that the 30% Federal Tax Credit will "pay off" a large chunk of the loan. However, if you don\'t have enough tax liability to claim the full credit, or if you don\'t send that money directly to Service Finance within the first 18 months, your monthly payment will "re-amortize" and jump significantly--often by $50 to $100 per month. This "payment shock" has led many homeowners into financial distress, as they were not prepared for the sudden increase in their monthly obligations.' },
-    { type: 'h2', content: 'When the Solar Installer Goes Bankrupt' },
-    { type: 'p', content: 'A major risk with Service Finance loans is the stability of the contractor who installed the system. Because Service Finance is just the bank, they are not responsible for the maintenance or performance of your panels. If your installer goes out of business--a common occurrence in the volatile solar industry--you are still legally obligated to pay Service Finance every single month. This creates a situation where you are paying for a product that may not be functioning correctly, with no recourse against the company that installed it.' },
-    { type: 'p', content: 'We have seen dozens of cases where homeowners are stuck paying $200 a month for a system that isn\'t producing any electricity because of a faulty inverter or broken panel. Since the original installer is gone, the homeowner has to pay out of pocket for repairs while still servicing the debt to SFC. This "double-pay" scenario is one of the most devastating outcomes for homeowners who were promised "free energy" and "no maintenance" for 25 years. Furthermore, finding a new contractor to service a system they didn\'t install can be difficult and expensive, as many reputable companies are hesitant to take on the liability of another firm\'s work.' },
-    { type: 'h2', content: 'Common Complaints and Red Flags' },
-    { type: 'p', content: 'Homeowners across the country have reported similar issues with Service Finance, ranging from poor customer service to aggressive collection tactics. On platforms like Trustpilot and the Better Business Bureau, common complaints include:' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'green-sky-solar-financing-complaints',
-  title: 'GreenSky Solar Financing Complaints: Your Legal Options to Break the Contract',
-  metaTitle: 'GreenSky Solar Financing Complaints: Your Legal Options to Break the Contract',
-  metaDescription: `Are you struggling with a GreenSky solar loan you didn't authorize or hidden fees that inflated your project cost? Learn about your legal rights and how to f...`,
-  category: 'Loan Problems',
-  readTime: '9 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Are you struggling with a GreenSky solar loan you didn\'t authorize or hidden fees that inflated your project cost? Learn about your legal rights and how to fight back against predatory solar financing.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'For many homeowners, the promise of clean energy and lower utility bills is quickly overshadowed by the reality of a predatory solar loan. GreenSky, a major player in the home improvement financing space, has faced a mountain of complaints from consumers who feel trapped in high-interest contracts they never fully understood--or in some cases, never even authorized. If you are staring at a GreenSky billing statement for a solar array that isn\'t performing as promised, or if you discovered a loan you didn\'t sign up for, you are not alone, and you do have legal options.' },
-    { type: 'h2', content: 'The CFPB Action: $9 Million in Refunds for Unauthorized Loans' },
-    { type: 'p', content: 'In a landmark 2021 enforcement action, the Consumer Financial Protection Bureau (CFPB) took aim at GreenSky for enabling contractors to secure loans without consumer authorization. The investigation revealed that between 2014 and 2019, GreenSky received over 6,000 complaints from homeowners who claimed they never applied for a loan. In many instances, solar installers used a homeowner\'s personal information to open a GreenSky account and receive payment directly, leaving the homeowner with a debt they didn\'t want. As a result, GreenSky was ordered to refund or cancel up to $9 million in loans and pay a $2.5 million civil penalty.' },
-    { type: 'h2', content: 'Hidden Fees and the "Merchant Fee" Trap' },
-    { type: 'p', content: 'One of the most deceptive practices alleged in recent class-action lawsuits, such as Belyea v. GreenSky in California, involves the use of "merchant fees." GreenSky typically charges solar installers a fee--averaging around 7% of the total loan amount--to use their platform. Instead of absorbing this cost, many installers simply bake this fee into the total price of your solar project. This means you are effectively paying interest on a fee you were never told existed, significantly inflating the principal of your loan before the first panel is even installed on your roof.' },
-    { type: 'warning', content: 'Be aware that "0% interest" or "deferred interest" promotions can be a financial landmine. If the entire balance is not paid off within the promotional period--often 12 to 24 months--GreenSky may charge "back-dated" interest from the original date of purchase, which can instantly add thousands of dollars to your debt.' },
-    { type: 'h2', content: 'Common Complaints from GreenSky Borrowers' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'dividend-finance-solar-loan-problems',
-  title: 'Dividend Finance Solar Loan Problems: What Homeowners Can Do to Break Free',
-  metaTitle: 'Dividend Finance Solar Loan Problems: What Homeowners Can Do to Break Free',
-  metaDescription: `Struggling with a Dividend Finance solar loan? Learn about the common complaints, legal challenges, and actionable steps homeowners can take to cancel predat...`,
-  category: 'Loan Problems',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Struggling with a Dividend Finance solar loan? Learn about the common complaints, legal challenges, and actionable steps homeowners can take to cancel predatory contracts and regain financial control.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Growing Crisis of Dividend Finance Solar Loans' },
-    { type: 'p', content: 'For many homeowners, the promise of clean energy and lower utility bills has turned into a financial nightmare. Dividend Finance, now a division of Fifth Third Bank, has become a central figure in a wave of consumer complaints and legal actions across the United States. What was marketed as a simple, low-interest way to go green has often resulted in 20-year debt obligations that far exceed the value of the energy produced. Many families find themselves trapped in contracts they were pressured into signing, often with undisclosed fees that can add $10,000 or more to the principal balance before the first panel is even installed.' },
-    { type: 'p', content: 'The scale of the problem is significant, with thousands of homeowners reporting similar patterns of deception. From Florida to Connecticut, state attorneys general and private law firms are investigating how these loans were originated and serviced. The core issue isn\'t just the solar technology itself, which remains a viable solution for many, but the predatory financing structures and the aggressive sales tactics used by Dividend\'s installation partners. If you feel like you were misled about the terms of your Dividend Finance loan, you are certainly not alone in this struggle.' },
-    { type: 'h2', content: 'Common Complaints and Red Flags with Dividend Finance' },
-    { type: 'p', content: 'Homeowners frequently report a consistent set of problems when dealing with Dividend Finance. One of the most common issues is the "dealer fee" or "origination fee," which is often hidden within the total project cost. These fees can range from 20% to 35% of the loan amount, meaning a $30,000 solar system actually costs the homeowner $40,000 or more from day one. Salespeople often gloss over these details, focusing instead on the "low monthly payment" that fits into a family\'s budget, while ignoring the massive debt load being created.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'sunlight-financial-solar-loan-complaints',
-  title: 'Sunlight Financial Solar Loan Complaints: How to Fight Back and Protect Your Home',
-  metaTitle: 'Sunlight Financial Solar Loan Complaints 2026 — How to Fight Back',
-  metaDescription: `Sunlight Financial loan inflated by $10,000+? Expose hidden fees, TILA violations & tax credit traps. Cancel your solar contract now. Free attorney review.`,
-  category: 'Loan Problems',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Struggling with a Sunlight Financial solar loan? Learn about common complaints, predatory lending tactics, and your legal options for canceling unfair contracts today.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Growing Crisis of Sunlight Financial Solar Loans' },
-    { type: 'p', content: 'For many homeowners, the promise of clean energy and lower utility bills has turned into a financial nightmare. Sunlight Financial, a major player in the solar financing space, has come under intense scrutiny for its lending practices. While the company markets itself as a bridge to a greener future, thousands of consumers report being trapped in high-interest, long-term debt that they never fully understood. These loans, often ranging from $30,000 to over $60,000, are frequently bundled with aggressive sales tactics from third-party installers who may not have the homeowner\'s best interests at heart. The financial burden of these loans can be overwhelming, especially when the promised energy savings fail to materialize, leaving families to pay both a high loan installment and a significant utility bill every month.' },
-    { type: 'p', content: 'The sheer volume of complaints filed with the Better Business Bureau and other consumer protection agencies highlights a systemic issue. Homeowners describe a pattern of deception, where the actual terms of the Sunlight Financial loan differ significantly from what was promised during the initial sales pitch. From hidden fees to misleading claims about federal tax credits, the path to solar ownership is often paved with broken promises. If you find yourself struggling to keep up with payments or feeling misled by the terms of your agreement, you are certainly not alone in this struggle. Many people find that the "zero down" offer was actually a high-interest trap that adds tens of thousands of dollars in interest over the 20-to-25-year life of the loan, making the total cost of the system double or even triple its actual value.' },
-    { type: 'p', content: 'Furthermore, the relationship between Sunlight Financial and its network of installers is often opaque. Installers are incentivized to push these loans because they receive immediate payment once the installation is "complete," regardless of whether the system actually works or if the homeowner is satisfied. This creates a moral hazard where the lender provides the capital for predatory sales while distancing itself from the deceptive tactics used on the doorstep. Homeowners are left holding the bag, stuck with a massive debt to a financial institution that claims it has no responsibility for the lies told by the salesperson who sold the system in the first place. This lack of accountability is a hallmark of the modern solar industry\'s darker side.' },
-    { type: 'h2', content: 'Common Complaints Against Sunlight Financial' },
-    { type: 'p', content: 'One of the most frequent grievances involves the "tax credit trap." Sales representatives often tell homeowners that their monthly payments will remain low, assuming they will receive a massive federal tax credit and apply it directly to the loan balance within the first 18 months. However, many families do not have a high enough tax liability to claim the full credit immediately. When the 18-month mark hits and the "voluntary" prepayment isn\'t made, Sunlight Financial automatically re-amortizes the loan, often causing monthly payments to skyrocket by 30% to 50% without warning.' },
-    { type: 'p', content: 'Another major point of contention is the lack of transparency regarding dealer fees. In many cases, Sunlight Financial charges solar installers a "dealer fee" to buy down the interest rate, which can add $10,000 or more to the total principal of the loan. This cost is almost always passed directly to the homeowner, hidden within the total system price. Homeowners often discover too late that they are paying significantly more for their solar panels than the actual market value, leaving them "underwater" on a loan for equipment that may not even be performing as promised.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'tesla-solar-complaints-cancel-contract',
-  title: 'Tesla Solar Complaints: How to Cancel Your Contract and Reclaim Your Roof',
-  metaTitle: 'Tesla Solar Complaints: How to Cancel Your Contract and Reclaim Your Roof',
-  metaDescription: `Dealing with Tesla Solar complaints? Learn how to navigate the cancellation process, understand your legal rights, and get out of a bad solar contract today.`,
-  category: 'Company Complaints',
-  readTime: '8 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Dealing with Tesla Solar complaints? Learn how to navigate the cancellation process, understand your legal rights, and get out of a bad solar contract today.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Tesla Solar: Innovation vs. Implementation' },
-    { type: 'p', content: 'Tesla is a household name synonymous with cutting-edge technology, but for many homeowners, the dream of a high-tech solar home has turned into a bureaucratic nightmare. While the Powerwall and sleek solar panels look great on paper, the reality of Tesla Solar often involves months of silence, system failures, and a customer service department that seems designed to avoid contact. If you are reading this, you are likely one of the thousands of homeowners frustrated by a system that isn\'t producing what was promised or a repair request that has been ignored for over six months.' },
-    { type: 'h2', content: 'Common Tesla Solar Complaints: You Are Not Alone' },
-    { type: 'p', content: 'The most frequent complaints against Tesla Solar center on a total breakdown in communication. Homeowners report waiting 4-5 months just for an initial site inspection, only to face another half-year delay when the system inevitably needs a redesign. Even more concerning are the reports of system failures where inverters stop working during peak production months, and the next available service appointment is scheduled for 2027. This lack of technical support leaves homeowners paying for a solar system that is essentially a $30,000 roof ornament while still receiving full-priced bills from their utility company.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'trinity-solar-complaints-cancel-contract',
-  title: 'Trinity Solar Complaints: How to Cancel Your Contract and Protect Your Rights',
-  metaTitle: 'Trinity Solar Complaints: How to Cancel Your Contract and Protect Your Rights',
-  metaDescription: `Stuck with a Trinity Solar contract? Learn about common customer complaints, the 3-day cooling-off period, and the exact steps to cancel your agreement safely.`,
-  category: 'Company Complaints',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Stuck with a Trinity Solar contract? Learn about common customer complaints, the 3-day cooling-off period, and the exact steps to cancel your agreement safely.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'Trinity Solar is one of the oldest and largest residential solar installers in the United States, but their long history hasn\'t shielded them from a growing wave of consumer dissatisfaction. Many homeowners find themselves locked into 25-year Power Purchase Agreements (PPAs) or leases that don\'t deliver the promised savings. If you\'re feeling "solar regret" after signing with Trinity, you aren\'t alone, and more importantly, you have options to fight back. This guide will walk you through the most common complaints and provide a clear roadmap for canceling your contract before it\'s too late.' },
-    { type: 'h2', content: 'Common Trinity Solar Complaints from Homeowners' },
-    { type: 'p', content: 'The Better Business Bureau (BBB) and various online forums are filled with reports from Trinity Solar customers who feel misled by high-pressure sales tactics. One of the most frequent complaints involves the "no-cost solar" pitch, where homeowners are led to believe the panels are free, only to realize later they\'ve signed a multi-decade financial commitment. Other common issues include significant delays in system activation, roof leaks following installation, and poor communication from customer service representatives. Many customers report that once the contract is signed, the company becomes nearly impossible to reach for updates or repairs.' },
-    { type: 'p', content: 'Beyond the initial sales pitch, homeowners often face technical hurdles that Trinity fails to address promptly. For instance, some customers have waited over six months for their local utility company to grant Permission to Operate (PTO), during which time they are paying both their regular utility bill and their new solar lease payment. This "double billing" scenario is a major source of financial stress for families who were promised immediate savings. Furthermore, the quality of installation has been called into question, with some reports of panels being installed on roofs that were already in need of replacement, leading to even more costly repairs down the line.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'titan-solar-power-complaints',
-  title: 'Titan Solar Power Complaints: How to Get Out of Your Contract After Bankruptcy',
-  metaTitle: 'Titan Solar Power Complaints: How to Get Out of Your Contract After Bankruptcy',
-  metaDescription: `Thousands of homeowners are stuck with non-functional systems and massive loans after Titan Solar Power's 2024 bankruptcy. Learn how to use the FTC Holder Ru...`,
-  category: 'Company Complaints',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Thousands of homeowners are stuck with non-functional systems and massive loans after Titan Solar Power\'s 2024 bankruptcy. Learn how to use the FTC Holder Rule to cancel your contract and stop payments.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Sudden Collapse of Titan Solar Power' },
-    { type: 'p', content: 'On June 13, 2024, Titan Solar Power, once one of the nation\'s largest residential solar installers, abruptly ceased all operations. This sudden shutdown left an estimated 30,000 homeowners across multiple states in a state of total financial and technical limbo. Just one week later, on June 20, 2024, the company filed for Chapter 7 bankruptcy in the District of Arizona, signaling a permanent end to their business rather than a reorganization. For homeowners, this meant that overnight, their warranties became worthless, their service agreements were voided, and many were left with half-finished installations that couldn\'t even be turned on.' },
-    { type: 'p', content: 'The fallout from Titan\'s collapse has been devastating for families who trusted the company\'s promises of long-term energy savings. Many customers are now facing monthly loan payments ranging from $150 to over $400 for equipment that is either broken, improperly installed, or completely disconnected from the grid. Because Chapter 7 bankruptcy involves the total liquidation of assets, there is no customer service line to call and no technicians coming to fix the roof leaks or inverter failures that have become common complaints among the Titan customer base.' },
-    { type: 'h2', content: 'Common Titan Solar Power Complaints and Issues' },
-    { type: 'p', content: 'Before its collapse, Titan Solar Power was already facing a mountain of consumer complaints and legal challenges. Homeowners frequently reported aggressive sales tactics where representatives promised \'free\' solar or government checks that never materialized. In many cases, the actual installation process was a nightmare, involving significant roof damage that Titan refused to repair. Some customers waited over a year for \'Permission to Operate\' (PTO) from their utility company, all while being forced to pay both their new solar loan and their original electric bill simultaneously.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'palmetto-solar-complaints',
-  title: 'Palmetto Solar Complaints: How to Cancel Your Contract and Protect Your Home',
-  metaTitle: 'Palmetto Solar Complaints: How to Cancel Your Contract and Protect Your Home',
-  metaDescription: `Struggling with Palmetto Solar complaints or a predatory contract? Learn your legal rights for cancellation and how to handle roof damage or billing issues e...`,
-  category: 'Company Complaints',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Struggling with Palmetto Solar complaints or a predatory contract? Learn your legal rights for cancellation and how to handle roof damage or billing issues effectively.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'Palmetto Solar has positioned itself as a major player in the clean energy transition, but for many homeowners, the reality of their service has been far from the \'hassle-free\' experience promised in sales pitches. Across the country, from South Carolina to California, a growing number of customers are reporting significant issues ranging from unaddressed roof leaks to predatory financing structures that leave them paying more for electricity than they did before going solar. If you find yourself trapped in a Palmetto Solar agreement that isn\'t delivering on its promises, you are not alone, and there are specific steps you can take to fight back.' },
-    { type: 'h2', content: 'Common Palmetto Solar Complaints: What Homeowners Are Facing' },
-    { type: 'p', content: 'The most frequent complaints against Palmetto Solar often center on the gap between what was promised during the sales process and what was actually delivered. Many homeowners report that sales representatives used high-pressure tactics, promising \'zero-dollar\' electric bills and massive tax credits that never materialized. In reality, many customers find themselves with \'double bills\'--one from their utility company and another from Palmetto or their financing partner, LightReach. This financial strain is often compounded by systems that underperform, sometimes producing only 50-60% of the energy guaranteed in the initial contract.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'ion-solar-complaints-cancel-contract',
-  title: 'Ion Solar Complaints: How to Cancel Your Contract and Protect Your Home',
-  metaTitle: 'Ion Solar Complaints: How to Cancel Your Contract and Protect Your Home',
-  metaDescription: `Dealing with Ion Solar complaints or a predatory contract? Learn the specific steps to cancel your Ion Solar agreement, avoid $1,500 fees, and regain control...`,
-  category: 'Company Complaints',
-  readTime: '9 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Dealing with Ion Solar complaints or a predatory contract? Learn the specific steps to cancel your Ion Solar agreement, avoid $1,500 fees, and regain control of your home energy.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Ion Solar Complaints and Predatory Sales' },
-    { type: 'p', content: 'For many homeowners, the promise of \'zero-down\' solar and immediate utility savings from Ion Solar has turned into a multi-year headache. While the company markets itself as a premium provider, a surge in consumer complaints highlights a pattern of aggressive sales tactics and significant installation delays. Many families report being pressured into signing long-term agreements during door-to-door visits, only to find that the promised savings never materialize or the system remains non-functional for months after the panels are bolted to their roof.' },
-    { type: 'p', content: 'Common grievances filed with the Better Business Bureau (BBB) and consumer protection agencies often center on the gap between what was promised in the living room and what was delivered on the utility bill. Homeowners frequently cite \'bait-and-switch\' financing terms, where the final loan amount or interest rate differs from the initial quote. Furthermore, the technical performance of Ion Solar systems has come under fire, with numerous reports of roof leaks, improper wiring, and systems that fail to produce the kilowatt-hours guaranteed by sales representatives.' },
-    { type: 'h2', content: 'Understanding Your Right to Cancel an Ion Solar Contract' },
-    { type: 'p', content: 'If you have recently signed a Customer Installation Agreement (CIA) with Ion Solar and are having second thoughts, time is your most valuable asset. Under the Federal Trade Commission\'s (FTC) Cooling-Off Rule, most door-to-door sales contracts--including solar agreements--can be canceled within three business days for a full refund. This \'Right of Rescission\' is a powerful tool for homeowners who feel they were pressured into a decision without having the chance to review the fine print or compare competing quotes.' },
-    { type: 'p', content: 'However, Ion Solar\'s internal policies often complicate this process. Their standard contract typically includes a clause that triggers a $1,500 \'cancellation fee\' if the request is made after the initial three-day window but before installation begins. This fee is often justified by the company as \'administrative costs\' or \'site survey expenses,\' but for many homeowners, it feels like a ransom payment to escape a bad deal. Understanding exactly where you stand in the installation timeline is critical to minimizing these exit costs.' },
-    { type: 'callout', content: 'If you are currently facing a $1,500 cancellation fee or aggressive collection efforts from Ion Solar, contact our team at (904) 921-4971 or visit breakyoursolarcontract.com for a free contract review and guidance on your legal options.' },
-    { type: 'h2', content: 'Common Issues Reported by Ion Solar Customers' },
-    { type: 'p', content: 'The volume of complaints against Ion Solar isn\'t just about the money; it\'s about the lack of transparency and accountability. Many homeowners report that once the contract is signed, the \'white-glove service\' promised by the salesperson vanishes. Communication becomes a one-way street where customers are left waiting for weeks for updates on permitting, engineering, or interconnection with their local utility company.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'blue-raven-solar-complaints',
-  title: 'Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition',
-  metaTitle: 'Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition',
-  metaDescription: `Blue Raven Solar (SunPower) complaints? Misrepresented savings, aggressive sales, hidden fees costing you thousands? Cancel your contract now. Free case review.`,
-  category: 'Company Complaints',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Dealing with Blue Raven Solar complaints or stuck in a predatory contract? Learn how the SunPower acquisition affects your rights and how to get help today.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'The solar industry has been rocked by the recent Chapter 11 bankruptcy filing of SunPower, leaving thousands of homeowners who signed with their subsidiary, Blue Raven Solar, in a state of legal and financial limbo. Many customers report being promised \'18 months of free solar\' or significant rebates that suddenly stopped arriving after September 2024. If you are currently facing unfulfilled promises, mechanical failures, or a system that was never even turned on, you are not alone in this struggle. The acquisition of Blue Raven by Complete Solaria has only added more layers of confusion to an already complex situation for homeowners trying to find accountability. This transition period is often when predatory practices are most prevalent, as companies try to offload liabilities while keeping customers locked into high-interest, long-term debt.' },
-    { type: 'h2', content: 'Common Blue Raven Solar Complaints and Red Flags' },
-    { type: 'p', content: 'Homeowners across the country have voiced consistent grievances regarding Blue Raven Solar\'s sales tactics and post-installation support. One of the most frequent complaints involves the \'Blue Power Plus+\' program, which promised to cover the first 18 months of solar loan payments. Since the SunPower bankruptcy proceedings began, many customers have seen these checks stop without warning, leaving them with unexpected monthly bills ranging from $150 to over $300. This bait-and-switch tactic is a primary reason why so many are now seeking ways to terminate their agreements and hold the company responsible for these financial discrepancies. Many families were sold on the idea that their solar system would be \'self-funding\' for the first year and a half, only to find themselves paying both a utility bill and a solar loan simultaneously.' },
-    { type: 'p', content: 'Beyond the financial incentives, many Blue Raven customers have reported significant issues with the physical installation of their systems. Reports of roof leaks, improperly mounted panels, and damage to structural components are common in consumer reviews. When these issues arise, homeowners often find themselves caught in a loop of automated customer service responses or \'ghosted\' entirely by their original sales representatives. The frustration is compounded when the promised energy production levels are never met, leading to a situation where the homeowner is paying for a premium system that provides only a fraction of the expected savings. These red flags are not just minor inconveniences; they are often indicators of a systemic failure to provide the quality of service that was promised during the high-pressure sales pitch.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'complete-solaria-complaints',
-  title: 'Complete Solaria Complaints: What Homeowners Need to Know Before Signing',
-  metaTitle: 'Complete Solaria Complaints: What Homeowners Need to Know Before Signing',
-  metaDescription: `Complete Solaria complaints piling up? Fight back against predatory sales & delays. Learn 3 legal ways to cancel your contract. Free attorney review.`,
-  category: 'Company Complaints',
-  readTime: '18 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Homeowners are reporting significant issues with Complete Solaria, from predatory sales tactics to service delays. Learn how to protect your rights and escape a bad solar contract.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'The residential solar industry is currently weathering a perfect storm of high interest rates, shifting state policies, and high-profile bankruptcies. At the center of this turbulence is Complete Solaria, a company that recently made headlines by acquiring key assets from the now-bankrupt SunPower. While corporate acquisitions often promise stability, the reality for many homeowners has been far from smooth. We have seen a surge in complaints from customers who feel trapped in expensive contracts with little to show for their investment but mounting frustration and unreturned phone calls. This blog post aims to break down the most common grievances and provide a roadmap for those who feel they have been misled by predatory sales tactics. The goal is to empower you with the knowledge needed to navigate these complex legal and financial waters. It is essential to understand that while solar technology itself is a fantastic way to reduce your carbon footprint and save on energy costs, the business practices of some companies can turn a good idea into a financial nightmare.' },
-    { type: 'p', content: 'Complete Solaria has positioned itself as a major player in the solar market, but its rapid growth has come at a cost to consumer satisfaction. Many homeowners report that the company\'s focus seems to be entirely on new sales rather than maintaining the systems they have already installed. This \\"churn and burn\\" approach is a common characteristic of predatory solar companies that prioritize short-term profits over long-term customer relationships. If you are considering a solar installation, it is vital to look beyond the glossy brochures and high-pressure sales pitches to understand the true reputation of the company you are dealing with. A company\'s history of handling complaints and honoring warranties is a much better indicator of its quality than its latest marketing campaign.' },
-    { type: 'h2', content: 'Common Complete Solaria Complaints and Red Flags' },
-    { type: 'p', content: 'Homeowners across the country are reporting a consistent pattern of issues when dealing with Complete Solaria. One of the most frequent grievances involves high-pressure sales tactics where representatives push for immediate signatures on digital tablets without providing a full copy of the contract for review. Customers often discover later that the verbal promises made during the sales pitch--such as guaranteed $0 electric bills or massive federal tax credits--do not match the fine print of the legal documents they signed in haste. This lack of transparency is a major red flag that often leads to long-term financial regret for the homeowner. Many people report feeling \\"bullied\\" into signing, with sales reps staying in their homes for hours until a signature is secured. This type of high-pressure environment is designed to prevent you from thinking clearly and making an informed decision.' },
-    { type: 'p', content: 'Beyond the initial sales process, many customers have expressed deep dissatisfaction with the post-installation support provided by Complete Solaria. Reports of non-functional systems sitting idle for months while waiting for utility interconnection are common. When homeowners attempt to reach out for assistance, they are often met with automated phone systems and unhelpful customer service representatives who seem more interested in collecting payments than resolving technical issues. This disconnect between the sales promises and the actual service delivery is a recurring theme in the complaints we receive at Solar Freedom. In some cases, homeowners have been left with holes in their roofs and unfinished electrical work for over six months, with no clear timeline for completion. This lack of accountability is not just frustrating; it can also lead to physical damage to your home and a significant loss of potential energy savings.' },
-    { type: 'p', content: 'Another significant area of complaint involves the quality of the installation itself. Some homeowners have reported that the panels were installed incorrectly, leading to roof leaks and electrical hazards. When these issues are brought to the company\'s attention, the response is often slow or non-existent. This leaves the homeowner in the precarious position of having to pay for repairs out of their own pocket while still being responsible for the monthly solar loan payment. The stress of dealing with a damaged home and a non-functional solar system can be overwhelming, especially when the company that caused the problem refuses to take responsibility. It is crucial to have a professional inspection of any solar installation to ensure it meets all safety and quality standards.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'solarcity-contract-problems-tesla',
-  title: 'SolarCity Contract Problems and Tesla Solar Transition Issues: What Homeowners Need to Know',
-  metaTitle: 'SolarCity Contract Problems and Tesla Solar Transition Issues: What Homeowners Need to Know',
-  metaDescription: `Trapped in an old SolarCity lease or PPA? Discover how the Tesla transition has impacted legacy customers and learn your rights for contract cancellation or ...`,
-  category: 'Company Complaints',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Trapped in an old SolarCity lease or PPA? Discover how the Tesla transition has impacted legacy customers and learn your rights for contract cancellation or restructuring.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'If you signed a solar contract with SolarCity between 2006 and 2016, you likely thought you were making a smart, eco-friendly investment that would lower your monthly utility bills for decades to come. At the time, SolarCity was the undisputed leader in the residential solar market, fueled by aggressive door-to-door sales tactics and the promise of \'free\' solar panels through innovative leasing models. However, since Tesla acquired SolarCity in a massive $2.6 billion deal in late 2016, thousands of these original homeowners have found themselves trapped in a \'shell game\' of service delays, rising costs, and unresponsive customer support. The transition from SolarCity to Tesla Energy has left many legacy customers with aging equipment and ironclad contracts that feel more like a financial liability than a green asset.' },
-    { type: 'p', content: 'At Solar Freedom, we specialize in helping homeowners navigate the complexities of predatory solar agreements. Whether you are dealing with a Power Purchase Agreement (PPA) that now costs more than your local utility or a lease that is preventing you from selling your home, understanding your rights is the first step toward taking back control of your roof. Many of these contracts were written with one-sided terms that heavily favor the solar company, but consumer protection laws and specific contract breaches can often provide a path to cancellation or restructuring.' },
-    { type: 'h2', content: 'The SolarCity to Tesla Transition: A Customer Service Nightmare' },
-    { type: 'p', content: 'When Tesla absorbed SolarCity, the primary focus of the company\'s energy division shifted toward the sleek new Solar Roof and Powerwall products, often leaving legacy SolarCity customers in the dust. Many homeowners report that warranties once promised by SolarCity are now incredibly difficult to enforce, with Tesla\'s customer service lines involving hours of hold time and \'robotic\' responses to legitimate repair requests. This transition has created a significant gap in accountability, where the company that sold you the system no longer exists in its original form, and the new parent company seems uninterested in servicing older installations that are no longer generating new revenue for them.' },
-    { type: 'p', content: 'The lack of maintenance is not just an inconvenience; it is a direct financial drain on your household budget. If your SolarCity panels are underperforming or have stopped working entirely due to inverter failure or wiring issues, you may still be required to make your full monthly lease or PPA payments. Tesla\'s billing systems often rely on \'estimated\' production rather than actual real-time output, meaning you could be paying for electricity that your system isn\'t even generating. This \'pay-for-nothing\' scenario is one of the most common complaints we hear from homeowners who feel abandoned by the Tesla transition.' },
-    { type: 'h2', content: 'Understanding the \'Escalator\' Clause in Your SolarCity PPA' },
-    { type: 'p', content: 'One of the most predatory features of original SolarCity Power Purchase Agreements is the annual price escalator. Many of these contracts include a 2.9% annual increase in the price you pay per kilowatt-hour (kWh). While this might have seemed negligible a decade ago, a 2.9% compounded increase over 20 years means that by year 15, you could be paying significantly more for solar power than your neighbors are paying for grid power from the local utility. These escalators were often sold under the premise that utility rates would rise by 5% or 6% annually, but in many regions, grid prices have remained stable or even decreased due to new energy technologies.' },
-    { type: 'callout', content: 'If you feel trapped by a SolarCity PPA or lease that is no longer saving you money, you don\'t have to fight Tesla alone. Contact the experts at Solar Freedom by calling (904) 921-4971 or visit breakyoursolarcontract.com to explore your options for cancellation or contract restructuring.' },
-    { type: 'p', content: 'Reviewing your original contract for these specific percentage increases is crucial for calculating the long-term cost of staying in the agreement. If your solar rate is already approaching the utility\'s \'tier 1\' pricing, you are likely losing money every single month. We have seen cases where homeowners are paying $0.25 per kWh for solar while the local utility is charging only $0.18 per kWh. Over the course of a year, this discrepancy can add up to hundreds of dollars in unnecessary expenses, effectively erasing any environmental benefit the panels might provide.' },
-    { type: 'h2', content: 'The \'Remove and Reinstall\' Trap for Roof Repairs' },
-    { type: 'p', content: 'As SolarCity systems age, many homeowners are reaching the point where their underlying roof needs replacement. This is where the \'Remove and Reinstall\' (R&R) trap becomes a major financial burden. Tesla often charges between $2,000 and $4,000 just to take the panels off and put them back on after the roof work is complete. Original SolarCity contracts sometimes promised lower R&R fees, but getting Tesla to honor those legacy prices can be an uphill battle that requires months of documentation and persistent follow-up.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'verengo-solar-bankruptcy',
-  title: 'Verengo Solar Bankruptcy: What Homeowners Need to Know to Protect Their Investment',
-  metaTitle: 'Verengo Solar Bankruptcy: What Homeowners Need to Know to Protect Their Investment',
-  metaDescription: `If you are one of the 20,000 homeowners affected by the Verengo Solar bankruptcy, your warranty and contract rights may be at risk. Learn how to navigate the...`,
-  category: 'Bankruptcy',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'If you are one of the 20,000 homeowners affected by the Verengo Solar bankruptcy, your warranty and contract rights may be at risk. Learn how to navigate the fallout and protect your home from predatory solar practices.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Rise and Fall of a California Solar Giant' },
-    { type: 'p', content: 'For years, Verengo Solar was a dominant force in the California residential solar market, boasting over 20,000 installations and a reputation for rapid growth. However, the company\'s aggressive expansion strategy eventually led to a financial breaking point. On September 23, 2016, Verengo Solar filed for Chapter 11 bankruptcy protection in the U.S. Bankruptcy Court for the District of Delaware. This move sent shockwaves through the industry and left thousands of homeowners wondering what would happen to their long-term solar investments and the promises made during the sales process.' },
-    { type: 'h2', content: 'The Crius Energy Acquisition and Its Aftermath' },
-    { type: 'p', content: 'Following the bankruptcy filing, Verengo\'s assets were acquired by Crius Energy for approximately $11.9 million through a Section 363 sale. While the acquisition was framed as a way to ensure continued service for existing customers, the reality for many homeowners has been far more complicated. The transition from Verengo to Crius Solar created a significant gap in accountability, especially regarding workmanship warranties and long-term maintenance obligations. Many homeowners found themselves caught in a corporate hand-off where neither the old nor the new entity was willing to take full responsibility for original installation defects.' },
-    { type: 'h3', content: 'Understanding Your Current Contract Status' },
-    { type: 'p', content: 'If your system was installed by Verengo, your contract likely falls into one of three categories: a direct purchase, a solar lease, or a Power Purchase Agreement (PPA). In a Chapter 11 reorganization, these contracts are often assigned to the successor company, meaning your payment obligations typically continue even if the original installer is gone. It is crucial to review your original paperwork to determine who currently holds the rights to your payments and what specific service obligations they inherited during the bankruptcy proceedings.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'sunrun-solar-loan-vs-lease-cancellation',
-  title: 'Sunrun Solar Loan vs. Lease: Which is Worse for Cancellation?',
-  metaTitle: 'Sunrun Solar Loan vs. Lease: Which is Worse for Cancellation?',
-  metaDescription: `Struggling to get out of a Sunrun solar agreement? Discover the critical differences between cancelling a solar loan versus a lease and why one is significan...`,
-  category: 'Contract Help',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Struggling to get out of a Sunrun solar agreement? Discover the critical differences between cancelling a solar loan versus a lease and why one is significantly harder to break.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'If you are feeling trapped by a Sunrun solar agreement, you are certainly not alone in your frustration. Many homeowners find themselves at a crossroads, wondering whether their solar loan or their solar lease is the bigger obstacle to regaining control of their roof. While both financial products are marketed as easy ways to \'go green,\' the reality of cancelling these contracts can be a nightmare of hidden fees, complex legal language, and aggressive customer service tactics. Understanding the specific differences between how Sunrun handles loan cancellations versus lease terminations is the first step toward breaking free from a predatory arrangement.' },
-    { type: 'h2', content: 'The Core Difference: Ownership vs. Indebtedness' },
-    { type: 'p', content: 'The fundamental difference between a Sunrun solar loan and a solar lease lies in who actually owns the equipment sitting on your roof. With a solar loan, you are the owner of the system from day one, but you carry a significant debt to a third-party lender, often a partner like GoodLeap or Sungage. In contrast, with a Sunrun lease or Power Purchase Agreement (PPA), Sunrun remains the legal owner of the panels, and you are essentially renting the equipment or the power it produces for a term that typically lasts 20 to 25 years. This distinction is critical because it dictates exactly how you must proceed when you want to cancel the arrangement.' },
-    { type: 'p', content: 'When you own the system through a loan, \'cancelling\' usually means paying off the remaining balance of the loan in full. This can be a staggering amount, often ranging from $20,000 to over $50,000 depending on the size of your installation. With a lease, however, you don\'t have a \'balance\' to pay off in the traditional sense; instead, you have a contractual obligation to make monthly payments for decades. To get out of a lease, you often have to \'buy out\' the remaining lease payments or the fair market value of the system, which Sunrun often calculates using formulas that are heavily weighted in their favor.' },
-    { type: 'h2', content: 'Why the Sunrun Lease is Often the \'Worse\' Option' },
-    { type: 'p', content: 'For most homeowners, the Sunrun solar lease is significantly harder to cancel than a solar loan. The primary reason is the lack of a clear \'exit ramp\' in the contract. While a loan has a defined payoff amount that decreases with every payment, a lease often includes an \'escalator clause\' where your monthly payments increase by 2.9% or more every year. This means that the cost of staying in the lease goes up over time, and the cost of buying your way out remains prohibitively high because Sunrun expects to collect every penny of those future, escalated payments.' },
-    { type: 'p', content: 'Furthermore, a lease creates a \'cloud\' on your home\'s title that can make selling your property a logistical disaster. Many potential homebuyers are wary of taking over a 20-year lease with rising costs, and mortgage lenders may refuse to approve a loan for a buyer if the solar lease terms are too restrictive. If a buyer refuses to assume the lease, you may be forced to buy out the entire contract at the closing table, which can wipe out a significant portion of your home equity. In many cases, homeowners find themselves stuck with a system they no longer want simply because the cost of removal and contract termination is too high to bear.' },
-    { type: 'h2', content: 'The Hidden Costs of Solar Loan Cancellation' },
-    { type: 'p', content: 'While a solar loan might seem more straightforward, it carries its own set of predatory risks that make cancellation difficult. The most significant issue is the \'ITC Recapture\' or the loss of the Federal Investment Tax Credit. Most solar loans are structured with the assumption that you will receive a 30% tax credit and apply it to the loan balance within the first 18 months. If you don\'t receive the full credit--perhaps because you don\'t have enough tax liability--your monthly payments will skyrocket, and your total payoff amount will remain much higher than originally anticipated.' },
-    { type: 'p', content: 'Additionally, many Sunrun-partnered loans include \'dealer fees\' that are baked into the principal of the loan. These fees can range from 20% to 30% of the total project cost, meaning you might owe $30,000 for a system that is only worth $20,000 on the open market. If you try to cancel the loan by paying it off early, you are still paying for those massive upfront commissions and fees that provided no value to your home. This \'negative equity\' in the solar system makes it nearly impossible to cancel the loan without taking a massive financial hit.' },
-    { type: 'h2', content: 'Comparing the Cancellation Hurdles' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'vivint-solar-complaints-texas',
-  title: 'Solar Contract Help',
-  metaTitle: 'Solar Contract Help',
-  metaDescription: ``,
-  category: 'Contract Help',
-  readTime: '8 min read',
-  publishDate: 'March 2026',
-  excerpt: '',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'Learn about Solar Contract Help and your rights as a homeowner.' },
-    { type: 'callout', content: 'Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'freedom-forever-warranty-problems',
-  title: 'Freedom Forever Warranty Problems: How to Escalate and Get Results',
-  metaTitle: 'Freedom Forever Warranty Problems: How to Escalate and Get Results',
-  metaDescription: `Dealing with Freedom Forever warranty issues? Learn how to navigate their 25-year production guarantee, handle service delays, and escalate your claim to get...`,
-  category: 'Company Complaints',
-  readTime: '9 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Dealing with Freedom Forever warranty issues? Learn how to navigate their 25-year production guarantee, handle service delays, and escalate your claim to get your solar system back online.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'Freedom Forever is one of the largest solar installers in the United States, often touted for its massive scale and its signature 25-year production guarantee. However, for many homeowners, the promise of "worry-free power" has turned into a bureaucratic nightmare of unanswered emails, missed service appointments, and systems that sit dormant for months. When your solar panels aren\'t producing the energy you were promised, you aren\'t just losing out on environmental benefits; you are actively losing money every single day as your utility bills skyrocket while your solar loan payment remains due.' },
-    { type: 'h2', content: 'Common Freedom Forever Warranty Problems' },
-    { type: 'p', content: 'The most frequent complaint from Freedom Forever customers involves the "service loop"--a cycle where a homeowner reports a system failure, only to be told that a technician will be assigned in 7 to 14 business days. In reality, these timeframes often stretch into months. We have seen cases where homeowners are told they cannot use third-party repair services because it would "void the warranty," yet Freedom Forever fails to provide their own technicians in a reasonable timeframe. This leaves the homeowner "held hostage" by a non-functioning system and a contract that prevents them from seeking outside help.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'sunpower-system-not-working-legal-options',
-  title: 'SunPower System Not Working? Your Legal Options and Rights Explained',
-  metaTitle: 'SunPower System Not Working? Your Legal Options and Rights Explained',
-  metaDescription: `Is your SunPower solar system underperforming or completely dead? Learn about your legal rights, the impact of the 2024 bankruptcy, and how the FTC Holder Ru...`,
-  category: 'Legal Rights',
-  readTime: '9 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Is your SunPower solar system underperforming or completely dead? Learn about your legal rights, the impact of the 2024 bankruptcy, and how the FTC Holder Rule can help you get relief.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The SunPower Crisis: Why Your System Isn\'t Working' },
-    { type: 'p', content: 'For years, SunPower was considered the gold standard of the solar industry, promising high-efficiency panels and a comprehensive 25-year \'Complete Confidence\' warranty. However, the company\'s 2024 Chapter 11 bankruptcy filing has left hundreds of thousands of homeowners in a precarious position. If your system has stopped producing power, your monitoring app has gone dark, or you have visible damage that isn\'t being addressed, you aren\'t just dealing with a technical failure--you are facing a massive corporate breakdown. Many homeowners report waiting months for service calls that never happen, while their monthly loan or lease payments continue to drain their bank accounts for electricity they aren\'t even receiving.' },
-    { type: 'h2', content: 'Understanding the 2024 SunPower Bankruptcy Impact' },
-    { type: 'p', content: 'On August 5, 2024, SunPower Corporation officially filed for bankruptcy, a move that sent shockwaves through the solar market. While a portion of the company\'s assets and the brand name were sold to Complete Solar in September 2024, the transition has been anything but smooth for existing customers. The \'new\' SunPower may not be legally obligated to honor the labor warranties or performance guarantees of the \'old\' SunPower, depending on the specific terms of the asset sale and your original contract. This leaves a \'warranty gap\' where homeowners are told their panels are covered by the manufacturer (like Maxeon), but no one is willing to pay for the expensive labor required to actually replace them.' },
-    { type: 'h3', content: 'Who is Responsible for Your System Now?' },
-    { type: 'p', content: 'Determining who to call when your SunPower system fails depends heavily on how you acquired it. If you purchased your system through an independent authorized dealer, that dealer may still be in business and responsible for local service, though they are often struggling to get reimbursed by the bankrupt parent company. If you have a lease or Power Purchase Agreement (PPA), your contract might have been bundled into a portfolio managed by SunStrong or another financial entity. These companies often prioritize their right to collect your monthly payment over their obligation to keep the hardware functional, creating a legal conflict that homeowners can exploit to seek contract termination.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'sunnova-solar-contract-transfer-problems',
-  title: 'Sunnova Solar Contract Transfer Problems: How to Sell Your Home Without the Headache',
-  metaTitle: 'Sunnova Solar Contract Transfer Problems: How to Sell Your Home Without the Headache',
-  metaDescription: `Selling a home with a Sunnova solar lease can be a nightmare if you aren't prepared for the transfer process. Learn how to navigate UCC-1 liens, FICO require...`,
-  category: 'Contract Help',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Selling a home with a Sunnova solar lease can be a nightmare if you aren\'t prepared for the transfer process. Learn how to navigate UCC-1 liens, FICO requirements, and predatory terms to protect your home sale.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Selling a Home with a Sunnova Solar Lease' },
-    { type: 'p', content: 'Selling your home is already a stressful process, but when you add a Sunnova solar contract into the mix, things can quickly become overwhelming. Many homeowners were told during the initial sales pitch that the solar panels would add value to their property and that transferring the contract to a new buyer would be a \'simple, seamless process.\' Unfortunately, the reality is often far more complicated. Sunnova\'s transfer requirements can create significant hurdles for both sellers and buyers, sometimes even threatening to derail a closing at the last minute. Understanding these potential pitfalls is the first step in protecting your equity and ensuring a smooth transition.' },
-    { type: 'h2', content: 'The UCC-1 Lien: The Invisible Barrier to Your Closing' },
-    { type: 'p', content: 'One of the most common surprises for homeowners selling a property with Sunnova panels is the discovery of a UCC-1 financing statement, often referred to as a \'solar lien.\' While Sunnova technically places this lien on the equipment rather than the real estate itself, title companies and mortgage lenders often view it as a cloud on the title. This can prevent your buyer from securing their own mortgage unless the lien is temporarily lifted or permanently transferred. Getting Sunnova to cooperate with a \'Lien Subordination\' or a \'Temporary Release\' often requires weeks of lead time and can involve administrative fees ranging from $250 to $500. If you wait until the week of closing to address this, you are putting your entire sale at risk.' },
-    { type: 'warning', content: 'A UCC-1 lien can stop your home sale cold. Most mortgage lenders will not fund a loan for your buyer until Sunnova\'s lien is either subordinated or removed. Do not assume your real estate agent or title company has this under control; you must proactively contact Sunnova\'s transfer department at least 30 days before your expected closing date.' },
-    { type: 'h2', content: 'Buyer Qualification: The 650 FICO Score Hurdle' },
-    { type: 'p', content: 'Even if you find the perfect buyer for your home, Sunnova must \'approve\' them to take over your contract. This typically involves a credit check where the buyer must meet a minimum FICO score requirement, often set at 650. If your buyer has a lower credit score--even if they are qualified for a home mortgage--Sunnova may reject the transfer. In these cases, Sunnova might demand a \'transfer deposit\' or a down payment ranging from $500 to $1,000 from the buyer to proceed. This unexpected expense can lead to friction in negotiations, with buyers often demanding that the seller cover these costs or even asking for a price reduction to compensate for the \'burden\' of the solar lease.' },
-    { type: 'h3', content: 'Common Transfer Requirements for New Buyers' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'adt-solar-cancellation-guide',
-  title: 'ADT Solar Complaints and Cancellation Guide: How to Get Out of Your Contract',
-  metaTitle: 'ADT Solar Complaints and Cancellation Guide: How to Get Out of Your Contract',
-  metaDescription: `ADT Solar exited in 2024. Facing warranty issues or need to cancel your contract? Get expert legal help to escape your solar agreement. Free case review.`,
-  category: 'Company Complaints',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Struggling with an ADT Solar contract? Learn how to navigate complaints, understand your cancellation rights, and protect your home after their 2024 market exit.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'If you are currently feeling trapped in an ADT Solar contract, you are certainly not alone in this frustrating situation. Since ADT announced its sudden exit from the residential solar market in early 2024, thousands of homeowners have been left wondering about the status of their 25-year warranties and ongoing loan obligations. Many customers report a significant disconnect between the high-pressure sales promises they received and the actual performance of their systems, leading to a surge in formal complaints and legal inquiries across the country.' },
-    { type: 'p', content: 'At Solar Freedom, we specialize in helping homeowners navigate the complex landscape of predatory solar agreements and find legitimate paths to cancellation. Whether you are dealing with a system that never worked, roof leaks caused by poor installation, or simply the realization that the financial math doesn\'t add up, understanding your rights is the first step toward resolution. This guide breaks down the current state of ADT Solar, the most common complaints filed by consumers, and the specific steps you can take to protect your home and your credit.' },
-    { type: 'h2', content: 'The Reality of ADT Solar\'s Market Exit' },
-    { type: 'p', content: 'In January 2024, ADT officially announced it would be shuttering its solar division, a move that came just a few years after its massive $825 million acquisition of Sunpro Solar. This exit was driven by staggering financial losses, with the solar segment reportedly losing nearly $89 million in just the first nine months of 2023. For homeowners, this corporate retreat created an immediate crisis of confidence, as the company that promised decades of support suddenly pulled back from new installations and sales.' },
-    { type: 'p', content: 'While ADT has recently claimed they will continue to honor workmanship warranties due to pressure from lenders and stakeholders, many consumer advocates remain skeptical of these long-term promises. The reality on the ground for many homeowners is a series of unanswered phone calls, delayed repair schedules, and a general lack of accountability for systems that are underperforming. If your system was installed during the final months of their operation, you may be facing even greater risks regarding permit closures and final inspections.' },
-    { type: 'warning', content: 'Be extremely cautious if ADT offers you a small cash settlement or a "release waiver." These documents often contain legal language that strips you of your right to join future class-action lawsuits or pursue claims for hidden damage like roof rot or electrical failures. Never sign a release without having a professional review the terms first.' },
-    { type: 'h2', content: 'Common ADT Solar Complaints and Red Flags' },
-    { type: 'p', content: 'The Better Business Bureau (BBB) has recorded nearly 1,000 complaints against ADT Solar in recent years, highlighting a pattern of systemic issues that many homeowners face. One of the most frequent grievances involves "true-up" bills that are significantly higher than promised, often because the sales representative over-estimated the system\'s production capacity. Homeowners frequently report paying $150 or more for their solar loan while still receiving $200 monthly utility bills, completely negating the promised savings.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'momentum-solar-cancel-contract',
-  title: 'Momentum Solar Complaints: How to Cancel Your Contract and Protect Your Home',
-  metaTitle: 'Momentum Solar Complaints: How to Cancel Your Contract and Protect Your Home',
-  metaDescription: `Dealing with Momentum Solar complaints or a predatory contract? Learn how to navigate the cancellation process, understand your legal rights, and get out of ...`,
-  category: 'Company Complaints',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Dealing with Momentum Solar complaints or a predatory contract? Learn how to navigate the cancellation process, understand your legal rights, and get out of a bad solar deal today.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Momentum Solar Complaints' },
-    { type: 'p', content: 'Momentum Solar, operated by Pro Custom Solar LLC, has become a major player in the residential solar industry, but its rapid growth has been shadowed by a significant volume of consumer complaints. Homeowners across New Jersey, New York, Florida, and Texas have reported a consistent pattern of high-pressure sales tactics and misleading financial promises. Many customers find themselves locked into 20-year or 25-year agreements that don\'t deliver the promised zero-dollar electric bills, often discovering that the actual cost of the solar lease or loan far exceeds their original utility payments.' },
-    { type: 'p', content: 'Common grievances filed with the Better Business Bureau (BBB) and various consumer protection agencies highlight issues ranging from property damage during installation to unresponsive customer service. Some homeowners have reported broken roof tiles, water leaks, and even damaged windows that the company allegedly failed to repair in a timely manner. Furthermore, the complexity of their contracts often leaves homeowners feeling trapped in a financial commitment that can exceed $40,000 or $50,000 over the life of the system, with little recourse when the panels underperform.' },
-    { type: 'h2', content: 'Understanding the $30 Million TCPA Settlement' },
-    { type: 'p', content: 'One of the most significant red flags for potential and current Momentum Solar customers is the recent $30 million class-action settlement regarding violations of the Telephone Consumer Protection Act (TCPA). The lawsuits alleged that the company engaged in aggressive and unsolicited telemarketing, frequently contacting individuals on the National Do Not Call Registry. This massive settlement underscores the company\'s history of aggressive outreach and has led many homeowners to question the ethics of the sales representatives who showed up at their doors.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'solar-loan-prepayment-penalty',
-  title: 'Solar Loan Prepayment Penalty: How to Avoid and Fight Back Against Predatory Fees',
-  metaTitle: 'Solar Loan Prepayment Penalty: How to Avoid and Fight Back Against Predatory Fees',
-  metaDescription: `Learn how to identify hidden solar loan prepayment penalties and dealer fees that can trap you in debt. Discover strategies to fight back and protect your fi...`,
-  category: 'Loan Problems',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Learn how to identify hidden solar loan prepayment penalties and dealer fees that can trap you in debt. Discover strategies to fight back and protect your financial future.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Hidden Cost of "Zero Down" Solar' },
-    { type: 'p', content: 'Many homeowners are lured into solar contracts with the promise of "zero down" and low monthly payments that seem too good to be true. However, what the salesperson often fails to mention is the complex web of fees and penalties that can trap you in a high-interest loan for decades. One of the most insidious of these is the solar loan prepayment penalty, a charge that many homeowners don\'t even realize exists until they try to sell their home or refinance their debt. While some lenders are upfront about these fees, others hide them deep within the fine print of your contract, making it nearly impossible to pay off your loan early without a significant financial hit.' },
-    { type: 'h2', content: 'What is a Solar Loan Prepayment Penalty?' },
-    { type: 'p', content: 'A prepayment penalty is a fee charged by a lender if you pay off your loan before the end of its term. In the solar industry, these penalties can take several forms and can be surprisingly expensive. Some lenders charge a flat fee, while others calculate the penalty as a percentage of your remaining balance--often around 2% to 5%. For a $40,000 solar loan, a 5% penalty could cost you an extra $2,000 just for the "privilege" of getting out of debt sooner. This is a significant barrier for homeowners who want to reduce their interest costs or clear their titles before a property sale.' },
-    { type: 'h2', content: 'The "De Facto" Prepayment Penalty: Dealer Fees' },
-    { type: 'p', content: 'Even if your contract explicitly states there is "no prepayment penalty," you might still be facing a massive hidden cost that functions in exactly the same way. Many solar-specific lenders use what are known as "dealer fees" or "origination fees" to pad their profits. These fees, which can range from 10% to 30% of the system\'s cash price, are added to your loan principal upfront. For example, if your solar panels cost $30,000 in cash, the lender might add a 30% dealer fee, making your initial loan balance $39,000. If you try to pay off the loan in the first year, you are still on the hook for that $9,000 fee, effectively acting as a massive prepayment penalty that was never clearly disclosed.' },
-    { type: 'h2', content: 'The 19th Month Trap: Re-amortization Risks' },
-    { type: 'p', content: 'Most predatory solar loans are structured around the federal Investment Tax Credit (ITC), which currently sits at 30%. Salespeople often tell homeowners that their monthly payments will stay low, assuming they will "voluntarily" prepay 30% of the loan (the amount of the tax credit) within the first 18 months. If you don\'t make this massive payment--perhaps because you didn\'t qualify for the full tax credit or needed the money for other expenses--the loan "re-amortizes" at the 19th month. This means your monthly payment could jump by 40% or more, and you\'ll be stuck paying interest on a much larger principal than you ever intended, creating a financial burden that lasts for the life of the loan.' },
-    { type: 'warning', content: 'Many predatory solar contracts include a mandatory arbitration clause. This clause strips you of your right to sue the company in court or join a class-action lawsuit. Instead, you are forced into a private arbitration process that often favors the lender. Always check your contract for this clause before signing, as it can severely limit your ability to fight back against unfair fees and penalties.' },
-    { type: 'h2', content: 'How to Identify Predatory Loan Terms' },
-    { type: 'p', content: 'Before you sign any solar contract, it is crucial to look for red flags that indicate a predatory loan. These lenders often target homeowners with high-pressure sales tactics and confusing financial jargon designed to obscure the true cost of the system. By knowing what to look for, you can avoid falling into a debt trap that could last for 25 years or more. Always ask for the "cash price" of the system and compare it to the "total loan amount" to see exactly how much you are being charged in hidden fees.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'solar-contract-assignment-without-consent',
-  title: 'Solar Contract Help',
-  metaTitle: 'Solar Contract Help',
-  metaDescription: ``,
-  category: 'Contract Help',
-  readTime: '8 min read',
-  publishDate: 'March 2026',
-  excerpt: '',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'Learn about Solar Contract Help and your rights as a homeowner.' },
-    { type: 'callout', content: 'Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'solar-installer-out-of-business',
-  title: 'Solar Installer Went Out of Business? Here is Your Step-by-Step Recovery Guide',
-  metaTitle: 'Solar Installer Went Out of Business? Here is Your Step-by-Step Recovery Guide',
-  metaDescription: `Discover exactly what to do if your solar installer goes out of business. Learn how to protect your warranties, manage your loan, and keep your system runnin...`,
-  category: 'Legal Rights',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Discover exactly what to do if your solar installer goes out of business. Learn how to protect your warranties, manage your loan, and keep your system running without the original company.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Nightmare Scenario: When Your Solar Installer Vanishes' },
-    { type: 'p', content: 'It starts with a bounced email or a disconnected phone line. You try to reach out for a routine maintenance check or to ask about a weird reading on your monitoring app, only to find that the company you trusted with $30,000 of your hard-earned money has vanished. Solar installer bankruptcies are becoming alarmingly common as the industry faces shifting regulations and financing hurdles. While it feels like your investment has just evaporated, the physical hardware on your roof is still yours, and you have more legal protections than you might realize.' },
-    { type: 'h2', content: 'Immediate Steps to Take When the Doors Close' },
-    { type: 'p', content: 'The moment you confirm your installer is out of business, you need to go into \'documentation mode.\' Gather every scrap of paper related to your project, including the original signed contract, the system design schematics, and your interconnection agreement with the utility company. If your installer provided a proprietary monitoring app, log in immediately and take screenshots of your system\'s historical performance and current status. Often, these portals are the first things to go dark when a company liquidates its digital assets, and having that data is crucial for any future service provider.' },
-    { type: 'callout', content: 'Need immediate help navigating a solar company bankruptcy? Call our homeowner advocacy line at (904) 921-4971 or visit breakyoursolarcontract.com to explore your options for contract cancellation or legal recourse.' },
-    { type: 'h2', content: 'Understanding the \'Two-Warranty\' Reality' },
-    { type: 'p', content: 'Most homeowners don\'t realize that their solar system is actually covered by two distinct types of warranties. The first is the manufacturer\'s warranty, which covers the physical equipment--the panels and the inverters--and typically lasts 20 to 25 years. The second is the workmanship warranty, which covers the actual installation labor and roof penetrations. When an installer goes out of business, your workmanship warranty usually dies with them, but your manufacturer\'s warranty remains valid as long as the equipment maker is still solvent.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'solar-system-underperforming-legal-options',
-  title: 'Solar System Underperforming? Your Legal Options and Compensation Guide',
-  metaTitle: 'Solar System Underperforming? Your Legal Options and Compensation Guide',
-  metaDescription: `Is your solar system producing less energy than promised? Learn about your legal rights, potential compensation, and how to hold predatory solar companies ac...`,
-  category: 'Legal Rights',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Is your solar system producing less energy than promised? Learn about your legal rights, potential compensation, and how to hold predatory solar companies accountable for underperformance.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Solar Underperformance and Your Rights' },
-    { type: 'p', content: 'When you signed your solar contract, you were likely promised a specific amount of energy production and significant utility bill savings. For many homeowners, the reality is a $40,000 debt for a system that barely covers a fraction of their monthly power needs. Solar underperformance isn\'t just a technical glitch; it is often a breach of contract or a result of deceptive sales practices. If your system is producing 20% or 30% less than the "guaranteed" amount, you aren\'t just losing money on your electric bill--you are being robbed of the value of your investment. This discrepancy can lead to thousands of dollars in unexpected utility costs over the life of the system, effectively doubling your monthly energy expenses instead of eliminating them.' },
-    { type: 'p', content: 'Understanding your legal standing is the first step toward financial recovery. Most solar agreements include a production guarantee, which is a legally binding promise that the system will generate a certain number of kilowatt-hours (kWh) over a set period. When the system fails to meet these benchmarks due to poor installation, defective panels, or incorrect shading calculations, the company has failed its end of the bargain. You have the right to demand that the system performs as advertised or seek legal remedies to exit the agreement entirely. These guarantees are often backed by specific performance metrics that, if not met, trigger a requirement for the installer to either add more panels at no cost or provide a cash refund for the shortfall.' },
-    { type: 'h2', content: 'Common Causes of Solar Production Shortfalls' },
-    { type: 'p', content: 'Underperformance rarely happens in a vacuum; it is usually the result of systemic failures during the design or installation phase. One of the most common issues is "shading misrepresentation," where sales reps ignore nearby trees or structures in their software models to make the projected savings look better than they ever could be. In other cases, installers use sub-standard inverters or panels that degrade faster than the industry standard, leading to a steady decline in output within just the first two years of operation. Many homeowners find that their systems were installed on North-facing roofs or in areas with significant afternoon shade, which was never disclosed during the high-pressure sales pitch in their living room.' },
-    { type: 'p', content: 'Beyond design flaws, technical failures are a leading cause of system downtime. A single faulty micro-inverter can take down an entire string of panels, reducing your output by 10% or more without you even noticing unless you check your monitoring app daily. Many predatory companies fail to provide active monitoring services, leaving homeowners in the dark for months while their systems sit idle. By the time the homeowner realizes there is a problem, they have already lost hundreds of dollars in potential solar credits and are stuck with a massive "True-Up" bill from their local utility provider.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'solar-door-to-door-sales-rescission',
-  title: 'Solar Contract Door-to-Door Sales Rescission Rights: Your 3-Day Escape Hatch',
-  metaTitle: 'Solar Contract Door-to-Door Sales Rescission Rights: Your 3-Day Escape Hatch',
-  metaDescription: `Discover your legal rights to cancel a predatory door-to-door solar contract. Learn how the FTC Cooling-Off Rule protects homeowners from high-pressure sales...`,
-  category: 'Legal Rights',
-  readTime: '8 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Discover your legal rights to cancel a predatory door-to-door solar contract. Learn how the FTC Cooling-Off Rule protects homeowners from high-pressure sales tactics and hidden fees.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Door-to-Door Solar Sales Tactics' },
-    { type: 'p', content: 'Walking into your home after a long day, the last thing you expect is a high-pressure sales pitch for a $40,000 solar array. Door-to-door solar representatives are often trained in aggressive psychological tactics designed to get a signature before you can even research the company. These \'canvassers\' frequently promise zero-down deals, government \'stimulus\' checks that don\'t exist, and immediate utility bill elimination. Many homeowners find themselves locked into 25-year financing agreements with 9.99% interest rates and hidden dealer fees that can add $10,000 or more to the principal balance before the first panel is even installed.' },
-    { type: 'h2', content: 'Understanding the FTC Cooling-Off Rule' },
-    { type: 'p', content: 'If you signed a solar contract in your home, at your front door, or even at a temporary location like a fair or hotel suite, you are likely protected by the Federal Trade Commission (FTC) Cooling-Off Rule. This federal regulation gives you a legal right to cancel a sale of $25 or more within three business days of the transaction. The most critical aspect of this rule is that you do not need to provide a reason for the cancellation. Whether you simply changed your mind or realized the math doesn\'t add up, the law is on your side during this brief window.' },
-    { type: 'h3', content: 'What Qualifies as a Door-to-Door Sale?' },
-    { type: 'p', content: 'The Cooling-Off Rule applies to sales made at your residence, even if you invited the salesperson to your home to make a presentation. It also covers sales made at locations other than the seller\'s permanent place of business, such as a rented hub or a community center. However, it is important to note that the rule does not apply to sales made entirely by mail or telephone, or those that began at the seller\'s retail location. For most predatory solar schemes, the initial contact and the contract signing happen right at your kitchen table, making them prime candidates for rescission under federal law.' },
-    { type: 'callout', content: 'If you are feeling pressured to sign a solar contract or have already signed one and regret it, call us at (904) 921-4971 or visit breakyoursolarcontract.com for immediate assistance in navigating your cancellation rights.' },
-    { type: 'h2', content: 'How to Properly Execute Your Right to Rescind' },
-    { type: 'p', content: 'To cancel a door-to-door solar contract, you must follow specific steps to ensure your rescission is legally binding. The salesperson is required by law to give you two copies of a cancellation form (often called a \'Notice of Cancellation\') at the time of the sale. To cancel, you simply sign and date one copy and mail it to the address provided for cancellations. It is highly recommended to send this via certified mail with a return receipt requested. This provides you with a paper trail and proof that you initiated the cancellation within the three-business-day timeframe required by the FTC.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'goodleap-vs-mosaic-solar-loan-comparison',
-  title: 'GoodLeap vs Mosaic: Which Solar Loan is Harder to Cancel?',
-  metaTitle: 'GoodLeap vs Mosaic: Which Solar Loan is Harder to Cancel?',
-  metaDescription: `Comparing GoodLeap and Mosaic solar loans reveals a complex web of hidden fees and cancellation hurdles. Learn how to navigate these predatory contracts and ...`,
-  category: 'Loan Problems',
-  readTime: '8 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Comparing GoodLeap and Mosaic solar loans reveals a complex web of hidden fees and cancellation hurdles. Learn how to navigate these predatory contracts and protect your home from long-term financial traps.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'h2', content: 'The Reality of Modern Solar Financing' },
-    { type: 'p', content: 'For many homeowners, the dream of clean energy quickly turns into a financial nightmare when they realize the true cost of their solar loan. Companies like GoodLeap and Mosaic dominate the market, often partnering with aggressive sales teams that promise low interest rates while hiding massive upfront costs. These \'dealer fees\' can inflate the total loan amount by 15% to 30%, meaning you might owe $40,000 for a system that only costs $30,000 to install. Understanding the differences between these two giants is the first step in regaining control of your financial future.' },
-    { type: 'h2', content: 'GoodLeap: The Efficiency Trap' },
-    { type: 'p', content: 'GoodLeap, formerly known as Loanpal, is the largest player in the residential solar finance space. Their platform is designed for speed, allowing installers to get loan approval in minutes while standing in your kitchen. However, this efficiency is exactly what makes them so difficult to cancel. Once the loan is \'disbursed\' to the installer--which often happens long before the first panel touches your roof--GoodLeap considers the contract fully active. Homeowners frequently report that trying to stop the clock after this point feels like fighting a brick wall.' },
-    { type: 'h3', content: 'Common GoodLeap Cancellation Hurdles' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'sunrun-stock-homeowner-contract-rights',
-  title: 'Sunrun IPO and What It Means for Homeowners Trying to Cancel',
-  metaTitle: 'Sunrun IPO and What It Means for Homeowners Trying to Cancel',
-  metaDescription: `The 2015 Sunrun IPO shifted the company's focus to Wall Street investors, making it harder for homeowners to cancel predatory solar contracts. Learn your rig...`,
-  category: 'Company Complaints',
-  readTime: '10 min read',
-  publishDate: 'March 2026',
-  excerpt: 'The 2015 Sunrun IPO shifted the company\'s focus to Wall Street investors, making it harder for homeowners to cancel predatory solar contracts. Learn your rights and how to fight back.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'The 2015 Sunrun IPO was a watershed moment for the residential solar industry, marking the transition of rooftop solar from a niche environmental product to a massive, Wall Street-backed financial engine. While investors saw dollar signs, many homeowners unknowingly became the collateral in a race for rapid expansion. Today, as Sunrun (NASDAQ: RUN) continues to dominate the market, the pressure to maintain stock value often translates into aggressive contract enforcement that leaves families feeling trapped in 20-to-25-year commitments they no longer want or can afford. For many, the dream of clean energy has turned into a financial nightmare, with contracts that are nearly impossible to break without paying tens of thousands of dollars in penalties. This is not just about solar panels; it is about the securitization of your home and your future income. When you sign a Sunrun contract, you are not just buying a service; you are becoming a line item on a corporate balance sheet that must be protected at all costs. This fundamental shift in the relationship between the homeowner and the solar provider is at the heart of the current crisis in the industry. Understanding how the IPO changed Sunrun\'s priorities is the first step in reclaiming your rights as a homeowner.' },
-    { type: 'h2', content: 'The Wall Street Pressure Cooker: Why Cancellation is So Hard' },
-    { type: 'p', content: 'When a company like Sunrun goes public, its primary responsibility shifts from serving customers to satisfying shareholders. This \'Wall Street pressure\' creates a fundamental conflict of interest. To keep stock prices high, Sunrun must show consistent growth in its \'megawatts deployed\' and \'recurring revenue.\' Every homeowner who cancels a contract represents a loss of projected revenue that could spook investors. This is why you often encounter a brick wall when trying to exit a lease or Power Purchase Agreement (PPA).' },
-    { type: 'p', content: 'The company\'s financial health is tied directly to the long-term stability of its contract portfolio. If Sunrun allowed homeowners to cancel easily, their entire business model--which relies on bundling these contracts into \'solar asset-backed securities\'--would crumble. For the homeowner, this means that what was sold as a simple way to save on electricity is actually a complex financial instrument that the company will defend with a team of corporate lawyers. These securities are sold to institutional investors who expect a steady stream of payments for the next two decades. If you stop paying, it\'s not just a loss for Sunrun; it\'s a breach of the promises they made to their investors. This is why their cancellation department is often described as a \'retention department\' where the goal is to keep you paying, no matter how unhappy you are. They have a massive financial incentive to make the cancellation process as difficult and expensive as possible. This is the reality of the post-IPO solar market, where the homeowner\'s needs are often secondary to the demands of the capital markets. Every time a homeowner successfully cancels a contract, it sends a signal to the market that these assets might not be as secure as they seem, which is why Sunrun fights so hard to keep every single customer locked in.' },
-    { type: 'h2', content: 'Understanding the \'Solar Asset\' Trap' },
-    { type: 'p', content: 'In the eyes of Sunrun and its investors, your roof is not just part of your home; it is a host for a revenue-generating asset. When you sign a Sunrun PPA or lease, you are often granting the company an interest in your property through a UCC-1 financing statement. This \'fixture filing\' acts like a lien, making it nearly impossible to sell or refinance your home without Sunrun\'s permission. This is a common shock for homeowners who were told the panels would \'add value\' to their property.' },
-    { type: 'p', content: 'Instead of adding value, many find that the $30,000 to $150,000 \'valuation\' of the system--often cited in cancellation payoff demands--is far above the actual market price of the hardware. We have seen cases where homeowners were billed over $134,000 for systems that were never even activated. This discrepancy exists because the payoff amount isn\'t just for the equipment; it includes the \'lost profit\' Sunrun expected to make from you over the next two decades. This is a classic example of predatory pricing, where the company charges you for the \'privilege\' of leaving a contract that may have been based on false promises. The hardware itself--the panels, the inverter, the racking--often costs less than $15,000 to $20,000 to replace, yet the buyout figures are astronomical. This is because Sunrun is calculating the \'net present value\' of every single kilowatt-hour they expected to sell you until the year 2045 or beyond. They are essentially asking you to pay for 20 years of electricity upfront, at a price they determined, regardless of whether the system even works. This \'asset trap\' is designed to make the cost of leaving so high that most homeowners simply give up and continue to pay their monthly bills, even if they are saving nothing on their utility costs. It is a form of financial bondage that is only possible because of the complex legal structures Sunrun put in place after their IPO.' },
-    { type: 'h2', content: 'Common Predatory Tactics Used to Prevent Cancellation' },
-    { type: 'p', content: 'Homeowners trying to exercise their rights often face a gauntlet of delay tactics and misinformation. Because Sunrun\'s growth depends on keeping you in the system, their customer service departments are frequently structured to \'save\' the account rather than process a legitimate cancellation request.' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-},
-{
-  slug: 'solar-contract-red-flags-checklist',
-  title: 'Solar Contract Red Flags Checklist: 10 Things to Spot Before You Sign',
-  metaTitle: 'Solar Contract Red Flags Checklist: 10 Things to Spot Before You Sign',
-  metaDescription: `Don't get trapped in a predatory solar agreement. Use our comprehensive checklist to identify hidden fees, misleading promises, and legal traps before you si...`,
-  category: 'Contract Help',
-  readTime: '12 min read',
-  publishDate: 'March 2026',
-  excerpt: 'Don\'t get trapped in a predatory solar agreement. Use our comprehensive checklist to identify hidden fees, misleading promises, and legal traps before you sign on the dotted line.',
-  heroImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop',
-  heroAlt: 'solar panels on residential home',
-  ctaText: 'Get a Free Solar Contract Review',
-  ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
-  content: [
-    { type: 'p', content: 'Solar energy is one of the most significant investments a homeowner can make for their property, their financial future, and the environment. When done correctly, it can provide decades of clean, reliable power and shield you from the ever-rising costs of traditional utility companies. However, the residential solar industry is currently undergoing a \'Wild West\' phase, plagued by predatory sales tactics that turn a clean energy dream into a multi-decade financial nightmare. Before you sign a 25-year agreement that could cost you upwards of $40,000 to $60,000 over its lifetime, you must understand exactly what you are agreeing to. Many homeowners find themselves trapped in contracts with hidden fees, escalating payments, and misleading production promises that were never meant to be kept by the installation company.' },
-    { type: 'h2', content: 'Red Flag 1: The \'Free Solar\' and Government Program Myth' },
-    { type: 'p', content: 'If a salesperson tells you that the panels are \'free\' or that you are participating in a \'government-sponsored program,\' walk away immediately. This is perhaps the most common deceptive tactic used by door-to-door sales representatives across the country. While there are federal tax credits and some state-level incentives, there is no such thing as a \'free\' solar program from the government. These are private contracts, usually in the form of a Power Purchase Agreement (PPA) or a lease, where you are still paying for the power produced or the equipment installed. Misrepresenting a private business transaction as a public utility program is a major deceptive trade practice that can be grounds for legal action. The Federal Trade Commission (FTC) has specifically warned consumers about these \'free solar\' claims, as they are designed to lower your guard and make a high-cost financial commitment seem like a public benefit.' },
-    { type: 'h2', content: 'Red Flag 2: The Hidden 2.9% Annual Payment Escalator' },
-    { type: 'p', content: 'One of the most dangerous clauses in a solar contract is the \'annual escalator.\' Sales reps often focus on the low initial monthly payment, which might be $120 compared to your current $150 utility bill. However, many contracts include a 2.9% annual increase. While this sounds small, it means your payment will nearly double over the 25-year term. If your utility rates don\'t rise as fast as your solar escalator, you could end up paying significantly more for solar power than you would have paid to the grid. For example, a $150 monthly payment with a 2.9% escalator will grow to over $300 per month by the end of the contract. If the local utility company only raises rates by 1% or 2% annually, your \'savings\' will vanish within the first decade, leaving you with a massive liability that is difficult to escape.' },
-    { type: 'h2', content: 'Red Flag 3: Misleading \'Zero Bill\' Promises' },
-    { type: 'p', content: 'A common predatory tactic is promising that your electric bill will be \'zeroed out\' or \'eliminated.\' In reality, most homeowners will still receive a small monthly bill from their utility company for grid connection fees, which can range from $10 to $30 per month depending on your location and utility provider. Furthermore, if your system is undersized or if your energy usage increases--such as by adding an electric vehicle or a new HVAC system--you will still be buying power from the grid. If a company guarantees a zero-dollar bill without a detailed production analysis of your specific roof, shading from nearby trees, and historical energy usage, they are likely misleading you. True \'net zero\' is rare and requires a perfectly sized system and favorable net metering policies from your utility, which are currently being rolled back in many states like California (NEM 3.0).' },
-    { type: 'h2', content: 'Red Flag 4: UCC-1 Fixture Filings and Home Sale Hurdles' },
-    { type: 'p', content: 'Many solar companies file a UCC-1 financing statement, which is a legal notice that they have a security interest in the solar equipment attached to your home. While this is not technically a lien on the real estate itself, it often shows up on title reports and can prevent you from refinancing your mortgage or selling your home. Many buyers are hesitant to take over a 20-year lease or PPA, and you might be forced to pay a $20,000+ buyout fee just to close your home sale. We have seen countless cases where a $400,000 home sale was delayed or cancelled because the solar company refused to cooperate with the title company or demanded an exorbitant payoff that the seller couldn\'t afford. This \'cloud on title\' is a major red flag that sales reps often downplay or fail to mention entirely during their pitch.' },
-    { type: 'h2', content: 'Red Flag 5: The Federal Tax Credit Misrepresentation' },
-    { type: 'p', content: 'The 30% Federal Investment Tax Credit (ITC) is a powerful incentive, but it is a non-refundable tax credit, not a rebate check. This means you must have sufficient federal tax liability to use it. Predatory sales reps often tell retirees on fixed incomes or low-income households that they will get a \'check for $10,000\' from the government, which they can then use to pay down the solar loan. If you don\'t have the tax liability, you won\'t get the credit, and your loan payment will likely skyrocket after the first 18 months. Many homeowners are shocked to find that their \'low\' monthly payment of $140 jumps to $210 because they couldn\'t \'re-invest\' a tax credit they never qualified for in the first place. Always consult with a tax professional before assuming you will receive the full 30% benefit.' },
-    { type: 'h2', content: 'Red Flag 6: High-Pressure \'Sign Now\' Tactics' },
-    { type: 'p', content: 'Predatory solar companies rely on \'one-call closes.\' They may tell you that a specific rebate is expiring tonight, that they have \'one installation slot left this month,\' or that the price will go up tomorrow. These are almost always lies designed to prevent you from reading the 40-page contract or doing your own research. A legitimate $30,000 investment should never require a signature within 30 minutes of meeting a stranger at your front door. If a salesperson refuses to leave a copy of the contract for you to review over the weekend, it is because they know that a careful reading will reveal the predatory terms they are trying to hide. Take your time, compare quotes, and never sign under duress or artificial time pressure.' },
-    { type: 'h2', content: 'Red Flag 7: Vague Performance and Maintenance Guarantees' },
-    { type: 'p', content: 'A solid solar contract should include a production guarantee, stating exactly how many kilowatt-hours (kWh) the system will produce each year. If the contract only mentions \'equipment warranties\' but doesn\'t guarantee the actual power output, you have no recourse if the system underperforms due to poor installation or shading issues. Additionally, check who is responsible for roof leaks. If the contract says they are only responsible for leaks within 12 inches of a penetration for only one year, you are taking on a massive long-term risk for your home\'s structural integrity. A reputable company should stand by their work for at least 10 years and provide a clear, written process for how they will compensate you if the system fails to meet its production targets.' },
-    { type: 'h2', content: 'Red Flag 8: Verbal Promises vs. Written Contract Discrepancies' },
-    { type: 'p', content: 'The most important rule of solar contracting is: \'If it isn\'t in writing, it doesn\'t exist.\' Sales reps often make grand verbal promises about free battery backups, roof repairs, or \'guaranteed savings\' that are nowhere to be found in the actual written agreement. Most solar contracts contain an \'integration clause\' which states that the written document is the entire agreement and that no verbal promises are binding. If the rep won\'t put their promise in the \'Special Instructions\' section of the contract, they are lying to you. We have seen cases where reps promised to pay off a homeowner\'s existing roof loan, only for the homeowner to find out later that they were now responsible for two loans instead of one. Always verify that every single promise made during the sales pitch is reflected in the final, signed document.' },
-    { type: 'h3', content: 'Checklist: 10 Questions to Ask Before Signing' },
-  ],
-  faq: [],
-  relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-contract-red-flags-and-scams', 'solar-company-went-bankrupt'],
-}
+  {
+    slug: "goodleap-solar-loan-problems",
+    title:
+      "GoodLeap Solar Loan Problems: How to Fight Back Against Predatory Financing",
+    metaTitle:
+      "GoodLeap Solar Loan Problems: How to Fight Back Against Predatory Financing",
+    metaDescription: `Discover the truth about GoodLeap solar loan problems, from hidden fees to deceptive sales tactics. Learn how to protect your rights and fight back against p...`,
+    category: "Loan Problems",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Discover the truth about GoodLeap solar loan problems, from hidden fees to deceptive sales tactics. Learn how to protect your rights and fight back against predatory solar financing today.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      { type: "h2", content: "The Reality of GoodLeap Solar Loans" },
+      {
+        type: "p",
+        content:
+          "GoodLeap, formerly known as Loanpal, has positioned itself as a leader in the residential solar financing market, but for many homeowners, the experience has been anything but bright. While the promise of low monthly payments and zero-down installation is enticing, the underlying reality often involves complex financial structures that can leave families trapped in decades of debt. Many consumers report that the sales process was rushed, with critical details about the loan terms buried in digital documents they were never given a fair chance to review. This lack of transparency is at the heart of the growing number of complaints against the company.",
+      },
+      {
+        type: "p",
+        content:
+          "The financial burden of a GoodLeap loan often extends far beyond the initial cost of the solar panels themselves. Homeowners frequently find that their total loan balance is significantly higher than the cash price of the system, sometimes by as much as 30% or more. This discrepancy is often due to 'dealer fees' or 'origination fees' that are baked into the principal of the loan to subsidize the low interest rates advertised by sales representatives. When these systems fail to perform as promised, or when the installation company goes out of business, homeowners are left paying for a 'zombie' system that provides no benefit while their debt continues to accrue interest.",
+      },
+      {
+        type: "h2",
+        content:
+          'The \\"GoodLeap Special\\": Hidden Fees and Deceptive Pricing',
+      },
+      {
+        type: "p",
+        content:
+          'One of the most significant issues facing GoodLeap borrowers is the practice of charging massive hidden fees, which some consumer advocates have dubbed the \\"GoodLeap Special.\\" In March 2024, Minnesota Attorney General Keith Ellison filed a major lawsuit against GoodLeap and several other solar lenders, alleging they charged over $35 million in deceptive hidden fees to nearly 5,000 Minnesota consumers. These fees, which typically range from 15% to 30% of the total loan amount, are often not disclosed in the initial sales proposals or the loan origination documents.',
+      },
+      {
+        type: "p",
+        content:
+          "For a typical $40,000 solar installation, a 25% hidden fee adds $10,000 to the principal balance before a single kilowatt-hour of energy is even produced. This means the homeowner is paying interest on a much larger sum than they realized, effectively canceling out the financial benefits of going solar. The lawsuit asserts that these practices violate state consumer fraud statutes and deceptive trade practices laws. By concealing the true cost of financing, GoodLeap and its partners prevent homeowners from accurately comparing the cost of their loans with other financing options, such as home equity lines of credit or traditional bank loans.",
+      },
+      {
+        type: "warning",
+        content:
+          'Be extremely cautious of any solar loan that offers an interest rate significantly lower than current market rates (e.g., 1.99% or 2.99%). These \\"teaser\\" rates are almost always subsidized by massive upfront \\"dealer fees\\" that are added to your loan principal, often increasing your total debt by $10,000 to $20,000 without your knowledge.',
+      },
+      { type: "h2", content: "Predatory Sales Tactics and Agency Liability" },
+      {
+        type: "p",
+        content:
+          "GoodLeap operates through a network of independent solar installers who act as the primary point of contact for homeowners. However, recent legal developments have challenged GoodLeap's attempt to distance itself from the predatory tactics used by these partners. In a landmark arbitration case in July 2024, a former Chief Justice of the Georgia Supreme Court ruled that GoodLeap was legally responsible for the deceptive actions of its partner, Pink Energy (formerly Power Home Solar). The arbitrator found that GoodLeap exercised such extensive control over the sales process that the installer was effectively acting as GoodLeap's agent.",
+      },
+      {
+        type: "p",
+        content:
+          'The tactics described in these cases are often harrowing. Sales representatives may spend four or more hours in a homeowner\'s living room, using high-pressure techniques to secure a signature. In many instances, the contracts are presented on an iPad, and the salesperson quickly scrolls to the signature lines without allowing the homeowner to read the fine print. Homeowners are often told that they can cancel the contract orally, but the written terms usually require a formal \\"Notice of Cancellation\\" to be sent via certified mail within a strict three-day window. When the installer goes bankrupt--as Pink Energy and Titan Solar have done--homeowners are often told by GoodLeap that they are still responsible for the full loan balance, regardless of whether the system works.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "loanpal-solar-loan-complaints",
+    title:
+      "Loanpal Solar Loan Complaints: Hidden Fees, Dealer Markups, and Cancellation Rights",
+    metaTitle:
+      "Loanpal Solar Loan Complaints: Hidden Fees and Cancellation Rights",
+    metaDescription: `Loanpal solar loan complaints often involve hidden dealer fees, tax credit payment traps, and unaffordable balances. Learn your cancellation rights.`,
+    category: "Solar Loans",
+    readTime: "8 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Loanpal, now known as GoodLeap, financed thousands of residential solar systems. Many complaints trace back to hidden dealer fees, misleading tax credit assumptions, and contracts homeowners did not fully understand.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "Loanpal solar loan complaints usually start with a payment that looked affordable during the sales presentation and then became far more expensive after the paperwork settled. Homeowners often report that the cash price, financed price, dealer fee, and expected tax credit payment were never explained in plain English.",
+      },
+      { type: "h2", content: "Common Loanpal Complaint Patterns" },
+      {
+        type: "p",
+        content:
+          "The biggest red flags include hidden dealer fees added to the principal, promises that the federal tax credit would automatically reduce the balance, payment increases after the re-amortization deadline, and installer promises that do not match the finance agreement. If those facts are present, consumer protection laws and lending disclosure rules may create leverage.",
+      },
+      { type: "h2", content: "Documents to Review Before You Pay More" },
+      {
+        type: "p",
+        content:
+          "Gather the sales proposal, Loanpal or GoodLeap loan agreement, tax credit disclosures, completion certificate, utility bills, and any text messages from the salesperson. Those documents help determine whether the loan terms were disclosed properly and whether cancellation, balance reduction, or a lender dispute is realistic.",
+      },
+      {
+        type: "callout",
+        content:
+          "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "service-finance-solar-loan-problems",
+    title:
+      "Service Finance Solar Loan Problems: A Homeowner's Guide to Getting Out",
+    metaTitle:
+      "Service Finance Solar Loan Problems: A Homeowner's Guide to Getting Out",
+    metaDescription: `Break your solar contract! Uncover legal methods like rescission, fraud claims, and TILA violations to cancel. Avoid 20-year payments. Free case review.`,
+    category: "Loan Problems",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Are you struggling with a Service Finance solar loan that feels more like a burden than a benefit? Learn how to navigate UCC-1 filings, high interest rates, and predatory contracts to reclaim your financial freedom.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      { type: "h2", content: "The Reality of Service Finance Solar Loans" },
+      {
+        type: "p",
+        content:
+          "Many homeowners enter into a Service Finance Company (SFC) agreement with the promise of lower utility bills and a greener footprint. However, the reality often sets in a few months later when the first bill arrives, and the \"savings\" don't materialize. Service Finance is a third-party lender that provides installment loans for home improvements, including solar panels. Unlike a lease, you own the equipment, but you also own a massive debt that can span 20 to 25 years. For a typical $35,000 system, you might find yourself paying back over $60,000 once interest and fees are factored in. This long-term commitment is often sold as a simple monthly payment, but it is a complex financial instrument that can have lasting effects on your credit and your home's equity.",
+      },
+      {
+        type: "p",
+        content:
+          'The problem isn\'t the solar technology itself; it\'s the predatory sales tactics used by some contractors who partner with Service Finance. These sales reps often gloss over the long-term financial implications, focusing instead on "zero down" and "low monthly payments." What they don\'t tell you is that these loans are often secured by a fixture filing on your home, which can make selling or refinancing your property a nightmare. If you feel like you were misled during the sales process, you aren\'t alone, and there are steps you can take to fight back. Many homeowners report that the actual energy production of their panels is significantly lower than what was promised in the initial sales pitch, leading to a "double bill" situation where they pay both the solar loan and a substantial utility bill.',
+      },
+      {
+        type: "h2",
+        content: "The UCC-1 Fixture Filing: The Invisible Lien on Your Home",
+      },
+      {
+        type: "p",
+        content:
+          'One of the most common "surprises" homeowners face with Service Finance is the UCC-1 fixture filing. While SFC will tell you this isn\'t a mortgage lien, it functions very similarly in the eyes of a title company. When you sign that loan agreement, you are giving Service Finance a legal interest in the solar equipment attached to your home. This filing is recorded in the public records of your county, effectively "clouding" your title. This means that any search of your property records will show Service Finance as a creditor with a claim on your home\'s fixtures.',
+      },
+      {
+        type: "p",
+        content:
+          "If you try to sell your home, the buyer's lender will likely demand that the UCC-1 filing be removed before closing. This usually means you have to pay off the entire remaining balance of the solar loan--which could be $30,000 or more--out of your home equity. Many homeowners don't realize this until they are weeks away from closing, leading to frantic negotiations and, in some cases, the entire sale falling through. It's a high-stakes trap that keeps you tethered to a loan that may no longer serve you. Even if you find a buyer willing to assume the loan, Service Finance has strict credit requirements for the new homeowner, and many buyers are unwilling to take on a 20-year debt for used solar equipment.",
+      },
+      { type: "h3", content: "Why Your Realtor and Lender are Worried" },
+      {
+        type: "p",
+        content:
+          'Realtors often cringe when they see solar panels on a listing because they know the complications that come with lenders like Service Finance. A UCC-1 filing isn\'t just a note in a file; it\'s a public declaration that someone else has a claim on a part of your property. For a new buyer, this represents a risk they aren\'t willing to take. Lenders are equally hesitant, as they want to ensure their mortgage holds the primary position without any competing "fixture" claims that could complicate a foreclosure or insurance claim. This can lead to delays in the appraisal process and may even require a specialized "solar addendum" to the sales contract, which can scare off potential buyers in a competitive market.',
+      },
+      { type: "h2", content: 'High Interest Rates and the "Dealer Fee" Trap' },
+      {
+        type: "p",
+        content:
+          'Service Finance offers a variety of loan products, some with seemingly low interest rates like 2.99% or 3.99%. However, these "low" rates often come with a massive "dealer fee" or "origination fee" that is added to the principal of your loan. It is not uncommon for a contractor to add a 25% to 30% markup to the price of the solar system just to buy down the interest rate from Service Finance. This means you are paying interest on a fee that provided you no tangible value. This practice is often hidden in the fine print of the contract, and many homeowners don\'t realize they are paying thousands of dollars just for the privilege of a lower interest rate.',
+      },
+      {
+        type: "p",
+        content:
+          'For example, if the actual cost of the solar installation is $25,000, the contractor might submit a loan application to Service Finance for $32,500 to cover the dealer fee. You are now starting your solar journey $7,500 in the hole before the first panel is even bolted to your roof. Over a 20-year term, even at a "low" rate, the total cost of the loan becomes astronomical. If you have a standard rate loan, which can jump to 9.99% or higher depending on your credit score, the financial burden becomes even more significant. This "hidden" debt is one of the primary reasons homeowners find themselves underwater on their solar loans, owing more than the system is actually worth from day one.',
+      },
+      {
+        type: "warning",
+        content:
+          'Beware of the "Solar Tax Credit" Misconception: Many sales reps tell homeowners that the 30% Federal Tax Credit will "pay off" a large chunk of the loan. However, if you don\'t have enough tax liability to claim the full credit, or if you don\'t send that money directly to Service Finance within the first 18 months, your monthly payment will "re-amortize" and jump significantly--often by $50 to $100 per month. This "payment shock" has led many homeowners into financial distress, as they were not prepared for the sudden increase in their monthly obligations.',
+      },
+      { type: "h2", content: "When the Solar Installer Goes Bankrupt" },
+      {
+        type: "p",
+        content:
+          "A major risk with Service Finance loans is the stability of the contractor who installed the system. Because Service Finance is just the bank, they are not responsible for the maintenance or performance of your panels. If your installer goes out of business--a common occurrence in the volatile solar industry--you are still legally obligated to pay Service Finance every single month. This creates a situation where you are paying for a product that may not be functioning correctly, with no recourse against the company that installed it.",
+      },
+      {
+        type: "p",
+        content:
+          'We have seen dozens of cases where homeowners are stuck paying $200 a month for a system that isn\'t producing any electricity because of a faulty inverter or broken panel. Since the original installer is gone, the homeowner has to pay out of pocket for repairs while still servicing the debt to SFC. This "double-pay" scenario is one of the most devastating outcomes for homeowners who were promised "free energy" and "no maintenance" for 25 years. Furthermore, finding a new contractor to service a system they didn\'t install can be difficult and expensive, as many reputable companies are hesitant to take on the liability of another firm\'s work.',
+      },
+      { type: "h2", content: "Common Complaints and Red Flags" },
+      {
+        type: "p",
+        content:
+          "Homeowners across the country have reported similar issues with Service Finance, ranging from poor customer service to aggressive collection tactics. On platforms like Trustpilot and the Better Business Bureau, common complaints include:",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "green-sky-solar-financing-complaints",
+    title:
+      "GreenSky Solar Financing Complaints: Your Legal Options to Break the Contract",
+    metaTitle:
+      "GreenSky Solar Financing Complaints: Your Legal Options to Break the Contract",
+    metaDescription: `Are you struggling with a GreenSky solar loan you didn't authorize or hidden fees that inflated your project cost? Learn about your legal rights and how to f...`,
+    category: "Loan Problems",
+    readTime: "9 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Are you struggling with a GreenSky solar loan you didn't authorize or hidden fees that inflated your project cost? Learn about your legal rights and how to fight back against predatory solar financing.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "For many homeowners, the promise of clean energy and lower utility bills is quickly overshadowed by the reality of a predatory solar loan. GreenSky, a major player in the home improvement financing space, has faced a mountain of complaints from consumers who feel trapped in high-interest contracts they never fully understood--or in some cases, never even authorized. If you are staring at a GreenSky billing statement for a solar array that isn't performing as promised, or if you discovered a loan you didn't sign up for, you are not alone, and you do have legal options.",
+      },
+      {
+        type: "h2",
+        content:
+          "The CFPB Action: $9 Million in Refunds for Unauthorized Loans",
+      },
+      {
+        type: "p",
+        content:
+          "In a landmark 2021 enforcement action, the Consumer Financial Protection Bureau (CFPB) took aim at GreenSky for enabling contractors to secure loans without consumer authorization. The investigation revealed that between 2014 and 2019, GreenSky received over 6,000 complaints from homeowners who claimed they never applied for a loan. In many instances, solar installers used a homeowner's personal information to open a GreenSky account and receive payment directly, leaving the homeowner with a debt they didn't want. As a result, GreenSky was ordered to refund or cancel up to $9 million in loans and pay a $2.5 million civil penalty.",
+      },
+      { type: "h2", content: 'Hidden Fees and the "Merchant Fee" Trap' },
+      {
+        type: "p",
+        content:
+          'One of the most deceptive practices alleged in recent class-action lawsuits, such as Belyea v. GreenSky in California, involves the use of "merchant fees." GreenSky typically charges solar installers a fee--averaging around 7% of the total loan amount--to use their platform. Instead of absorbing this cost, many installers simply bake this fee into the total price of your solar project. This means you are effectively paying interest on a fee you were never told existed, significantly inflating the principal of your loan before the first panel is even installed on your roof.',
+      },
+      {
+        type: "warning",
+        content:
+          'Be aware that "0% interest" or "deferred interest" promotions can be a financial landmine. If the entire balance is not paid off within the promotional period--often 12 to 24 months--GreenSky may charge "back-dated" interest from the original date of purchase, which can instantly add thousands of dollars to your debt.',
+      },
+      { type: "h2", content: "Common Complaints from GreenSky Borrowers" },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "dividend-finance-solar-loan-problems",
+    title:
+      "Dividend Finance Solar Loan Problems: What Homeowners Can Do to Break Free",
+    metaTitle:
+      "Dividend Finance Solar Loan Problems: What Homeowners Can Do to Break Free",
+    metaDescription: `Struggling with a Dividend Finance solar loan? Learn about the common complaints, legal challenges, and actionable steps homeowners can take to cancel predat...`,
+    category: "Loan Problems",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Struggling with a Dividend Finance solar loan? Learn about the common complaints, legal challenges, and actionable steps homeowners can take to cancel predatory contracts and regain financial control.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Growing Crisis of Dividend Finance Solar Loans",
+      },
+      {
+        type: "p",
+        content:
+          "For many homeowners, the promise of clean energy and lower utility bills has turned into a financial nightmare. Dividend Finance, now a division of Fifth Third Bank, has become a central figure in a wave of consumer complaints and legal actions across the United States. What was marketed as a simple, low-interest way to go green has often resulted in 20-year debt obligations that far exceed the value of the energy produced. Many families find themselves trapped in contracts they were pressured into signing, often with undisclosed fees that can add $10,000 or more to the principal balance before the first panel is even installed.",
+      },
+      {
+        type: "p",
+        content:
+          "The scale of the problem is significant, with thousands of homeowners reporting similar patterns of deception. From Florida to Connecticut, state attorneys general and private law firms are investigating how these loans were originated and serviced. The core issue isn't just the solar technology itself, which remains a viable solution for many, but the predatory financing structures and the aggressive sales tactics used by Dividend's installation partners. If you feel like you were misled about the terms of your Dividend Finance loan, you are certainly not alone in this struggle.",
+      },
+      {
+        type: "h2",
+        content: "Common Complaints and Red Flags with Dividend Finance",
+      },
+      {
+        type: "p",
+        content:
+          'Homeowners frequently report a consistent set of problems when dealing with Dividend Finance. One of the most common issues is the "dealer fee" or "origination fee," which is often hidden within the total project cost. These fees can range from 20% to 35% of the loan amount, meaning a $30,000 solar system actually costs the homeowner $40,000 or more from day one. Salespeople often gloss over these details, focusing instead on the "low monthly payment" that fits into a family\'s budget, while ignoring the massive debt load being created.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "sunlight-financial-solar-loan-complaints",
+    title:
+      "Sunlight Financial Solar Loan Complaints: How to Fight Back and Protect Your Home",
+    metaTitle:
+      "Sunlight Financial Solar Loan Complaints 2026 — How to Fight Back",
+    metaDescription: `Sunlight Financial loan inflated by $10,000+? Expose hidden fees, TILA violations & tax credit traps. Cancel your solar contract now. Free attorney review.`,
+    category: "Loan Problems",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Struggling with a Sunlight Financial solar loan? Learn about common complaints, predatory lending tactics, and your legal options for canceling unfair contracts today.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Growing Crisis of Sunlight Financial Solar Loans",
+      },
+      {
+        type: "p",
+        content:
+          "For many homeowners, the promise of clean energy and lower utility bills has turned into a financial nightmare. Sunlight Financial, a major player in the solar financing space, has come under intense scrutiny for its lending practices. While the company markets itself as a bridge to a greener future, thousands of consumers report being trapped in high-interest, long-term debt that they never fully understood. These loans, often ranging from $30,000 to over $60,000, are frequently bundled with aggressive sales tactics from third-party installers who may not have the homeowner's best interests at heart. The financial burden of these loans can be overwhelming, especially when the promised energy savings fail to materialize, leaving families to pay both a high loan installment and a significant utility bill every month.",
+      },
+      {
+        type: "p",
+        content:
+          'The sheer volume of complaints filed with the Better Business Bureau and other consumer protection agencies highlights a systemic issue. Homeowners describe a pattern of deception, where the actual terms of the Sunlight Financial loan differ significantly from what was promised during the initial sales pitch. From hidden fees to misleading claims about federal tax credits, the path to solar ownership is often paved with broken promises. If you find yourself struggling to keep up with payments or feeling misled by the terms of your agreement, you are certainly not alone in this struggle. Many people find that the "zero down" offer was actually a high-interest trap that adds tens of thousands of dollars in interest over the 20-to-25-year life of the loan, making the total cost of the system double or even triple its actual value.',
+      },
+      {
+        type: "p",
+        content:
+          'Furthermore, the relationship between Sunlight Financial and its network of installers is often opaque. Installers are incentivized to push these loans because they receive immediate payment once the installation is "complete," regardless of whether the system actually works or if the homeowner is satisfied. This creates a moral hazard where the lender provides the capital for predatory sales while distancing itself from the deceptive tactics used on the doorstep. Homeowners are left holding the bag, stuck with a massive debt to a financial institution that claims it has no responsibility for the lies told by the salesperson who sold the system in the first place. This lack of accountability is a hallmark of the modern solar industry\'s darker side.',
+      },
+      { type: "h2", content: "Common Complaints Against Sunlight Financial" },
+      {
+        type: "p",
+        content:
+          'One of the most frequent grievances involves the "tax credit trap." Sales representatives often tell homeowners that their monthly payments will remain low, assuming they will receive a massive federal tax credit and apply it directly to the loan balance within the first 18 months. However, many families do not have a high enough tax liability to claim the full credit immediately. When the 18-month mark hits and the "voluntary" prepayment isn\'t made, Sunlight Financial automatically re-amortizes the loan, often causing monthly payments to skyrocket by 30% to 50% without warning.',
+      },
+      {
+        type: "p",
+        content:
+          'Another major point of contention is the lack of transparency regarding dealer fees. In many cases, Sunlight Financial charges solar installers a "dealer fee" to buy down the interest rate, which can add $10,000 or more to the total principal of the loan. This cost is almost always passed directly to the homeowner, hidden within the total system price. Homeowners often discover too late that they are paying significantly more for their solar panels than the actual market value, leaving them "underwater" on a loan for equipment that may not even be performing as promised.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "tesla-solar-complaints-cancel-contract",
+    title:
+      "Tesla Solar Complaints: How to Cancel Your Contract and Reclaim Your Roof",
+    metaTitle:
+      "Tesla Solar Complaints: How to Cancel Your Contract and Reclaim Your Roof",
+    metaDescription: `Dealing with Tesla Solar complaints? Learn how to navigate the cancellation process, understand your legal rights, and get out of a bad solar contract today.`,
+    category: "Company Complaints",
+    readTime: "8 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Dealing with Tesla Solar complaints? Learn how to navigate the cancellation process, understand your legal rights, and get out of a bad solar contract today.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Reality of Tesla Solar: Innovation vs. Implementation",
+      },
+      {
+        type: "p",
+        content:
+          "Tesla is a household name synonymous with cutting-edge technology, but for many homeowners, the dream of a high-tech solar home has turned into a bureaucratic nightmare. While the Powerwall and sleek solar panels look great on paper, the reality of Tesla Solar often involves months of silence, system failures, and a customer service department that seems designed to avoid contact. If you are reading this, you are likely one of the thousands of homeowners frustrated by a system that isn't producing what was promised or a repair request that has been ignored for over six months.",
+      },
+      {
+        type: "h2",
+        content: "Common Tesla Solar Complaints: You Are Not Alone",
+      },
+      {
+        type: "p",
+        content:
+          "The most frequent complaints against Tesla Solar center on a total breakdown in communication. Homeowners report waiting 4-5 months just for an initial site inspection, only to face another half-year delay when the system inevitably needs a redesign. Even more concerning are the reports of system failures where inverters stop working during peak production months, and the next available service appointment is scheduled for 2027. This lack of technical support leaves homeowners paying for a solar system that is essentially a $30,000 roof ornament while still receiving full-priced bills from their utility company.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "trinity-solar-complaints-cancel-contract",
+    title:
+      "Trinity Solar Complaints: How to Cancel Your Contract and Protect Your Rights",
+    metaTitle:
+      "Trinity Solar Complaints: How to Cancel Your Contract and Protect Your Rights",
+    metaDescription: `Stuck with a Trinity Solar contract? Learn about common customer complaints, the 3-day cooling-off period, and the exact steps to cancel your agreement safely.`,
+    category: "Company Complaints",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Stuck with a Trinity Solar contract? Learn about common customer complaints, the 3-day cooling-off period, and the exact steps to cancel your agreement safely.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "Trinity Solar is one of the oldest and largest residential solar installers in the United States, but their long history hasn't shielded them from a growing wave of consumer dissatisfaction. Many homeowners find themselves locked into 25-year Power Purchase Agreements (PPAs) or leases that don't deliver the promised savings. If you're feeling \"solar regret\" after signing with Trinity, you aren't alone, and more importantly, you have options to fight back. This guide will walk you through the most common complaints and provide a clear roadmap for canceling your contract before it's too late.",
+      },
+      {
+        type: "h2",
+        content: "Common Trinity Solar Complaints from Homeowners",
+      },
+      {
+        type: "p",
+        content:
+          'The Better Business Bureau (BBB) and various online forums are filled with reports from Trinity Solar customers who feel misled by high-pressure sales tactics. One of the most frequent complaints involves the "no-cost solar" pitch, where homeowners are led to believe the panels are free, only to realize later they\'ve signed a multi-decade financial commitment. Other common issues include significant delays in system activation, roof leaks following installation, and poor communication from customer service representatives. Many customers report that once the contract is signed, the company becomes nearly impossible to reach for updates or repairs.',
+      },
+      {
+        type: "p",
+        content:
+          'Beyond the initial sales pitch, homeowners often face technical hurdles that Trinity fails to address promptly. For instance, some customers have waited over six months for their local utility company to grant Permission to Operate (PTO), during which time they are paying both their regular utility bill and their new solar lease payment. This "double billing" scenario is a major source of financial stress for families who were promised immediate savings. Furthermore, the quality of installation has been called into question, with some reports of panels being installed on roofs that were already in need of replacement, leading to even more costly repairs down the line.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "titan-solar-power-complaints",
+    title:
+      "Titan Solar Power Complaints: How to Get Out of Your Contract After Bankruptcy",
+    metaTitle:
+      "Titan Solar Power Complaints: How to Get Out of Your Contract After Bankruptcy",
+    metaDescription: `Thousands of homeowners are stuck with non-functional systems and massive loans after Titan Solar Power's 2024 bankruptcy. Learn how to use the FTC Holder Ru...`,
+    category: "Company Complaints",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Thousands of homeowners are stuck with non-functional systems and massive loans after Titan Solar Power's 2024 bankruptcy. Learn how to use the FTC Holder Rule to cancel your contract and stop payments.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      { type: "h2", content: "The Sudden Collapse of Titan Solar Power" },
+      {
+        type: "p",
+        content:
+          "On June 13, 2024, Titan Solar Power, once one of the nation's largest residential solar installers, abruptly ceased all operations. This sudden shutdown left an estimated 30,000 homeowners across multiple states in a state of total financial and technical limbo. Just one week later, on June 20, 2024, the company filed for Chapter 7 bankruptcy in the District of Arizona, signaling a permanent end to their business rather than a reorganization. For homeowners, this meant that overnight, their warranties became worthless, their service agreements were voided, and many were left with half-finished installations that couldn't even be turned on.",
+      },
+      {
+        type: "p",
+        content:
+          "The fallout from Titan's collapse has been devastating for families who trusted the company's promises of long-term energy savings. Many customers are now facing monthly loan payments ranging from $150 to over $400 for equipment that is either broken, improperly installed, or completely disconnected from the grid. Because Chapter 7 bankruptcy involves the total liquidation of assets, there is no customer service line to call and no technicians coming to fix the roof leaks or inverter failures that have become common complaints among the Titan customer base.",
+      },
+      { type: "h2", content: "Common Titan Solar Power Complaints and Issues" },
+      {
+        type: "p",
+        content:
+          "Before its collapse, Titan Solar Power was already facing a mountain of consumer complaints and legal challenges. Homeowners frequently reported aggressive sales tactics where representatives promised 'free' solar or government checks that never materialized. In many cases, the actual installation process was a nightmare, involving significant roof damage that Titan refused to repair. Some customers waited over a year for 'Permission to Operate' (PTO) from their utility company, all while being forced to pay both their new solar loan and their original electric bill simultaneously.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "palmetto-solar-complaints",
+    title:
+      "Palmetto Solar Complaints: How to Cancel Your Contract and Protect Your Home",
+    metaTitle:
+      "Palmetto Solar Complaints: How to Cancel Your Contract and Protect Your Home",
+    metaDescription: `Struggling with Palmetto Solar complaints or a predatory contract? Learn your legal rights for cancellation and how to handle roof damage or billing issues e...`,
+    category: "Company Complaints",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Struggling with Palmetto Solar complaints or a predatory contract? Learn your legal rights for cancellation and how to handle roof damage or billing issues effectively.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "Palmetto Solar has positioned itself as a major player in the clean energy transition, but for many homeowners, the reality of their service has been far from the 'hassle-free' experience promised in sales pitches. Across the country, from South Carolina to California, a growing number of customers are reporting significant issues ranging from unaddressed roof leaks to predatory financing structures that leave them paying more for electricity than they did before going solar. If you find yourself trapped in a Palmetto Solar agreement that isn't delivering on its promises, you are not alone, and there are specific steps you can take to fight back.",
+      },
+      {
+        type: "h2",
+        content: "Common Palmetto Solar Complaints: What Homeowners Are Facing",
+      },
+      {
+        type: "p",
+        content:
+          "The most frequent complaints against Palmetto Solar often center on the gap between what was promised during the sales process and what was actually delivered. Many homeowners report that sales representatives used high-pressure tactics, promising 'zero-dollar' electric bills and massive tax credits that never materialized. In reality, many customers find themselves with 'double bills'--one from their utility company and another from Palmetto or their financing partner, LightReach. This financial strain is often compounded by systems that underperform, sometimes producing only 50-60% of the energy guaranteed in the initial contract.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "ion-solar-complaints-cancel-contract",
+    title:
+      "Ion Solar Complaints: How to Cancel Your Contract and Protect Your Home",
+    metaTitle:
+      "Ion Solar Complaints: How to Cancel Your Contract and Protect Your Home",
+    metaDescription: `Dealing with Ion Solar complaints or a predatory contract? Learn the specific steps to cancel your Ion Solar agreement, avoid $1,500 fees, and regain control...`,
+    category: "Company Complaints",
+    readTime: "9 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Dealing with Ion Solar complaints or a predatory contract? Learn the specific steps to cancel your Ion Solar agreement, avoid $1,500 fees, and regain control of your home energy.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Reality of Ion Solar Complaints and Predatory Sales",
+      },
+      {
+        type: "p",
+        content:
+          "For many homeowners, the promise of 'zero-down' solar and immediate utility savings from Ion Solar has turned into a multi-year headache. While the company markets itself as a premium provider, a surge in consumer complaints highlights a pattern of aggressive sales tactics and significant installation delays. Many families report being pressured into signing long-term agreements during door-to-door visits, only to find that the promised savings never materialize or the system remains non-functional for months after the panels are bolted to their roof.",
+      },
+      {
+        type: "p",
+        content:
+          "Common grievances filed with the Better Business Bureau (BBB) and consumer protection agencies often center on the gap between what was promised in the living room and what was delivered on the utility bill. Homeowners frequently cite 'bait-and-switch' financing terms, where the final loan amount or interest rate differs from the initial quote. Furthermore, the technical performance of Ion Solar systems has come under fire, with numerous reports of roof leaks, improper wiring, and systems that fail to produce the kilowatt-hours guaranteed by sales representatives.",
+      },
+      {
+        type: "h2",
+        content: "Understanding Your Right to Cancel an Ion Solar Contract",
+      },
+      {
+        type: "p",
+        content:
+          "If you have recently signed a Customer Installation Agreement (CIA) with Ion Solar and are having second thoughts, time is your most valuable asset. Under the Federal Trade Commission's (FTC) Cooling-Off Rule, most door-to-door sales contracts--including solar agreements--can be canceled within three business days for a full refund. This 'Right of Rescission' is a powerful tool for homeowners who feel they were pressured into a decision without having the chance to review the fine print or compare competing quotes.",
+      },
+      {
+        type: "p",
+        content:
+          "However, Ion Solar's internal policies often complicate this process. Their standard contract typically includes a clause that triggers a $1,500 'cancellation fee' if the request is made after the initial three-day window but before installation begins. This fee is often justified by the company as 'administrative costs' or 'site survey expenses,' but for many homeowners, it feels like a ransom payment to escape a bad deal. Understanding exactly where you stand in the installation timeline is critical to minimizing these exit costs.",
+      },
+      {
+        type: "callout",
+        content:
+          "If you are currently facing a $1,500 cancellation fee or aggressive collection efforts from Ion Solar, contact our team at (904) 921-4971 or visit breakyoursolarcontract.com for a free contract review and guidance on your legal options.",
+      },
+      { type: "h2", content: "Common Issues Reported by Ion Solar Customers" },
+      {
+        type: "p",
+        content:
+          "The volume of complaints against Ion Solar isn't just about the money; it's about the lack of transparency and accountability. Many homeowners report that once the contract is signed, the 'white-glove service' promised by the salesperson vanishes. Communication becomes a one-way street where customers are left waiting for weeks for updates on permitting, engineering, or interconnection with their local utility company.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "blue-raven-solar-complaints",
+    title:
+      "Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition",
+    metaTitle:
+      "Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition",
+    metaDescription: `Blue Raven Solar (SunPower) complaints? Misrepresented savings, aggressive sales, hidden fees costing you thousands? Cancel your contract now. Free case review.`,
+    category: "Company Complaints",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Dealing with Blue Raven Solar complaints or stuck in a predatory contract? Learn how the SunPower acquisition affects your rights and how to get help today.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "The solar industry has been rocked by the recent Chapter 11 bankruptcy filing of SunPower, leaving thousands of homeowners who signed with their subsidiary, Blue Raven Solar, in a state of legal and financial limbo. Many customers report being promised '18 months of free solar' or significant rebates that suddenly stopped arriving after September 2024. If you are currently facing unfulfilled promises, mechanical failures, or a system that was never even turned on, you are not alone in this struggle. The acquisition of Blue Raven by Complete Solaria has only added more layers of confusion to an already complex situation for homeowners trying to find accountability. This transition period is often when predatory practices are most prevalent, as companies try to offload liabilities while keeping customers locked into high-interest, long-term debt.",
+      },
+      {
+        type: "h2",
+        content: "Common Blue Raven Solar Complaints and Red Flags",
+      },
+      {
+        type: "p",
+        content:
+          "Homeowners across the country have voiced consistent grievances regarding Blue Raven Solar's sales tactics and post-installation support. One of the most frequent complaints involves the 'Blue Power Plus+' program, which promised to cover the first 18 months of solar loan payments. Since the SunPower bankruptcy proceedings began, many customers have seen these checks stop without warning, leaving them with unexpected monthly bills ranging from $150 to over $300. This bait-and-switch tactic is a primary reason why so many are now seeking ways to terminate their agreements and hold the company responsible for these financial discrepancies. Many families were sold on the idea that their solar system would be 'self-funding' for the first year and a half, only to find themselves paying both a utility bill and a solar loan simultaneously.",
+      },
+      {
+        type: "p",
+        content:
+          "Beyond the financial incentives, many Blue Raven customers have reported significant issues with the physical installation of their systems. Reports of roof leaks, improperly mounted panels, and damage to structural components are common in consumer reviews. When these issues arise, homeowners often find themselves caught in a loop of automated customer service responses or 'ghosted' entirely by their original sales representatives. The frustration is compounded when the promised energy production levels are never met, leading to a situation where the homeowner is paying for a premium system that provides only a fraction of the expected savings. These red flags are not just minor inconveniences; they are often indicators of a systemic failure to provide the quality of service that was promised during the high-pressure sales pitch.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "complete-solaria-complaints",
+    title:
+      "Complete Solaria Complaints: What Homeowners Need to Know Before Signing",
+    metaTitle:
+      "Complete Solaria Complaints: What Homeowners Need to Know Before Signing",
+    metaDescription: `Complete Solaria complaints piling up? Fight back against predatory sales & delays. Learn 3 legal ways to cancel your contract. Free attorney review.`,
+    category: "Company Complaints",
+    readTime: "18 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Homeowners are reporting significant issues with Complete Solaria, from predatory sales tactics to service delays. Learn how to protect your rights and escape a bad solar contract.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "The residential solar industry is currently weathering a perfect storm of high interest rates, shifting state policies, and high-profile bankruptcies. At the center of this turbulence is Complete Solaria, a company that recently made headlines by acquiring key assets from the now-bankrupt SunPower. While corporate acquisitions often promise stability, the reality for many homeowners has been far from smooth. We have seen a surge in complaints from customers who feel trapped in expensive contracts with little to show for their investment but mounting frustration and unreturned phone calls. This blog post aims to break down the most common grievances and provide a roadmap for those who feel they have been misled by predatory sales tactics. The goal is to empower you with the knowledge needed to navigate these complex legal and financial waters. It is essential to understand that while solar technology itself is a fantastic way to reduce your carbon footprint and save on energy costs, the business practices of some companies can turn a good idea into a financial nightmare.",
+      },
+      {
+        type: "p",
+        content:
+          "Complete Solaria has positioned itself as a major player in the solar market, but its rapid growth has come at a cost to consumer satisfaction. Many homeowners report that the company's focus seems to be entirely on new sales rather than maintaining the systems they have already installed. This \\\"churn and burn\\\" approach is a common characteristic of predatory solar companies that prioritize short-term profits over long-term customer relationships. If you are considering a solar installation, it is vital to look beyond the glossy brochures and high-pressure sales pitches to understand the true reputation of the company you are dealing with. A company's history of handling complaints and honoring warranties is a much better indicator of its quality than its latest marketing campaign.",
+      },
+      {
+        type: "h2",
+        content: "Common Complete Solaria Complaints and Red Flags",
+      },
+      {
+        type: "p",
+        content:
+          'Homeowners across the country are reporting a consistent pattern of issues when dealing with Complete Solaria. One of the most frequent grievances involves high-pressure sales tactics where representatives push for immediate signatures on digital tablets without providing a full copy of the contract for review. Customers often discover later that the verbal promises made during the sales pitch--such as guaranteed $0 electric bills or massive federal tax credits--do not match the fine print of the legal documents they signed in haste. This lack of transparency is a major red flag that often leads to long-term financial regret for the homeowner. Many people report feeling \\"bullied\\" into signing, with sales reps staying in their homes for hours until a signature is secured. This type of high-pressure environment is designed to prevent you from thinking clearly and making an informed decision.',
+      },
+      {
+        type: "p",
+        content:
+          "Beyond the initial sales process, many customers have expressed deep dissatisfaction with the post-installation support provided by Complete Solaria. Reports of non-functional systems sitting idle for months while waiting for utility interconnection are common. When homeowners attempt to reach out for assistance, they are often met with automated phone systems and unhelpful customer service representatives who seem more interested in collecting payments than resolving technical issues. This disconnect between the sales promises and the actual service delivery is a recurring theme in the complaints we receive at Solar Freedom. In some cases, homeowners have been left with holes in their roofs and unfinished electrical work for over six months, with no clear timeline for completion. This lack of accountability is not just frustrating; it can also lead to physical damage to your home and a significant loss of potential energy savings.",
+      },
+      {
+        type: "p",
+        content:
+          "Another significant area of complaint involves the quality of the installation itself. Some homeowners have reported that the panels were installed incorrectly, leading to roof leaks and electrical hazards. When these issues are brought to the company's attention, the response is often slow or non-existent. This leaves the homeowner in the precarious position of having to pay for repairs out of their own pocket while still being responsible for the monthly solar loan payment. The stress of dealing with a damaged home and a non-functional solar system can be overwhelming, especially when the company that caused the problem refuses to take responsibility. It is crucial to have a professional inspection of any solar installation to ensure it meets all safety and quality standards.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "solarcity-contract-problems-tesla",
+    title:
+      "SolarCity Contract Problems and Tesla Solar Transition Issues: What Homeowners Need to Know",
+    metaTitle:
+      "SolarCity Contract Problems and Tesla Solar Transition Issues: What Homeowners Need to Know",
+    metaDescription: `Trapped in an old SolarCity lease or PPA? Discover how the Tesla transition has impacted legacy customers and learn your rights for contract cancellation or ...`,
+    category: "Company Complaints",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Trapped in an old SolarCity lease or PPA? Discover how the Tesla transition has impacted legacy customers and learn your rights for contract cancellation or restructuring.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "If you signed a solar contract with SolarCity between 2006 and 2016, you likely thought you were making a smart, eco-friendly investment that would lower your monthly utility bills for decades to come. At the time, SolarCity was the undisputed leader in the residential solar market, fueled by aggressive door-to-door sales tactics and the promise of 'free' solar panels through innovative leasing models. However, since Tesla acquired SolarCity in a massive $2.6 billion deal in late 2016, thousands of these original homeowners have found themselves trapped in a 'shell game' of service delays, rising costs, and unresponsive customer support. The transition from SolarCity to Tesla Energy has left many legacy customers with aging equipment and ironclad contracts that feel more like a financial liability than a green asset.",
+      },
+      {
+        type: "p",
+        content:
+          "At Solar Freedom, we specialize in helping homeowners navigate the complexities of predatory solar agreements. Whether you are dealing with a Power Purchase Agreement (PPA) that now costs more than your local utility or a lease that is preventing you from selling your home, understanding your rights is the first step toward taking back control of your roof. Many of these contracts were written with one-sided terms that heavily favor the solar company, but consumer protection laws and specific contract breaches can often provide a path to cancellation or restructuring.",
+      },
+      {
+        type: "h2",
+        content:
+          "The SolarCity to Tesla Transition: A Customer Service Nightmare",
+      },
+      {
+        type: "p",
+        content:
+          "When Tesla absorbed SolarCity, the primary focus of the company's energy division shifted toward the sleek new Solar Roof and Powerwall products, often leaving legacy SolarCity customers in the dust. Many homeowners report that warranties once promised by SolarCity are now incredibly difficult to enforce, with Tesla's customer service lines involving hours of hold time and 'robotic' responses to legitimate repair requests. This transition has created a significant gap in accountability, where the company that sold you the system no longer exists in its original form, and the new parent company seems uninterested in servicing older installations that are no longer generating new revenue for them.",
+      },
+      {
+        type: "p",
+        content:
+          "The lack of maintenance is not just an inconvenience; it is a direct financial drain on your household budget. If your SolarCity panels are underperforming or have stopped working entirely due to inverter failure or wiring issues, you may still be required to make your full monthly lease or PPA payments. Tesla's billing systems often rely on 'estimated' production rather than actual real-time output, meaning you could be paying for electricity that your system isn't even generating. This 'pay-for-nothing' scenario is one of the most common complaints we hear from homeowners who feel abandoned by the Tesla transition.",
+      },
+      {
+        type: "h2",
+        content: "Understanding the 'Escalator' Clause in Your SolarCity PPA",
+      },
+      {
+        type: "p",
+        content:
+          "One of the most predatory features of original SolarCity Power Purchase Agreements is the annual price escalator. Many of these contracts include a 2.9% annual increase in the price you pay per kilowatt-hour (kWh). While this might have seemed negligible a decade ago, a 2.9% compounded increase over 20 years means that by year 15, you could be paying significantly more for solar power than your neighbors are paying for grid power from the local utility. These escalators were often sold under the premise that utility rates would rise by 5% or 6% annually, but in many regions, grid prices have remained stable or even decreased due to new energy technologies.",
+      },
+      {
+        type: "callout",
+        content:
+          "If you feel trapped by a SolarCity PPA or lease that is no longer saving you money, you don't have to fight Tesla alone. Contact the experts at Solar Freedom by calling (904) 921-4971 or visit breakyoursolarcontract.com to explore your options for cancellation or contract restructuring.",
+      },
+      {
+        type: "p",
+        content:
+          "Reviewing your original contract for these specific percentage increases is crucial for calculating the long-term cost of staying in the agreement. If your solar rate is already approaching the utility's 'tier 1' pricing, you are likely losing money every single month. We have seen cases where homeowners are paying $0.25 per kWh for solar while the local utility is charging only $0.18 per kWh. Over the course of a year, this discrepancy can add up to hundreds of dollars in unnecessary expenses, effectively erasing any environmental benefit the panels might provide.",
+      },
+      {
+        type: "h2",
+        content: "The 'Remove and Reinstall' Trap for Roof Repairs",
+      },
+      {
+        type: "p",
+        content:
+          "As SolarCity systems age, many homeowners are reaching the point where their underlying roof needs replacement. This is where the 'Remove and Reinstall' (R&R) trap becomes a major financial burden. Tesla often charges between $2,000 and $4,000 just to take the panels off and put them back on after the roof work is complete. Original SolarCity contracts sometimes promised lower R&R fees, but getting Tesla to honor those legacy prices can be an uphill battle that requires months of documentation and persistent follow-up.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "verengo-solar-bankruptcy",
+    title:
+      "Verengo Solar Bankruptcy: What Homeowners Need to Know to Protect Their Investment",
+    metaTitle:
+      "Verengo Solar Bankruptcy: What Homeowners Need to Know to Protect Their Investment",
+    metaDescription: `If you are one of the 20,000 homeowners affected by the Verengo Solar bankruptcy, your warranty and contract rights may be at risk. Learn how to navigate the...`,
+    category: "Bankruptcy",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "If you are one of the 20,000 homeowners affected by the Verengo Solar bankruptcy, your warranty and contract rights may be at risk. Learn how to navigate the fallout and protect your home from predatory solar practices.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      { type: "h2", content: "The Rise and Fall of a California Solar Giant" },
+      {
+        type: "p",
+        content:
+          "For years, Verengo Solar was a dominant force in the California residential solar market, boasting over 20,000 installations and a reputation for rapid growth. However, the company's aggressive expansion strategy eventually led to a financial breaking point. On September 23, 2016, Verengo Solar filed for Chapter 11 bankruptcy protection in the U.S. Bankruptcy Court for the District of Delaware. This move sent shockwaves through the industry and left thousands of homeowners wondering what would happen to their long-term solar investments and the promises made during the sales process.",
+      },
+      { type: "h2", content: "The Crius Energy Acquisition and Its Aftermath" },
+      {
+        type: "p",
+        content:
+          "Following the bankruptcy filing, Verengo's assets were acquired by Crius Energy for approximately $11.9 million through a Section 363 sale. While the acquisition was framed as a way to ensure continued service for existing customers, the reality for many homeowners has been far more complicated. The transition from Verengo to Crius Solar created a significant gap in accountability, especially regarding workmanship warranties and long-term maintenance obligations. Many homeowners found themselves caught in a corporate hand-off where neither the old nor the new entity was willing to take full responsibility for original installation defects.",
+      },
+      { type: "h3", content: "Understanding Your Current Contract Status" },
+      {
+        type: "p",
+        content:
+          "If your system was installed by Verengo, your contract likely falls into one of three categories: a direct purchase, a solar lease, or a Power Purchase Agreement (PPA). In a Chapter 11 reorganization, these contracts are often assigned to the successor company, meaning your payment obligations typically continue even if the original installer is gone. It is crucial to review your original paperwork to determine who currently holds the rights to your payments and what specific service obligations they inherited during the bankruptcy proceedings.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "sunrun-solar-loan-vs-lease-cancellation",
+    title: "Sunrun Solar Loan vs. Lease: Which is Worse for Cancellation?",
+    metaTitle: "Sunrun Solar Loan vs. Lease: Which is Worse for Cancellation?",
+    metaDescription: `Struggling to get out of a Sunrun solar agreement? Discover the critical differences between cancelling a solar loan versus a lease and why one is significan...`,
+    category: "Contract Help",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Struggling to get out of a Sunrun solar agreement? Discover the critical differences between cancelling a solar loan versus a lease and why one is significantly harder to break.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "If you are feeling trapped by a Sunrun solar agreement, you are certainly not alone in your frustration. Many homeowners find themselves at a crossroads, wondering whether their solar loan or their solar lease is the bigger obstacle to regaining control of their roof. While both financial products are marketed as easy ways to 'go green,' the reality of cancelling these contracts can be a nightmare of hidden fees, complex legal language, and aggressive customer service tactics. Understanding the specific differences between how Sunrun handles loan cancellations versus lease terminations is the first step toward breaking free from a predatory arrangement.",
+      },
+      {
+        type: "h2",
+        content: "The Core Difference: Ownership vs. Indebtedness",
+      },
+      {
+        type: "p",
+        content:
+          "The fundamental difference between a Sunrun solar loan and a solar lease lies in who actually owns the equipment sitting on your roof. With a solar loan, you are the owner of the system from day one, but you carry a significant debt to a third-party lender, often a partner like GoodLeap or Sungage. In contrast, with a Sunrun lease or Power Purchase Agreement (PPA), Sunrun remains the legal owner of the panels, and you are essentially renting the equipment or the power it produces for a term that typically lasts 20 to 25 years. This distinction is critical because it dictates exactly how you must proceed when you want to cancel the arrangement.",
+      },
+      {
+        type: "p",
+        content:
+          "When you own the system through a loan, 'cancelling' usually means paying off the remaining balance of the loan in full. This can be a staggering amount, often ranging from $20,000 to over $50,000 depending on the size of your installation. With a lease, however, you don't have a 'balance' to pay off in the traditional sense; instead, you have a contractual obligation to make monthly payments for decades. To get out of a lease, you often have to 'buy out' the remaining lease payments or the fair market value of the system, which Sunrun often calculates using formulas that are heavily weighted in their favor.",
+      },
+      {
+        type: "h2",
+        content: "Why the Sunrun Lease is Often the 'Worse' Option",
+      },
+      {
+        type: "p",
+        content:
+          "For most homeowners, the Sunrun solar lease is significantly harder to cancel than a solar loan. The primary reason is the lack of a clear 'exit ramp' in the contract. While a loan has a defined payoff amount that decreases with every payment, a lease often includes an 'escalator clause' where your monthly payments increase by 2.9% or more every year. This means that the cost of staying in the lease goes up over time, and the cost of buying your way out remains prohibitively high because Sunrun expects to collect every penny of those future, escalated payments.",
+      },
+      {
+        type: "p",
+        content:
+          "Furthermore, a lease creates a 'cloud' on your home's title that can make selling your property a logistical disaster. Many potential homebuyers are wary of taking over a 20-year lease with rising costs, and mortgage lenders may refuse to approve a loan for a buyer if the solar lease terms are too restrictive. If a buyer refuses to assume the lease, you may be forced to buy out the entire contract at the closing table, which can wipe out a significant portion of your home equity. In many cases, homeowners find themselves stuck with a system they no longer want simply because the cost of removal and contract termination is too high to bear.",
+      },
+      { type: "h2", content: "The Hidden Costs of Solar Loan Cancellation" },
+      {
+        type: "p",
+        content:
+          "While a solar loan might seem more straightforward, it carries its own set of predatory risks that make cancellation difficult. The most significant issue is the 'ITC Recapture' or the loss of the Federal Investment Tax Credit. Most solar loans are structured with the assumption that you will receive a 30% tax credit and apply it to the loan balance within the first 18 months. If you don't receive the full credit--perhaps because you don't have enough tax liability--your monthly payments will skyrocket, and your total payoff amount will remain much higher than originally anticipated.",
+      },
+      {
+        type: "p",
+        content:
+          "Additionally, many Sunrun-partnered loans include 'dealer fees' that are baked into the principal of the loan. These fees can range from 20% to 30% of the total project cost, meaning you might owe $30,000 for a system that is only worth $20,000 on the open market. If you try to cancel the loan by paying it off early, you are still paying for those massive upfront commissions and fees that provided no value to your home. This 'negative equity' in the solar system makes it nearly impossible to cancel the loan without taking a massive financial hit.",
+      },
+      { type: "h2", content: "Comparing the Cancellation Hurdles" },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "vivint-solar-complaints-texas",
+    title:
+      "Vivint Solar Complaints in Texas: Contract Cancellation and Consumer Rights",
+    metaTitle:
+      "Vivint Solar Complaints Texas: Cancellation and Consumer Rights",
+    metaDescription: `Texas Vivint Solar complaints often involve misleading savings claims, lease escalators, and hard-to-cancel contracts. Learn your DTPA rights.`,
+    category: "Company Complaints",
+    readTime: "8 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Texas homeowners with Vivint Solar contracts may have rights under the Texas Deceptive Trade Practices Act when sales promises, savings claims, or financing disclosures were misleading.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "Vivint Solar complaints in Texas often involve long-term leases, escalating payments, production promises, and sales claims that do not match the homeowner's actual utility savings. After mergers, financing transfers, or service handoffs, many homeowners also struggle to find anyone who will take responsibility for the original sales pitch.",
+      },
+      { type: "h2", content: "Why Texas Law Matters" },
+      {
+        type: "p",
+        content:
+          "The Texas Deceptive Trade Practices Act can matter when a salesperson misrepresented savings, tax credits, system production, contract length, transferability, or total cost. The facts need to be documented, but Texas homeowners often have stronger leverage than they realize.",
+      },
+      { type: "h2", content: "What to Collect for Review" },
+      {
+        type: "p",
+        content:
+          "Save your Vivint Solar agreement, financing documents, utility bills, production reports, roof or service records, and every sales text or email. Those records help show whether the agreement was sold fairly and whether cancellation or a negotiated resolution is possible.",
+      },
+      {
+        type: "callout",
+        content:
+          "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "freedom-forever-warranty-problems",
+    title: "Freedom Forever Warranty Problems: How to Escalate and Get Results",
+    metaTitle:
+      "Freedom Forever Warranty Problems: How to Escalate and Get Results",
+    metaDescription: `Dealing with Freedom Forever warranty issues? Learn how to navigate their 25-year production guarantee, handle service delays, and escalate your claim to get...`,
+    category: "Company Complaints",
+    readTime: "9 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Dealing with Freedom Forever warranty issues? Learn how to navigate their 25-year production guarantee, handle service delays, and escalate your claim to get your solar system back online.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "Freedom Forever is one of the largest solar installers in the United States, often touted for its massive scale and its signature 25-year production guarantee. However, for many homeowners, the promise of \"worry-free power\" has turned into a bureaucratic nightmare of unanswered emails, missed service appointments, and systems that sit dormant for months. When your solar panels aren't producing the energy you were promised, you aren't just losing out on environmental benefits; you are actively losing money every single day as your utility bills skyrocket while your solar loan payment remains due.",
+      },
+      { type: "h2", content: "Common Freedom Forever Warranty Problems" },
+      {
+        type: "p",
+        content:
+          'The most frequent complaint from Freedom Forever customers involves the "service loop"--a cycle where a homeowner reports a system failure, only to be told that a technician will be assigned in 7 to 14 business days. In reality, these timeframes often stretch into months. We have seen cases where homeowners are told they cannot use third-party repair services because it would "void the warranty," yet Freedom Forever fails to provide their own technicians in a reasonable timeframe. This leaves the homeowner "held hostage" by a non-functioning system and a contract that prevents them from seeking outside help.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "sunpower-system-not-working-legal-options",
+    title:
+      "SunPower System Not Working? Your Legal Options and Rights Explained",
+    metaTitle:
+      "SunPower System Not Working? Your Legal Options and Rights Explained",
+    metaDescription: `Is your SunPower solar system underperforming or completely dead? Learn about your legal rights, the impact of the 2024 bankruptcy, and how the FTC Holder Ru...`,
+    category: "Legal Rights",
+    readTime: "9 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Is your SunPower solar system underperforming or completely dead? Learn about your legal rights, the impact of the 2024 bankruptcy, and how the FTC Holder Rule can help you get relief.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The SunPower Crisis: Why Your System Isn't Working",
+      },
+      {
+        type: "p",
+        content:
+          "For years, SunPower was considered the gold standard of the solar industry, promising high-efficiency panels and a comprehensive 25-year 'Complete Confidence' warranty. However, the company's 2024 Chapter 11 bankruptcy filing has left hundreds of thousands of homeowners in a precarious position. If your system has stopped producing power, your monitoring app has gone dark, or you have visible damage that isn't being addressed, you aren't just dealing with a technical failure--you are facing a massive corporate breakdown. Many homeowners report waiting months for service calls that never happen, while their monthly loan or lease payments continue to drain their bank accounts for electricity they aren't even receiving.",
+      },
+      {
+        type: "h2",
+        content: "Understanding the 2024 SunPower Bankruptcy Impact",
+      },
+      {
+        type: "p",
+        content:
+          "On August 5, 2024, SunPower Corporation officially filed for bankruptcy, a move that sent shockwaves through the solar market. While a portion of the company's assets and the brand name were sold to Complete Solar in September 2024, the transition has been anything but smooth for existing customers. The 'new' SunPower may not be legally obligated to honor the labor warranties or performance guarantees of the 'old' SunPower, depending on the specific terms of the asset sale and your original contract. This leaves a 'warranty gap' where homeowners are told their panels are covered by the manufacturer (like Maxeon), but no one is willing to pay for the expensive labor required to actually replace them.",
+      },
+      { type: "h3", content: "Who is Responsible for Your System Now?" },
+      {
+        type: "p",
+        content:
+          "Determining who to call when your SunPower system fails depends heavily on how you acquired it. If you purchased your system through an independent authorized dealer, that dealer may still be in business and responsible for local service, though they are often struggling to get reimbursed by the bankrupt parent company. If you have a lease or Power Purchase Agreement (PPA), your contract might have been bundled into a portfolio managed by SunStrong or another financial entity. These companies often prioritize their right to collect your monthly payment over their obligation to keep the hardware functional, creating a legal conflict that homeowners can exploit to seek contract termination.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "sunnova-solar-contract-transfer-problems",
+    title:
+      "Sunnova Solar Contract Transfer Problems: How to Sell Your Home Without the Headache",
+    metaTitle:
+      "Sunnova Solar Contract Transfer Problems: How to Sell Your Home Without the Headache",
+    metaDescription: `Selling a home with a Sunnova solar lease can be a nightmare if you aren't prepared for the transfer process. Learn how to navigate UCC-1 liens, FICO require...`,
+    category: "Contract Help",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Selling a home with a Sunnova solar lease can be a nightmare if you aren't prepared for the transfer process. Learn how to navigate UCC-1 liens, FICO requirements, and predatory terms to protect your home sale.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Reality of Selling a Home with a Sunnova Solar Lease",
+      },
+      {
+        type: "p",
+        content:
+          "Selling your home is already a stressful process, but when you add a Sunnova solar contract into the mix, things can quickly become overwhelming. Many homeowners were told during the initial sales pitch that the solar panels would add value to their property and that transferring the contract to a new buyer would be a 'simple, seamless process.' Unfortunately, the reality is often far more complicated. Sunnova's transfer requirements can create significant hurdles for both sellers and buyers, sometimes even threatening to derail a closing at the last minute. Understanding these potential pitfalls is the first step in protecting your equity and ensuring a smooth transition.",
+      },
+      {
+        type: "h2",
+        content: "The UCC-1 Lien: The Invisible Barrier to Your Closing",
+      },
+      {
+        type: "p",
+        content:
+          "One of the most common surprises for homeowners selling a property with Sunnova panels is the discovery of a UCC-1 financing statement, often referred to as a 'solar lien.' While Sunnova technically places this lien on the equipment rather than the real estate itself, title companies and mortgage lenders often view it as a cloud on the title. This can prevent your buyer from securing their own mortgage unless the lien is temporarily lifted or permanently transferred. Getting Sunnova to cooperate with a 'Lien Subordination' or a 'Temporary Release' often requires weeks of lead time and can involve administrative fees ranging from $250 to $500. If you wait until the week of closing to address this, you are putting your entire sale at risk.",
+      },
+      {
+        type: "warning",
+        content:
+          "A UCC-1 lien can stop your home sale cold. Most mortgage lenders will not fund a loan for your buyer until Sunnova's lien is either subordinated or removed. Do not assume your real estate agent or title company has this under control; you must proactively contact Sunnova's transfer department at least 30 days before your expected closing date.",
+      },
+      { type: "h2", content: "Buyer Qualification: The 650 FICO Score Hurdle" },
+      {
+        type: "p",
+        content:
+          "Even if you find the perfect buyer for your home, Sunnova must 'approve' them to take over your contract. This typically involves a credit check where the buyer must meet a minimum FICO score requirement, often set at 650. If your buyer has a lower credit score--even if they are qualified for a home mortgage--Sunnova may reject the transfer. In these cases, Sunnova might demand a 'transfer deposit' or a down payment ranging from $500 to $1,000 from the buyer to proceed. This unexpected expense can lead to friction in negotiations, with buyers often demanding that the seller cover these costs or even asking for a price reduction to compensate for the 'burden' of the solar lease.",
+      },
+      { type: "h3", content: "Common Transfer Requirements for New Buyers" },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "adt-solar-cancellation-guide",
+    title:
+      "ADT Solar Complaints and Cancellation Guide: How to Get Out of Your Contract",
+    metaTitle:
+      "ADT Solar Complaints and Cancellation Guide: How to Get Out of Your Contract",
+    metaDescription: `ADT Solar exited in 2024. Facing warranty issues or need to cancel your contract? Get expert legal help to escape your solar agreement. Free case review.`,
+    category: "Company Complaints",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Struggling with an ADT Solar contract? Learn how to navigate complaints, understand your cancellation rights, and protect your home after their 2024 market exit.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "If you are currently feeling trapped in an ADT Solar contract, you are certainly not alone in this frustrating situation. Since ADT announced its sudden exit from the residential solar market in early 2024, thousands of homeowners have been left wondering about the status of their 25-year warranties and ongoing loan obligations. Many customers report a significant disconnect between the high-pressure sales promises they received and the actual performance of their systems, leading to a surge in formal complaints and legal inquiries across the country.",
+      },
+      {
+        type: "p",
+        content:
+          "At Solar Freedom, we specialize in helping homeowners navigate the complex landscape of predatory solar agreements and find legitimate paths to cancellation. Whether you are dealing with a system that never worked, roof leaks caused by poor installation, or simply the realization that the financial math doesn't add up, understanding your rights is the first step toward resolution. This guide breaks down the current state of ADT Solar, the most common complaints filed by consumers, and the specific steps you can take to protect your home and your credit.",
+      },
+      { type: "h2", content: "The Reality of ADT Solar's Market Exit" },
+      {
+        type: "p",
+        content:
+          "In January 2024, ADT officially announced it would be shuttering its solar division, a move that came just a few years after its massive $825 million acquisition of Sunpro Solar. This exit was driven by staggering financial losses, with the solar segment reportedly losing nearly $89 million in just the first nine months of 2023. For homeowners, this corporate retreat created an immediate crisis of confidence, as the company that promised decades of support suddenly pulled back from new installations and sales.",
+      },
+      {
+        type: "p",
+        content:
+          "While ADT has recently claimed they will continue to honor workmanship warranties due to pressure from lenders and stakeholders, many consumer advocates remain skeptical of these long-term promises. The reality on the ground for many homeowners is a series of unanswered phone calls, delayed repair schedules, and a general lack of accountability for systems that are underperforming. If your system was installed during the final months of their operation, you may be facing even greater risks regarding permit closures and final inspections.",
+      },
+      {
+        type: "warning",
+        content:
+          'Be extremely cautious if ADT offers you a small cash settlement or a "release waiver." These documents often contain legal language that strips you of your right to join future class-action lawsuits or pursue claims for hidden damage like roof rot or electrical failures. Never sign a release without having a professional review the terms first.',
+      },
+      { type: "h2", content: "Common ADT Solar Complaints and Red Flags" },
+      {
+        type: "p",
+        content:
+          'The Better Business Bureau (BBB) has recorded nearly 1,000 complaints against ADT Solar in recent years, highlighting a pattern of systemic issues that many homeowners face. One of the most frequent grievances involves "true-up" bills that are significantly higher than promised, often because the sales representative over-estimated the system\'s production capacity. Homeowners frequently report paying $150 or more for their solar loan while still receiving $200 monthly utility bills, completely negating the promised savings.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "momentum-solar-cancel-contract",
+    title:
+      "Momentum Solar Complaints: How to Cancel Your Contract and Protect Your Home",
+    metaTitle:
+      "Momentum Solar Complaints: How to Cancel Your Contract and Protect Your Home",
+    metaDescription: `Dealing with Momentum Solar complaints or a predatory contract? Learn how to navigate the cancellation process, understand your legal rights, and get out of ...`,
+    category: "Company Complaints",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Dealing with Momentum Solar complaints or a predatory contract? Learn how to navigate the cancellation process, understand your legal rights, and get out of a bad solar deal today.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      { type: "h2", content: "The Reality of Momentum Solar Complaints" },
+      {
+        type: "p",
+        content:
+          "Momentum Solar, operated by Pro Custom Solar LLC, has become a major player in the residential solar industry, but its rapid growth has been shadowed by a significant volume of consumer complaints. Homeowners across New Jersey, New York, Florida, and Texas have reported a consistent pattern of high-pressure sales tactics and misleading financial promises. Many customers find themselves locked into 20-year or 25-year agreements that don't deliver the promised zero-dollar electric bills, often discovering that the actual cost of the solar lease or loan far exceeds their original utility payments.",
+      },
+      {
+        type: "p",
+        content:
+          "Common grievances filed with the Better Business Bureau (BBB) and various consumer protection agencies highlight issues ranging from property damage during installation to unresponsive customer service. Some homeowners have reported broken roof tiles, water leaks, and even damaged windows that the company allegedly failed to repair in a timely manner. Furthermore, the complexity of their contracts often leaves homeowners feeling trapped in a financial commitment that can exceed $40,000 or $50,000 over the life of the system, with little recourse when the panels underperform.",
+      },
+      { type: "h2", content: "Understanding the $30 Million TCPA Settlement" },
+      {
+        type: "p",
+        content:
+          "One of the most significant red flags for potential and current Momentum Solar customers is the recent $30 million class-action settlement regarding violations of the Telephone Consumer Protection Act (TCPA). The lawsuits alleged that the company engaged in aggressive and unsolicited telemarketing, frequently contacting individuals on the National Do Not Call Registry. This massive settlement underscores the company's history of aggressive outreach and has led many homeowners to question the ethics of the sales representatives who showed up at their doors.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "solar-loan-prepayment-penalty",
+    title:
+      "Solar Loan Prepayment Penalty: How to Avoid and Fight Back Against Predatory Fees",
+    metaTitle:
+      "Solar Loan Prepayment Penalty: How to Avoid and Fight Back Against Predatory Fees",
+    metaDescription: `Learn how to identify hidden solar loan prepayment penalties and dealer fees that can trap you in debt. Discover strategies to fight back and protect your fi...`,
+    category: "Loan Problems",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Learn how to identify hidden solar loan prepayment penalties and dealer fees that can trap you in debt. Discover strategies to fight back and protect your financial future.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      { type: "h2", content: 'The Hidden Cost of "Zero Down" Solar' },
+      {
+        type: "p",
+        content:
+          'Many homeowners are lured into solar contracts with the promise of "zero down" and low monthly payments that seem too good to be true. However, what the salesperson often fails to mention is the complex web of fees and penalties that can trap you in a high-interest loan for decades. One of the most insidious of these is the solar loan prepayment penalty, a charge that many homeowners don\'t even realize exists until they try to sell their home or refinance their debt. While some lenders are upfront about these fees, others hide them deep within the fine print of your contract, making it nearly impossible to pay off your loan early without a significant financial hit.',
+      },
+      { type: "h2", content: "What is a Solar Loan Prepayment Penalty?" },
+      {
+        type: "p",
+        content:
+          'A prepayment penalty is a fee charged by a lender if you pay off your loan before the end of its term. In the solar industry, these penalties can take several forms and can be surprisingly expensive. Some lenders charge a flat fee, while others calculate the penalty as a percentage of your remaining balance--often around 2% to 5%. For a $40,000 solar loan, a 5% penalty could cost you an extra $2,000 just for the "privilege" of getting out of debt sooner. This is a significant barrier for homeowners who want to reduce their interest costs or clear their titles before a property sale.',
+      },
+      { type: "h2", content: 'The "De Facto" Prepayment Penalty: Dealer Fees' },
+      {
+        type: "p",
+        content:
+          'Even if your contract explicitly states there is "no prepayment penalty," you might still be facing a massive hidden cost that functions in exactly the same way. Many solar-specific lenders use what are known as "dealer fees" or "origination fees" to pad their profits. These fees, which can range from 10% to 30% of the system\'s cash price, are added to your loan principal upfront. For example, if your solar panels cost $30,000 in cash, the lender might add a 30% dealer fee, making your initial loan balance $39,000. If you try to pay off the loan in the first year, you are still on the hook for that $9,000 fee, effectively acting as a massive prepayment penalty that was never clearly disclosed.',
+      },
+      { type: "h2", content: "The 19th Month Trap: Re-amortization Risks" },
+      {
+        type: "p",
+        content:
+          'Most predatory solar loans are structured around the federal Investment Tax Credit (ITC), which currently sits at 30%. Salespeople often tell homeowners that their monthly payments will stay low, assuming they will "voluntarily" prepay 30% of the loan (the amount of the tax credit) within the first 18 months. If you don\'t make this massive payment--perhaps because you didn\'t qualify for the full tax credit or needed the money for other expenses--the loan "re-amortizes" at the 19th month. This means your monthly payment could jump by 40% or more, and you\'ll be stuck paying interest on a much larger principal than you ever intended, creating a financial burden that lasts for the life of the loan.',
+      },
+      {
+        type: "warning",
+        content:
+          "Many predatory solar contracts include a mandatory arbitration clause. This clause strips you of your right to sue the company in court or join a class-action lawsuit. Instead, you are forced into a private arbitration process that often favors the lender. Always check your contract for this clause before signing, as it can severely limit your ability to fight back against unfair fees and penalties.",
+      },
+      { type: "h2", content: "How to Identify Predatory Loan Terms" },
+      {
+        type: "p",
+        content:
+          'Before you sign any solar contract, it is crucial to look for red flags that indicate a predatory loan. These lenders often target homeowners with high-pressure sales tactics and confusing financial jargon designed to obscure the true cost of the system. By knowing what to look for, you can avoid falling into a debt trap that could last for 25 years or more. Always ask for the "cash price" of the system and compare it to the "total loan amount" to see exactly how much you are being charged in hidden fees.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "solar-contract-assignment-without-consent",
+    title:
+      "Solar Contract Assigned Without Consent: Homeowner Rights and Next Steps",
+    metaTitle: "Solar Contract Assigned Without Consent: Homeowner Rights",
+    metaDescription: `Was your solar contract assigned to a new lender or servicer without clear notice? Learn what to review and when homeowners may have legal leverage.`,
+    category: "Legal Rights",
+    readTime: "8 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Solar contracts are often transferred from an installer to a finance company, servicer, or successor business. The assignment may be allowed, but homeowners should still review notice, payment, warranty, and dispute rights carefully.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "Many homeowners discover their solar contract has been assigned only after a new lender, lease owner, or servicer starts sending bills. Assignment clauses are common, but that does not mean every transfer is harmless. The details matter when warranty support disappears, payment terms change, or the new company cannot answer basic questions.",
+      },
+      { type: "h2", content: "What Assignment Usually Means" },
+      {
+        type: "p",
+        content:
+          "A solar contract assignment means the original company transferred some or all rights to another business. That can affect who collects payments, who controls the lien or UCC-1 filing, who handles maintenance, and who must respond to disputes. Homeowners should compare the assignment notice against the original agreement.",
+      },
+      { type: "h2", content: "When to Question the Transfer" },
+      {
+        type: "p",
+        content:
+          "Red flags include missing notice, inconsistent account numbers, unexpected payment changes, warranty confusion, installer bankruptcy, or a new company demanding payment while refusing to honor the promises that sold the system. Those facts may support a dispute, cancellation review, or negotiated resolution.",
+      },
+      {
+        type: "callout",
+        content:
+          "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "solar-installer-out-of-business",
+    title:
+      "Solar Installer Went Out of Business? Here is Your Step-by-Step Recovery Guide",
+    metaTitle:
+      "Solar Installer Went Out of Business? Here is Your Step-by-Step Recovery Guide",
+    metaDescription: `Discover exactly what to do if your solar installer goes out of business. Learn how to protect your warranties, manage your loan, and keep your system runnin...`,
+    category: "Legal Rights",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Discover exactly what to do if your solar installer goes out of business. Learn how to protect your warranties, manage your loan, and keep your system running without the original company.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Nightmare Scenario: When Your Solar Installer Vanishes",
+      },
+      {
+        type: "p",
+        content:
+          "It starts with a bounced email or a disconnected phone line. You try to reach out for a routine maintenance check or to ask about a weird reading on your monitoring app, only to find that the company you trusted with $30,000 of your hard-earned money has vanished. Solar installer bankruptcies are becoming alarmingly common as the industry faces shifting regulations and financing hurdles. While it feels like your investment has just evaporated, the physical hardware on your roof is still yours, and you have more legal protections than you might realize.",
+      },
+      { type: "h2", content: "Immediate Steps to Take When the Doors Close" },
+      {
+        type: "p",
+        content:
+          "The moment you confirm your installer is out of business, you need to go into 'documentation mode.' Gather every scrap of paper related to your project, including the original signed contract, the system design schematics, and your interconnection agreement with the utility company. If your installer provided a proprietary monitoring app, log in immediately and take screenshots of your system's historical performance and current status. Often, these portals are the first things to go dark when a company liquidates its digital assets, and having that data is crucial for any future service provider.",
+      },
+      {
+        type: "callout",
+        content:
+          "Need immediate help navigating a solar company bankruptcy? Call our homeowner advocacy line at (904) 921-4971 or visit breakyoursolarcontract.com to explore your options for contract cancellation or legal recourse.",
+      },
+      { type: "h2", content: "Understanding the 'Two-Warranty' Reality" },
+      {
+        type: "p",
+        content:
+          "Most homeowners don't realize that their solar system is actually covered by two distinct types of warranties. The first is the manufacturer's warranty, which covers the physical equipment--the panels and the inverters--and typically lasts 20 to 25 years. The second is the workmanship warranty, which covers the actual installation labor and roof penetrations. When an installer goes out of business, your workmanship warranty usually dies with them, but your manufacturer's warranty remains valid as long as the equipment maker is still solvent.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "solar-system-underperforming-legal-options",
+    title:
+      "Solar System Underperforming? Your Legal Options and Compensation Guide",
+    metaTitle:
+      "Solar System Underperforming? Your Legal Options and Compensation Guide",
+    metaDescription: `Is your solar system producing less energy than promised? Learn about your legal rights, potential compensation, and how to hold predatory solar companies ac...`,
+    category: "Legal Rights",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Is your solar system producing less energy than promised? Learn about your legal rights, potential compensation, and how to hold predatory solar companies accountable for underperformance.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Reality of Solar Underperformance and Your Rights",
+      },
+      {
+        type: "p",
+        content:
+          "When you signed your solar contract, you were likely promised a specific amount of energy production and significant utility bill savings. For many homeowners, the reality is a $40,000 debt for a system that barely covers a fraction of their monthly power needs. Solar underperformance isn't just a technical glitch; it is often a breach of contract or a result of deceptive sales practices. If your system is producing 20% or 30% less than the \"guaranteed\" amount, you aren't just losing money on your electric bill--you are being robbed of the value of your investment. This discrepancy can lead to thousands of dollars in unexpected utility costs over the life of the system, effectively doubling your monthly energy expenses instead of eliminating them.",
+      },
+      {
+        type: "p",
+        content:
+          "Understanding your legal standing is the first step toward financial recovery. Most solar agreements include a production guarantee, which is a legally binding promise that the system will generate a certain number of kilowatt-hours (kWh) over a set period. When the system fails to meet these benchmarks due to poor installation, defective panels, or incorrect shading calculations, the company has failed its end of the bargain. You have the right to demand that the system performs as advertised or seek legal remedies to exit the agreement entirely. These guarantees are often backed by specific performance metrics that, if not met, trigger a requirement for the installer to either add more panels at no cost or provide a cash refund for the shortfall.",
+      },
+      { type: "h2", content: "Common Causes of Solar Production Shortfalls" },
+      {
+        type: "p",
+        content:
+          'Underperformance rarely happens in a vacuum; it is usually the result of systemic failures during the design or installation phase. One of the most common issues is "shading misrepresentation," where sales reps ignore nearby trees or structures in their software models to make the projected savings look better than they ever could be. In other cases, installers use sub-standard inverters or panels that degrade faster than the industry standard, leading to a steady decline in output within just the first two years of operation. Many homeowners find that their systems were installed on North-facing roofs or in areas with significant afternoon shade, which was never disclosed during the high-pressure sales pitch in their living room.',
+      },
+      {
+        type: "p",
+        content:
+          'Beyond design flaws, technical failures are a leading cause of system downtime. A single faulty micro-inverter can take down an entire string of panels, reducing your output by 10% or more without you even noticing unless you check your monitoring app daily. Many predatory companies fail to provide active monitoring services, leaving homeowners in the dark for months while their systems sit idle. By the time the homeowner realizes there is a problem, they have already lost hundreds of dollars in potential solar credits and are stuck with a massive "True-Up" bill from their local utility provider.',
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "solar-door-to-door-sales-rescission",
+    title:
+      "Solar Contract Door-to-Door Sales Rescission Rights: Your 3-Day Escape Hatch",
+    metaTitle:
+      "Solar Contract Door-to-Door Sales Rescission Rights: Your 3-Day Escape Hatch",
+    metaDescription: `Discover your legal rights to cancel a predatory door-to-door solar contract. Learn how the FTC Cooling-Off Rule protects homeowners from high-pressure sales...`,
+    category: "Legal Rights",
+    readTime: "8 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Discover your legal rights to cancel a predatory door-to-door solar contract. Learn how the FTC Cooling-Off Rule protects homeowners from high-pressure sales tactics and hidden fees.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "h2",
+        content: "The Reality of Door-to-Door Solar Sales Tactics",
+      },
+      {
+        type: "p",
+        content:
+          "Walking into your home after a long day, the last thing you expect is a high-pressure sales pitch for a $40,000 solar array. Door-to-door solar representatives are often trained in aggressive psychological tactics designed to get a signature before you can even research the company. These 'canvassers' frequently promise zero-down deals, government 'stimulus' checks that don't exist, and immediate utility bill elimination. Many homeowners find themselves locked into 25-year financing agreements with 9.99% interest rates and hidden dealer fees that can add $10,000 or more to the principal balance before the first panel is even installed.",
+      },
+      { type: "h2", content: "Understanding the FTC Cooling-Off Rule" },
+      {
+        type: "p",
+        content:
+          "If you signed a solar contract in your home, at your front door, or even at a temporary location like a fair or hotel suite, you are likely protected by the Federal Trade Commission (FTC) Cooling-Off Rule. This federal regulation gives you a legal right to cancel a sale of $25 or more within three business days of the transaction. The most critical aspect of this rule is that you do not need to provide a reason for the cancellation. Whether you simply changed your mind or realized the math doesn't add up, the law is on your side during this brief window.",
+      },
+      { type: "h3", content: "What Qualifies as a Door-to-Door Sale?" },
+      {
+        type: "p",
+        content:
+          "The Cooling-Off Rule applies to sales made at your residence, even if you invited the salesperson to your home to make a presentation. It also covers sales made at locations other than the seller's permanent place of business, such as a rented hub or a community center. However, it is important to note that the rule does not apply to sales made entirely by mail or telephone, or those that began at the seller's retail location. For most predatory solar schemes, the initial contact and the contract signing happen right at your kitchen table, making them prime candidates for rescission under federal law.",
+      },
+      {
+        type: "callout",
+        content:
+          "If you are feeling pressured to sign a solar contract or have already signed one and regret it, call us at (904) 921-4971 or visit breakyoursolarcontract.com for immediate assistance in navigating your cancellation rights.",
+      },
+      { type: "h2", content: "How to Properly Execute Your Right to Rescind" },
+      {
+        type: "p",
+        content:
+          "To cancel a door-to-door solar contract, you must follow specific steps to ensure your rescission is legally binding. The salesperson is required by law to give you two copies of a cancellation form (often called a 'Notice of Cancellation') at the time of the sale. To cancel, you simply sign and date one copy and mail it to the address provided for cancellations. It is highly recommended to send this via certified mail with a return receipt requested. This provides you with a paper trail and proof that you initiated the cancellation within the three-business-day timeframe required by the FTC.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "goodleap-vs-mosaic-solar-loan-comparison",
+    title: "GoodLeap vs Mosaic: Which Solar Loan is Harder to Cancel?",
+    metaTitle: "GoodLeap vs Mosaic: Which Solar Loan is Harder to Cancel?",
+    metaDescription: `Comparing GoodLeap and Mosaic solar loans reveals a complex web of hidden fees and cancellation hurdles. Learn how to navigate these predatory contracts and ...`,
+    category: "Loan Problems",
+    readTime: "8 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Comparing GoodLeap and Mosaic solar loans reveals a complex web of hidden fees and cancellation hurdles. Learn how to navigate these predatory contracts and protect your home from long-term financial traps.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      { type: "h2", content: "The Reality of Modern Solar Financing" },
+      {
+        type: "p",
+        content:
+          "For many homeowners, the dream of clean energy quickly turns into a financial nightmare when they realize the true cost of their solar loan. Companies like GoodLeap and Mosaic dominate the market, often partnering with aggressive sales teams that promise low interest rates while hiding massive upfront costs. These 'dealer fees' can inflate the total loan amount by 15% to 30%, meaning you might owe $40,000 for a system that only costs $30,000 to install. Understanding the differences between these two giants is the first step in regaining control of your financial future.",
+      },
+      { type: "h2", content: "GoodLeap: The Efficiency Trap" },
+      {
+        type: "p",
+        content:
+          "GoodLeap, formerly known as Loanpal, is the largest player in the residential solar finance space. Their platform is designed for speed, allowing installers to get loan approval in minutes while standing in your kitchen. However, this efficiency is exactly what makes them so difficult to cancel. Once the loan is 'disbursed' to the installer--which often happens long before the first panel touches your roof--GoodLeap considers the contract fully active. Homeowners frequently report that trying to stop the clock after this point feels like fighting a brick wall.",
+      },
+      { type: "h3", content: "Common GoodLeap Cancellation Hurdles" },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "sunrun-stock-homeowner-contract-rights",
+    title: "Sunrun IPO and What It Means for Homeowners Trying to Cancel",
+    metaTitle: "Sunrun IPO and What It Means for Homeowners Trying to Cancel",
+    metaDescription: `The 2015 Sunrun IPO shifted the company's focus to Wall Street investors, making it harder for homeowners to cancel predatory solar contracts. Learn your rig...`,
+    category: "Company Complaints",
+    readTime: "10 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "The 2015 Sunrun IPO shifted the company's focus to Wall Street investors, making it harder for homeowners to cancel predatory solar contracts. Learn your rights and how to fight back.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "The 2015 Sunrun IPO was a watershed moment for the residential solar industry, marking the transition of rooftop solar from a niche environmental product to a massive, Wall Street-backed financial engine. While investors saw dollar signs, many homeowners unknowingly became the collateral in a race for rapid expansion. Today, as Sunrun (NASDAQ: RUN) continues to dominate the market, the pressure to maintain stock value often translates into aggressive contract enforcement that leaves families feeling trapped in 20-to-25-year commitments they no longer want or can afford. For many, the dream of clean energy has turned into a financial nightmare, with contracts that are nearly impossible to break without paying tens of thousands of dollars in penalties. This is not just about solar panels; it is about the securitization of your home and your future income. When you sign a Sunrun contract, you are not just buying a service; you are becoming a line item on a corporate balance sheet that must be protected at all costs. This fundamental shift in the relationship between the homeowner and the solar provider is at the heart of the current crisis in the industry. Understanding how the IPO changed Sunrun's priorities is the first step in reclaiming your rights as a homeowner.",
+      },
+      {
+        type: "h2",
+        content: "The Wall Street Pressure Cooker: Why Cancellation is So Hard",
+      },
+      {
+        type: "p",
+        content:
+          "When a company like Sunrun goes public, its primary responsibility shifts from serving customers to satisfying shareholders. This 'Wall Street pressure' creates a fundamental conflict of interest. To keep stock prices high, Sunrun must show consistent growth in its 'megawatts deployed' and 'recurring revenue.' Every homeowner who cancels a contract represents a loss of projected revenue that could spook investors. This is why you often encounter a brick wall when trying to exit a lease or Power Purchase Agreement (PPA).",
+      },
+      {
+        type: "p",
+        content:
+          "The company's financial health is tied directly to the long-term stability of its contract portfolio. If Sunrun allowed homeowners to cancel easily, their entire business model--which relies on bundling these contracts into 'solar asset-backed securities'--would crumble. For the homeowner, this means that what was sold as a simple way to save on electricity is actually a complex financial instrument that the company will defend with a team of corporate lawyers. These securities are sold to institutional investors who expect a steady stream of payments for the next two decades. If you stop paying, it's not just a loss for Sunrun; it's a breach of the promises they made to their investors. This is why their cancellation department is often described as a 'retention department' where the goal is to keep you paying, no matter how unhappy you are. They have a massive financial incentive to make the cancellation process as difficult and expensive as possible. This is the reality of the post-IPO solar market, where the homeowner's needs are often secondary to the demands of the capital markets. Every time a homeowner successfully cancels a contract, it sends a signal to the market that these assets might not be as secure as they seem, which is why Sunrun fights so hard to keep every single customer locked in.",
+      },
+      { type: "h2", content: "Understanding the 'Solar Asset' Trap" },
+      {
+        type: "p",
+        content:
+          "In the eyes of Sunrun and its investors, your roof is not just part of your home; it is a host for a revenue-generating asset. When you sign a Sunrun PPA or lease, you are often granting the company an interest in your property through a UCC-1 financing statement. This 'fixture filing' acts like a lien, making it nearly impossible to sell or refinance your home without Sunrun's permission. This is a common shock for homeowners who were told the panels would 'add value' to their property.",
+      },
+      {
+        type: "p",
+        content:
+          "Instead of adding value, many find that the $30,000 to $150,000 'valuation' of the system--often cited in cancellation payoff demands--is far above the actual market price of the hardware. We have seen cases where homeowners were billed over $134,000 for systems that were never even activated. This discrepancy exists because the payoff amount isn't just for the equipment; it includes the 'lost profit' Sunrun expected to make from you over the next two decades. This is a classic example of predatory pricing, where the company charges you for the 'privilege' of leaving a contract that may have been based on false promises. The hardware itself--the panels, the inverter, the racking--often costs less than $15,000 to $20,000 to replace, yet the buyout figures are astronomical. This is because Sunrun is calculating the 'net present value' of every single kilowatt-hour they expected to sell you until the year 2045 or beyond. They are essentially asking you to pay for 20 years of electricity upfront, at a price they determined, regardless of whether the system even works. This 'asset trap' is designed to make the cost of leaving so high that most homeowners simply give up and continue to pay their monthly bills, even if they are saving nothing on their utility costs. It is a form of financial bondage that is only possible because of the complex legal structures Sunrun put in place after their IPO.",
+      },
+      {
+        type: "h2",
+        content: "Common Predatory Tactics Used to Prevent Cancellation",
+      },
+      {
+        type: "p",
+        content:
+          "Homeowners trying to exercise their rights often face a gauntlet of delay tactics and misinformation. Because Sunrun's growth depends on keeping you in the system, their customer service departments are frequently structured to 'save' the account rather than process a legitimate cancellation request.",
+      },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
+  {
+    slug: "solar-contract-red-flags-checklist",
+    title:
+      "Solar Contract Red Flags Checklist: 10 Things to Spot Before You Sign",
+    metaTitle:
+      "Solar Contract Red Flags Checklist: 10 Things to Spot Before You Sign",
+    metaDescription: `Don't get trapped in a predatory solar agreement. Use our comprehensive checklist to identify hidden fees, misleading promises, and legal traps before you si...`,
+    category: "Contract Help",
+    readTime: "12 min read",
+    publishDate: "March 2026",
+    excerpt:
+      "Don't get trapped in a predatory solar agreement. Use our comprehensive checklist to identify hidden fees, misleading promises, and legal traps before you sign on the dotted line.",
+    heroImage:
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "solar panels on residential home",
+    ctaText: "Get a Free Solar Contract Review",
+    ctaSubtext:
+      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+    content: [
+      {
+        type: "p",
+        content:
+          "Solar energy is one of the most significant investments a homeowner can make for their property, their financial future, and the environment. When done correctly, it can provide decades of clean, reliable power and shield you from the ever-rising costs of traditional utility companies. However, the residential solar industry is currently undergoing a 'Wild West' phase, plagued by predatory sales tactics that turn a clean energy dream into a multi-decade financial nightmare. Before you sign a 25-year agreement that could cost you upwards of $40,000 to $60,000 over its lifetime, you must understand exactly what you are agreeing to. Many homeowners find themselves trapped in contracts with hidden fees, escalating payments, and misleading production promises that were never meant to be kept by the installation company.",
+      },
+      {
+        type: "h2",
+        content: "Red Flag 1: The 'Free Solar' and Government Program Myth",
+      },
+      {
+        type: "p",
+        content:
+          "If a salesperson tells you that the panels are 'free' or that you are participating in a 'government-sponsored program,' walk away immediately. This is perhaps the most common deceptive tactic used by door-to-door sales representatives across the country. While there are federal tax credits and some state-level incentives, there is no such thing as a 'free' solar program from the government. These are private contracts, usually in the form of a Power Purchase Agreement (PPA) or a lease, where you are still paying for the power produced or the equipment installed. Misrepresenting a private business transaction as a public utility program is a major deceptive trade practice that can be grounds for legal action. The Federal Trade Commission (FTC) has specifically warned consumers about these 'free solar' claims, as they are designed to lower your guard and make a high-cost financial commitment seem like a public benefit.",
+      },
+      {
+        type: "h2",
+        content: "Red Flag 2: The Hidden 2.9% Annual Payment Escalator",
+      },
+      {
+        type: "p",
+        content:
+          "One of the most dangerous clauses in a solar contract is the 'annual escalator.' Sales reps often focus on the low initial monthly payment, which might be $120 compared to your current $150 utility bill. However, many contracts include a 2.9% annual increase. While this sounds small, it means your payment will nearly double over the 25-year term. If your utility rates don't rise as fast as your solar escalator, you could end up paying significantly more for solar power than you would have paid to the grid. For example, a $150 monthly payment with a 2.9% escalator will grow to over $300 per month by the end of the contract. If the local utility company only raises rates by 1% or 2% annually, your 'savings' will vanish within the first decade, leaving you with a massive liability that is difficult to escape.",
+      },
+      { type: "h2", content: "Red Flag 3: Misleading 'Zero Bill' Promises" },
+      {
+        type: "p",
+        content:
+          "A common predatory tactic is promising that your electric bill will be 'zeroed out' or 'eliminated.' In reality, most homeowners will still receive a small monthly bill from their utility company for grid connection fees, which can range from $10 to $30 per month depending on your location and utility provider. Furthermore, if your system is undersized or if your energy usage increases--such as by adding an electric vehicle or a new HVAC system--you will still be buying power from the grid. If a company guarantees a zero-dollar bill without a detailed production analysis of your specific roof, shading from nearby trees, and historical energy usage, they are likely misleading you. True 'net zero' is rare and requires a perfectly sized system and favorable net metering policies from your utility, which are currently being rolled back in many states like California (NEM 3.0).",
+      },
+      {
+        type: "h2",
+        content: "Red Flag 4: UCC-1 Fixture Filings and Home Sale Hurdles",
+      },
+      {
+        type: "p",
+        content:
+          "Many solar companies file a UCC-1 financing statement, which is a legal notice that they have a security interest in the solar equipment attached to your home. While this is not technically a lien on the real estate itself, it often shows up on title reports and can prevent you from refinancing your mortgage or selling your home. Many buyers are hesitant to take over a 20-year lease or PPA, and you might be forced to pay a $20,000+ buyout fee just to close your home sale. We have seen countless cases where a $400,000 home sale was delayed or cancelled because the solar company refused to cooperate with the title company or demanded an exorbitant payoff that the seller couldn't afford. This 'cloud on title' is a major red flag that sales reps often downplay or fail to mention entirely during their pitch.",
+      },
+      {
+        type: "h2",
+        content: "Red Flag 5: The Federal Tax Credit Misrepresentation",
+      },
+      {
+        type: "p",
+        content:
+          "The 30% Federal Investment Tax Credit (ITC) is a powerful incentive, but it is a non-refundable tax credit, not a rebate check. This means you must have sufficient federal tax liability to use it. Predatory sales reps often tell retirees on fixed incomes or low-income households that they will get a 'check for $10,000' from the government, which they can then use to pay down the solar loan. If you don't have the tax liability, you won't get the credit, and your loan payment will likely skyrocket after the first 18 months. Many homeowners are shocked to find that their 'low' monthly payment of $140 jumps to $210 because they couldn't 're-invest' a tax credit they never qualified for in the first place. Always consult with a tax professional before assuming you will receive the full 30% benefit.",
+      },
+      { type: "h2", content: "Red Flag 6: High-Pressure 'Sign Now' Tactics" },
+      {
+        type: "p",
+        content:
+          "Predatory solar companies rely on 'one-call closes.' They may tell you that a specific rebate is expiring tonight, that they have 'one installation slot left this month,' or that the price will go up tomorrow. These are almost always lies designed to prevent you from reading the 40-page contract or doing your own research. A legitimate $30,000 investment should never require a signature within 30 minutes of meeting a stranger at your front door. If a salesperson refuses to leave a copy of the contract for you to review over the weekend, it is because they know that a careful reading will reveal the predatory terms they are trying to hide. Take your time, compare quotes, and never sign under duress or artificial time pressure.",
+      },
+      {
+        type: "h2",
+        content: "Red Flag 7: Vague Performance and Maintenance Guarantees",
+      },
+      {
+        type: "p",
+        content:
+          "A solid solar contract should include a production guarantee, stating exactly how many kilowatt-hours (kWh) the system will produce each year. If the contract only mentions 'equipment warranties' but doesn't guarantee the actual power output, you have no recourse if the system underperforms due to poor installation or shading issues. Additionally, check who is responsible for roof leaks. If the contract says they are only responsible for leaks within 12 inches of a penetration for only one year, you are taking on a massive long-term risk for your home's structural integrity. A reputable company should stand by their work for at least 10 years and provide a clear, written process for how they will compensate you if the system fails to meet its production targets.",
+      },
+      {
+        type: "h2",
+        content:
+          "Red Flag 8: Verbal Promises vs. Written Contract Discrepancies",
+      },
+      {
+        type: "p",
+        content:
+          "The most important rule of solar contracting is: 'If it isn't in writing, it doesn't exist.' Sales reps often make grand verbal promises about free battery backups, roof repairs, or 'guaranteed savings' that are nowhere to be found in the actual written agreement. Most solar contracts contain an 'integration clause' which states that the written document is the entire agreement and that no verbal promises are binding. If the rep won't put their promise in the 'Special Instructions' section of the contract, they are lying to you. We have seen cases where reps promised to pay off a homeowner's existing roof loan, only for the homeowner to find out later that they were now responsible for two loans instead of one. Always verify that every single promise made during the sales pitch is reflected in the final, signed document.",
+      },
+      { type: "h3", content: "Checklist: 10 Questions to Ask Before Signing" },
+    ],
+    faq: [],
+    relatedSlugs: [
+      "how-to-get-out-of-a-solar-contract",
+      "solar-contract-red-flags-and-scams",
+      "solar-company-went-bankrupt",
+    ],
+  },
 ];

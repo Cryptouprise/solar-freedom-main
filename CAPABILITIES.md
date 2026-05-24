@@ -246,6 +246,7 @@ All cron jobs run automatically on the server. They can also be triggered manual
 |-----|----------|------|-------------|
 | Press Release Cycle | Every Monday 9am MT | `server/cron/pressRelease.ts` | Picks next pending topic, generates press release via LLM, optionally generates featured image, submits to all enabled distribution sites |
 | Backlink Discovery | Every Sunday 8am MT | `server/cron/backlinkDiscovery.ts` | Uses AI to discover high-DA backlink opportunities in solar/legal/consumer protection niche, scores and stores them |
+| SEO Growth Agent | Manual / schedulable | `scripts/seo-growth-agent.mjs` | Crawls sitemap URLs, scores crawler-facing HTML, writes heartbeat/action queue, and optionally uses OpenRouter for strategy notes |
 
 ### Press Release Distribution Sites
 
@@ -384,6 +385,13 @@ Content-Type: application/json
 2. Identify underperforming pages
 3. Update content via `PUT /api/admin/posts/:slug`
 4. Log strategy via `seoStrategy` table (direct DB or future tRPC)
+
+**SEO growth agent workflow:**
+1. Build and run a production preview.
+2. Run `pnpm seo:agent -- --base <preview-or-live-url>`.
+3. Review `reports/seo-agent/HEARTBEAT.md` and `reports/seo-agent/ACTION_QUEUE.md`.
+4. Implement the top queued action, then rerun the heartbeat to verify score and issue deltas.
+5. Add `--ai` when `OPENROUTER_API_KEY` is available for an OpenRouter-written strategy note.
 
 ---
 

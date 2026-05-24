@@ -122,8 +122,8 @@ function MultiStepForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     try {
       // Submit via tRPC — persists to DB and forwards to GHL webhook server-side
       await submitLead.mutateAsync({
@@ -412,7 +412,8 @@ function MultiStepForm() {
         </span>
       </label>
       <button
-        type="submit"
+        type="button"
+        onClick={handleSubmit}
         disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
         className="w-full btn-amber btn-amber-pulse py-5 rounded text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:animation-none"
       >
@@ -422,7 +423,7 @@ function MultiStepForm() {
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       {/* Step indicator */}
       <div className="space-y-3">
         {/* Step labels */}
@@ -479,7 +480,7 @@ function MultiStepForm() {
           ← Back
         </button>
       )}
-    </form>
+    </div>
   );
 }
 

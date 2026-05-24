@@ -241,7 +241,7 @@ export default function SellingHouseWithSolar() {
   useSeoMeta({
     title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
     description: "Solar loan blocking your home sale? We help homeowners pay off, negotiate, or legally challenge solar loans and liens so you can close. Free case review.",
-    canonical: "https://www.breakyoursolarcontract.com/selling-house-with-solar",
+    canonical: "https://breakyoursolarcontract.com/selling-house-with-solar",
   });
 
   return (
