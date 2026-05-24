@@ -395,3 +395,20 @@
 - [x] Add draft panel (Drafts button in top bar) — save named drafts, restore, delete
 - [x] Add blogDrafts table to schema + db:push migration
 - [x] Add blogDrafts tRPC procedures (save, list, get, delete)
+
+## Phase 40 — YouTube Description + Media Hub Page
+
+- [x] Write SEO/AEO/GEO-optimized YouTube description (both domains, all companies, 3 outcomes, hashtags, timestamps, CTA)
+- [x] Build /media page (MediaHub.tsx) — standalone public page, no admin
+- [x] Two sections: Explainer Videos + Podcast Episodes
+- [x] VideoObject JSON-LD schema for each video (Googlebot-readable)
+- [x] Massive cross-linking: 12 company pages, 10 blog posts, 12 state law pages, 10 landing/resource pages
+- [x] Both domains featured: breakyoursolarcontract.com + cancelyoursolar.co
+- [x] Three Outcomes section (Total Cancellation, 30-60% Loan Reduction, Credit Restoration)
+- [x] Subscribe links (YouTube, Spotify, Apple Podcasts, cancelyoursolar.co)
+- [x] Add /media + /watch routes to App.tsx
+- [x] Add "Watch & Listen" to main nav in Home.tsx
+- [x] Add /media SEO meta to seo-meta.ts
+- [x] Add /media to sitemap.xml (priority 0.9, weekly)
+- [x] Add /media to generate-sitemap.mjs (durable across regenerations)
+- [x] Add /media to prerender.mjs (static HTML for Googlebot)

@@ -460,6 +460,11 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: "Solar Contract Laws by State | Your Legal Rights | Solar Freedom",
       desc: "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
     },
+    {
+      path: "/media",
+      title: "Solar Contract Truth Hub \u2014 Watch & Listen | Solar Freedom",
+      desc: "Watch explainer videos and listen to the Elite Solar Recovery Podcast. Real cases, real outcomes \u2014 Sunrun, SunPower, GoodLeap, Pink Energy cancellations. Free 15-min case audit.",
+    },
   ];
   for (const p of staticPages) {
     map[p.path] = {

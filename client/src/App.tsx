@@ -30,6 +30,7 @@ import YouTubeLanding from "@/pages/YouTubeLanding";
 import Yt2Landing from "@/pages/Yt2Landing";
 import Yt3Landing from "@/pages/Yt3Landing";
 import AutomationBuilder from "@/pages/admin/AutomationBuilder";
+import MediaHub from "@/pages/MediaHub";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import SunrunPage from "@/pages/SunrunPage";
 import { useEffect } from "react";
@@ -107,6 +108,8 @@ function Router() {
         <Route path={"/yt"} component={YouTubeLanding} />
         <Route path={"/yt2"} component={Yt2Landing} />
         <Route path={"/yt3"} component={Yt3Landing} />
+        <Route path={"/media"} component={MediaHub} />
+        <Route path={"/watch"} component={MediaHub} />
         <Route path={"/login"} component={Login} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />

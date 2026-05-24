@@ -109,6 +109,16 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       description:
         "Complete guide to canceling contracts with Sunrun, SunPower, Vivint Solar, Freedom Forever, GoodLeap, Sunnova, Tesla Solar & more. BBB ratings, complaint data, and legal grounds.",
     },
+    "/media": {
+      title: "Solar Contract Truth Hub — Watch & Listen | Solar Freedom",
+      description:
+        "Watch explainer videos and listen to the Elite Solar Recovery Podcast. Real cases, real outcomes — Sunrun, SunPower, GoodLeap, Pink Energy cancellations. Free 15-min case audit.",
+    },
+    "/watch": {
+      title: "Solar Contract Videos & Podcast | Solar Freedom",
+      description:
+        "Explainer videos and podcast episodes on solar contract cancellation, loan reduction, and credit restoration. Learn your rights and get a free case audit.",
+    },
   };
 
   for (const [path, meta] of Object.entries(staticPages)) {

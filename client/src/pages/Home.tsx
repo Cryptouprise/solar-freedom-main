@@ -806,6 +806,7 @@ export default function Home() {
             <a href="/solar-loan-help" className="hover:text-white transition-colors">Loan Help</a>
             <a href="/solar-companies" className="hover:text-white transition-colors">Companies</a>
             <a href="/blog" className="hover:text-amber-400 text-amber-500 transition-colors font-semibold">Blog</a>
+            <a href="/media" className="hover:text-white transition-colors">Watch &amp; Listen</a>
           </div>
           <button onClick={() => scrollToForm("nav_free_review")} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">
             FREE REVIEW
