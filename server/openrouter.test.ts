@@ -16,7 +16,7 @@ describe("OpenRouter API Key", () => {
     const response = await fetch("https://openrouter.ai/api/v1/models", {
       headers: {
         Authorization: `Bearer ${key}`,
-        "HTTP-Referer": "https://www.breakyoursolarcontract.com",
+        "HTTP-Referer": "https://breakyoursolarcontract.com",
       },
     });
     expect(response.status).toBe(200);

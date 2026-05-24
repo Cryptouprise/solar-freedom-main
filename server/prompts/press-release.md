@@ -14,7 +14,7 @@ qualified attorneys.
 - Contract cancellation is possible in many states under consumer protection laws
 - Solar Freedom covers all 50 states and provides free case reviews
 - Phone: Available via the website contact form
-- Website: https://www.breakyoursolarcontract.com
+- Website: https://breakyoursolarcontract.com
 
 ## Boilerplate (About Section — always append at end)
 
@@ -23,7 +23,7 @@ dedicated to helping homeowners understand their legal rights regarding solar en
 The platform connects homeowners with attorneys who specialize in solar contract cancellation,
 rescission, and consumer protection law. Solar Freedom provides free educational resources
 covering all 50 states and offers free case reviews for homeowners seeking to exit predatory
-solar agreements. For more information, visit https://www.breakyoursolarcontract.com.
+solar agreements. For more information, visit https://breakyoursolarcontract.com.
 
 ## Press Release Format
 
@@ -49,7 +49,7 @@ when, where, why. 2–3 sentences. Do NOT start with "Solar Freedom announces...
 [Optional paragraph 4: State-specific angle or additional data if relevant.]
 
 [Call to action: Homeowners seeking a free case review can visit
-https://www.breakyoursolarcontract.com or call [phone] to speak with a case specialist.]
+https://breakyoursolarcontract.com or call [phone] to speak with a case specialist.]
 
 ###
 
@@ -58,7 +58,7 @@ About Solar Freedom:
 
 Contact:
 Solar Freedom
-https://www.breakyoursolarcontract.com
+https://breakyoursolarcontract.com
 ```
 
 ## Writing Guidelines

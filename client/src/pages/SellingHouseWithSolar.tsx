@@ -230,7 +230,7 @@ const PAGE_SCHEMAS = [
     "@type": "Service",
     "name": "Solar Loan Home Sale Assistance",
     "description": "We help homeowners with solar loans sell their home by negotiating payoffs, challenging improper liens, and clearing title so you can close.",
-    "provider": { "@type": "Organization", "name": "Solar Freedom", "url": "https://www.breakyoursolarcontract.com" },
+    "provider": { "@type": "Organization", "name": "Solar Freedom", "url": "https://breakyoursolarcontract.com" },
     "serviceType": "Solar Contract Legal Services",
     "areaServed": "United States",
   }

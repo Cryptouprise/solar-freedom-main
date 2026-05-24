@@ -271,7 +271,7 @@ export default function SolarLoanHelp() {
   useSeoMeta({
     title: "Solar Loan Problems? Mosaic, GoodLeap, PACE Loan Help | Solar Freedom",
     description: "Stuck in a solar loan? We help homeowners dispute Mosaic, GoodLeap, PACE, and other solar loans — reduce payments, cancel contracts, or clear liens. Free review.",
-    canonical: "https://www.breakyoursolarcontract.com/solar-loan-help",
+    canonical: "https://breakyoursolarcontract.com/solar-loan-help",
   });
 
   return (

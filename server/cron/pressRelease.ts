@@ -127,7 +127,7 @@ Follow the format and guidelines in the system prompt exactly. Return valid JSON
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://www.breakyoursolarcontract.com",
+      "HTTP-Referer": "https://breakyoursolarcontract.com",
       "X-Title": "Solar Freedom Press Release Automation",
     },
     body: JSON.stringify({
