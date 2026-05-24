@@ -26,6 +26,7 @@ const ISSUE_WEIGHTS = {
   missing_description: 80,
   missing_canonical: 75,
   canonical_mismatch: 55,
+  canonical_origin_mismatch: 50,
   missing_h1: 70,
   multiple_h1: 35,
   missing_json_ld: 45,
@@ -198,8 +199,17 @@ function analyzeHtml({ publicUrl, localUrl, fetchResult }) {
   if (description && description.length < 110) addIssue(issues, "short_description", "Meta description is likely too short", { length: description.length });
   if (description && description.length > 165) addIssue(issues, "long_description", "Meta description may truncate in search results", { length: description.length });
   if (!canonical) addIssue(issues, "missing_canonical", "Missing canonical URL");
-  if (canonical && new URL(canonical, publicUrl).pathname.replace(/\/$/, "") !== parsed.pathname.replace(/\/$/, "")) {
-    addIssue(issues, "canonical_mismatch", "Canonical path does not match sitemap URL path", { canonical });
+  if (canonical) {
+    const canonicalUrl = new URL(canonical, publicUrl);
+    if (canonicalUrl.origin !== parsed.origin) {
+      addIssue(issues, "canonical_origin_mismatch", "Canonical origin does not match sitemap URL origin", {
+        canonical,
+        expectedOrigin: parsed.origin,
+      });
+    }
+    if (canonicalUrl.pathname.replace(/\/$/, "") !== parsed.pathname.replace(/\/$/, "")) {
+      addIssue(issues, "canonical_mismatch", "Canonical path does not match sitemap URL path", { canonical });
+    }
   }
   if (h1s.length === 0) addIssue(issues, "missing_h1", "Missing H1");
   if (h1s.length > 1) addIssue(issues, "multiple_h1", "Multiple H1 elements found", { h1s });
