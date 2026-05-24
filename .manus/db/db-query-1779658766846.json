@@ -1,0 +1,38 @@
+{
+  "query": "SELECT id, firstName, lastName, email, phone, solarCompany, problemType, formName, sourcePage, status, ghlWebhookSent, createdAt FROM leads WHERE id IN (750001, 750002) ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4XRmbfpNqYjx7w8.1fca292f6148 --database 46qo2AwgwNWJ4wJwr8EnH8 --execute SELECT id, firstName, lastName, email, phone, solarCompany, problemType, formName, sourcePage, status, ghlWebhookSent, createdAt FROM leads WHERE id IN (750001, 750002) ORDER BY id;",
+  "rows": [
+    {
+      "id": "750001",
+      "firstName": "TestCity",
+      "lastName": "LeadUser",
+      "email": "testcity@lead-test.com",
+      "phone": "5550001111",
+      "solarCompany": "Sunrun",
+      "problemType": "Monthly payment too high",
+      "formName": "city_landing_case_review",
+      "sourcePage": "/cancel-solar-contract-houston-tx",
+      "status": "new",
+      "ghlWebhookSent": "1",
+      "createdAt": "2026-05-24 21:39:16"
+    },
+    {
+      "id": "750002",
+      "firstName": "TestCompany",
+      "lastName": "LeadUser",
+      "email": "testcompany@lead-test.com",
+      "phone": "5550002222",
+      "solarCompany": "GoodLeap",
+      "problemType": "Was misled during sale",
+      "formName": "company_landing_case_review",
+      "sourcePage": "/goodleap",
+      "status": "new",
+      "ghlWebhookSent": "1",
+      "createdAt": "2026-05-24 21:39:18"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\temail\tphone\tsolarCompany\tproblemType\tformName\tsourcePage\tstatus\tghlWebhookSent\tcreatedAt\n750001\tTestCity\tLeadUser\ttestcity@lead-test.com\t5550001111\tSunrun\tMonthly payment too high\tcity_landing_case_review\t/cancel-solar-contract-houston-tx\tnew\t1\t2026-05-24 21:39:16\n750002\tTestCompany\tLeadUser\ttestcompany@lead-test.com\t5550002222\tGoodLeap\tWas misled during sale\tcompany_landing_case_review\t/goodleap\tnew\t1\t2026-05-24 21:39:18\n",
+  "stderr": "",
+  "execution_time_ms": 292
+}
