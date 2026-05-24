@@ -1,7 +1,7 @@
 /**
  * IndexNow Submission Script
  *
- * Submits all URLs to IndexNow API (Bing, Yandex, etc.)
+ * Submits all URLs to IndexNow API (Bing, Yandex, etc.).
  * IndexNow allows up to 10,000 URLs per batch submission.
  *
  * Run: node scripts/submit-indexnow.mjs
@@ -13,9 +13,20 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const BASE_URL = "https://breakyoursolarcontract.com";
-const INDEXNOW_KEY = "solarfreedom2026indexnow";
+const HOST = "breakyoursolarcontract.com";
+const INDEXNOW_KEYS = [
+  {
+    key: "bysolarcontract2026",
+    keyLocation: `${BASE_URL}/bysolarcontract2026.txt`,
+    label: "verified Bing key",
+  },
+  {
+    key: "solarfreedom2026indexnow",
+    keyLocation: `${BASE_URL}/solarfreedom2026indexnow.txt`,
+    label: "fallback site key",
+  },
+];
 
-// Read all URLs from the sitemap
 function getUrlsFromSitemap() {
   const sitemapPath = path.resolve(ROOT, "client/public/sitemap.xml");
   const content = fs.readFileSync(sitemapPath, "utf-8");
@@ -28,10 +39,8 @@ function getUrlsFromSitemap() {
   return urls;
 }
 
-async function submitToIndexNow(urls) {
+async function submitToIndexNow(urls, keyConfig) {
   const endpoint = "https://api.indexnow.org/indexnow";
-  
-  // IndexNow allows up to 10,000 URLs per batch
   const BATCH_SIZE = 10000;
   const batches = [];
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
@@ -42,14 +51,14 @@ async function submitToIndexNow(urls) {
   for (let i = 0; i < batches.length; i++) {
     const batch = batches[i];
     const payload = {
-      host: "breakyoursolarcontract.com",
-      key: INDEXNOW_KEY,
-      keyLocation: `${BASE_URL}/${INDEXNOW_KEY}.txt`,
+      host: HOST,
+      key: keyConfig.key,
+      keyLocation: keyConfig.keyLocation,
       urlList: batch,
     };
 
     console.log(`\nSubmitting batch ${i + 1}/${batches.length} (${batch.length} URLs)...`);
-    
+
     try {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -58,33 +67,31 @@ async function submitToIndexNow(urls) {
       });
 
       if (response.ok || response.status === 200 || response.status === 202) {
-        console.log(`✅ Batch ${i + 1} accepted (HTTP ${response.status})`);
+        console.log(`Batch ${i + 1} accepted (HTTP ${response.status})`);
         totalSuccess += batch.length;
       } else {
         const body = await response.text();
-        console.log(`⚠️  Batch ${i + 1} returned HTTP ${response.status}: ${body}`);
+        console.log(`Batch ${i + 1} returned HTTP ${response.status}: ${body}`);
       }
     } catch (err) {
-      console.error(`❌ Batch ${i + 1} failed:`, err.message);
+      console.error(`Batch ${i + 1} failed:`, err.message);
     }
   }
 
   return totalSuccess;
 }
 
-async function submitToBing(urls) {
-  // Bing also has its own IndexNow endpoint
+async function submitToBing(urls, keyConfig) {
   const endpoint = "https://www.bing.com/indexnow";
-  
   const payload = {
-    host: "breakyoursolarcontract.com",
-    key: INDEXNOW_KEY,
-    keyLocation: `${BASE_URL}/${INDEXNOW_KEY}.txt`,
-    urlList: urls.slice(0, 10000), // Bing limit
+    host: HOST,
+    key: keyConfig.key,
+    keyLocation: keyConfig.keyLocation,
+    urlList: urls.slice(0, 10000),
   };
 
   console.log(`\nSubmitting ${Math.min(urls.length, 10000)} URLs to Bing IndexNow...`);
-  
+
   try {
     const response = await fetch(endpoint, {
       method: "POST",
@@ -93,39 +100,57 @@ async function submitToBing(urls) {
     });
 
     if (response.ok || response.status === 200 || response.status === 202) {
-      console.log(`✅ Bing accepted submission (HTTP ${response.status})`);
+      console.log(`Bing accepted submission (HTTP ${response.status})`);
       return true;
-    } else {
-      const body = await response.text();
-      console.log(`⚠️  Bing returned HTTP ${response.status}: ${body}`);
-      return false;
     }
+
+    const body = await response.text();
+    console.log(`Bing returned HTTP ${response.status}: ${body}`);
+    return false;
   } catch (err) {
-    console.error(`❌ Bing submission failed:`, err.message);
+    console.error("Bing submission failed:", err.message);
     return false;
   }
 }
 
-// Main
 const urls = getUrlsFromSitemap();
-console.log(`📋 Found ${urls.length} URLs in sitemap`);
-console.log(`🔑 Using IndexNow key: ${INDEXNOW_KEY}`);
+console.log(`Found ${urls.length} URLs in sitemap`);
+console.log(`Trying ${INDEXNOW_KEYS.length} IndexNow key(s)`);
 
-// Submit to IndexNow API (covers Bing, Yandex, Seznam, Naver, etc.)
-const submitted = await submitToIndexNow(urls);
+let acceptedSubmission = null;
+const attempts = [];
 
-// Also submit directly to Bing
-const bingAccepted = await submitToBing(urls);
+for (const keyConfig of INDEXNOW_KEYS) {
+  console.log(`\nUsing ${keyConfig.label}: ${keyConfig.key}`);
 
-console.log(`\n✅ IndexNow submission complete: ${submitted}/${urls.length} URLs submitted`);
-if (submitted === 0 && !bingAccepted) {
+  const submitted = await submitToIndexNow(urls, keyConfig);
+  const bingAccepted = await submitToBing(urls, keyConfig);
+
+  const attempt = { keyConfig, submitted, bingAccepted };
+  attempts.push(attempt);
+
+  if (submitted > 0 || bingAccepted) {
+    acceptedSubmission = attempt;
+    break;
+  }
+}
+
+if (!acceptedSubmission) {
+  console.log("\nIndexNow attempts:");
+  for (const attempt of attempts) {
+    console.log(
+      `  - ${attempt.keyConfig.key}: ${attempt.submitted}/${urls.length} URLs, Bing accepted: ${attempt.bingAccepted}`,
+    );
+  }
   console.error("\nIndexNow rejected every submission. Verify the key file is live before retrying.");
   process.exitCode = 1;
 } else {
-  console.log(`\nSearch engines notified:`);
-  console.log(`  - Bing`);
-  console.log(`  - Yandex`);
-  console.log(`  - Seznam`);
-  console.log(`  - Naver`);
-  console.log(`  - DuckDuckGo (via Bing)`);
+  const { keyConfig, submitted } = acceptedSubmission;
+  console.log(`\nIndexNow submission complete with ${keyConfig.key}: ${submitted}/${urls.length} URLs submitted`);
+  console.log("\nSearch engines notified:");
+  console.log("  - Bing");
+  console.log("  - Yandex");
+  console.log("  - Seznam");
+  console.log("  - Naver");
+  console.log("  - DuckDuckGo (via Bing)");
 }
