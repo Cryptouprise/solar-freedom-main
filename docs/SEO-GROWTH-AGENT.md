@@ -6,6 +6,7 @@ It is intentionally split into two layers:
 
 1. `seo:audit` crawls the sitemap and scores crawler-facing HTML.
 2. `seo:agent` runs the audit, writes heartbeat state, and turns findings into an action queue.
+3. `seo:agent -- --apply` runs guarded deterministic fixers for safe recurring issues.
 
 ## Commands
 
@@ -13,6 +14,8 @@ It is intentionally split into two layers:
 pnpm seo:audit -- --base http://localhost:3010 --out reports/seo-agent/latest.json
 pnpm seo:agent -- --base http://localhost:3010
 pnpm seo:agent -- --base https://breakyoursolarcontract.com --ai
+pnpm seo:agent -- --apply --dry-run
+pnpm seo:agent:apply
 ```
 
 Generated files are written under `reports/seo-agent/` and are ignored by git:
@@ -21,6 +24,7 @@ Generated files are written under `reports/seo-agent/` and are ignored by git:
 - `agent-state.json` - last heartbeat state for deltas
 - `HEARTBEAT.md` - human-readable pulse
 - `ACTION_QUEUE.md` - prioritized implementation queue
+- `APPLY_REPORT.md` - safe fixer changes made by apply mode
 
 ## What It Checks
 
@@ -29,6 +33,7 @@ Generated files are written under `reports/seo-agent/` and are ignored by git:
 - Title and meta description length
 - Duplicate titles and descriptions
 - Canonical tags
+- Canonical origin alignment (`www` vs non-www)
 - H1 coverage
 - Source-visible body depth
 - JSON-LD coverage
@@ -51,9 +56,25 @@ OPENROUTER_API_KEY=... pnpm seo:agent -- --base https://breakyoursolarcontract.c
 
 Use this for narrative prioritization, not for blind application. The deterministic queue remains the source of truth for what the agent should do next.
 
+## Apply Mode
+
+Apply mode is explicit and guarded:
+
+```bash
+pnpm seo:agent -- --apply --dry-run
+pnpm seo:agent -- --base https://breakyoursolarcontract.com --apply --verify
+```
+
+Current safe fixer:
+
+- Normalize legacy `https://www.breakyoursolarcontract.com` references in source files under `client/`, `server/`, and `scripts/` to the canonical `https://breakyoursolarcontract.com`.
+
+When `--verify` is used, the agent runs `pnpm check` and `pnpm build` after it changes files. Broad content rewrites, title rewrites, schema rewrites, and internal-link rewrites still require a future source-aware fixer because those changes can affect user-facing copy and conversion behavior.
+
 ## Guardrails
 
 - Diagnose by default.
-- Do not auto-apply broad edits until an explicit apply mode exists.
-- Future apply mode should generate a patch pack, run `pnpm check`, rebuild, restart production preview, rerun `pnpm seo:agent`, and only then mark work complete.
+- Apply only when `--apply` is explicitly passed.
+- Apply mode is limited to deterministic, narrow fixers and writes an apply report.
+- Verification mode runs `pnpm check` and `pnpm build` after a successful safe apply.
 - Prioritize crawler-visible HTML, schema, canonicals, and internal links before publishing more content.

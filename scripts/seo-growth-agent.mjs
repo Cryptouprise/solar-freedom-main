@@ -5,14 +5,16 @@
  *   1. Run the sitemap SEO audit.
  *   2. Convert findings into a prioritized action queue.
  *   3. Write a heartbeat markdown file and machine-readable state.
- *   4. Optionally ask OpenRouter for a strategic narrative.
+ *   4. Optionally apply safe deterministic fixes.
+ *   5. Optionally ask OpenRouter for a strategic narrative.
  *
- * This is intentionally safe-by-default: it diagnoses and queues work, but does
- * not apply content/code changes unless a future explicit apply mode is added.
+ * This is intentionally safe-by-default: it diagnoses and queues work unless
+ * --apply is passed. Apply mode is limited to deterministic, narrow fixers.
  *
  * Examples:
  *   pnpm seo:agent
  *   pnpm seo:agent -- --base http://localhost:3010 --ai
+ *   pnpm seo:agent -- --base https://breakyoursolarcontract.com --apply --verify
  *   pnpm seo:agent -- --limit 100 --heartbeat reports/seo-agent/HEARTBEAT.md
  */
 import fs from "node:fs/promises";
@@ -27,7 +29,13 @@ const DEFAULT_REPORT = path.resolve(ROOT, "reports/seo-agent/latest-agent-audit.
 const DEFAULT_STATE = path.resolve(ROOT, "reports/seo-agent/agent-state.json");
 const DEFAULT_HEARTBEAT = path.resolve(ROOT, "reports/seo-agent/HEARTBEAT.md");
 const DEFAULT_ACTION_QUEUE = path.resolve(ROOT, "reports/seo-agent/ACTION_QUEUE.md");
+const DEFAULT_APPLY_REPORT = path.resolve(ROOT, "reports/seo-agent/APPLY_REPORT.md");
+const DEFAULT_APPLY_JSON = path.resolve(ROOT, "reports/seo-agent/latest-apply-result.json");
 const DEFAULT_MODEL = process.env.SEO_AGENT_MODEL || "openrouter/owl-alpha";
+const CANONICAL_DOMAIN = "https://breakyoursolarcontract.com";
+const LEGACY_WWW_DOMAIN = ["https://www", "breakyoursolarcontract.com"].join(".");
+const SAFE_APPLY_DIRS = ["client", "server", "scripts"];
+const SAFE_APPLY_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".mjs", ".md", ".html"]);
 
 const ACTION_LIBRARY = {
   source_semantic_shells: {
@@ -74,7 +82,7 @@ const ACTION_LIBRARY = {
     category: "technical_seo",
     impact: "critical",
     why: "Sitemap URLs should return final 200 HTML and self-canonicalize. Redirect/canonical disagreement can slow or prevent indexing.",
-    appliesTo: ["status_error", "canonical_mismatch", "missing_canonical"],
+    appliesTo: ["status_error", "canonical_mismatch", "canonical_origin_mismatch", "missing_canonical"],
     suggestedOwner: "server/_core/vite.ts + scripts/generate-sitemap.mjs",
     acceptance: [
       "Sitemap URLs return 200 without redirect.",
@@ -109,6 +117,11 @@ function parseArgs(argv) {
     ai: process.env.SEO_AGENT_AI === "true",
     model: DEFAULT_MODEL,
     skipAudit: false,
+    apply: false,
+    dryRun: false,
+    verify: false,
+    applyReport: DEFAULT_APPLY_REPORT,
+    applyJson: DEFAULT_APPLY_JSON,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -124,6 +137,11 @@ function parseArgs(argv) {
     if (arg === "--model" && next) args.model = next;
     if (arg === "--ai") args.ai = true;
     if (arg === "--skip-audit") args.skipAudit = true;
+    if (arg === "--apply") args.apply = true;
+    if (arg === "--dry-run") args.dryRun = true;
+    if (arg === "--verify") args.verify = true;
+    if (arg === "--apply-report" && next) args.applyReport = path.resolve(ROOT, next);
+    if (arg === "--apply-json" && next) args.applyJson = path.resolve(ROOT, next);
   }
 
   return args;
@@ -144,12 +162,165 @@ function runNodeScript(scriptPath, args) {
   });
 }
 
+function runCommand(command, args, label) {
+  return new Promise((resolve, reject) => {
+    const isWindows = process.platform === "win32";
+    const child = spawn(
+      isWindows ? process.env.ComSpec || "cmd.exe" : command,
+      isWindows ? ["/d", "/s", "/c", [command, ...args].map(quoteWindowsShellArg).join(" ")] : args,
+      {
+        cwd: ROOT,
+        stdio: "inherit",
+        shell: false,
+      }
+    );
+    child.on("error", reject);
+    child.on("exit", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`${label || command} exited with code ${code}`));
+    });
+  });
+}
+
+function quoteWindowsShellArg(value) {
+  if (/^[A-Za-z0-9_./:=+-]+$/.test(value)) return value;
+  return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+function corepackCommand() {
+  return process.platform === "win32" ? "corepack.cmd" : "corepack";
+}
+
 async function readJson(filePath, fallback) {
   try {
     return JSON.parse(await fs.readFile(filePath, "utf-8"));
   } catch {
     return fallback;
   }
+}
+
+async function pathExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function listSafeApplyFiles() {
+  const files = [];
+
+  async function walk(dirPath) {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === "reports") continue;
+      const entryPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        await walk(entryPath);
+      } else if (entry.isFile() && SAFE_APPLY_EXTENSIONS.has(path.extname(entry.name))) {
+        files.push(entryPath);
+      }
+    }
+  }
+
+  for (const dir of SAFE_APPLY_DIRS) {
+    const dirPath = path.resolve(ROOT, dir);
+    if (await pathExists(dirPath)) await walk(dirPath);
+  }
+
+  return files;
+}
+
+async function normalizeCanonicalDomainReferences({ dryRun }) {
+  const files = await listSafeApplyFiles();
+  const changedFiles = [];
+  let replacements = 0;
+
+  for (const filePath of files) {
+    const original = await fs.readFile(filePath, "utf-8");
+    const matchCount = original.split(LEGACY_WWW_DOMAIN).length - 1;
+    if (matchCount === 0) continue;
+
+    replacements += matchCount;
+    changedFiles.push(path.relative(ROOT, filePath));
+
+    if (!dryRun) {
+      await fs.writeFile(filePath, original.replaceAll(LEGACY_WWW_DOMAIN, CANONICAL_DOMAIN), "utf-8");
+    }
+  }
+
+  return {
+    id: "normalize_canonical_domain_references",
+    title: "Normalize canonical domain references",
+    changed: changedFiles.length > 0,
+    replacements,
+    files: changedFiles,
+    dryRun,
+    message: changedFiles.length
+      ? `Replaced ${replacements} legacy www canonical domain reference(s).`
+      : "No legacy www canonical domain references found.",
+  };
+}
+
+async function runSafeApply({ args, queue }) {
+  const relevantIssueCodes = new Set(queue.actions.flatMap((action) => action.issueCodes));
+  const shouldRunCanonicalFixer = relevantIssueCodes.has("canonical_origin_mismatch") || relevantIssueCodes.size === 0;
+  const fixes = [];
+
+  if (shouldRunCanonicalFixer) {
+    fixes.push(await normalizeCanonicalDomainReferences({ dryRun: args.dryRun }));
+  }
+
+  const result = {
+    generatedAt: new Date().toISOString(),
+    mode: "safe",
+    dryRun: args.dryRun,
+    changed: fixes.some((fix) => fix.changed),
+    changedFiles: [...new Set(fixes.flatMap((fix) => fix.files))],
+    fixes,
+    verification: args.verify && !args.dryRun
+      ? ["pnpm check", "pnpm build"]
+      : [],
+  };
+
+  await fs.mkdir(path.dirname(args.applyJson), { recursive: true });
+  await fs.writeFile(args.applyJson, `${JSON.stringify(result, null, 2)}\n`, "utf-8");
+  await fs.writeFile(args.applyReport, formatApplyReport(result), "utf-8");
+
+  if (args.verify && !args.dryRun) {
+    await runCommand(corepackCommand(), ["pnpm", "check"], "pnpm check");
+    await runCommand(corepackCommand(), ["pnpm", "build"], "pnpm build");
+  }
+
+  return result;
+}
+
+function formatApplyReport(result) {
+  const fixes = result.fixes.map((fix) => {
+    const files = fix.files.length ? fix.files.map((file) => `  - \`${file}\``).join("\n") : "  - None";
+    return `## ${fix.title}
+
+- ID: \`${fix.id}\`
+- Changed: ${fix.changed ? "yes" : "no"}
+- Replacements: ${fix.replacements}
+- Dry run: ${fix.dryRun ? "yes" : "no"}
+- Message: ${fix.message}
+
+Files:
+${files}
+`;
+  }).join("\n");
+
+  return `# SEO Growth Agent Apply Report
+
+Generated: ${result.generatedAt}
+Mode: safe
+Dry run: ${result.dryRun ? "yes" : "no"}
+Changed files: ${result.changedFiles.length}
+
+${fixes || "No safe fixers ran."}
+`;
 }
 
 function groupIssueCounts(report) {
@@ -298,7 +469,8 @@ Increase rankings for breakyoursolarcontract.com through a repeatable agent loop
 2. Detect technical, on-page, schema, internal-link, and content gaps.
 3. Prioritize actions by impact and page coverage.
 4. Produce a queue the implementation agent can safely execute.
-5. Track heartbeat deltas so regressions cannot hide.
+5. Apply safe deterministic fixes when explicitly run with \`--apply\`.
+6. Track heartbeat deltas so regressions cannot hide.
 
 ## Current Pulse
 
@@ -329,8 +501,9 @@ ${strategyNote || "AI strategy not requested. Run with `--ai` when `OPENROUTER_A
 
 ## Guardrails
 
-- Diagnose by default; do not auto-apply broad edits until an explicit apply mode exists.
-- Any future apply mode should write a patch pack, run \`pnpm check\`, rebuild, and rerun this heartbeat before marking work complete.
+- Diagnose by default; apply fixes only when explicitly run with \`--apply\`.
+- Apply mode is limited to deterministic, narrow fixers and writes \`reports/seo-agent/APPLY_REPORT.md\`.
+- Verification mode runs \`pnpm check\` and \`pnpm build\` after a successful safe apply.
 - Do not chase new content volume until crawler-visible HTML, schema, and internal links are healthy.
 `;
 }
@@ -386,9 +559,10 @@ async function main() {
   const previous = await readJson(args.state, null);
   const queue = buildActionQueue(report);
   const strategyNote = await maybeAskOpenRouter({ report, queue, args });
+  const applyResult = args.apply ? await runSafeApply({ args, queue }) : null;
 
   const state = {
-    version: 1,
+    version: 2,
     lastRun: {
       generatedAt: report.generatedAt,
       baseUrl: report.baseUrl,
@@ -400,6 +574,13 @@ async function main() {
     },
     actionCount: queue.actions.length,
     priorityPageCount: queue.pageQueue.length,
+    lastApply: applyResult ? {
+      generatedAt: applyResult.generatedAt,
+      mode: applyResult.mode,
+      dryRun: applyResult.dryRun,
+      changed: applyResult.changed,
+      changedFiles: applyResult.changedFiles,
+    } : previous?.lastApply || null,
   };
 
   await fs.mkdir(path.dirname(args.state), { recursive: true });
@@ -412,6 +593,10 @@ async function main() {
   console.log(`Heartbeat: ${path.relative(ROOT, args.heartbeat)}`);
   console.log(`Action queue: ${path.relative(ROOT, args.actionQueue)}`);
   console.log(`State: ${path.relative(ROOT, args.state)}`);
+  if (applyResult) {
+    console.log(`Apply report: ${path.relative(ROOT, args.applyReport)}`);
+    console.log(`Apply changed files: ${applyResult.changedFiles.length}`);
+  }
   console.log(`Top action: ${queue.actions[0]?.title || "none"}`);
 }
 
