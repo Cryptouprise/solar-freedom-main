@@ -13,6 +13,7 @@ import { serveStatic, setupVite } from "./vite";
 import adminRouter from "../adminRouter";
 import { startPressReleaseCron } from "../cron/pressRelease";
 import { startBacklinkDiscoveryCron } from "../cron/backlinkDiscovery";
+import { automationRunHandler } from "../scheduled/automationRun";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -123,6 +124,10 @@ async function startServer() {
       res.status(404).json({ error: "CAPABILITIES.md not found" });
     }
   });
+
+  // ─── Scheduled / Heartbeat handlers ─────────────────────────────────────────
+  // MUST be registered before the tRPC middleware and Vite fallthrough
+  app.post("/api/scheduled/automation-run", automationRunHandler);
 
   // tRPC API
   app.use(

@@ -471,3 +471,116 @@ export async function deleteBlogDraft(id: number) {
   await db.delete(blogDrafts).where(eq(blogDrafts.id, id));
   return { success: true };
 }
+
+// ─── Automation Helpers ────────────────────────────────────────────────────────
+
+export async function listAutomations() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automations } = await import("../drizzle/schema");
+  return db.select().from(automations).orderBy(automations.createdAt);
+}
+
+export async function getAutomation(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automations } = await import("../drizzle/schema");
+  const rows = await db.select().from(automations).where(eq(automations.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function createAutomation(data: {
+  name: string;
+  description?: string;
+  spec: string;
+  cronExpression: string;
+  cronLabel?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automations } = await import("../drizzle/schema");
+  const result = await db.insert(automations).values({
+    name: data.name,
+    description: data.description ?? null,
+    spec: data.spec,
+    cronExpression: data.cronExpression,
+    cronLabel: data.cronLabel ?? null,
+    isEnabled: 1,
+    runCount: 0,
+  });
+  const id = (result as any).insertId as number;
+  return getAutomation(id);
+}
+
+export async function updateAutomation(id: number, data: Partial<{
+  name: string;
+  description: string;
+  spec: string;
+  cronExpression: string;
+  cronLabel: string;
+  isEnabled: number;
+  scheduleCronTaskUid: string;
+  lastRunAt: Date;
+  lastRunStatus: string;
+  lastRunSummary: string;
+  runCount: number;
+}>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automations } = await import("../drizzle/schema");
+  await db.update(automations).set(data).where(eq(automations.id, id));
+  return getAutomation(id);
+}
+
+export async function deleteAutomation(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automations } = await import("../drizzle/schema");
+  await db.delete(automations).where(eq(automations.id, id));
+  return { success: true };
+}
+
+// ─── Automation Run Log Helpers ────────────────────────────────────────────────
+
+export async function createAutomationRun(data: {
+  automationId: number;
+  status: string;
+  summary?: string;
+  details?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automationRuns } = await import("../drizzle/schema");
+  const result = await db.insert(automationRuns).values({
+    automationId: data.automationId,
+    status: data.status,
+    summary: data.summary ?? null,
+    details: data.details ?? null,
+  });
+  const id = (result as any).insertId as number;
+  const rows = await db.select().from(automationRuns).where(eq(automationRuns.id, id)).limit(1);
+  return rows[0];
+}
+
+export async function updateAutomationRun(id: number, data: Partial<{
+  status: string;
+  summary: string;
+  details: string;
+  completedAt: Date;
+  durationMs: number;
+}>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automationRuns } = await import("../drizzle/schema");
+  await db.update(automationRuns).set(data).where(eq(automationRuns.id, id));
+}
+
+export async function listAutomationRuns(automationId: number, limit = 20) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { automationRuns } = await import("../drizzle/schema");
+  return db.select().from(automationRuns)
+    .where(eq(automationRuns.automationId, automationId))
+    .orderBy(automationRuns.startedAt)
+    .limit(limit);
+}

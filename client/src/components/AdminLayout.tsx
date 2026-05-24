@@ -17,6 +17,7 @@ import {
   PenSquare,
   Target,
   Wand2,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -77,6 +78,12 @@ const NAV_ITEMS = [
     href: "/seo-command-center",
     icon: Target,
     description: "SEO tasks & strategy",
+  },
+  {
+    label: "Automations",
+    href: "/admin/automations",
+    icon: Bot,
+    description: "Custom schedules & AI agents",
   },
 ];
 

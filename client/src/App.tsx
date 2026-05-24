@@ -29,6 +29,7 @@ import Login from "@/pages/Login";
 import YouTubeLanding from "@/pages/YouTubeLanding";
 import Yt2Landing from "@/pages/Yt2Landing";
 import Yt3Landing from "@/pages/Yt3Landing";
+import AutomationBuilder from "@/pages/admin/AutomationBuilder";
 import SolarCompanyHub from "@/pages/SolarCompanyHub";
 import SunrunPage from "@/pages/SunrunPage";
 import { useEffect } from "react";
@@ -101,6 +102,7 @@ function Router() {
         <Route path={"/admin/press-releases"} component={PressReleaseAdmin} />
         <Route path={"/admin/posts"} component={PostEditor} />
         <Route path={"/admin/blog-studio"} component={BlogStudio} />
+        <Route path={"/admin/automations"} component={AutomationBuilder} />
         <Route path={"/youtube"} component={YouTubeLanding} />
         <Route path={"/yt"} component={YouTubeLanding} />
         <Route path={"/yt2"} component={Yt2Landing} />

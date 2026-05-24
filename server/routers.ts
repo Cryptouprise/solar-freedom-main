@@ -849,6 +849,136 @@ export const appRouter = router({
   }),
 
   // ─── Blog Drafts ──────────────────────────────────────────────────────────
+  automations: router({
+    /**
+     * List all automations.
+     */
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { listAutomations } = await import("./db");
+      return listAutomations();
+    }),
+
+    /**
+     * Get a single automation with its run history.
+     */
+    get: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getAutomation, listAutomationRuns } = await import("./db");
+        const automation = await getAutomation(input.id);
+        if (!automation) throw new Error("Not found");
+        const runs = await listAutomationRuns(input.id, 20);
+        return { automation, runs };
+      }),
+
+    /**
+     * Create a new automation.
+     */
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1).max(200),
+        description: z.string().optional(),
+        spec: z.string().min(1),
+        cronExpression: z.string().min(1),
+        cronLabel: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { createAutomation } = await import("./db");
+        return createAutomation(input);
+      }),
+
+    /**
+     * Update an automation spec, schedule, or enabled state.
+     */
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).max(200).optional(),
+        description: z.string().optional(),
+        spec: z.string().min(1).optional(),
+        cronExpression: z.string().optional(),
+        cronLabel: z.string().optional(),
+        isEnabled: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { updateAutomation } = await import("./db");
+        const { id, ...data } = input;
+        return updateAutomation(id, data);
+      }),
+
+    /**
+     * Delete an automation and its run logs.
+     */
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { deleteAutomation } = await import("./db");
+        return deleteAutomation(input.id);
+      }),
+
+    /**
+     * Activate the cron schedule for an automation via the Heartbeat platform.
+     * Requires the site to be deployed — the platform POSTs to the live URL.
+     */
+    activateSchedule: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        sessionToken: z.string(), // app_session_id cookie value from frontend
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getAutomation, updateAutomation } = await import("./db");
+        const { createHeartbeatJob } = await import("./_core/heartbeat");
+        const automation = await getAutomation(input.id);
+        if (!automation) throw new Error("Automation not found");
+        const job = await createHeartbeatJob({
+          name: `automation-${automation.id}`,
+          cron: automation.cronExpression,
+          path: `/api/scheduled/automation-run`,
+          payload: { automationId: automation.id },
+          description: automation.name,
+        }, input.sessionToken);
+        await updateAutomation(input.id, { scheduleCronTaskUid: job.taskUid });
+        return { taskUid: job.taskUid, nextExecutionAt: job.nextExecutionAt };
+      }),
+
+    /**
+     * Deactivate (pause) the cron schedule for an automation.
+     */
+    deactivateSchedule: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        sessionToken: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { getAutomation, updateAutomation } = await import("./db");
+        const { updateHeartbeatJob } = await import("./_core/heartbeat");
+        const automation = await getAutomation(input.id);
+        if (!automation) throw new Error("Automation not found");
+        if (!automation.scheduleCronTaskUid) throw new Error("No active schedule");
+        await updateHeartbeatJob(automation.scheduleCronTaskUid, { enable: false }, input.sessionToken);
+        await updateAutomation(input.id, { isEnabled: 0 });
+        return { success: true };
+      }),
+
+    /**
+     * Get run history for an automation.
+     */
+    runs: protectedProcedure
+      .input(z.object({ id: z.number(), limit: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { listAutomationRuns } = await import("./db");
+        return listAutomationRuns(input.id, input.limit ?? 20);
+      }),
+  }),
+
   blogDrafts: router({
     /**
      * Upsert a draft (autosave or named). name="autosave" is reserved for autosave.

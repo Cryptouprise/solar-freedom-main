@@ -1,4 +1,4 @@
-import { decimal, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { decimal, int, mysqlEnum, mysqlTable, text, timestamp, tinyint, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -534,3 +534,43 @@ export const blogDrafts = mysqlTable("blogDrafts", {
 });
 export type BlogDraft = typeof blogDrafts.$inferSelect;
 export type InsertBlogDraft = typeof blogDrafts.$inferInsert;
+
+/**
+ * Automations — user-defined automation specs with schedules.
+ * Each row is one automation job. The schedule is managed via the Heartbeat
+ * platform cron system; scheduleCronTaskUid links to the platform cron.
+ */
+export const automations = mysqlTable("automations", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  spec: text("spec").notNull(),                           // the full automation spec / prompt
+  cronExpression: varchar("cronExpression", { length: 100 }).notNull(), // 6-field UTC cron
+  cronLabel: varchar("cronLabel", { length: 100 }),       // human-readable e.g. "Daily at 9 AM UTC"
+  scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }), // platform cron task uid
+  isEnabled: tinyint("isEnabled").default(1).notNull(),
+  lastRunAt: timestamp("lastRunAt"),
+  lastRunStatus: varchar("lastRunStatus", { length: 50 }), // 'success' | 'error' | 'running'
+  lastRunSummary: text("lastRunSummary"),
+  runCount: int("runCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Automation = typeof automations.$inferSelect;
+export type InsertAutomation = typeof automations.$inferInsert;
+
+/**
+ * Automation run logs — history of each execution.
+ */
+export const automationRuns = mysqlTable("automationRuns", {
+  id: int("id").autoincrement().primaryKey(),
+  automationId: int("automationId").notNull(),
+  status: varchar("status", { length: 50 }).notNull(),    // 'success' | 'error' | 'running'
+  summary: text("summary"),
+  details: text("details"),                               // full output / error trace
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  durationMs: int("durationMs"),
+});
+export type AutomationRun = typeof automationRuns.$inferSelect;
+export type InsertAutomationRun = typeof automationRuns.$inferInsert;
