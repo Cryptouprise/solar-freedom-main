@@ -75,31 +75,14 @@ async function loadData() {
     companyEntries.push({ slug: m[1], name: m[2] });
   }
 
-  const stateEntries = [];
-  // Extract slug + state + metaTitle + metaDescription from state-laws.ts
-  const stateRegex =
-    /slug:\s*["']([^"']+)["'][\s\S]*?state:\s*["']([^"']+)["'][\s\S]*?metaTitle:\s*["']([^"']+)["'][\s\S]*?metaDescription:\s*["']([^"']+)["']/g;
-  while ((m = stateRegex.exec(stateLawsFile)) !== null) {
-    stateEntries.push({
-      slug: m[1],
-      state: m[2],
-      metaTitle: m[3],
-      metaDescription: m[4],
-    });
-  }
-  // Fallback: simpler regex if metaTitle not captured
-  if (stateEntries.length === 0) {
-    const fallbackRegex =
-      /slug:\s*["']([^"']+)["'],[\s\S]*?state:\s*["']([^"']+)["']/g;
-    while ((m = fallbackRegex.exec(stateLawsFile)) !== null) {
-      stateEntries.push({
-        slug: m[1],
-        state: m[2],
-        metaTitle: null,
-        metaDescription: null,
-      });
-    }
-  }
+  const stateEntries = collectSlugChunks(stateLawsFile)
+    .map(({ slug, chunk }) => ({
+      slug,
+      state: findStringProp(chunk, "state")?.value || titleFromSlug(slug),
+      metaTitle: findStringProp(chunk, "metaTitle")?.value || null,
+      metaDescription: findStringProp(chunk, "metaDescription")?.value || null,
+    }))
+    .filter((entry) => entry.slug && entry.state);
 
   return { cityEntries, companyEntries, stateEntries };
 }
@@ -463,7 +446,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     {
       path: "/media",
       title: "Solar Contract Truth Hub \u2014 Watch & Listen | Solar Freedom",
-      desc: "Watch explainer videos and listen to the Elite Solar Recovery Podcast. Real cases, real outcomes \u2014 Sunrun, SunPower, GoodLeap, Pink Energy cancellations. Free 15-min case audit.",
+      desc: "Watch solar contract videos and the Elite Solar Recovery Podcast. Real Sunrun, SunPower, GoodLeap, and Pink Energy cases. Free case audit.",
     },
   ];
   for (const p of staticPages) {

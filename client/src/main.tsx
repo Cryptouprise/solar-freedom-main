@@ -7,41 +7,45 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
-import { cities as CITIES, CityData } from "./data/cities";
-import { blogPosts } from "./data/blog";
+import { cities } from "./data/cities";
 import { companies } from "./data/companies";
 
-// Pre-register all city routes so the Manus runtime recognizes them immediately
-// This prevents the runtime from treating city URLs as 404s before React hydrates
+// Register known routes for the Manus runtime without making the initial JS bundle
+// parse the full city/company/blog content library before the app becomes usable.
 if (typeof window !== 'undefined') {
   const w = window as any;
   if (!w.__WOUTER_ROUTES__) {
     w.__WOUTER_ROUTES__ = [];
   }
-  // Register static routes
-  ['/', '/404', '/blog', '/seo-command-center', '/solar-fraud-report'].forEach((r: string) => {
-    if (!w.__WOUTER_ROUTES__.includes(r)) w.__WOUTER_ROUTES__.push(r);
-  });
-  // Register all 50 city routes with the correct URL structure
-  CITIES.forEach((city: CityData) => {
-    const route = `/cancel-solar-contract/${city.slug}`;
-    if (!w.__WOUTER_ROUTES__.includes(route)) {
-      w.__WOUTER_ROUTES__.push(route);
-    }
-  });
-  // Register all company routes
-  companies.forEach(company => {
-    const route = `/cancel-${company.slug}-solar-contract`;
-    if (!w.__WOUTER_ROUTES__.includes(route)) {
-      w.__WOUTER_ROUTES__.push(route);
-    }
-  });
-  // Register all blog post routes
-  blogPosts.forEach(post => {
-    const route = `/blog/${post.slug}`;
-    if (!w.__WOUTER_ROUTES__.includes(route)) {
-      w.__WOUTER_ROUTES__.push(route);
-    }
+
+  const registerRoute = (route: string) => {
+    if (!w.__WOUTER_ROUTES__.includes(route)) w.__WOUTER_ROUTES__.push(route);
+  };
+
+  [
+    "/",
+    "/404",
+    "/blog",
+    "/seo-command-center",
+    "/solar-fraud-report",
+    "/solar-contract-help",
+    "/solar-panel-scam",
+    "/solar-exit-options",
+    "/solar-contract-laws",
+    "/selling-house-with-solar",
+    "/solar-lien-removal",
+    "/solar-loan-help",
+    "/solar-companies",
+    "/sunrun",
+  ].forEach(registerRoute);
+
+  cities.forEach((city) => registerRoute(`/cancel-solar-contract/${city.slug}`));
+  companies.forEach((company) =>
+    registerRoute(`/cancel-${company.slug}-solar-contract`)
+  );
+
+  void import("./data/blog").then((blogModule) => {
+    blogModule.blogPosts.forEach((post) => registerRoute(`/blog/${post.slug}`));
   });
 }
 
