@@ -115,12 +115,17 @@ console.log(`🔑 Using IndexNow key: ${INDEXNOW_KEY}`);
 const submitted = await submitToIndexNow(urls);
 
 // Also submit directly to Bing
-await submitToBing(urls);
+const bingAccepted = await submitToBing(urls);
 
 console.log(`\n✅ IndexNow submission complete: ${submitted}/${urls.length} URLs submitted`);
-console.log(`\nSearch engines notified:`);
-console.log(`  - Bing`);
-console.log(`  - Yandex`);
-console.log(`  - Seznam`);
-console.log(`  - Naver`);
-console.log(`  - DuckDuckGo (via Bing)`);
+if (submitted === 0 && !bingAccepted) {
+  console.error("\nIndexNow rejected every submission. Verify the key file is live before retrying.");
+  process.exitCode = 1;
+} else {
+  console.log(`\nSearch engines notified:`);
+  console.log(`  - Bing`);
+  console.log(`  - Yandex`);
+  console.log(`  - Seznam`);
+  console.log(`  - Naver`);
+  console.log(`  - DuckDuckGo (via Bing)`);
+}
