@@ -9,9 +9,56 @@ import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import QuickCallbackForm from '@/components/QuickCallbackForm';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2, Shield, Scale } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useEffect, ReactElement } from 'react';
+import { useEffect, ReactElement, ReactNode } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
+
+function renderInlineContent(content?: string): ReactNode {
+  if (!content) return null;
+
+  const parts: ReactNode[] = [];
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = linkRegex.exec(content)) !== null) {
+    const [fullMatch, label, href] = match;
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+
+    if (href.startsWith('/')) {
+      parts.push(
+        <Link key={`${href}-${match.index}`} href={href}>
+          <span className="text-amber-400 hover:text-amber-300 underline underline-offset-4 cursor-pointer">
+            {label}
+          </span>
+        </Link>
+      );
+    } else {
+      parts.push(
+        <a
+          key={`${href}-${match.index}`}
+          href={href}
+          className="text-amber-400 hover:text-amber-300 underline underline-offset-4"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {label}
+        </a>
+      );
+    }
+
+    lastIndex = match.index + fullMatch.length;
+  }
+
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : content;
+}
+
 function renderSection(section: BlogSection, index: number) {
   switch (section.type) {
     case 'h2':
@@ -29,20 +76,20 @@ function renderSection(section: BlogSection, index: number) {
     case 'p':
       return (
         <p key={index} className="text-zinc-300 leading-relaxed text-[1.05rem] mb-5">
-          {section.content}
+          {renderInlineContent(section.content)}
         </p>
       );
     case 'callout':
       return (
         <div key={index} className="my-8 rounded-xl bg-amber-500/10 border border-amber-500/30 p-6">
-          <p className="text-amber-200 leading-relaxed font-medium">{section.content}</p>
+          <p className="text-amber-200 leading-relaxed font-medium">{renderInlineContent(section.content)}</p>
         </div>
       );
     case 'warning':
       return (
         <div key={index} className="my-8 rounded-xl bg-red-500/10 border border-red-500/30 p-6 flex gap-4">
           <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-          <p className="text-red-200 leading-relaxed font-medium">{section.content}</p>
+          <p className="text-red-200 leading-relaxed font-medium">{renderInlineContent(section.content)}</p>
         </div>
       );
     case 'quote':
@@ -64,7 +111,7 @@ function renderSection(section: BlogSection, index: number) {
           {section.items?.map((item, i) => (
             <li key={i} className="flex gap-3 text-zinc-300 leading-relaxed">
               <span className="text-amber-500 font-black mt-0.5 shrink-0">&#8594;</span>
-              <span>{item}</span>
+              <span>{renderInlineContent(item)}</span>
             </li>
           ))}
         </ul>

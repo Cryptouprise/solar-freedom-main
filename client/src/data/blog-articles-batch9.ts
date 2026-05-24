@@ -7,8 +7,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'sunrun-solar-contract-cancellation-2026',
     title: 'Sunrun Solar Contract Cancellation 2026: Your Legal Options',
-    metaTitle: 'Sunrun Solar Contract Cancellation 2026: Legal Help',
-    metaDescription: `Stuck in a Sunrun 20-25 year solar contract with 2.9% escalators? Avoid $20K-$50K buyouts. Our attorneys cancel predatory agreements. Free case review.`,
+    metaTitle: 'Cancel a Sunrun Solar Contract in 2026 | Legal Options',
+    metaDescription: `Stuck in a Sunrun lease or PPA? Learn the 2026 cancellation options, buyout traps, escalator issues, and legal arguments that may help you get out.`,
     category: 'Contract Help',
     readTime: '7 min read',
     publishDate: 'April 19, 2026',
@@ -17,7 +17,7 @@ export const batch9BlogPosts: BlogPost[] = [
     heroAlt: 'Attorney reviewing solar contract documents with magnifying glass and scales of justice',
     ctaText: 'Get a Free Sunrun Contract Review',
     ctaSubtext: 'Discover your legal pathways to cancel your Sunrun solar agreement.',
-    relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-fraud-warning-signs', 'sell-house-with-solar-panels', 'adt-solar-complaints', 'cancel-solar-loan-or-lease-early'],
+    relatedSlugs: ['cancel-sunrun-solar-contract-before-installation', 'sunrun-complaints-california', 'solar-contract-rescission-rights', 'how-to-file-a-complaint-against-solar-company-attorney-general', 'how-to-get-out-of-a-solar-contract'],
     faq: [
       { q: 'Can I cancel my Sunrun solar contract in 2026?', a: 'Yes, depending on the terms of your specific contract and applicable state laws, cancellation may be possible. Factors like misrepresentation, unfulfilled promises, or hidden fees can provide grounds for termination.' },
       { q: 'What are the typical penalties for Sunrun solar contract cancellation?', a: 'Sunrun contracts often include substantial cancellation fees, sometimes reaching tens of thousands of dollars. These fees are designed to deter homeowners from terminating their agreements early.' },
@@ -63,8 +63,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'cancel-sunrun-solar-contract-before-installation',
     title: 'How to Cancel a Sunrun Solar Contract Before Installation: Your Legal Rights',
-    metaTitle: 'Cancel Sunrun Solar Contract Before Installation | Legal Help',
-    metaDescription: `Signed a Sunrun contract? Cancel before installation to avoid penalties! Leverage your 3-day rescission rights for a no-buyout exit. Free case review.`,
+    metaTitle: 'Cancel Sunrun Before Installation | 3-Day Rights',
+    metaDescription: `Signed with Sunrun but panels are not installed yet? Learn the cancellation window, certified-mail steps, and legal grounds to avoid a costly buyout.`,
     category: 'Contract Help',
     readTime: '7 min read',
     publishDate: 'April 19, 2026',
@@ -73,7 +73,7 @@ export const batch9BlogPosts: BlogPost[] = [
     heroAlt: 'Special circumstance addendum document for breaking solar contracts before installation',
     ctaText: 'Get a Free Sunrun Contract Review',
     ctaSubtext: 'Protect your home from predatory solar contracts. We fight for homeowners.',
-    relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-fraud-warning-signs', 'get-out-of-solar-contract-by-state'],
+    relatedSlugs: ['sunrun-solar-contract-cancellation-2026', 'solar-contract-rescission-rights', 'how-to-file-a-complaint-against-solar-company-attorney-general'],
     faq: [
       { q: 'Can I cancel my Sunrun contract without penalty?', a: 'Whether you can cancel a Sunrun contract without penalty depends on several factors, including your state\'s consumer protection laws, the specific terms of your contract, and how much time has passed since you signed. Many states offer a rescission period, typically 3-5 days, where you can cancel for any reason.' },
       { q: 'What is the cancellation policy for Sunrun solar leases?', a: 'Sunrun\'s cancellation policy for solar leases is outlined in your specific agreement. Generally, after the initial rescission period, canceling a lease can involve significant fees, often amounting to thousands of dollars, to cover equipment, design, and lost revenue. However, if Sunrun breaches the contract or misrepresents terms, you may have stronger grounds for cancellation.' },
@@ -351,8 +351,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'how-to-file-a-complaint-against-solar-company-attorney-general',
     title: 'How to File a Complaint Against Solar Company with the Attorney General in 2026',
-    metaTitle: 'File Complaint Against Solar Company Attorney General 2026',
-    metaDescription: `Stop solar fraud! File an Attorney General complaint in any of the 50 states. Get a step-by-step guide to cancel your contract. Free case review.`,
+    metaTitle: 'File a Solar Company AG Complaint | Step-by-Step',
+    metaDescription: `Need to report solar fraud? Learn how to file an Attorney General complaint, what evidence to include, and how it can support contract cancellation.`,
     category: 'Legal Rights',
     readTime: '12 min read',
     publishDate: 'April 19, 2026',
@@ -361,7 +361,7 @@ export const batch9BlogPosts: BlogPost[] = [
     heroAlt: 'frustrated homeowner with financial documents',
     ctaText: 'Get Your Free Case Review Now',
     ctaSubtext: 'Don\'t let predatory solar companies win. Act today to protect your home and finances.',
-    relatedSlugs: ['solar-fraud-report-to-attorney-general', 'solar-fraud-warning-signs', 'how-to-get-out-of-a-solar-contract', 'get-out-of-solar-contract-by-state', 'cancel-solar-contract-after-installation'],
+    relatedSlugs: ['solar-contract-rescission-rights', 'sunrun-solar-contract-cancellation-2026', 'how-to-get-out-of-a-solar-contract', 'solar-fraud-report-to-attorney-general', 'cancel-solar-contract-after-installation'],
     faq: [
       { q: 'What are my legal rights when I want to file a complaint against a solar company with the Attorney General?', a: 'Homeowners have rights under state consumer protection laws, such as the California Consumers Legal Remedies Act (CLRA) or the Texas Deceptive Trade Practices Act (DTPA). These statutes allow consumers to report unfair or deceptive business practices, including misrepresentations about solar panel performance, savings, or contract terms. The Attorney General\'s office can investigate and, in some cases, take legal action on behalf of consumers.' },
       { q: 'How do I report a predatory solar contract to the Attorney General in California?', a: 'In California, you can file a complaint with the Attorney General\'s office online via their Consumer Complaint Form or by mail. Be sure to include all documentation, such as your contract, correspondence, and any evidence of misleading claims. California\'s AB 1070 (2023) further strengthens consumer protections for solar energy system sales, making it easier to report non-compliance.' },
@@ -436,7 +436,7 @@ export const batch9BlogPosts: BlogPost[] = [
     heroAlt: 'solar panel installation on suburban home',
     ctaText: 'Get Legal Help with Your Solar PPA',
     ctaSubtext: 'Don\'t let a solar PPA derail your home sale. Act now.',
-    relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'cancel-solar-contract-after-installation', 'solar-payments-too-high-help', 'get-out-of-solar-contract-by-state', 'solar-contract-rescission-rights'],
+    relatedSlugs: ['solar-contract-rescission-rights', 'sunrun-solar-contract-cancellation-2026', 'how-to-get-out-of-a-solar-contract', 'cancel-solar-contract-after-installation'],
     faq: [
       { q: 'Can I sell my house with solar PPA panels in California?', a: 'Yes, you can sell your house with solar PPA panels in California, but it requires careful navigation. California Civil Code  Section  1102.6 requires specific disclosures about solar leases or PPAs. Many buyers are hesitant, and some PPA providers like Sunrun or Vivint Solar may charge transfer fees ranging from $500 to $1,500, complicating the sale.' },
       { q: 'What happens to my solar PPA contract when I sell my home in Texas?', a: 'In Texas, your solar PPA contract typically transfers to the new homeowner. Texas Property Code  Section  5.077 mandates specific disclosures for properties with solar leases or PPAs. If the buyer does not qualify or refuses the transfer, you may be forced to buy out the system, which can cost tens of thousands of dollars, depending on the remaining term and system value.' },
