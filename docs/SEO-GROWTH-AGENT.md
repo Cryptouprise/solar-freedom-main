@@ -16,6 +16,7 @@ pnpm seo:agent -- --base http://localhost:3010
 pnpm seo:agent -- --base https://breakyoursolarcontract.com --ai
 pnpm seo:agent -- --apply --dry-run
 pnpm seo:agent:apply
+pnpm seo:indexing
 ```
 
 Generated files are written under `reports/seo-agent/` and are ignored by git:
@@ -25,6 +26,7 @@ Generated files are written under `reports/seo-agent/` and are ignored by git:
 - `HEARTBEAT.md` - human-readable pulse
 - `ACTION_QUEUE.md` - prioritized implementation queue
 - `APPLY_REPORT.md` - safe fixer changes made by apply mode
+- `INDEXING_QUEUE.md` - GSC request, content refresh, and IndexNow priority queue
 
 ## What It Checks
 
@@ -55,6 +57,25 @@ OPENROUTER_API_KEY=... pnpm seo:agent -- --base https://breakyoursolarcontract.c
 ```
 
 Use this for narrative prioritization, not for blind application. The deterministic queue remains the source of truth for what the agent should do next.
+
+## Indexing Queue
+
+The indexing agent turns sitemap inventory, GSC performance exports, and prior indexing submission records into prioritized action lists:
+
+```bash
+pnpm seo:indexing
+pnpm seo:indexing -- --limit 100
+```
+
+It writes `reports/seo-agent/INDEXING_QUEUE.md` and `latest-indexing-queue.json`.
+
+Queues produced:
+
+- GSC request-indexing queue for sitemap URLs with no visible performance or known indexing friction.
+- SERP/content refresh queue for pages with impressions but weak CTR or positions that can be improved.
+- IndexNow queue for sitemap URLs not found in prior IndexNow submission results.
+
+The script does not submit URLs to Google. Use the queue inside Google Search Console or Manus' authenticated workflow after publishing. Bing/IndexNow submission remains handled by `scripts/submit-indexnow.mjs`.
 
 ## Apply Mode
 

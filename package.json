@@ -13,6 +13,7 @@
     "seo:audit": "node scripts/seo-agent-audit.mjs",
     "seo:agent": "node scripts/seo-growth-agent.mjs",
     "seo:agent:apply": "node scripts/seo-growth-agent.mjs --base https://breakyoursolarcontract.com --apply --verify",
+    "seo:indexing": "node scripts/seo-indexing-agent.mjs",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
   "dependencies": {
