@@ -18,6 +18,7 @@ pnpm seo:agent -- --apply --dry-run
 pnpm seo:agent:apply
 pnpm seo:indexing
 pnpm seo:alert-summary
+pnpm submit:indexnow
 ```
 
 Generated files are written under `reports/seo-agent/` and are ignored by git:
@@ -77,7 +78,7 @@ Queues produced:
 - SERP/content refresh queue for pages with impressions but weak CTR or positions that can be improved.
 - IndexNow queue for sitemap URLs not found in prior IndexNow submission results.
 
-The script does not submit URLs to Google. Use the queue inside Google Search Console or Manus' authenticated workflow after publishing. Bing/IndexNow submission remains handled by `scripts/submit-indexnow.mjs`.
+The script does not submit URLs to Google. Use the queue inside Google Search Console or Manus' authenticated workflow after publishing. Bing/IndexNow submission is handled by `pnpm submit:indexnow`, which exits non-zero if IndexNow rejects the key or URL batch.
 
 ## Daily GitHub Alert
 

@@ -60,6 +60,11 @@ async function startServer() {
     res.send('bysolarcontract2026');
   });
 
+  app.get('/solarfreedom2026indexnow.txt', (_req, res) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send('solarfreedom2026indexnow');
+  });
+
   // Google Search Console ownership verification file for service account
   app.get('/google8d9f2c5b033c587b.html', (_req, res) => {
     res.setHeader('Content-Type', 'text/html');
