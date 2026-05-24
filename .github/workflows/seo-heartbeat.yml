@@ -1,0 +1,78 @@
+name: SEO Agent Heartbeat
+
+on:
+  schedule:
+    # Daily at 9:15 AM UTC. Adjust later if Manus/GSC timing needs a different window.
+    - cron: "15 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  seo-heartbeat:
+    name: Run SEO heartbeat
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run SEO agent
+        run: pnpm seo:agent -- --base https://breakyoursolarcontract.com
+
+      - name: Build indexing queue
+        run: pnpm seo:indexing
+
+      - name: Build alert summary
+        run: pnpm seo:alert-summary
+
+      - name: Open or update SEO heartbeat issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          TITLE="SEO Agent Daily Heartbeat"
+          BODY_FILE="reports/seo-agent/GITHUB_ISSUE.md"
+          ACTION_REQUIRED="$(node -e "console.log(require('./reports/seo-agent/latest-alert-summary.json').actionRequired ? 'true' : 'false')")"
+
+          if ! gh label list --repo "$REPO" --json name --jq '.[].name' | grep -qx "seo-agent"; then
+            gh label create "seo-agent" --repo "$REPO" --color "1d76db" --description "Automated SEO agent alerts"
+          fi
+
+          if ! gh label list --repo "$REPO" --json name --jq '.[].name' | grep -qx "automated"; then
+            gh label create "automated" --repo "$REPO" --color "ededed" --description "Created by automation"
+          fi
+
+          ISSUE_NUMBER="$(gh issue list --repo "$REPO" --state open --label "seo-agent" --search "$TITLE in:title" --json number --jq '.[0].number // empty')"
+
+          if [ "$ACTION_REQUIRED" != "true" ]; then
+            if [ -n "$ISSUE_NUMBER" ]; then
+              gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Daily SEO heartbeat is clean. Closing this alert issue."
+              gh issue close "$ISSUE_NUMBER" --repo "$REPO" --comment "Closed automatically because the SEO heartbeat reported no action required."
+            fi
+            exit 0
+          fi
+
+          if [ -z "$ISSUE_NUMBER" ]; then
+            gh issue create --repo "$REPO" --title "$TITLE" --label "seo-agent" --label "automated" --body-file "$BODY_FILE"
+          else
+            gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --body-file "$BODY_FILE"
+            gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Daily SEO heartbeat completed. The issue body has been refreshed with the latest audit and indexing queue."
+          fi
