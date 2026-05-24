@@ -26,6 +26,7 @@ if (typeof window !== 'undefined') {
     "/",
     "/404",
     "/blog",
+    "/how-it-works",
     "/seo-command-center",
     "/solar-fraud-report",
     "/solar-contract-help",

@@ -55,7 +55,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
     "/how-it-works": {
       title: "How Solar Contract Cancellation Works | Solar Freedom",
       description:
-        "Learn how Solar Freedom helps homeowners cancel solar contracts through consumer protection law. Free case review.",
+        "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
     },
     "/solar-contract-help": {
       title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",

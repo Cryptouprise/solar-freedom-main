@@ -15,6 +15,7 @@ const CityPage = lazy(() => import("./pages/CityPage"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const CompanyPage = lazy(() => import("./pages/CompanyPage"));
+const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const SeoCommandCenter = lazy(() => import("./pages/SeoCommandCenter"));
 const SolarFraudReport = lazy(() => import("./pages/SolarFraudReport"));
 const SolarContractHelp = lazy(() => import("./pages/SolarContractHelp"));
@@ -80,7 +81,7 @@ function Router() {
               return <CompanyPage />;
             }}
           </Route>
-          <Route path={"/how-it-works"} component={Home} />
+          <Route path={"/how-it-works"} component={HowItWorks} />
           <Route path={"/seo-command-center"} component={SeoCommandCenter} />
           <Route path={"/solar-fraud-report"} component={SolarFraudReport} />
           <Route path={"/solar-panel-scam"} component={SolarPanelScam} />
