@@ -12,6 +12,8 @@ import { Link, useLocation } from "wouter";
 import { getCompanyBySlug, companies as COMPANIES, getRelatedCompanies } from "@/data/companies";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import { trpc } from "@/lib/trpc";
+import { trackFormSubmit } from "@/lib/analytics";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -34,7 +36,9 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 function CompanyForm({ companyName }: { companyName: string }) {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ issue: "", payment: "", name: "", phone: "", email: "" });
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({ issue: "", payment: "", firstName: "", lastName: "", phone: "", email: "" });
+  const submitLead = trpc.leads.submit.useMutation();
 
   const ISSUES = [
     "Monthly payment too high",
@@ -52,6 +56,30 @@ function CompanyForm({ companyName }: { companyName: string }) {
     { question: `What's your main issue with ${companyName}?`, field: "issue", options: ISSUES },
     { question: "What's your monthly solar payment?", field: "payment", options: PAYMENTS },
   ];
+
+  const handleSubmit = async () => {
+    if (!form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.email.trim()) return;
+    setError("");
+    try {
+      await submitLead.mutateAsync({
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        solarCompany: companyName,
+        problemType: form.issue,
+        monthlyPayment: form.payment,
+        intent: `Company landing page case review for ${companyName}`,
+        formName: "company_landing_case_review",
+        sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
+        sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
+      });
+      trackFormSubmit("company_landing_case_review", typeof window !== "undefined" ? window.location.pathname : "unknown");
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong submitting your review. Please try again or call us directly.");
+    }
+  };
 
   if (submitted) {
     return (
@@ -105,7 +133,8 @@ function CompanyForm({ companyName }: { companyName: string }) {
       <h3 className="text-white font-semibold text-lg mb-5">Where should we send your free case review?</h3>
       <div className="space-y-3">
         {[
-          { key: "name", label: "Full Name", type: "text", placeholder: "John Smith" },
+          { key: "firstName", label: "First Name", type: "text", placeholder: "John" },
+          { key: "lastName", label: "Last Name", type: "text", placeholder: "Smith" },
           { key: "phone", label: "Phone Number", type: "tel", placeholder: "(904) 000-0000" },
           { key: "email", label: "Email Address", type: "email", placeholder: "john@email.com" },
         ].map(({ key, label, type, placeholder }) => (
@@ -121,9 +150,11 @@ function CompanyForm({ companyName }: { companyName: string }) {
             />
           </div>
         ))}
+        {error && <p className="text-red-400 text-xs text-center">{error}</p>}
         <button
-          onClick={() => { if (form.name && form.phone && form.email) setSubmitted(true); }}
-          className="w-full py-4 rounded-lg font-bold text-black text-base mt-2 transition-opacity hover:opacity-90"
+          onClick={handleSubmit}
+          disabled={!form.firstName || !form.lastName || !form.phone || !form.email || submitLead.isPending}
+          className="w-full py-4 rounded-lg font-bold text-black text-base mt-2 transition-opacity hover:opacity-90 disabled:opacity-40"
           style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
         >
           GET MY FREE {companyName.toUpperCase()} CASE REVIEW →

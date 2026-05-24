@@ -43,7 +43,16 @@ export interface BlogPost {
   canonicalUrl?: string; // Override canonical — use when this post duplicates a city/company page
 }
 
-export const blogPosts: BlogPost[] = [
+function dedupeBlogPosts(posts: BlogPost[]): BlogPost[] {
+  const seen = new Set<string>();
+  return posts.filter((post) => {
+    if (seen.has(post.slug)) return false;
+    seen.add(post.slug);
+    return true;
+  });
+}
+
+export const blogPosts: BlogPost[] = dedupeBlogPosts([
   // ─────────────────────────────────────────────────────────────────────────────
   // ARTICLE 1 — How to Get Out of a Solar Contract
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1014,7 +1023,7 @@ export const blogPosts: BlogPost[] = [
   ...blogArticlesBatch8,
   ...batch9BlogPosts,
   ...batch10BlogPosts,
-];
+]);
 // ─── Helper functions ──────────────────────────────────────────────────────────
 
 export function getBlogPost(slug: string): BlogPost | undefined {
@@ -1024,8 +1033,17 @@ export function getBlogPost(slug: string): BlogPost | undefined {
 export function getRelatedPosts(currentSlug: string, count = 3): BlogPost[] {
   const current = getBlogPost(currentSlug);
   if (!current) return blogPosts.slice(0, count);
-  return current.relatedSlugs
+  const related = current.relatedSlugs
     .map(s => getBlogPost(s))
     .filter(Boolean)
     .slice(0, count) as BlogPost[];
+
+  if (related.length >= count) return related;
+
+  const selectedSlugs = new Set([currentSlug, ...related.map(p => p.slug)]);
+  const fallback = blogPosts
+    .filter(post => !selectedSlugs.has(post.slug))
+    .slice(0, count - related.length);
+
+  return [...related, ...fallback];
 }
