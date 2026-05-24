@@ -391,7 +391,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     {
       path: "/how-it-works",
       title: "How Solar Contract Cancellation Works | Solar Freedom",
-      desc: "Learn how Solar Freedom helps homeowners cancel solar contracts through consumer protection law. Free case review.",
+      desc: "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
     },
     {
       path: "/solar-contract-help",
