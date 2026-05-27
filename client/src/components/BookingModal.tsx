@@ -17,8 +17,8 @@ interface BookingModalProps {
   firstName?: string;
 }
 
-const CALENDAR_ID = "3v6GXFtDrHMzs1j2DBkI";
-const GHL_BASE_URL = `https://api.leadconnectorhq.com/widget/booking/${CALENDAR_ID}`;
+const CALENDAR_ID = "Glvb9OZtDFHDMiwvHpli";
+const GHL_BASE_URL = `https://link.myinfinite.ai/widget/booking/${CALENDAR_ID}`;
 
 export default function BookingModal({ isOpen, onClose, firstName }: BookingModalProps) {
   const { contactInfo } = useContactInfo();

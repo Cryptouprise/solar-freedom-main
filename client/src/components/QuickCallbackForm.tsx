@@ -13,9 +13,9 @@ interface QuickCallbackFormProps {
   className?: string;
 }
 
-// Same GHL calendar used by BookingModal — calendar ID: 3v6GXFtDrHMzs1j2DBkI
-const CALENDAR_ID = "3v6GXFtDrHMzs1j2DBkI";
-const GHL_CALENDAR_BASE = `https://api.leadconnectorhq.com/widget/booking/${CALENDAR_ID}`;
+// Same GHL calendar used by BookingModal — calendar ID: Glvb9OZtDFHDMiwvHpli
+const CALENDAR_ID = "Glvb9OZtDFHDMiwvHpli";
+const GHL_CALENDAR_BASE = `https://link.myinfinite.ai/widget/booking/${CALENDAR_ID}`;
 
 export default function QuickCallbackForm({
   formName,
