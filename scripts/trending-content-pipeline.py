@@ -32,8 +32,12 @@ PERMANENT QUALITY CHECKLIST — EVERY ARTICLE MUST HAVE ALL OF:
 ✅ 6+ FAQ items targeting exact long-tail search queries
 ✅ relatedSlugs: minimum 4 slugs from the existing article inventory
 ✅ Unique heroImage: pick from UNSPLASH_POOL below, rotate per article
-✅ metaTitle: max 60 chars, primary keyword first
-✅ metaDescription: 140-155 chars exactly, includes primary keyword + CTA
+✅ metaTitle: max 45 chars, primary keyword first, NO " | " pipe, NO brand name
+   (the site auto-appends " | Solar Freedom"; a 45-char base keeps the full SERP
+   title under ~60 chars so the brand is not truncated). Lead with a benefit or
+   "How to" hook to win clicks.
+✅ metaDescription: 140-155 chars — open with a hook (question or pain point),
+   include one specific fact, end with a clear call to action; primary keyword included
 
 COMMON MISTAKES TO NEVER REPEAT:
 ❌ DO NOT use the same heroImage for multiple articles
@@ -295,8 +299,13 @@ def generate_article(topic: str) -> dict:
                     - Include state-specific angles (California, Texas, Florida, Arizona, Nevada)
                     - Target "cancel [topic]", "get out of [topic]", "[topic] legal rights", "[topic] 2026"
                     - FAQ questions MUST match exact search queries people type into Google
-                    - metaTitle MUST be under 60 characters
-                    - metaDescription MUST be 140-155 characters exactly
+                    - metaTitle MUST be 45 characters or fewer, primary keyword first,
+                      and MUST NOT contain a " | " separator or the brand name
+                      (the site automatically appends " | Solar Freedom")
+                    - metaTitle should lead with a benefit or "How to" hook to win clicks
+                    - metaDescription MUST be 140-155 characters: open with a hook
+                      (a question or the homeowner's pain), include one specific fact,
+                      and end with a clear call to action
                     
                     MANDATORY CONTENT RULES:
                     - MINIMUM 14 content sections (this is non-negotiable — thin content does not rank)
@@ -482,8 +491,12 @@ def validate_article(post: dict) -> list[str]:
         warnings.append(f"⚠️  Only {faq_count} FAQ items (minimum 6 required)")
 
     meta_title = post.get("metaTitle", "")
-    if len(meta_title) > 62:
-        warnings.append(f"⚠️  metaTitle is {len(meta_title)} chars (max 60)")
+    # The site appends " | Solar Freedom" (16 chars), so keep the base title short
+    # enough that the full SERP title stays under ~60 chars and the brand survives.
+    if len(meta_title) > 47:
+        warnings.append(f"⚠️  metaTitle is {len(meta_title)} chars (max 45 — site appends ' | Solar Freedom')")
+    if " | " in meta_title or "solar freedom" in meta_title.lower():
+        warnings.append("⚠️  metaTitle contains a pipe or brand name (the site appends ' | Solar Freedom' automatically)")
 
     meta_desc = post.get("metaDescription", "")
     if len(meta_desc) < 130 or len(meta_desc) > 160:

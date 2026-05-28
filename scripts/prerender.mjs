@@ -674,12 +674,50 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
   return JSON.stringify(blocks).replace(/</g, "\\u003c");
 }
 
-function buildSemanticShellContent(meta, urlPath) {
+// Builds the full, unique article index for the /blog page. Without this, the
+// prerendered /blog shell is identical boilerplate to every other page, which
+// Google treats as thin/duplicate content ("Discovered – currently not indexed").
+// Listing every post gives the index unique content AND a crawl path to all posts.
+function buildBlogIndexContent(blogEntries) {
+  const entries = Object.entries(blogEntries || {});
+  if (entries.length === 0) return "";
+  const items = entries
+    .map(([slug, data]) => {
+      const title = escapeHtml(stripBrand(data.title));
+      const snippet = escapeHtml(
+        fitMetaDescription(data.description)
+          .slice(0, 140)
+          .replace(/\s+\S*$/, "")
+      );
+      return `          <li><a href="/blog/${escapeHtml(slug)}">${title}</a> — ${snippet}</li>`;
+    })
+    .join("\n");
+  return `
+      <section aria-label="All Solar Freedom articles">
+        <h2>All Solar Contract Articles (${entries.length})</h2>
+        <p>Browse every Solar Freedom guide on canceling solar contracts, fighting solar fraud, removing solar liens, and understanding your state-by-state legal rights.</p>
+        <ul>
+${items}
+        </ul>
+      </section>`;
+}
+
+function buildSemanticShellContent(meta, urlPath, blogEntries) {
   const pageType = classifyPath(urlPath);
   const h1 = stripBrand(meta.title);
   const contextLabel = pageType
     .replace(/_/g, " ")
     .replace(/\b\w/g, letter => letter.toUpperCase());
+
+  const isBlogIndex = pageType === "blog_index";
+  const bodyParagraphs = isBlogIndex
+    ? `<p>The Solar Freedom blog is a homeowner library for getting out of bad solar deals. Every article explains a specific problem — lease escalators, inflated dealer fees, underperforming systems, solar liens blocking a home sale, installer bankruptcies, or deceptive door-to-door sales — and the legal options that may apply.</p>
+      <p>Use the full index below to find guidance for your situation, including company-specific guides for Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, and Tesla Solar, plus state-by-state cancellation rights. When you are ready, request a free case review.</p>`
+    : `<p>Solar Freedom helps homeowners understand whether a solar lease, solar loan, power purchase agreement, UCC-1 fixture filing, or installer dispute may create a legal path out of a bad solar agreement. This page is part of a broader solar contract cancellation resource library built for homeowners who were promised savings, tax credits, home value increases, or easy contract transfers and later discovered that the paperwork told a different story.</p>
+      <p>Many solar contract problems start with the same pattern: rushed door-to-door sales, confusing financing documents, inflated dealer fees, underperforming systems, unclear utility assumptions, or pressure to sign before the homeowner can compare options. When those facts appear in the sales record, consumer protection statutes, rescission rules, lending disclosures, warranty obligations, and state unfair-trade-practice laws may all matter.</p>
+      <p>For ranking and answer-engine visibility, this source-visible summary gives crawlers a concise version of the same topic the React application expands for users. It identifies the core entity, the homeowner problem, the legal service category, and the related site resources before client-side JavaScript runs. That matters because search systems often compare the raw HTML, canonical URL, structured data, heading, and internal links before evaluating richer browser-rendered content.</p>
+      <p>Homeowners researching this topic usually need three things: a plain-English explanation of what went wrong, a way to compare their issue against common legal grounds, and a direct path to request a free case review. Solar Freedom focuses on solar contract cancellation, solar loan disputes, solar lien removal, misleading savings claims, company bankruptcy problems, and sales practices involving companies such as Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and related finance providers.</p>
+      <p>If you are reviewing this page because your solar payment is higher than expected, the system underperforms, the installer disappeared, the financing company will not help, or a solar lien is blocking a home sale or refinance, the next step is to gather the contract, financing paperwork, utility bills, sales proposal, text messages, and any production reports. Those documents help determine whether cancellation, balance reduction, lien removal, or another remedy is realistic.</p>`;
 
   return `
   <div id="root">
@@ -687,11 +725,8 @@ function buildSemanticShellContent(meta, urlPath) {
       <p style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f97316; font-weight: 700;">Solar Freedom ${escapeHtml(contextLabel)}</p>
       ${urlPath === "/" ? `<h2>${escapeHtml(h1)}</h2>` : `<h1>${escapeHtml(h1)}</h1>`}
       <p>${escapeHtml(meta.description)}</p>
-      <p>Solar Freedom helps homeowners understand whether a solar lease, solar loan, power purchase agreement, UCC-1 fixture filing, or installer dispute may create a legal path out of a bad solar agreement. This page is part of a broader solar contract cancellation resource library built for homeowners who were promised savings, tax credits, home value increases, or easy contract transfers and later discovered that the paperwork told a different story.</p>
-      <p>Many solar contract problems start with the same pattern: rushed door-to-door sales, confusing financing documents, inflated dealer fees, underperforming systems, unclear utility assumptions, or pressure to sign before the homeowner can compare options. When those facts appear in the sales record, consumer protection statutes, rescission rules, lending disclosures, warranty obligations, and state unfair-trade-practice laws may all matter.</p>
-      <p>For ranking and answer-engine visibility, this source-visible summary gives crawlers a concise version of the same topic the React application expands for users. It identifies the core entity, the homeowner problem, the legal service category, and the related site resources before client-side JavaScript runs. That matters because search systems often compare the raw HTML, canonical URL, structured data, heading, and internal links before evaluating richer browser-rendered content.</p>
-      <p>Homeowners researching this topic usually need three things: a plain-English explanation of what went wrong, a way to compare their issue against common legal grounds, and a direct path to request a free case review. Solar Freedom focuses on solar contract cancellation, solar loan disputes, solar lien removal, misleading savings claims, company bankruptcy problems, and sales practices involving companies such as Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and related finance providers.</p>
-      <p>If you are reviewing this page because your solar payment is higher than expected, the system underperforms, the installer disappeared, the financing company will not help, or a solar lien is blocking a home sale or refinance, the next step is to gather the contract, financing paperwork, utility bills, sales proposal, text messages, and any production reports. Those documents help determine whether cancellation, balance reduction, lien removal, or another remedy is realistic.</p>
+      ${bodyParagraphs}
+      ${isBlogIndex ? buildBlogIndexContent(blogEntries) : ""}
       <nav aria-label="Related Solar Freedom resources">
         <h2>Related Solar Contract Resources</h2>
         <ul>
@@ -702,12 +737,12 @@ function buildSemanticShellContent(meta, urlPath) {
   </div>`;
 }
 
-function buildShellHtml(meta, jsFile, cssFile, urlPath) {
+function buildShellHtml(meta, jsFile, cssFile, urlPath, blogEntries) {
   const title = escapeHtml(fitMetaTitle(meta.title));
   const desc = escapeHtml(meta.description);
   const canonical = meta.canonical;
   const pageType = classifyPath(urlPath);
-  const semanticContent = buildSemanticShellContent(meta, urlPath);
+  const semanticContent = buildSemanticShellContent(meta, urlPath, blogEntries);
   const schemaBlocks = buildSchemaBlocks(meta, urlPath, pageType);
   return `<!DOCTYPE html>
 <html lang="en">
@@ -798,7 +833,13 @@ async function main() {
     // Use lightweight shell HTML for all non-homepage pages.
     // This keeps each file ~3 KB instead of 381 KB, reducing total dist
     // from 121 MB to under 6 MB so the deployment image builder doesn't time out.
-    const shellHtml = buildShellHtml(meta, jsFile, cssFile, urlPath);
+    const shellHtml = buildShellHtml(
+      meta,
+      jsFile,
+      cssFile,
+      urlPath,
+      allBlogEntries
+    );
 
     // Create directory and write index.html
     const dir = path.resolve(DIST, urlPath.slice(1)); // remove leading /
