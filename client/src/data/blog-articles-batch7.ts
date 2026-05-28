@@ -555,8 +555,8 @@ export const blogArticlesBatch7: BlogPost[] = [
   {
   slug: "cancel-solar-contract-rescission-rights",
   title: "Cancel Solar Contract Rescission: Extended Rights",
-  metaTitle: "Cancel Solar Contract Rescission: Know Your Rights",
-  metaDescription: "Learn how to cancel solar contract rescission with 3-day and extended rights. Trapped in a solar lease? Get a free case review from Solar Freedom today.",
+  metaTitle: "Solar Rescission Rights: Cancel After 3 Days?",
+  metaDescription: "Missed the 3-day window? You may still have extended rescission rights when the notice was defective or the sale was deceptive. See how to cancel. Free review.",
   category: "Legal Rights",
   readTime: "8 min read",
   publishDate: "2026-03-26",

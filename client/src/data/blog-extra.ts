@@ -55,8 +55,8 @@ export const extraBlogPosts: BlogPost[] = [
   {
     slug: 'solar-contract-rescission-rights',
     title: 'Your 3-Day Right to Cancel a Solar Contract: What the Company Will Not Tell You',
-    metaTitle: 'Solar Contract Rescission Rights | 3-Day Cancel Guide',
-    metaDescription: `Need to cancel a solar contract? Learn the 3-day rescission rule, defective notice issues, certified-mail steps, and options after the window closes.`,
+    metaTitle: 'Your 3-Day Right to Cancel a Solar Contract',
+    metaDescription: `Federal law gives you 72 hours to cancel a solar contract signed at home. Learn how to use it, what voids the deadline, and options after it closes. Free review.`,
     category: 'Legal Rights',
     readTime: '7 min read',
     publishDate: 'March 12, 2026',

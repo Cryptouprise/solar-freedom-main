@@ -7,8 +7,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'sunrun-solar-contract-cancellation-2026',
     title: 'Sunrun Solar Contract Cancellation 2026: Your Legal Options',
-    metaTitle: 'Cancel a Sunrun Solar Contract in 2026 | Legal Options',
-    metaDescription: `Stuck in a Sunrun lease or PPA? Learn the 2026 cancellation options, buyout traps, escalator issues, and legal arguments that may help you get out.`,
+    metaTitle: 'How to Cancel a Sunrun Solar Contract in 2026',
+    metaDescription: `Trapped in a Sunrun lease or loan? See the 2026 cancellation options, the buyout traps to avoid, and the legal arguments that get homeowners out. Free review.`,
     category: 'Contract Help',
     readTime: '7 min read',
     publishDate: 'April 19, 2026',
@@ -63,8 +63,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'cancel-sunrun-solar-contract-before-installation',
     title: 'How to Cancel a Sunrun Solar Contract Before Installation: Your Legal Rights',
-    metaTitle: 'Cancel Sunrun Before Installation | 3-Day Rights',
-    metaDescription: `Signed with Sunrun but panels are not installed yet? Learn the cancellation window, certified-mail steps, and legal grounds to avoid a costly buyout.`,
+    metaTitle: 'How to Cancel Sunrun Before Installation',
+    metaDescription: `Panels not installed yet? You can often cancel Sunrun penalty-free. Learn the deadline, the certified-mail steps, and how to dodge a costly buyout. Free review.`,
     category: 'Contract Help',
     readTime: '7 min read',
     publishDate: 'April 19, 2026',
@@ -104,8 +104,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026',
     title: 'Freedom Forever Solar Bankruptcy: What Homeowners Can Do in 2026',
-    metaTitle: 'Freedom Forever Solar Bankruptcy: Homeowner Rights 2026',
-    metaDescription: `Freedom Forever's 2025 bankruptcy voids your warranty, but your solar contract may still be binding. Discover 3 legal options to cancel & protect assets. Free case review.`,
+    metaTitle: 'Freedom Forever Bankruptcy: 3 Ways Out (2026)',
+    metaDescription: `Freedom Forever's bankruptcy voided your warranty — but your loan may still bind you. See 3 legal ways to cancel, cut payments, and protect your home. Free review.`,
     category: 'Solar Companies',
     readTime: '7 min read',
     publishDate: 'April 19, 2026',
@@ -162,8 +162,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'goodleap-solar-loan-cancellation-hidden-fees-2026',
     title: 'GoodLeap Solar Loan Cancellation: Uncovering Hidden Fees in 2026',
-    metaTitle: 'GoodLeap Solar Loan Cancellation Hidden Fees 2026',
-    metaDescription: `GoodLeap's $7,000-$10,500 hidden solar loan fees led to an AG lawsuit & TILA violations. Are you affected? Stop paying! Free case review.`,
+    metaTitle: 'GoodLeap Solar Loan: Hidden Fees & How to Cancel',
+    metaDescription: `GoodLeap buried $7,000-$10,500 in dealer fees in solar loans — now facing an AG lawsuit and TILA claims. See if you can stop paying or cancel. Free review.`,
     category: 'Contract Help',
     readTime: '12 min read',
     publishDate: 'April 19, 2026',
