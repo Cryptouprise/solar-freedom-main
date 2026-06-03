@@ -199,12 +199,12 @@ async function fetchDbBlogSlugs() {
     console.warn("⚠️ DATABASE_URL not set. Skipping dynamic database sitemap generation.");
     return slugs;
   }
+  let connection;
   try {
-    const connection = await mysql.createConnection(process.env.DATABASE_URL);
+    connection = await mysql.createConnection(process.env.DATABASE_URL);
     const [rows] = await connection.execute(
       "SELECT slug FROM `blogPosts` WHERE published = 1"
     );
-    await connection.end();
     for (const row of rows) {
       if (row.slug) {
         slugs.push(row.slug);
@@ -213,6 +213,14 @@ async function fetchDbBlogSlugs() {
     console.log(`ℹ️ Loaded ${slugs.length} dynamic blog slugs from the database.`);
   } catch (error) {
     console.warn("⚠️ Failed to fetch blog slugs from the database:", error.message);
+  } finally {
+    if (connection) {
+      try {
+        await connection.end();
+      } catch (err) {
+        // Ignore connection close errors
+      }
+    }
   }
   return slugs;
 }
