@@ -13,6 +13,8 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import "dotenv/config";
+import mysql from "mysql2/promise";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -190,25 +192,59 @@ ${urls}
 </urlset>`;
 }
 
+// ─── Fetch Database Blogs ─────────────────────────────────────────────────────
+async function fetchDbBlogSlugs() {
+  const slugs = [];
+  if (!process.env.DATABASE_URL) {
+    console.warn("⚠️ DATABASE_URL not set. Skipping dynamic database sitemap generation.");
+    return slugs;
+  }
+  try {
+    const connection = await mysql.createConnection(process.env.DATABASE_URL);
+    const [rows] = await connection.execute(
+      "SELECT slug FROM `blogPosts` WHERE published = 1"
+    );
+    await connection.end();
+    for (const row of rows) {
+      if (row.slug) {
+        slugs.push(row.slug);
+      }
+    }
+    console.log(`ℹ️ Loaded ${slugs.length} dynamic blog slugs from the database.`);
+  } catch (error) {
+    console.warn("⚠️ Failed to fetch blog slugs from the database:", error.message);
+  }
+  return slugs;
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
-const { cityEntries, companyEntries, stateEntries, blogSlugs } = loadData();
-const entries = buildEntries(
-  cityEntries,
-  companyEntries,
-  stateEntries,
-  blogSlugs
-);
-const xml = generateXml(entries);
+async function main() {
+  const { cityEntries, companyEntries, stateEntries, blogSlugs: staticBlogSlugs } = loadData();
+  const dbBlogSlugs = await fetchDbBlogSlugs();
+  
+  // Combine unique static and dynamic blog slugs
+  const allBlogSlugs = Array.from(new Set([...staticBlogSlugs, ...dbBlogSlugs]));
 
-const outPath = path.resolve(ROOT, "client/public/sitemap.xml");
-fs.writeFileSync(outPath, xml, "utf-8");
+  const entries = buildEntries(
+    cityEntries,
+    companyEntries,
+    stateEntries,
+    allBlogSlugs
+  );
+  const xml = generateXml(entries);
 
-console.log(`✅ Generated sitemap.xml with ${entries.length} URLs`);
-console.log(
-  `   Homepage + static: ${entries.length - companyEntries.length - cityEntries.length - stateEntries.length - blogSlugs.length} pages`
-);
-console.log(`   Company pages: ${companyEntries.length}`);
-console.log(`   City pages: ${cityEntries.length}`);
-console.log(`   State law pages: ${stateEntries.length}`);
-console.log(`   Blog articles: ${blogSlugs.length}`);
-console.log(`   Output: ${outPath}`);
+  const outPath = path.resolve(ROOT, "client/public/sitemap.xml");
+  fs.writeFileSync(outPath, xml, "utf-8");
+
+  console.log(`✅ Generated sitemap.xml with ${entries.length} URLs`);
+  console.log(
+    `   Homepage + static: ${entries.length - companyEntries.length - cityEntries.length - stateEntries.length - allBlogSlugs.length} pages`
+  );
+  console.log(`   Company pages: ${companyEntries.length}`);
+  console.log(`   City pages: ${cityEntries.length}`);
+  console.log(`   State law pages: ${stateEntries.length}`);
+  console.log(`   Blog articles: ${allBlogSlugs.length} (Static: ${staticBlogSlugs.length}, Dynamic: ${allBlogSlugs.length - staticBlogSlugs.length})`);
+  console.log(`   Output: ${outPath}`);
+}
+
+main().catch(console.error);
