@@ -31,6 +31,9 @@ const AI_MODELS = [
   { id: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash", group: "Premium" },
   { id: "anthropic/claude-3-haiku", label: "Claude 3 Haiku", group: "Premium" },
   { id: "openai/gpt-4o-mini", label: "GPT-4o Mini", group: "Premium" },
+  { id: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet", group: "Premium" },
+  { id: "openai/gpt-4o", label: "GPT-4o", group: "Premium" },
+  { id: "deepseek/deepseek-r1", label: "DeepSeek R1 (Reasoning)", group: "Premium" },
 ];
 
 const IMAGE_MODELS = [
