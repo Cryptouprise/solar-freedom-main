@@ -284,9 +284,10 @@ export default function BlogStudio() {
   }, [isDirty]);
 
   // ─── Save post ───────────────────────────────────────────────────────────────
-  const handleSave = async () => {
+  const handleSaveWithStatus = async (isPublished: boolean) => {
     if (!selectedPostId || !editor) return;
     try {
+      setPublished(isPublished);
       await updatePost.mutateAsync({
         slug: selectedSlug!,
         title,
@@ -295,14 +296,18 @@ export default function BlogStudio() {
         heroImage,
         excerpt,
         content: editor.getHTML(),
-        published: published ? 1 : 0,
+        published: isPublished ? 1 : 0,
       } as any);
       setIsDirty(false);
       setLastAutosaved(new Date());
-      toast.success("Post saved successfully");
+      toast.success(isPublished ? "Post published successfully" : "Draft saved successfully");
     } catch (err) {
       toast.error("Failed to save post");
     }
+  };
+
+  const handleSave = async () => {
+    await handleSaveWithStatus(published);
   };
 
   // ─── Draft management ────────────────────────────────────────────────────────
@@ -530,21 +535,45 @@ export default function BlogStudio() {
   const autosaveDraft = (drafts as any[]).find((d: any) => d.name === "autosave");
 
   return (
-    <AdminLayout>
+    <AdminLayout
+      headerActions={
+        selectedPostId ? (
+          <div className="flex gap-1.5">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleSaveWithStatus(false)}
+              disabled={updatePost.isPending}
+              className="text-gray-400 hover:text-white px-2 py-1 h-8 text-[11px]"
+            >
+              Save Draft
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => handleSaveWithStatus(true)}
+              disabled={updatePost.isPending}
+              className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-2.5 py-1 h-8 text-[11px]"
+            >
+              Publish
+            </Button>
+          </div>
+        ) : undefined
+      }
+    >
       <div className="flex flex-col h-full min-h-screen bg-[#0D0F14]">
         {/* Top Bar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-[#0D0F14]/90 backdrop-blur sticky top-0 z-20">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 md:px-6 py-3 border-b border-white/10 bg-[#0D0F14]/90 backdrop-blur sticky top-0 z-20">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
             <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-amber-400" />
-              <span className="text-white font-semibold">Blog Studio</span>
+              <FileText className="w-5 h-5 text-amber-400 hidden sm:inline" />
+              <span className="text-white font-semibold hidden sm:inline">Blog Studio</span>
             </div>
             {/* Post selector */}
             <Select
               value={selectedPostId?.toString() || ""}
               onValueChange={(v) => setSelectedPostId(parseInt(v))}
             >
-              <SelectTrigger className="w-72 bg-white/5 border-white/10 text-gray-200 text-sm">
+              <SelectTrigger className="w-full sm:w-72 bg-white/5 border-white/10 text-gray-200 text-sm">
                 <SelectValue placeholder="Select a post to edit..." />
               </SelectTrigger>
               <SelectContent className="bg-[#1a1d24] border-white/10">
@@ -556,22 +585,22 @@ export default function BlogStudio() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-end w-full sm:w-auto">
             {/* Autosave status */}
             {autosaving && (
-              <span className="text-gray-500 text-xs font-mono flex items-center gap-1">
+              <span className="text-gray-500 text-[11px] font-mono flex items-center gap-1">
                 <Loader2 className="w-3 h-3 animate-spin" /> Autosaving...
               </span>
             )}
             {!autosaving && lastAutosaved && (
-              <span className="text-gray-600 text-xs font-mono flex items-center gap-1">
+              <span className="text-gray-600 text-[11px] font-mono flex items-center gap-1">
                 <Clock className="w-3 h-3" /> Saved {lastAutosaved.toLocaleTimeString()}
               </span>
             )}
             {isDirty && !autosaving && (
-              <span className="text-amber-400 text-xs font-mono">● Unsaved changes</span>
+              <span className="text-amber-400 text-[11px] font-mono">● Unsaved</span>
             )}
-            <span className="text-gray-500 text-xs font-mono">{wordCount} words · {readingTime} min read</span>
+            <span className="text-gray-500 text-[11px] font-mono hidden sm:inline">{wordCount} words · {readingTime} min read</span>
             {seoData && <SeoScoreBadge score={Math.min(100, seoData.suggestions.filter(s => s.type === "success").length * 20)} />}
             {/* Drafts button */}
             {selectedSlug && (
@@ -579,30 +608,32 @@ export default function BlogStudio() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowDraftPanel(!showDraftPanel)}
-                className={`border-white/10 text-xs ${showDraftPanel ? "text-amber-400 border-amber-500/50" : "text-gray-400"}`}
+                className={`border-white/10 text-xs px-2 h-8 ${showDraftPanel ? "text-amber-400 border-amber-500/50" : "text-gray-400"}`}
               >
                 <FolderOpen className="w-3.5 h-3.5 mr-1" />
-                Drafts {namedDrafts.length > 0 ? `(${namedDrafts.length})` : ""}
+                <span className="hidden sm:inline">Drafts</span> {namedDrafts.length > 0 ? `(${namedDrafts.length})` : ""}
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPublished(!published)}
-              className={`border-white/10 text-xs ${published ? "text-green-400" : "text-gray-400"}`}
-            >
-              {published ? <Eye className="w-3.5 h-3.5 mr-1" /> : <EyeOff className="w-3.5 h-3.5 mr-1" />}
-              {published ? "Published" : "Draft"}
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={!selectedPostId || updatePost.isPending}
-              className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs"
-            >
-              {updatePost.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1" />}
-              Save
-            </Button>
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPublished(!published)}
+                className={`border-white/10 text-xs h-8 ${published ? "text-green-400" : "text-gray-400"}`}
+              >
+                {published ? <Eye className="w-3.5 h-3.5 mr-1" /> : <EyeOff className="w-3.5 h-3.5 mr-1" />}
+                {published ? "Published" : "Draft"}
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={!selectedPostId || updatePost.isPending}
+                className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs h-8"
+              >
+                {updatePost.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1" />}
+                Save
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -685,9 +716,9 @@ export default function BlogStudio() {
         )}
 
         {/* Main 3-panel layout */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
           {/* Left: Editor */}
-          <div className="flex-1 flex flex-col overflow-y-auto">
+          <div className="flex-1 flex flex-col lg:overflow-y-auto">
             {/* Meta bar (collapsible) */}
             <div className="border-b border-white/10">
               <button
@@ -699,7 +730,7 @@ export default function BlogStudio() {
                 {showMetaPanel ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               {showMetaPanel && (
-                <div className="px-6 pb-4 grid grid-cols-2 gap-4">
+                <div className="px-6 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Title</label>
                     <Input value={title} onChange={e => { setTitle(e.target.value); setIsDirty(true); }}
@@ -721,13 +752,13 @@ export default function BlogStudio() {
                     <Input value={targetKeyword} onChange={e => { setTargetKeyword(e.target.value); setIsDirty(true); }}
                       className="bg-white/5 border-white/10 text-white text-sm" placeholder="e.g. cancel solar contract" />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-1 md:col-span-2">
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Meta Description</label>
                     <Textarea value={metaDescription} onChange={e => { setMetaDescription(e.target.value); setIsDirty(true); }}
                       className="bg-white/5 border-white/10 text-white text-sm resize-none" rows={2} placeholder="SEO description (150-160 chars)" />
                     <span className={`text-xs mt-0.5 ${metaDescription.length > 165 ? "text-red-400" : "text-gray-500"}`}>{metaDescription.length}/165</span>
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-1 md:col-span-2">
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Excerpt</label>
                     <Textarea value={excerpt} onChange={e => { setExcerpt(e.target.value); setIsDirty(true); }}
                       className="bg-white/5 border-white/10 text-white text-sm resize-none" rows={2} placeholder="Short summary for blog cards..." />
@@ -813,7 +844,7 @@ export default function BlogStudio() {
           </div>
 
           {/* Right: Panels */}
-          <div className="w-96 border-l border-white/10 flex flex-col bg-[#0D0F14] overflow-y-auto">
+          <div className="w-full lg:w-96 lg:border-l border-t lg:border-t-0 border-white/10 flex flex-col bg-[#0D0F14] lg:overflow-y-auto">
             {/* Panel tabs */}
             <div className="flex border-b border-white/10 sticky top-0 bg-[#0D0F14] z-10">
               {[
@@ -965,7 +996,7 @@ export default function BlogStudio() {
                 {seoData && (
                   <div className="space-y-3">
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {[
                         { label: "Words", value: seoData.wordCount },
                         { label: "Read", value: `${seoData.readingTime}m` },
