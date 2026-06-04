@@ -57,7 +57,8 @@ from datetime import datetime
 import requests
 
 # ─── Config ───────────────────────────────────────────────────────────────────
-FIRECRAWL_KEY = "fc-a63f9031a349402caf00c3c9f1161d4d"
+# Firecrawl API key must be supplied via the environment — never hard-code secrets.
+FIRECRAWL_KEY = os.environ.get("FIRECRAWL_API_KEY", "")
 FIRECRAWL_URL = "https://api.firecrawl.dev/v1"
 
 # Manus built-in LLM (server-side only — this script runs server-side)
@@ -127,6 +128,12 @@ EXISTING_SLUGS = [
 
 def firecrawl_scrape(url: str) -> str:
     """Scrape a URL and return clean markdown."""
+    if not FIRECRAWL_KEY:
+        print(
+            "  [firecrawl] FIRECRAWL_API_KEY is not set — skipping scrape.",
+            file=sys.stderr,
+        )
+        return ""
     try:
         resp = requests.post(
             f"{FIRECRAWL_URL}/scrape",
