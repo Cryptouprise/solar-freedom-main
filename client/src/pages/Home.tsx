@@ -204,6 +204,34 @@ function MultiStepForm() {
   const stepContent = [
     // Step 0 — paying?
     <div key="s0" className="space-y-4">
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+        <div className="text-amber-400 text-xs font-mono uppercase tracking-wider mb-1">Prefer phone-first?</div>
+        <div className="text-white font-semibold text-sm mb-3">Get a free case review callback now.</div>
+        <form onSubmit={handleQuickCallback} className="space-y-2.5">
+          <input
+            type="text"
+            value={fallbackName}
+            onChange={(e) => setFallbackName(e.target.value)}
+            placeholder="Your name (optional)"
+            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
+          />
+          <input
+            type="tel"
+            value={fallbackPhone}
+            onChange={(e) => setFallbackPhone(e.target.value)}
+            placeholder="Phone number"
+            required
+            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
+          />
+          <button
+            type="submit"
+            disabled={quickCallback.isPending || !fallbackPhone.trim()}
+            className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40"
+          >
+            {quickCallback.isPending ? "REQUESTING..." : "GET MY FREE CASE REVIEW CALL →"}
+          </button>
+        </form>
+      </div>
       <h3 className="font-display text-3xl text-white">ARE YOU CURRENTLY PAYING ON A SOLAR CONTRACT?</h3>
       <div className="grid grid-cols-2 gap-3">
         {["Yes", "No — but I signed one", "Not sure"].map((opt) => (
@@ -241,34 +269,6 @@ function MultiStepForm() {
             {opt}
           </button>
         ))}
-      </div>
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
-        <div className="text-amber-400 text-xs font-mono uppercase tracking-wider mb-1">Not ready for full form?</div>
-        <div className="text-white font-semibold text-sm mb-3">Just want a call back?</div>
-        <form onSubmit={handleQuickCallback} className="space-y-2.5">
-          <input
-            type="text"
-            value={fallbackName}
-            onChange={(e) => setFallbackName(e.target.value)}
-            placeholder="Your name (optional)"
-            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
-          />
-          <input
-            type="tel"
-            value={fallbackPhone}
-            onChange={(e) => setFallbackPhone(e.target.value)}
-            placeholder="Phone number"
-            required
-            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
-          />
-          <button
-            type="submit"
-            disabled={quickCallback.isPending || !fallbackPhone.trim()}
-            className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40"
-          >
-            {quickCallback.isPending ? "REQUESTING..." : "REQUEST A CALL BACK IN 60 SECONDS →"}
-          </button>
-        </form>
       </div>
     </div>,
 
@@ -349,7 +349,7 @@ function MultiStepForm() {
         onClick={() => trackCTAClick("main_form_schedule_consult_step3", "/")}
         className="block text-center text-amber-400 hover:text-amber-300 text-sm font-semibold"
       >
-        Just researching? Schedule a free 15-min consultation instead →
+        Just researching? Get your free case review on a 15-min call →
       </a>
     </div>,
 
@@ -411,6 +411,15 @@ function MultiStepForm() {
           <a href="#" className="text-amber-400 underline">Terms</a>.
         </span>
       </label>
+      <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-4">
+        <div className="text-amber-400 text-[11px] font-mono uppercase tracking-widest mb-2">Why homeowners trust us</div>
+        <div className="grid grid-cols-1 gap-2 text-sm">
+          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> 3,000+ contracts reviewed by consumer protection attorneys</div>
+          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Typical resolution in 30–90 days, depending on case complexity</div>
+          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Free review first — no obligation to hire us</div>
+          <div className="text-gray-400 text-xs pt-1">FAQ: “Can I really cancel my solar contract?” In many cases, yes — legal violations and misrepresentation often create cancellation pathways.</div>
+        </div>
+      </div>
       <button
         type="button"
         onClick={handleSubmit}
@@ -1083,8 +1092,8 @@ export default function Home() {
               </div>
 
               <Reveal delay={0.5}>
-                <button onClick={() => scrollToForm("mid_see_if_i_qualify")} className="btn-amber px-8 py-4 rounded text-base font-bold">
-                  SEE IF I HAVE A CASE →
+                <button onClick={() => scrollToForm("mid_get_free_case_review")} className="btn-amber px-8 py-4 rounded text-base font-bold">
+                  GET MY FREE CASE REVIEW →
                 </button>
               </Reveal>
             </div>

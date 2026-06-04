@@ -6,6 +6,7 @@ interface QuickCallbackFormProps {
   formName: string;
   title: string;
   subtitle?: string;
+  intentTag?: string;
   buttonLabel?: string;
   showName?: boolean;
   showSchedule?: boolean;
@@ -21,6 +22,7 @@ export default function QuickCallbackForm({
   formName,
   title,
   subtitle,
+  intentTag,
   buttonLabel = "Get My Call Back",
   showName = true,
   showSchedule = false,
@@ -62,6 +64,7 @@ export default function QuickCallbackForm({
     await callbackMutation.mutateAsync({
       name: name.trim() || undefined,
       phone: phone.trim(),
+      intent: intentTag,
       formName,
       sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
       sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
