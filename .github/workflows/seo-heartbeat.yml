@@ -43,6 +43,12 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
+      - name: Build internal-link opportunities
+        run: pnpm seo:internal-links
+
+      - name: Verify backlinks
+        run: pnpm seo:backlinks
+
       - name: Build alert summary
         run: pnpm seo:alert-summary
 

@@ -13,6 +13,8 @@
     "seo:audit": "node scripts/seo-agent-audit.mjs",
     "seo:llms": "node scripts/generate-llms.mjs",
     "seo:ctr": "node scripts/seo-ctr-rescue.mjs",
+    "seo:internal-links": "node scripts/seo-internal-links.mjs",
+    "seo:backlinks": "node scripts/seo-backlinks.mjs",
     "seo:agent": "node scripts/seo-growth-agent.mjs",
     "seo:agent:apply": "node scripts/seo-growth-agent.mjs --base https://breakyoursolarcontract.com --apply --verify",
     "seo:indexing": "node scripts/seo-indexing-agent.mjs",

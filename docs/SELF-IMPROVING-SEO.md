@@ -53,12 +53,24 @@ measure ──▶ decide ──▶ draft ──▶ (human approve) ──▶ pub
 - The biggest lever is CTR, not rankings (see `docs/SEO-AUDIT-MAY-2026.md`).
   `pnpm seo:ctr` surfaces page-1 pages with weak CTR and drafts better titles
   and descriptions for one-click human application.
+- The biggest *structural* lever is internal linking. The 301 city pages and 51
+  state-law pages are thin and indexed slowly. `pnpm seo:internal-links` reads
+  the sitemap + GSC and emits a deterministic queue that points the blog posts
+  Google already trusts at the unindexed/under-performing city/state pages,
+  with a suggested anchor for each. Adding those contextual links is the fastest
+  fully-in-our-control way to get the thin pages discovered and ranked.
+- Off-site backlinks (the 34 Medium articles and other placements) are tracked
+  in `references/backlinks.json` and verified by `pnpm seo:backlinks`, which
+  fetches each source and confirms it still deep-links to the intended page
+  (not just the homepage). Add `--no-fetch` to validate the registry offline.
 
 ## Commands
 
 ```bash
 pnpm seo:llms     # regenerate llms.txt + llms-full.txt
 pnpm seo:ctr      # build CTR rescue queue (add --ai to draft copy via OpenRouter)
+pnpm seo:internal-links # queue internal links from authority blog posts to thin city/state pages
+pnpm seo:backlinks      # verify off-site backlinks in references/backlinks.json (add --no-fetch offline)
 pnpm seo:agent    # audit crawler HTML + build action queue
 pnpm seo:indexing # build indexing/refresh queue
 pnpm submit:indexnow
@@ -67,8 +79,8 @@ pnpm submit:indexnow
 ## Automation surface
 
 - **GitHub Actions** (`.github/workflows/seo-heartbeat.yml`) runs daily:
-  audit → indexing queue → CTR rescue → alert summary → open/update one issue.
-  Read-only; never publishes.
+  audit → indexing queue → CTR rescue → internal-link queue → backlink check →
+  alert summary → open/update one issue. Read-only; never publishes.
 - **Heartbeat automations** (`server/scheduled/automationRun.ts` + the
   `automations` tRPC router) run user-defined LLM specs on a cron and log each
   run with cost tracking (`server/cron/aiCostTracker.ts`).
