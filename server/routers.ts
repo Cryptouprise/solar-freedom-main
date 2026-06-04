@@ -126,6 +126,7 @@ export const appRouter = router({
         z.object({
           phone: z.string().min(7),
           name: z.string().optional(),
+          intent: z.string().optional(),
           sourcePage: z.string().optional(),
           sourceUrl: z.string().optional(),
           formName: z.string().optional(),
@@ -141,6 +142,7 @@ export const appRouter = router({
           phone: input.phone,
           email: null,
           formName: input.formName ?? "quick_callback_request",
+          intent: input.intent,
           sourcePage: input.sourcePage ?? "unknown",
           sourceUrl: input.sourceUrl,
           status: "new",
@@ -154,8 +156,14 @@ export const appRouter = router({
           full_name: input.name?.trim() || "Website Visitor",
           source: input.sourcePage ?? "solar-freedom",
           form_name: input.formName ?? "quick_callback_request",
+          intent: input.intent,
           callback_request: "1",
           callback_priority: "high",
+          callback_follow_up_required: "1",
+          callback_follow_up_deadline_minutes: "5",
+          callback_follow_up_reason: input.intent
+            ? `intent:${input.intent}`
+            : "quick_callback_request",
           trigger_sms_confirmation: "1",
           sms_confirmation_message: buildSmsConfirmation(firstName),
         });
