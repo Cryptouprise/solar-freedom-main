@@ -38,6 +38,11 @@ jobs:
       - name: Build indexing queue
         run: pnpm seo:indexing
 
+      - name: Build CTR rescue queue
+        run: pnpm seo:ctr
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
       - name: Build alert summary
         run: pnpm seo:alert-summary
 
