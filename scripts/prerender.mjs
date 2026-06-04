@@ -162,6 +162,86 @@ function collectSlugChunks(content) {
   }));
 }
 
+// ─── FAQ + date extraction for richer structured data ────────────────────────
+// Pull the `faq: [ { q: '...', a: '...' }, ... ]` array out of a single article
+// chunk so it can be emitted as FAQPage JSON-LD (a strong AEO signal).
+function parseFaqItems(chunk) {
+  const faqKey = /\bfaq\s*:/g;
+  const match = faqKey.exec(chunk);
+  if (!match) return [];
+
+  // Find the opening bracket of the faq array.
+  let i = faqKey.lastIndex;
+  while (i < chunk.length && /\s/.test(chunk[i])) i++;
+  if (chunk[i] !== "[") return [];
+
+  // Scan to the matching closing bracket, skipping string literals.
+  let depth = 0;
+  let end = -1;
+  for (let j = i; j < chunk.length; j++) {
+    const ch = chunk[j];
+    if (ch === '"' || ch === "'" || ch === "`") {
+      const literal = readStringLiteralAt(chunk, j);
+      if (literal) {
+        j = literal.end - 1;
+        continue;
+      }
+    }
+    if (ch === "[") depth++;
+    else if (ch === "]") {
+      depth--;
+      if (depth === 0) {
+        end = j;
+        break;
+      }
+    }
+  }
+  if (end === -1) return [];
+
+  const block = chunk.slice(i, end + 1);
+  const items = [];
+  const qKey = /\bq\s*:/g;
+  let qMatch;
+  while ((qMatch = qKey.exec(block)) !== null) {
+    const question = readStringAfterColon(block, qKey.lastIndex);
+    if (!question) continue;
+    const aKey = /\ba\s*:/g;
+    aKey.lastIndex = question.end;
+    const aMatch = aKey.exec(block);
+    if (!aMatch) continue;
+    const answer = readStringAfterColon(block, aKey.lastIndex);
+    if (!answer) continue;
+    const q = question.value.trim();
+    const a = answer.value.trim();
+    if (q && a) items.push({ q, a });
+    qKey.lastIndex = answer.end;
+  }
+  return items;
+}
+
+const MONTH_INDEX = {
+  january: "01", february: "02", march: "03", april: "04",
+  may: "05", june: "06", july: "07", august: "08",
+  september: "09", october: "10", november: "11", december: "12",
+};
+
+// Convert loose `publishDate` strings (e.g. "March 2026", "2026-03-15") into an
+// ISO date for datePublished/dateModified. Returns null when unparseable.
+function toIsoDate(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const monthYear = raw.match(/([A-Za-z]+)\s+(\d{4})/);
+  if (monthYear) {
+    const month = MONTH_INDEX[monthYear[1].toLowerCase()];
+    if (month) return `${monthYear[2]}-${month}-01`;
+  }
+  const yearOnly = raw.match(/^(\d{4})$/);
+  if (yearOnly) return `${yearOnly[1]}-01-01`;
+  return null;
+}
+
 function titleFromSlug(slug) {
   return slug
     .split("-")
@@ -241,9 +321,21 @@ function loadBlogData() {
         description,
         cleanTitle
       );
+      const faq = parseFaqItems(chunk);
+      const publishDate =
+        findStringProp(chunk, "publishDate")?.value ||
+        findStringProp(chunk, "datePublished")?.value ||
+        "";
+      const updatedDate =
+        findStringProp(chunk, "updatedDate")?.value ||
+        findStringProp(chunk, "dateModified")?.value ||
+        "";
       blogEntries[slug] = {
         title: `${cleanTitle} | Solar Freedom`,
         description: cleanDescription,
+        faq,
+        datePublished: toIsoDate(publishDate),
+        dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
       };
     }
   }
@@ -346,6 +438,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
           `Trapped in a solar contract in ${cityLabel}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`
       ),
       canonical: `${BASE_URL}${urlPath}`,
+      geo: { city: city.name, region: city.stateCode || undefined },
     };
   }
 
@@ -368,7 +461,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     const description = state.metaDescription
       ? state.metaDescription
       : `Learn your legal rights under ${state.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`;
-    map[urlPath] = { title, description, canonical: `${BASE_URL}${urlPath}` };
+    map[urlPath] = { title, description, canonical: `${BASE_URL}${urlPath}`, geo: { region: state.state } };
   }
 
   // Blog posts — ALL 100+ posts
@@ -378,6 +471,9 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: data.title,
       description: data.description,
       canonical: `${BASE_URL}${urlPath}`,
+      faq: data.faq,
+      datePublished: data.datePublished,
+      dateModified: data.dateModified,
     };
   }
 
@@ -637,24 +733,37 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
   if (
     pageType === "city_page" ||
     pageType === "company_page" ||
-    pageType === "service_page"
+    pageType === "service_page" ||
+    pageType === "state_law"
   ) {
-    blocks.push({
+    const legalService = {
       "@context": "https://schema.org",
       "@type": "LegalService",
       name: "Solar Freedom",
       url: meta.canonical,
       description: meta.description,
-      areaServed: "United States",
+      areaServed:
+        meta.geo && (meta.geo.city || meta.geo.region)
+          ? {
+              "@type": "Place",
+              address: {
+                "@type": "PostalAddress",
+                ...(meta.geo.city ? { addressLocality: meta.geo.city } : {}),
+                ...(meta.geo.region ? { addressRegion: meta.geo.region } : {}),
+                addressCountry: "US",
+              },
+            }
+          : "United States",
       serviceType:
         pageType === "company_page"
           ? "Solar company contract cancellation"
           : "Solar contract cancellation",
-    });
+    };
+    blocks.push(legalService);
   }
 
   if (pageType === "blog_post") {
-    blocks.push({
+    const article = {
       "@context": "https://schema.org",
       "@type": "Article",
       headline: pageName,
@@ -663,11 +772,33 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
       author: {
         "@type": "Organization",
         name: "Solar Freedom",
+        url: BASE_URL,
       },
       publisher: {
         "@type": "Organization",
         name: "Solar Freedom",
+        url: BASE_URL,
       },
+    };
+    if (meta.datePublished) article.datePublished = meta.datePublished;
+    if (meta.dateModified) article.dateModified = meta.dateModified;
+    blocks.push(article);
+  }
+
+  // FAQPage — strong answer-engine (AEO) signal. Only emitted when the page
+  // ships real question/answer pairs from the blog data.
+  if (Array.isArray(meta.faq) && meta.faq.length > 0) {
+    blocks.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: meta.faq.slice(0, 10).map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
     });
   }
 
