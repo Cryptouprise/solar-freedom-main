@@ -12,6 +12,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_AUDIT = path.resolve(ROOT, "reports/seo-agent/latest-agent-audit.json");
 const DEFAULT_INDEXING = path.resolve(ROOT, "reports/seo-agent/latest-indexing-queue.json");
+const DEFAULT_INTERNAL_LINKS = path.resolve(ROOT, "reports/seo-agent/latest-internal-links.json");
+const DEFAULT_BACKLINKS = path.resolve(ROOT, "reports/seo-agent/latest-backlinks.json");
 const DEFAULT_OUT_MD = path.resolve(ROOT, "reports/seo-agent/GITHUB_ISSUE.md");
 const DEFAULT_OUT_JSON = path.resolve(ROOT, "reports/seo-agent/latest-alert-summary.json");
 
@@ -19,6 +21,8 @@ function parseArgs(argv) {
   const args = {
     audit: DEFAULT_AUDIT,
     indexing: DEFAULT_INDEXING,
+    internalLinks: DEFAULT_INTERNAL_LINKS,
+    backlinks: DEFAULT_BACKLINKS,
     outMd: DEFAULT_OUT_MD,
     outJson: DEFAULT_OUT_JSON,
   };
@@ -28,6 +32,8 @@ function parseArgs(argv) {
     const next = argv[i + 1];
     if (arg === "--audit" && next) args.audit = path.resolve(ROOT, next);
     if (arg === "--indexing" && next) args.indexing = path.resolve(ROOT, next);
+    if (arg === "--internal-links" && next) args.internalLinks = path.resolve(ROOT, next);
+    if (arg === "--backlinks" && next) args.backlinks = path.resolve(ROOT, next);
     if (arg === "--out-md" && next) args.outMd = path.resolve(ROOT, next);
     if (arg === "--out-json" && next) args.outJson = path.resolve(ROOT, next);
   }
@@ -66,12 +72,42 @@ function formatIndexingItems(items = []) {
   }).join("\n");
 }
 
-function buildSummary({ audit, indexing }) {
+function formatInternalLinks(items = []) {
+  if (!items.length) return "- None";
+  return items.slice(0, 10).map((item, index) => {
+    const sources = (item.sources || []).map((s) => `\`${s.path}\``).join(", ") || "no source suggestion";
+    return `${index + 1}. \`${item.target}\` (${item.type}, ${item.indexed ? "indexed" : "unindexed"}) ← ${sources}`;
+  }).join("\n");
+}
+
+function formatBacklinks(items = []) {
+  const flagged = items.filter((r) => ["domain-only", "missing", "unreachable"].includes(r.status));
+  if (!flagged.length) return "- None needing attention";
+  return flagged.slice(0, 10).map((r, index) => {
+    return `${index + 1}. ${r.status} — ${r.url || "(no url)"} → \`${r.target || "(no target)"}\`: ${r.detail}`;
+  }).join("\n");
+}
+
+function buildSummary({ audit, indexing, internalLinks, backlinks }) {
   const pagesWithIssues = Number(audit?.pagesWithIssues || 0);
   const requestIndexingCount = Number(indexing?.summary?.requestIndexing || 0);
   const refreshCount = Number(indexing?.summary?.refresh || 0);
   const indexNowCount = Number(indexing?.summary?.indexNow || 0);
-  const actionRequired = pagesWithIssues > 0 || requestIndexingCount > 0 || refreshCount > 0 || indexNowCount > 0;
+  const internalLinkOpps = Number(internalLinks?.summary?.queued || 0);
+  const unindexedTargets = Number(internalLinks?.summary?.unindexedQueued || 0);
+  const backlinksTotal = Number(backlinks?.summary?.total || 0);
+  const backlinksVerified = Number(backlinks?.summary?.verified || 0);
+  const backlinksBroken =
+    Number(backlinks?.summary?.domainOnly || 0) +
+    Number(backlinks?.summary?.missing || 0) +
+    Number(backlinks?.summary?.unreachable || 0);
+  const actionRequired =
+    pagesWithIssues > 0 ||
+    requestIndexingCount > 0 ||
+    refreshCount > 0 ||
+    indexNowCount > 0 ||
+    internalLinkOpps > 0 ||
+    backlinksBroken > 0;
   const severity = pagesWithIssues > 0 ? "technical_issues" : actionRequired ? "indexing_opportunities" : "clean";
 
   return {
@@ -97,6 +133,19 @@ function buildSummary({ audit, indexing }) {
       requestIndexingItems: indexing?.requestIndexing || [],
       refreshItems: indexing?.refresh || [],
       indexNowItems: indexing?.indexNow || [],
+    },
+    internalLinks: {
+      generatedAt: internalLinks?.generatedAt || null,
+      queued: internalLinkOpps,
+      unindexedQueued: unindexedTargets,
+      items: internalLinks?.queue || [],
+    },
+    backlinks: {
+      generatedAt: backlinks?.generatedAt || null,
+      total: backlinksTotal,
+      verified: backlinksVerified,
+      broken: backlinksBroken,
+      items: backlinks?.results || [],
     },
   };
 }
@@ -144,6 +193,22 @@ Top SERP/content refresh candidates:
 
 ${formatIndexingItems(summary.indexing.refreshItems)}
 
+## Internal-Link Opportunities
+
+- Opportunities queued: ${summary.internalLinks.queued} (unindexed targets: ${summary.internalLinks.unindexedQueued})
+
+Top internal-link opportunities:
+
+${formatInternalLinks(summary.internalLinks.items)}
+
+## Backlinks
+
+- Registered: ${summary.backlinks.total} | Verified: ${summary.backlinks.verified} | Needing attention: ${summary.backlinks.broken}
+
+Backlinks needing attention:
+
+${formatBacklinks(summary.backlinks.items)}
+
 ## What To Do
 
 1. If technical issues are listed, ask Codex to fix the SEO heartbeat issue and open a PR.
@@ -155,6 +220,8 @@ ${formatIndexingItems(summary.indexing.refreshItems)}
 \`\`\`bash
 pnpm seo:agent -- --base https://breakyoursolarcontract.com
 pnpm seo:indexing
+pnpm seo:internal-links
+pnpm seo:backlinks
 pnpm seo:alert-summary
 \`\`\`
 `;
@@ -164,7 +231,9 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const audit = await readJson(args.audit);
   const indexing = await readJson(args.indexing);
-  const summary = buildSummary({ audit, indexing });
+  const internalLinks = await readJson(args.internalLinks);
+  const backlinks = await readJson(args.backlinks);
+  const summary = buildSummary({ audit, indexing, internalLinks, backlinks });
 
   await fs.mkdir(path.dirname(args.outMd), { recursive: true });
   await fs.writeFile(args.outJson, `${JSON.stringify(summary, null, 2)}\n`, "utf-8");
