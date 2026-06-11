@@ -1698,7 +1698,7 @@ export default function Home() {
               <div className="font-display text-white text-lg mb-4">CONTACT</div>
               <div className="space-y-2 text-gray-500 text-sm font-mono">
                 <div>📞 {phoneDisplay}</div>
-                <div>✉ cases@solarfreedom.com</div>
+                <div>✉ <a href="mailto:info@breakyoursolarcontract.com" className="hover:text-amber-400 transition-colors">info@breakyoursolarcontract.com</a></div>
                 <div>⏰ Mon–Fri, 8am–8pm EST</div>
               </div>
             </div>
