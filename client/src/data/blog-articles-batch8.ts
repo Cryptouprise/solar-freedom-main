@@ -129,7 +129,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Service Finance Solar Loan Problems: A Homeowner's Guide to Getting Out",
     metaTitle:
       "Service Finance Solar Loan Problems: A Homeowner's Guide to Getting Out",
-    metaDescription: `Break your solar contract! Uncover legal methods like rescission, fraud claims, and TILA violations to cancel. Avoid 20-year payments. Free case review.`,
+    metaDescription: `Trapped in a 20-year solar contract? 5 legal ways to get out: rescission, fraud claims, TILA violations, bankruptcy protections & more. Free case review.`,
     category: "Loan Problems",
     readTime: "12 min read",
     publishDate: "March 2026",
@@ -623,7 +623,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition",
     metaTitle:
       "Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition",
-    metaDescription: `Blue Raven Solar (SunPower) complaints? Misrepresented savings, aggressive sales, hidden fees costing you thousands? Cancel your contract now. Free case review.`,
+    metaDescription: `Blue Raven Solar (now SunPower) collapsed — leaving homeowners with broken promises & no warranty. Learn how to cancel your contract. Free case review.`,
     category: "Company Complaints",
     readTime: "12 min read",
     publishDate: "March 2026",
