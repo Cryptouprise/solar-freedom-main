@@ -6,7 +6,7 @@
  *   why-it-happens, expanded state law, local FAQ — targeting 800–1200 words per page
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
@@ -79,12 +79,44 @@ function CityForm({ city, state }: { city: string; state: string }) {
     }
   };
 
+  // Build prefilled GHL calendar URL from submitted form data
+  const calendarUrl = useMemo(() => {
+    const CALENDAR_ID = "Glvb9OZtDFHDMiwvHpli";
+    const base = `https://link.myinfinite.ai/widget/booking/${CALENDAR_ID}`;
+    const params = new URLSearchParams();
+    if (form.firstName) params.set("first_name", form.firstName.trim());
+    if (form.lastName) params.set("last_name", form.lastName.trim());
+    if (form.phone) {
+      const digits = form.phone.replace(/\D/g, "");
+      const e164 = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith("1") ? `+${digits}` : form.phone;
+      params.set("phone", e164);
+    }
+    if (form.email) params.set("email", form.email.trim());
+    const qs = params.toString();
+    return qs ? `${base}?${qs}` : base;
+  }, [form.firstName, form.lastName, form.phone, form.email]);
+
   if (submitted) {
     return (
-      <div className="text-center py-10">
-        <div className="text-5xl mb-4">✅</div>
-        <h3 className="font-display text-2xl text-white mb-2">CASE SUBMITTED</h3>
-        <p className="text-gray-400">Our attorneys will review your {city} case within 24 hours.</p>
+      <div className="space-y-5">
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
+          <div className="text-green-400 text-xl mt-0.5">✅</div>
+          <div>
+            <h3 className="font-display text-xl text-white mb-1">CASE SUBMITTED</h3>
+            <p className="text-gray-400 text-sm">Our attorneys will review your {city} case. Want to lock in a time to talk?</p>
+          </div>
+        </div>
+        <div className="rounded-xl overflow-hidden border border-amber-500/20">
+          <iframe
+            src={calendarUrl}
+            width="100%"
+            height="520"
+            frameBorder="0"
+            title="Book your free case review call"
+            className="block"
+          />
+        </div>
+        <p className="text-gray-600 text-xs text-center font-mono">Pick a time that works. Free 15-min case review call.</p>
       </div>
     );
   }

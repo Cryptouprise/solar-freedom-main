@@ -8,6 +8,7 @@ import TopicClusterWidget from '@/components/TopicClusterWidget';
 import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import QuickCallbackForm from '@/components/QuickCallbackForm';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2, Shield, Scale } from 'lucide-react';
+import StickyMobileBar from '@/components/StickyMobileBar';
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement, ReactNode } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
@@ -159,20 +160,32 @@ function renderSection(section: BlogSection, index: number) {
   }
 }
 
-// Inline CTA component — appears every ~4 sections
+// Inline CTA component — appears at midpoint of article
 function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
+  const phoneNumber = "(904) 906-5844";
+  const phoneHref = "tel:+19049065844";
   return (
-    <div className="my-12 rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-800 border border-amber-500/30 p-8 text-center">
-      <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">-- Free Consultation</div>
-      <h3 className="font-black text-white text-2xl mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+    <div className="my-12 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800/80 border border-amber-500/40 p-8">
+      <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">-- No Obligation. No BS.</div>
+      <h3 className="font-black text-white text-2xl mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
         {text}
       </h3>
-      <p className="text-zinc-400 text-sm mb-6 max-w-md mx-auto">{subtext}</p>
-      <Link href="/#form">
-        <span className="inline-block bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest px-8 py-3 rounded-lg text-sm transition-colors cursor-pointer">
-          Get Free Case Review
-        </span>
-      </Link>
+      <p className="text-zinc-400 text-sm mb-6 max-w-lg">{subtext}</p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Link href="/#form" className="flex-1">
+          <span className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest px-6 py-3.5 rounded-lg text-sm transition-colors cursor-pointer w-full">
+            Get Free Case Review →
+          </span>
+        </Link>
+        <a
+          href={phoneHref}
+          className="flex items-center justify-center gap-2 border border-white/20 hover:border-amber-500/60 text-white hover:text-amber-400 font-bold px-6 py-3.5 rounded-lg text-sm transition-colors"
+          onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_inline_cta' })}
+        >
+          📞 Call {phoneNumber}
+        </a>
+      </div>
+      <p className="text-zinc-600 text-xs mt-3 font-mono">Free review. No cost. We've cancelled 3,000+ contracts.</p>
     </div>
   );
 }
@@ -409,6 +422,7 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
         <SchemaInjector schemas={dbSchemas} />
+        <StickyMobileBar />
         {/* NAV */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -505,17 +519,30 @@ export default function BlogPost() {
               </div>
 
               {/* Final CTA */}
-              <div className="mt-16 rounded-2xl bg-amber-500 p-10 text-center relative overflow-hidden">
+              <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
-                <h2 className="font-black text-black uppercase mb-3 relative" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-                  Ready to Escape Your Solar Contract?
-                </h2>
-                <p className="text-black/70 mb-6 relative max-w-lg mx-auto">Our attorneys review your contract for free. No obligation. Results in 48 hours.</p>
-                <Link href="/#form">
-                  <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">
-                    Start My Free Review
-                  </span>
-                </Link>
+                <div className="relative">
+                  <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- No BS. No Obligation.</div>
+                  <h2 className="font-black text-black uppercase mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+                    You've Been Lied To Enough.
+                  </h2>
+                  <p className="text-black/70 mb-6 max-w-lg text-sm">If you're on this page, you already know something is wrong. Let us look at your contract for free and tell you straight — do you have a case or not. Takes 5 minutes.</p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Link href="/#form">
+                      <span className="inline-flex items-center justify-center gap-2 bg-black text-white font-black uppercase tracking-widest px-8 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer">
+                        Get My Free Case Review →
+                      </span>
+                    </Link>
+                    <a
+                      href="tel:+19049065844"
+                      className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
+                      onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_final_cta' })}
+                    >
+                      📞 Call (904) 906-5844
+                    </a>
+                  </div>
+                  <p className="text-black/50 text-xs mt-4 font-mono">3,000+ contracts cancelled. Free review. No obligation.</p>
+                </div>
               </div>
 
               <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
@@ -697,6 +724,7 @@ export default function BlogPost() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <SchemaInjector schemas={schemas} />
+      <StickyMobileBar />
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -779,17 +807,30 @@ export default function BlogPost() {
           </div>
 
           {/* Final CTA */}
-          <div className="mt-16 rounded-2xl bg-amber-500 p-10 text-center relative overflow-hidden">
+          <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
-            <h2 className="font-black text-black uppercase mb-3 relative" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-              {post.ctaText}
-            </h2>
-            <p className="text-black/70 mb-6 relative max-w-lg mx-auto">{post.ctaSubtext}</p>
-            <Link href="/#form">
-              <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">
-                Start My Free Review
-              </span>
-            </Link>
+            <div className="relative">
+              <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- No BS. No Obligation.</div>
+              <h2 className="font-black text-black uppercase mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+                You've Been Lied To Enough.
+              </h2>
+              <p className="text-black/70 mb-6 max-w-lg text-sm">If you're on this page, you already know something is wrong. Let us look at your contract for free and tell you straight — do you have a case or not. Takes 5 minutes.</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/#form">
+                  <span className="inline-flex items-center justify-center gap-2 bg-black text-white font-black uppercase tracking-widest px-8 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer">
+                    Get My Free Case Review →
+                  </span>
+                </Link>
+                <a
+                  href="tel:+19049065844"
+                  className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
+                  onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_final_cta' })}
+                >
+                  📞 Call (904) 906-5844
+                </a>
+              </div>
+              <p className="text-black/50 text-xs mt-4 font-mono">3,000+ contracts cancelled. Free review. No obligation.</p>
+            </div>
           </div>
 
           {/* Share + back */}
