@@ -1679,6 +1679,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── BROWSE ALL CITIES (SEO Internal Linking) ── */}
+      <section className="py-10 border-t border-white/5" style={{ background: "oklch(0.07 0.01 265)" }}>
+        <div className="container">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-display text-2xl text-white">CANCEL YOUR SOLAR CONTRACT — FIND YOUR CITY</h2>
+            <Link href="/sitemap" className="text-amber-500 text-sm hover:text-amber-400 transition-colors font-mono uppercase tracking-wider">Full Site Map →</Link>
+          </div>
+          <p className="text-gray-500 text-sm mb-6">We help homeowners in every major U.S. city escape predatory solar contracts. Click your city for state-specific legal options and a free case review.</p>
+          {(() => {
+            // Group cities by state for SEO-optimized internal linking
+            const stateMap: Record<string, typeof CITIES> = {};
+            for (const c of CITIES) {
+              if (!stateMap[c.state]) stateMap[c.state] = [];
+              stateMap[c.state].push(c);
+            }
+            const states = Object.keys(stateMap).sort();
+            return (
+              <div className="space-y-4">
+                {states.map((state) => (
+                  <div key={state}>
+                    <div className="text-gray-600 text-xs font-mono uppercase tracking-wider mb-2">{state}</div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                      {stateMap[state].map((city) => (
+                        <Link
+                          key={city.slug}
+                          href={`/cancel-solar-contract/${city.slug}`}
+                          className="text-gray-500 hover:text-amber-400 transition-colors text-xs"
+                        >
+                          {city.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+          <div className="mt-8 pt-6 border-t border-white/5 flex flex-wrap gap-4 text-xs">
+            <Link href="/sitemap" className="text-gray-600 hover:text-amber-400 transition-colors">Site Map</Link>
+            <Link href="/solar-contract-laws" className="text-gray-600 hover:text-amber-400 transition-colors">State Laws</Link>
+            <Link href="/solar-companies" className="text-gray-600 hover:text-amber-400 transition-colors">Solar Companies</Link>
+            <Link href="/blog" className="text-gray-600 hover:text-amber-400 transition-colors">Blog</Link>
+            <Link href="/how-it-works" className="text-gray-600 hover:text-amber-400 transition-colors">How It Works</Link>
+            <Link href="/media" className="text-gray-600 hover:text-amber-400 transition-colors">Watch & Listen</Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── FOOTER ── */}
       <footer className="border-t border-white/8 py-12" style={{ background: "oklch(0.09 0.01 265)" }}>
         <div className="container">

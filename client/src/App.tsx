@@ -38,6 +38,7 @@ const Yt2Landing = lazy(() => import("@/pages/Yt2Landing"));
 const Yt3Landing = lazy(() => import("@/pages/Yt3Landing"));
 const AutomationBuilder = lazy(() => import("@/pages/admin/AutomationBuilder"));
 const MediaHub = lazy(() => import("@/pages/MediaHub"));
+const SitemapPage = lazy(() => import("@/pages/SitemapPage"));
 const SolarCompanyHub = lazy(() => import("@/pages/SolarCompanyHub"));
 const SunrunPage = lazy(() => import("@/pages/SunrunPage"));
 
@@ -110,6 +111,7 @@ function Router() {
           <Route path={"/yt3"} component={Yt3Landing} />
           <Route path={"/media"} component={MediaHub} />
           <Route path={"/watch"} component={MediaHub} />
+          <Route path={"/sitemap"} component={SitemapPage} />
           <Route path={"/login"} component={Login} />
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />

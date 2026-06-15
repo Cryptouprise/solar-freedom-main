@@ -123,6 +123,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     { path: "/solar-companies", priority: "0.8", changefreq: "monthly" },
     { path: "/sunrun", priority: "0.9", changefreq: "monthly" },
     { path: "/media", priority: "0.9", changefreq: "weekly" },
+    { path: "/sitemap", priority: "0.8", changefreq: "weekly" },
   ];
   for (const p of staticPages) {
     entries.push({

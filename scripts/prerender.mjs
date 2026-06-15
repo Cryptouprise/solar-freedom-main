@@ -544,6 +544,11 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: "Solar Contract Truth Hub \u2014 Watch & Listen | Solar Freedom",
       desc: "Watch solar contract videos and the Elite Solar Recovery Podcast. Real Sunrun, SunPower, GoodLeap, and Pink Energy cases. Free case audit.",
     },
+    {
+      path: "/sitemap",
+      title: "Site Map — All Pages | Break Your Solar Contract",
+      desc: "Complete directory of all pages on breakyoursolarcontract.com — 300 city pages, 13 company pages, 51 state law pages, and 95+ blog articles about solar contract cancellation.",
+    },
   ];
   for (const p of staticPages) {
     map[p.path] = {
