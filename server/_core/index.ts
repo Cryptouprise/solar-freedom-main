@@ -55,6 +55,21 @@ async function startServer() {
     res.redirect(301, '/selling-house-with-solar');
   });
 
+  // ─── Blog slug redirects — short/old slugs → canonical long slugs ────────────
+  // These URLs were crawled by Google but have no content, causing them to return
+  // the homepage canonical (duplicate content signal). 301 redirects fix this.
+  const BLOG_SLUG_REDIRECTS: Record<string, string> = {
+    '/blog/freedom-forever-solar-bankruptcy': '/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026',
+    '/blog/how-to-cancel-sunnova-solar-contract': '/blog/how-to-cancel-sunnova-solar-contract-2026',
+    '/blog/solar-contract-escalator-clause-what-it-means': '/blog/solar-contract-escalator-clause-explained-how-to-fight-it',
+    '/blog/solar-panel-scam-signs-what-to-do': '/blog/solar-panel-scam-signs-and-solutions',
+    '/blog/solar-contract-red-flags-and-scams': '/blog/solar-contract-red-flags',
+    '/blog/solar-lease-vs-loan-vs-ppa': '/blog/solar-loan-vs-lease-problems',
+  };
+  for (const [from, to] of Object.entries(BLOG_SLUG_REDIRECTS)) {
+    app.get(from, (_req, res) => res.redirect(301, to));
+  }
+
   // IndexNow key verification file for Bing/Yandex URL submission
   app.get('/bysolarcontract2026.txt', (_req, res) => {
     res.setHeader('Content-Type', 'text/plain');

@@ -60,7 +60,7 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
     slug: 'how-to-get-out-of-a-solar-contract',
     title: 'How to Get Out of a Solar Contract (Step-by-Step Guide)',
     metaTitle: 'How to Get Out of a Solar Contract (Step-by-Step Guide)',
-    metaDescription: `Break your solar contract! Uncover legal methods like rescission, fraud claims, and TILA violations to cancel. Avoid 20-year payments. Free case review.`,
+    metaDescription: `Stuck in a solar contract? Attorneys are canceling them every day using rescission, fraud claims & TILA violations. Step-by-step guide + free case review.`,
     category: 'Legal Guide',
     readTime: '9 min read',
     publishDate: 'March 2026',
