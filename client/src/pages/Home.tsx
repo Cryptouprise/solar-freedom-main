@@ -1761,7 +1761,7 @@ export default function Home() {
           </div>
           <div className="border-t border-white/6 pt-8">
             <p className="text-gray-600 text-xs leading-relaxed font-mono max-w-4xl">
-              <strong className="text-gray-500">DISCLAIMER:</strong> Results vary by case. Past results do not guarantee future outcomes. This website is attorney advertising. Consultation does not create an attorney-client relationship until a formal engagement agreement is signed. Solar Freedom is a trade name of [Law Firm Name], licensed in all 50 states. © {new Date().getFullYear()} Solar Freedom. All rights reserved.
+              <strong className="text-gray-500">DISCLAIMER:</strong> Results vary by case. Past results do not guarantee future outcomes. This website is attorney advertising. Consultation does not create an attorney-client relationship until a formal engagement agreement is signed. Solar Freedom is a legal intake and referral service that works with licensed consumer protection attorneys in your state. [VERIFY: insert partner firm name and actual licensed jurisdictions before publishing.] © {new Date().getFullYear()} Solar Freedom. All rights reserved.
             </p>
           </div>
         </div>
