@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   CONTACT_CONSENT_VERSION,
+  MARKETING_CONSENT_VERSION,
   isBotSubmission,
   normalizeUsPhone,
   validateContactConsent,
+  validateMarketingConsent,
 } from "./leadConsent";
 
 describe("lead contact policy", () => {
@@ -27,7 +29,25 @@ describe("lead contact policy", () => {
     expect(() => validateContactConsent({
       contactConsent: false,
       smsConsent: true,
-    })).toThrow(/requires contact consent/);
+    })).toThrow(/Contact consent is required/);
+    expect(() => validateContactConsent({
+      contactConsent: false,
+      smsConsent: false,
+    })).toThrow(/Contact consent is required/);
+  });
+
+  it("requires current marketing consent before accepting an email address", () => {
+    expect(() => validateMarketingConsent({
+      marketingConsent: true,
+      consentVersion: MARKETING_CONSENT_VERSION,
+    })).not.toThrow();
+    expect(() => validateMarketingConsent({
+      marketingConsent: false,
+    })).toThrow(/Marketing consent is required/);
+    expect(() => validateMarketingConsent({
+      marketingConsent: true,
+      consentVersion: "old-copy",
+    })).toThrow(/out of date/);
   });
 
   it("treats a filled hidden website field as a bot signal", () => {

@@ -132,6 +132,22 @@ describe("leads.submit", () => {
     expect(markLeadGhlSent).toHaveBeenCalledWith(42);
   });
 
+  it("rejects personal information when required contact consent is absent", async () => {
+    const caller = createCaller(makePublicCtx());
+
+    await expect(caller.leads.submit({
+      firstName: "No",
+      lastName: "Consent",
+      email: "no-consent@example.com",
+      phone: "5551234567",
+      contactConsent: false,
+      smsConsent: false,
+    })).rejects.toThrow(/Contact consent is required/);
+
+    expect(insertLead).not.toHaveBeenCalled();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
   it("keeps a delivered lead successful when the delivery marker update fails", async () => {
     vi.mocked(markLeadGhlSent).mockRejectedValueOnce(new Error("database marker failure"));
     const caller = createCaller(makePublicCtx());
@@ -235,24 +251,6 @@ describe("leads.submit", () => {
     ).rejects.toThrow();
   });
 
-  it("persists an unconsented request locally but never forwards it", async () => {
-    const caller = createCaller(makePublicCtx());
-    const result = await caller.leads.submit({
-      firstName: "Local",
-      lastName: "Only",
-      email: "local-only@example.com",
-      phone: "9049214971",
-    });
-
-    expect(result).toMatchObject({
-      success: true,
-      persisted: true,
-      crmSent: false,
-      crmPending: false,
-    });
-    expect(global.fetch).not.toHaveBeenCalled();
-    expect(markLeadGhlSent).not.toHaveBeenCalled();
-  });
 });
 
 describe("leads.list", () => {
@@ -386,6 +384,18 @@ describe("exitIntent.capture", () => {
       crmPending: false,
       captureId: null,
     });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects an email address when required marketing consent is absent", async () => {
+    const caller = createCaller(makePublicCtx());
+
+    await expect(caller.exitIntent.capture({
+      email: "no-consent@example.com",
+      marketingConsent: false,
+    })).rejects.toThrow(/Marketing consent is required/);
+
+    expect(insertExitIntentCapture).not.toHaveBeenCalled();
     expect(global.fetch).not.toHaveBeenCalled();
   });
 

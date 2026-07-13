@@ -114,7 +114,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Organize company agreement records and locate official consumer resources. Company-specific claims remain withheld until source-reviewed.",
     },
     "/media": {
-      title: "Solar Contract Truth Hub — Watch & Listen | Solar Freedom",
+      title: "Solar Contract Record Review Hub — Watch & Listen | Solar Freedom",
       description:
         "Watch solar agreement explainers and podcast discussions covering educational scenarios, records to gather, and questions to investigate.",
     },

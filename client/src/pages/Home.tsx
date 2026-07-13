@@ -732,7 +732,7 @@ function MultiStepForm() {
 }
 
 // ─── AI Chat Widget ────────────────────────────────────────────────────────────
-type Message = { role: "user" | "ai"; text: string };
+type Message = { role: "user" | "guide"; text: string };
 
 const QUICK_REPLIES = [
   "Can I really cancel my solar contract?",
@@ -741,7 +741,7 @@ const QUICK_REPLIES = [
   "What if my company went bankrupt?",
 ];
 
-const AI_RESPONSES: Record<string, string> = {
+const PRESET_RESPONSES: Record<string, string> = {
   default:
     "Every solar contract is different. Gather the signed agreement, financing documents, disclosures, proposals, bills, installation records, and communications before requesting an individual review.",
   cancel:
@@ -752,46 +752,45 @@ const AI_RESPONSES: Record<string, string> = {
     "A company's bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually.",
 };
 
-function getAIResponse(msg: string): string {
+function getPresetResponse(msg: string): string {
   const lower = msg.toLowerCase();
   if (
     lower.includes("cancel") ||
     lower.includes("get out") ||
     lower.includes("really")
   )
-    return AI_RESPONSES.cancel;
+    return PRESET_RESPONSES.cancel;
   if (
     lower.includes("long") ||
     lower.includes("time") ||
     lower.includes("fast")
   )
-    return AI_RESPONSES.long;
+    return PRESET_RESPONSES.long;
   if (
     lower.includes("cost") ||
     lower.includes("price") ||
     lower.includes("fee") ||
     lower.includes("money")
   )
-    return AI_RESPONSES.cost;
+    return PRESET_RESPONSES.cost;
   if (
     lower.includes("bankrupt") ||
     lower.includes("went out") ||
     lower.includes("closed")
   )
-    return AI_RESPONSES.bankrupt;
-  return AI_RESPONSES.default;
+    return PRESET_RESPONSES.bankrupt;
+  return PRESET_RESPONSES.default;
 }
 
-function AIChatWidget() {
+function GuidedInfoWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
-      role: "ai",
-      text: "Hi! I'm the Solar Freedom information assistant. I can help organize contract questions, records to gather, and public resources to check. I cannot determine legal rights or promise an outcome. What's on your mind?",
+      role: "guide",
+      text: "This preset information helper can organize common contract questions, records to gather, and public resources to check. It is not an AI or human review and cannot determine legal rights or promise an outcome.",
     },
   ]);
   const [input, setInput] = useState("");
-  const [typing, setTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -800,16 +799,12 @@ function AIChatWidget() {
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;
-    setMessages(m => [...m, { role: "user", text }]);
+    setMessages(m => [
+      ...m,
+      { role: "user", text },
+      { role: "guide", text: getPresetResponse(text) },
+    ]);
     setInput("");
-    setTyping(true);
-    setTimeout(
-      () => {
-        setMessages(m => [...m, { role: "ai", text: getAIResponse(text) }]);
-        setTyping(false);
-      },
-      1200 + Math.random() * 600
-    );
   };
 
   return (
@@ -849,11 +844,11 @@ function AIChatWidget() {
               </div>
               <div>
                 <div className="text-black font-bold text-sm">
-                  Solar Freedom AI
+                  Guided information helper
                 </div>
                 <div className="text-black/60 text-xs flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
-                  Online — typically replies instantly
+                  Preset educational responses
                 </div>
               </div>
             </div>
@@ -895,26 +890,6 @@ function AIChatWidget() {
                 </div>
               </div>
             ))}
-            {typing && (
-              <div className="flex justify-start">
-                <div className="bg-white/8 border border-white/8 px-4 py-3 rounded-xl rounded-bl-sm">
-                  <div className="flex gap-1">
-                    {[0, 1, 2].map(i => (
-                      <motion.div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-amber-400"
-                        animate={{ y: [0, -4, 0] }}
-                        transition={{
-                          duration: 0.6,
-                          repeat: Infinity,
-                          delay: i * 0.15,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -941,7 +916,7 @@ function AIChatWidget() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && sendMessage(input)}
-                placeholder="Ask anything about your contract..."
+                placeholder="Enter a common contract question..."
                 className="flex-1 px-3.5 py-3 bg-transparent text-white text-sm placeholder-gray-600 focus:outline-none"
               />
               <button

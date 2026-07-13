@@ -123,12 +123,12 @@ export default function Blog() {
             Educational solar-contract guides, document checklists, and official resources. Verify current law and seek qualified advice before acting.
           </p>
 
-          {/* Stats bar */}
+          {/* Publication status bar */}
           <div className="flex flex-wrap gap-8 mt-10 pt-10 border-t border-white/10">
             {[
-              { icon: <TrendingUp className="w-4 h-4" />, value: `${allPosts.length} Articles`, label: 'Published' },
-              { icon: <BookOpen className="w-4 h-4" />, value: '118+ Cities', label: 'Covered' },
-              { icon: <Clock className="w-4 h-4" />, value: '7–11 min', label: 'Average Read' },
+              { icon: <TrendingUp className="w-4 h-4" />, value: `${allPosts.length}`, label: 'Publication-eligible articles' },
+              { icon: <BookOpen className="w-4 h-4" />, value: 'Sources required', label: 'Before publication' },
+              { icon: <Clock className="w-4 h-4" />, value: 'Named review required', label: 'Before publication' },
             ].map((s, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="text-amber-500">{s.icon}</div>
@@ -315,7 +315,7 @@ export default function Blog() {
           <div className="rounded-2xl bg-amber-500 p-10 md:p-14 text-center relative overflow-hidden">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
             <h2 className="font-black text-black uppercase mb-4 relative" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-              Ready to Find Out If You Can Cancel?
+              Ready to Review Your Agreement?
             </h2>
             <p className="text-black/70 text-lg mb-8 max-w-xl mx-auto relative">
               Request an individual review. No result, timeline, or representation is guaranteed.

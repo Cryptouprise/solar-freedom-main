@@ -70,13 +70,13 @@ const VIDEOS = [
   {
     id: "s6V76pijGKI",
     type: "explainer" as const,
-    title: "ESCAPING THE SOLAR TRAP",
-    subtitle: "Full Explainer — How Solar Contracts Work & How to Get Out",
+    title: "SOLAR AGREEMENT RECORD REVIEW",
+    subtitle: "Full Explainer — Agreement Types, Records & Questions to Review",
     description: "An educational overview of solar agreement types, records to gather, federal consumer resources, and questions that may require an individual review. Options depend on the documents, facts, and current law.",
     uploadDate: undefined as string | undefined,
     thumbnailUrl: `https://img.youtube.com/vi/s6V76pijGKI/maxresdefault.jpg`,
     duration: "~10 min",
-    tags: ["Solar Contract Cancellation", "Solar Fraud", "FTC Cooling-Off Rule", "TILA", "Solar Lease"],
+    tags: ["Solar Agreement Records", "FTC Cooling-Off Rule", "TILA", "Solar Lease"],
   },
   {
     id: "l0A3I_CvI0c",
@@ -87,7 +87,7 @@ const VIDEOS = [
     uploadDate: undefined as string | undefined,
     thumbnailUrl: `https://img.youtube.com/vi/l0A3I_CvI0c/maxresdefault.jpg`,
     duration: "~25 min",
-    tags: ["Solar Podcast", "Solar Contract Help", "Sunrun Cancellation", "GoodLeap Loan Reduction", "Pink Energy Bankruptcy"],
+    tags: ["Solar Podcast", "Solar Agreement Records", "Company Status", "Financing Records", "Document Review"],
   },
 ];
 
@@ -268,7 +268,7 @@ export default function MediaHub() {
             <h1 className="font-display text-white leading-none mb-4" style={{ fontSize: "clamp(3rem, 8vw, 6rem)" }}>
               SOLAR CONTRACT<br />
               <span style={{ background: "linear-gradient(90deg, oklch(0.85 0.19 50), oklch(0.72 0.19 50))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                TRUTH HUB
+                RECORD REVIEW HUB
               </span>
             </h1>
             <p className="text-gray-300 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
@@ -319,8 +319,8 @@ export default function MediaHub() {
                 ▶ EXPLAINER VIDEOS
               </div>
               <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-                UNDERSTAND YOUR RIGHTS.<br />
-                <span style={{ color: "oklch(0.85 0.19 50)" }}>THEN TAKE ACTION.</span>
+                REVIEW THE RECORDS.<br />
+                <span style={{ color: "oklch(0.85 0.19 50)" }}>IDENTIFY THE QUESTIONS.</span>
               </h2>
             </div>
           </Reveal>
@@ -359,13 +359,10 @@ export default function MediaHub() {
           {/* Subscribe links */}
           <Reveal delay={0.2}>
             <div className="mt-10 p-6 rounded-xl border border-white/10" style={{ background: "oklch(0.13 0.012 265)" }}>
-              <p className="text-gray-400 text-sm font-mono uppercase tracking-wider mb-3">SUBSCRIBE & FOLLOW</p>
+              <p className="text-gray-400 text-sm font-mono uppercase tracking-wider mb-3">VIDEO SOURCE CHANNEL</p>
               <div className="flex flex-wrap gap-3">
                 {[
-                  { label: "YouTube", href: "https://www.youtube.com/@SolarFreedom", color: "oklch(0.55 0.22 25)" },
-                  { label: "Spotify", href: "https://open.spotify.com", color: "oklch(0.65 0.18 145)" },
-                  { label: "Apple Podcasts", href: "https://podcasts.apple.com", color: "oklch(0.60 0.18 280)" },
-                  { label: "cancelyoursolar.co", href: "https://cancelyoursolar.co", color: "oklch(0.72 0.19 50)" },
+                  { label: "YouTube", href: "https://www.youtube.com/@BossAIBiz", color: "oklch(0.55 0.22 25)" },
                 ].map((link) => (
                   <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
                     className="px-4 py-2 rounded text-sm font-bold transition-all hover:scale-105"
@@ -386,12 +383,12 @@ export default function MediaHub() {
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-4"
                 style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
-                THE THREE OUTCOMES
+                THREE REVIEW AREAS
               </div>
               <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-                WHAT YOU COULD<br />
+                WHAT TO ORGANIZE<br />
                 <span style={{ background: "linear-gradient(90deg, oklch(0.85 0.19 50), oklch(0.72 0.19 50))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  WALK AWAY WITH
+                  BEFORE CHOOSING A PATH
                 </span>
               </h2>
             </div>
@@ -444,7 +441,7 @@ export default function MediaHub() {
         <div className="container max-w-6xl">
           <Reveal>
             <h2 className="font-display text-white mb-12 text-center" style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)" }}>
-              EVERYTHING YOU NEED TO KNOW
+              EXPLORE PUBLIC RESOURCES
             </h2>
           </Reveal>
 
@@ -544,25 +541,6 @@ export default function MediaHub() {
             </Reveal>
           </div>
 
-          {/* Both domains */}
-          <Reveal delay={0.4}>
-            <div className="mt-16 p-6 rounded-xl border border-white/10 text-center" style={{ background: "oklch(0.13 0.012 265)" }}>
-              <p className="text-gray-400 text-sm font-mono uppercase tracking-wider mb-3">FIND US AT BOTH DOMAINS</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://breakyoursolarcontract.com" target="_blank" rel="noopener noreferrer"
-                  className="font-display text-xl hover:text-amber-300 transition-colors"
-                  style={{ color: "oklch(0.85 0.19 50)" }}>
-                  breakyoursolarcontract.com
-                </a>
-                <span className="text-gray-600 hidden sm:block">|</span>
-                <a href="https://cancelyoursolar.co" target="_blank" rel="noopener noreferrer"
-                  className="font-display text-xl hover:text-amber-300 transition-colors"
-                  style={{ color: "oklch(0.85 0.19 50)" }}>
-                  cancelyoursolar.co
-                </a>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </section>
 

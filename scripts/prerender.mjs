@@ -724,7 +724,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     },
     {
       path: "/media",
-      title: "Solar Contract Truth Hub \u2014 Watch & Listen | Solar Freedom",
+      title: "Solar Contract Record Review Hub \u2014 Watch & Listen | Solar Freedom",
       desc: "Watch solar agreement explainers and podcast discussions covering educational scenarios, records to gather, and questions to investigate.",
     },
     {

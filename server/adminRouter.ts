@@ -56,10 +56,12 @@ import { evaluateAdminAutomationRequest } from "./automationPolicy";
 import { rateLimit } from "express-rate-limit";
 import { logSafeError } from "./_core/safeLog";
 import {
+  getBlogEditorialReviewIssues,
   isValidEditorialPrimarySource,
   parseEditorialDate,
   parseEditorialPrimarySources,
 } from "../shared/blogEditorialReview";
+import { normalizePagePath } from "./seo-delivery";
 
 const router = Router();
 
@@ -114,10 +116,50 @@ type EditorialWriteFields = Partial<Pick<InsertBlogPost,
   | "editorialFunnelOnlyDuplicate"
 >>;
 
+const CANONICAL_SITE_ORIGIN = "https://breakyoursolarcontract.com";
+const CANONICAL_SITE_HOSTS = new Set([
+  "breakyoursolarcontract.com",
+  "www.breakyoursolarcontract.com",
+]);
+const EDITORIAL_REVIEW_INPUT_FIELDS = [
+  "editorialReviewerName",
+  "editorialReviewerRole",
+  "editorialReviewedAt",
+  "editorialPrimarySources",
+  "editorialUniqueValueSummary",
+  "editorialFunnelOnlyDuplicate",
+] as const;
+const BLOG_POST_SCALAR_MUTABLE_FIELDS = [
+  "title",
+  "metaTitle",
+  "metaDescription",
+  "heroImage",
+  "category",
+  "excerpt",
+  "readTime",
+] as const;
+const BLOG_POST_JSON_MUTABLE_FIELDS = ["tags", "relatedSlugs", "faqItems"] as const;
+const PUBLISHED_POST_MATERIAL_FIELDS = [
+  ...BLOG_POST_SCALAR_MUTABLE_FIELDS,
+  ...BLOG_POST_JSON_MUTABLE_FIELDS,
+  "content",
+  "canonicalUrl",
+  ...EDITORIAL_REVIEW_INPUT_FIELDS,
+] as const;
+
 class AdminBlogInputError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "AdminBlogInputError";
+  }
+}
+
+export class AdminBlogMutationPolicyError extends Error {
+  readonly statusCode = 403;
+
+  constructor() {
+    super("Editing published post content requires 'posts:publish' and a renewed editorial review");
+    this.name = "AdminBlogMutationPolicyError";
   }
 }
 
@@ -139,7 +181,10 @@ function normalizeNullableString(
   return normalized;
 }
 
-function normalizeEditorialReviewFields(body: Record<string, unknown>): EditorialWriteFields {
+function normalizeEditorialReviewFields(
+  body: Record<string, unknown>,
+  now = new Date(),
+): EditorialWriteFields {
   const fields: EditorialWriteFields = {};
 
   if (hasOwn(body, "editorialReviewerName")) {
@@ -172,7 +217,7 @@ function normalizeEditorialReviewFields(body: Record<string, unknown>): Editoria
       fields.editorialPrimarySources = null;
     } else {
       const sources = parseEditorialPrimarySources(body.editorialPrimarySources);
-      if (!sources || sources.some(source => !isValidEditorialPrimarySource(source))) {
+      if (!sources || sources.some(source => !isValidEditorialPrimarySource(source, now))) {
         throw new AdminBlogInputError(
           "editorialPrimarySources must be a JSON array of valid HTTPS sources with title and accessedAt",
         );
@@ -197,7 +242,105 @@ function normalizeEditorialReviewFields(body: Record<string, unknown>): Editoria
   return fields;
 }
 
+/**
+ * Canonicals are either self-canonical (`null`) or canonical-site URLs. The
+ * existing page-path normalizer rejects traversal, malformed escapes, and
+ * ambiguous paths; the legacy `www` host is allowlisted only so it can be
+ * collapsed onto the single production origin.
+ */
+export function normalizeAdminCanonicalUrl(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== "string") {
+    throw new AdminBlogInputError("canonicalUrl must be a string or null");
+  }
+
+  const candidate = value.trim();
+  if (!candidate) return null;
+  const rootRelative = candidate.startsWith("/") && !candidate.startsWith("//");
+  if (!rootRelative && !/^[a-z][a-z0-9+.-]*:/i.test(candidate)) {
+    throw new AdminBlogInputError("canonicalUrl must be root-relative or an allowlisted HTTPS URL");
+  }
+  if (
+    /(?:^|\/)(?:\.|%2e){1,2}(?:\/|$)/i.test(candidate)
+    || /(?:\\|%5c)/i.test(candidate)
+  ) {
+    throw new AdminBlogInputError("canonicalUrl contains an invalid page path");
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(candidate, `${CANONICAL_SITE_ORIGIN}/`);
+  } catch {
+    throw new AdminBlogInputError("canonicalUrl must be a valid URL");
+  }
+
+  if (
+    parsed.protocol !== "https:"
+    || !CANONICAL_SITE_HOSTS.has(parsed.hostname.toLowerCase())
+    || parsed.username
+    || parsed.password
+    || parsed.search
+    || parsed.hash
+  ) {
+    throw new AdminBlogInputError(
+      "canonicalUrl must use the allowlisted HTTPS site origin without credentials, query, or fragment",
+    );
+  }
+
+  const normalizedPath = normalizePagePath(parsed.pathname);
+  if (!normalizedPath) {
+    throw new AdminBlogInputError("canonicalUrl contains an invalid page path");
+  }
+  const normalized = new URL(normalizedPath, `${CANONICAL_SITE_ORIGIN}/`).toString();
+  if (normalized.length > 500) {
+    throw new AdminBlogInputError("canonicalUrl must be at most 500 characters");
+  }
+  return normalized;
+}
+
+/**
+ * A write-only key can draft content and can quarantine a live post by sending
+ * only `published: false`. Any material mutation of an already-published row
+ * is a publication decision: it requires `posts:publish` and a complete review
+ * snapshot whose timestamp is newer than the stored review.
+ */
+export function authorizePublishedPostMutation(
+  existing: { published: unknown; editorialReviewedAt: unknown },
+  body: Record<string, unknown>,
+  canPublish: boolean,
+  now = new Date(),
+): EditorialWriteFields {
+  const materiallyChangesPublishedPost = existing.published === 1
+    && PUBLISHED_POST_MATERIAL_FIELDS.some(field => hasOwn(body, field));
+
+  if (materiallyChangesPublishedPost && !canPublish) {
+    throw new AdminBlogMutationPolicyError();
+  }
+  const editorialFields = normalizeEditorialReviewFields(body, now);
+  if (!materiallyChangesPublishedPost) return editorialFields;
+
+  const issues = getBlogEditorialReviewIssues(editorialFields, now);
+  if (!EDITORIAL_REVIEW_INPUT_FIELDS.every(field => hasOwn(body, field))) {
+    issues.unshift("editorial_review_snapshot_required");
+  }
+
+  const renewedAt = parseEditorialDate(editorialFields.editorialReviewedAt);
+  const previousReviewedAt = parseEditorialDate(existing.editorialReviewedAt);
+  if (!renewedAt || (previousReviewedAt && renewedAt.getTime() <= previousReviewedAt.getTime())) {
+    issues.push("editorial_review_not_renewed");
+  }
+
+  if (issues.length > 0) {
+    throw new BlogEditorialReviewError(Array.from(new Set(issues)));
+  }
+  return editorialFields;
+}
+
 function sendBlogWriteError(res: Response, error: unknown) {
+  if (error instanceof AdminBlogMutationPolicyError) {
+    return res.status(error.statusCode).json({ error: error.message });
+  }
   if (error instanceof AdminBlogInputError) {
     return res.status(400).json({ error: error.message });
   }
@@ -463,7 +606,7 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
       readTime: typeof readTime === "string" ? readTime : undefined,
       relatedSlugs: Array.isArray(relatedSlugs) ? JSON.stringify(relatedSlugs) : typeof relatedSlugs === "string" ? relatedSlugs : undefined,
       faqItems: Array.isArray(faqItems) ? JSON.stringify(faqItems) : typeof faqItems === "string" ? faqItems : undefined,
-      canonicalUrl: typeof canonicalUrl === "string" ? canonicalUrl : undefined,
+      canonicalUrl: normalizeAdminCanonicalUrl(canonicalUrl),
       ...editorialFields,
       published: publishRequested ? 1 : 0,
       publishedAt: publishRequested ? new Date() : null,
@@ -482,7 +625,14 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
-    const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, req.params.slug));
+    const [existing] = await db
+      .select({
+        id: blogPosts.id,
+        published: blogPosts.published,
+        editorialReviewedAt: blogPosts.editorialReviewedAt,
+      })
+      .from(blogPosts)
+      .where(eq(blogPosts.slug, req.params.slug));
     if (!existing) return res.status(404).json({ error: "Post not found" });
 
     if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
@@ -490,7 +640,11 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     }
     const body = req.body as Record<string, unknown>;
     const updates: Record<string, unknown> = {
-      ...normalizeEditorialReviewFields(body),
+      ...authorizePublishedPostMutation(
+        existing,
+        body,
+        hasPermission(req, "posts:publish"),
+      ),
     };
     if (body.published !== undefined && typeof body.published !== "boolean") {
       return res.status(400).json({ error: "published must be a boolean" });
@@ -498,10 +652,11 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     if (body.published === true && !hasPermission(req, "posts:publish")) {
       return res.status(403).json({ error: "Publishing requires 'posts:publish'" });
     }
-    const fields = ["title", "metaTitle", "metaDescription", "heroImage",
-                    "category", "excerpt", "readTime", "canonicalUrl"];
-    for (const f of fields) {
+    for (const f of BLOG_POST_SCALAR_MUTABLE_FIELDS) {
       if (body[f] !== undefined) updates[f] = body[f];
+    }
+    if (hasOwn(body, "canonicalUrl")) {
+      updates.canonicalUrl = normalizeAdminCanonicalUrl(body.canonicalUrl);
     }
     if (body.content !== undefined) {
       if (typeof body.content !== "string") {
@@ -510,9 +665,11 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
       updates.content = body.content;
     }
     // JSON fields
-    if (body.tags !== undefined) updates.tags = Array.isArray(body.tags) ? JSON.stringify(body.tags) : body.tags;
-    if (body.relatedSlugs !== undefined) updates.relatedSlugs = Array.isArray(body.relatedSlugs) ? JSON.stringify(body.relatedSlugs) : body.relatedSlugs;
-    if (body.faqItems !== undefined) updates.faqItems = Array.isArray(body.faqItems) ? JSON.stringify(body.faqItems) : body.faqItems;
+    for (const field of BLOG_POST_JSON_MUTABLE_FIELDS) {
+      if (body[field] !== undefined) {
+        updates[field] = Array.isArray(body[field]) ? JSON.stringify(body[field]) : body[field];
+      }
+    }
     if (body.published !== undefined) {
       updates.published = body.published ? 1 : 0;
     }

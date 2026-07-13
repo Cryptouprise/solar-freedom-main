@@ -228,6 +228,7 @@ Required actions:
 - [ ] Record counsel- or qualified-approver-approved replacement language where required; a passing automated gate is not approval.
 - [ ] Attach evidence identifiers and review dates without placing confidential source material in public code.
 - [ ] Confirm privacy/terms/consent/advertising disclosures with qualified counsel.
+- [ ] Approve explicit retention periods and an authenticated deletion/restriction procedure for leads, guide requests, consent records, CRM copies, and provider backups. Until then, do not claim automatic expiration or a completed deletion workflow.
 - [ ] Keep all prompt-only schedulers plan-only. Do not enable autonomous publishing until typed adapters enforce approval, evidence, verification, and rollback.
 
 These gates do not prevent an emergency credential-removal deployment. They do prevent calling that deployment legally approved or enabling autopilot publication.

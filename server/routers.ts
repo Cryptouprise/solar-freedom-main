@@ -36,6 +36,7 @@ import {
   isBotSubmission,
   normalizeUsPhone,
   validateContactConsent,
+  validateMarketingConsent,
 } from "./security/leadConsent";
 import {
   isAllowedPressReleaseSetting,
@@ -584,9 +585,7 @@ export const appRouter = router({
             captureId: null,
           } as const;
         }
-        if (input.marketingConsent && input.consentVersion !== MARKETING_CONSENT_VERSION) {
-          throw new Error("The guide consent disclosure is out of date");
-        }
+        validateMarketingConsent(input);
         const captureId = await insertExitIntentCapture({
           email: input.email,
           sourcePage: input.sourcePage,

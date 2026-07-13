@@ -188,7 +188,7 @@ export default function HowItWorks() {
             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-6">
               <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-amber-400">
                 <BadgeCheck className="h-4 w-4" />
-                Most Cases Start With These Clues
+                Start With These Record Clues
               </div>
               <div className="space-y-3">
                 {qualifyingSignals.slice(0, 4).map((signal) => (

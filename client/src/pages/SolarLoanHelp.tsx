@@ -488,7 +488,7 @@ export default function SolarLoanHelp() {
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
               ORGANIZE YOUR LOAN RECORDS
             </h2>
-            <p className="text-slate-400">Answer 5 quick questions to see what options are available for your solar loan.</p>
+            <p className="text-slate-400">Answer five short questions to organize the agreement type and record categories for individual review.</p>
           </div>
         </Reveal>
         <DoIQualifyQuiz compact />

@@ -170,7 +170,7 @@ export default function SolarPanelScam() {
         <div className="container">
           <Reveal>
             <div className="text-center mb-14">
-              <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">The Playbook They Used On You</div>
+              <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">Records to Review</div>
               <h2 className="font-black text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
                 6 RECORD CATEGORIES <span style={{ color: "oklch(0.72 0.19 50)" }}>TO CHECK</span>
               </h2>
@@ -298,7 +298,7 @@ export default function SolarPanelScam() {
                 <h2 className="font-black text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 5vw, 3rem)" }}>
                   ORGANIZE YOUR RECORDS
                   <br />
-                  <span style={{ color: "oklch(0.72 0.19 50)" }}>IN 60 SECONDS</span>
+                  <span style={{ color: "oklch(0.72 0.19 50)" }}>FOR INDIVIDUAL REVIEW</span>
                 </h2>
                 <p className="text-zinc-400 mt-3 text-sm">Answer five intake questions. Response time, availability, fees, and next steps depend on the individual review.</p>
               </div>

@@ -78,10 +78,11 @@ export default function PrivacyPolicy() {
 
       <PolicySection title="Retention and security">
         <p>
-          Information is retained only as long as reasonably needed for the purpose collected, consent and audit
-          records, dispute handling, security, backup cycles, and legal obligations. Retention can vary by record and
-          provider. Administrative access, scoped credentials, encryption in transit, rate limits, logging controls,
-          and release checks reduce risk, but no system can guarantee absolute security.
+          The current application does not automatically expire lead, guide-request, or consent records. Those
+          records may remain in the primary database and provider backups until an authorized deletion is completed,
+          subject to backup cycles, security and audit needs, dispute handling, and legal obligations. Other providers
+          may apply their own retention schedules. Administrative access, scoped credentials, encryption in transit,
+          rate limits, logging controls, and release checks reduce risk, but no system can guarantee absolute security.
         </p>
       </PolicySection>
 
@@ -90,11 +91,12 @@ export default function PrivacyPolicy() {
           <li>Decline or reset optional analytics through the website’s privacy control.</li>
           <li>Reply STOP to opt out of SMS and HELP for help; message and data rates may apply.</li>
           <li>Use the unsubscribe control in informational email where provided.</li>
-          <li>Request access, correction, deletion, or restriction by emailing the address below.</li>
+          <li>Ask about access, correction, deletion, or restriction by emailing the address below.</li>
         </ul>
         <p>
-          A request may require reasonable identity verification. Some records may be retained when needed for
-          security, legal compliance, or documented consent. Rights vary by jurisdiction.
+          A request may require reasonable identity verification and is evaluated under applicable law. Some records
+          may remain when needed for security, legal compliance, documented consent, dispute handling, or provider
+          backup cycles. Rights and available responses vary by jurisdiction.
         </p>
       </PolicySection>
 

@@ -28,14 +28,23 @@ export function validateContactConsent(input: {
   smsConsent: boolean;
   consentVersion?: string;
 }): void {
-  if (
-    input.contactConsent &&
-    input.consentVersion !== CONTACT_CONSENT_VERSION
-  ) {
+  if (!input.contactConsent) {
+    throw new Error("Contact consent is required before submitting personal information");
+  }
+  if (input.consentVersion !== CONTACT_CONSENT_VERSION) {
     throw new Error("The contact consent disclosure is out of date");
   }
-  if (input.smsConsent && !input.contactConsent) {
-    throw new Error("SMS consent requires contact consent");
+}
+
+export function validateMarketingConsent(input: {
+  marketingConsent: boolean;
+  consentVersion?: string;
+}): void {
+  if (!input.marketingConsent) {
+    throw new Error("Marketing consent is required before submitting an email address");
+  }
+  if (input.consentVersion !== MARKETING_CONSENT_VERSION) {
+    throw new Error("The guide consent disclosure is out of date");
   }
 }
 
