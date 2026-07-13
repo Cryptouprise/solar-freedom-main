@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { evaluateGscFreshness } from "./lib/gsc-core.mjs";
+import { evaluateGscFreshness, verifyGscOutputHashes } from "./lib/gsc-core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -35,10 +35,16 @@ async function readMetadata(filePath) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const metadata = await readMetadata(args.metadata);
+  const freshness = evaluateGscFreshness(metadata, { maxAgeHours: args.maxAgeHours });
+  const integrityReasons = await verifyGscOutputHashes(metadata, { rootDir: ROOT });
+  const reasons = [...freshness.reasons, ...integrityReasons];
   const status = {
     schemaVersion: 1,
     metadataFile: path.relative(ROOT, args.metadata),
-    ...evaluateGscFreshness(metadata, { maxAgeHours: args.maxAgeHours }),
+    ...freshness,
+    usable: freshness.usable && integrityReasons.length === 0,
+    state: freshness.usable && integrityReasons.length > 0 ? "unavailable" : freshness.state,
+    reasons,
   };
   await fs.mkdir(path.dirname(args.out), { recursive: true });
   await fs.writeFile(args.out, `${JSON.stringify(status, null, 2)}\n`, "utf-8");

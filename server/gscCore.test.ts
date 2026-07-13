@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 const core = await import("../scripts/lib/gsc-core.mjs");
 
@@ -53,5 +56,25 @@ describe("GSC measurement core", () => {
     }]);
     expect(rows[0].ctr).toBe(0.01);
     expect(core.toLegacyCsv(rows)).toContain('"https://example.com/a,b",1,100,1.0000,4.2500');
+  });
+
+  it("verifies measurement outputs against their recorded hashes", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gsc-integrity-"));
+    const json = "[]\n";
+    const csv = "page,clicks,impressions,ctr,position\n";
+    await fs.writeFile(path.join(root, "gsc.json"), json);
+    await fs.writeFile(path.join(root, "gsc.csv"), csv);
+    const metadata = {
+      outputs: {
+        json: "gsc.json",
+        csv: "gsc.csv",
+        jsonSha256: core.sha256(json),
+        csvSha256: core.sha256(csv),
+      },
+    };
+    expect(await core.verifyGscOutputHashes(metadata, { rootDir: root })).toEqual([]);
+    await fs.writeFile(path.join(root, "gsc.json"), "tampered\n");
+    expect(await core.verifyGscOutputHashes(metadata, { rootDir: root })).toContain("json_hash_mismatch");
+    await fs.rm(root, { recursive: true, force: true });
   });
 });

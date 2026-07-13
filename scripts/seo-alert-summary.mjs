@@ -12,6 +12,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_AUDIT = path.resolve(ROOT, "reports/seo-agent/latest-agent-audit.json");
 const DEFAULT_INDEXING = path.resolve(ROOT, "reports/seo-agent/latest-indexing-queue.json");
+const DEFAULT_CTR = path.resolve(ROOT, "reports/seo-agent/latest-ctr-rescue.json");
 const DEFAULT_INTERNAL_LINKS = path.resolve(ROOT, "reports/seo-agent/latest-internal-links.json");
 const DEFAULT_BACKLINKS = path.resolve(ROOT, "reports/seo-agent/latest-backlinks.json");
 const DEFAULT_GSC_STATUS = path.resolve(ROOT, "reports/seo-agent/gsc-status.json");
@@ -22,6 +23,7 @@ function parseArgs(argv) {
   const args = {
     audit: DEFAULT_AUDIT,
     indexing: DEFAULT_INDEXING,
+    ctr: DEFAULT_CTR,
     internalLinks: DEFAULT_INTERNAL_LINKS,
     backlinks: DEFAULT_BACKLINKS,
     gscStatus: DEFAULT_GSC_STATUS,
@@ -34,6 +36,7 @@ function parseArgs(argv) {
     const next = argv[i + 1];
     if (arg === "--audit" && next) args.audit = path.resolve(ROOT, next);
     if (arg === "--indexing" && next) args.indexing = path.resolve(ROOT, next);
+    if (arg === "--ctr" && next) args.ctr = path.resolve(ROOT, next);
     if (arg === "--internal-links" && next) args.internalLinks = path.resolve(ROOT, next);
     if (arg === "--backlinks" && next) args.backlinks = path.resolve(ROOT, next);
     if (arg === "--gsc-status" && next) args.gscStatus = path.resolve(ROOT, next);
@@ -75,6 +78,13 @@ function formatIndexingItems(items = []) {
   }).join("\n");
 }
 
+function formatCtrItems(items = []) {
+  if (!items.length) return "- None";
+  return items.slice(0, 10).map((item, index) =>
+    `${index + 1}. ${item.url || "unknown URL"} - ${Number(item.impressions || 0)} impressions, ${Number(item.ctr || 0).toFixed(2)}% CTR, avg position ${Number(item.position || 0).toFixed(1)}`
+  ).join("\n");
+}
+
 function formatInternalLinks(items = []) {
   if (!items.length) return "- None";
   return items.slice(0, 10).map((item, index) => {
@@ -92,11 +102,12 @@ function formatBacklinks(items = []) {
   }).join("\n");
 }
 
-function buildSummary({ audit, indexing, internalLinks, backlinks, gscStatus }) {
+function buildSummary({ audit, indexing, ctr, internalLinks, backlinks, gscStatus }) {
   const pagesWithIssues = Number(audit?.pagesWithIssues || 0);
   const requestIndexingCount = Number(indexing?.summary?.requestIndexing || 0);
   const refreshCount = Number(indexing?.summary?.refresh || 0);
   const indexNowCount = Number(indexing?.summary?.indexNow || 0);
+  const ctrCandidateCount = Number(ctr?.candidateCount || 0);
   const internalLinkOpps = Number(internalLinks?.summary?.queued || 0);
   const performanceUnknownTargets = Number(internalLinks?.summary?.performanceUnknownQueued || 0);
   const measurementUsable = gscStatus?.usable === true;
@@ -111,6 +122,7 @@ function buildSummary({ audit, indexing, internalLinks, backlinks, gscStatus }) 
     requestIndexingCount > 0 ||
     refreshCount > 0 ||
     indexNowCount > 0 ||
+    ctrCandidateCount > 0 ||
     internalLinkOpps > 0 ||
     backlinksBroken > 0 ||
     !measurementUsable;
@@ -156,6 +168,12 @@ function buildSummary({ audit, indexing, internalLinks, backlinks, gscStatus }) 
       requestIndexingItems: indexing?.requestIndexing || [],
       refreshItems: indexing?.refresh || [],
       indexNowItems: indexing?.indexNow || [],
+    },
+    ctr: {
+      generatedAt: ctr?.generatedAt || null,
+      blocked: ctr?.blocked === true,
+      candidates: ctrCandidateCount,
+      items: ctr?.candidates || [],
     },
     internalLinks: {
       generatedAt: internalLinks?.generatedAt || null,
@@ -228,6 +246,15 @@ Top SERP/content refresh candidates:
 
 ${formatIndexingItems(summary.indexing.refreshItems)}
 
+## CTR Rescue
+
+- Candidates needing title/description review: ${summary.ctr.candidates}
+- Queue blocked by measurement gate: ${summary.ctr.blocked ? "yes" : "no"}
+
+Top CTR candidates:
+
+${formatCtrItems(summary.ctr.items)}
+
 ## Internal-Link Opportunities
 
 - Opportunities queued: ${summary.internalLinks.queued} (performance unknown: ${summary.internalLinks.performanceUnknownQueued})
@@ -255,6 +282,7 @@ ${formatBacklinks(summary.backlinks.items)}
 \`\`\`bash
 pnpm seo:agent -- --base https://breakyoursolarcontract.com
 pnpm seo:indexing
+pnpm seo:ctr
 pnpm seo:internal-links
 pnpm seo:backlinks
 pnpm seo:alert-summary
@@ -266,10 +294,11 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const audit = await readJson(args.audit);
   const indexing = await readJson(args.indexing);
+  const ctr = await readJson(args.ctr);
   const internalLinks = await readJson(args.internalLinks);
   const backlinks = await readJson(args.backlinks);
   const gscStatus = await readJson(args.gscStatus);
-  const summary = buildSummary({ audit, indexing, internalLinks, backlinks, gscStatus });
+  const summary = buildSummary({ audit, indexing, ctr, internalLinks, backlinks, gscStatus });
 
   await fs.mkdir(path.dirname(args.outMd), { recursive: true });
   await fs.writeFile(args.outJson, `${JSON.stringify(summary, null, 2)}\n`, "utf-8");
@@ -282,7 +311,11 @@ async function main() {
   console.log(`Issue body: ${path.relative(ROOT, args.outMd)}`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+export { buildSummary, formatMarkdown };
+
+if (path.resolve(process.argv[1] || "") === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

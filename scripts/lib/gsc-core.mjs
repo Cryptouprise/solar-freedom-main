@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+import path from "node:path";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -84,6 +85,35 @@ export function toLegacyCsv(rows) {
 
 export function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+export async function verifyGscOutputHashes(metadata, { rootDir = process.cwd() } = {}) {
+  const outputs = metadata?.outputs;
+  if (!outputs?.json || !outputs?.csv || !outputs?.jsonSha256 || !outputs?.csvSha256) {
+    return ["output_hashes_missing"];
+  }
+
+  const root = path.resolve(rootDir);
+  const resolveInsideRoot = (relativePath) => {
+    const resolved = path.resolve(root, String(relativePath));
+    if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
+      throw new Error("output_path_invalid");
+    }
+    return resolved;
+  };
+
+  try {
+    const [json, csv] = await Promise.all([
+      fs.readFile(resolveInsideRoot(outputs.json)),
+      fs.readFile(resolveInsideRoot(outputs.csv)),
+    ]);
+    const reasons = [];
+    if (sha256(json) !== outputs.jsonSha256) reasons.push("json_hash_mismatch");
+    if (sha256(csv) !== outputs.csvSha256) reasons.push("csv_hash_mismatch");
+    return reasons;
+  } catch (error) {
+    return [error?.message === "output_path_invalid" ? "output_path_invalid" : "output_file_missing"];
+  }
 }
 
 export function evaluateGscFreshness(metadata, {
