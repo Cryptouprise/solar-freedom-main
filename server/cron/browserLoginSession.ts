@@ -16,11 +16,13 @@ import { chromium, type Browser, type BrowserContext } from "playwright";
 import { join } from "path";
 import { mkdirSync, existsSync, writeFileSync, readFileSync } from "fs";
 import { hasExpectedCookieDomain } from "../../shared/urlSafety";
+import { getBrowserRuntimeDir, secureBrowserStateFile } from "./browserState";
+import { logSafeError } from "../_core/safeLog";
 
-const PROFILE_DIR = join(process.cwd(), ".playwright-profile");
+const PROFILE_DIR = getBrowserRuntimeDir("high-da");
 const STORAGE_STATE_FILE = join(PROFILE_DIR, "storage-state.json");
 const LOGIN_STATUS_FILE = join(PROFILE_DIR, "login-status.json");
-mkdirSync(PROFILE_DIR, { recursive: true });
+mkdirSync(PROFILE_DIR, { recursive: true, mode: 0o700 });
 
 export type LoginSite = "medium" | "linkedin" | "substack";
 
@@ -67,7 +69,8 @@ function readLoginStatus(): LoginStatus {
 function saveLoginStatus(status: Partial<LoginStatus>) {
   const current = readLoginStatus();
   const updated = { ...current, ...status, lastChecked: new Date().toISOString() };
-  writeFileSync(LOGIN_STATUS_FILE, JSON.stringify(updated, null, 2));
+  writeFileSync(LOGIN_STATUS_FILE, JSON.stringify(updated, null, 2), { mode: 0o600 });
+  secureBrowserStateFile(LOGIN_STATUS_FILE);
 }
 
 /**
@@ -129,8 +132,6 @@ export async function launchBrowserLoginSession(
     browser = await chromium.launch({
       headless: false, // Visible browser so the admin can log in
       args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--start-maximized",
       ],
@@ -163,7 +164,7 @@ export async function launchBrowserLoginSession(
       const currentUrl = page.url();
       if (config.successUrlPattern.test(currentUrl)) {
         loggedIn = true;
-        console.log(`[BrowserLogin] ${config.label} login detected at: ${currentUrl}`);
+        console.log(`[BrowserLogin] ${config.label} login detected`);
         break;
       }
     }
@@ -171,7 +172,8 @@ export async function launchBrowserLoginSession(
     // Save session regardless of whether we detected success — user may have
     // logged in but the URL pattern didn't match exactly
     await context.storageState({ path: STORAGE_STATE_FILE });
-    console.log(`[BrowserLogin] Session saved to ${STORAGE_STATE_FILE}`);
+    secureBrowserStateFile(STORAGE_STATE_FILE);
+    console.log("[BrowserLogin] Session state saved outside the repository");
 
     // Update login status
     const statusUpdate: Partial<LoginStatus> = {};
@@ -184,7 +186,7 @@ export async function launchBrowserLoginSession(
     if (loggedIn) {
       return {
         success: true,
-        message: `Successfully logged in to ${config.label}. Session saved — future press release runs will publish automatically.`,
+        message: `Successfully logged in to ${config.label}. Session state was saved for a future approval-bound worker.`,
         loginUrl: config.loginUrl,
       };
     } else {
@@ -195,11 +197,11 @@ export async function launchBrowserLoginSession(
       };
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error(`[BrowserLogin] Error for ${site}:`, msg);
+    logSafeError("browser_login.failed", err);
 
     try {
       if (context) await context.storageState({ path: STORAGE_STATE_FILE });
+      secureBrowserStateFile(STORAGE_STATE_FILE);
     } catch (_) {}
     try {
       if (context) await context.close();
@@ -210,7 +212,7 @@ export async function launchBrowserLoginSession(
 
     return {
       success: false,
-      message: `Browser login failed: ${msg}`,
+      message: "Browser login failed. No session was approved for automated publishing.",
       loginUrl: config.loginUrl,
     };
   }

@@ -1,109 +1,109 @@
-# Self-Improving SEO / AEO / GEO Loop
+# Approval-First Search Improvement Loop
 
-This document describes how Solar Freedom keeps improving its search, answer-engine,
-and generative-engine visibility automatically, and where the human approval gates are.
+Solar Freedom uses a measured search-operations loop. It automates collection,
+comparison, prioritization, drafting, and verification where evidence is
+available. It does not automatically publish legal, company, local, or consumer
+claims.
 
-The system is intentionally **"auto-draft + auto-queue + auto-measure"** rather than
-fully autonomous publishing. For a legal/YMYL site, a human approves anything that
-ships user-facing claims.
-
-## The daily loop
-
-```
-measure ──▶ decide ──▶ draft ──▶ (human approve) ──▶ publish ──▶ re-measure
-   ▲                                                                  │
-   └──────────────────────────────────────────────────────────────────┘
+```text
+measure -> diagnose -> draft -> review -> deploy -> verify -> compare
+   ^                                                    |
+   +----------------------------------------------------+
 ```
 
-1. **Measure** — `pnpm seo:agent` audits crawler-visible HTML; `pnpm seo:indexing`
-   builds the indexing/refresh queue from sitemap + GSC exports.
-2. **Decide** — `pnpm seo:ctr` ranks the highest-leverage CTR rescue opportunities
-   (pages that rank but are not clicked). The deterministic queues are the source
-   of truth for what to do next.
-3. **Draft** — OpenRouter drafts copy/content:
-   - Title + meta description variants via `pnpm seo:ctr -- --ai` (needs `OPENROUTER_API_KEY`).
-   - Blog content via the admin Blog Studio (`blogStudio.generateContent`).
-   - Press releases via the weekly `server/cron/pressRelease.ts` job.
-4. **Approve** — a human reviews drafts in the admin UI before publishing.
-5. **Publish & re-measure** — after publishing, IndexNow (`pnpm submit:indexnow`)
-   and the next heartbeat run pick up the change and re-measure.
+## Current operating boundary
 
-## AEO (Answer Engine Optimization)
+- The public GitHub SEO heartbeat is paused. It is job-gated to private
+  repositories and must not be enabled until a rotated least-privilege Search
+  Console credential and an approved private evidence store are configured.
+- Search Console and GA4 measurements are unknown when fresh private evidence is
+  unavailable. A missing row is not treated as proof of indexing, traffic, or
+  rank.
+- Static city, company, state-detail, and legacy blog records remain out of the
+  sitemap and AI inventory until their primary sources, reviewer, review date,
+  and unique user value pass the publication gate.
+- Blog Studio and the press workspace create unverified drafts. They do not
+  browse independently, prove a fact, schedule publication, or distribute
+  content.
+- Prompt schedules record blocked evidence receipts. They cannot execute
+  arbitrary prose as tools.
+- IndexNow is an explicit post-deployment action for approved sitemap URLs. An
+  accepted request is not proof that a search engine indexed or ranked a URL.
 
-- **Structured data**: prerendered pages now emit `FAQPage` JSON-LD from each
-  article's `faq` data, plus `datePublished`/`dateModified` on `Article` schema.
-  See `scripts/prerender.mjs` (`buildSchemaBlocks`).
-- **AI index files**: `client/public/llms.txt` and `client/public/llms-full.txt`
-  are regenerated from the live content inventory on every build by
-  `scripts/generate-llms.mjs` (wired into `pnpm build`). They never drift from
-  what is actually published, so new articles become citable immediately.
-- **Crawler access**: `client/public/robots.txt` explicitly allows GPTBot,
-  ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended, and more.
+## What the loop can automate
 
-## GEO (Generative / local)
+1. `pnpm seo:audit` checks crawler-visible HTML, status, canonical, title,
+   description, H1, structured-data, and internal-link signals.
+2. `pnpm seo:gsc:status` verifies the age and completeness of a private
+   Search Console snapshot before performance-derived recommendations run.
+3. `pnpm seo:agent` writes a local action queue and comparison state. Its
+   default mode is diagnostic.
+4. `pnpm seo:indexing`, `pnpm seo:ctr`, and
+   `pnpm seo:internal-links` create review queues. Unknown measurements remain
+   labeled unknown.
+5. OpenRouter can draft a strategy note, title/description options, blog copy,
+   or an internal press draft. Model output is unverified and provider-reported
+   billed cost is recorded only when the provider supplies it.
+6. A reviewer approves sources, claims, uniqueness, privacy, legal/business
+   language, and the exact diff.
+7. CI type-checks, tests, builds, scans public artifacts, enforces the bundle
+   budget, audits trust claims and dependencies, and requires reproducible
+   generated files.
+8. After an exact-commit deployment, production smoke tests and authenticated
+   canaries verify delivery. Fresh GSC/GA4 data then measures the result under
+   the case-study protocol.
 
-- City and state-law pages emit `LegalService` schema with a per-page
-  `areaServed` (`Place` → `PostalAddress` with locality/region) instead of a
-  blanket "United States".
-- 301 city pages + 51 state-law pages are listed in `llms.txt` for local
-  generative coverage.
+## Explicit deterministic apply mode
 
-## SEO (traditional)
+`pnpm seo:agent -- --apply` is never run by the recurring workflow. It is a
+manual source change and currently performs only the narrow canonical-domain
+normalization documented in [SEO-GROWTH-AGENT.md](SEO-GROWTH-AGENT.md). Review
+its diff and run the full release suite before committing.
 
-- The biggest lever is CTR, not rankings (see `docs/SEO-AUDIT-MAY-2026.md`).
-  `pnpm seo:ctr` surfaces page-1 pages with weak CTR and drafts better titles
-  and descriptions for one-click human application.
-- The biggest *structural* lever is internal linking. The 301 city pages and 51
-  state-law pages are thin and indexed slowly. `pnpm seo:internal-links` reads
-  the sitemap + GSC and emits a deterministic queue that points
-  performance-observed blog posts at low/unknown-performance city/state pages,
-  with a suggested anchor for each. Adding those contextual links is the fastest
-  fully-in-our-control way to get the thin pages discovered and ranked.
-- Off-site backlinks (the 34 Medium articles and other placements) are tracked
-  in `references/backlinks.json` and verified by `pnpm seo:backlinks`, which
-  fetches each source and confirms it still deep-links to the intended page
-  (not just the homepage). Add `--no-fetch` to validate the registry offline.
+## Search and AI presentation
+
+- Conservative structured data is emitted only for content that passes its
+  publication gate.
+- `sitemap.xml`, `llms.txt`, and `llms-full.txt` are regenerated from the
+  approved inventory. These files aid discovery; they do not guarantee crawling,
+  indexing, ranking, attribution, or AI citation.
+- There is no special AI-ranking switch. Helpful, original, source-backed
+  content and sound crawl/index controls remain the operating standard.
+- Local and company backlog pages may remain directly addressable for review,
+  but they are `noindex` and are not linked as a bulk public crawl network.
 
 ## Commands
 
 ```bash
-pnpm seo:llms     # regenerate llms.txt + llms-full.txt
-pnpm seo:gsc:refresh # refresh page-level Search Analytics from an env-only service-account secret
-pnpm seo:gsc:status  # verify freshness before performance-derived recommendations
-pnpm seo:ctr      # build CTR rescue queue (add --ai to draft copy via OpenRouter)
-pnpm seo:internal-links # queue internal links from authority blog posts to thin city/state pages
-pnpm seo:backlinks      # verify off-site backlinks in references/backlinks.json (add --no-fetch offline)
-pnpm seo:agent    # audit crawler HTML + build action queue
-pnpm seo:indexing # build indexing/refresh queue
+pnpm seo:audit
+pnpm seo:agent
+pnpm seo:gsc:refresh
+pnpm seo:gsc:status
+pnpm seo:indexing
+pnpm seo:ctr
+pnpm seo:internal-links
+pnpm seo:backlinks
+pnpm seo:alert-summary
+pnpm seo:llms
 pnpm submit:indexnow
 ```
 
-## Automation surface
+Operational reports and raw search/analytics exports belong in an approved
+private store, not this public repository.
 
-- **GitHub Actions** (`.github/workflows/seo-heartbeat.yml`) runs daily:
-  audit → indexing queue → CTR rescue → internal-link queue → backlink check →
-  alert summary → open/update one issue. Read-only; never publishes.
-- **Prompt schedules** (`server/scheduled/automationRun.ts` + the `automations`
-  tRPC router) are safety-blocked until typed, authenticated tools exist. Each
-  trigger records an evidence receipt with zero tool calls/state changes; prose
-  can no longer be recorded as successful execution.
+## Release and learning rules
 
-## Required secrets / env
+- No ranking, traffic, lead, revenue, legal, or AI-citation guarantee.
+- No model-memory fact is a source.
+- No unsupported testimonial, outcome, professional-identity, fee, timing,
+  company allegation, local statistic, or urgency claim.
+- No user-facing change bypasses review merely because a modeled score improved.
+- Each experiment records the exact release, hypothesis, primary metric,
+  guardrails, observation window, and rollback decision.
+- Prefer causal language such as "observed after the change"; claim attribution
+  only when the case-study design supports it.
 
-- `OPENROUTER_API_KEY` — blog/PR/CTR drafting (and GitHub Actions secret for the
-  CTR step).
-- `GOOGLE_SERVICE_ACCOUNT_JSON` — rotated Google service-account JSON stored as
-  a GitHub Actions/runtime secret, never committed or pasted into chat.
-- `GSC_PROPERTY_URL` — GitHub Actions variable; defaults to
-  `sc-domain:breakyoursolarcontract.com`. Optional variables are
-  `GSC_DATE_RANGE_DAYS`, `GSC_DATA_LAG_DAYS`, and `GSC_MAX_AGE_HOURS`.
-- `FIRECRAWL_API_KEY` — `scripts/trending-content-pipeline.py` scraping (no longer
-  hard-coded; supply via env).
-
-## Guardrails
-
-- Deterministic queues are the source of truth; OpenRouter only proposes copy.
-- Missing Search Analytics rows are performance-unknown, not proof that a URL
-  is unindexed. Index status requires URL Inspection evidence.
-- Nothing in the SEO scripts edits source files or publishes content.
-- Human approval gates anything with user-facing legal claims.
+See [CASE-STUDY-PROTOCOL.md](CASE-STUDY-PROTOCOL.md),
+[RELEASE-GOVERNANCE.md](RELEASE-GOVERNANCE.md), and
+[PRODUCTION-CUTOVER.md](PRODUCTION-CUTOVER.md) for the evidence and deployment
+gates.

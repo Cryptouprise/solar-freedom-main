@@ -31,16 +31,21 @@
  *   GET    /api/admin/status             - Health check + site stats
  */
 
-import { Router, Response } from "express";
+import { json, Router, Response } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import path from "path";
 import { readFile } from "fs/promises";
 import { eq, desc, like, and } from "drizzle-orm";
-import { getDb } from "./db";
-import { blogPosts, companies, siteConfig, apiKeys } from "../drizzle/schema";
+import {
+  BlogEditorialReviewError,
+  createBlogPost,
+  getAdminBlogPost,
+  getDb,
+  updateBlogPost,
+} from "./db";
+import { blogPosts, companies, siteConfig, apiKeys, type InsertBlogPost } from "../drizzle/schema";
 import { adminAuthMiddleware, requirePermission, AdminRequest } from "./adminAuth";
-import { sanitizeStoredHtml } from "./security/html";
 import { isAllowedPublicConfigKey, PUBLIC_SITE_CONFIG_KEYS } from "./security/configPolicy";
 import {
   decodeBase64Image,
@@ -49,12 +54,20 @@ import {
 } from "./security/imageUpload";
 import { evaluateAdminAutomationRequest } from "./automationPolicy";
 import { rateLimit } from "express-rate-limit";
+import { logSafeError } from "./_core/safeLog";
+import {
+  getBlogEditorialReviewIssues,
+  isValidEditorialPrimarySource,
+  parseEditorialDate,
+  parseEditorialPrimarySources,
+} from "../shared/blogEditorialReview";
+import { normalizePagePath } from "./seo-delivery";
 
 const router = Router();
 
 function sendInternalError(res: Response, error: unknown, publicMessage = "Internal server error") {
   const errorId = crypto.randomUUID();
-  console.error(`[AdminAPI:${errorId}]`, error);
+  logSafeError("admin.api_failed", error);
   return res.status(500).json({ error: publicMessage, errorId });
 }
 
@@ -74,9 +87,283 @@ const COMPANY_MUTABLE_FIELDS = [
   "heroSubheadline", "problemSummary", "customerComplaints", "documentedIssues",
   "legalGrounds", "lawsuits", "statesCovered", "relatedSlugs",
 ] as const;
+const API_KEY_PERMISSIONS = new Set([
+  "posts:read",
+  "posts:write",
+  "posts:publish",
+  "posts:delete",
+  "companies:read",
+  "companies:write",
+  "config:read",
+  "config:write",
+  "automation:execute",
+  "keys:manage",
+]);
+const DEFAULT_API_KEY_PERMISSIONS = [
+  "posts:read",
+  "posts:write",
+  "companies:read",
+  "companies:write",
+  "config:read",
+];
+
+type EditorialWriteFields = Partial<Pick<InsertBlogPost,
+  | "editorialReviewerName"
+  | "editorialReviewerRole"
+  | "editorialReviewedAt"
+  | "editorialPrimarySources"
+  | "editorialUniqueValueSummary"
+  | "editorialFunnelOnlyDuplicate"
+>>;
+
+const CANONICAL_SITE_ORIGIN = "https://breakyoursolarcontract.com";
+const CANONICAL_SITE_HOSTS = new Set([
+  "breakyoursolarcontract.com",
+  "www.breakyoursolarcontract.com",
+]);
+const EDITORIAL_REVIEW_INPUT_FIELDS = [
+  "editorialReviewerName",
+  "editorialReviewerRole",
+  "editorialReviewedAt",
+  "editorialPrimarySources",
+  "editorialUniqueValueSummary",
+  "editorialFunnelOnlyDuplicate",
+] as const;
+const BLOG_POST_SCALAR_MUTABLE_FIELDS = [
+  "title",
+  "metaTitle",
+  "metaDescription",
+  "heroImage",
+  "category",
+  "excerpt",
+  "readTime",
+] as const;
+const BLOG_POST_JSON_MUTABLE_FIELDS = ["tags", "relatedSlugs", "faqItems"] as const;
+const PUBLISHED_POST_MATERIAL_FIELDS = [
+  ...BLOG_POST_SCALAR_MUTABLE_FIELDS,
+  ...BLOG_POST_JSON_MUTABLE_FIELDS,
+  "content",
+  "canonicalUrl",
+  ...EDITORIAL_REVIEW_INPUT_FIELDS,
+] as const;
+
+class AdminBlogInputError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AdminBlogInputError";
+  }
+}
+
+export class AdminBlogMutationPolicyError extends Error {
+  readonly statusCode = 403;
+
+  constructor() {
+    super("Editing published post content requires 'posts:publish' and a renewed editorial review");
+    this.name = "AdminBlogMutationPolicyError";
+  }
+}
+
+function hasOwn(value: Record<string, unknown>, key: string) {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function normalizeNullableString(
+  value: unknown,
+  field: string,
+  maximumLength: number,
+): string | null {
+  if (value === null) return null;
+  if (typeof value !== "string") throw new AdminBlogInputError(`${field} must be a string or null`);
+  const normalized = value.trim();
+  if (normalized.length > maximumLength) {
+    throw new AdminBlogInputError(`${field} must be at most ${maximumLength} characters`);
+  }
+  return normalized;
+}
+
+function normalizeEditorialReviewFields(
+  body: Record<string, unknown>,
+  now = new Date(),
+): EditorialWriteFields {
+  const fields: EditorialWriteFields = {};
+
+  if (hasOwn(body, "editorialReviewerName")) {
+    fields.editorialReviewerName = normalizeNullableString(
+      body.editorialReviewerName,
+      "editorialReviewerName",
+      200,
+    );
+  }
+  if (hasOwn(body, "editorialReviewerRole")) {
+    fields.editorialReviewerRole = normalizeNullableString(
+      body.editorialReviewerRole,
+      "editorialReviewerRole",
+      200,
+    );
+  }
+  if (hasOwn(body, "editorialReviewedAt")) {
+    if (body.editorialReviewedAt === null) {
+      fields.editorialReviewedAt = null;
+    } else {
+      const reviewedAt = parseEditorialDate(body.editorialReviewedAt);
+      if (!reviewedAt) {
+        throw new AdminBlogInputError("editorialReviewedAt must be a valid ISO date or timestamp");
+      }
+      fields.editorialReviewedAt = reviewedAt;
+    }
+  }
+  if (hasOwn(body, "editorialPrimarySources")) {
+    if (body.editorialPrimarySources === null) {
+      fields.editorialPrimarySources = null;
+    } else {
+      const sources = parseEditorialPrimarySources(body.editorialPrimarySources);
+      if (!sources || sources.some(source => !isValidEditorialPrimarySource(source, now))) {
+        throw new AdminBlogInputError(
+          "editorialPrimarySources must be a JSON array of valid HTTPS sources with title and accessedAt",
+        );
+      }
+      fields.editorialPrimarySources = JSON.stringify(sources);
+    }
+  }
+  if (hasOwn(body, "editorialUniqueValueSummary")) {
+    fields.editorialUniqueValueSummary = normalizeNullableString(
+      body.editorialUniqueValueSummary,
+      "editorialUniqueValueSummary",
+      20_000,
+    );
+  }
+  if (hasOwn(body, "editorialFunnelOnlyDuplicate")) {
+    if (typeof body.editorialFunnelOnlyDuplicate !== "boolean") {
+      throw new AdminBlogInputError("editorialFunnelOnlyDuplicate must be a boolean");
+    }
+    fields.editorialFunnelOnlyDuplicate = body.editorialFunnelOnlyDuplicate ? 1 : 0;
+  }
+
+  return fields;
+}
+
+/**
+ * Canonicals are either self-canonical (`null`) or canonical-site URLs. The
+ * existing page-path normalizer rejects traversal, malformed escapes, and
+ * ambiguous paths; the legacy `www` host is allowlisted only so it can be
+ * collapsed onto the single production origin.
+ */
+export function normalizeAdminCanonicalUrl(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== "string") {
+    throw new AdminBlogInputError("canonicalUrl must be a string or null");
+  }
+
+  const candidate = value.trim();
+  if (!candidate) return null;
+  const rootRelative = candidate.startsWith("/") && !candidate.startsWith("//");
+  if (!rootRelative && !/^[a-z][a-z0-9+.-]*:/i.test(candidate)) {
+    throw new AdminBlogInputError("canonicalUrl must be root-relative or an allowlisted HTTPS URL");
+  }
+  if (
+    /(?:^|\/)(?:\.|%2e){1,2}(?:\/|$)/i.test(candidate)
+    || /(?:\\|%5c)/i.test(candidate)
+  ) {
+    throw new AdminBlogInputError("canonicalUrl contains an invalid page path");
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(candidate, `${CANONICAL_SITE_ORIGIN}/`);
+  } catch {
+    throw new AdminBlogInputError("canonicalUrl must be a valid URL");
+  }
+
+  if (
+    parsed.protocol !== "https:"
+    || !CANONICAL_SITE_HOSTS.has(parsed.hostname.toLowerCase())
+    || parsed.username
+    || parsed.password
+    || parsed.search
+    || parsed.hash
+  ) {
+    throw new AdminBlogInputError(
+      "canonicalUrl must use the allowlisted HTTPS site origin without credentials, query, or fragment",
+    );
+  }
+
+  const normalizedPath = normalizePagePath(parsed.pathname);
+  if (!normalizedPath) {
+    throw new AdminBlogInputError("canonicalUrl contains an invalid page path");
+  }
+  const normalized = new URL(normalizedPath, `${CANONICAL_SITE_ORIGIN}/`).toString();
+  if (normalized.length > 500) {
+    throw new AdminBlogInputError("canonicalUrl must be at most 500 characters");
+  }
+  return normalized;
+}
+
+/**
+ * A write-only key can draft content and can quarantine a live post by sending
+ * only `published: false`. Any material mutation of an already-published row
+ * is a publication decision: it requires `posts:publish` and a complete review
+ * snapshot whose timestamp is newer than the stored review.
+ */
+export function authorizePublishedPostMutation(
+  existing: { published: unknown; editorialReviewedAt: unknown },
+  body: Record<string, unknown>,
+  canPublish: boolean,
+  now = new Date(),
+): EditorialWriteFields {
+  const materiallyChangesPublishedPost = existing.published === 1
+    && PUBLISHED_POST_MATERIAL_FIELDS.some(field => hasOwn(body, field));
+
+  if (materiallyChangesPublishedPost && !canPublish) {
+    throw new AdminBlogMutationPolicyError();
+  }
+  const editorialFields = normalizeEditorialReviewFields(body, now);
+  if (!materiallyChangesPublishedPost) return editorialFields;
+
+  const issues = getBlogEditorialReviewIssues(editorialFields, now);
+  if (!EDITORIAL_REVIEW_INPUT_FIELDS.every(field => hasOwn(body, field))) {
+    issues.unshift("editorial_review_snapshot_required");
+  }
+
+  const renewedAt = parseEditorialDate(editorialFields.editorialReviewedAt);
+  const previousReviewedAt = parseEditorialDate(existing.editorialReviewedAt);
+  if (!renewedAt || (previousReviewedAt && renewedAt.getTime() <= previousReviewedAt.getTime())) {
+    issues.push("editorial_review_not_renewed");
+  }
+
+  if (issues.length > 0) {
+    throw new BlogEditorialReviewError(Array.from(new Set(issues)));
+  }
+  return editorialFields;
+}
+
+function sendBlogWriteError(res: Response, error: unknown) {
+  if (error instanceof AdminBlogMutationPolicyError) {
+    return res.status(error.statusCode).json({ error: error.message });
+  }
+  if (error instanceof AdminBlogInputError) {
+    return res.status(400).json({ error: error.message });
+  }
+  if (error instanceof BlogEditorialReviewError) {
+    return res.status(400).json({
+      error: error.message,
+      issues: error.issues,
+    });
+  }
+  return sendInternalError(res, error);
+}
 
 // ─── Apply auth to all admin routes ────────────────────────────────────────
 router.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }), adminAuthMiddleware);
+
+const adminJsonParser = json({ limit: "2mb" });
+const adminUploadJsonParser = json({ limit: "16mb" });
+router.use((req, res, next) => {
+  const parser = req.path === "/upload" || req.path === "/upload/batch"
+    ? adminUploadJsonParser
+    : adminJsonParser;
+  return parser(req, res, next);
+});
 
 // ─── STATUS / HEALTH CHECK ──────────────────────────────────────────────────
 router.get("/status", async (req: AdminRequest, res) => {
@@ -123,6 +410,12 @@ router.get("/posts", requirePermission("posts:read"), async (req: AdminRequest, 
         excerpt: blogPosts.excerpt,
         readTime: blogPosts.readTime,
         published: blogPosts.published,
+        editorialReviewerName: blogPosts.editorialReviewerName,
+        editorialReviewerRole: blogPosts.editorialReviewerRole,
+        editorialReviewedAt: blogPosts.editorialReviewedAt,
+        editorialPrimarySources: blogPosts.editorialPrimarySources,
+        editorialUniqueValueSummary: blogPosts.editorialUniqueValueSummary,
+        editorialFunnelOnlyDuplicate: blogPosts.editorialFunnelOnlyDuplicate,
         publishedAt: blogPosts.publishedAt,
         updatedAt: blogPosts.updatedAt,
       })
@@ -131,7 +424,15 @@ router.get("/posts", requirePermission("posts:read"), async (req: AdminRequest, 
       .limit(limit)
       .offset(offset);
 
-    res.json({ posts: rows, count: rows.length, limit, offset });
+    res.json({
+      posts: rows.map(post => ({
+        ...post,
+        editorialPrimarySources: safeParseJson(post.editorialPrimarySources, []),
+      })),
+      count: rows.length,
+      limit,
+      offset,
+    });
   } catch (err) {
     sendInternalError(res, err);
   }
@@ -158,6 +459,12 @@ router.get("/posts/all", requirePermission("posts:read"), async (req: AdminReque
         readTime: blogPosts.readTime,
         tags: blogPosts.tags,
         published: blogPosts.published,
+        editorialReviewerName: blogPosts.editorialReviewerName,
+        editorialReviewerRole: blogPosts.editorialReviewerRole,
+        editorialReviewedAt: blogPosts.editorialReviewedAt,
+        editorialPrimarySources: blogPosts.editorialPrimarySources,
+        editorialUniqueValueSummary: blogPosts.editorialUniqueValueSummary,
+        editorialFunnelOnlyDuplicate: blogPosts.editorialFunnelOnlyDuplicate,
         publishedAt: blogPosts.publishedAt,
       })
       .from(blogPosts)
@@ -183,6 +490,12 @@ router.get("/posts/all", requirePermission("posts:read"), async (req: AdminReque
       readTime: p.readTime ?? null,
       tags: safeParseJson(p.tags, []) as string[],
       published: p.published === 1,
+      editorialReviewerName: p.editorialReviewerName,
+      editorialReviewerRole: p.editorialReviewerRole,
+      editorialReviewedAt: p.editorialReviewedAt,
+      editorialPrimarySources: safeParseJson(p.editorialPrimarySources, []),
+      editorialUniqueValueSummary: p.editorialUniqueValueSummary,
+      editorialFunnelOnlyDuplicate: p.editorialFunnelOnlyDuplicate === 1,
       url: `/blog/${p.slug}`,
     }));
 
@@ -235,17 +548,10 @@ router.get("/posts/:slug", requirePermission("posts:read"), async (req: AdminReq
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
-    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, req.params.slug));
+    const post = await getAdminBlogPost(req.params.slug);
     if (!post) return res.status(404).json({ error: "Post not found" });
 
-    // Parse JSON fields
-    res.json({
-      ...post,
-      content: sanitizeStoredHtml(post.content),
-      tags: safeParseJson(post.tags, []),
-      relatedSlugs: safeParseJson(post.relatedSlugs, []),
-      faqItems: safeParseJson(post.faqItems, []),
-    });
+    res.json(post);
   } catch (err) {
     sendInternalError(res, err);
   }
@@ -257,48 +563,59 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({ error: "Request body must be a JSON object" });
+    }
+    const body = req.body as Record<string, unknown>;
     const { slug, title, content, metaTitle, metaDescription, heroImage, category,
-            tags, excerpt, readTime, relatedSlugs, faqItems, canonicalUrl, published } = req.body;
+            tags, excerpt, readTime, relatedSlugs, faqItems, canonicalUrl, published } = body;
 
-    if (!slug || !title || !content) {
+    if (
+      typeof slug !== "string" || !slug.trim()
+      || typeof title !== "string" || !title.trim()
+      || typeof content !== "string" || !content.trim()
+    ) {
       return res.status(400).json({ error: "slug, title, and content are required" });
     }
     if (published !== undefined && typeof published !== "boolean") {
       return res.status(400).json({ error: "published must be a boolean" });
     }
 
+    const normalizedSlug = slug.trim();
+
     // Check for duplicate slug
-    const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, slug));
+    const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, normalizedSlug));
     if (existing) return res.status(409).json({ error: `Post with slug '${slug}' already exists` });
 
     const publishRequested = published === true;
     if (publishRequested && !hasPermission(req, "posts:publish")) {
       return res.status(403).json({ error: "Publishing requires 'posts:publish'; content was not created" });
     }
-    const safeContent = sanitizeStoredHtml(content);
+    const editorialFields = normalizeEditorialReviewFields(body);
 
-    await db.insert(blogPosts).values({
-      slug,
-      title,
-      content: safeContent,
-      metaTitle: metaTitle || title,
-      metaDescription,
-      heroImage,
-      category,
-      tags: Array.isArray(tags) ? JSON.stringify(tags) : tags,
-      excerpt,
-      readTime,
-      relatedSlugs: Array.isArray(relatedSlugs) ? JSON.stringify(relatedSlugs) : relatedSlugs,
-      faqItems: Array.isArray(faqItems) ? JSON.stringify(faqItems) : faqItems,
-      canonicalUrl,
+    await createBlogPost({
+      slug: normalizedSlug,
+      title: title.trim(),
+      content,
+      metaTitle: typeof metaTitle === "string" && metaTitle.trim() ? metaTitle.trim() : title.trim(),
+      metaDescription: typeof metaDescription === "string" ? metaDescription : undefined,
+      heroImage: typeof heroImage === "string" ? heroImage : undefined,
+      category: typeof category === "string" ? category : undefined,
+      tags: Array.isArray(tags) ? JSON.stringify(tags) : typeof tags === "string" ? tags : undefined,
+      excerpt: typeof excerpt === "string" ? excerpt : undefined,
+      readTime: typeof readTime === "string" ? readTime : undefined,
+      relatedSlugs: Array.isArray(relatedSlugs) ? JSON.stringify(relatedSlugs) : typeof relatedSlugs === "string" ? relatedSlugs : undefined,
+      faqItems: Array.isArray(faqItems) ? JSON.stringify(faqItems) : typeof faqItems === "string" ? faqItems : undefined,
+      canonicalUrl: normalizeAdminCanonicalUrl(canonicalUrl),
+      ...editorialFields,
       published: publishRequested ? 1 : 0,
       publishedAt: publishRequested ? new Date() : null,
     });
 
-    const [created] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    const created = await getAdminBlogPost(normalizedSlug);
     res.status(201).json({ success: true, post: created });
   } catch (err) {
-    sendInternalError(res, err);
+    sendBlogWriteError(res, err);
   }
 });
 
@@ -308,36 +625,60 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
-    const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, req.params.slug));
+    const [existing] = await db
+      .select({
+        id: blogPosts.id,
+        published: blogPosts.published,
+        editorialReviewedAt: blogPosts.editorialReviewedAt,
+      })
+      .from(blogPosts)
+      .where(eq(blogPosts.slug, req.params.slug));
     if (!existing) return res.status(404).json({ error: "Post not found" });
 
-    const updates: Record<string, unknown> = {};
-    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({ error: "Request body must be a JSON object" });
+    }
+    const body = req.body as Record<string, unknown>;
+    const updates: Record<string, unknown> = {
+      ...authorizePublishedPostMutation(
+        existing,
+        body,
+        hasPermission(req, "posts:publish"),
+      ),
+    };
+    if (body.published !== undefined && typeof body.published !== "boolean") {
       return res.status(400).json({ error: "published must be a boolean" });
     }
-    if (req.body.published === true && !hasPermission(req, "posts:publish")) {
+    if (body.published === true && !hasPermission(req, "posts:publish")) {
       return res.status(403).json({ error: "Publishing requires 'posts:publish'" });
     }
-    const fields = ["title", "metaTitle", "metaDescription", "heroImage",
-                    "category", "excerpt", "readTime", "canonicalUrl"];
-    for (const f of fields) {
-      if (req.body[f] !== undefined) updates[f] = req.body[f];
+    for (const f of BLOG_POST_SCALAR_MUTABLE_FIELDS) {
+      if (body[f] !== undefined) updates[f] = body[f];
     }
-    if (req.body.content !== undefined) updates.content = sanitizeStoredHtml(req.body.content);
+    if (hasOwn(body, "canonicalUrl")) {
+      updates.canonicalUrl = normalizeAdminCanonicalUrl(body.canonicalUrl);
+    }
+    if (body.content !== undefined) {
+      if (typeof body.content !== "string") {
+        return res.status(400).json({ error: "content must be a string" });
+      }
+      updates.content = body.content;
+    }
     // JSON fields
-    if (req.body.tags !== undefined) updates.tags = JSON.stringify(req.body.tags);
-    if (req.body.relatedSlugs !== undefined) updates.relatedSlugs = JSON.stringify(req.body.relatedSlugs);
-    if (req.body.faqItems !== undefined) updates.faqItems = JSON.stringify(req.body.faqItems);
-    if (req.body.published !== undefined) {
-      updates.published = req.body.published ? 1 : 0;
-      if (req.body.published) updates.publishedAt = new Date();
+    for (const field of BLOG_POST_JSON_MUTABLE_FIELDS) {
+      if (body[field] !== undefined) {
+        updates[field] = Array.isArray(body[field]) ? JSON.stringify(body[field]) : body[field];
+      }
+    }
+    if (body.published !== undefined) {
+      updates.published = body.published ? 1 : 0;
     }
 
-    await db.update(blogPosts).set(updates).where(eq(blogPosts.slug, req.params.slug));
-    const [updated] = await db.select().from(blogPosts).where(eq(blogPosts.slug, req.params.slug));
+    await updateBlogPost(req.params.slug, updates as Partial<InsertBlogPost>);
+    const updated = await getAdminBlogPost(req.params.slug);
     res.json({ success: true, post: updated });
   } catch (err) {
-    sendInternalError(res, err);
+    sendBlogWriteError(res, err);
   }
 });
 
@@ -563,8 +904,8 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
         let targetPath: string;
         try {
           targetPath = resolveAllowlistedAutomationPath(op.path);
-        } catch (pathErr) {
-          console.warn(`[AdminAPI] Rejected automation path at operation ${i}:`, pathErr);
+        } catch {
+          console.warn(`[AdminAPI] Rejected automation path at operation ${i}`);
           return res.status(400).json({ error: `write_file operation ${i} has invalid path` });
         }
         const contentBytes = Buffer.byteLength(op.content, "utf8");
@@ -689,6 +1030,8 @@ router.get("/keys", requirePermission("keys:manage"), async (req: AdminRequest, 
         permissions: apiKeys.permissions,
         active: apiKeys.active,
         lastUsedAt: apiKeys.lastUsedAt,
+        expiresAt: apiKeys.expiresAt,
+        revokedAt: apiKeys.revokedAt,
         createdAt: apiKeys.createdAt,
       })
       .from(apiKeys)
@@ -706,22 +1049,41 @@ router.post("/keys", requirePermission("keys:manage"), async (req: AdminRequest,
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
-    const { name, permissions } = req.body;
-    if (!name) return res.status(400).json({ error: "name is required" });
+    const { name, permissions, expiresInDays = 30 } = req.body;
+    if (typeof name !== "string" || !name.trim() || name.trim().length > 100) {
+      return res.status(400).json({ error: "name must be 1-100 characters" });
+    }
+    if (!Number.isInteger(expiresInDays) || expiresInDays < 1 || expiresInDays > 90) {
+      return res.status(400).json({ error: "expiresInDays must be an integer from 1 to 90" });
+    }
 
-    const perms = Array.isArray(permissions) ? permissions : ["posts:read", "posts:write", "companies:read", "companies:write", "config:read", "config:write"];
+    const perms = permissions === undefined
+      ? DEFAULT_API_KEY_PERMISSIONS
+      : Array.isArray(permissions)
+        ? Array.from(new Set<unknown>(permissions))
+        : null;
+    if (
+      !perms
+      || perms.length === 0
+      || perms.length > API_KEY_PERMISSIONS.size
+      || !perms.every(permission => typeof permission === "string" && API_KEY_PERMISSIONS.has(permission))
+    ) {
+      return res.status(400).json({ error: "permissions contains an unsupported value" });
+    }
 
     // Generate a secure random key
     const rawKey = `sf_${crypto.randomBytes(32).toString("hex")}`;
     const keyPrefix = rawKey.slice(0, 10); // "sf_" + 7 chars
     const keyHash = await bcrypt.hash(rawKey, 12);
+    const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1_000);
 
     await db.insert(apiKeys).values({
-      name,
+      name: name.trim(),
       keyHash,
       keyPrefix,
       permissions: JSON.stringify(perms),
       active: 1,
+      expiresAt,
     });
 
     res.status(201).json({
@@ -729,8 +1091,9 @@ router.post("/keys", requirePermission("keys:manage"), async (req: AdminRequest,
       message: "Save this key — it will NOT be shown again",
       key: rawKey,
       keyPrefix,
-      name,
+      name: name.trim(),
       permissions: perms,
+      expiresAt,
     });
   } catch (err) {
     sendInternalError(res, err);
@@ -746,7 +1109,7 @@ router.delete("/keys/:id", requirePermission("keys:manage"), async (req: AdminRe
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid key ID" });
 
-    await db.update(apiKeys).set({ active: 0 }).where(eq(apiKeys.id, id));
+    await db.update(apiKeys).set({ active: 0, revokedAt: new Date() }).where(eq(apiKeys.id, id));
     res.json({ success: true, message: `API key ${id} revoked` });
   } catch (err) {
     sendInternalError(res, err);

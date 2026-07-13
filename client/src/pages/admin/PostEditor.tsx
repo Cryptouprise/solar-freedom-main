@@ -393,8 +393,8 @@ export default function PostEditor() {
       setSaved(true);
       toast.success("Post saved successfully");
       setTimeout(() => setSaved(false), 3000);
-    } catch (err: unknown) {
-      toast.error("Save failed: " + (err instanceof Error ? err.message : "Unknown error"));
+    } catch {
+      toast.error("Save failed. Publishing also requires a complete evidence-first editorial review; review sanitized server diagnostics.");
     } finally {
       setSaving(false);
     }

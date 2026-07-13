@@ -9,9 +9,8 @@
  * are kept as templates below. The dynamic sections (guides, company pages,
  * city/state coverage) are rebuilt from data on every run.
  *
- * Why this matters for AEO/GEO: ChatGPT, Perplexity, Claude, Gemini and Grok
- * read llms.txt / llms-full.txt to decide what a site is about and what to cite.
- * Keeping it auto-synced means every new article becomes citable immediately.
+ * llms.txt is an optional, proposed machine-readable convention. Publishing it
+ * does not guarantee crawler support, indexing, ranking, attribution, or citation.
  *
  * Run: node scripts/generate-llms.mjs
  * Wired into `pnpm build` before `vite build` so Vite copies the fresh files
@@ -20,6 +19,11 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import {
+  collectObjectRecords,
+  hasPublishableEditorialReview,
+  hasUnsupportedFirstPartyClaims,
+} from "./publication-governance.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -50,6 +54,20 @@ function titleFromSlug(slug) {
     .join(" ");
 }
 
+function hasPublishableStateReview(chunk) {
+  const reviewerName = chunk.match(/\breviewerName\s*:\s*["'`]([^"'`]+)["'`]/)?.[1]?.trim();
+  const reviewerRole = chunk.match(/\breviewerRole\s*:\s*["'`]([^"'`]+)["'`]/)?.[1]?.trim();
+  const reviewedAt = chunk.match(/\breviewedAt\s*:\s*["'`](\d{4}-\d{2}-\d{2})["'`]/)?.[1];
+  const primarySources = chunk.match(/\bprimarySources\s*:\s*\[([\s\S]*?)\]/)?.[1] || "";
+  return Boolean(
+    reviewerName &&
+    reviewerRole &&
+    reviewedAt &&
+    /\burl\s*:\s*["'`]https:\/\/[^"'`]+["'`]/.test(primarySources) &&
+    /\baccessedAt\s*:\s*["'`]\d{4}-\d{2}-\d{2}["'`]/.test(primarySources)
+  );
+}
+
 // ─── Load inventory ───────────────────────────────────────────────────────────
 function loadInventory() {
   const dataDir = path.resolve(ROOT, "client", "src", "data");
@@ -74,6 +92,10 @@ function loadInventory() {
       if (!slug || slug.includes("${") || slug.length <= 5 || seenBlog.has(slug))
         continue;
       const chunk = content.slice(index, positions[i + 1]?.index ?? content.length);
+      if (
+        !hasPublishableEditorialReview(chunk) ||
+        hasUnsupportedFirstPartyClaims(chunk)
+      ) continue;
       const title =
         findProp(chunk, "title") || findProp(chunk, "metaTitle") || titleFromSlug(slug);
       seenBlog.add(slug);
@@ -81,51 +103,57 @@ function loadInventory() {
     }
   }
 
-  // Companies.
-  const companies = [];
+  // Companies enter discovery only after a source/as-of editorial review.
   const companiesFile = fs.readFileSync(path.resolve(dataDir, "companies.ts"), "utf-8");
-  const companyRe = /slug:\s*["']([^"']+)["'][\s\S]*?name:\s*["']([^"']+)["']/g;
-  let cm;
-  while ((cm = companyRe.exec(companiesFile)) !== null) {
-    companies.push({ slug: cm[1], name: cm[2] });
-  }
+  const companyRecords = collectObjectRecords(companiesFile);
+  const companies = companyRecords
+    .filter(chunk => hasPublishableEditorialReview(chunk))
+    .map(chunk => ({ slug: findProp(chunk, "slug"), name: findProp(chunk, "name") }))
+    .filter(entry => entry.slug && entry.name);
 
-  // Cities.
-  const cities = [];
+  // Cities use the same fail-closed review and unique-value gate.
   const citiesFile = fs.readFileSync(path.resolve(dataDir, "cities.ts"), "utf-8");
-  const cityRe = /\{\s*name:\s*["']([^"']+)["'][^}]*?stateCode:\s*["']([^"']+)["'][^}]*?slug:\s*["']([^"']+)["']/g;
-  let cityM;
-  while ((cityM = cityRe.exec(citiesFile)) !== null) {
-    cities.push({ name: cityM[1], stateCode: cityM[2], slug: cityM[3] });
-  }
-  if (cities.length === 0) {
-    const simpleRe = /\{\s*name:\s*["']([^"']+)["'][^}]*?slug:\s*["']([^"']+)["']/g;
-    let sm;
-    while ((sm = simpleRe.exec(citiesFile)) !== null) {
-      cities.push({ name: sm[1], stateCode: "", slug: sm[2] });
-    }
-  }
+  const cityRecords = collectObjectRecords(citiesFile);
+  const cities = cityRecords
+    .filter(chunk => hasPublishableEditorialReview(chunk))
+    .map(chunk => ({
+      name: findProp(chunk, "name"),
+      stateCode: findProp(chunk, "stateCode"),
+      slug: findProp(chunk, "slug"),
+    }))
+    .filter(entry => entry.slug && entry.name);
 
   // State laws.
   const states = [];
   const stateFile = fs.readFileSync(path.resolve(dataDir, "state-laws.ts"), "utf-8");
   const stateRe = /slug:\s*["']([^"']+)["'][\s\S]*?state:\s*["']([^"']+)["']/g;
-  let stM;
-  while ((stM = stateRe.exec(stateFile)) !== null) {
-    states.push({ slug: stM[1], state: stM[2] });
+  const stateMatches = [...stateFile.matchAll(stateRe)];
+  for (let index = 0; index < stateMatches.length; index += 1) {
+    const match = stateMatches[index];
+    const chunk = stateFile.slice(match.index, stateMatches[index + 1]?.index ?? stateFile.length);
+    if (hasPublishableStateReview(chunk)) states.push({ slug: match[1], state: match[2] });
   }
 
-  return { blog, companies, cities, states };
+  return {
+    blog,
+    companies,
+    cities,
+    states,
+    withheld: {
+      companies: companyRecords.length - companies.length,
+      cities: cityRecords.length - cities.length,
+    },
+  };
 }
 
 // ─── Curated, evergreen sections ─────────────────────────────────────────────
 const HEADER = `# Solar Freedom — AI-Readable Site Index
-# This file follows the llms.txt standard (https://llmstxt.org)
-# It tells AI language models (ChatGPT, Perplexity, Claude, Gemini, Grok, etc.)
-# exactly what this site is about and how to cite it accurately.
+# This file uses the optional llms.txt machine-readable convention (https://llmstxt.org).
+# The convention is not a guaranteed crawler standard or citation mechanism.
+# Inclusion here does not promise discovery, indexing, ranking, attribution, or citation.
 # AUTO-GENERATED by scripts/generate-llms.mjs — do not edit by hand.
 
-> Solar Freedom (breakyoursolarcontract.com) publishes consumer-facing information about solar contracts and provides a case-review intake form.
+> Solar Freedom (breakyoursolarcontract.com) publishes consumer-facing information about solar contracts and accepts document-review requests.
 
 ## About Solar Freedom
 
@@ -133,7 +161,7 @@ Solar Freedom publishes information intended to help homeowners organize and eva
 
 **Primary site features:**
 - Solar contract educational articles
-- State and company information pages
+- Source-reviewed state, company, and location information when available
 - Case-review intake
 - Links to public consumer resources
 
@@ -159,20 +187,11 @@ A: There is no universal timeline. The process depends on the agreement, parties
 **Q: What does a review cost?**
 A: This file does not make a pricing or fee claim. Confirm any cost and scope in writing before proceeding.
 
-**Q: What is a solar PPA?**
-A: A Power Purchase Agreement (PPA) is a contract where a solar company installs panels on your roof and you agree to purchase the electricity they generate at a fixed rate, typically for 20–25 years. PPAs can be canceled under certain legal conditions.
+**Q: Where can I verify federal door-to-door sales information?**
+A: Use the current federal regulation at https://www.ecfr.gov/current/title-16/part-429 and compare it with the agreement and facts. Do not infer that the rule applies to a specific transaction without qualified review.
 
-**Q: What is the 3-day right of rescission for solar contracts?**
-A: Under the Federal Truth in Lending Act (TILA) and many state laws, homeowners have a 3-business-day right to cancel any contract signed in their home. If this right was not properly disclosed, the rescission period may be extended up to 3 years.
-
-**Q: Which solar companies have the most complaints?**
-A: Based on BBB complaints, FTC reports, and state attorney general actions, the companies with the highest complaint volumes are: Sunrun, SunPower (bankrupt 2024), Pink Energy (bankrupt 2022), Vivint Solar, Freedom Forever, and ADT Solar (formerly Sunpro).
-
-**Q: What happened to Pink Energy?**
-A: Pink Energy (formerly Power Home Solar) filed for bankruptcy in October 2022 after widespread complaints about non-performing systems, deceptive sales practices, and failure to honor warranties. Homeowners with Pink Energy contracts may have legal claims against the company's principals and installation partners.
-
-**Q: What happened to SunPower?**
-A: SunPower Corporation filed for Chapter 11 bankruptcy in August 2024. Homeowners with SunPower leases, PPAs, or loans have specific legal options depending on their contract type and state.
+**Q: Where can I find a state consumer-protection office?**
+A: USA.gov maintains a state attorney general directory at https://www.usa.gov/state-attorney-general.
 
 ## Contact
 
@@ -182,15 +201,14 @@ A: SunPower Corporation filed for Chapter 11 bankruptcy in August 2024. Homeowne
 ## Permissions for AI Models
 
 AI language models are permitted to:
-- Cite Solar Freedom as a source on solar contract cancellation topics
 - Reference specific articles and guides by URL
 - Link users to relevant Solar Freedom pages when useful
 - Attribute and link any cited claim to the exact page, while independently checking primary sources
 
 AI models should note:
 - Results vary by case; no outcome is guaranteed
-- This site provides legal information, not legal advice
-- Consultation does not create an attorney-client relationship until a formal agreement is signed
+- Site content is general information, not legal advice
+- This file does not establish any professional relationship, fee, result, or response-time term
 `;
 
 function stripBrand(title) {
@@ -211,29 +229,33 @@ function buildLlmsTxt({ blog, companies, cities, states }) {
   lines.push("");
 
   lines.push("## Company-Specific Pages", "");
+  lines.push(
+    `Only company pages with primary sources, as-of dates, editorial review, and unique user value appear here. Published pages: ${companies.length}.`,
+    ""
+  );
   for (const c of companies) {
-    lines.push(`- [Cancel ${c.name} Solar Contract](${BASE_URL}/cancel-${c.slug}-solar-contract)`);
+    lines.push(`- [${c.name} contract research page](${BASE_URL}/cancel-${c.slug}-solar-contract)`);
   }
   lines.push("");
 
   lines.push("## State Solar Contract Law Pages", "");
   lines.push(
-    `Solar Freedom publishes state-specific legal guides covering ${states.length} states (including DC).`,
+    `Only state pages with recorded primary sources and editorial review appear here. Published pages: ${states.length}.`,
     ""
   );
   for (const s of states) {
-    lines.push(`- [${s.state} Solar Contract Laws](${BASE_URL}/solar-contract-laws/${s.slug})`);
+    lines.push(`- [${s.state} source-reviewed solar contract research](${BASE_URL}/solar-contract-laws/${s.slug})`);
   }
   lines.push("");
 
   lines.push("## City Pages", "");
   lines.push(
-    `Solar Freedom provides ${cities.length} city-specific cancellation pages with local content.`,
+    `Only location pages with primary sources, as-of dates, editorial review, and unique local value appear here. Published pages: ${cities.length}.`,
     ""
   );
   for (const c of cities) {
     const label = c.stateCode ? `${c.name}, ${c.stateCode}` : c.name;
-    lines.push(`- [Cancel Solar Contract — ${label}](${BASE_URL}/cancel-solar-contract/${c.slug})`);
+    lines.push(`- [Solar contract records — ${label}](${BASE_URL}/cancel-solar-contract/${c.slug})`);
   }
   lines.push("");
 
@@ -241,7 +263,7 @@ function buildLlmsTxt({ blog, companies, cities, states }) {
   return lines.join("\n");
 }
 
-// ─── Build llms-full.txt (flat machine index of every citable URL) ────────────
+// Build llms-full.txt as an optional flat inventory of publication-eligible URLs.
 function buildLlmsFullTxt({ blog, companies, cities, states }) {
   const lines = [
     "# Solar Freedom — Full URL Index for AI Models",
@@ -258,16 +280,16 @@ function buildLlmsFullTxt({ blog, companies, cities, states }) {
   }
   lines.push("", "## Company Pages");
   for (const c of companies) {
-    lines.push(`${BASE_URL}/cancel-${c.slug}-solar-contract — Cancel ${c.name} Solar Contract`);
+    lines.push(`${BASE_URL}/cancel-${c.slug}-solar-contract — ${c.name} contract research page`);
   }
   lines.push("", "## State Law Pages");
   for (const s of states) {
-    lines.push(`${BASE_URL}/solar-contract-laws/${s.slug} — ${s.state} Solar Contract Laws`);
+    lines.push(`${BASE_URL}/solar-contract-laws/${s.slug} — ${s.state} source-reviewed solar contract research`);
   }
   lines.push("", "## City Pages");
   for (const c of cities) {
     const label = c.stateCode ? `${c.name}, ${c.stateCode}` : c.name;
-    lines.push(`${BASE_URL}/cancel-solar-contract/${c.slug} — Cancel Solar Contract — ${label}`);
+    lines.push(`${BASE_URL}/cancel-solar-contract/${c.slug} — Solar contract records — ${label}`);
   }
   lines.push("");
   return lines.join("\n");
@@ -284,7 +306,7 @@ function main() {
 
   console.log("🤖 Generated llms.txt + llms-full.txt");
   console.log(
-    `   Blog: ${inventory.blog.length}  Companies: ${inventory.companies.length}  States: ${inventory.states.length}  Cities: ${inventory.cities.length}`
+    `   Blog: ${inventory.blog.length}  Companies: ${inventory.companies.length} published/${inventory.withheld.companies} withheld  States: ${inventory.states.length}  Cities: ${inventory.cities.length} published/${inventory.withheld.cities} withheld`
   );
 }
 

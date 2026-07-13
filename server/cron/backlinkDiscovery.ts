@@ -1,240 +1,473 @@
 /**
- * Backlink Discovery Cron — Weekly automated link opportunity finder
+ * Backlink research queue.
  *
- * Runs every Wednesday at 9am MT (15:00 UTC).
- * Uses OpenRouter AI to identify high-quality backlink opportunities in the
- * solar/legal/consumer protection space, scores them for relevance and DA,
- * and adds them to the backlinkOpportunities table for admin review.
- *
- * Discovery methods:
- *   1. Google search queries for relevant directories, resource pages, guest post sites
- *   2. Analysis of competitor backlink profiles (via public data)
- *   3. Niche-specific site lists (solar news, legal directories, consumer advocacy)
- *
- * Cost: ~$0.001 per discovery run using Qwen 3 8B via OpenRouter
+ * This job creates unverified candidates for an administrator to investigate.
+ * It does not verify that a site is active, accepts submissions, has a specific
+ * link attribute or authority score, and it never submits or approves links.
  */
 
-import { getDb } from "../db";
+import { isIP } from "node:net";
+import { eq, inArray } from "drizzle-orm";
 import { backlinkOpportunities } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { logSafeError } from "../_core/safeLog";
+import { getDb } from "../db";
+import { callLLM } from "./aiCostTracker";
 
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "qwen/qwen3-8b:free";
+export const DEFAULT_BACKLINK_RESEARCH_MODEL = "openrouter/free";
 
-// ─── Known high-value PR and backlink sites (always in the list) ──────────────
+const FIRST_PARTY_HOST = "breakyoursolarcontract.com";
+const MAX_CANDIDATES_PER_RUN = 20;
+const RESEARCH_REASON =
+  "Unverified research candidate; confirm the site, editorial fit, submission policy, pricing, and link attributes before approval.";
 
+const OPPORTUNITY_TYPES = new Set<BacklinkOpportunityType>([
+  "press_release",
+  "directory",
+  "guest_post",
+  "resource_page",
+  "forum",
+  "social",
+  "other",
+]);
+
+type BacklinkOpportunityType =
+  | "press_release"
+  | "directory"
+  | "guest_post"
+  | "resource_page"
+  | "forum"
+  | "social"
+  | "other";
+
+/**
+ * Historical candidates retained only as a research starting point. Their
+ * availability, submission policies, pricing, and link attributes are unknown
+ * until a reviewer verifies them.
+ */
 export const KNOWN_PR_SITES = [
-  // Free press release sites
-  { name: "PRLog.com", url: "https://www.prlog.org", type: "press_release" as const, da: 72, doFollow: 1 },
-  { name: "OpenPR.com", url: "https://www.openpr.com", type: "press_release" as const, da: 65, doFollow: 1 },
-  { name: "1888PressRelease.com", url: "https://www.1888pressrelease.com", type: "press_release" as const, da: 55, doFollow: 1 },
-  { name: "PRFree.com", url: "https://prfree.com", type: "press_release" as const, da: 50, doFollow: 1 },
-  { name: "PRBuzz.com", url: "https://www.prbuzz.com", type: "press_release" as const, da: 48, doFollow: 1 },
-  { name: "Free-Press-Release.com", url: "https://free-press-release.com", type: "press_release" as const, da: 52, doFollow: 1 },
-  { name: "PRUrgent.com", url: "https://www.prurgent.com", type: "press_release" as const, da: 45, doFollow: 1 },
-  { name: "i-Newswire.com", url: "https://i-newswire.com", type: "press_release" as const, da: 55, doFollow: 1 },
-  { name: "ClickPress.com", url: "https://www.clickpress.com", type: "press_release" as const, da: 47, doFollow: 1 },
-  { name: "NewsByWire.com", url: "https://newsbywire.com", type: "press_release" as const, da: 44, doFollow: 1 },
-  { name: "PRLeap.com", url: "https://www.prleap.com", type: "press_release" as const, da: 58, doFollow: 1 },
-  { name: "PRZoom.com", url: "https://www.przoom.com", type: "press_release" as const, da: 46, doFollow: 1 },
-  { name: "SBWire.com", url: "https://www.sbwire.com", type: "press_release" as const, da: 54, doFollow: 1 },
-  { name: "24-7PressRelease.com", url: "https://www.24-7pressrelease.com", type: "press_release" as const, da: 62, doFollow: 1 },
-  { name: "PRMac.com", url: "https://prmac.com", type: "press_release" as const, da: 56, doFollow: 1 },
-
-  // Legal directories
-  { name: "Avvo.com", url: "https://www.avvo.com", type: "directory" as const, da: 78, doFollow: 0 },
-  { name: "FindLaw.com", url: "https://www.findlaw.com", type: "directory" as const, da: 85, doFollow: 0 },
-  { name: "Justia.com", url: "https://www.justia.com", type: "directory" as const, da: 82, doFollow: 1 },
-  { name: "Lawyers.com", url: "https://www.lawyers.com", type: "directory" as const, da: 75, doFollow: 0 },
-  { name: "HG.org", url: "https://www.hg.org", type: "directory" as const, da: 70, doFollow: 1 },
-  { name: "LegalMatch.com", url: "https://www.legalmatch.com", type: "directory" as const, da: 68, doFollow: 0 },
-
-  // Consumer advocacy / solar news
-  { name: "CleanTechnica.com", url: "https://cleantechnica.com", type: "resource_page" as const, da: 79, doFollow: 1 },
-  { name: "SolarReviews.com", url: "https://www.solarreviews.com", type: "directory" as const, da: 65, doFollow: 1 },
-  { name: "EnergySage.com", url: "https://news.energysage.com", type: "resource_page" as const, da: 72, doFollow: 1 },
-  { name: "ConsumerAffairs.com", url: "https://www.consumeraffairs.com", type: "directory" as const, da: 80, doFollow: 0 },
-  { name: "BBB.org", url: "https://www.bbb.org", type: "directory" as const, da: 91, doFollow: 0 },
+  { name: "PRLog.com", url: "https://www.prlog.org", type: "press_release" as const },
+  { name: "OpenPR.com", url: "https://www.openpr.com", type: "press_release" as const },
+  { name: "1888PressRelease.com", url: "https://www.1888pressrelease.com", type: "press_release" as const },
+  { name: "PRFree.com", url: "https://prfree.com", type: "press_release" as const },
+  { name: "PRBuzz.com", url: "https://www.prbuzz.com", type: "press_release" as const },
+  { name: "Free-Press-Release.com", url: "https://free-press-release.com", type: "press_release" as const },
+  { name: "PRUrgent.com", url: "https://www.prurgent.com", type: "press_release" as const },
+  { name: "i-Newswire.com", url: "https://i-newswire.com", type: "press_release" as const },
+  { name: "ClickPress.com", url: "https://www.clickpress.com", type: "press_release" as const },
+  { name: "NewsByWire.com", url: "https://newsbywire.com", type: "press_release" as const },
+  { name: "PRLeap.com", url: "https://www.prleap.com", type: "press_release" as const },
+  { name: "PRZoom.com", url: "https://www.przoom.com", type: "press_release" as const },
+  { name: "SBWire.com", url: "https://www.sbwire.com", type: "press_release" as const },
+  { name: "24-7PressRelease.com", url: "https://www.24-7pressrelease.com", type: "press_release" as const },
+  { name: "PRMac.com", url: "https://prmac.com", type: "press_release" as const },
+  { name: "Avvo.com", url: "https://www.avvo.com", type: "directory" as const },
+  { name: "FindLaw.com", url: "https://www.findlaw.com", type: "directory" as const },
+  { name: "Justia.com", url: "https://www.justia.com", type: "directory" as const },
+  { name: "Lawyers.com", url: "https://www.lawyers.com", type: "directory" as const },
+  { name: "HG.org", url: "https://www.hg.org", type: "directory" as const },
+  { name: "LegalMatch.com", url: "https://www.legalmatch.com", type: "directory" as const },
+  { name: "CleanTechnica.com", url: "https://cleantechnica.com", type: "resource_page" as const },
+  { name: "SolarReviews.com", url: "https://www.solarreviews.com", type: "directory" as const },
+  { name: "EnergySage.com", url: "https://news.energysage.com", type: "resource_page" as const },
+  { name: "ConsumerAffairs.com", url: "https://www.consumeraffairs.com", type: "directory" as const },
+  { name: "BBB.org", url: "https://www.bbb.org", type: "directory" as const },
 ];
 
-// ─── AI-powered opportunity discovery ────────────────────────────────────────
-
-interface DiscoveredOpportunity {
+export interface DiscoveredOpportunity {
   name: string;
   url: string;
-  type: "press_release" | "directory" | "guest_post" | "resource_page" | "forum" | "social" | "other";
-  relevanceScore: number;
+  type: BacklinkOpportunityType;
+  /** Model-generated topical-fit score, not an authority or ranking metric. */
+  relevanceScore: number | null;
   relevanceReason: string;
-  domainAuthority: number;
-  doFollow: number;
-  discoveredVia: string;
+  domainAuthority: null;
+  doFollow: null;
+  discoveredVia: "ai_unverified_research";
 }
 
-async function discoverWithAI(apiKey: string, model: string): Promise<DiscoveredOpportunity[]> {
-  const prompt = `You are an SEO expert specializing in link building for consumer advocacy websites.
+function cleanText(value: unknown, maxLength: number): string {
+  if (typeof value !== "string") return "";
+  return value
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
 
-The website is Solar Freedom (breakyoursolarcontract.com) — a consumer advocacy site helping homeowners cancel predatory solar contracts. Topics covered: solar contract cancellation, solar lease problems, solar loan issues, consumer protection law, homeowner rights.
+function isReservedResearchHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (isIP(host) !== 0) return true;
+  if (host === FIRST_PARTY_HOST || host.endsWith(`.${FIRST_PARTY_HOST}`)) return true;
+  if (!host.includes(".") || !/^[a-z0-9.-]+$/.test(host)) return true;
+  if (host.startsWith(".") || host.endsWith(".") || host.includes("..")) return true;
 
-Find 20 high-quality backlink opportunities for this site. Focus on:
-1. Free press release distribution sites (not already in the list below)
-2. Legal resource directories that accept consumer advocacy sites
-3. Solar energy news sites that accept guest posts or press releases
-4. Consumer protection resource pages that link to helpful tools
-5. Home improvement / real estate sites that cover solar issues
-6. State government or .edu pages about solar consumer rights
+  const reservedNames = [
+    "localhost",
+    ".localhost",
+    ".local",
+    ".internal",
+    ".home",
+    ".lan",
+    ".onion",
+    ".test",
+    ".invalid",
+  ];
+  if (reservedNames.some((suffix) => host === suffix.replace(/^\./, "") || host.endsWith(suffix))) {
+    return true;
+  }
 
-EXCLUDE these already-known sites:
-prlog.org, openpr.com, 1888pressrelease.com, prfree.com, prbuzz.com, free-press-release.com, prurgent.com, i-newswire.com, clickpress.com, newsbywire.com, prleap.com, przoom.com, sbwire.com, 24-7pressrelease.com, prmac.com, avvo.com, findlaw.com, justia.com, lawyers.com, hg.org, legalmatch.com, cleantechnica.com, solarreviews.com, energysage.com, consumeraffairs.com, bbb.org
+  return ["example.com", "example.net", "example.org"]
+    .some((domain) => host === domain || host.endsWith(`.${domain}`));
+}
 
-Return a JSON array of opportunities. Each item must have:
-- name: site name
-- url: homepage URL (https://...)
-- type: one of "press_release", "directory", "guest_post", "resource_page", "forum", "social", "other"
-- relevanceScore: 0-100 (how relevant to solar contract cancellation)
-- relevanceReason: 1 sentence explaining why this is a good link source
-- domainAuthority: estimated DA 0-100 (be conservative/realistic)
-- doFollow: 1 if likely dofollow, 0 if nofollow
-- discoveredVia: brief description of how you identified this (e.g. "legal directory search", "solar news site")
+/** Return a canonical, public-host HTTPS URL suitable for an external link. */
+export function normalizeBacklinkCandidateUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const input = value.trim();
+  if (!input || input.length > 500 || !/^https:\/\//i.test(input)) return null;
 
-Only include sites that:
-- Are real, currently active websites
-- Would likely accept a press release or link from a consumer advocacy solar site
-- Have DA > 30 (be realistic)
+  try {
+    const parsed = new URL(input);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password) return null;
+    if (parsed.port && parsed.port !== "443") return null;
+    if (isReservedResearchHost(parsed.hostname)) return null;
+    parsed.hash = "";
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}
 
-Return ONLY the JSON array, no other text.`;
+/** Include the historical raw spelling so pre-canonicalization rows are repaired. */
+export function backlinkCandidateUrlVariants(value: unknown): string[] {
+  if (typeof value !== "string") return [];
+  const raw = value.trim();
+  const canonical = normalizeBacklinkCandidateUrl(raw);
+  return canonical ? Array.from(new Set([raw, canonical])) : [];
+}
 
-  const response = await fetch(OPENROUTER_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://breakyoursolarcontract.com",
-      "X-Title": "Solar Freedom Backlink Discovery",
-    },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      temperature: 0.5,
-      max_tokens: 3000,
-    }),
+function asOpportunityType(value: unknown): BacklinkOpportunityType | null {
+  return typeof value === "string" && OPPORTUNITY_TYPES.has(value as BacklinkOpportunityType)
+    ? value as BacklinkOpportunityType
+    : null;
+}
+
+function asModeledRelevance(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.max(0, Math.min(100, Math.round(value)))
+    : null;
+}
+
+/**
+ * Parse provider JSON defensively and replace provider-authored assertions with
+ * a fixed review warning. Unsafe, duplicate, or malformed candidates are
+ * discarded before they can reach storage or the admin UI.
+ */
+export function parseUnverifiedBacklinkSuggestions(content: string): DiscoveredOpportunity[] {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(content);
+  } catch {
+    return [];
+  }
+
+  const candidateRecord = payload && typeof payload === "object"
+    ? payload as Record<string, unknown>
+    : null;
+  const rawList = Array.isArray(payload)
+    ? payload
+    : Array.isArray(candidateRecord?.opportunities)
+      ? candidateRecord.opportunities
+      : Array.isArray(candidateRecord?.sites)
+        ? candidateRecord.sites
+        : [];
+
+  const seen = new Set<string>();
+  const results: DiscoveredOpportunity[] = [];
+
+  for (const raw of rawList) {
+    if (results.length >= MAX_CANDIDATES_PER_RUN) break;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
+    const item = raw as Record<string, unknown>;
+    const url = normalizeBacklinkCandidateUrl(item.url);
+    const type = asOpportunityType(item.type);
+    if (!url || !type || seen.has(url)) continue;
+
+    const parsedUrl = new URL(url);
+    const name = cleanText(item.name, 200) || parsedUrl.hostname;
+    if (!name) continue;
+
+    seen.add(url);
+    results.push({
+      name,
+      url,
+      type,
+      relevanceScore: asModeledRelevance(item.relevanceScore),
+      relevanceReason: RESEARCH_REASON,
+      domainAuthority: null,
+      doFollow: null,
+      discoveredVia: "ai_unverified_research",
+    });
+  }
+
+  return results;
+}
+
+async function discoverWithAI(model: string): Promise<DiscoveredOpportunity[]> {
+  const excludedHosts = KNOWN_PR_SITES
+    .map((site) => new URL(site.url).hostname.replace(/^www\./, ""))
+    .join(", ");
+
+  const prompt = `Create a research queue of up to 20 possible websites whose topics may overlap with solar-contract consumer education.
+
+The site being researched is Solar Freedom (breakyoursolarcontract.com), which publishes general educational information about solar agreements, financing, and consumer resources.
+
+Candidate categories may include press-release services, legal or consumer directories, solar publications, resource pages, and relevant guest-contribution programs.
+
+Important limitations:
+- Your knowledge may be stale. Do not claim that any candidate is active, reputable, high-authority, available, free, accepting submissions, or likely to provide a link.
+- Do not estimate domain authority, traffic, ranking value, link attributes, acceptance likelihood, pricing, or endorsement.
+- Do not include government or educational sites unless there is a plausible public resource or contribution page to investigate; never imply they will link to this site.
+- Return candidates for manual verification only.
+- Exclude these historical candidates: ${excludedHosts}
+
+Return one JSON object shaped exactly as:
+{"opportunities":[{"name":"Site name","url":"https://public.example/path","type":"press_release|directory|guest_post|resource_page|forum|social|other","relevanceScore":50}]}
+
+relevanceScore is only a modeled 0-100 topical-fit sorting aid. It is not authority, quality, probability, or expected SEO impact.`;
+
+  const content = await callLLM({
+    model,
+    messages: [{ role: "user", content: prompt }],
+    feature: "backlink_research",
+    responseFormat: { type: "json_object" },
+    temperature: 0.2,
+    maxTokens: 3000,
   });
 
-  if (!response.ok) {
-    throw new Error(`OpenRouter API error ${response.status}: ${await response.text()}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error("Empty response from AI");
-
-  const parsed = JSON.parse(content);
-  // Handle both array and {opportunities: [...]} formats
-  const list = Array.isArray(parsed) ? parsed : (parsed.opportunities ?? parsed.sites ?? []);
-
-  return list.filter((item: any) =>
-    item.url && item.type && typeof item.relevanceScore === "number"
-  );
+  return parseUnverifiedBacklinkSuggestions(content);
 }
 
-// ─── Seed known sites into DB ─────────────────────────────────────────────────
+/** Queue historical candidates as unverified, resetting legacy invented data. */
+export async function seedKnownPRSites(): Promise<number> {
+  let db: Awaited<ReturnType<typeof getDb>>;
+  try {
+    db = await getDb();
+  } catch (error) {
+    logSafeError("backlink.discovery_failed", error);
+    throw new Error("Backlink research storage is unavailable.");
+  }
+  if (!db) throw new Error("Backlink research storage is unavailable.");
 
-export async function seedKnownPRSites(): Promise<void> {
-  const db = await getDb();
-  if (!db) return;
+  let queued = 0;
+  try {
+    for (const site of KNOWN_PR_SITES) {
+      const urlVariants = backlinkCandidateUrlVariants(site.url);
+      const canonicalUrl = normalizeBacklinkCandidateUrl(site.url);
+      if (!canonicalUrl || urlVariants.length === 0) continue;
 
-  for (const site of KNOWN_PR_SITES) {
-    await db
-      .insert(backlinkOpportunities)
-      .values({
+      const matchingRows = await db
+        .select({
+          id: backlinkOpportunities.id,
+          url: backlinkOpportunities.url,
+          discoveredVia: backlinkOpportunities.discoveredVia,
+          reviewedAt: backlinkOpportunities.reviewedAt,
+          reviewNotes: backlinkOpportunities.reviewNotes,
+        })
+        .from(backlinkOpportunities)
+        .where(inArray(backlinkOpportunities.url, urlVariants));
+
+      const unverifiedValues = {
         name: site.name,
-        url: site.url,
         type: site.type,
-        discoveredVia: "initial seed",
-        relevanceScore: 90,
-        relevanceReason: "Known high-quality free press release or directory site",
-        domainAuthority: site.da,
-        doFollow: site.doFollow,
-        status: "approved",
-      })
-      .onDuplicateKeyUpdate({ set: { name: site.name } });
+        discoveredVia: "legacy_unverified_seed",
+        relevanceScore: null,
+        relevanceReason: RESEARCH_REASON,
+        domainAuthority: null,
+        doFollow: null,
+        status: "new" as const,
+        reviewedAt: null,
+        reviewNotes: null,
+      };
+
+      if (matchingRows.length === 0) {
+        await db.insert(backlinkOpportunities).values({
+          ...unverifiedValues,
+          url: canonicalUrl,
+        });
+        queued += 1;
+        continue;
+      }
+
+      const historicalSeedRows = matchingRows.filter((row) =>
+        ["initial seed", "legacy_unverified_seed"].includes(row.discoveredVia ?? "")
+      );
+      const unreviewedSeedRows = historicalSeedRows.filter((row) =>
+        row.reviewedAt === null && !(row.reviewNotes ?? "").trim()
+      );
+      const humanReviewedSeedRows = historicalSeedRows.filter((row) =>
+        !unreviewedSeedRows.some((seedRow) => seedRow.id === row.id)
+      );
+      const independentlyOwnedRows = matchingRows.filter((row) =>
+        !historicalSeedRows.some((seedRow) => seedRow.id === row.id)
+      );
+
+      // Human review state is evidence and is preserved, but the old generated
+      // metrics and rationale are not. Sanitize those fields in place.
+      for (const reviewedRow of humanReviewedSeedRows) {
+        await db
+          .update(backlinkOpportunities)
+          .set({
+            discoveredVia: "legacy_unverified_seed",
+            relevanceScore: null,
+            relevanceReason: RESEARCH_REASON,
+            domainAuthority: null,
+            doFollow: null,
+          })
+          .where(eq(backlinkOpportunities.id, reviewedRow.id));
+      }
+
+      if (independentlyOwnedRows.length > 0 || humanReviewedSeedRows.length > 0) {
+        // A person-owned or reviewed record wins. Remove only obsolete,
+        // never-reviewed seed duplicates.
+        if (unreviewedSeedRows.length > 0) {
+          await db.delete(backlinkOpportunities).where(inArray(
+            backlinkOpportunities.id,
+            unreviewedSeedRows.map((row) => row.id),
+          ));
+        }
+
+        // Canonicalize a single reviewed legacy row only when no independent or
+        // other reviewed spelling can collide with the unique URL constraint.
+        if (independentlyOwnedRows.length === 0 && humanReviewedSeedRows.length === 1) {
+          const reviewedRow = humanReviewedSeedRows[0];
+          if (reviewedRow.url !== canonicalUrl) {
+            await db
+              .update(backlinkOpportunities)
+              .set({ url: canonicalUrl })
+              .where(eq(backlinkOpportunities.id, reviewedRow.id));
+          }
+        }
+        continue;
+      }
+
+      const keeper = unreviewedSeedRows.find((row) => row.url === canonicalUrl)
+        ?? unreviewedSeedRows[0];
+      if (!keeper) continue;
+
+      // Reset the chosen row before canonicalizing, then remove alternate raw
+      // spellings so the unique URL constraint cannot collide on the update.
+      await db
+        .update(backlinkOpportunities)
+        .set(unverifiedValues)
+        .where(eq(backlinkOpportunities.id, keeper.id));
+
+      const duplicateIds = unreviewedSeedRows
+        .filter((row) => row.id !== keeper.id)
+        .map((row) => row.id);
+      if (duplicateIds.length > 0) {
+        await db.delete(backlinkOpportunities).where(inArray(
+          backlinkOpportunities.id,
+          duplicateIds,
+        ));
+      }
+
+      if (keeper.url !== canonicalUrl) {
+        await db
+          .update(backlinkOpportunities)
+          .set({ url: canonicalUrl })
+          .where(eq(backlinkOpportunities.id, keeper.id));
+      }
+      queued += 1;
+    }
+  } catch (error) {
+    logSafeError("backlink.discovery_failed", error);
+    throw new Error("Unable to queue backlink research candidates.");
   }
 
-  console.log(`[Backlink] Seeded ${KNOWN_PR_SITES.length} known PR sites`);
+  console.log(`[Backlink] Queued ${queued} unverified historical candidates`);
+  return queued;
 }
-
-// ─── Main discovery runner ────────────────────────────────────────────────────
 
 export interface DiscoveryResult {
   discovered: number;
   newOpportunities: number;
   skippedDuplicates: number;
-  errors: string[];
+  /** Fixed machine-safe codes only; never provider or database messages. */
+  errors: Array<"AI_RESEARCH_UNAVAILABLE" | "CANDIDATE_SAVE_FAILED">;
 }
 
 export async function runBacklinkDiscovery(): Promise<DiscoveryResult> {
-  console.log("[Backlink] Starting backlink discovery cycle...");
+  console.log("[Backlink] Starting unverified research queue generation");
 
-  const apiKey = process.env.OPENROUTER_API_KEY ?? "";
-  if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY not set");
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error("Backlink research provider is not configured.");
   }
 
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  let db: Awaited<ReturnType<typeof getDb>>;
+  try {
+    db = await getDb();
+  } catch (error) {
+    logSafeError("backlink.discovery_failed", error);
+    throw new Error("Backlink research storage is unavailable.");
+  }
+  if (!db) throw new Error("Backlink research storage is unavailable.");
 
-  const errors: string[] = [];
+  const errors = new Set<DiscoveryResult["errors"][number]>();
   let newOpportunities = 0;
   let skippedDuplicates = 0;
-
-  // 1. Discover via AI
   let discovered: DiscoveredOpportunity[] = [];
+
   try {
-    discovered = await discoverWithAI(apiKey, DEFAULT_MODEL);
-    console.log(`[Backlink] AI discovered ${discovered.length} opportunities`);
-  } catch (err) {
-    errors.push(`AI discovery failed: ${String(err)}`);
+    discovered = await discoverWithAI(DEFAULT_BACKLINK_RESEARCH_MODEL);
+    console.log(`[Backlink] Generated ${discovered.length} unverified candidates`);
+  } catch (error) {
+    logSafeError("backlink.discovery_failed", error);
+    errors.add("AI_RESEARCH_UNAVAILABLE");
   }
 
-  // 2. Save to DB (skip duplicates)
-  for (const opp of discovered) {
+  for (const opportunity of discovered) {
     try {
-      await db
-        .insert(backlinkOpportunities)
-        .values({
-          name: opp.name,
-          url: opp.url,
-          type: opp.type,
-          discoveredVia: opp.discoveredVia,
-          relevanceScore: opp.relevanceScore,
-          relevanceReason: opp.relevanceReason,
-          domainAuthority: opp.domainAuthority,
-          doFollow: opp.doFollow,
-          status: "new",
-        })
-        .onDuplicateKeyUpdate({ set: { relevanceScore: opp.relevanceScore } });
+      const existing = await db
+        .select({ id: backlinkOpportunities.id })
+        .from(backlinkOpportunities)
+        .where(eq(backlinkOpportunities.url, opportunity.url))
+        .limit(1);
 
-      newOpportunities++;
-    } catch (err: any) {
-      if (err?.message?.includes("Duplicate")) {
-        skippedDuplicates++;
-      } else {
-        errors.push(`Failed to save ${opp.url}: ${String(err)}`);
+      if (existing.length > 0) {
+        skippedDuplicates += 1;
+        continue;
       }
+
+      await db.insert(backlinkOpportunities).values({
+        name: opportunity.name,
+        url: opportunity.url,
+        type: opportunity.type,
+        discoveredVia: opportunity.discoveredVia,
+        relevanceScore: opportunity.relevanceScore,
+        relevanceReason: opportunity.relevanceReason,
+        domainAuthority: null,
+        doFollow: null,
+        status: "new",
+      });
+      newOpportunities += 1;
+    } catch (error) {
+      logSafeError("backlink.discovery_failed", error);
+      errors.add("CANDIDATE_SAVE_FAILED");
     }
   }
 
-  console.log(`[Backlink] Discovery complete. New: ${newOpportunities}, Skipped: ${skippedDuplicates}`);
+  console.log(
+    `[Backlink] Research queue complete. New: ${newOpportunities}, duplicates: ${skippedDuplicates}`,
+  );
 
   return {
     discovered: discovered.length,
     newOpportunities,
     skippedDuplicates,
-    errors,
+    errors: Array.from(errors),
   };
 }
-
-// ─── Cron scheduler ───────────────────────────────────────────────────────────
 
 let cronInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -242,20 +475,20 @@ export function startBacklinkDiscoveryCron(): void {
   cronInterval = setInterval(async () => {
     try {
       const now = new Date();
-      const utcDay = now.getUTCDay();    // 3 = Wednesday
-      const utcHour = now.getUTCHours(); // 15 = 9am MT
+      const utcDay = now.getUTCDay();
+      const utcHour = now.getUTCHours();
       const utcMin = now.getUTCMinutes();
 
       if (utcDay === 3 && utcHour === 15 && utcMin < 5) {
-        console.log("[Backlink Cron] Wednesday 9am MT — starting discovery");
+        console.log("[Backlink Cron] Starting scheduled unverified research queue");
         await runBacklinkDiscovery();
       }
-    } catch (err) {
-      console.error("[Backlink Cron] Error:", err);
+    } catch (error) {
+      logSafeError("backlink.discovery_failed", error);
     }
   }, 5 * 60 * 1000);
 
-  console.log("[Backlink Cron] Discovery cron started");
+  console.log("[Backlink Cron] Unverified research queue scheduler started");
 }
 
 export function stopBacklinkDiscoveryCron(): void {

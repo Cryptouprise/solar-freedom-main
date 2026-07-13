@@ -1,7 +1,7 @@
 /**
  * SOLAR FREEDOM — City/State SEO Landing Page
  * Design: Dark Industrial Brutalism — same system as Home.tsx
- * Each city gets a unique, indexed page at /cancel-solar-contract-[slug]
+ * Each city route stays out of public discovery until its evidence record passes review.
  * Content depth: local hook, market stats, complaint data, company problems,
  *   why-it-happens, expanded state law, local FAQ — targeting 800–1200 words per page
  */
@@ -12,12 +12,14 @@ import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
-import { getCityContentDepthAll as getCityContentDepth } from "@/data/city-content-depth-all";
-import { stateLaws } from "@/data/state-laws";
-import TopicClusterWidget from "@/components/TopicClusterWidget";
+import { hasPublishableEditorialReview } from "@/data/publication-governance";
+import { hasPublishableStateLawEvidence, stateLaws } from "@/data/state-laws";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
+import { buildSchedulerUrl } from "@/lib/scheduler";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -42,7 +44,18 @@ function CityForm({ city, state }: { city: string; state: string }) {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-  const [form, setForm] = useState({ company: "", issue: "", payment: "", firstName: "", lastName: "", phone: "", email: "" });
+  const [form, setForm] = useState({
+    company: "",
+    issue: "",
+    payment: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    contactConsent: false,
+    smsConsent: false,
+    website: "",
+  });
   const submitLead = trpc.leads.submit.useMutation();
 
   const COMPANIES = ["Sunrun", "SunPower", "Tesla Solar", "Vivint Solar", "ADT Solar", "Freedom Forever", "Sunnova", "GoodLeap", "Mosaic", "Loanpal", "Other"];
@@ -57,6 +70,10 @@ function CityForm({ city, state }: { city: string; state: string }) {
 
   const handleSubmit = async () => {
     if (!form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.email.trim()) return;
+    if (!form.contactConsent) {
+      setError("Please authorize contact about this request before submitting.");
+      return;
+    }
     setError("");
     try {
       const result = await submitLead.mutateAsync({
@@ -69,6 +86,10 @@ function CityForm({ city, state }: { city: string; state: string }) {
         monthlyPayment: form.payment,
         intent: `City landing page case review for ${city}, ${state}`,
         formName: "city_landing_case_review",
+        contactConsent: form.contactConsent,
+        smsConsent: form.smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website: form.website,
         sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
         sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
       });
@@ -84,22 +105,15 @@ function CityForm({ city, state }: { city: string; state: string }) {
     }
   };
 
-  // Build prefilled GHL calendar URL from submitted form data
-  const calendarUrl = useMemo(() => {
-    const CALENDAR_ID = "Glvb9OZtDFHDMiwvHpli";
-    const base = `https://link.myinfinite.ai/widget/booking/${CALENDAR_ID}`;
-    const params = new URLSearchParams();
-    if (form.firstName) params.set("first_name", form.firstName.trim());
-    if (form.lastName) params.set("last_name", form.lastName.trim());
-    if (form.phone) {
-      const digits = form.phone.replace(/\D/g, "");
-      const e164 = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith("1") ? `+${digits}` : form.phone;
-      params.set("phone", e164);
-    }
-    if (form.email) params.set("email", form.email.trim());
-    const qs = params.toString();
-    return qs ? `${base}?${qs}` : base;
-  }, [form.firstName, form.lastName, form.phone, form.email]);
+  // Keep all submitted contact data out of the third-party scheduler URL.
+  const calendarUrl = useMemo(
+    () => buildSchedulerUrl(undefined, {
+      source: "city_page",
+      campaign: "city_case_review",
+      location: `${city}, ${state}`,
+    }),
+    [city, state],
+  );
 
   if (submitted) {
     return (
@@ -121,7 +135,12 @@ function CityForm({ city, state }: { city: string; state: string }) {
             className="block"
           />
         </div>
-        <p className="text-gray-600 text-xs text-center font-mono">Pick a time that works. Free 15-min case review call.</p>
+        <p className="text-gray-600 text-xs text-center font-mono">Pick a time that works. Availability and scope require confirmation.</p>
+        <p className="text-gray-500 text-xs text-center leading-relaxed">
+          Scheduling is provided by a third-party booking service. Your submitted
+          name, email, and phone number are not included in this booking URL. See our{" "}
+          <a className="text-amber-400 underline" href="/privacy-policy">Privacy Policy</a>.
+        </p>
       </div>
     );
   }
@@ -199,10 +218,19 @@ function CityForm({ city, state }: { city: string; state: string }) {
         className="w-full px-4 py-3 rounded text-white text-sm outline-none"
         style={{ background: "oklch(0.18 0.01 265)", border: "1px solid oklch(0.3 0.01 265)" }}
       />
-      {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+      <ContactConsentFields
+        idPrefix={`city-${city.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+        contactConsent={form.contactConsent}
+        smsConsent={form.smsConsent}
+        website={form.website}
+        onContactConsentChange={(checked) => setForm((current) => ({ ...current, contactConsent: checked }))}
+        onSmsConsentChange={(checked) => setForm((current) => ({ ...current, smsConsent: checked }))}
+        onWebsiteChange={(value) => setForm((current) => ({ ...current, website: value }))}
+      />
+      {error && <p role="alert" className="text-red-400 text-xs text-center">{error}</p>}
       <button
         onClick={handleSubmit}
-        disabled={!form.firstName || !form.lastName || !form.phone || !form.email || submitLead.isPending}
+        disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !form.contactConsent || submitLead.isPending}
         className="w-full py-4 rounded font-bold text-black text-lg transition-all disabled:opacity-40"
         style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
       >
@@ -217,17 +245,21 @@ export default function CityPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
   const city = getCityBySlug(slug);
-  const depth = getCityContentDepth(slug);
+  const cityEvidenceAvailable = hasPublishableEditorialReview(city);
 
   useSeoMeta({
-    title: city
+    title: city && cityEvidenceAvailable
       ? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`
-      : 'Cancel Solar Contract | Solar Freedom',
-    description: city
+      : city
+        ? `${city.name}, ${city.stateCode} Solar Contract Research Status | Solar Freedom`
+        : 'Solar Contract Research Status | Solar Freedom',
+    description: city && cityEvidenceAvailable
       ? `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`
-      : 'Review solar contract terms and consumer resources. Options depend on your agreement, facts, and jurisdiction.',
+      : city
+        ? `This ${city.name}, ${city.stateCode} research page is withheld from search until primary sources, as-of dates, an editorial reviewer, and unique local value are recorded.`
+        : 'This research page is not eligible for search publication.',
     canonical: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
-    noindex: false,
+    noindex: !cityEvidenceAvailable,
   });
 
   useEffect(() => {
@@ -251,7 +283,7 @@ export default function CityPage() {
     { q: `Where can I verify solar-company complaint information for ${city.name}?`, a: 'Check current records from the relevant state attorney general, the Consumer Financial Protection Bureau, the Federal Trade Commission, and other official regulators. Third-party ratings and complaint totals can change.' },
   ];
 
-  // Emit only page-verifiable navigation and FAQ data as structured data.
+  // Unreviewed backlog pages emit navigation only; FAQ search markup waits for evidence.
   const citySchemas: object[] = [
     {
       '@context': 'https://schema.org',
@@ -261,7 +293,8 @@ export default function CityPage() {
         { '@type': 'ListItem', position: 2, name: `Cancel Solar Contract in ${city.name}, ${city.stateCode}`, item: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}` },
       ],
     },
-    {
+  ];
+  if (cityEvidenceAvailable) citySchemas.push({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: faqItems.map(item => ({
@@ -269,21 +302,32 @@ export default function CityPage() {
         name: item.q,
         acceptedAnswer: { '@type': 'Answer', text: item.a },
       })),
-    },
-  ];
+    });
 
-  // Related cities (same state or nearby)
-  const relatedCities = CITIES.filter((c) => c.slug !== slug && (c.stateCode === city.stateCode || city.relatedCities.includes(c.slug))).slice(0, 6);
+  // Never create a public crawl path into the evidence-withheld city backlog.
+  const relatedCities = CITIES
+    .filter((candidate) => hasPublishableEditorialReview(candidate))
+    .filter((c) => c.slug !== slug && (c.stateCode === city.stateCode || city.relatedCities.includes(c.slug)))
+    .slice(0, 6);
 
   // State law page link
-  const stateLawEntry = stateLaws.find((s) => s.state === city.state);
+  const stateLawEntry = stateLaws.find(
+    (stateLaw) => stateLaw.state === city.state && hasPublishableStateLawEvidence(stateLaw),
+  );
   const stateLawSlug = stateLawEntry?.slug ?? null;
 
-  const marketStats = [
-    { label: "City Population", value: city.population },
-    { label: "Solar Market", value: city.solarActivity },
-    { label: "Case Review", value: "Request Review" },
-  ];
+  const marketStats = cityEvidenceAvailable
+    ? [
+        { label: "City Population", value: city.population },
+        { label: "Solar Market", value: city.solarActivity },
+        { label: "Case Review", value: "Request Review" },
+      ]
+    : [
+        { label: "Record 1", value: "Agreement" },
+        { label: "Record 2", value: "Disclosures" },
+        { label: "Record 3", value: "Bills + Performance" },
+        { label: "Record 4", value: "Communications" },
+      ];
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.09 0.01 265)", fontFamily: "'DM Sans', sans-serif" }}>
@@ -317,7 +361,7 @@ export default function CityPage() {
         <div className="absolute inset-0">
           <img
             src={HERO_BG}
-            alt={`Solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}`}
+            alt={`Rooftop solar panels near ${city.name}, ${city.stateCode}`}
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.25)" }}
             loading="eager" fetchPriority="high" decoding="async"
@@ -327,7 +371,7 @@ export default function CityPage() {
         <div className="container relative z-10 py-20">
           <Reveal>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/40 text-red-400 text-xs font-mono mb-6" style={{ background: "oklch(0.15 0.05 20 / 40%)" }}>
-              ⚠ SOLAR CONTRACT TRAP — {city.name.toUpperCase()}, {city.stateCode}
+              AGREEMENT RESEARCH — {city.name.toUpperCase()}, {city.stateCode}
             </div>
           </Reveal>
           <Reveal delay={0.05}>
@@ -335,7 +379,7 @@ export default function CityPage() {
               className="text-white leading-none mb-4"
               style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.5rem, 6vw, 5rem)", letterSpacing: "0.02em" }}
             >
-              CANCEL YOUR SOLAR CONTRACT
+              REVIEW YOUR SOLAR CONTRACT
               <br />
               <span style={{ background: "linear-gradient(90deg, #f97316, #fb923c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 IN {city.name.toUpperCase()}, {city.stateCode}
@@ -381,112 +425,63 @@ export default function CityPage() {
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
 
-            {/* Left: Local content */}
+            {/* Left: source-conscious local research */}
             <div className="space-y-10">
               <Reveal>
                 <div>
                   <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
-                    THE {city.name.toUpperCase()} SOLAR PROBLEM
+                    REVIEW A {city.name.toUpperCase()} SOLAR AGREEMENT
                   </h2>
                   <p className="text-gray-400 leading-relaxed">
-                    Thousands of homeowners across {city.name} signed solar contracts after being promised dramatic savings — only to find themselves locked into agreements with escalating payments, underperforming systems, and no clear exit. If you are one of them, you have legal options.
+                    The available options cannot be determined from a city or company name alone. Start with the signed agreement, financing documents, disclosures, sales materials, bills, installation records, and communications.
                   </p>
                 </div>
               </Reveal>
 
-              {/* Top Complaints — shown if depth data available */}
-              {depth?.topComplaints && (
-                <Reveal delay={0.04}>
-                  <div className="p-6 rounded-lg border border-red-500/20" style={{ background: "oklch(0.14 0.03 20 / 15%)" }}>
-                    <h3 className="font-display text-red-400 text-lg mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      TOP COMPLAINTS WE SEE IN {city.name.toUpperCase()}
-                    </h3>
-                    <div className="space-y-2">
-                      {depth.topComplaints.map((complaint, i) => (
-                        <div key={i} className="flex items-start gap-3 text-gray-400 text-sm">
-                          <span className="text-red-400 font-bold mt-0.5 shrink-0">!</span>
-                          {complaint}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              )}
-
-              {/* Expanded State Law */}
               <Reveal delay={0.05}>
                 <div className="p-6 rounded-lg border border-amber-500/20" style={{ background: "oklch(0.14 0.015 50 / 20%)" }}>
                   <h3 className="font-display text-amber-400 text-lg mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    {city.stateCode} STATE LAW IS ON YOUR SIDE
+                    VERIFY CURRENT {city.stateCode} CONSUMER INFORMATION
                   </h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    {depth?.stateLawExpanded ?? city.stateLaw}
+                  <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                    State rules change and may include transaction-specific exceptions. Check current official sources before relying on any cancellation period, remedy, or legal conclusion.
                   </p>
+                  <a href="https://www.usa.gov/state-attorney-general" target="_blank" rel="noopener noreferrer" className="text-amber-400 text-sm font-semibold hover:underline">
+                    Find the official state attorney general site →
+                  </a>
                 </div>
               </Reveal>
 
-              {/* Company-specific problems — shown if depth data available */}
-              {depth?.companyProblems ? (
-                <Reveal delay={0.1}>
-                  <div>
-                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      SOLAR COMPANY INFORMATION FOR {city.name.toUpperCase()}
-                    </h3>
-                    <div className="space-y-4">
-                      {depth.companyProblems.map((cp, i) => (
-                        <div key={i} className="p-4 rounded border border-white/8" style={{ background: "oklch(0.13 0.01 265)" }}>
-                          <div className="font-bold text-white text-sm mb-1">{cp.company}</div>
-                          <div className="text-gray-400 text-sm leading-relaxed">{cp.issue}</div>
-                        </div>
-                      ))}
-                    </div>
+              <Reveal delay={0.1}>
+                <div>
+                  <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                    COMPANIES LISTED FOR {city.name.toUpperCase()}
+                  </h3>
+                  <p className="text-gray-500 text-xs mb-3">A listing does not establish wrongdoing, liability, or an available remedy.</p>
+                  <div className="flex flex-wrap gap-2">
+                    {city.companies.map((companyName) => (
+                      <span key={companyName} className="px-3 py-1.5 rounded border text-sm text-gray-300" style={{ background: "oklch(0.16 0.01 265)", borderColor: "oklch(0.28 0.01 265)" }}>
+                        {companyName}
+                      </span>
+                    ))}
                   </div>
-                </Reveal>
-              ) : (
-                <Reveal delay={0.1}>
-                  <div>
-                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      COMPANY INFORMATION FOR {city.name.toUpperCase()}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {city.companies.map((co) => (
-                        <span key={co} className="px-3 py-1.5 rounded border text-sm text-gray-300" style={{ background: "oklch(0.16 0.01 265)", borderColor: "oklch(0.28 0.01 265)" }}>
-                          {co}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              )}
-
-              {/* Why It Happens — shown if depth data available */}
-              {depth?.whyItHappens && (
-                <Reveal delay={0.12}>
-                  <div>
-                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      WHY SO MANY {city.stateCode} SOLAR CONTRACTS GO WRONG
-                    </h3>
-                    <p className="text-gray-400 leading-relaxed text-sm">{depth.whyItHappens}</p>
-                  </div>
-                </Reveal>
-              )}
+                </div>
+              </Reveal>
 
               <Reveal delay={0.15}>
                 <div>
                   <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    GROUNDS TO CANCEL YOUR {city.name.toUpperCase()} SOLAR CONTRACT
+                    QUESTIONS FOR A DOCUMENT REVIEW
                   </h3>
                   <div className="space-y-3">
                     {[
-                      "Truth in Lending Act (TILA) violations in your financing documents",
-                      "FTC 3-day right of rescission not honored at signing",
-                      "Misrepresentation of projected energy savings",
-                      "Undisclosed escalator clauses in your contract",
-                      "System performance below contractual guarantees",
-                      "Solar company bankruptcy or change of ownership",
-                      "Deceptive sales practices under " + city.stateCode + " consumer protection law",
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-start gap-3 text-gray-400 text-sm">
+                      'Which cancellation, dispute, and transfer provisions are in the signed agreement?',
+                      'Do the financing disclosures match the payment schedule and total cost?',
+                      'What written representations were made before signing?',
+                      'What do the installation and production records show?',
+                      'Which parties currently own, service, or finance the agreement?',
+                    ].map((item) => (
+                      <div key={item} className="flex items-start gap-3 text-gray-400 text-sm">
                         <span className="text-amber-400 font-bold mt-0.5 shrink-0">✓</span>
                         {item}
                       </div>
@@ -505,7 +500,7 @@ export default function CityPage() {
                       INDIVIDUAL CASE REVIEW
                     </div>
                     <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
+                      REQUEST AN INDIVIDUAL DOCUMENT REVIEW
                     </h2>
                     <p className="text-gray-400 text-sm mt-2">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
                   </div>
@@ -564,15 +559,15 @@ export default function CityPage() {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <p className="text-gray-400 text-xs font-mono uppercase tracking-wider mb-1">{city.state} Consumer Protection Law</p>
+                    <p className="text-gray-400 text-xs font-mono uppercase tracking-wider mb-1">{city.state} research status</p>
                     <h3 className="text-white font-semibold text-base mb-2">
-                      Know Your {city.state} Solar Contract Rights
+                      Verify Current {city.state} Sources
                     </h3>
                     <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                      {city.state} has specific statutes governing solar sales, cooling-off periods, and required contract disclosures. Understanding your state rights is the first step to cancellation.
+                      The state summary remains out of search until its primary sources, reviewer, and review date are recorded. Use it as a research-status page, not a legal conclusion.
                     </p>
                     <Link href={`/solar-contract-laws/${stateLawSlug}`} className="inline-flex items-center gap-2 text-amber-400 text-sm font-semibold hover:text-amber-300 transition-colors">
-                      View {city.state} Solar Contract Laws →
+                      Open {city.state} Research Status →
                     </Link>
                   </div>
                 </div>
@@ -586,12 +581,11 @@ export default function CityPage() {
       <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container">
           <DoIQualifyQuiz />
-          <TopicClusterWidget currentUrl={`/cancel-solar-contract/${params.slug}`} />
         </div>
       </section>
 
-      {/* OTHER CITIES */}
-      <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
+      {/* OTHER SOURCE-REVIEWED CITIES */}
+      {relatedCities.length > 0 && <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container">
           <Reveal>
             <h2 className="font-display text-white text-2xl mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
@@ -611,7 +605,7 @@ export default function CityPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* FOOTER */}
       <footer className="border-t border-white/8 py-10" style={{ background: "oklch(0.09 0.01 265)" }}>

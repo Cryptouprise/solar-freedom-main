@@ -2,7 +2,7 @@
 
 **Site:** breakyoursolarcontract.com  
 **Stack:** React 19 + Tailwind 4 + Express 4 + tRPC 11 + MySQL (TiDB) + Playwright  
-**Last updated:** 2026-05-18  
+**Last updated:** 2026-07-13<br>
 **Manifest endpoint:** `GET /api/capabilities` (returns this document as JSON + Markdown)  
 **Manifest Markdown:** `GET /api/capabilities.md` (returns raw Markdown for AI ingestion)
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-Solar Freedom is a full-stack web application and autonomous content/backlink engine for breakyoursolarcontract.com. It serves as a lead generation site for homeowners seeking to exit solar contracts, and includes a server-side AI agent system that autonomously generates press releases, submits them to distribution networks, discovers backlink opportunities, tracks AI costs, and manages all site content via a REST API designed for AI agent access.
+Solar Freedom is a full-stack content, lead-intake, and search-operations application for breakyoursolarcontract.com. It provides authenticated administration, evidence-aware content tooling, read-only SEO monitoring, and review queues. It does **not** grant AI agents authority to deploy Manus, publish legal or marketing claims without approval, or submit content to third-party distribution services autonomously. External changes require a scoped credential, an explicit approved action, and post-change verification.
 
 ---
 
@@ -19,57 +19,65 @@ Solar Freedom is a full-stack web application and autonomous content/backlink en
 ### Manus OAuth (User Sessions)
 End-users authenticate via Manus OAuth. Session cookies are set at `/api/oauth/callback`. The `useAuth()` hook on the frontend reads auth state. Admin-only routes require `role === "admin"` in the user record.
 
-### Admin API Key Authentication
-All `/api/admin/*` REST endpoints use API key authentication. Keys are stored in the `apiKeys` DB table and managed via the admin panel.
+### Admin API Authentication
+All `/api/admin/*` REST endpoints require either an authenticated same-origin admin session or a scoped API key. API keys are stored as hashes in the `apiKeys` table and managed through authenticated admin controls. Raw keys are returned only once at creation and belong in an approved secret manager.
 
 **Header format:**
 ```
-X-API-Key: <your-api-key>
+Authorization: Bearer <your-scoped-api-key>
 ```
 
-**Obtaining a key:** Log in as admin → `/admin/press-releases` → Settings → API Keys section, or use the database UI to insert directly into the `apiKeys` table.
+**Obtaining a key:** Log in as an authorized admin and use the API-key management control. Do not insert raw keys directly into the database, browser code, site configuration, source files, prompts, or logs.
 
 ---
 
 ## REST API — `/api/admin/*`
 
-All endpoints require `X-API-Key` header. Base URL: `https://breakyoursolarcontract.com/api/admin`
+Base URL: `https://breakyoursolarcontract.com/api/admin`. External clients use `Authorization: Bearer <key>`; the browser admin may use its same-origin session cookie. Every key is permission-scoped.
 
 ### Status
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/status` | Health check — returns server uptime, DB status, version |
+| GET | `/status` | Authenticated API/DB check with post and company counts |
 
 ### Blog Posts
 
 | Method | Endpoint | Permission | Description |
 |--------|----------|-----------|-------------|
-| GET | `/posts` | `posts:read` | List published posts (paginated, `?page=1&limit=20`) |
-| GET | `/posts/all` | `posts:read` | List all posts including drafts |
+| GET | `/posts` | `posts:read` | List database posts (including drafts), paginated with `?limit=50&offset=0` |
+| GET | `/posts/all` | `posts:read` | List database posts and the static content inventory |
 | GET | `/posts/slugs` | `posts:read` | List all post slugs (lightweight, for sitemaps) |
 | GET | `/posts/:slug` | `posts:read` | Get single post by slug |
-| POST | `/posts` | `posts:write` | Create new post |
-| PUT | `/posts/:slug` | `posts:write` | Update existing post |
+| POST | `/posts` | `posts:write` | Create a draft; publication additionally requires `posts:publish` and complete editorial evidence |
+| PUT | `/posts/:slug` | `posts:write` | Update a post; changing it to published additionally requires `posts:publish` and complete editorial evidence |
 | DELETE | `/posts/:slug` | `posts:delete` | Delete post |
 
 **POST/PUT body schema:**
 ```json
 {
   "title": "string (required)",
-  "slug": "string (auto-generated if omitted)",
-  "content": "string — HTML or Markdown",
+  "slug": "string (required)",
+  "content": "string — HTML or Markdown (required when creating)",
   "excerpt": "string",
   "metaTitle": "string",
   "metaDescription": "string",
-  "featuredImage": "string — S3 URL",
-  "status": "published | draft",
+  "heroImage": "string — approved image URL",
+  "published": false,
   "tags": ["string"],
   "category": "string",
-  "author": "string",
-  "publishedAt": "ISO 8601 timestamp"
+  "editorialReviewerName": "required to publish",
+  "editorialReviewerRole": "required to publish",
+  "editorialReviewedAt": "ISO 8601 date required to publish",
+  "editorialPrimarySources": [{"url": "https://primary.example/record", "title": "Source title", "accessedAt": "YYYY-MM-DD"}],
+  "editorialUniqueValueSummary": "at least 80 characters and 12 words",
+  "editorialFunnelOnlyDuplicate": false
 }
 ```
+
+The API fails closed: `published: true` is not sufficient by itself. The caller must have the separately scoped
+`posts:publish` permission and the content must pass the shared evidence and unsupported-claim checks. New records
+default to draft, and no review identity, source, or approval is inferred.
 
 ### Companies
 
@@ -114,7 +122,7 @@ All endpoints require `X-API-Key` header. Base URL: `https://breakyoursolarcontr
 
 ## tRPC API — `/api/trpc`
 
-All tRPC calls use POST to `/api/trpc/<router>.<procedure>`. Authenticated calls require the session cookie (browser) or can be called server-side. Protected procedures require admin role for admin operations.
+tRPC uses `/api/trpc/<router>.<procedure>` with the standard tRPC HTTP transport (queries may use GET and mutations use POST). Authenticated calls require the session cookie; protected procedures also enforce the required user role. Use the generated client instead of hand-building transport payloads where possible.
 
 **tRPC client setup (TypeScript):**
 ```typescript
@@ -155,68 +163,79 @@ const trpc = createTRPCClient<AppRouter>({
   phone: string;
   email: string;
   solarCompany?: string;
-  issue?: string;
+  problemType?: string;
+  contractType?: string;
   monthlyPayment?: string;
   intent?: string;
-  source?: string;
+  formName?: string;
+  sourcePage?: string;
+  sourceUrl?: string;
+  contactConsent?: boolean;
+  smsConsent?: boolean;
+  consentVersion?: string;
+  website?: string; // honeypot; leave empty
 }
 ```
+
+When `contactConsent` is true, `consentVersion` must equal the server's current disclosure version. SMS consent is optional and cannot be true unless contact consent is also true. Server-side validation, normalization, rate limits, and consent checks remain authoritative.
 
 ### `analytics` Router
 
 | Procedure | Type | Auth | Description |
 |-----------|------|------|-------------|
-| `analytics.report` | query | admin | Pull GA4 report (`{ startDate, endDate, metrics[], dimensions[] }`) |
+| `analytics.report` | query | admin | Pull the fixed GA4 report for `{ range: "7daysAgo" \| "30daysAgo" \| "90daysAgo" }` |
 
 ### `content` Router
 
 | Procedure | Type | Auth | Description |
 |-----------|------|------|-------------|
-| `content.listPosts` | query | public | List published blog posts (`{ page, limit, category?, tag? }`) |
-| `content.getPost` | query | public | Get post by slug |
-| `content.listCompanies` | query | public | List solar company profiles |
-| `content.getCompany` | query | public | Get company by slug |
-| `content.getSiteConfig` | query | public | Get all site config values |
+| `content.listPosts` | query | public | List only evidence-approved database posts (`{ limit, offset }`); full stored rows are checked before card fields are returned |
+| `content.getPost` | query | public | Get an evidence-approved post by slug; unreviewed or unsupported records return `null` |
+| `content.listCompanies` | query | public | Returns an empty list until company profiles have dedicated evidence and review fields |
+| `content.getCompany` | query | public | Returns `null` until company profiles have dedicated evidence and review fields |
+| `content.getSiteConfig` | query | public | Get the allowlisted public contact/assistant configuration only |
 
 ### `exitIntent` Router
 
 | Procedure | Type | Auth | Description |
 |-----------|------|------|-------------|
-| `exitIntent.capture` | mutation | public | Log exit intent capture event |
+| `exitIntent.capture` | mutation | public | Store a guide/email request; CRM delivery occurs only with current marketing consent |
 
 ### `pressRelease` Router (Admin only)
 
 | Procedure | Type | Auth | Description |
 |-----------|------|------|-------------|
 | `pressRelease.getTopics` | query | admin | List all press release topics in queue |
-| `pressRelease.addTopic` | mutation | admin | Add topic to queue (`{ title, keywords, angle, priority }`) |
+| `pressRelease.addTopic` | mutation | admin | Add topic to queue (`{ title, angle?, targetKeywords?, targetUrl?, sortOrder? }`) |
 | `pressRelease.deleteTopic` | mutation | admin | Delete topic by ID |
-| `pressRelease.updateTopicStatus` | mutation | admin | Set topic status (`pending \| active \| done \| skip`) |
-| `pressRelease.getLogs` | query | admin | Get submission logs (`{ limit, offset }`) |
+| `pressRelease.updateTopicStatus` | mutation | admin | Set topic status (`pending \| running \| published \| failed`) |
+| `pressRelease.getLogs` | query | admin | Get draft and historical adapter evidence (`{ limit, offset }`); a row is not proof of current publication |
 | `pressRelease.getSettings` | query | admin | Get all press release settings as key-value map |
 | `pressRelease.updateSetting` | mutation | admin | Update a setting (`{ key, value }`) |
-| `pressRelease.runNow` | mutation | admin | Trigger immediate press release cycle (`{ dryRun?: boolean }`) |
-| `pressRelease.runDiscovery` | mutation | admin | Trigger backlink discovery scan |
+| `pressRelease.runNow` | mutation | admin | Generate a reviewable dry-run preview; external submission is not autonomous publication authority |
+| `pressRelease.runDiscovery` | mutation | admin | Build a backlink-opportunity review queue; it does not create backlinks |
 
-**Available setting keys:**
+**Allowlisted press-release setting keys:**
+
+Only `model` currently affects the dry-run draft path. The other keys are retained for schema compatibility and are ignored by the release execution boundary. No third-party distribution credential values are accepted or stored. Release policy requires scheduled execution and external submission to remain disabled until an approved adapter enforces evidence, idempotency, verification, and rollback.
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `model` | `openrouter/owl-alpha` | LLM model for writing |
-| `image_model` | `none` | Image generation model |
-| `embedding_model` | `none` | Embedding model |
-| `schedule_enabled` | `true` | Enable weekly cron |
-| `dry_run` | `false` | Generate without submitting |
-| `site_prlog` | `true` | Enable PRLog submission |
-| `site_newsbywire` | `true` | Enable NewsByWire submission |
-| `site_1888pressrelease` | `true` | Enable 1888PressRelease |
-| `site_openpr` | `true` | Enable OpenPR |
-| `site_prfree` | `true` | Enable PRFree |
-| `site_prbuzz` | `true` | Enable PRBuzz |
-| `site_medium` | `true` | Enable Medium |
-| `site_linkedin` | `true` | Enable LinkedIn Articles |
-| `site_substack` | `false` | Enable Substack |
-| `substack_url` | `` | Substack publication URL |
+| `model` | `openrouter/free` | No-spend default router for draft generation; availability and output model vary |
+| `image_model` | `none` | Retained compatibility value; unused by the press-release draft path |
+| `embedding_model` | `none` | Retained compatibility value; unused by the press-release draft path |
+| `schedule_enabled` | `false` by release policy | Retained preference only; runtime scheduler is disabled regardless of value |
+| `dry_run` | `true` by release policy | Retained preference only; `runNow` enforces a preview without submission |
+| `site_prlog` | inactive | Retained compatibility value; no adapter is imported |
+| `site_newsbywire` | inactive | Retained compatibility value; no adapter is imported |
+| `site_1888pressrelease` | inactive | Retained compatibility value; no adapter is imported |
+| `site_openpr` | inactive | Retained compatibility value; no adapter is imported |
+| `site_prfree` | inactive | Retained compatibility value; no adapter is imported |
+| `site_prbuzz` | inactive | Retained compatibility value; no adapter is imported |
+| `site_medium` | inactive | Retained compatibility value; browser-login compatibility route is inert |
+| `site_linkedin` | inactive | Retained compatibility value; browser-login compatibility route is inert |
+| `site_substack` | inactive | Retained compatibility value; browser-login compatibility route is inert |
+| `substack_url` | `` | Retained compatibility value; not used for navigation or publication |
 
 ### `backlinks` Router (Admin only)
 
@@ -224,100 +243,69 @@ const trpc = createTRPCClient<AppRouter>({
 |-----------|------|------|-------------|
 | `backlinks.getOpportunities` | query | admin | List discovered backlink opportunities (`{ status?, limit, offset }`) |
 | `backlinks.updateOpportunity` | mutation | admin | Update opportunity status/notes |
-| `backlinks.getTargets` | query | admin | List known PR/backlink target sites |
-| `backlinks.seedKnownSites` | mutation | admin | Seed default PR sites into targets table |
+| `backlinks.getTargets` | query | admin | List only workflow/history fields for legacy research targets; plaintext credentials and unsupported authority/traffic/link metrics are omitted |
+| `backlinks.seedKnownSites` | mutation | admin | Queue historical metric-free candidates as `new` for current human verification |
 
 ### `aiCost` Router (Admin only)
 
 | Procedure | Type | Auth | Description |
 |-----------|------|------|-------------|
-| `aiCost.getSummary` | query | admin | Cost summary: total, by day, by call type (`{ days: 30 }`) |
-| `aiCost.getByModel` | query | admin | Cost breakdown per model with token counts |
-| `aiCost.getByFeature` | query | admin | Cost breakdown per feature (press_release, blog, etc.) |
-| `aiCost.getRecentLogs` | query | admin | Recent API call log entries (`{ limit: 50 }`) |
+| `aiCost.getSummary` | query | admin | Tracked provider-reported billed-cost summary (`{ days: 30 }`) |
+| `aiCost.getByModel` | query | admin | Tracked provider-reported cost by model with token counts |
+| `aiCost.getByFeature` | query | admin | Tracked provider-reported cost by feature |
+| `aiCost.getRecentLogs` | query | admin | Recent priced-call ledger entries (`{ limit: 50 }`) |
+
+The ledger is partial by design: active Blog Studio text generation and press-release drafting route through `server/cron/aiCostTracker.ts`, and a record is written only when the provider returns a valid numeric `usage.cost`. Calls from direct or legacy adapters can be absent, so these procedures are not a complete invoice or all-call counter.
 
 ---
 
-## Cron Jobs (Server-Side Autonomous Agents)
+## Automation Safety Status
 
-All cron jobs run automatically on the server. They can also be triggered manually via the admin panel or the `pressRelease.runNow` / `pressRelease.runDiscovery` tRPC mutations.
+| Capability | Current authority | Safety boundary |
+|------------|-------------------|-----------------|
+| GitHub SEO heartbeat | Read-only audit and queue generation; recurring workflow is paused while the repository is public | Raw GSC evidence must stay in an approved private store; stale or unavailable measurement blocks recommendations |
+| SEO growth agent | Manual analysis and reviewable plan generation | No Manus deploy, CMS publish, indexing claim, or ranking guarantee |
+| `/api/admin/automation/apply` | Plan validation and hashing only | Runtime file, database-DDL, deployment, and publication execution are disabled |
+| Press-release generation | Dry-run preview only under release policy | Third-party submission requires a future approved adapter and explicit human approval |
+| Backlink discovery | Opportunity research and review queue | Does not create, buy, or submit backlinks |
+| Manus production deployment | No API authority | A verified Manus release operator must deploy the reviewed commit |
 
-| Job | Schedule | File | Description |
-|-----|----------|------|-------------|
-| Press Release Cycle | Every Monday 9am MT | `server/cron/pressRelease.ts` | Picks next pending topic, generates press release via LLM, optionally generates featured image, submits to all enabled distribution sites |
-| Backlink Discovery | Every Sunday 8am MT | `server/cron/backlinkDiscovery.ts` | Uses AI to discover high-DA backlink opportunities in solar/legal/consumer protection niche, scores and stores them |
-| SEO Growth Agent | Manual / schedulable | `scripts/seo-growth-agent.mjs` | Crawls sitemap URLs, scores crawler-facing HTML, writes heartbeat/action queue, and optionally uses OpenRouter for strategy notes |
-
-### Press Release Distribution Sites
-
-| Site | DA | Method | Auth Required |
-|------|----|--------|--------------|
-| PRLog | 73 | HTTP API | API key in settings |
-| NewsByWire | 65 | HTTP API | API key in settings |
-| 1888PressRelease | 58 | Playwright form | None |
-| OpenPR | 62 | Playwright form | None |
-| PRFree | 55 | Playwright form | None |
-| PRBuzz | 52 | Playwright form | None |
-| Medium | 95 | Playwright + Google OAuth | Saved browser session |
-| LinkedIn Articles | 98 | Playwright + Google OAuth | Saved browser session |
-| Substack | 90 | Playwright + Google OAuth | Saved browser session + URL setting |
+The repository contains legacy integration adapters for evaluation. Their presence is not evidence that a destination accepts submissions, that an account is authenticated, or that publication is safe. Never enable them from a prompt, database flag, or unreviewed schedule.
 
 ---
 
 ## Database Tables
 
-| Table | Rows (approx) | Purpose |
-|-------|--------------|---------|
-| `users` | — | Authenticated users (Manus OAuth) |
-| `leads` | growing | Form submissions from site visitors |
-| `exitIntentCaptures` | growing | Exit intent popup captures |
-| `blogPosts` | growing | All blog/content posts |
-| `companies` | ~50 | Solar company profiles |
-| `siteConfig` | ~20 | Key-value site configuration |
-| `apiKeys` | — | Admin REST API keys with permissions |
-| `siteEvents` | growing | Analytics event log |
-| `seoStrategy` | — | SEO strategy documents |
-| `seoPages` | growing | Per-page SEO metadata |
-| `pressReleaseTopics` | 7+ | Queue of topics for press releases |
-| `pressReleaseLogs` | growing | Log of every press release run and submission |
-| `pressReleaseSettings` | ~15 | Key-value settings for the PR engine |
-| `backlinkTargets` | growing | Known PR/backlink target sites with DA scores |
-| `backlinkOpportunities` | growing | AI-discovered backlink opportunities |
-| `aiCostLog` | growing | Every LLM/image/embedding API call with cost |
+The schema defines the following operational tables. This manifest intentionally does not guess or publish row
+counts; obtain counts only through an authorized, privacy-safe operational report.
+
+| Table | Purpose |
+|-------|---------|
+| `users` | Authenticated users (Manus OAuth) |
+| `leads` | Consented form submissions |
+| `exitIntentCaptures` | Consented exit-intent requests |
+| `blogPosts` | Draft and evidence-approved content records |
+| `companies` | Solar-company research records |
+| `siteConfig` | Allowlisted site configuration |
+| `apiKeys` | Hashed, scoped, expiring/revocable Admin REST API keys |
+| `siteEvents` | First-party operational events |
+| `seoStrategy` | SEO strategy records |
+| `seoPages` | Per-page SEO metadata |
+| `pressReleaseTopics` | Review queue for press-release topics |
+| `pressReleaseLogs` | Dry-run and approved adapter evidence |
+| `pressReleaseSettings` | Allowlisted press-release settings |
+| `backlinkTargets` | Research targets, not created backlinks |
+| `backlinkOpportunities` | Reviewable opportunities, not submissions |
+| `aiCostLog` | Priced-call records written by the provider-cost tracking wrapper |
 
 ---
 
-## AI Models Available
+## AI provider boundary
 
-### Writing (LLM)
-
-| Model ID | Cost | Notes |
-|----------|------|-------|
-| `openrouter/owl-alpha` | Free | Default — high quality |
-| `qwen/qwen3-8b:free` | Free | — |
-| `google/gemini-flash-1.5:free` | Free | — |
-| `meta-llama/llama-3.1-8b-instruct:free` | Free | — |
-| `tencent/hunyuan-a13b-instruct:free` | Free | — |
-| `deepseek/deepseek-chat-v3-0324:free` | Free | — |
-| `google/gemini-2.5-flash-preview` | ~$0.001/run | Paid |
-| `qwen/qwen3-14b` | ~$0.001/run | Paid |
-| `google/gemini-flash-2.0` | ~$0.001/run | Paid |
-| `anthropic/claude-3-haiku` | ~$0.005/run | Premium |
-
-### Image Generation
-
-| Model ID | Cost | Notes |
-|----------|------|-------|
-| `bytedance-seed/seedream-4.5` | ~$0.025/image | High quality |
-| `google/gemini-3.1-flash-image-preview` | ~$0.020/image | — |
-| `google/gemini-2.5-flash-image` | ~$0.020/image | — |
-
-### Embeddings
-
-| Model ID | Cost | Notes |
-|----------|------|-------|
-| `qwen/qwen3-embedding-8b:nitro` | ~$0.05/1M tokens | Fast |
-| `qwen/qwen3-embedding-8b:exacto` | ~$0.05/1M tokens | Precise |
+The repository contains legacy OpenRouter model identifiers and optional writing, image, and embedding adapters.
+Their presence does not prove that a model is currently offered, free, suitable, approved, or available to the
+configured account. Provider catalogs and prices change. The operator must verify the current provider response and
+pricing before an approved run; the UI and cost ledger must not be treated as a live provider catalog or invoice.
 
 ---
 
@@ -327,24 +315,25 @@ This section is written for AI agents (Claude, GPT-4, etc.) that need to interac
 
 ### Quickstart for Claude
 
-To use this API, Claude needs an API key. The owner can generate one at `/admin/press-releases` → Settings → API Keys.
+To use this API, an external agent needs a newly generated, least-privilege API key supplied through an approved secret manager. Never paste the key into chat, source, logs, screenshots, or browser-bundled configuration.
 
 **Fetch this manifest:**
 ```
 GET https://breakyoursolarcontract.com/api/capabilities
 ```
 
-**Publish a blog post:**
+**Create a draft blog post for review:**
 ```http
 POST https://breakyoursolarcontract.com/api/admin/posts
-X-API-Key: <key>
+Authorization: Bearer <scoped-key>
 Content-Type: application/json
 
 {
-  "title": "Why Solar Contracts Are Unenforceable in Arizona",
-  "content": "<h2>The Problem</h2><p>...</p>",
-  "status": "published",
-  "metaDescription": "Learn why solar contracts may be unenforceable..."
+  "slug": "arizona-solar-contract-records-review-checklist",
+  "title": "Arizona Solar Contract Records: A Review Checklist",
+  "content": "<h2>Records to collect</h2><p>Draft content with direct primary sources...</p>",
+  "published": false,
+  "metaDescription": "A draft checklist of records to collect before requesting an individual review."
 }
 ```
 
@@ -358,33 +347,30 @@ Content-Type: application/json
 ```
 
 **Check AI costs:**
-```http
-POST https://breakyoursolarcontract.com/api/trpc/aiCost.getSummary
-Cookie: <session-cookie>
-Content-Type: application/json
-
-{"json": {"days": 30}}
+```typescript
+const summary = await trpc.aiCost.getSummary.query({ days: 30 });
 ```
 
 ### Recommended Workflows for AI Agents
 
-**Content publishing workflow:**
-1. Generate article content (title, body HTML, meta description, tags)
-2. Optionally upload featured image via `POST /api/admin/upload`
-3. Publish via `POST /api/admin/posts`
-4. Verify with `GET /api/admin/posts/:slug`
+**Content approval workflow:**
+1. Generate a draft with sources, review date, and claim-evidence metadata.
+2. Optionally upload a verified featured image via `POST /api/admin/upload`.
+3. Save with `published: false`; do not infer publication approval from API access.
+4. Have an authorized human review legal, privacy, advertising, and factual claims.
+5. Publish only through an explicit approved action, then fetch the public URL and verify status, canonical, source content, schema, and rollback state.
 
-**Press release workflow:**
-1. Add topic via `pressRelease.addTopic` tRPC mutation
-2. Trigger run via `pressRelease.runNow` with `dryRun: true`
-3. Review output in `pressRelease.getLogs`
-4. If satisfied, run again with `dryRun: false`
+**Press release review workflow:**
+1. Add a topic through the authenticated review queue.
+2. Generate only a dry-run preview.
+3. Review the draft and its evidence outside the publication adapter.
+4. Keep external submission disabled until a separately approved, typed, idempotent adapter can verify and roll back its effect.
 
 **SEO monitoring workflow:**
 1. Pull GA4 data via `analytics.report`
 2. Identify underperforming pages
-3. Update content via `PUT /api/admin/posts/:slug`
-4. Log strategy via `seoStrategy` table (direct DB or future tRPC)
+3. Stage a draft update via `PUT /api/admin/posts/:slug`.
+4. Record the proposed change, evidence, approver, and verification plan through an authenticated application surface; never write directly to the database.
 
 **SEO growth agent workflow:**
 1. Build and run a production preview.
@@ -395,28 +381,32 @@ Content-Type: application/json
 
 ---
 
-## Public REST Endpoints (No Auth Required)
+## Public Discovery and Legacy Routes (No Auth Required)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/capabilities` | This manifest as JSON |
 | GET | `/api/capabilities.md` | This manifest as raw Markdown |
-| GET | `/city/:slug` | City-specific solar law page data |
-| GET | `/state-solar-laws` | State solar law index |
+| GET | `/city/:slug` | Legacy redirect to `/cancel-solar-contract/:slug`; not a data API |
+| GET | `/state-solar-laws` | Legacy redirect to `/solar-contract-laws`; not a data API |
 
 ---
 
 ## Environment Variables
 
-The following environment variables are configured on the server. AI agents should not need these directly — they interact via API keys or session cookies.
+The deployment may require the following server-side environment variables. This list documents names only and does not prove that a value is configured. AI agents must not request or handle these values directly; they interact through scoped API keys or authenticated sessions.
 
 | Variable | Purpose |
 |----------|---------|
 | `DATABASE_URL` | MySQL/TiDB connection |
 | `JWT_SECRET` | Session signing |
+| `OAUTH_SERVER_URL` | Manus OAuth server URL |
+| `OWNER_OPEN_ID` | Authorized owner identity |
 | `OPENROUTER_API_KEY` | All AI model calls |
 | `VITE_APP_ID` | Manus OAuth app ID |
+| `BUILT_IN_FORGE_API_URL` | Manus platform API URL |
 | `BUILT_IN_FORGE_API_KEY` | Manus platform APIs |
+| `GHL_WEBHOOK_URL` | Server-only CRM delivery endpoint |
 | `GA4_PROPERTY_ID` | Google Analytics 4 |
 | `GA4_SERVICE_ACCOUNT_JSON` | GA4 service account |
 

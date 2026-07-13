@@ -24,3 +24,30 @@ export function isAllowedPublicConfigKey(key: string): boolean {
 export function isAllowedPressReleaseSetting(key: string): boolean {
   return PRESS_RELEASE_OPERATIONAL_KEYS.has(key);
 }
+
+export function normalizeSubstackPublicationUrl(value: string): string {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error("Substack URL must be a valid HTTPS URL");
+  }
+  const hostname = url.hostname.toLowerCase().replace(/\.$/, "");
+  if (
+    url.protocol !== "https:" ||
+    Boolean(url.username || url.password || url.port || url.hash) ||
+    !(hostname === "substack.com" || hostname.endsWith(".substack.com"))
+  ) {
+    throw new Error("Substack URL must use an HTTPS subdomain of substack.com");
+  }
+  url.pathname = url.pathname.replace(/\/+$/, "");
+  url.search = "";
+  return url.toString().replace(/\/$/, "");
+}
+
+export function validatePressReleaseSetting(key: string, value: string): void {
+  if (key === "substack_url" && value.trim()) normalizeSubstackPublicationUrl(value.trim());
+  if (key.endsWith("_enabled") && !["true", "false"].includes(value)) {
+    throw new Error(`${key} must be true or false`);
+  }
+}

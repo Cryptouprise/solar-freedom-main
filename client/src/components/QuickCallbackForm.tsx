@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission, trackCTAClick } from "@/lib/analytics";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
+import { buildSchedulerUrl } from "@/lib/scheduler";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 interface QuickCallbackFormProps {
   formName: string;
@@ -15,9 +18,6 @@ interface QuickCallbackFormProps {
 }
 
 // Same GHL calendar used by BookingModal — calendar ID: Glvb9OZtDFHDMiwvHpli
-const CALENDAR_ID = "Glvb9OZtDFHDMiwvHpli";
-const GHL_CALENDAR_BASE = `https://link.myinfinite.ai/widget/booking/${CALENDAR_ID}`;
-
 export default function QuickCallbackForm({
   formName,
   title,
@@ -33,35 +33,28 @@ export default function QuickCallbackForm({
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
+  const [contactConsent, setContactConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [website, setWebsite] = useState("");
   const callbackMutation = trpc.leads.quickCallback.useMutation();
 
-  // Build the GHL calendar URL with pre-filled name/phone from the form.
-  // Falls back to the prop scheduleUrl if explicitly provided, otherwise uses GHL.
-  const calendarUrl = useMemo(() => {
-    if (scheduleUrl) return scheduleUrl;
-    const params = new URLSearchParams();
-    const nameParts = name.trim().split(" ");
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(" ") || "";
-    if (firstName) params.set("first_name", firstName);
-    if (lastName) params.set("last_name", lastName);
-    if (phone.trim()) {
-      const digits = phone.replace(/\D/g, "");
-      const e164 =
-        digits.length === 10
-          ? `+1${digits}`
-          : digits.length === 11 && digits.startsWith("1")
-          ? `+${digits}`
-          : phone;
-      params.set("phone", e164);
-    }
-    const qs = params.toString();
-    return qs ? `${GHL_CALENDAR_BASE}?${qs}` : GHL_CALENDAR_BASE;
-  }, [scheduleUrl, name, phone]);
+  // Never place contact data in a third-party GET URL. The scheduler receives
+  // only allowlisted, non-contact campaign context.
+  const calendarUrl = useMemo(
+    () => buildSchedulerUrl(scheduleUrl, {
+      source: "quick_callback",
+      campaign: formName,
+    }),
+    [scheduleUrl, formName],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone.trim()) return;
+    if (!contactConsent) {
+      setSubmissionError("Please authorize contact about this request before submitting.");
+      return;
+    }
     setSubmissionError("");
     const page = typeof window !== "undefined" ? window.location.pathname : "unknown";
     try {
@@ -70,6 +63,10 @@ export default function QuickCallbackForm({
         phone: phone.trim(),
         intent: intentTag,
         formName,
+        contactConsent,
+        smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website,
         sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
         sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
       });
@@ -89,7 +86,7 @@ export default function QuickCallbackForm({
       <div className={`rounded-xl border border-green-500/30 bg-green-500/10 p-4 ${className}`}>
         <div className="text-green-400 font-bold text-sm mb-2">✅ Callback requested!</div>
         <p className="text-zinc-300 text-xs mb-3">
-          We'll call you shortly. Want to lock in a specific time?
+          Your request was received. Want to choose a time that works for you?
         </p>
         {/* Always show the GHL calendar after submit — no showSchedule gate needed */}
         <div className="rounded-lg overflow-hidden border border-amber-500/20">
@@ -102,6 +99,11 @@ export default function QuickCallbackForm({
             className="block"
           />
         </div>
+        <p className="mt-3 text-xs leading-relaxed text-zinc-400">
+          Scheduling is provided by a third-party booking service. Your submitted
+          name and phone number are not included in this booking URL. See our{" "}
+          <a className="text-amber-400 underline" href="/privacy-policy">Privacy Policy</a>.
+        </p>
       </div>
     );
   }
@@ -136,9 +138,19 @@ export default function QuickCallbackForm({
           className="w-full px-3 py-2.5 rounded-lg text-white text-sm outline-none focus:ring-2 focus:ring-amber-500/40"
           style={{ background: "oklch(0.18 0.012 265)", border: "1px solid oklch(0.3 0.01 265)" }}
         />
+        <ContactConsentFields
+          idPrefix={`${formName.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-quick-callback`}
+          contactConsent={contactConsent}
+          smsConsent={smsConsent}
+          website={website}
+          onContactConsentChange={setContactConsent}
+          onSmsConsentChange={setSmsConsent}
+          onWebsiteChange={setWebsite}
+          className="pt-1"
+        />
         <button
           type="submit"
-          disabled={callbackMutation.isPending || !phone.trim()}
+          disabled={callbackMutation.isPending || !phone.trim() || !contactConsent}
           className="w-full py-2.5 rounded-lg font-black text-black text-xs uppercase tracking-wider transition-all hover:brightness-110 disabled:opacity-50"
           style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
         >
@@ -150,6 +162,7 @@ export default function QuickCallbackForm({
       </form>
 
       {showSchedule && (
+        <>
         <a
           href={calendarUrl}
           target="_blank"
@@ -163,7 +176,13 @@ export default function QuickCallbackForm({
           className="block text-center mt-2.5 text-amber-400 hover:text-amber-300 text-xs font-semibold"
         >
           Prefer to pick a time? Schedule a free 15-min consultation →
+          <span className="sr-only"> (opens a third-party booking service)</span>
         </a>
+        <p className="mt-1 text-center text-[10px] leading-relaxed text-zinc-500">
+          Contact details typed above are not added to the scheduling link. See our{" "}
+          <a className="underline hover:text-zinc-300" href="/privacy-policy">Privacy Policy</a>.
+        </p>
+        </>
       )}
     </div>
   );

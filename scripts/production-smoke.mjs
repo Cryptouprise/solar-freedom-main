@@ -11,6 +11,19 @@ import { pathToFileURL } from "node:url";
 const DEFAULT_BASE_URL = "https://breakyoursolarcontract.com";
 const DEFAULT_TIMEOUT_MS = 15_000;
 const MAX_ASSETS = 120;
+const KNOWN_PUBLIC_STORAGE_KEY = "ff-attorney-contracts-review_1d59e4bb.png";
+
+const APPROVED_CORE_ROUTES = [
+  ["contract_help", "/solar-contract-help"],
+  ["privacy_policy", "/privacy-policy"],
+];
+
+const WITHHELD_RESEARCH_ROUTES = [
+  ["withheld_blog", "/blog/how-to-get-out-of-a-solar-contract"],
+  ["withheld_city", "/cancel-solar-contract/dallas-tx"],
+  ["withheld_company", "/solar-companies/sunrun"],
+  ["withheld_state", "/solar-contract-laws/california"],
+];
 
 const SECRET_MARKERS = [
   ["embedded_admin_api_key", /\bsf_[a-f0-9]{32,}\b/i],
@@ -25,6 +38,7 @@ function parseArgs(argv) {
     timeoutMs: Number(process.env.PRODUCTION_SMOKE_TIMEOUT_MS || DEFAULT_TIMEOUT_MS),
     skipAssets: false,
     json: false,
+    expectedReleaseSha: process.env.EXPECTED_RELEASE_SHA || "",
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -34,6 +48,7 @@ function parseArgs(argv) {
     if (argument === "--timeout-ms" && next) args.timeoutMs = Number(next);
     if (argument === "--skip-assets") args.skipAssets = true;
     if (argument === "--json") args.json = true;
+    if (argument === "--expected-release-sha" && next) args.expectedReleaseSha = next;
   }
 
   const base = new URL(args.baseUrl);
@@ -43,6 +58,9 @@ function parseArgs(argv) {
   base.hash = "";
   args.baseUrl = base.toString().replace(/\/$/, "");
   args.timeoutMs = Math.max(1_000, Math.floor(args.timeoutMs || DEFAULT_TIMEOUT_MS));
+  if (args.expectedReleaseSha && !/^[a-zA-Z0-9._-]{7,80}$/.test(args.expectedReleaseSha)) {
+    throw new Error("Expected release SHA has an invalid format.");
+  }
   return args;
 }
 
@@ -162,19 +180,61 @@ async function run(args) {
     check(checks, "home_source_content", facts.words >= 100, `${facts.words} source-visible words`);
   }
 
-  const knownRoutes = [
-    ["known_blog", "/blog/how-to-get-out-of-a-solar-contract"],
-    ["restored_blog", "/blog/solar-panel-scam-signs-what-to-do"],
-    ["known_city", "/cancel-solar-contract/dallas-tx"],
-  ];
-  for (const [name, pathname] of knownRoutes) {
+  const health = await get("health_request", "/healthz");
+  if (health) {
+    let body = null;
+    try { body = JSON.parse(health.body); } catch { /* reported below */ }
+    check(checks, "health_http_200", health.status === 200, `HTTP ${health.status}`);
+    check(checks, "health_payload", body?.status === "ok", body?.status || "invalid_json");
+    if (args.expectedReleaseSha) {
+      check(
+        checks,
+        "expected_release_sha",
+        body?.releaseSha === args.expectedReleaseSha,
+        body?.releaseSha || "missing",
+      );
+    }
+  }
+
+  const ready = await get("readiness_request", "/readyz");
+  if (ready) {
+    let body = null;
+    try { body = JSON.parse(ready.body); } catch { /* reported below */ }
+    check(checks, "readiness_http_200", ready.status === 200, `HTTP ${ready.status}`);
+    check(checks, "readiness_payload", body?.status === "ready", body?.status || "invalid_json");
+  }
+
+  for (const [name, pathname] of APPROVED_CORE_ROUTES) {
     const response = await get(`${name}_request`, pathname);
     if (!response) continue;
     const facts = htmlFacts(response.body);
     check(checks, `${name}_http_200`, response.status === 200, `HTTP ${response.status}`);
     check(checks, `${name}_canonical`, facts.canonical === `${args.baseUrl}${pathname}`, facts.canonical || "missing");
+    check(checks, `${name}_indexable`, !/noindex/i.test(facts.robots || ""), facts.robots || "robots meta absent");
     check(checks, `${name}_h1`, Boolean(facts.h1), facts.h1 ? "present" : "missing");
     check(checks, `${name}_source_content`, facts.words >= 100, `${facts.words} source-visible words`);
+  }
+
+  for (const [name, pathname] of WITHHELD_RESEARCH_ROUTES) {
+    const response = await get(`${name}_request`, pathname);
+    if (!response) continue;
+    const facts = htmlFacts(response.body);
+    const xRobots = response.headers["x-robots-tag"] || "";
+    check(checks, `${name}_http_200`, response.status === 200, `HTTP ${response.status}`);
+    check(checks, `${name}_canonical`, facts.canonical === `${args.baseUrl}${pathname}`, facts.canonical || "missing");
+    check(
+      checks,
+      `${name}_noindex`,
+      /noindex/i.test(`${xRobots} ${facts.robots || ""}`),
+      xRobots || facts.robots || "missing",
+    );
+    check(checks, `${name}_h1`, Boolean(facts.h1), facts.h1 ? "present" : "missing");
+    check(
+      checks,
+      `${name}_no_search_schema`,
+      !/"@type"\s*:\s*"(?:Article|NewsArticle|BlogPosting|FAQPage)"/i.test(response.body),
+      "Article/FAQ search schema absent",
+    );
   }
 
   const notFoundPath = `/__production_smoke_not_found__-${Date.now().toString(36)}`;
@@ -209,10 +269,49 @@ async function run(args) {
 
   const sitemap = await get("sitemap_request", "/sitemap.xml");
   if (sitemap) {
-    const urlCount = (sitemap.body.match(/<url>/g) || []).length;
+    const locations = Array.from(sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g), match => match[1]);
+    const urlCount = locations.length;
+    const withheldLocations = locations.filter(location => (
+      /\/blog\/.+/.test(location)
+      || /\/cancel-solar-contract\/.+/.test(location)
+      || /\/solar-companies\/.+/.test(location)
+      || /\/solar-contract-laws\/.+/.test(location)
+    ));
     check(checks, "sitemap_http_200", sitemap.status === 200, `HTTP ${sitemap.status}`);
-    check(checks, "sitemap_inventory", urlCount >= 500, `${urlCount} URLs`);
-    check(checks, "sitemap_restored_blog", sitemap.body.includes(`${args.baseUrl}/blog/solar-panel-scam-signs-what-to-do`), "restored blog URL present");
+    check(checks, "sitemap_bounded_inventory", urlCount >= 10 && urlCount <= 100, `${urlCount} approved URLs`);
+    check(
+      checks,
+      "sitemap_core_inventory",
+      [`${args.baseUrl}/`, `${args.baseUrl}/solar-contract-help`, `${args.baseUrl}/privacy-policy`]
+        .every(location => locations.includes(location)),
+      "required core URLs present",
+    );
+    check(
+      checks,
+      "sitemap_no_withheld_details",
+      withheldLocations.length === 0,
+      withheldLocations.length ? `${withheldLocations.length} withheld detail URL(s)` : "withheld details absent",
+    );
+  }
+
+  const publicStorage = await get("public_storage_request", `/manus-storage/${KNOWN_PUBLIC_STORAGE_KEY}`);
+  if (publicStorage) {
+    let safeRedirect = false;
+    try {
+      const redirect = new URL(publicStorage.headers.location || "");
+      safeRedirect = redirect.protocol === "https:" && !redirect.username && !redirect.password;
+    } catch {
+      safeRedirect = false;
+    }
+    check(checks, "public_storage_redirect", publicStorage.status === 307 && safeRedirect, `HTTP ${publicStorage.status}; HTTPS redirect ${safeRedirect ? "present" : "missing"}`);
+  }
+
+  const privateStorage = await get(
+    "private_storage_request",
+    `/manus-storage/__production-smoke-private-${Date.now().toString(36)}.json`,
+  );
+  if (privateStorage) {
+    check(checks, "private_storage_rejected", privateStorage.status === 404, `HTTP ${privateStorage.status}`);
   }
 
   let assets = null;

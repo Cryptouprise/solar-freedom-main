@@ -1,32 +1,48 @@
 /**
- * SOLAR FREEDOM — "The Reckoning" Design System
- * Dark Industrial Brutalism meets Cinematic Legal Drama
+ * SOLAR FREEDOM — document-review design system
+ * Dark industrial styling with clear consumer-information language
  * Colors: Charcoal #0D0F14 bg | Amber #F97316 accent | White #F8FAFC text
  * Fonts: Bebas Neue (display) | DM Sans (body) | DM Mono (stats/legal)
- * Philosophy: Psychological urgency, earned trust, controlled aggression
+ * Philosophy: clarity, earned trust, and fact-specific next steps
  */
 
 import { useEffect, useRef, useState } from "react";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { Link } from "wouter";
-import { cities as CITIES } from "@/data/cities";
-import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
-import { trackPhoneClick, trackCTAClick, initScrollTracking, recordLeadSubmission } from "@/lib/analytics";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
+import {
+  trackPhoneClick,
+  trackCTAClick,
+  initScrollTracking,
+  recordLeadSubmission,
+} from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import OutcomesSection from "@/components/OutcomesSection";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
-const FRUSTRATED_HOMEOWNER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/frustrated-homeowner-PQnVnTRrmQXJQnmBJ8whqw.webp";
-const FREEDOM_VISUAL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/freedom-visual-FjotebYoCq2THFJ9FesUTU.webp";
+const HERO_BG =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
+const FRUSTRATED_HOMEOWNER =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/frustrated-homeowner-PQnVnTRrmQXJQnmBJ8whqw.webp";
+const FREEDOM_VISUAL =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/freedom-visual-FjotebYoCq2THFJ9FesUTU.webp";
 
 // ─── Animated Counter ──────────────────────────────────────────────────────────
-function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
+function AnimatedCounter({
+  target,
+  suffix = "",
+  prefix = "",
+}: {
+  target: number;
+  suffix?: string;
+  prefix?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const motionVal = useMotionValue(0);
@@ -38,18 +54,28 @@ function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number;
   }, [inView, target, motionVal]);
 
   useEffect(() => {
-    return spring.on("change", (v) => setDisplay(Math.round(v)));
+    return spring.on("change", v => setDisplay(Math.round(v)));
   }, [spring]);
 
   return (
     <span ref={ref}>
-      {prefix}{display.toLocaleString()}{suffix}
+      {prefix}
+      {display.toLocaleString()}
+      {suffix}
     </span>
   );
 }
 
 // ─── Scroll Reveal Wrapper ─────────────────────────────────────────────────────
-function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
@@ -67,9 +93,19 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 
 // ─── Multi-Step Form ───────────────────────────────────────────────────────────
 const SOLAR_COMPANIES = [
-  "Sunrun", "SunPower", "Tesla Solar", "Vivint Solar", "ADT Solar",
-  "Freedom Forever", "Sunnova", "GoodLeap", "Mosaic", "Loanpal",
-  "Green Sky", "Service Finance", "Other"
+  "Sunrun",
+  "SunPower",
+  "Tesla Solar",
+  "Vivint Solar",
+  "ADT Solar",
+  "Freedom Forever",
+  "Sunnova",
+  "GoodLeap",
+  "Mosaic",
+  "Loanpal",
+  "Green Sky",
+  "Service Finance",
+  "Other",
 ];
 
 const ISSUES = [
@@ -79,10 +115,16 @@ const ISSUES = [
   "Can't sell my home",
   "Company went out of business",
   "Hidden fees I wasn't told about",
-  "Other"
+  "Other",
 ];
 
-const PAYMENT_RANGES = ["Under $100", "$100–$150", "$150–$200", "$200–$250", "Over $250"];
+const PAYMENT_RANGES = [
+  "Under $100",
+  "$100–$150",
+  "$150–$200",
+  "$200–$250",
+  "Over $250",
+];
 
 function MultiStepForm() {
   const [step, setStep] = useState(0);
@@ -90,6 +132,9 @@ function MultiStepForm() {
   const [showBooking, setShowBooking] = useState(false);
   const [fallbackName, setFallbackName] = useState("");
   const [fallbackPhone, setFallbackPhone] = useState("");
+  const [fallbackContactConsent, setFallbackContactConsent] = useState(false);
+  const [fallbackSmsConsent, setFallbackSmsConsent] = useState(false);
+  const [fallbackWebsite, setFallbackWebsite] = useState("");
   const [submissionError, setSubmissionError] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState(() => ({
@@ -103,25 +148,38 @@ function MultiStepForm() {
     lastName: contactInfo.lastName,
     phone: contactInfo.phone,
     email: contactInfo.email,
-    agree: false,
+    contactConsent: false,
+    smsConsent: false,
+    website: "",
   }));
 
   const totalSteps = 5;
-  const progress = ((step) / totalSteps) * 100;
+  const progress = (step / totalSteps) * 100;
 
   const submitLead = trpc.leads.submit.useMutation();
   const quickCallback = trpc.leads.quickCallback.useMutation();
 
   const update = (key: string, val: string | boolean) => {
-    setForm((f) => ({ ...f, [key]: val }));
+    setForm(f => ({ ...f, [key]: val }));
     // Share contact fields in memory with the booking modal.
-    if (key === "firstName" || key === "lastName" || key === "phone" || key === "email") {
+    if (
+      key === "firstName" ||
+      key === "lastName" ||
+      key === "phone" ||
+      key === "email"
+    ) {
       updateContactInfo({ [key]: val as string });
     }
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (!form.contactConsent) {
+      setSubmissionError(
+        "Please authorize contact about this request before submitting."
+      );
+      return;
+    }
     setSubmissionError("");
     try {
       // Submit via tRPC — persists to DB and forwards to GHL webhook server-side
@@ -136,10 +194,20 @@ function MultiStepForm() {
         monthlyPayment: form.paying,
         intent: form.intent,
         formName: "Solar Freedom Contact Form",
+        contactConsent: form.contactConsent,
+        smsConsent: form.smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website: form.website,
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
       });
-      if (!recordLeadSubmission(result, "main_contact_form", window.location.pathname)) {
+      if (
+        !recordLeadSubmission(
+          result,
+          "main_contact_form",
+          window.location.pathname
+        )
+      ) {
         setSubmissionError("We couldn't save your request. Please try again.");
         return;
       }
@@ -156,22 +224,46 @@ function MultiStepForm() {
   const handleQuickCallback = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fallbackPhone.trim()) return;
+    if (!fallbackContactConsent) {
+      setSubmissionError(
+        "Please authorize contact about this request before submitting."
+      );
+      return;
+    }
     setSubmissionError("");
     try {
       const result = await quickCallback.mutateAsync({
         name: fallbackName.trim() || undefined,
         phone: fallbackPhone.trim(),
         formName: "main_form_step1_callback_fallback",
+        contactConsent: fallbackContactConsent,
+        smsConsent: fallbackSmsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website: fallbackWebsite,
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
       });
-      if (!recordLeadSubmission(result, "main_form_step1_callback_fallback", window.location.pathname)) {
-        setSubmissionError("We couldn't save your callback request. Please try again.");
+      if (
+        !recordLeadSubmission(
+          result,
+          "main_form_step1_callback_fallback",
+          window.location.pathname
+        )
+      ) {
+        setSubmissionError(
+          "We couldn't save your callback request. Please try again."
+        );
         return;
       }
     } catch {
-      recordLeadSubmission(null, "main_form_step1_callback_fallback", window.location.pathname);
-      setSubmissionError("We couldn't save your callback request. Please try again.");
+      recordLeadSubmission(
+        null,
+        "main_form_step1_callback_fallback",
+        window.location.pathname
+      );
+      setSubmissionError(
+        "We couldn't save your callback request. Please try again."
+      );
       return;
     }
     setSubmitted(true);
@@ -187,17 +279,38 @@ function MultiStepForm() {
           className="text-center py-12 px-6"
         >
           <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-10 h-10 text-amber-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
-          <h3 className="font-display text-4xl text-white mb-3">YOU'RE IN THE QUEUE</h3>
-          <p className="text-gray-300 text-lg mb-2">Your information was submitted for review. Response time and availability vary.</p>
-          <p className="text-gray-500 text-sm font-mono mb-6">Case #{Math.floor(Math.random() * 90000) + 10000} — {new Date().toLocaleDateString()}</p>
+          <h3 className="font-display text-4xl text-white mb-3">
+            YOU'RE IN THE QUEUE
+          </h3>
+          <p className="text-gray-300 text-lg mb-2">
+            Your information was submitted for review. Response time and
+            availability vary.
+          </p>
+          <p className="text-gray-500 text-sm font-mono mb-6">
+            Case #{Math.floor(Math.random() * 90000) + 10000} —{" "}
+            {new Date().toLocaleDateString()}
+          </p>
           <button
             onClick={() => setShowBooking(true)}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))",
+            }}
           >
             📅 Request a Case Review
           </button>
@@ -215,43 +328,69 @@ function MultiStepForm() {
     // Step 0 — paying?
     <div key="s0" className="space-y-4">
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
-        <div className="text-amber-400 text-xs font-mono uppercase tracking-wider mb-1">Prefer phone-first?</div>
-        <div className="text-white font-semibold text-sm mb-3">Request a case review callback.</div>
+        <div className="text-amber-400 text-xs font-mono uppercase tracking-wider mb-1">
+          Prefer phone-first?
+        </div>
+        <div className="text-white font-semibold text-sm mb-3">
+          Request a case review callback.
+        </div>
         <form onSubmit={handleQuickCallback} className="space-y-2.5">
           <input
             type="text"
             value={fallbackName}
-            onChange={(e) => setFallbackName(e.target.value)}
+            onChange={e => setFallbackName(e.target.value)}
             placeholder="Your name (optional)"
             className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
           />
           <input
             type="tel"
             value={fallbackPhone}
-            onChange={(e) => setFallbackPhone(e.target.value)}
+            onChange={e => setFallbackPhone(e.target.value)}
             placeholder="Phone number"
             required
             className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
           />
+          <ContactConsentFields
+            idPrefix="home-phone-first"
+            contactConsent={fallbackContactConsent}
+            smsConsent={fallbackSmsConsent}
+            website={fallbackWebsite}
+            onContactConsentChange={setFallbackContactConsent}
+            onSmsConsentChange={setFallbackSmsConsent}
+            onWebsiteChange={setFallbackWebsite}
+          />
           <button
             type="submit"
-            disabled={quickCallback.isPending || !fallbackPhone.trim()}
+            disabled={
+              quickCallback.isPending ||
+              !fallbackPhone.trim() ||
+              !fallbackContactConsent
+            }
             className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40"
           >
-            {quickCallback.isPending ? "REQUESTING..." : "REQUEST MY CASE REVIEW CALL →"}
+            {quickCallback.isPending
+              ? "REQUESTING..."
+              : "REQUEST MY CASE REVIEW CALL →"}
           </button>
           {submissionError && (
-            <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
+            <p role="alert" className="text-red-400 text-sm text-center">
+              {submissionError}
+            </p>
           )}
         </form>
       </div>
-      <h3 className="font-display text-3xl text-white">ARE YOU CURRENTLY PAYING ON A SOLAR CONTRACT?</h3>
+      <h3 className="font-display text-3xl text-white">
+        ARE YOU CURRENTLY PAYING ON A SOLAR CONTRACT?
+      </h3>
       <div className="grid grid-cols-2 gap-3">
-        {["Yes", "No — but I signed one", "Not sure"].map((opt) => (
+        {["Yes", "No — but I signed one", "Not sure"].map(opt => (
           <button
             key={opt}
             type="button"
-            onClick={() => { update("paying", opt); setStep(1); }}
+            onClick={() => {
+              update("paying", opt);
+              setStep(1);
+            }}
             className={`p-4 rounded border text-left transition-all duration-200 font-medium ${
               form.paying === opt
                 ? "border-amber-500 bg-amber-500/15 text-amber-300"
@@ -266,13 +405,18 @@ function MultiStepForm() {
 
     // Step 1 — main issue
     <div key="s1" className="space-y-4">
-      <h3 className="font-display text-3xl text-white">WHAT'S THE MAIN ISSUE YOU'RE DEALING WITH?</h3>
+      <h3 className="font-display text-3xl text-white">
+        WHAT'S THE MAIN ISSUE YOU'RE DEALING WITH?
+      </h3>
       <div className="space-y-2">
-        {ISSUES.map((opt) => (
+        {ISSUES.map(opt => (
           <button
             key={opt}
             type="button"
-            onClick={() => { update("issue", opt); setStep(2); }}
+            onClick={() => {
+              update("issue", opt);
+              setStep(2);
+            }}
             className={`w-full p-3.5 rounded border text-left transition-all duration-200 font-medium text-sm ${
               form.issue === opt
                 ? "border-amber-500 bg-amber-500/15 text-amber-300"
@@ -287,9 +431,11 @@ function MultiStepForm() {
 
     // Step 2 — company + payment
     <div key="s2" className="space-y-5">
-      <h3 className="font-display text-3xl text-white">WHO IS YOUR SOLAR FINANCE COMPANY?</h3>
+      <h3 className="font-display text-3xl text-white">
+        WHO IS YOUR SOLAR FINANCE COMPANY?
+      </h3>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {SOLAR_COMPANIES.map((c) => (
+        {SOLAR_COMPANIES.map(c => (
           <button
             key={c}
             type="button"
@@ -304,9 +450,11 @@ function MultiStepForm() {
           </button>
         ))}
       </div>
-      <h3 className="font-display text-2xl text-white">MONTHLY SOLAR PAYMENT?</h3>
+      <h3 className="font-display text-2xl text-white">
+        MONTHLY SOLAR PAYMENT?
+      </h3>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {PAYMENT_RANGES.map((r) => (
+        {PAYMENT_RANGES.map(r => (
           <button
             key={r}
             type="button"
@@ -333,30 +481,54 @@ function MultiStepForm() {
 
     // Step 3 — intent
     <div key="s3" className="space-y-4">
-      <h3 className="font-display text-3xl text-white">ARE YOU LOOKING TO GET OUT OF YOUR SOLAR CONTRACT?</h3>
+      <h3 className="font-display text-3xl text-white">
+        ARE YOU LOOKING TO GET OUT OF YOUR SOLAR CONTRACT?
+      </h3>
       <div className="space-y-3">
         {[
-          { val: "Yes — I want out ASAP", label: "Yes — I want out ASAP", desc: "I'm ready to start the process immediately" },
-          { val: "Possibly", label: "Possibly", desc: "I want to understand my options first" },
-          { val: "Just exploring", label: "Just exploring", desc: "I want to know if I even have a case" },
-        ].map((opt) => (
+          {
+            val: "Yes — I want out ASAP",
+            label: "Yes — I want out ASAP",
+            desc: "I'm ready to start the process immediately",
+          },
+          {
+            val: "Possibly",
+            label: "Possibly",
+            desc: "I want to understand my options first",
+          },
+          {
+            val: "Just exploring",
+            label: "Just exploring",
+            desc: "I want to know if I even have a case",
+          },
+        ].map(opt => (
           <button
             key={opt.val}
             type="button"
-            onClick={() => { update("intent", opt.val); setStep(4); }}
+            onClick={() => {
+              update("intent", opt.val);
+              setStep(4);
+            }}
             className={`w-full p-4 rounded border text-left transition-all duration-200 ${
               form.intent === opt.val
                 ? "border-amber-500 bg-amber-500/15"
                 : "border-white/10 bg-white/5 hover:border-amber-500/50 hover:bg-white/10"
             }`}
           >
-            <div className={`font-semibold ${form.intent === opt.val ? "text-amber-300" : "text-white"}`}>{opt.label}</div>
+            <div
+              className={`font-semibold ${form.intent === opt.val ? "text-amber-300" : "text-white"}`}
+            >
+              {opt.label}
+            </div>
             <div className="text-gray-400 text-sm mt-0.5">{opt.desc}</div>
           </button>
         ))}
       </div>
       <a
-        href={import.meta.env.VITE_SCHEDULING_URL || "https://calendly.com/solarfreedom/free-consultation"}
+        href={
+          import.meta.env.VITE_SCHEDULING_URL ||
+          "https://calendly.com/solarfreedom/free-consultation"
+        }
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => trackCTAClick("main_form_schedule_consult_step3", "/")}
@@ -368,80 +540,110 @@ function MultiStepForm() {
 
     // Step 4 — contact info
     <div key="s4" className="space-y-4">
-      <h3 className="font-display text-3xl text-white">WHERE SHOULD WE SEND INFORMATION ABOUT YOUR CASE REVIEW?</h3>
+      <h3 className="font-display text-3xl text-white">
+        WHERE SHOULD WE SEND INFORMATION ABOUT YOUR CASE REVIEW?
+      </h3>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">First Name *</label>
+          <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">
+            First Name *
+          </label>
           <input
             type="text"
             value={form.firstName}
-            onChange={(e) => update("firstName", e.target.value)}
+            onChange={e => update("firstName", e.target.value)}
             placeholder="John"
             className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
           />
         </div>
         <div>
-          <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">Last Name *</label>
+          <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">
+            Last Name *
+          </label>
           <input
             type="text"
             value={form.lastName}
-            onChange={(e) => update("lastName", e.target.value)}
+            onChange={e => update("lastName", e.target.value)}
             placeholder="Smith"
             className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
           />
         </div>
       </div>
       <div>
-        <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">Best Phone Number *</label>
+        <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">
+          Best Phone Number *
+        </label>
         <input
           type="tel"
           value={form.phone}
-          onChange={(e) => update("phone", e.target.value)}
+          onChange={e => update("phone", e.target.value)}
           placeholder="(904) 000-0000"
           className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
         />
       </div>
       <div>
-        <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">Email Address *</label>
+        <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">
+          Email Address *
+        </label>
         <input
           type="email"
           value={form.email}
-          onChange={(e) => update("email", e.target.value)}
+          onChange={e => update("email", e.target.value)}
           placeholder="john@example.com"
           className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors"
         />
       </div>
-      <label className="flex items-start gap-3 cursor-pointer group">
-        <input
-          type="checkbox"
-          checked={form.agree}
-          onChange={(e) => update("agree", e.target.checked)}
-          className="mt-1 accent-amber-500 w-4 h-4 flex-shrink-0"
-        />
-        <span className="text-gray-400 text-xs leading-relaxed">
-          By submitting, I agree to be contacted by Solar Freedom via phone, text, and email including automated technology regarding my solar contract review. Reply STOP to opt out.{" "}
-          Consent is not a condition of purchase. Message and data rates may apply.
-        </span>
-      </label>
+      <ContactConsentFields
+        idPrefix="home-case-review"
+        contactConsent={form.contactConsent}
+        smsConsent={form.smsConsent}
+        website={form.website}
+        onContactConsentChange={checked => update("contactConsent", checked)}
+        onSmsConsentChange={checked => update("smsConsent", checked)}
+        onWebsiteChange={value => update("website", value)}
+      />
       <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-4">
-        <div className="text-amber-400 text-[11px] font-mono uppercase tracking-widest mb-2">What to expect</div>
+        <div className="text-amber-400 text-[11px] font-mono uppercase tracking-widest mb-2">
+          What to expect
+        </div>
         <div className="grid grid-cols-1 gap-2 text-sm">
-          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Review of the agreement and supporting records you provide</div>
-          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Fact-specific next steps, not a guaranteed result or timeline</div>
-          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> No attorney-client relationship is created by submitting this form</div>
-          <div className="text-gray-400 text-xs pt-1">Available options depend on your agreement, facts, jurisdiction, and the professionals who agree to handle the matter.</div>
+          <div className="text-gray-200">
+            <span className="text-amber-400 font-bold">✓</span> Review of the
+            agreement and supporting records you provide
+          </div>
+          <div className="text-gray-200">
+            <span className="text-amber-400 font-bold">✓</span> Fact-specific
+            next steps, not a guaranteed result or timeline
+          </div>
+          <div className="text-gray-200">
+            <span className="text-amber-400 font-bold">✓</span> No
+            attorney-client relationship is created by submitting this form
+          </div>
+          <div className="text-gray-400 text-xs pt-1">
+            Available options depend on your agreement, facts, jurisdiction, and
+            the professionals who agree to handle the matter.
+          </div>
         </div>
       </div>
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={submitLead.isPending || !form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
+        disabled={
+          submitLead.isPending ||
+          !form.firstName ||
+          !form.lastName ||
+          !form.phone ||
+          !form.email ||
+          !form.contactConsent
+        }
         className="w-full btn-amber btn-amber-pulse py-5 rounded text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:animation-none"
       >
         REQUEST MY CASE REVIEW →
       </button>
       {submissionError && (
-        <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
+        <p role="alert" className="text-red-400 text-sm text-center">
+          {submissionError}
+        </p>
       )}
     </div>,
   ];
@@ -452,34 +654,55 @@ function MultiStepForm() {
       <div className="space-y-3">
         {/* Step labels */}
         <div className="flex items-center justify-between gap-1">
-          {["Situation", "Issue", "Company", "Intent", "Contact"].map((label, i) => (
-            <div key={i} className="flex flex-col items-center gap-1 flex-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                i < step ? "bg-amber-500 text-black" :
-                i === step ? "border-2 border-amber-500 text-amber-400 bg-amber-500/15" :
-                "border border-white/20 text-gray-600 bg-white/5"
-              }`}>
-                {i < step ? "✓" : i + 1}
+          {["Situation", "Issue", "Company", "Intent", "Contact"].map(
+            (label, i) => (
+              <div key={i} className="flex flex-col items-center gap-1 flex-1">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                    i < step
+                      ? "bg-amber-500 text-black"
+                      : i === step
+                        ? "border-2 border-amber-500 text-amber-400 bg-amber-500/15"
+                        : "border border-white/20 text-gray-600 bg-white/5"
+                  }`}
+                >
+                  {i < step ? "✓" : i + 1}
+                </div>
+                <span
+                  className={`text-xs font-mono hidden sm:block transition-colors duration-300 ${
+                    i === step
+                      ? "text-amber-400"
+                      : i < step
+                        ? "text-amber-600"
+                        : "text-gray-600"
+                  }`}
+                >
+                  {label}
+                </span>
               </div>
-              <span className={`text-xs font-mono hidden sm:block transition-colors duration-300 ${
-                i === step ? "text-amber-400" : i < step ? "text-amber-600" : "text-gray-600"
-              }`}>{label}</span>
-            </div>
-          ))}
+            )
+          )}
         </div>
         {/* Progress bar */}
         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
           <motion.div
             className="h-full rounded-full"
-            style={{ background: "linear-gradient(90deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
+            style={{
+              background:
+                "linear-gradient(90deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))",
+            }}
             initial={{ width: "0%" }}
             animate={{ width: `${(step / totalSteps) * 100}%` }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           />
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-gray-500 text-xs font-mono uppercase tracking-wider">Step {step + 1} of {totalSteps}</span>
-          <span className="text-amber-400 text-xs font-mono font-semibold">{Math.round(((step + 1) / totalSteps) * 100)}% complete</span>
+          <span className="text-gray-500 text-xs font-mono uppercase tracking-wider">
+            Step {step + 1} of {totalSteps}
+          </span>
+          <span className="text-amber-400 text-xs font-mono font-semibold">
+            {Math.round(((step + 1) / totalSteps) * 100)}% complete
+          </span>
         </div>
       </div>
 
@@ -509,7 +732,7 @@ function MultiStepForm() {
 }
 
 // ─── AI Chat Widget ────────────────────────────────────────────────────────────
-type Message = { role: "user" | "ai"; text: string };
+type Message = { role: "user" | "guide"; text: string };
 
 const QUICK_REPLIES = [
   "Can I really cancel my solar contract?",
@@ -518,30 +741,56 @@ const QUICK_REPLIES = [
   "What if my company went bankrupt?",
 ];
 
-const AI_RESPONSES: Record<string, string> = {
-  default: "Every solar contract is different. Gather the signed agreement, financing documents, disclosures, proposals, bills, installation records, and communications before requesting an individual review.",
-  cancel: "Cancellation or another remedy may be available, but that cannot be determined from a general question. The agreement, disclosures, sales representations, performance records, applicable law, and parties involved all matter.",
+const PRESET_RESPONSES: Record<string, string> = {
+  default:
+    "Every solar contract is different. Gather the signed agreement, financing documents, disclosures, proposals, bills, installation records, and communications before requesting an individual review.",
+  cancel:
+    "Cancellation or another remedy may be available, but that cannot be determined from a general question. The agreement, disclosures, sales representations, performance records, applicable law, and parties involved all matter.",
   long: "Timing varies with the agreement, facts, parties, process, and jurisdiction. No responsible review can promise a result or timeline before examining the documents.",
   cost: "Fees and engagement terms must be disclosed and agreed before any paid service begins. Submitting this intake form does not create an attorney-client relationship or guarantee representation.",
-  bankrupt: "A company's bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually.",
+  bankrupt:
+    "A company's bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually.",
 };
 
-function getAIResponse(msg: string): string {
+function getPresetResponse(msg: string): string {
   const lower = msg.toLowerCase();
-  if (lower.includes("cancel") || lower.includes("get out") || lower.includes("really")) return AI_RESPONSES.cancel;
-  if (lower.includes("long") || lower.includes("time") || lower.includes("fast")) return AI_RESPONSES.long;
-  if (lower.includes("cost") || lower.includes("price") || lower.includes("fee") || lower.includes("money")) return AI_RESPONSES.cost;
-  if (lower.includes("bankrupt") || lower.includes("went out") || lower.includes("closed")) return AI_RESPONSES.bankrupt;
-  return AI_RESPONSES.default;
+  if (
+    lower.includes("cancel") ||
+    lower.includes("get out") ||
+    lower.includes("really")
+  )
+    return PRESET_RESPONSES.cancel;
+  if (
+    lower.includes("long") ||
+    lower.includes("time") ||
+    lower.includes("fast")
+  )
+    return PRESET_RESPONSES.long;
+  if (
+    lower.includes("cost") ||
+    lower.includes("price") ||
+    lower.includes("fee") ||
+    lower.includes("money")
+  )
+    return PRESET_RESPONSES.cost;
+  if (
+    lower.includes("bankrupt") ||
+    lower.includes("went out") ||
+    lower.includes("closed")
+  )
+    return PRESET_RESPONSES.bankrupt;
+  return PRESET_RESPONSES.default;
 }
 
-function AIChatWidget() {
+function GuidedInfoWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "ai", text: "Hi! I'm your Solar Freedom case assistant. I can answer questions about your contract, your rights, and how our process works. What's on your mind?" }
+    {
+      role: "guide",
+      text: "This preset information helper can organize common contract questions, records to gather, and public resources to check. It is not an AI or human review and cannot determine legal rights or promise an outcome.",
+    },
   ]);
   const [input, setInput] = useState("");
-  const [typing, setTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -550,13 +799,12 @@ function AIChatWidget() {
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;
-    setMessages(m => [...m, { role: "user", text }]);
+    setMessages(m => [
+      ...m,
+      { role: "user", text },
+      { role: "guide", text: getPresetResponse(text) },
+    ]);
     setInput("");
-    setTyping(true);
-    setTimeout(() => {
-      setMessages(m => [...m, { role: "ai", text: getAIResponse(text) }]);
-      setTyping(false);
-    }, 1200 + Math.random() * 600);
   };
 
   return (
@@ -571,24 +819,55 @@ function AIChatWidget() {
           style={{ background: "oklch(0.14 0.012 265)" }}
         >
           {/* Header */}
-          <div className="px-4 py-3 flex items-center justify-between" style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))" }}>
+          <div
+            className="px-4 py-3 flex items-center justify-between"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))",
+            }}
+          >
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-black/30 flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                <svg
+                  className="w-4 h-4 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  />
                 </svg>
               </div>
               <div>
-                <div className="text-black font-bold text-sm">Solar Freedom AI</div>
+                <div className="text-black font-bold text-sm">
+                  Guided information helper
+                </div>
                 <div className="text-black/60 text-xs flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
-                  Online — typically replies instantly
+                  Preset educational responses
                 </div>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="text-black/60 hover:text-black transition-colors">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <button
+              onClick={() => setOpen(false)}
+              className="text-black/60 hover:text-black transition-colors"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -596,7 +875,10 @@ function AIChatWidget() {
           {/* Messages */}
           <div className="h-72 overflow-y-auto p-4 space-y-3">
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                key={i}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              >
                 <div
                   className={`max-w-[85%] px-3.5 py-2.5 rounded-xl text-sm leading-relaxed ${
                     m.role === "user"
@@ -608,29 +890,13 @@ function AIChatWidget() {
                 </div>
               </div>
             ))}
-            {typing && (
-              <div className="flex justify-start">
-                <div className="bg-white/8 border border-white/8 px-4 py-3 rounded-xl rounded-bl-sm">
-                  <div className="flex gap-1">
-                    {[0, 1, 2].map(i => (
-                      <motion.div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-amber-400"
-                        animate={{ y: [0, -4, 0] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Quick replies */}
           {messages.length <= 2 && (
             <div className="px-4 pb-3 flex flex-wrap gap-1.5">
-              {QUICK_REPLIES.map((q) => (
+              {QUICK_REPLIES.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
@@ -648,9 +914,9 @@ function AIChatWidget() {
               <input
                 type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage(input)}
-                placeholder="Ask anything about your contract..."
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && sendMessage(input)}
+                placeholder="Enter a common contract question..."
                 className="flex-1 px-3.5 py-3 bg-transparent text-white text-sm placeholder-gray-600 focus:outline-none"
               />
               <button
@@ -673,14 +939,36 @@ function AIChatWidget() {
       >
         {!open ? (
           <>
-            <svg className="w-7 h-7 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <svg
+              className="w-7 h-7 text-black"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
             </svg>
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">1</span>
+            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">
+              1
+            </span>
           </>
         ) : (
-          <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-6 h-6 text-black"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         )}
       </motion.button>
@@ -713,10 +1001,48 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="overflow-hidden"
         >
-          <div className="px-6 pb-5 text-gray-400 leading-relaxed border-t border-white/8 pt-4">{a}</div>
+          <div className="px-6 pb-5 text-gray-400 leading-relaxed border-t border-white/8 pt-4">
+            {a}
+          </div>
         </motion.div>
       </div>
     </Reveal>
+  );
+}
+
+function HostedVideo({ src, title }: { src: string; title: string }) {
+  const [loaded, setLoaded] = useState(false);
+
+  if (loaded) {
+    return (
+      <video
+        src={src}
+        aria-label={title}
+        className="h-full w-full object-cover"
+        controls
+        autoPlay
+        preload="metadata"
+        playsInline
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      data-video-placeholder="hosted-media"
+      onClick={() => setLoaded(true)}
+      className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-gray-950 to-gray-900 px-6 text-center text-white transition-colors hover:from-gray-900 hover:to-gray-800"
+      aria-label={`Load video: ${title}`}
+    >
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-2xl text-black" aria-hidden="true">
+        ▶
+      </span>
+      <span className="font-semibold">Load video</span>
+      <span className="text-xs leading-relaxed text-gray-400">
+        Media loads from our asset CDN only after you select it.
+      </span>
+    </button>
   );
 }
 
@@ -737,37 +1063,90 @@ export default function Home() {
 
   const homeSchemas: object[] = [
     {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: 'Solar Freedom',
-      url: 'https://breakyoursolarcontract.com',
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Solar Freedom",
+      url: "https://breakyoursolarcontract.com",
     },
   ];
 
   return (
     <div className="min-h-screen bg-[oklch(0.11_0.012_265)] text-white overflow-x-hidden">
       <SchemaInjector schemas={homeSchemas} />
-       {/* ── NAVBAR ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/8" style={{ background: "oklch(0.11 0.012 265 / 90%)", backdropFilter: "blur(12px)" }}>
+      {/* ── NAVBAR ── */}
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 border-b border-white/8"
+        style={{
+          background: "oklch(0.11 0.012 265 / 90%)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center">
-              <svg className="w-4 h-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              <svg
+                className="w-4 h-4 text-black"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
               </svg>
             </div>
-            <span className="font-display text-xl tracking-wider text-white">SOLAR FREEDOM</span>
+            <span className="font-display text-xl tracking-wider text-white">
+              SOLAR FREEDOM
+            </span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">
-            <a href="/how-it-works" className="hover:text-white transition-colors">How It Works</a>
-            <a href="/selling-house-with-solar" className="hover:text-white transition-colors">Selling With Solar</a>
-            <a href="/solar-lien-removal" className="hover:text-white transition-colors">Lien Removal</a>
-            <a href="/solar-loan-help" className="hover:text-white transition-colors">Loan Help</a>
-            <a href="/solar-companies" className="hover:text-white transition-colors">Companies</a>
-            <a href="/blog" className="hover:text-amber-400 text-amber-500 transition-colors font-semibold">Blog</a>
-            <a href="/media" className="hover:text-white transition-colors">Watch &amp; Listen</a>
+            <a
+              href="/how-it-works"
+              className="hover:text-white transition-colors"
+            >
+              How It Works
+            </a>
+            <a
+              href="/selling-house-with-solar"
+              className="hover:text-white transition-colors"
+            >
+              Selling With Solar
+            </a>
+            <a
+              href="/solar-lien-removal"
+              className="hover:text-white transition-colors"
+            >
+              Lien Removal
+            </a>
+            <a
+              href="/solar-loan-help"
+              className="hover:text-white transition-colors"
+            >
+              Loan Help
+            </a>
+            <a
+              href="/solar-companies"
+              className="hover:text-white transition-colors"
+            >
+              Companies
+            </a>
+            <a
+              href="/blog"
+              className="hover:text-amber-400 text-amber-500 transition-colors font-semibold"
+            >
+              Blog
+            </a>
+            <a href="/media" className="hover:text-white transition-colors">
+              Watch &amp; Listen
+            </a>
           </div>
-          <button onClick={() => scrollToForm("nav_free_review")} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">
+          <button
+            onClick={() => scrollToForm("nav_free_review")}
+            className="btn-amber px-5 py-2.5 rounded text-sm font-bold"
+          >
             CASE REVIEW
           </button>
         </div>
@@ -777,21 +1156,42 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
-          <img src={HERO_BG} alt="Solar contract cancellation attorneys helping homeowners get out of solar agreements" className="w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 65%) 0%, oklch(0.1 0.015 265 / 50%) 50%, oklch(0.08 0.015 265 / 60%) 100%)" }} />
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
+          <img
+            src={HERO_BG}
+            alt="Rooftop solar panels on residential homes"
+            className="w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(0.08 0.015 265 / 65%) 0%, oklch(0.1 0.015 265 / 50%) 50%, oklch(0.08 0.015 265 / 60%) 100%)",
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)",
+            }}
+          />
           {/* Looping ambient glow — slow-breathing amber radial light */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "radial-gradient(ellipse 70% 60% at 15% 55%, oklch(0.72 0.19 50 / 12%) 0%, transparent 65%)",
+              background:
+                "radial-gradient(ellipse 70% 60% at 15% 55%, oklch(0.72 0.19 50 / 12%) 0%, transparent 65%)",
               animation: "ambientGlow 6s ease-in-out infinite",
             }}
           />
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "radial-gradient(ellipse 50% 40% at 80% 30%, oklch(0.72 0.19 50 / 7%) 0%, transparent 60%)",
+              background:
+                "radial-gradient(ellipse 50% 40% at 80% 30%, oklch(0.72 0.19 50 / 7%) 0%, transparent 60%)",
               animation: "ambientGlow 8s ease-in-out infinite reverse",
             }}
           />
@@ -806,15 +1206,21 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 mb-6"
             >
-              <span className="badge-danger">⚠ SOLAR CONTRACT TRAP</span>
-              <span className="text-gray-500 text-xs font-mono">Individual document review</span>
+              <span className="badge-danger">SOLAR AGREEMENT REVIEW</span>
+              <span className="text-gray-500 text-xs font-mono">
+                Individual document review
+              </span>
             </motion.div>
 
             {/* Main headline */}
             <motion.h1
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 0.8,
+                delay: 0.1,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="font-display leading-none mb-6"
               style={{ fontSize: "clamp(3.5rem, 9vw, 7rem)" }}
             >
@@ -834,7 +1240,8 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="text-gray-300 text-xl leading-relaxed mb-8 max-w-xl"
             >
-              Gather the agreement, disclosures, financing records, proposals, bills, and communications needed for a fact-specific review.
+              Gather the agreement, disclosures, financing records, proposals,
+              bills, and communications needed for a fact-specific review.
             </motion.p>
 
             {/* CTAs */}
@@ -844,10 +1251,17 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.45 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <button onClick={() => scrollToForm("hero_get_free_review")} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
+              <button
+                onClick={() => scrollToForm("hero_get_free_review")}
+                className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold"
+              >
                 REQUEST MY CASE REVIEW →
               </button>
-              <a href={phoneHref} onClick={() => trackPhoneClick("hero_phone", phoneDigits)} className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
+              <a
+                href={phoneHref}
+                onClick={() => trackPhoneClick("hero_phone", phoneDigits)}
+                className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center"
+              >
                 📞 Call {phoneDisplay}
               </a>
             </motion.div>
@@ -864,7 +1278,7 @@ export default function Home() {
                 { icon: "✓", text: "Fact-specific review" },
                 { icon: "✓", text: "No guaranteed outcome" },
                 { icon: "✓", text: "No guaranteed timeline" },
-              ].map((item) => (
+              ].map(item => (
                 <span key={item.text} className="flex items-center gap-1.5">
                   <span className="text-amber-400 font-bold">{item.icon}</span>
                   {item.text}
@@ -880,14 +1294,27 @@ export default function Home() {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <svg className="w-6 h-6 text-amber-500/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg
+            className="w-6 h-6 text-amber-500/60"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </motion.div>
       </section>
 
       {/* ── STATS BAR ── */}
-      <section className="border-y border-white/8 py-10" style={{ background: "oklch(0.14 0.012 265)" }}>
+      <section
+        className="border-y border-white/8 py-10"
+        style={{ background: "oklch(0.14 0.012 265)" }}
+      >
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
@@ -895,12 +1322,17 @@ export default function Home() {
               { display: "02", label: "Disclosures" },
               { display: "03", label: "Performance Records" },
               { display: "04", label: "Communications" },
-            ].map((stat) => (
+            ].map(stat => (
               <div key={stat.label} className="text-center">
-                <div className="font-display text-amber-gradient mb-1" style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}>
+                <div
+                  className="font-display text-amber-gradient mb-1"
+                  style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}
+                >
                   {stat.display}
                 </div>
-                <div className="text-gray-400 text-sm font-mono uppercase tracking-wider">{stat.label}</div>
+                <div className="text-gray-400 text-sm font-mono uppercase tracking-wider">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
@@ -908,24 +1340,35 @@ export default function Home() {
       </section>
 
       {/* ── FORM SECTION — moved right after stats bar ── */}
-      <section id="form" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
+      <section
+        id="form"
+        className="py-24 lg:py-32 relative"
+        style={{ background: "oklch(0.13 0.012 265)" }}
+      >
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Left: Copy */}
             <div className="space-y-8 lg:sticky lg:top-24">
               <Reveal>
                 <div className="badge-danger mb-4">CASE REVIEW</div>
-                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                  FIND OUT IF WE CAN HELP YOU
+                <h2
+                  className="font-display text-white leading-none"
+                  style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+                >
+                  REQUEST A REVIEW OF
                   <br />
-                  <span className="text-amber-gradient">GET YOUR SOLAR CONTRACT</span>
+                  <span className="text-amber-gradient">
+                    YOUR SOLAR AGREEMENT
+                  </span>
                   <br />
-                  CANCELED.
+                  AND SUPPORTING RECORDS.
                 </h2>
               </Reveal>
               <Reveal delay={0.1}>
                 <p className="text-gray-300 text-xl leading-relaxed font-semibold">
-                  A review can identify questions to investigate and possible next steps. It cannot guarantee cancellation, equipment ownership, or any other result.
+                  A review can identify questions to investigate and possible
+                  next steps. It cannot guarantee cancellation, equipment
+                  ownership, or any other result.
                 </p>
               </Reveal>
               <div className="space-y-3">
@@ -949,8 +1392,14 @@ export default function Home() {
                   <div className="flex items-start gap-3">
                     <div className="text-2xl">⏰</div>
                     <div>
-                      <div className="font-semibold text-amber-400 mb-1">Prepare for Review</div>
-                      <p className="text-gray-400 text-sm">Collect the signed agreement, disclosures, bills, proposals, installation records, and communications so your situation can be reviewed accurately.</p>
+                      <div className="font-semibold text-amber-400 mb-1">
+                        Prepare for Review
+                      </div>
+                      <p className="text-gray-400 text-sm">
+                        Collect the signed agreement, disclosures, bills,
+                        proposals, installation records, and communications so
+                        your situation can be reviewed accurately.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -959,18 +1408,46 @@ export default function Home() {
 
             {/* Right: Form */}
             <Reveal delay={0.2}>
-              <div ref={formRef} className="rounded-2xl p-8 relative form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
+              <div
+                ref={formRef}
+                className="rounded-2xl p-8 relative form-glow-box"
+                style={{ background: "oklch(0.13 0.012 265)" }}
+              >
                 {/* Glowing corner accent */}
-                <div className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl" style={{ background: "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)" }} />
-                <div className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl" style={{ background: "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)" }} />
+                <div
+                  className="absolute top-0 left-0 w-24 h-24 rounded-tl-2xl"
+                  style={{
+                    background:
+                      "radial-gradient(circle at top left, oklch(0.72 0.19 50 / 20%), transparent 70%)",
+                  }}
+                />
+                <div
+                  className="absolute bottom-0 right-0 w-24 h-24 rounded-br-2xl"
+                  style={{
+                    background:
+                      "radial-gradient(circle at bottom right, oklch(0.72 0.19 50 / 15%), transparent 70%)",
+                  }}
+                />
                 {/* Form header */}
                 <div className="mb-6 text-center relative">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3" style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
+                  <div
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3"
+                    style={{
+                      background: "oklch(0.72 0.19 50 / 15%)",
+                      color: "oklch(0.85 0.19 50)",
+                      border: "1px solid oklch(0.72 0.19 50 / 40%)",
+                    }}
+                  >
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                     INDIVIDUAL CASE REVIEW
                   </div>
-                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">START A DOCUMENT-BASED REVIEW OF YOUR SOLAR CONTRACT</h3>
-                  <p className="text-gray-300 text-sm font-semibold">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
+                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">
+                    START A DOCUMENT-BASED REVIEW OF YOUR SOLAR CONTRACT
+                  </h3>
+                  <p className="text-gray-300 text-sm font-semibold">
+                    Options and outcomes depend on your agreement, facts, and
+                    jurisdiction.
+                  </p>
                 </div>
                 <MultiStepForm />
               </div>
@@ -993,13 +1470,22 @@ export default function Home() {
                   alt="Frustrated homeowner with solar contract paperwork"
                   className="rounded-xl w-full object-cover shadow-2xl"
                   style={{ maxHeight: "560px" }}
-                  loading="lazy" decoding="async"
+                  loading="lazy"
+                  decoding="async"
                 />
                 {/* Overlay badge */}
-                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-lg border border-red-500/30" style={{ background: "oklch(0.12 0.015 265 / 90%)", backdropFilter: "blur(8px)" }}>
-                  <div className="badge-danger mb-2">THE REALITY</div>
+                <div
+                  className="absolute bottom-6 left-6 right-6 p-4 rounded-lg border border-red-500/30"
+                  style={{
+                    background: "oklch(0.12 0.015 265 / 90%)",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  <div className="badge-danger mb-2">START WITH THE RECORDS</div>
                   <p className="text-gray-300 text-sm leading-relaxed">
-                    The average trapped solar homeowner pays <span className="text-red-400 font-semibold">$180/month</span> for a system that underperforms — that's <span className="text-red-400 font-semibold">$43,200 over 20 years</span> for something they were deceived into buying.
+                    Put the signed payment schedule, current account statement,
+                    utility bills, and production records side by side. The
+                    documents—not an assumed average—show what needs review.
                   </p>
                 </div>
               </div>
@@ -1008,39 +1494,65 @@ export default function Home() {
             {/* Content */}
             <div className="space-y-8">
               <Reveal>
-                <div className="badge-danger mb-4">YOU'RE NOT ALONE</div>
-                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                  THEY USED EVERY TRICK IN THE BOOK.
+                <div className="badge-danger mb-4">QUESTIONS TO DOCUMENT</div>
+                <h2
+                  className="font-display text-white leading-none"
+                  style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+                >
+                  START WITH WHAT THE RECORDS SHOW.
                   <br />
-                  <span className="text-amber-gradient">WE WROTE THE COUNTER-PLAYBOOK.</span>
+                  <span className="text-amber-gradient">
+                    BUILD A DOCUMENT CHECKLIST.
+                  </span>
                 </h2>
               </Reveal>
 
               <Reveal delay={0.1}>
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  Solar salespeople are trained to close at any cost. They downplay the contract length, inflate savings projections, and bury the real terms in 60 pages of fine print. Thousands of homeowners are now stuck paying for systems that don't deliver.
+                  Some homeowner complaints describe high-pressure sales,
+                  unclear contract terms, disputed savings projections, or
+                  systems that did not perform as expected. Verify the signed
+                  documents and current regulator records before drawing a
+                  conclusion.
                 </p>
               </Reveal>
 
               <div className="space-y-4">
                 {[
-                  { label: "Misrepresented savings projections", icon: "🔴" },
-                  { label: "Undisclosed contract escalator clauses", icon: "🔴" },
-                  { label: "Right of rescission never properly disclosed", icon: "🔴" },
-                  { label: "System performance guarantees not honored", icon: "🔴" },
-                  { label: "TILA and consumer protection violations", icon: "🔴" },
+                  { label: "Written savings projections versus actual bills", icon: "•" },
+                  {
+                    label: "Payment schedules, escalators, and transfer terms",
+                    icon: "•",
+                  },
+                  {
+                    label: "Signed disclosures and any cancellation notice",
+                    icon: "•",
+                  },
+                  {
+                    label: "Written performance terms versus production records",
+                    icon: "•",
+                  },
+                  {
+                    label: "Questions to verify against current official sources",
+                    icon: "•",
+                  },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={0.1 + i * 0.08}>
                     <div className="flex items-center gap-3 p-4 rounded-lg border border-white/6 bg-white/3">
                       <span className="text-lg">{item.icon}</span>
-                      <span className="text-gray-200 font-medium">{item.label}</span>
+                      <span className="text-gray-200 font-medium">
+                        {item.label}
+                      </span>
                     </div>
                   </Reveal>
                 ))}
               </div>
 
               <Reveal delay={0.5}>
-                <button onClick={() => scrollToForm("mid_get_free_case_review")} className="btn-amber px-8 py-4 rounded text-base font-bold">
+                <button
+                  onClick={() => scrollToForm("mid_get_free_case_review")}
+                  className="btn-amber px-8 py-4 rounded text-base font-bold"
+                >
                   REQUEST MY CASE REVIEW →
                 </button>
               </Reveal>
@@ -1050,34 +1562,73 @@ export default function Home() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="py-24 lg:py-32 relative" style={{ background: "oklch(0.13 0.012 265)" }}>
+      <section
+        id="how-it-works"
+        className="py-24 lg:py-32 relative"
+        style={{ background: "oklch(0.13 0.012 265)" }}
+      >
         <div className="container">
           <Reveal>
             <div className="text-center mb-16">
               <div className="badge-success inline-block mb-4">THE PROCESS</div>
-              <h2 className="font-display text-white" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                FROM TRAPPED TO FREE IN <span className="text-amber-gradient">4 STEPS</span>
+              <h2
+                className="font-display text-white"
+                style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+              >
+                FROM RECORDS TO NEXT STEPS IN{" "}
+                <span className="text-amber-gradient">4 STAGES</span>
               </h2>
-              <p className="text-gray-400 mt-4 max-w-xl mx-auto">We handle everything. You just tell us your situation — we do the rest.</p>
+              <p className="text-gray-400 mt-4 max-w-xl mx-auto">
+                Each stage depends on the documents, facts, parties,
+                jurisdiction, and any written professional engagement.
+              </p>
             </div>
           </Reveal>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { num: "01", title: "DOCUMENT INTAKE", desc: "Share the agreement and supporting records needed to understand your situation.", icon: "📋" },
-              { num: "02", title: "CUSTOM STRATEGY", desc: "We build a case-specific legal strategy based on your contract terms, the sales tactics used, and applicable consumer protection laws.", icon: "⚖️" },
-              { num: "03", title: "OPTIONS REVIEW", desc: "Review available paths, limits, costs, and risks with an appropriately qualified professional before proceeding.", icon: "🥊" },
-              { num: "04", title: "NEXT STEPS", desc: "Review the available paths, limits, costs, and risks before deciding how to proceed.", icon: "🔓" },
+              {
+                num: "01",
+                title: "DOCUMENT INTAKE",
+                desc: "Share the agreement and supporting records needed to understand your situation.",
+                icon: "📋",
+              },
+              {
+                num: "02",
+                title: "DOCUMENT QUESTIONS",
+                desc: "Identify contract terms, disclosures, sales statements, performance records, and current primary sources that require closer review.",
+                icon: "⚖️",
+              },
+              {
+                num: "03",
+                title: "OPTIONS REVIEW",
+                desc: "Review available paths, limits, costs, and risks with an appropriately qualified professional before proceeding.",
+                icon: "🥊",
+              },
+              {
+                num: "04",
+                title: "NEXT STEPS",
+                desc: "Review the available paths, limits, costs, and risks before deciding how to proceed.",
+                icon: "🔓",
+              },
             ].map((step, i) => (
               <Reveal key={step.num} delay={i * 0.12}>
                 <div className="relative p-6 rounded-xl border border-white/8 bg-white/3 h-full group hover:border-amber-500/30 transition-colors duration-300">
-                  <div className="font-display text-6xl text-amber-gradient mb-4 leading-none">{step.num}</div>
+                  <div className="font-display text-6xl text-amber-gradient mb-4 leading-none">
+                    {step.num}
+                  </div>
                   <div className="text-3xl mb-3">{step.icon}</div>
-                  <h3 className="font-display text-2xl text-white mb-3">{step.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="font-display text-2xl text-white mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {step.desc}
+                  </p>
                   {/* Connector arrow */}
                   {i < 3 && (
-                    <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 text-amber-500/40 text-2xl z-10">→</div>
+                    <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 text-amber-500/40 text-2xl z-10">
+                      →
+                    </div>
                   )}
                 </div>
               </Reveal>
@@ -1086,7 +1637,10 @@ export default function Home() {
 
           <Reveal delay={0.5}>
             <div className="text-center mt-12">
-              <button onClick={() => scrollToForm("how_it_works_start_review")} className="btn-amber btn-amber-pulse px-10 py-5 rounded text-lg font-bold">
+              <button
+                onClick={() => scrollToForm("how_it_works_start_review")}
+                className="btn-amber btn-amber-pulse px-10 py-5 rounded text-lg font-bold"
+              >
                 START MY REVIEW →
               </button>
             </div>
@@ -1101,24 +1655,45 @@ export default function Home() {
             <div className="space-y-8 order-2 lg:order-1">
               <Reveal>
                 <div className="badge-success mb-4">WHY SOLAR FREEDOM</div>
-                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                  WE DON'T JUST REVIEW CONTRACTS.
+                <h2
+                  className="font-display text-white leading-none"
+                  style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+                >
+                  REVIEW THE RECORDS.
                   <br />
-                  <span className="text-amber-gradient">WE BREAK THEM.</span>
+                  <span className="text-amber-gradient">
+                    UNDERSTAND THE VARIABLES.
+                  </span>
                 </h2>
               </Reveal>
 
               <div className="grid grid-cols-1 gap-4">
                 {[
-                   { title: "CONTRACT-FOCUSED REVIEW", desc: "The signed agreement, disclosures, financing terms, sales representations, and performance records are reviewed together." },
-                   { title: "FACT-SPECIFIC OPTIONS", desc: "Possible next steps depend on the documents, parties, applicable law, and professionals who agree to handle the matter." },
-                   { title: "NO PROMISED TIMELINE", desc: "Disputes vary in duration. Timing cannot be responsibly estimated before the relevant records and process are known." },
-                   { title: "NO PROMISED OUTCOME", desc: "A review can identify questions and options; it cannot guarantee cancellation, damages, credit treatment, or any other result." },
+                  {
+                    title: "CONTRACT-FOCUSED REVIEW",
+                    desc: "The signed agreement, disclosures, financing terms, sales representations, and performance records are reviewed together.",
+                  },
+                  {
+                    title: "FACT-SPECIFIC OPTIONS",
+                    desc: "Possible next steps depend on the documents, parties, applicable law, and professionals who agree to handle the matter.",
+                  },
+                  {
+                    title: "NO PROMISED TIMELINE",
+                    desc: "Disputes vary in duration. Timing cannot be responsibly estimated before the relevant records and process are known.",
+                  },
+                  {
+                    title: "NO PROMISED OUTCOME",
+                    desc: "A review can identify questions and options; it cannot guarantee cancellation, damages, credit treatment, or any other result.",
+                  },
                 ].map((item, i) => (
                   <Reveal key={item.title} delay={i * 0.1}>
                     <div className="card-amber-border rounded-r-lg p-5">
-                      <div className="font-display text-amber-400 text-lg mb-1.5">{item.title}</div>
-                      <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                      <div className="font-display text-amber-400 text-lg mb-1.5">
+                        {item.title}
+                      </div>
+                      <p className="text-gray-400 text-sm leading-relaxed">
+                        {item.desc}
+                      </p>
                     </div>
                   </Reveal>
                 ))}
@@ -1129,14 +1704,25 @@ export default function Home() {
               <div className="relative">
                 <img
                   src={FREEDOM_VISUAL}
-                  alt="Breaking free from a solar contract"
+                  alt="Solar agreement records illustration"
                   className="rounded-xl w-full object-cover shadow-2xl"
-                  loading="lazy" decoding="async"
+                  loading="lazy"
+                  decoding="async"
                 />
-                <div className="absolute inset-0 rounded-xl" style={{ background: "linear-gradient(to top, oklch(0.11 0.012 265 / 60%) 0%, transparent 50%)" }} />
+                <div
+                  className="absolute inset-0 rounded-xl"
+                  style={{
+                    background:
+                      "linear-gradient(to top, oklch(0.11 0.012 265 / 60%) 0%, transparent 50%)",
+                  }}
+                />
                 <div className="absolute bottom-6 left-6">
-                  <div className="font-display text-5xl text-amber-gradient">FREEDOM</div>
-                  <div className="text-gray-300 text-sm font-mono">is just one review away</div>
+                  <div className="font-display text-5xl text-amber-gradient">
+                    DOCUMENTS
+                  </div>
+                  <div className="text-gray-300 text-sm font-mono">
+                    before decisions
+                  </div>
                 </div>
               </div>
             </Reveal>
@@ -1145,13 +1731,21 @@ export default function Home() {
       </section>
 
       {/* ── VIDEO SECTION ── */}
-      <section className="py-24 lg:py-32" style={{ background: "oklch(0.11 0.012 265)" }}>
+      <section
+        className="py-24 lg:py-32"
+        style={{ background: "oklch(0.11 0.012 265)" }}
+      >
         <div className="container">
           <Reveal>
             <div className="text-center mb-16">
-              <div className="badge-danger mb-4">REAL STORIES</div>
-              <h2 className="text-3xl lg:text-5xl font-black text-white mb-4">See What Homeowners Are Saying</h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Thousands of homeowners were sold solar contracts with hidden clauses, inflated savings, and broken promises. Here is what they discovered — and what you can do about it.</p>
+              <div className="badge-danger mb-4">EDUCATIONAL SCENARIOS</div>
+              <h2 className="text-3xl lg:text-5xl font-black text-white mb-4">
+                Review Common Contract Questions
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Review common contract questions, records to gather, and
+                official sources to check before deciding what to do next.
+              </p>
             </div>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-8">
@@ -1159,32 +1753,28 @@ export default function Home() {
               {
                 src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/gemini_generated_video_70bf9dcd_958ad7f4.mp4",
                 title: "Hidden Contract Clauses",
-                desc: "What solar companies don't want you to read in your contract"
+                desc: "Contract clauses and disclosures to locate in the signed records",
               },
               {
                 src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/gemini_generated_video_9ac2e803_2f64531a.mp4",
                 title: "When Your Solar Company Goes Bankrupt",
-                desc: "Don't let a bankrupt company hold your home hostage"
+                desc: "Documents and parties to identify if an installer closes",
               },
               {
                 src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/gemini_generated_video_6827b99f_3faf870c.mp4",
                 title: "Solar Payment Shock",
-                desc: "You went solar to save money. So why is your bill higher?"
-              }
+                desc: "Compare bills, production records, financing terms, and written projections",
+              },
             ].map((vid, i) => (
               <Reveal key={i} delay={i * 0.1}>
                 <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:border-amber-500/40 transition-all duration-300 group">
                   <div className="relative aspect-video bg-black">
-                    <video
-                      src={vid.src}
-                      className="w-full h-full object-cover"
-                      controls
-                      preload="metadata"
-                      playsInline
-                    />
+                    <HostedVideo src={vid.src} title={vid.title} />
                   </div>
                   <div className="p-5">
-                    <h3 className="text-white font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors">{vid.title}</h3>
+                    <h3 className="text-white font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors">
+                      {vid.title}
+                    </h3>
                     <p className="text-gray-400 text-sm">{vid.desc}</p>
                   </div>
                 </div>
@@ -1199,9 +1789,15 @@ export default function Home() {
         <div className="container max-w-3xl">
           <Reveal>
             <div className="text-center mb-16">
-              <div className="badge-success inline-block mb-4">COMMON QUESTIONS</div>
-              <h2 className="font-display text-white" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                STRAIGHT ANSWERS. <span className="text-amber-gradient">NO RUNAROUND.</span>
+              <div className="badge-success inline-block mb-4">
+                COMMON QUESTIONS
+              </div>
+              <h2
+                className="font-display text-white"
+                style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+              >
+                STRAIGHT ANSWERS.{" "}
+                <span className="text-amber-gradient">SOURCE-CONSCIOUS GUIDANCE.</span>
               </h2>
             </div>
           </Reveal>
@@ -1247,110 +1843,157 @@ export default function Home() {
       </section>
 
       {/* ── CITY/STATE LOCATION PAGES GRID ── */}
-      <section className="py-20 lg:py-28" style={{ background: "oklch(0.10 0.01 265)" }}>
+      <section
+        className="py-20 lg:py-28"
+        style={{ background: "oklch(0.10 0.01 265)" }}
+      >
         <div className="container">
           <Reveal>
             <div className="text-center mb-14">
-              <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-4" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                LOCATION-SPECIFIC INFORMATION
+              <div
+                className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-4"
+                style={{ background: "oklch(0.72 0.19 50 / 10%)" }}
+              >
+                SOURCE-REVIEWED RESOURCES
               </div>
-              <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                BROWSE SOLAR-CONTRACT INFORMATION BY CITY
+              <h2
+                className="font-display text-white mb-4"
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: "clamp(2rem, 4vw, 3rem)",
+                }}
+              >
+                START WITH OFFICIAL STATE RESOURCES
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-sm">
-                Click your city for a dedicated case review page with local state laws, local solar companies, and city-specific legal strategies.
+                Location pages remain outside search publication until they
+                have current primary sources, an as-of review, and genuinely
+                unique local value. Start with the state research hub and its
+                official federal and state consumer-resource links.
               </p>
             </div>
           </Reveal>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {CITIES.map((city, i) => (
-              <Reveal key={city.slug} delay={(i % 10) * 0.03}>
-                <Link href={`/cancel-solar-contract/${city.slug}`}>
-                  <div
-                    className="p-4 rounded-lg border cursor-pointer transition-all group"
-                    style={{ background: "oklch(0.13 0.012 265)", borderColor: "oklch(0.22 0.01 265)" }}
-                  >
-                    <div
-                      className="text-sm font-semibold text-gray-300 group-hover:text-amber-400 transition-colors leading-tight"
-                    >
-                      {city.name}
-                    </div>
-                    <div className="text-xs text-gray-600 font-mono mt-0.5">{city.stateCode}</div>
-                    <div className="mt-2 text-amber-500 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-                      VIEW CITY →
-                    </div>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+          <div className="text-center">
+            <Link
+              href="/solar-contract-laws"
+              className="inline-flex items-center justify-center border border-amber-500/40 text-amber-400 hover:bg-amber-500 hover:text-black font-bold uppercase tracking-wider px-7 py-3 rounded transition-colors"
+            >
+              Open State Research and Official Sources
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ── COMPANY PAGES GRID ── */}
-      <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
+      <section
+        className="py-16 border-t border-white/8"
+        style={{ background: "oklch(0.10 0.01 265)" }}
+      >
         <div className="container">
           <Reveal>
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-mono mb-4" style={{ background: "oklch(0.15 0.05 20 / 30%)" }}>⚠ COMPANY-SPECIFIC LEGAL PAGES</div>
-              <h2 className="font-display text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>IS YOUR SOLAR COMPANY ON THIS LIST?</h2>
-              <p className="text-gray-400 mt-2 max-w-2xl">We have built dedicated legal case pages for every major solar company with documented fraud, bankruptcy, or consumer protection violations. Click your company to see exactly what your options are.</p>
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/30 text-red-400 text-xs font-mono mb-4"
+                style={{ background: "oklch(0.15 0.05 20 / 30%)" }}
+              >
+                COMPANY AGREEMENT RESEARCH
+              </div>
+              <h2
+                className="font-display text-white"
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
+                }}
+              >
+                COMPANY AGREEMENT RESEARCH HUB
+              </h2>
+              <p className="text-gray-400 mt-2 max-w-2xl">
+                Use the company hub for document checklists and official-source
+                guidance. Individual company pages are not promoted until their
+                claims have source URLs, as-of dates, and editorial review.
+              </p>
             </div>
           </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {COMPANY_PAGES.map((company: CompanyData, i: number) => {
-              const statusColor = company.status === 'Bankrupt' ? '#ef4444' : company.status === 'Acquired' ? '#f59e0b' : '#22c55e';
-              return (
-                <Reveal key={company.slug} delay={(i % 4) * 0.05}>
-                  <Link href={`/cancel-${company.slug}-solar-contract`}>
-                    <div className="p-5 rounded-lg border cursor-pointer transition-all hover:border-amber-500/40 group h-full" style={{ background: "oklch(0.13 0.012 265)", borderColor: "oklch(0.22 0.01 265)" }}>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="text-white font-semibold group-hover:text-amber-400 transition-colors">{company.name}</div>
-                        <div className="text-xs font-mono px-2 py-0.5 rounded-full" style={{ color: statusColor, background: statusColor + '18', border: `1px solid ${statusColor}30` }}>{company.status}</div>
-                      </div>
-                      <div className="text-gray-500 text-xs font-mono mb-3">{company.complaintCount} complaints · BBB {company.bbRating}</div>
-                      <div className="text-gray-600 text-xs leading-relaxed line-clamp-2">{company.topComplaints[0]}</div>
-                      <div className="mt-3 text-amber-500 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">SEE YOUR OPTIONS →</div>
-                    </div>
-                  </Link>
-                </Reveal>
-              );
-            })}
-          </div>
+          <Link
+            href="/solar-companies"
+            className="inline-flex items-center justify-center border border-amber-500/40 text-amber-400 hover:bg-amber-500 hover:text-black font-bold uppercase tracking-wider px-7 py-3 rounded transition-colors"
+          >
+            Open Solar Company Research Hub
+          </Link>
         </div>
       </section>
       {/* ── SEO CONTENT BLOCK — keyword-rich, visually styled as an editorial section ── */}
-      <section className="py-20 lg:py-28" style={{ background: "oklch(0.12 0.012 265)" }}>
+      <section
+        className="py-20 lg:py-28"
+        style={{ background: "oklch(0.12 0.012 265)" }}
+      >
         <div className="container max-w-4xl">
           <Reveal>
-            <h2 className="font-display text-white mb-6" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-              SOLAR CONTRACT CANCELLATION: <span className="text-amber-gradient">KNOW YOUR RIGHTS</span>
+            <h2
+              className="font-display text-white mb-6"
+              style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}
+            >
+              SOLAR CONTRACT CANCELLATION:{" "}
+              <span className="text-amber-gradient">KNOW YOUR RIGHTS</span>
             </h2>
           </Reveal>
           <div className="grid md:grid-cols-2 gap-8 text-gray-400 text-sm leading-relaxed">
             <Reveal delay={0.05}>
               <div className="space-y-4">
                 <p>
-                  Millions of American homeowners signed <strong className="text-gray-200">solar panel contracts</strong> after being promised dramatic savings on their electricity bills. Instead, many are now trapped in 20-to-25-year agreements with escalating payments, underperforming systems, and no clear path to exit. If you are looking to <strong className="text-gray-200">cancel a solar contract</strong>, you are not alone — and you likely have more legal options than the solar company wants you to know about.
+                  Solar loans, leases, and power-purchase agreements can contain
+                  long payment terms, transfer provisions, performance terms,
+                  escalators, and dispute clauses. If you are considering a{" "}
+                  <strong className="text-gray-200">
+                    solar contract dispute
+                  </strong>
+                  , start with the documents actually signed rather than
+                  assuming a rule, violation, or remedy.
                 </p>
                 <p>
-                  The most common grounds for <strong className="text-gray-200">solar contract cancellation</strong> include violations of the Federal Truth in Lending Act (TILA), failure to honor the FTC's three-day right of rescission, material misrepresentation of projected savings, undisclosed escalator clauses, and breach of performance warranties. A qualified <strong className="text-gray-200">solar contract attorney</strong> can identify which of these apply to your specific agreement within hours of reviewing it.
+                  A document review may examine financing disclosures, any
+                  cancellation notice, written sales representations, payment
+                  adjustments, performance terms, and dispute provisions.
+                  Whether a rule or remedy applies depends on the transaction,
+                  agreement, facts, jurisdiction, and current law; no review
+                  time or conclusion is promised.
                 </p>
                 <p>
-                  A <strong className="text-gray-200">solar lease</strong>, <strong className="text-gray-200">solar loan</strong>, and Power Purchase Agreement (PPA) create different obligations. Review the transfer, payment, disclosure, performance, dispute-resolution, and termination terms in the documents you actually signed.
+                  A <strong className="text-gray-200">solar lease</strong>,{" "}
+                  <strong className="text-gray-200">solar loan</strong>, and
+                  Power Purchase Agreement (PPA) create different obligations.
+                  Review the transfer, payment, disclosure, performance,
+                  dispute-resolution, and termination terms in the documents you
+                  actually signed.
                 </p>
               </div>
             </Reveal>
             <Reveal delay={0.1}>
               <div className="space-y-4">
                 <p>
-                  <strong className="text-gray-200">Getting out of a solar panel contract</strong> is not as impossible as the solar industry claims. In fact, the Consumer Financial Protection Bureau (CFPB) has documented widespread predatory practices in the residential solar sales industry, and state attorneys general in California, Arizona, Texas, Florida, and Nevada have all opened investigations into major solar companies for deceptive sales practices.
+                  Official consumer agencies publish current rules, alerts,
+                  enforcement records, and complaint resources. Check the
+                  Consumer Financial Protection Bureau, Federal Trade
+                  Commission, relevant state attorney general, licensing
+                  agencies, and court records instead of relying on a general
+                  claim about a company or industry.
                 </p>
                 <p>
-                  If your solar company has gone out of business — including companies like <strong className="text-gray-200">Pink Energy, Sungevity, Verengo Solar</strong>, or dozens of smaller regional installers — your contract may be voidable entirely. Bankruptcy by the original installer does not necessarily transfer your obligation to a third-party lender, particularly if the installation was never completed or the system never performed as promised.
+                  If an installer has closed or entered bankruptcy, identify
+                  every separate party in the records: seller, installer,
+                  lender, lessor, system owner, servicer, warranty provider, and
+                  any bankruptcy estate. Closure alone does not establish what
+                  happens to a particular payment or performance obligation.
                 </p>
                 <p>
-                  The first step in a <strong className="text-gray-200">solar contract dispute</strong> is to gather the agreement and supporting records. Review the performance guarantee, escalator rate, transfer provisions, dispute-resolution clause, financing terms, disclosures, and communications before choosing a path.
+                  The first step in a{" "}
+                  <strong className="text-gray-200">
+                    solar contract dispute
+                  </strong>{" "}
+                  is to gather the agreement and supporting records. Review the
+                  performance guarantee, escalator rate, transfer provisions,
+                  dispute-resolution clause, financing terms, disclosures, and
+                  communications before choosing a path.
                 </p>
               </div>
             </Reveal>
@@ -1359,16 +2002,47 @@ export default function Home() {
           {/* State targeting grid */}
           <Reveal delay={0.15}>
             <div className="mt-12 pt-8 border-t border-white/8">
-              <h3 className="font-display text-xl text-white mb-4">BROWSE STATE-SPECIFIC INFORMATION</h3>
+              <h3 className="font-display text-xl text-white mb-4">
+                BROWSE STATE-SPECIFIC INFORMATION
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {[
-                  "California","Texas","Florida","Arizona","Nevada","New Jersey","New York",
-                  "Colorado","Hawaii","Massachusetts","Maryland","Connecticut","North Carolina",
-                  "Georgia","Illinois","Pennsylvania","Virginia","Washington","Oregon","Utah",
-                  "Ohio","Michigan","Minnesota","Missouri","Tennessee","South Carolina",
-                  "Alabama","Louisiana","Oklahoma","Kansas","All Other States"
-                ].map((state) => (
-                  <span key={state} className="text-xs px-2.5 py-1 rounded border border-white/8 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors cursor-default">
+                  "California",
+                  "Texas",
+                  "Florida",
+                  "Arizona",
+                  "Nevada",
+                  "New Jersey",
+                  "New York",
+                  "Colorado",
+                  "Hawaii",
+                  "Massachusetts",
+                  "Maryland",
+                  "Connecticut",
+                  "North Carolina",
+                  "Georgia",
+                  "Illinois",
+                  "Pennsylvania",
+                  "Virginia",
+                  "Washington",
+                  "Oregon",
+                  "Utah",
+                  "Ohio",
+                  "Michigan",
+                  "Minnesota",
+                  "Missouri",
+                  "Tennessee",
+                  "South Carolina",
+                  "Alabama",
+                  "Louisiana",
+                  "Oklahoma",
+                  "Kansas",
+                  "All Other States",
+                ].map(state => (
+                  <span
+                    key={state}
+                    className="text-xs px-2.5 py-1 rounded border border-white/8 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors cursor-default"
+                  >
                     {state}
                   </span>
                 ))}
@@ -1379,15 +2053,36 @@ export default function Home() {
           {/* Company targeting */}
           <Reveal delay={0.2}>
             <div className="mt-8 pt-8 border-t border-white/8">
-              <h3 className="font-display text-xl text-white mb-4">SOLAR COMPANY INFORMATION</h3>
+              <h3 className="font-display text-xl text-white mb-4">
+                SOLAR COMPANY INFORMATION
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {[
-                  "Sunrun","SunPower","Tesla Solar","Vivint Solar","ADT Solar",
-                  "Freedom Forever","Sunnova","GoodLeap","Mosaic Solar","Loanpal",
-                  "Green Sky","Service Finance","Pink Energy","Sungevity","Verengo",
-                  "Solar City","NRG Solar","Titan Solar","Palmetto Solar","Momentum Solar"
-                ].map((co) => (
-                  <span key={co} className="text-xs px-2.5 py-1 rounded border border-white/8 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors cursor-default">
+                  "Sunrun",
+                  "SunPower",
+                  "Tesla Solar",
+                  "Vivint Solar",
+                  "ADT Solar",
+                  "Freedom Forever",
+                  "Sunnova",
+                  "GoodLeap",
+                  "Mosaic Solar",
+                  "Loanpal",
+                  "Green Sky",
+                  "Service Finance",
+                  "Pink Energy",
+                  "Sungevity",
+                  "Verengo",
+                  "Solar City",
+                  "NRG Solar",
+                  "Titan Solar",
+                  "Palmetto Solar",
+                  "Momentum Solar",
+                ].map(co => (
+                  <span
+                    key={co}
+                    className="text-xs px-2.5 py-1 rounded border border-white/8 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors cursor-default"
+                  >
                     {co}
                   </span>
                 ))}
@@ -1398,28 +2093,48 @@ export default function Home() {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-24 lg:py-32 relative overflow-hidden" style={{ background: "oklch(0.13 0.012 265)" }}>
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, oklch(0.72 0.19 50 / 6%) 0%, transparent 70%)" }} />
+      <section
+        className="py-24 lg:py-32 relative overflow-hidden"
+        style={{ background: "oklch(0.13 0.012 265)" }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, oklch(0.72 0.19 50 / 6%) 0%, transparent 70%)",
+          }}
+        />
         <div className="container relative z-10 text-center">
           <Reveal>
-            <h2 className="font-display text-white leading-none mb-6" style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}>
-              EVERY MONTH YOU WAIT
+            <h2
+              className="font-display text-white leading-none mb-6"
+              style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
+            >
+              DON'T GUESS ABOUT
               <br />
-              <span className="text-amber-gradient">COSTS YOU MONEY.</span>
+              <span className="text-amber-gradient">YOUR CONTRACT.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-gray-300 text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-              The average homeowner who contacts us is paying <span className="text-red-400 font-semibold">$185/month</span> they shouldn't be. That's <span className="text-red-400 font-semibold">$2,220 every year</span> going to a contract you were misled into signing.
+              Gather the agreement, disclosures, sales materials, payment
+              history, utility bills, and production data. An individual review
+              can identify questions without assuming misconduct or promising a
+              result.
             </p>
           </Reveal>
           <Reveal delay={0.2}>
-            <button onClick={() => scrollToForm("footer_final_cta")} className="btn-amber btn-amber-pulse px-12 py-6 rounded text-xl font-bold">
+            <button
+              onClick={() => scrollToForm("footer_final_cta")}
+              className="btn-amber btn-amber-pulse px-12 py-6 rounded text-xl font-bold"
+            >
               REQUEST MY CASE REVIEW NOW →
             </button>
           </Reveal>
           <Reveal delay={0.3}>
-            <p className="text-gray-600 text-sm mt-6 font-mono">No result, timeline, or representation is guaranteed.</p>
+            <p className="text-gray-600 text-sm mt-6 font-mono">
+              No result, timeline, or representation is guaranteed.
+            </p>
           </Reveal>
         </div>
       </section>
@@ -1430,161 +2145,259 @@ export default function Home() {
           <Reveal>
             <div className="flex items-center justify-between mb-12">
               <div>
-                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-2">— Legal Intelligence</div>
-                <h2 className="font-black text-white uppercase leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 4vw, 3rem)' }}>KNOW YOUR RIGHTS</h2>
+                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-2">
+                  — Agreement Research
+                </div>
+                <h2
+                  className="font-black text-white uppercase leading-none"
+                  style={{
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    fontSize: "clamp(2rem, 4vw, 3rem)",
+                  }}
+                >
+                   REVIEW THE RECORDS
+                </h2>
               </div>
-              <a href="/blog" className="hidden md:flex items-center gap-2 text-amber-500 hover:text-amber-400 font-bold text-sm uppercase tracking-wider transition-colors">
-                All Articles →
+              <a
+                href="/blog"
+                className="hidden md:flex items-center gap-2 text-amber-500 hover:text-amber-400 font-bold text-sm uppercase tracking-wider transition-colors"
+              >
+                 Editorial library →
               </a>
             </div>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                slug: 'sunrun-solar-contract-cancellation-2026',
-                title: 'Sunrun Solar Contract Cancellation 2026: Your Legal Options',
-                excerpt: 'Review Sunrun agreement terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.',
-                category: 'Most Read',
-                readTime: '11 min read',
-                img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
-                featured: true,
+                href: "/solar-contract-help",
+                title: "Solar Contract Record Checklist",
+                excerpt:
+                  "Organize the signed agreement, disclosures, sales records, payment history, and written counterparty terms before requesting a review.",
+                category: "Document Guide",
+                readTime: "Core resource",
+                img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
               },
               {
-                slug: 'how-to-get-out-of-a-solar-contract',
-                title: 'How to Get Out of a Solar Contract (Step-by-Step Guide)',
-                excerpt: 'The exact legal strategies attorneys use — TILA violations, FTC Cooling-Off Rule, state DTPA claims, and more.',
-                category: 'Legal Guide',
-                readTime: '9 min read',
-                img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80',
+                href: "/solar-loan-help",
+                title: "Solar Loan Records to Check",
+                excerpt:
+                  "Compare the note, payment schedule, amount financed, payoff, servicing, and dispute records with current official sources.",
+                category: "Financing Guide",
+                readTime: "Core resource",
+                img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80",
               },
               {
-                slug: 'cancel-solar-contract-after-installation',
-                title: 'Can You Cancel a Solar Contract After Installation?',
-                excerpt: 'Most homeowners assume once the panels are up, they\'re locked in forever. That\'s not always true. Here are your post-installation options.',
-                category: 'Legal Guide',
-                readTime: '7 min read',
-                img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80',
+                href: "/solar-lien-removal",
+                title: "Solar Lien and Filing Record Review",
+                excerpt:
+                  "Start with the title report, recorded instrument, PACE assessment, UCC filing, and written release requirements.",
+                category: "Title Guide",
+                readTime: "Core resource",
+                img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80",
               },
             ].map((post, i) => (
-              <Reveal key={post.slug} delay={i * 0.1}>
-                <a href={`/blog/${post.slug}`} className={`group block rounded-xl overflow-hidden border transition-all duration-300 bg-zinc-900/50 h-full ${
-                  (post as any).featured
-                    ? 'border-amber-500/60 hover:border-amber-400 ring-1 ring-amber-500/20'
-                    : 'border-white/10 hover:border-amber-500/40'
-                }`}>
+              <Reveal key={post.href} delay={i * 0.1}>
+                <a
+                  href={post.href}
+                  className="group block rounded-xl overflow-hidden border border-white/10 hover:border-amber-500/40 transition-all duration-300 bg-zinc-900/50 h-full"
+                >
                   <div className="relative h-44 overflow-hidden">
-                    <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" />
+                    <img
+                      src={post.img}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
+                      decoding="async"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
-                    {(post as any).featured && (
-                      <div className="absolute top-3 right-3">
-                        <span className="bg-amber-500 text-black text-xs font-black uppercase tracking-wider px-2 py-1 rounded">🔥 Most Read</span>
-                      </div>
-                    )}
                     <div className="absolute bottom-3 left-4">
-                      <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">{post.category}</span>
+                      <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                        {post.category}
+                      </span>
                     </div>
                   </div>
                   <div className="p-5">
-                    <div className="text-zinc-500 text-xs mb-2">{post.readTime}</div>
-                    <h3 className="text-white font-black text-lg leading-tight group-hover:text-amber-400 transition-colors mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{post.title}</h3>
-                    <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 mb-4">{post.excerpt}</p>
-                    <div className="text-amber-500 text-xs font-bold uppercase tracking-wider">Read Article →</div>
+                    <div className="text-zinc-500 text-xs mb-2">
+                      {post.readTime}
+                    </div>
+                    <h3
+                      className="text-white font-black text-lg leading-tight group-hover:text-amber-400 transition-colors mb-3"
+                      style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+                    >
+                      {post.title}
+                    </h3>
+                    <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 mb-4">
+                      {post.excerpt}
+                    </p>
+                    <div className="text-amber-500 text-xs font-bold uppercase tracking-wider">
+                      Open resource →
+                    </div>
                   </div>
                 </a>
               </Reveal>
             ))}
           </div>
           <div className="text-center mt-10">
-            <a href="/blog" className="inline-block border border-amber-500/40 text-amber-500 hover:bg-amber-500 hover:text-black font-black uppercase tracking-widest px-8 py-3 rounded text-sm transition-all duration-200">
-              View All Articles →
+            <a
+              href="/blog"
+              className="inline-block border border-amber-500/40 text-amber-500 hover:bg-amber-500 hover:text-black font-black uppercase tracking-widest px-8 py-3 rounded text-sm transition-all duration-200"
+            >
+              View editorial library →
             </a>
           </div>
         </div>
       </section>
 
-      {/* ── BROWSE ALL CITIES (SEO Internal Linking) ── */}
-      <section className="py-10 border-t border-white/5" style={{ background: "oklch(0.07 0.01 265)" }}>
+      {/* ── RESOURCE FOOTER ── */}
+      <section
+        className="py-10 border-t border-white/5"
+        style={{ background: "oklch(0.07 0.01 265)" }}
+      >
         <div className="container">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-display text-2xl text-white">CANCEL YOUR SOLAR CONTRACT — FIND YOUR CITY</h2>
-            <Link href="/sitemap" className="text-amber-500 text-sm hover:text-amber-400 transition-colors font-mono uppercase tracking-wider">Full Site Map →</Link>
+            <h2 className="font-display text-2xl text-white">
+              MORE SOLAR CONTRACT RESOURCES
+            </h2>
+            <Link
+              href="/blog"
+              className="text-amber-500 text-sm hover:text-amber-400 transition-colors font-mono uppercase tracking-wider"
+            >
+              Browse Guides →
+            </Link>
           </div>
-          <p className="text-gray-500 text-sm mb-6">Browse location-specific consumer information. Availability and next steps depend on the documents, facts, and jurisdiction.</p>
-          {(() => {
-            // Group cities by state for SEO-optimized internal linking
-            const stateMap: Record<string, typeof CITIES> = {};
-            for (const c of CITIES) {
-              if (!stateMap[c.state]) stateMap[c.state] = [];
-              stateMap[c.state].push(c);
-            }
-            const states = Object.keys(stateMap).sort();
-            return (
-              <div className="space-y-4">
-                {states.map((state) => (
-                  <div key={state}>
-                    <div className="text-gray-600 text-xs font-mono uppercase tracking-wider mb-2">{state}</div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      {stateMap[state].map((city) => (
-                        <Link
-                          key={city.slug}
-                          href={`/cancel-solar-contract/${city.slug}`}
-                          className="text-gray-500 hover:text-amber-400 transition-colors text-xs"
-                        >
-                          {city.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
+          <p className="text-gray-500 text-sm mb-6 max-w-3xl">
+            Browse reviewed educational guides, state research standards, and
+            document checklists. Search publication remains separate from the
+            internal research backlog.
+          </p>
+          <Link
+            href="/blog"
+            className="inline-flex items-center justify-center bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider px-6 py-3 rounded transition-colors"
+          >
+            Read Reviewed Articles
+          </Link>
           <div className="mt-8 pt-6 border-t border-white/5 flex flex-wrap gap-4 text-xs">
-            <Link href="/sitemap" className="text-gray-600 hover:text-amber-400 transition-colors">Site Map</Link>
-            <Link href="/solar-contract-laws" className="text-gray-600 hover:text-amber-400 transition-colors">State Laws</Link>
-            <Link href="/solar-companies" className="text-gray-600 hover:text-amber-400 transition-colors">Solar Companies</Link>
-            <Link href="/blog" className="text-gray-600 hover:text-amber-400 transition-colors">Blog</Link>
-            <Link href="/how-it-works" className="text-gray-600 hover:text-amber-400 transition-colors">How It Works</Link>
-            <Link href="/media" className="text-gray-600 hover:text-amber-400 transition-colors">Watch & Listen</Link>
+            <Link
+              href="/sitemap"
+              className="text-gray-600 hover:text-amber-400 transition-colors"
+            >
+              Site Map
+            </Link>
+            <Link
+              href="/solar-contract-laws"
+              className="text-gray-600 hover:text-amber-400 transition-colors"
+            >
+              State Laws
+            </Link>
+            <Link
+              href="/solar-companies"
+              className="text-gray-600 hover:text-amber-400 transition-colors"
+            >
+              Solar Companies
+            </Link>
+            <Link
+              href="/blog"
+              className="text-gray-600 hover:text-amber-400 transition-colors"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/how-it-works"
+              className="text-gray-600 hover:text-amber-400 transition-colors"
+            >
+              How It Works
+            </Link>
+            <Link
+              href="/media"
+              className="text-gray-600 hover:text-amber-400 transition-colors"
+            >
+              Watch & Listen
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-white/8 py-12" style={{ background: "oklch(0.09 0.01 265)" }}>
+      <footer
+        className="border-t border-white/8 py-12"
+        style={{ background: "oklch(0.09 0.01 265)" }}
+      >
         <div className="container">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-7 h-7 rounded bg-amber-500 flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg
+                    className="w-3.5 h-3.5 text-black"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
                   </svg>
                 </div>
-                <span className="font-display text-lg text-white">SOLAR FREEDOM</span>
+                <span className="font-display text-lg text-white">
+                  SOLAR FREEDOM
+                </span>
               </div>
-              <p className="text-gray-500 text-sm leading-relaxed">Consumer protection attorneys specializing in solar contract cancellation. Fighting for homeowners since 2019.</p>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                Solar agreement education, document organization, and an intake
+                pathway for individual review.
+              </p>
             </div>
             <div>
-              <div className="font-display text-white text-lg mb-4">CONTACT</div>
+              <div className="font-display text-white text-lg mb-4">
+                CONTACT
+              </div>
               <div className="space-y-2 text-gray-500 text-sm font-mono">
                 <div>📞 {phoneDisplay}</div>
-                <div>✉ <a href="mailto:info@breakyoursolarcontract.com" className="hover:text-amber-400 transition-colors">info@breakyoursolarcontract.com</a></div>
+                <div>
+                  ✉{" "}
+                  <a
+                    href="mailto:info@breakyoursolarcontract.com"
+                    className="hover:text-amber-400 transition-colors"
+                  >
+                    info@breakyoursolarcontract.com
+                  </a>
+                </div>
                 <div>⏰ Mon–Fri, 8am–8pm EST</div>
               </div>
             </div>
             <div>
               <div className="font-display text-white text-lg mb-4">LEGAL</div>
               <div className="space-y-2">
-                <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Privacy Policy</a>
-                <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Terms of Service</a>
-                <span className="block text-gray-500 text-sm">Consumer information; not legal advice</span>
+                <a
+                  href="/privacy-policy"
+                  className="block text-gray-500 text-sm hover:text-amber-400 transition-colors"
+                >
+                  Privacy Policy
+                </a>
+                <a
+                  href="/terms"
+                  className="block text-gray-500 text-sm hover:text-amber-400 transition-colors"
+                >
+                  Terms of Service
+                </a>
+                <span className="block text-gray-500 text-sm">
+                  Consumer information; not legal advice
+                </span>
               </div>
             </div>
           </div>
           <div className="border-t border-white/6 pt-8">
             <p className="text-gray-600 text-xs leading-relaxed font-mono max-w-4xl">
-              <strong className="text-gray-500">DISCLAIMER:</strong> Results vary by case. Information on this website is general and is not legal advice. A case-review submission does not create an attorney-client relationship. Confirm any professional relationship, scope of work, and applicable jurisdiction in a written engagement agreement. © {new Date().getFullYear()} Solar Freedom. All rights reserved.
+              <strong className="text-gray-500">DISCLAIMER:</strong> Results
+              vary by case. Information on this website is general and is not
+              legal advice. A case-review submission does not create an
+              attorney-client relationship. Confirm any professional
+              relationship, scope of work, and applicable jurisdiction in a
+              written engagement agreement. © {new Date().getFullYear()} Solar
+              Freedom. All rights reserved.
             </p>
           </div>
         </div>

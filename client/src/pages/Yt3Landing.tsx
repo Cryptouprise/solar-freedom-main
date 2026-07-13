@@ -13,6 +13,9 @@ import { trackPhoneClick, trackCTAClick, recordLeadSubmission } from "@/lib/anal
 import { trpc } from "@/lib/trpc";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import OutcomesSection from "@/components/OutcomesSection";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
+import PrivacyVideoEmbed from "@/components/PrivacyVideoEmbed";
 
 // ─── CDN Assets ───────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -78,6 +81,9 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
   const [showBooking, setShowBooking] = useState(false);
   const [fallbackName, setFallbackName] = useState("");
   const [fallbackPhone, setFallbackPhone] = useState("");
+  const [fallbackContactConsent, setFallbackContactConsent] = useState(false);
+  const [fallbackSmsConsent, setFallbackSmsConsent] = useState(false);
+  const [fallbackWebsite, setFallbackWebsite] = useState("");
   const [submissionError, setSubmissionError] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState(() => ({
@@ -90,7 +96,9 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
     lastName: contactInfo.lastName,
     phone: contactInfo.phone,
     email: contactInfo.email,
-    agree: false,
+    contactConsent: false,
+    smsConsent: false,
+    website: "",
   }));
 
   const totalSteps = 5;
@@ -106,6 +114,7 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.contactConsent) return;
     setSubmissionError("");
     try {
       const result = await submitLead.mutateAsync({
@@ -121,6 +130,10 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
         formName: "YouTube Landing Page C Form",
         sourcePage: "/yt3",
         sourceUrl: window.location.href,
+        contactConsent: form.contactConsent,
+        smsConsent: form.smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website: form.website,
       });
       if (!recordLeadSubmission(result, "yt3_landing_form", "/yt3")) {
         setSubmissionError("We couldn't save your request. Please try again.");
@@ -137,7 +150,8 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
 
   const handleQuickCallback = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fallbackPhone.trim()) return;
+    e.stopPropagation();
+    if (!fallbackPhone.trim() || !fallbackContactConsent) return;
     setSubmissionError("");
     try {
       const result = await quickCallback.mutateAsync({
@@ -146,6 +160,10 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
         formName: "yt3_landing_callback",
         sourcePage: "/yt3",
         sourceUrl: window.location.href,
+        contactConsent: fallbackContactConsent,
+        smsConsent: fallbackSmsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website: fallbackWebsite,
       });
       if (!recordLeadSubmission(result, "yt3_landing_callback", "/yt3")) {
         setSubmissionError("We couldn't save your callback request. Please try again.");
@@ -216,8 +234,17 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
             className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm" />
           <input type="tel" value={fallbackPhone} onChange={(e) => setFallbackPhone(e.target.value)} placeholder="Phone number" required
             className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm" />
-          <button type="submit" disabled={quickCallback.isPending || !fallbackPhone.trim()} className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40">
-            {quickCallback.isPending ? "REQUESTING..." : "REQUEST A CALL BACK IN 60 SECONDS →"}
+          <ContactConsentFields
+            idPrefix="yt3-quick-callback"
+            contactConsent={fallbackContactConsent}
+            smsConsent={fallbackSmsConsent}
+            website={fallbackWebsite}
+            onContactConsentChange={setFallbackContactConsent}
+            onSmsConsentChange={setFallbackSmsConsent}
+            onWebsiteChange={setFallbackWebsite}
+          />
+          <button type="submit" disabled={quickCallback.isPending || !fallbackPhone.trim() || !fallbackContactConsent} className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40">
+            {quickCallback.isPending ? "REQUESTING..." : "REQUEST A CALLBACK →"}
           </button>
           {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
         </form>
@@ -290,15 +317,16 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
         <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="john@example.com"
           className="w-full p-3.5 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors" />
       </div>
-      <label className="flex items-start gap-3 cursor-pointer">
-        <input type="checkbox" checked={form.agree} onChange={(e) => update("agree", e.target.checked)} className="mt-1 accent-amber-500 w-4 h-4 flex-shrink-0" />
-        <span className="text-gray-400 text-xs leading-relaxed">
-          By submitting, I agree to be contacted by Solar Freedom via phone, text, and email including automated technology regarding my solar contract review. Reply STOP to opt out.{" "}
-          <a href="/privacy-policy" className="text-amber-400 underline">Privacy Policy</a> &{" "}
-          <a href="/terms" className="text-amber-400 underline">Terms</a>.
-        </span>
-      </label>
-      <button type="submit" disabled={submitLead.isPending || !form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
+      <ContactConsentFields
+        idPrefix="yt3-full"
+        contactConsent={form.contactConsent}
+        smsConsent={form.smsConsent}
+        website={form.website}
+        onContactConsentChange={(checked) => update("contactConsent", checked)}
+        onSmsConsentChange={(checked) => update("smsConsent", checked)}
+        onWebsiteChange={(value) => update("website", value)}
+      />
+      <button type="submit" disabled={submitLead.isPending || !form.firstName || !form.lastName || !form.phone || !form.email || !form.contactConsent}
         className="w-full btn-amber btn-amber-pulse py-5 rounded text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
         REQUEST MY CASE REVIEW →
       </button>
@@ -414,7 +442,7 @@ export default function Yt3Landing() {
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
-          <img src={HERO_BG} alt="Solar contract cancellation" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
+          <img src={HERO_BG} alt="Residential rooftop solar panels" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 75%) 0%, oklch(0.1 0.015 265 / 60%) 50%, oklch(0.08 0.015 265 / 70%) 100%)" }} />
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 60% at 15% 55%, oklch(0.72 0.19 50 / 12%) 0%, transparent 65%)", animation: "ambientGlow 6s ease-in-out infinite" }} />
         </div>
@@ -429,10 +457,10 @@ export default function Yt3Landing() {
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
               className="font-display leading-none mb-6" style={{ fontSize: "clamp(2.8rem, 7vw, 5.5rem)" }}>
-              <span className="text-amber-gradient">IS YOUR SOLAR COMPANY</span>
+              <span className="text-amber-gradient">DO THE WRITTEN TERMS</span>
               <br />
-              <span className="text-white">RIPPING</span>
-              {" "}<span className="text-amber-gradient">YOU OFF?</span>
+              <span className="text-white">MATCH THE</span>
+              {" "}<span className="text-amber-gradient">SALES CLAIMS?</span>
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
@@ -470,7 +498,7 @@ export default function Yt3Landing() {
                     INDIVIDUAL CASE REVIEW
                   </div>
                   <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-2">
-                    FILL OUT THE QUIZ AND BOOK YOUR FREE 15-MINUTE SOLAR CANCELLATION REVIEW CALL
+                    FILL OUT THE QUIZ AND REQUEST A SOLAR AGREEMENT REVIEW CALL
                   </h3>
                   <p className="text-amber-400 text-sm font-semibold mb-1">with one of our Solar Advocates</p>
                   <p className="text-gray-400 text-sm">No result, timeline, or representation is guaranteed by submitting information.</p>
@@ -534,7 +562,7 @@ export default function Yt3Landing() {
               </Reveal>
               <Reveal delay={0.1}>
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  Solar salespeople are trained to close at any cost. They downplay the contract length, inflate savings projections, and bury the real terms in 60 pages of fine print. Thousands of homeowners are now stuck paying for systems that don't deliver.
+                  Some homeowner complaints describe high-pressure sales, unclear contract terms, disputed savings projections, or systems that did not perform as expected. Verify the signed documents and current regulator records before drawing a conclusion.
                 </p>
               </Reveal>
               <div className="space-y-4">
@@ -570,15 +598,15 @@ export default function Yt3Landing() {
             <div className="text-center mb-16">
               <div className="badge-success inline-block mb-4">THE PROCESS</div>
               <h2 className="font-display text-white" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                FROM TRAPPED TO FREE IN <span className="text-amber-gradient">4 STEPS</span>
+                FROM RECORDS TO NEXT STEPS IN <span className="text-amber-gradient">4 STAGES</span>
               </h2>
-              <p className="text-gray-400 mt-4 max-w-xl mx-auto">We handle everything. You just tell us your situation — we do the rest.</p>
+              <p className="text-gray-400 mt-4 max-w-xl mx-auto">Each stage depends on the documents, facts, parties, jurisdiction, and any written professional engagement.</p>
             </div>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { num: "01", title: "DOCUMENT INTAKE", desc: "Share the agreement and supporting records needed to understand your situation.", icon: "📋" },
-              { num: "02", title: "CUSTOM STRATEGY", desc: "We build a case-specific legal strategy based on your contract terms, the sales tactics used, and applicable consumer protection laws.", icon: "⚖️" },
+              { num: "02", title: "DOCUMENT QUESTIONS", desc: "Identify contract terms, disclosures, sales statements, performance records, and current primary sources that require closer review.", icon: "⚖️" },
               { num: "03", title: "OPTIONS REVIEW", desc: "Review available paths, limits, costs, and risks with an appropriately qualified professional before proceeding.", icon: "🥊" },
               { num: "04", title: "NEXT STEPS", desc: "Review the available paths, limits, costs, and risks before deciding how to proceed.", icon: "🔓" },
             ].map((s, i) => (
@@ -611,17 +639,17 @@ export default function Yt3Landing() {
               <Reveal>
                 <div className="badge-success mb-4">WHY SOLAR FREEDOM</div>
                 <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                  WE DON'T JUST REVIEW CONTRACTS.
+                  REVIEW THE RECORDS.
                   <br />
-                  <span className="text-amber-gradient">WE BREAK THEM.</span>
+                  <span className="text-amber-gradient">UNDERSTAND THE VARIABLES.</span>
                 </h2>
               </Reveal>
               <div className="grid grid-cols-1 gap-4">
                 {[
                   { title: "CONTRACT-FOCUSED REVIEW", desc: "Review the agreement, disclosures, financing terms, sales representations, and performance records together." },
-                  { title: "NO WIN, NO FEE", desc: "We don't get paid unless you get results. That means we're 100% motivated to win your case — not just bill you for hours." },
+                  { title: "TERMS CONFIRMED IN WRITING", desc: "Any professional role, service scope, fee, and engagement term must be confirmed in a written agreement." },
                   { title: "NO PROMISED TIMELINE", desc: "Timing varies with the agreement, facts, parties, process, and jurisdiction." },
-                  { title: "CREDIT PROTECTION INCLUDED", desc: "We monitor and dispute any negative credit reporting that results from the cancellation process at no additional cost." },
+                  { title: "CREDIT EFFECTS VARY", desc: "Payment changes and disputes can affect credit. Review the account and obtain qualified advice before changing an obligation." },
                 ].map((item, i) => (
                   <Reveal key={item.title} delay={i * 0.1}>
                     <div className="card-amber-border rounded-r-lg p-5">
@@ -634,11 +662,11 @@ export default function Yt3Landing() {
             </div>
             <Reveal className="order-1 lg:order-2">
               <div className="relative">
-                <img src={FREEDOM_VISUAL} alt="Breaking free from a solar contract" className="rounded-xl w-full object-cover shadow-2xl" loading="lazy" />
+                <img src={FREEDOM_VISUAL} alt="Solar agreement records illustration" className="rounded-xl w-full object-cover shadow-2xl" loading="lazy" />
                 <div className="absolute inset-0 rounded-xl" style={{ background: "linear-gradient(to top, oklch(0.11 0.012 265 / 60%) 0%, transparent 50%)" }} />
                 <div className="absolute bottom-6 left-6">
-                  <div className="font-display text-5xl text-amber-gradient">FREEDOM</div>
-                  <div className="text-gray-300 text-sm font-mono">is just one review away</div>
+                  <div className="font-display text-5xl text-amber-gradient">DOCUMENTS</div>
+                  <div className="text-gray-300 text-sm font-mono">before decisions</div>
                 </div>
               </div>
             </Reveal>
@@ -653,41 +681,34 @@ export default function Yt3Landing() {
             <div className="text-center mb-14">
               <div className="badge-success inline-block mb-4">WATCH & LISTEN</div>
               <h2 className="font-display text-white mb-4" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-                LEARN EXACTLY <span className="text-amber-gradient">HOW WE DO IT</span>
+                SOLAR CONTRACT <span className="text-amber-gradient">EDUCATIONAL MEDIA</span>
               </h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Watch our explainer video and listen to our podcast episode — real cases, real strategies, real results.</p>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Watch the explainer video and podcast for educational scenarios, documents to review, and questions to investigate.</p>
             </div>
           </Reveal>
           <div className="grid md:grid-cols-2 gap-8">
             <Reveal delay={0}>
               <div className="rounded-2xl overflow-hidden border border-amber-500/30 bg-white/5 hover:border-amber-500/60 transition-all duration-300 group">
                 <div className="relative aspect-video bg-black">
-                  <iframe
-                    src="https://www.youtube.com/embed/s6V76pijGKI?rel=0&modestbranding=1"
-                    title="Escaping the Solar Trap — Get your contract canceled!"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                    loading="lazy"
+                  <PrivacyVideoEmbed
+                    videoId="s6V76pijGKI"
+                    title="Solar contract records and review questions"
                   />
                 </div>
                 <div className="p-5">
                   <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider mb-2" style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)" }}>▶ Explainer Video</div>
-                  <h3 className="text-white font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors">Escaping the Solar Trap — Get Your Contract Canceled!</h3>
-                  <p className="text-gray-400 text-sm">Our most-watched video. See exactly how we find the loopholes in your solar contract and get you out legally.</p>
+                  <h3 className="text-white font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors">Solar Contract Records and Review Questions</h3>
+                  <p className="text-gray-400 text-sm">An educational discussion of documents, contract terms, and questions to investigate without promising an outcome.</p>
                 </div>
               </div>
             </Reveal>
             <Reveal delay={0.1}>
               <div className="rounded-2xl overflow-hidden border border-white/20 bg-white/5 hover:border-amber-500/40 transition-all duration-300 group">
                 <div className="relative aspect-video bg-black">
-                  <iframe
-                    src="https://www.youtube.com/embed/l0A3I_CvI0c?rel=0&modestbranding=1"
-                    title="Elite Solar Recovery Podcast: How to Legally Cancel or Break Your Solar Contract"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                    loading="lazy"
+                  <PrivacyVideoEmbed
+                    videoId="l0A3I_CvI0c"
+                    title="Solar contract review podcast"
+                    accent="blue"
                   />
                 </div>
                 <div className="p-5">
@@ -708,7 +729,7 @@ export default function Yt3Landing() {
             <div className="text-center mb-16">
               <div className="badge-danger mb-4">REAL STORIES</div>
               <h2 className="text-3xl lg:text-5xl font-black text-white mb-4">See What Homeowners Are Saying</h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Thousands of homeowners were sold solar contracts with hidden clauses, inflated savings, and broken promises. Here's what they discovered — and what you can do about it.</p>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">Review common contract questions, records to gather, and official sources to check before deciding what to do next.</p>
             </div>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-8">
@@ -749,9 +770,9 @@ export default function Yt3Landing() {
             <FAQItem q="What does this cost me?" a="Any fees, scope, and engagement terms must be disclosed and agreed before paid services begin. Submitting an intake form does not create an attorney-client relationship or guarantee representation." delay={0.05} />
             <FAQItem q="How long does the process take?" a="Timing varies with the agreement, facts, parties, process, and jurisdiction. No result or timeline can be determined from general information alone." delay={0.1} />
             <FAQItem q="What if my solar company went bankrupt?" a="A company's bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually." delay={0.15} />
-            <FAQItem q="Will this hurt my credit score?" a="We take credit protection seriously. Our process includes monitoring and disputing any negative credit reporting that results from the cancellation. In most cases, we can prevent any credit impact entirely." delay={0.2} />
+            <FAQItem q="Will this hurt my credit score?" a="Credit effects depend on the account, payment history, reporting, dispute process, and agreement. Do not stop paying or assume a credit result based on general information; review the records and obtain qualified advice." delay={0.2} />
             <FAQItem q="What if I have a solar loan, not a lease?" a="Loans, leases, and power purchase agreements create different rights and obligations. The signed documents and applicable law determine which questions and options are relevant." delay={0.25} />
-            <FAQItem q="I already tried to cancel and was told I couldn't. Can you still help?" a="Absolutely. Solar companies routinely tell customers they have no options — because it's in their financial interest to do so. What a salesperson or customer service rep tells you is not the same as what a court or arbitrator would decide. We've won cases where customers were told cancellation was impossible." delay={0.3} />
+            <FAQItem q="I already tried to cancel and was told I couldn't. What should I review next?" a="Keep the written response, signed agreement, addenda, payment records, sales materials, and communications. A prior refusal does not answer every fact-specific question, but it also does not guarantee another outcome." delay={0.3} />
           </div>
         </div>
       </section>

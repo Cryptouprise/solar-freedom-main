@@ -1,7 +1,7 @@
 /**
  * SOLAR FREEDOM — Company-Specific SEO Landing Page
  * Design: Dark Industrial Brutalism — same system as Home.tsx
- * Each company gets a unique indexed page at /cancel-[company-slug]-solar-contract
+ * Each company route stays out of public discovery until its evidence record passes review.
  * Targets high-intent searches: "cancel sunrun contract", "pink energy bankruptcy", etc.
  */
 import { useEffect, useRef, useState } from "react";
@@ -10,10 +10,12 @@ import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { getCompanyBySlug, companies as COMPANIES, getRelatedCompanies } from "@/data/companies";
-import TopicClusterWidget from "@/components/TopicClusterWidget";
+import { hasPublishableEditorialReview } from "@/data/publication-governance";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -38,6 +40,9 @@ function CompanyForm({ companyName }: { companyName: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ issue: "", payment: "", firstName: "", lastName: "", phone: "", email: "" });
+  const [contactConsent, setContactConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [website, setWebsite] = useState("");
   const submitLead = trpc.leads.submit.useMutation();
 
   const ISSUES = [
@@ -59,6 +64,10 @@ function CompanyForm({ companyName }: { companyName: string }) {
 
   const handleSubmit = async () => {
     if (!form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.email.trim()) return;
+    if (!contactConsent) {
+      setError("Please authorize contact about this request before submitting.");
+      return;
+    }
     setError("");
     try {
       const result = await submitLead.mutateAsync({
@@ -71,6 +80,10 @@ function CompanyForm({ companyName }: { companyName: string }) {
         monthlyPayment: form.payment,
         intent: `Company landing page case review for ${companyName}`,
         formName: "company_landing_case_review",
+        contactConsent,
+        smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website,
         sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
         sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
       });
@@ -155,16 +168,25 @@ function CompanyForm({ companyName }: { companyName: string }) {
             />
           </div>
         ))}
-        {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+        <ContactConsentFields
+          idPrefix={`company-${companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+          contactConsent={contactConsent}
+          smsConsent={smsConsent}
+          website={website}
+          onContactConsentChange={setContactConsent}
+          onSmsConsentChange={setSmsConsent}
+          onWebsiteChange={setWebsite}
+        />
+        {error && <p role="alert" className="text-red-400 text-xs text-center">{error}</p>}
         <button
           onClick={handleSubmit}
-          disabled={!form.firstName || !form.lastName || !form.phone || !form.email || submitLead.isPending}
+          disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !contactConsent || submitLead.isPending}
           className="w-full py-4 rounded-lg font-bold text-black text-base mt-2 transition-opacity hover:opacity-90 disabled:opacity-40"
           style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
         >
-          GET MY FREE {companyName.toUpperCase()} CASE REVIEW →
+          REQUEST MY {companyName.toUpperCase()} DOCUMENT REVIEW →
         </button>
-        <p className="text-gray-600 text-xs text-center">No obligation. 100% confidential. Results vary by case.</p>
+        <p className="text-gray-600 text-xs text-center">No representation, result, or response time is promised.</p>
       </div>
     </div>
   );
@@ -177,16 +199,23 @@ export default function CompanyPage() {
   const urlMatch = location.match(/^\/cancel-(.+)-solar-contract$/);
   const slug = urlMatch?.[1] || "";
   const company = getCompanyBySlug(slug);
-  const relatedCompanies = getRelatedCompanies(slug, 4);
+  const relatedCompanies = getRelatedCompanies(slug, 4).filter((candidate) => hasPublishableEditorialReview(candidate));
+  const publishableCompanies = COMPANIES.filter((candidate) => hasPublishableEditorialReview(candidate));
+  const companyEvidenceAvailable = hasPublishableEditorialReview(company);
 
   useSeoMeta({
-    title: company
-      ? `Cancel ${company.name} Solar Contract | Get Out Now | Solar Freedom`
-      : 'Cancel Solar Contract | Solar Freedom',
-    description: company
+    title: company && companyEvidenceAvailable
+      ? `${company.name} Solar Contract Review Guide | Solar Freedom`
+      : company
+        ? `${company.name} Solar Contract Research Status | Solar Freedom`
+        : 'Solar Contract Research Status | Solar Freedom',
+    description: company && companyEvidenceAvailable
       ? `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`
-      : 'Review solar contract terms and records to gather before requesting an individual case review.',
+      : company
+        ? `This ${company.name} research page is withheld from search until primary sources, as-of dates, an editorial reviewer, and unique user value are recorded.`
+        : 'This research page is not eligible for search publication.',
     canonical: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract`,
+    noindex: !companyEvidenceAvailable,
   });
 
   useEffect(() => {
@@ -205,7 +234,6 @@ export default function CompanyPage() {
   }
 
   // Company claims remain hidden until each record has source and as-of metadata.
-  const companyEvidenceAvailable = false;
   const companySchemas: object[] = [
     {
       '@context': 'https://schema.org',
@@ -248,7 +276,7 @@ export default function CompanyPage() {
         <div className="absolute inset-0">
           <img
             src={HERO_BG}
-            alt={`Cancel ${company.name} solar contract — legal help for ${company.name} customers`}
+            alt={`Rooftop solar panels associated with a ${company.name} agreement review`}
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.2)" }}
             loading="eager" fetchPriority="high" decoding="async"
@@ -259,7 +287,7 @@ export default function CompanyPage() {
           <Reveal>
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/40 text-red-400 text-xs font-mono" style={{ background: "oklch(0.15 0.05 20 / 40%)" }}>
-                ⚠ {company.name.toUpperCase()} CONTRACT ALERT
+                {company.name.toUpperCase()} AGREEMENT RESEARCH
               </div>
               {companyEvidenceAvailable && (
                 <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/10 text-gray-400 text-xs font-mono" style={{ background: "oklch(0.14 0.01 265)" }}>
@@ -270,15 +298,7 @@ export default function CompanyPage() {
           </Reveal>
           <Reveal delay={0.05}>
             <h1 className="text-white leading-none mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem, 5.5vw, 4.5rem)", letterSpacing: "0.02em" }}>
-              {company.tagline.split("—")[0]}
-              {company.tagline.includes("—") && (
-                <>
-                  <br />
-                  <span style={{ background: "linear-gradient(90deg, #f97316, #fb923c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                    — {company.tagline.split("—")[1]}
-                  </span>
-                </>
-              )}
+              REVIEW YOUR {company.name.toUpperCase()} SOLAR AGREEMENT
             </h1>
           </Reveal>
           <Reveal delay={0.1}>
@@ -450,7 +470,7 @@ export default function CompanyPage() {
                       INDIVIDUAL CASE REVIEW
                     </div>
                     <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
+                      REQUEST AN INDIVIDUAL DOCUMENT REVIEW
                     </h2>
                     <p className="text-gray-400 text-sm mt-2">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
                   </div>
@@ -493,16 +513,15 @@ export default function CompanyPage() {
       <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container">
           <DoIQualifyQuiz />
-          <TopicClusterWidget currentUrl={`/cancel-${slug}-solar-contract`} />
         </div>
       </section>
 
-      {/* OTHER COMPANIES */}
-      <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
+      {/* OTHER SOURCE-REVIEWED COMPANIES */}
+      {relatedCompanies.length > 0 && <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container">
           <Reveal>
             <h2 className="font-display text-white text-2xl mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              WE ALSO FIGHT THESE SOLAR COMPANIES
+              OTHER SOLAR COMPANY RESEARCH PAGES
             </h2>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -511,7 +530,7 @@ export default function CompanyPage() {
                 <Link href={`/cancel-${c.slug}-solar-contract`}>
                   <div className="p-5 rounded-lg border cursor-pointer transition-all hover:border-amber-500/40 group" style={{ background: "oklch(0.14 0.01 265)", borderColor: "oklch(0.22 0.01 265)" }}>
                     <div className="text-gray-300 font-semibold group-hover:text-amber-400 transition-colors mb-1">{c.name}</div>
-                    <div className="text-gray-600 text-xs font-mono mb-2">{c.status} · BBB {c.bbRating}</div>
+                    <div className="text-gray-600 text-xs font-mono mb-2">Agreement research page</div>
                     <div className="text-amber-500 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">VIEW PAGE →</div>
                   </div>
                 </Link>
@@ -519,10 +538,10 @@ export default function CompanyPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
-      {/* ALL COMPANIES GRID */}
-      <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
+      {/* ALL SOURCE-REVIEWED COMPANIES */}
+      {publishableCompanies.length > 0 && <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
         <div className="container">
           <Reveal>
             <h3 className="font-display text-gray-500 text-lg mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
@@ -530,7 +549,7 @@ export default function CompanyPage() {
             </h3>
           </Reveal>
           <div className="flex flex-wrap gap-2">
-            {COMPANIES.map((c) => (
+            {publishableCompanies.map((c) => (
               <Link key={c.slug} href={`/cancel-${c.slug}-solar-contract`}>
                 <span className="px-3 py-1.5 rounded border text-sm text-gray-400 hover:text-amber-400 hover:border-amber-500/40 transition-all cursor-pointer font-mono" style={{ background: "oklch(0.13 0.01 265)", borderColor: "oklch(0.22 0.01 265)" }}>
                   {c.name}
@@ -539,7 +558,7 @@ export default function CompanyPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* FOOTER */}
       <footer className="border-t border-white/8 py-10" style={{ background: "oklch(0.09 0.01 265)" }}>

@@ -322,10 +322,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
-    );
+    throw new Error(`LLM invoke failed (HTTP ${response.status})`);
   }
 
   return (await response.json()) as InvokeResult;

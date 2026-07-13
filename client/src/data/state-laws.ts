@@ -17,6 +17,23 @@ export interface StateLawSection {
   statuteDescription?: string;
 }
 
+export interface StateLawPrimarySource {
+  /** Human-readable name of the statute, regulation, or regulator page. */
+  title: string;
+  /** Direct HTTPS URL to the official source. */
+  url: string;
+  /** ISO date on which the source was checked. */
+  accessedAt: string;
+}
+
+export interface StateLawEditorialReview {
+  reviewerName: string;
+  reviewerRole: string;
+  /** ISO date of the substantive legal/editorial review. */
+  reviewedAt: string;
+  primarySources: StateLawPrimarySource[];
+}
+
 export interface StateLaw {
   slug: string;
   state: string;
@@ -33,6 +50,12 @@ export interface StateLaw {
   content: StateLawSection[];
   faq: StateLawFAQ[];
   relatedCities: string[];
+  /**
+   * State pages fail closed until this record is present and complete. The
+   * legacy library predates source/reviewer provenance, so those pages remain
+   * noindex and cannot emit FAQ schema until an editor records real evidence.
+   */
+  editorialReview?: StateLawEditorialReview;
 }
 
 export const stateLaws: StateLaw[] = [
@@ -1835,4 +1858,23 @@ export function getStateLaw(slug: string): StateLaw | undefined {
 
 export function getAllStateLaws(): StateLaw[] {
   return stateLaws;
+}
+
+function isIsoDate(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+}
+
+export function hasPublishableStateLawEvidence(law: StateLaw): boolean {
+  const review = law.editorialReview;
+  if (!review?.reviewerName.trim() || !review.reviewerRole.trim()) return false;
+  if (!isIsoDate(review.reviewedAt) || review.primarySources.length === 0) return false;
+
+  return review.primarySources.every((source) => {
+    if (!source.title.trim() || !isIsoDate(source.accessedAt)) return false;
+    try {
+      return new URL(source.url).protocol === 'https:';
+    } catch {
+      return false;
+    }
+  });
 }

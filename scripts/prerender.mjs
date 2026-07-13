@@ -17,9 +17,10 @@
  * 3. The index.html template has a hardcoded canonical pointing to / — this
  *    MUST be replaced for every non-homepage URL or Google will treat all pages
  *    as duplicates of the homepage (causing "Duplicate without user-selected canonical"
- *    in GSC and preventing indexing of 300+ pages).
+ *    in GSC).
  * 4. When adding new blog batch files, MUST update loadBlogData() to include them.
- * 5. City pages need state codes in titles for geo-targeting (e.g., "Phoenix, AZ").
+ * 5. Detail pages that have not passed their publication gate remain accessible
+ *    but must be noindex, absent from discovery feeds, and free of search schema.
  *
  * OUTPUT: dist/public/cancel-solar-contract/phoenix-az/index.html, etc.
  *
@@ -30,11 +31,44 @@ import * as cheerio from "cheerio";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
+import {
+  collectObjectRecords,
+  hasPublishableEditorialReview,
+  hasUnsupportedFirstPartyClaims,
+} from "./publication-governance.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DIST = path.resolve(ROOT, "dist", "public");
 const BASE_URL = "https://breakyoursolarcontract.com";
+const FONT_STYLESHEET_URL =
+  "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap";
+const MEDIA_ORIGIN = "https://d2xsxph8kpxj0f.cloudfront.net";
+
+function hasPublishableStateReview(chunk) {
+  const reviewerName = findStringProp(chunk, "reviewerName")?.value?.trim();
+  const reviewerRole = findStringProp(chunk, "reviewerRole")?.value?.trim();
+  const reviewedAt = findStringProp(chunk, "reviewedAt")?.value;
+  const sources = findArrayProp(chunk, "primarySources");
+  if (
+    !reviewerName ||
+    !reviewerRole ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(reviewedAt || "") ||
+    !sources
+  )
+    return false;
+
+  return topLevelObjects(sources.value).some(source => {
+    const url = findStringProp(source, "url")?.value;
+    const title = findStringProp(source, "title")?.value?.trim();
+    const accessedAt = findStringProp(source, "accessedAt")?.value;
+    return Boolean(
+      title &&
+        /^https:\/\//.test(url || "") &&
+        /^\d{4}-\d{2}-\d{2}$/.test(accessedAt || "")
+    );
+  });
+}
 
 // ─── Load city/company/state data ────────────────────────────────────────────
 async function loadData() {
@@ -55,10 +89,7 @@ async function loadData() {
   // IMPORTANT: name: comes BEFORE slug: in each city object, so we must split
   // on the opening brace of each object, not on the slug: field.
   const cityEntries = [];
-  const cityObjectRegex = /\{\s*name:\s*["']([^"']+)["'][^}]*slug:\s*["']([^"']+)["'][^}]*\}/gs;
-  let cityMatch;
-  while ((cityMatch = cityObjectRegex.exec(citiesFile)) !== null) {
-    const objText = cityMatch[0];
+  for (const objText of collectObjectRecords(citiesFile)) {
     const nameM = objText.match(/\bname:\s*["']([^"']+)["']/);
     const stateM = objText.match(/\bstate:\s*["']([^"']+)["']/);
     const stateCodeM = objText.match(/\bstateCode:\s*["']([^"']+)["']/);
@@ -68,43 +99,27 @@ async function loadData() {
     const solarActivityM = objText.match(/\bsolarActivity:\s*["']([^"']+)["']/);
     const companiesM = objText.match(/\bcompanies:\s*\[([^\]]+)\]/);
     const companiesList = companiesM
-      ? companiesM[1].match(/["']([^"']+)["']/g)?.map(s => s.replace(/["']/g, '')) || []
+      ? companiesM[1]
+          .match(/["']([^"']+)["']/g)
+          ?.map(s => s.replace(/["']/g, "")) || []
       : [];
     if (!nameM || !slugM) continue;
     cityEntries.push({
       name: nameM[1],
-      state: stateM?.[1] || '',
-      stateCode: stateCodeM?.[1] || '',
+      state: stateM?.[1] || "",
+      stateCode: stateCodeM?.[1] || "",
       slug: slugM[1],
-      stateLaw: stateLawM?.[1] || '',
-      population: populationM?.[1] || '',
-      solarActivity: solarActivityM?.[1] || '',
+      stateLaw: stateLawM?.[1] || "",
+      population: populationM?.[1] || "",
+      solarActivity: solarActivityM?.[1] || "",
       companies: companiesList,
+      publishable: hasPublishableEditorialReview(objText),
     });
   }
 
   // Parse company entries with rich fields — split on object boundaries
   const companyEntries = [];
-  // Companies have slug: before name: so use a broader object match
-  const companyObjectRegex = /\{[^}]*slug:\s*["']([^"']+)["'][\s\S]*?(?=\n\s*\{|$)/g;
-  // Use collectSlugChunks approach but read the FULL object by tracking braces
-  const companyChunks = [];
-  let braceDepth = 0;
-  let objStart = -1;
-  for (let ci = 0; ci < companiesFile.length; ci++) {
-    const ch = companiesFile[ci];
-    if (ch === '{') {
-      if (braceDepth === 0) objStart = ci;
-      braceDepth++;
-    } else if (ch === '}') {
-      braceDepth--;
-      if (braceDepth === 0 && objStart >= 0) {
-        companyChunks.push(companiesFile.slice(objStart, ci + 1));
-        objStart = -1;
-      }
-    }
-  }
-  for (const chunk of companyChunks) {
+  for (const chunk of collectObjectRecords(companiesFile)) {
     const slugM2 = chunk.match(/\bslug:\s*["']([^"']+)["']/);
     if (!slugM2) continue;
     const nameM = chunk.match(/\bname:\s*["']([^"']+)["']/);
@@ -120,14 +135,15 @@ async function loadData() {
     companyEntries.push({
       slug: slugM2[1],
       name: nameM[1],
-      status: status || 'Active',
-      complaintCount: complaintCount || '',
-      bbRating: bbRating || '',
-      summary: summary || '',
+      status: status || "Active",
+      complaintCount: complaintCount || "",
+      bbRating: bbRating || "",
+      summary: summary || "",
       topComplaints,
       cancellationGrounds,
       knownIssues,
       lawsuits,
+      publishable: hasPublishableEditorialReview(chunk),
     });
   }
 
@@ -135,17 +151,20 @@ async function loadData() {
     .map(({ slug, chunk }) => ({
       slug,
       state: findStringProp(chunk, "state")?.value || titleFromSlug(slug),
+      publishable: hasPublishableStateReview(chunk),
+      reviewedAt: findStringProp(chunk, "reviewedAt")?.value || null,
       metaTitle: findStringProp(chunk, "metaTitle")?.value || null,
       metaDescription: findStringProp(chunk, "metaDescription")?.value || null,
       heroHook: findStringProp(chunk, "heroHook")?.value || null,
       heroSubhook: findStringProp(chunk, "heroSubhook")?.value || null,
       primaryStatute: findStringProp(chunk, "primaryStatute")?.value || null,
-      primaryStatuteTitle: findStringProp(chunk, "primaryStatuteTitle")?.value || null,
+      primaryStatuteTitle:
+        findStringProp(chunk, "primaryStatuteTitle")?.value || null,
       coolingOffNote: findStringProp(chunk, "coolingOffNote")?.value || null,
       contentSections: parseContentSections(chunk),
       faq: parseFaqItems(chunk),
     }))
-    .filter((entry) => entry.slug && entry.state);
+    .filter(entry => entry.slug && entry.state);
 
   return { cityEntries, companyEntries, stateEntries };
 }
@@ -303,7 +322,9 @@ function parseContentSections(content) {
         label: findStringProp(stat, "label")?.value || "",
       })),
     }))
-    .filter(section => section.content || section.items.length || section.stats.length);
+    .filter(
+      section => section.content || section.items.length || section.stats.length
+    );
 }
 
 // ─── FAQ + date extraction for richer structured data ────────────────────────
@@ -364,9 +385,18 @@ function parseFaqItems(chunk) {
 }
 
 const MONTH_INDEX = {
-  january: "01", february: "02", march: "03", april: "04",
-  may: "05", june: "06", july: "07", august: "08",
-  september: "09", october: "10", november: "11", december: "12",
+  january: "01",
+  february: "02",
+  march: "03",
+  april: "04",
+  may: "05",
+  june: "06",
+  july: "07",
+  august: "08",
+  september: "09",
+  october: "10",
+  november: "11",
+  december: "12",
 };
 
 // Convert loose `publishDate` strings (e.g. "March 2026", "2026-03-15") into an
@@ -406,11 +436,11 @@ function cleanBlogDescription(slug, description, title) {
   const normalized = (description || "").trim();
   const base =
     normalized ||
-    `${cleanBlogTitle(slug, title)}: learn the solar contract risks, cancellation options, and documents homeowners should review before requesting a free legal case review.`;
+    `${cleanBlogTitle(slug, title)}: review solar agreement risks, possible paths, official resources, and documents to gather before requesting an individual review.`;
   const expanded =
     base.length >= 110
       ? base
-      : `${base} Review warning signs, legal options, and next steps before requesting a free solar contract case review.`;
+      : `${base} Review warning signs, official resources, records to gather, and possible next steps before requesting an individual document review.`;
   return fitMetaDescription(expanded);
 }
 
@@ -480,9 +510,13 @@ function loadBlogData() {
         faq,
         contentSections: parseContentSections(chunk),
         excerpt: findStringProp(chunk, "excerpt")?.value || "",
-        category: findStringProp(chunk, "category")?.value || "Solar contract guide",
+        category:
+          findStringProp(chunk, "category")?.value || "Solar contract guide",
         datePublished: toIsoDate(publishDate),
         dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
+        publishable:
+          hasPublishableEditorialReview(chunk) &&
+          !hasUnsupportedFirstPartyClaims(chunk),
       };
     }
   }
@@ -510,34 +544,41 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
 
   // Homepage
   map["/"] = {
-    title: "Solar Freedom — Get Out of Your Solar Contract Today",
+    title: "Solar Contract Record Review & Consumer Resources | Solar Freedom",
     description:
       "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.",
     canonical: `${BASE_URL}/`,
   };
 
-  // City pages — 303 pages
+  // City routes remain accessible, but only evidence-reviewed entries are indexable.
   for (const city of cityEntries) {
     const urlPath = `/cancel-solar-contract/${city.slug}`;
     const cityLabel = city.stateCode
       ? `${city.name}, ${city.stateCode}`
       : city.name;
     map[urlPath] = {
-      title: `Cancel Solar Contract in ${cityLabel} | Solar Freedom`,
-      description: fitMetaDescription(
-        `Review solar contract terms and consumer resources for ${cityLabel}. Options and timing depend on your agreement, facts, and jurisdiction.`
-      ),
+      title: city.publishable
+        ? `Cancel Solar Contract in ${cityLabel} | Solar Freedom`
+        : `${cityLabel} Solar Contract Research Status | Solar Freedom`,
+      description: city.publishable
+        ? fitMetaDescription(
+            `Review solar contract terms and consumer resources for ${cityLabel}. Options and timing depend on your agreement, facts, and jurisdiction.`
+          )
+        : `This ${cityLabel} research page is withheld from search until primary sources, as-of dates, an editorial reviewer, and unique local value are recorded.`,
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !city.publishable,
       geo: { city: city.name, region: city.stateCode || undefined },
-      // Rich fields for unique prerender content
-      cityData: {
-        state: city.state,
-        stateCode: city.stateCode,
-        stateLaw: city.stateLaw,
-        population: city.population,
-        solarActivity: city.solarActivity,
-        companies: city.companies,
-      },
+      cityData: city.publishable
+        ? {
+            state: city.state,
+            stateCode: city.stateCode,
+            stateLaw: city.stateLaw,
+            population: city.population,
+            solarActivity: city.solarActivity,
+            companies: city.companies,
+            publishable: true,
+          }
+        : { state: city.state, stateCode: city.stateCode, publishable: false },
     };
   }
 
@@ -545,62 +586,81 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   for (const company of companyEntries) {
     const urlPath = `/cancel-${company.slug}-solar-contract`;
     map[urlPath] = {
-      title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
-      description: `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`,
+      title: company.publishable
+        ? `Cancel ${company.name} Solar Contract | Solar Freedom`
+        : `${company.name} Solar Contract Research Status | Solar Freedom`,
+      description: company.publishable
+        ? `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`
+        : `This ${company.name} research page is withheld from search until primary sources, as-of dates, an editorial reviewer, and unique user value are recorded.`,
       canonical: `${BASE_URL}${urlPath}`,
-      // Rich fields for unique prerender content
-      companyData: {
-        status: company.status,
-        complaintCount: company.complaintCount,
-        bbRating: company.bbRating,
-        summary: company.summary,
-        topComplaints: company.topComplaints,
-        cancellationGrounds: company.cancellationGrounds,
-        knownIssues: company.knownIssues,
-        lawsuits: company.lawsuits,
-      },
+      noindex: !company.publishable,
+      companyData: company.publishable
+        ? { ...company, publishable: true }
+        : { name: company.name, publishable: false },
     };
   }
 
-  // State law pages — 51 pages (use per-state metaTitle/metaDescription if available)
+  // State-law routes remain accessible, but only evidence-reviewed entries are indexable.
   for (const state of stateEntries) {
     const urlPath = `/solar-contract-laws/${state.slug}`;
-    const title = state.metaTitle
-      ? `${state.metaTitle} | Solar Freedom`
-      : `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`;
-    const description = `Review solar-contract consumer information for ${state.state}, including records to gather and official sources to verify. Options depend on facts and current law.`;
+    const title =
+      state.publishable && state.metaTitle
+        ? `${state.metaTitle} | Solar Freedom`
+        : `${state.state} Solar Contract Research Status | Solar Freedom`;
+    const description = state.publishable
+      ? `Review source-checked solar-contract consumer information for ${state.state}. Options depend on the agreement, facts, jurisdiction, and current law.`
+      : `This ${state.state} research page is withheld from search until official primary sources and an editorial reviewer are recorded.`;
     map[urlPath] = {
       title,
       description,
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !state.publishable,
       geo: { region: state.state },
-      stateData: {
-        state: state.state,
-        heroHook: state.heroHook,
-        heroSubhook: state.heroSubhook,
-        primaryStatute: state.primaryStatute,
-        primaryStatuteTitle: state.primaryStatuteTitle,
-        coolingOffNote: state.coolingOffNote,
-        contentSections: state.contentSections,
-        faq: state.faq,
-      },
-      faq: state.faq,
+      stateData: state.publishable
+        ? {
+            state: state.state,
+            publishable: true,
+            reviewedAt: state.reviewedAt,
+            heroHook: state.heroHook,
+            heroSubhook: state.heroSubhook,
+            primaryStatute: state.primaryStatute,
+            primaryStatuteTitle: state.primaryStatuteTitle,
+            coolingOffNote: state.coolingOffNote,
+            contentSections: state.contentSections,
+            faq: state.faq,
+          }
+        : { state: state.state, publishable: false },
+      faq: state.publishable ? state.faq : [],
     };
   }
 
-  // Blog posts — ALL 100+ posts
+  // Blog routes remain accessible, but only evidence-reviewed entries are indexable.
   for (const [slug, data] of Object.entries(blogEntries)) {
     const urlPath = `/blog/${slug}`;
+    const publishable = data.publishable !== false;
     map[urlPath] = {
-      title: data.title,
-      description: suppressUnverifiedFirstPartyClaims(data.description),
+      title: publishable
+        ? data.title
+        : "Article Under Editorial Review | Solar Freedom",
+      description: publishable
+        ? suppressUnverifiedFirstPartyClaims(data.description)
+        : "This article is withheld until its legal and factual claims, sources, unique user value, and service statements pass editorial review.",
       canonical: `${BASE_URL}${urlPath}`,
-      faq: data.faq?.map(item => ({ ...item, a: suppressUnverifiedFirstPartyClaims(item.a) })),
-      datePublished: data.datePublished,
-      dateModified: data.dateModified,
-      contentSections: data.contentSections,
-      excerpt: suppressUnverifiedFirstPartyClaims(data.excerpt),
-      category: data.category,
+      noindex: !publishable,
+      faq: publishable
+        ? data.faq?.map(item => ({
+            ...item,
+            a: suppressUnverifiedFirstPartyClaims(item.a),
+          }))
+        : [],
+      datePublished: publishable ? data.datePublished : undefined,
+      dateModified: publishable ? data.dateModified : undefined,
+      contentSections: publishable ? data.contentSections : [],
+      excerpt: publishable
+        ? suppressUnverifiedFirstPartyClaims(data.excerpt)
+        : "",
+      category: publishable ? data.category : "Editorial review pending",
+      publishable,
     };
   }
 
@@ -608,42 +668,43 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   const staticPages = [
     {
       path: "/blog",
-      title: "Solar Contract Help Blog | Solar Freedom",
-      desc: "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner.",
+       title: "Solar Contract Editorial Library | Solar Freedom",
+      desc: "Educational solar agreement guides, document checklists, official consumer resources, and questions to review before choosing a next step.",
     },
     {
       path: "/how-it-works",
-      title: "How Solar Contract Cancellation Works | Solar Freedom",
-      desc: "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
+       title: "How Solar Contract Document Review Works | Solar Freedom",
+      desc: "Learn how to organize solar agreement records, identify questions for review, and compare possible next steps without assuming an outcome.",
     },
     {
       path: "/solar-contract-help",
-      title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",
+       title: "Solar Contract Help: Records and Questions to Review | Solar Freedom",
       desc: "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review.",
     },
     {
       path: "/solar-panel-scam",
-      title: "Solar Panel Scam Warning Signs | Solar Freedom",
-      desc: "Learn the solar panel scam warning signs, from fake tax credit promises to hidden loan fees and liens. Free solar contract review.",
+       title: "Solar Sales & Financing Record Checklist | Solar Freedom",
+      desc: "Review solar-sales warning signs, records to preserve, and official consumer sources to check before drawing a conclusion.",
     },
     {
       path: "/solar-companies",
-      title: "Solar Company Complaints & Cancellation Guide | Solar Freedom",
-      desc: "Compare complaints and cancellation options for Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and more.",
+      title: "Solar Company Agreement Research Directory | Solar Freedom",
+      desc: "Browse company-specific solar agreement research pages, records to gather, and source-verification status.",
     },
     {
       path: "/sunrun",
-      title: "Sunrun Solar Contract Cancellation | Solar Freedom",
-      desc: "Review Sunrun contract terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
+      title: "Sunrun Solar Agreement Review Guide | Solar Freedom",
+      desc: "Review Sunrun agreement, financing, performance, transfer, and communication records before choosing a next step.",
+      noindex: true,
     },
     {
       path: "/solar-lien-removal",
-      title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom",
+       title: "Solar Lien Record Review | PACE Assessments & UCC Filings",
       desc: "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
     },
     {
       path: "/solar-loan-help",
-      title: "Solar Loan Help | Fight Predatory Solar Loans | Solar Freedom",
+       title: "Solar Loan Document Review | Payment, Disclosure & Payoff Records",
       desc: "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law.",
     },
     {
@@ -653,23 +714,33 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     },
     {
       path: "/solar-exit-options",
-      title: "Solar Exit Options | How to Get Out of a Solar Contract",
+       title: "Solar Exit Options: Documents and Questions to Review | Solar Freedom",
       desc: "Compare possible solar-contract paths and the documents, limits, and risks to review before deciding what to do next.",
     },
     {
       path: "/solar-contract-laws",
-      title: "Solar Contract Laws by State | Your Legal Rights | Solar Freedom",
-      desc: "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
+      title: "Solar Contract Information by State | Solar Freedom",
+      desc: "Browse state research status, official consumer-protection sources, and records to verify before relying on a legal claim.",
     },
     {
       path: "/media",
-      title: "Solar Contract Truth Hub \u2014 Watch & Listen | Solar Freedom",
-      desc: "Watch solar contract videos and the Elite Solar Recovery Podcast. Real Sunrun, SunPower, GoodLeap, and Pink Energy cases. Free case audit.",
+      title: "Solar Contract Record Review Hub \u2014 Watch & Listen | Solar Freedom",
+      desc: "Watch solar agreement explainers and podcast discussions covering educational scenarios, records to gather, and questions to investigate.",
     },
     {
       path: "/sitemap",
-      title: "Site Map — All Pages | Break Your Solar Contract",
-      desc: "Complete directory of all pages on breakyoursolarcontract.com — 300 city pages, 13 company pages, 51 state law pages, and 95+ blog articles about solar contract cancellation.",
+       title: "Site Map — Publication-Eligible Pages | Solar Freedom",
+       desc: "Directory of search-publication-eligible Solar Freedom resources. Unreviewed research backlogs are intentionally omitted.",
+    },
+    {
+      path: "/privacy-policy",
+      title: "Privacy Policy | Solar Freedom",
+      desc: "How Solar Freedom collects, uses, shares, and protects information submitted through this website.",
+    },
+    {
+      path: "/terms",
+      title: "Terms of Use | Solar Freedom",
+      desc: "Rules and important limitations for using the Solar Freedom website, educational content, intake forms, and scheduling tools.",
     },
   ];
   for (const p of staticPages) {
@@ -677,6 +748,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: p.title,
       description: p.desc,
       canonical: `${BASE_URL}${p.path}`,
+      noindex: p.noindex === true,
     };
   }
 
@@ -708,20 +780,25 @@ const unsupportedFirstPartyClaimPatterns = [
   /nationwide coverage/i,
   /limited number of new cases/i,
   /Contract cancelled\. No more payments/i,
+  /\bfree (?:case |solar contract )?(?:review|audit|consultation)\b/i,
+  /\b(?:our legal team|written by attorneys|real attorneys|real outcomes)\b/i,
+  /\b(?:30[-\u2013]60|40[-\u2013]60)% (?:loan )?reduction\b/i,
+  /\b(?:respond|contact(?:ed)?|call(?:ed)?) within (?:\d+\s*)?(?:minutes?|hours?)\b/i,
+  /\b(?:we\b|our (?:attorneys?|team)\b)[^.!?]{0,160}\b(?:won|cancelled|eliminated|reduced|saved|secured|recovered)\b/i,
   /(?:Solar Freedom|\bwe\b|\bour (?:team|attorneys)\b)[^.!?]{0,160}(?:no upfront cost|contingency basis|all 50 states)/i,
 ];
 
 function suppressUnverifiedFirstPartyClaims(input) {
   const value = String(input ?? "");
-  if (!unsupportedFirstPartyClaimPatterns.some(pattern => pattern.test(value))) return value;
+  if (!unsupportedFirstPartyClaimPatterns.some(pattern => pattern.test(value)))
+    return value;
   return "This material is withheld pending documented evidence and review. Options depend on the agreement, facts, jurisdiction, and any written engagement terms.";
 }
 
 function stripBrand(title) {
   return title
     .replace(/\s+\|\s+Solar Freedom$/i, "")
-    .replace(/\s+—\s+Solar Freedom$/i, "")
-    .replace(/\s+â€”\s+Solar Freedom$/i, "")
+    .replace(/\s+\u2014\s+Solar Freedom$/i, "")
     .trim();
 }
 
@@ -736,7 +813,10 @@ function fitMetaTitle(title) {
 
   const tightened = withoutBrand
     .replace(/\s+\((?:2026|2026 Guide|Complete Guide)\)/gi, "")
-    .replace(/\s+[\u2013\u2014-]\s+(?:Free Case Review|Legal Help|Solar Freedom).*$/i, "")
+    .replace(
+      /\s+[\u2013\u2014-]\s+(?:Free Case Review|Legal Help|Solar Freedom).*$/i,
+      ""
+    )
     // For state law pages: trim '& Your Legal...' and similar suffixes
     .replace(/\s+&(?:amp;)?\s+Your\s+Legal.*$/i, "")
     .replace(/:\s+[A-Z][^,]+,\s+[A-Z][^&]+&.*$/, "")
@@ -758,61 +838,20 @@ function classifyPath(urlPath) {
 }
 
 function buildInternalLinks(urlPath) {
-  const defaultLinks = [
-    ["/", "Solar Freedom home"],
-    ["/blog", "Solar contract help blog"],
-    ["/solar-contract-laws", "Solar contract laws by state"],
-    ["/solar-lien-removal", "Solar lien removal"],
-    ["/solar-loan-help", "Solar loan help"],
-    ["/selling-house-with-solar", "Selling a home with solar"],
-    ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
-    ["/cancel-sunnova-solar-contract", "Cancel Sunnova solar contract"],
-    ["/cancel-goodleap-solar-contract", "GoodLeap solar loan help"],
-    ["/blog/solar-contract-red-flags", "Solar contract red flags"],
-    ["/blog/solar-fraud-warning-signs", "Solar fraud warning signs"],
-    [
-      "/blog/how-to-get-out-of-a-solar-contract",
-      "How to get out of a solar contract",
-    ],
-  ];
-
-  const contextualLinks = {
-    "/blog/sunrun-solar-contract-cancellation-2026": [
-      ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
-      ["/blog/sunrun-complaints-california", "Sunrun complaints in California"],
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
-      ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
-    ],
-    "/blog/solar-contract-rescission-rights": [
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
-      ["/blog/new-jersey-solar-contract-rights", "New Jersey solar contract rights"],
-      ["/blog/cancel-solar-contract-rescission-rights", "Cancel solar contract rescission"],
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
-    ],
-    "/blog/new-jersey-solar-contract-rights": [
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-      ["/solar-contract-laws", "Solar contract laws by state"],
-    ],
-    "/blog/how-to-file-a-complaint-against-solar-company-attorney-general": [
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-      ["/blog/solar-fraud-warning-signs", "Solar fraud warning signs"],
-    ],
-    "/blog/sunrun-complaints-california": [
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
-      ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
-    ],
-  };
-
+  // Only stable, indexable hubs belong in every pre-rendered shell. Detail
+  // routes are added to discovery only by evidence-gated generators.
   const links = [
-    ...(contextualLinks[urlPath] || []),
-    ...defaultLinks,
+    ["/", "Solar Freedom home"],
+    ["/solar-contract-help", "Solar contract record checklist"],
+    ["/solar-exit-options", "Solar agreement options and records"],
+    ["/solar-contract-laws", "State-law research hub"],
+    ["/solar-companies", "Company agreement research hub"],
+    ["/solar-panel-scam", "Solar sales and financing records"],
+    ["/solar-lien-removal", "Solar lien record review"],
+    ["/solar-loan-help", "Solar loan record review"],
+    ["/selling-house-with-solar", "Selling a home with solar"],
+    ["/blog", "Editorial library"],
+    ["/how-it-works", "How document review works"],
   ];
   const seen = new Set();
 
@@ -832,6 +871,54 @@ function buildInternalLinks(urlPath) {
 
 function buildSchemaBlocks(meta, urlPath, pageType) {
   const pageName = stripBrand(meta.title);
+  const homeBreadcrumb = {
+    "@type": "ListItem",
+    position: 1,
+    name: "Home",
+    item: `${BASE_URL}/`,
+  };
+  const breadcrumbItems =
+    pageType === "blog_post"
+      ? [
+          homeBreadcrumb,
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: `${BASE_URL}/blog`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: pageName,
+            item: meta.canonical,
+          },
+        ]
+      : pageType === "state_law"
+        ? [
+            homeBreadcrumb,
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "State solar contract research",
+              item: `${BASE_URL}/solar-contract-laws`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: pageName,
+              item: meta.canonical,
+            },
+          ]
+        : [
+            homeBreadcrumb,
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: pageName,
+              item: meta.canonical,
+            },
+          ];
   const blocks = [
     {
       "@context": "https://schema.org",
@@ -855,34 +942,11 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: `${BASE_URL}/`,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: pageType === "blog_post" ? "Blog" : pageName,
-          item: pageType === "blog_post" ? `${BASE_URL}/blog` : meta.canonical,
-        },
-        ...(pageType === "blog_post"
-          ? [
-              {
-                "@type": "ListItem",
-                position: 3,
-                name: pageName,
-                item: meta.canonical,
-              },
-            ]
-          : []),
-      ],
+      itemListElement: breadcrumbItems,
     },
   ];
 
-  if (pageType === "blog_post") {
+  if (pageType === "blog_post" && !meta.noindex) {
     const article = {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -902,11 +966,11 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
 
   // FAQPage — strong answer-engine (AEO) signal. Only emitted when the page
   // ships real question/answer pairs from the blog data.
-  if (Array.isArray(meta.faq) && meta.faq.length > 0) {
+  if (!meta.noindex && Array.isArray(meta.faq) && meta.faq.length > 0) {
     blocks.push({
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: meta.faq.slice(0, 10).map((item) => ({
+      mainEntity: meta.faq.slice(0, 10).map(item => ({
         "@type": "Question",
         name: item.q,
         acceptedAnswer: {
@@ -922,12 +986,32 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
 
 function buildCityUniqueContent(meta, urlPath) {
   const cd = meta.cityData;
-  if (!cd) return '';
-  const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';
-  const stateName = cd.state || cd.stateCode || 'your state';
+  if (!cd) return "";
+  const cityName =
+    meta.geo?.city ||
+    urlPath
+      .split("/")
+      .pop()
+      ?.split("-")
+      .slice(0, -1)
+      .map(w => w[0].toUpperCase() + w.slice(1))
+      .join(" ") ||
+    "this city";
+  const stateName = cd.state || cd.stateCode || "your state";
+  if (!cd.publishable) {
+    return `
+      <h2>${escapeHtml(cityName)} research status</h2>
+      <p>Location-specific claims are withheld until primary sources, as-of dates, a named editorial reviewer, and unique local value are recorded.</p>
+      <h2>Official research starting points</h2>
+      <ul>
+        <li><a href="https://www.usa.gov/state-attorney-general">USA.gov state attorneys general directory</a></li>
+        <li><a href="https://www.ecfr.gov/current/title-16/part-429">16 CFR Part 429 â€” federal Cooling-Off Rule</a></li>
+      </ul>
+      <p>This research-status page remains accessible to users but is excluded from search indexing.</p>`;
+  }
   const companies = (cd.companies || [])
     .map(company => `<li>${escapeHtml(company)}</li>`)
-    .join('');
+    .join("");
 
   return `
       <h2>Page location</h2>
@@ -935,39 +1019,55 @@ function buildCityUniqueContent(meta, urlPath) {
         <dt>City</dt><dd>${escapeHtml(cityName)}</dd>
         <dt>State</dt><dd>${escapeHtml(stateName)}</dd>
       </dl>
-      ${companies ? `<h2>Companies listed for this location</h2><ul>${companies}</ul>` : ''}`;
+      ${companies ? `<h2>Companies listed for this location</h2><ul>${companies}</ul>` : ""}`;
 }
 
 function buildCompanyUniqueContent(meta) {
   const cd = meta.companyData;
-  if (!cd) return '';
-  const companyName = meta.title.replace(/Cancel\s+|\s+Solar Contract.*/gi, '').trim() || 'this company';
+  if (!cd) return "";
+  const companyName =
+    cd.name ||
+    meta.title.replace(/Cancel\s+|\s+Solar Contract.*/gi, "").trim() ||
+    "this company";
+  if (!cd.publishable) {
+    return `
+      <h2>${escapeHtml(companyName)} research status</h2>
+      <p>Company-specific allegations, ratings, legal matters, and outcome claims are withheld until each statement has a traceable source and an editorial review record.</p>
+      <h2>Records to gather</h2>
+      <ul>
+        <li>Signed agreement and every addendum</li>
+        <li>Loan, lease, or power-purchase documents</li>
+        <li>Sales materials, bills, production records, and written communications</li>
+        <li>Any cancellation request and written response</li>
+      </ul>`;
+  }
   const complaintsText = (cd.topComplaints || [])
     .map(complaint => `<li>${escapeHtml(complaint)}</li>`)
-    .join('');
+    .join("");
   const groundsText = (cd.cancellationGrounds || [])
     .map(ground => `<li>${escapeHtml(ground)}</li>`)
-    .join('');
+    .join("");
   const knownIssuesText = cd.knownIssues?.length
-    ? cd.knownIssues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
+    ? cd.knownIssues.map(issue => `<li>${escapeHtml(issue)}</li>`).join("")
     : "";
   const lawsuitsText = cd.lawsuits?.length
-    ? cd.lawsuits.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
+    ? cd.lawsuits.map(issue => `<li>${escapeHtml(issue)}</li>`).join("")
     : "";
 
   return `
       <h2>About ${escapeHtml(companyName)}</h2>
-      ${cd.summary ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(cd.summary))}</p>` : ''}
-      ${complaintsText ? `<h2>Complaints listed on this page</h2><ul>${complaintsText}</ul>` : ''}
-      ${knownIssuesText ? `<h2>Issues listed on this page</h2><ul>${knownIssuesText}</ul>` : ''}
-      ${groundsText ? `<h2>Cancellation grounds listed on this page</h2><ul>${groundsText}</ul>` : ''}
-      ${lawsuitsText ? `<h2>Legal matters listed on this page</h2><ul>${lawsuitsText}</ul>` : ''}`;
+      ${cd.summary ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(cd.summary))}</p>` : ""}
+      ${complaintsText ? `<h2>Complaints listed on this page</h2><ul>${complaintsText}</ul>` : ""}
+      ${knownIssuesText ? `<h2>Issues listed on this page</h2><ul>${knownIssuesText}</ul>` : ""}
+      ${groundsText ? `<h2>Cancellation grounds listed on this page</h2><ul>${groundsText}</ul>` : ""}
+      ${lawsuitsText ? `<h2>Legal matters listed on this page</h2><ul>${lawsuitsText}</ul>` : ""}`;
 }
 
 function hasVerifiedQuoteEvidence(value) {
   const evidence = value?.verification;
   if (!evidence || evidence.consentConfirmed !== true) return false;
-  if (typeof evidence.sourceLabel !== "string" || !evidence.sourceLabel.trim()) return false;
+  if (typeof evidence.sourceLabel !== "string" || !evidence.sourceLabel.trim())
+    return false;
   if (Number.isNaN(Date.parse(evidence.verifiedAt))) return false;
   try {
     return new URL(evidence.sourceUrl).protocol === "https:";
@@ -979,7 +1079,9 @@ function hasVerifiedQuoteEvidence(value) {
 function renderContentSections(sections) {
   return (sections || [])
     .map(section => {
-      const content = escapeHtml(suppressUnverifiedFirstPartyClaims(section.content || ""));
+      const content = escapeHtml(
+        suppressUnverifiedFirstPartyClaims(section.content || "")
+      );
       if (section.type === "h2") return `<h2>${content}</h2>`;
       if (section.type === "h3") return `<h3>${content}</h3>`;
       if (section.type === "quote") {
@@ -994,8 +1096,17 @@ function renderContentSections(sections) {
       }
       if (section.type === "stat-block" && section.stats?.length) {
         return `<dl>${section.stats
-          .filter(stat => suppressUnverifiedFirstPartyClaims(stat.value) === String(stat.value) && suppressUnverifiedFirstPartyClaims(stat.label) === String(stat.label))
-          .map(stat => `<dt>${escapeHtml(stat.value)}</dt><dd>${escapeHtml(stat.label)}</dd>`)
+          .filter(
+            stat =>
+              suppressUnverifiedFirstPartyClaims(stat.value) ===
+                String(stat.value) &&
+              suppressUnverifiedFirstPartyClaims(stat.label) ===
+                String(stat.label)
+          )
+          .map(
+            stat =>
+              `<dt>${escapeHtml(stat.value)}</dt><dd>${escapeHtml(stat.label)}</dd>`
+          )
           .join("")}</dl>`;
       }
       return "";
@@ -1006,8 +1117,28 @@ function renderContentSections(sections) {
 function buildStateUniqueContent(meta) {
   const state = meta.stateData;
   if (!state) return "";
+  if (!state.publishable) {
+    return `
+      <p>This legacy state summary is withheld until a complete primary-source record, named reviewer, and review date are attached.</p>
+      <h2>Official research starting points</h2>
+      <ul>
+        <li><a href="https://www.ecfr.gov/current/title-16/part-429">16 CFR Part 429 — federal Cooling-Off Rule</a></li>
+        <li><a href="https://www.usa.gov/state-attorney-general">USA.gov state attorneys general directory</a></li>
+      </ul>
+      <h2>Records to gather</h2>
+      <ul>
+        <li>Signed agreement and all addenda</li>
+        <li>Loan, lease, or PPA documents</li>
+        <li>Cancellation notices and disclosures</li>
+        <li>Sales materials, bills, performance records, and communications</li>
+      </ul>
+      <p>This research-status page is not a legal conclusion and remains excluded from search indexing.</p>`;
+  }
   const faq = (state.faq || [])
-    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`)
+    .map(
+      item =>
+        `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`
+    )
     .join("");
   return `
     ${state.heroHook ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(state.heroHook))}</p>` : ""}
@@ -1022,13 +1153,38 @@ function buildStateUniqueContent(meta) {
 function buildBlogUniqueContent(meta) {
   const sections = renderContentSections(meta.contentSections);
   const faq = (meta.faq || [])
-    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`)
+    .map(
+      item =>
+        `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`
+    )
     .join("");
   return `
     ${meta.category ? `<p>${escapeHtml(meta.category)}</p>` : ""}
     ${meta.excerpt ? `<p>${escapeHtml(meta.excerpt)}</p>` : ""}
     ${sections}
     ${faq ? `<section><h2>Frequently asked questions</h2>${faq}</section>` : ""}`;
+}
+
+function buildPolicyUniqueContent(urlPath) {
+  if (urlPath === "/privacy-policy") {
+    return `
+      <h2>Privacy choices</h2>
+      <p>Optional analytics is off by default and loads only after affirmative consent. Contact and optional SMS choices are recorded separately.</p>
+      <h2>Information and providers</h2>
+      <p>Information submitted through an intake may be used to respond to the authorized request, secure the service, and maintain consent and audit records. Hosting, storage, CRM, requested messaging, analytics accepted by the visitor, and scheduling providers may process information for those purposes.</p>
+      <h2>Your requests</h2>
+      <p>Visitors may reset analytics choices, use unsubscribe controls, reply STOP to SMS, or contact info@breakyoursolarcontract.com about access, correction, or deletion. Rights and required retention vary by jurisdiction.</p>`;
+  }
+  if (urlPath === "/terms") {
+    return `
+      <h2>Educational information</h2>
+      <p>Website content is general consumer information, not legal, tax, financial, credit, engineering, or real estate advice. Verify important information with current primary sources and an appropriately qualified professional.</p>
+      <h2>No guaranteed relationship or result</h2>
+      <p>Viewing content, submitting an intake, or scheduling a meeting does not create an attorney-client relationship or guarantee representation, cancellation, settlement, ranking, traffic, response time, or any other outcome.</p>
+      <h2>Third-party services</h2>
+      <p>Linked and embedded services operate under their own terms and privacy policies. Do not submit passwords, full account credentials, or unnecessary sensitive records.</p>`;
+  }
+  return "";
 }
 
 function buildSemanticShellContent(meta, urlPath) {
@@ -1042,18 +1198,17 @@ function buildSemanticShellContent(meta, urlPath) {
     : `<p>${escapeHtml(meta.description)}</p>`;
 
   // Build page-type-specific unique body content
-  let uniqueBody = '';
-  if (pageType === 'city_page') {
+  let uniqueBody = "";
+  if (pageType === "city_page") {
     uniqueBody = buildCityUniqueContent(meta, urlPath);
-  } else if (pageType === 'company_page') {
+  } else if (pageType === "company_page") {
     uniqueBody = buildCompanyUniqueContent(meta, urlPath);
-  } else if (pageType === 'blog_post') {
+  } else if (pageType === "blog_post") {
     uniqueBody = buildBlogUniqueContent(meta);
-  } else if (pageType === 'state_law') {
+  } else if (pageType === "state_law") {
     uniqueBody = buildStateUniqueContent(meta);
   } else {
-    // Service pages: brief unique intro
-    uniqueBody = '';
+    uniqueBody = buildPolicyUniqueContent(urlPath);
   }
 
   return `
@@ -1078,6 +1233,9 @@ function buildShellHtml(meta, jsFile, cssFile, urlPath) {
   const desc = escapeHtml(meta.description);
   const canonical = meta.canonical;
   const pageType = classifyPath(urlPath);
+  const robots = meta.noindex
+    ? "noindex, follow"
+    : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
   const semanticContent = buildSemanticShellContent(meta, urlPath);
   const schemaBlocks = buildSchemaBlocks(meta, urlPath, pageType);
   return `<!DOCTYPE html>
@@ -1096,9 +1254,13 @@ function buildShellHtml(meta, jsFile, cssFile, urlPath) {
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${desc}">
-  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="robots" content="${robots}">
   <meta name="theme-color" content="#1a1a2e">
   <script type="application/ld+json">${schemaBlocks}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="${MEDIA_ORIGIN}">
+  <link rel="stylesheet" href="${FONT_STYLESHEET_URL}">
   ${cssFile ? `<link rel="stylesheet" crossorigin href="/assets/${cssFile}">` : ""}
 </head>
 <body>

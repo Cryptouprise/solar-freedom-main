@@ -31,7 +31,7 @@ const DEFAULT_HEARTBEAT = path.resolve(ROOT, "reports/seo-agent/HEARTBEAT.md");
 const DEFAULT_ACTION_QUEUE = path.resolve(ROOT, "reports/seo-agent/ACTION_QUEUE.md");
 const DEFAULT_APPLY_REPORT = path.resolve(ROOT, "reports/seo-agent/APPLY_REPORT.md");
 const DEFAULT_APPLY_JSON = path.resolve(ROOT, "reports/seo-agent/latest-apply-result.json");
-const DEFAULT_MODEL = process.env.SEO_AGENT_MODEL || "openrouter/owl-alpha";
+const DEFAULT_MODEL = process.env.SEO_AGENT_MODEL || "openrouter/free";
 const CANONICAL_DOMAIN = "https://breakyoursolarcontract.com";
 const LEGACY_WWW_DOMAIN = ["https://www", "breakyoursolarcontract.com"].join(".");
 const SAFE_APPLY_DIRS = ["client", "server", "scripts"];
@@ -443,7 +443,7 @@ async function maybeAskOpenRouter({ report, queue, args }) {
   });
 
   if (!response.ok) {
-    return `OpenRouter strategy failed: ${response.status} ${response.statusText} - ${await response.text()}`;
+    return `OpenRouter strategy failed (HTTP ${response.status}).`;
   }
 
   const data = await response.json();

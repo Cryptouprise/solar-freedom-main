@@ -6,9 +6,14 @@
  * Design: Dark industrial brutalism — Charcoal bg, Amber accent, Bebas Neue
  */
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "wouter";
+import PrivacyVideoEmbed from "@/components/PrivacyVideoEmbed";
+import { blogPosts } from "@/data/blog";
+import { companies } from "@/data/companies";
+import { hasPublishableEditorialReview, isBlogPostPublishable } from "@/data/publication-governance";
+import { hasPublishableStateLawEvidence, stateLaws } from "@/data/state-laws";
 
 // ─── Reveal wrapper ──────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -29,8 +34,10 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 
 // ─── VideoObject JSON-LD schema ───────────────────────────────────────────────
 function VideoSchema({ id, name, description, uploadDate, thumbnailUrl }: {
-  id: string; name: string; description: string; uploadDate: string; thumbnailUrl: string;
+  id: string; name: string; description: string; uploadDate?: string; thumbnailUrl: string;
 }) {
+  // Do not manufacture an upload date merely to qualify for VideoObject markup.
+  if (!uploadDate) return null;
   const schema = {
     "@context": "https://schema.org",
     "@type": "VideoObject",
@@ -38,7 +45,7 @@ function VideoSchema({ id, name, description, uploadDate, thumbnailUrl }: {
     "description": description,
     "thumbnailUrl": thumbnailUrl,
     "uploadDate": uploadDate,
-    "embedUrl": `https://www.youtube.com/embed/${id}`,
+    "embedUrl": `https://www.youtube-nocookie.com/embed/${id}`,
     "contentUrl": `https://www.youtube.com/watch?v=${id}`,
     "publisher": {
       "@type": "Organization",
@@ -63,24 +70,24 @@ const VIDEOS = [
   {
     id: "s6V76pijGKI",
     type: "explainer" as const,
-    title: "ESCAPING THE SOLAR TRAP",
-    subtitle: "Full Explainer — How Solar Contracts Work & How to Get Out",
-    description: "Everything you need to know about solar contract cancellation: how solar companies trap homeowners, what your legal rights are under the FTC Cooling-Off Rule, TILA, and state consumer protection laws, and the three outcomes you can achieve — Total Contract Cancellation, 30–60% Loan Reduction, and Credit Restoration.",
-    uploadDate: "2026-01-01",
+    title: "SOLAR AGREEMENT RECORD REVIEW",
+    subtitle: "Full Explainer — Agreement Types, Records & Questions to Review",
+    description: "An educational overview of solar agreement types, records to gather, federal consumer resources, and questions that may require an individual review. Options depend on the documents, facts, and current law.",
+    uploadDate: undefined as string | undefined,
     thumbnailUrl: `https://img.youtube.com/vi/s6V76pijGKI/maxresdefault.jpg`,
     duration: "~10 min",
-    tags: ["Solar Contract Cancellation", "Solar Fraud", "FTC Cooling-Off Rule", "TILA", "Solar Lease"],
+    tags: ["Solar Agreement Records", "FTC Cooling-Off Rule", "TILA", "Solar Lease"],
   },
   {
     id: "l0A3I_CvI0c",
     type: "podcast" as const,
     title: "ELITE SOLAR RECOVERY PODCAST",
-    subtitle: "Episode 1 — Real Cases, Real Outcomes",
-    description: "Our Solar Advocates break down real homeowner cases: a Sunrun lease cancelled after 18 months, a GoodLeap loan reduced by 40%, and a Pink Energy victim who got full rescission after the company went bankrupt. Learn exactly what triggers a winning case and how to get your free 15-minute case audit.",
-    uploadDate: "2026-01-01",
+    subtitle: "Episode 1 — Contract Scenarios and Questions",
+    description: "An educational discussion of solar agreement scenarios, documents to review, and questions to investigate. It does not report verified client outcomes or promise a result.",
+    uploadDate: undefined as string | undefined,
     thumbnailUrl: `https://img.youtube.com/vi/l0A3I_CvI0c/maxresdefault.jpg`,
     duration: "~25 min",
-    tags: ["Solar Podcast", "Solar Contract Help", "Sunrun Cancellation", "GoodLeap Loan Reduction", "Pink Energy Bankruptcy"],
+    tags: ["Solar Podcast", "Solar Agreement Records", "Company Status", "Financing Records", "Document Review"],
   },
 ];
 
@@ -98,7 +105,10 @@ const COMPANY_LINKS = [
   { name: "Titan Solar", slug: "titan-solar" },
   { name: "Palmetto Solar", slug: "palmetto-solar" },
   { name: "Momentum Solar", slug: "momentum-solar" },
-];
+].filter((link) => {
+  const company = companies.find((candidate) => candidate.slug === link.slug);
+  return Boolean(company && hasPublishableEditorialReview(company));
+});
 
 // ─── Blog cross-links ─────────────────────────────────────────────────────────
 const BLOG_LINKS = [
@@ -112,7 +122,10 @@ const BLOG_LINKS = [
   { title: "GoodLeap Loan Complaints & Legal Options", slug: "goodleap-complaints" },
   { title: "How to File a Complaint Against a Solar Company", slug: "how-to-file-a-complaint-against-solar-company-attorney-general" },
   { title: "Solar Contract 3-Day Cancellation Right", slug: "solar-contract-3-day-cancellation-right" },
-];
+].filter((link) => {
+  const post = blogPosts.find((candidate) => candidate.slug === link.slug);
+  return Boolean(post && isBlogPostPublishable(post));
+});
 
 // ─── State law cross-links ────────────────────────────────────────────────────
 const STATE_LINKS = [
@@ -128,11 +141,14 @@ const STATE_LINKS = [
   { name: "North Carolina", slug: "north-carolina" },
   { name: "Ohio", slug: "ohio" },
   { name: "Pennsylvania", slug: "pennsylvania" },
-];
+].filter((link) => {
+  const stateLaw = stateLaws.find((candidate) => candidate.slug === link.slug);
+  return Boolean(stateLaw && hasPublishableStateLawEvidence(stateLaw));
+});
 
 // ─── Landing page links ───────────────────────────────────────────────────────
 const LANDING_LINKS = [
-  { label: "Free Case Audit — Start Here", href: "/youtube" },
+  { label: "Document Review — Start Here", href: "/youtube" },
   { label: "Trapped in a Solar Contract?", href: "/yt2" },
   { label: "Is Your Solar Company Ripping You Off?", href: "/yt3" },
   { label: "Solar Contract Help Center", href: "/solar-contract-help" },
@@ -146,7 +162,6 @@ const LANDING_LINKS = [
 
 // ─── VideoCard component ──────────────────────────────────────────────────────
 function VideoCard({ video, index }: { video: typeof VIDEOS[0]; index: number }) {
-  const [playing, setPlaying] = useState(false);
   const isExplainer = video.type === "explainer";
 
   return (
@@ -162,54 +177,11 @@ function VideoCard({ video, index }: { video: typeof VIDEOS[0]; index: number })
         style={{ background: "oklch(0.13 0.012 265)", borderColor: isExplainer ? "oklch(0.72 0.19 50 / 40%)" : "oklch(0.55 0.18 240 / 40%)" }}>
         {/* Video embed */}
         <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-          {playing ? (
-            <iframe
-              className="absolute inset-0 w-full h-full"
-              src={`https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1`}
-              title={video.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <button
-              onClick={() => setPlaying(true)}
-              className="absolute inset-0 w-full h-full group"
-              aria-label={`Play ${video.title}`}
-            >
-              <img
-                src={video.thumbnailUrl}
-                alt={video.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
-                }}
-              />
-              {/* Dark overlay */}
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-              {/* Play button */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                  style={{ background: isExplainer ? "oklch(0.72 0.19 50)" : "oklch(0.55 0.18 240)" }}>
-                  <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-              </div>
-              {/* Duration badge */}
-              <div className="absolute bottom-3 right-3 px-2 py-1 rounded text-xs font-mono font-bold text-white"
-                style={{ background: "rgba(0,0,0,0.75)" }}>
-                {video.duration}
-              </div>
-              {/* Type badge */}
-              <div className="absolute top-3 left-3 px-2 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider"
-                style={{
-                  background: isExplainer ? "oklch(0.72 0.19 50 / 90%)" : "oklch(0.55 0.18 240 / 90%)",
-                  color: "white"
-                }}>
-                {isExplainer ? "▶ EXPLAINER" : "🎙 PODCAST"}
-              </div>
-            </button>
-          )}
+          <PrivacyVideoEmbed
+            videoId={video.id}
+            title={video.title}
+            accent={isExplainer ? "amber" : "blue"}
+          />
         </div>
 
         {/* Card body */}
@@ -242,7 +214,7 @@ function VideoCard({ video, index }: { video: typeof VIDEOS[0]; index: number })
             className="inline-flex items-center gap-2 px-5 py-3 rounded font-bold text-sm transition-all duration-200 hover:scale-105"
             style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "black" }}
           >
-            BOOK FREE 15-MIN CASE AUDIT →
+            REQUEST DOCUMENT REVIEW →
           </a>
         </div>
       </div>
@@ -280,7 +252,7 @@ export default function MediaHub() {
             className="btn-amber px-5 py-2.5 rounded text-sm font-bold"
             style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "black", textDecoration: "none" }}
           >
-            FREE REVIEW
+            DOCUMENT REVIEW
           </a>
         </div>
       </nav>
@@ -296,11 +268,11 @@ export default function MediaHub() {
             <h1 className="font-display text-white leading-none mb-4" style={{ fontSize: "clamp(3rem, 8vw, 6rem)" }}>
               SOLAR CONTRACT<br />
               <span style={{ background: "linear-gradient(90deg, oklch(0.85 0.19 50), oklch(0.72 0.19 50))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                TRUTH HUB
+                RECORD REVIEW HUB
               </span>
             </h1>
             <p className="text-gray-300 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-              Watch our explainer videos and listen to the <strong className="text-white">Elite Solar Recovery Podcast</strong> — real cases, real outcomes, and everything you need to know about breaking free from a predatory solar contract.
+              Watch the explainer videos and listen to the <strong className="text-white">Elite Solar Recovery Podcast</strong> for educational scenarios, records to gather, and questions to investigate before choosing a next step.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#explainer-videos"
@@ -324,9 +296,9 @@ export default function MediaHub() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             {[
               { val: "4", label: "Core Record Types" },
-              { val: "All 50", label: "States We Fight In" },
-              { val: "15 Min", label: "Free Case Audit" },
-              { val: "30–90", label: "Days to Resolution" },
+              { val: "Current", label: "Sources to Verify" },
+              { val: "Individual", label: "Document Review" },
+              { val: "Varies", label: "Response and Resolution Time" },
             ].map((s) => (
               <div key={s.label}>
                 <div className="font-display text-2xl" style={{ color: "oklch(0.85 0.19 50)" }}>{s.val}</div>
@@ -347,8 +319,8 @@ export default function MediaHub() {
                 ▶ EXPLAINER VIDEOS
               </div>
               <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-                UNDERSTAND YOUR RIGHTS.<br />
-                <span style={{ color: "oklch(0.85 0.19 50)" }}>THEN TAKE ACTION.</span>
+                REVIEW THE RECORDS.<br />
+                <span style={{ color: "oklch(0.85 0.19 50)" }}>IDENTIFY THE QUESTIONS.</span>
               </h2>
             </div>
           </Reveal>
@@ -374,7 +346,7 @@ export default function MediaHub() {
                 <span style={{ color: "oklch(0.75 0.18 240)" }}>PODCAST</span>
               </h2>
               <p className="text-gray-400 mt-3 max-w-xl">
-                Real cases. Real attorneys. Real outcomes. Every episode breaks down a homeowner's situation and what we did to get them out.
+                Educational scenarios and document-focused questions. Episodes do not establish an attorney relationship or report a verified client outcome unless source and consent records are published.
               </p>
             </div>
           </Reveal>
@@ -387,13 +359,10 @@ export default function MediaHub() {
           {/* Subscribe links */}
           <Reveal delay={0.2}>
             <div className="mt-10 p-6 rounded-xl border border-white/10" style={{ background: "oklch(0.13 0.012 265)" }}>
-              <p className="text-gray-400 text-sm font-mono uppercase tracking-wider mb-3">SUBSCRIBE & FOLLOW</p>
+              <p className="text-gray-400 text-sm font-mono uppercase tracking-wider mb-3">VIDEO SOURCE CHANNEL</p>
               <div className="flex flex-wrap gap-3">
                 {[
-                  { label: "YouTube", href: "https://www.youtube.com/@SolarFreedom", color: "oklch(0.55 0.22 25)" },
-                  { label: "Spotify", href: "https://open.spotify.com", color: "oklch(0.65 0.18 145)" },
-                  { label: "Apple Podcasts", href: "https://podcasts.apple.com", color: "oklch(0.60 0.18 280)" },
-                  { label: "cancelyoursolar.co", href: "https://cancelyoursolar.co", color: "oklch(0.72 0.19 50)" },
+                  { label: "YouTube", href: "https://www.youtube.com/@BossAIBiz", color: "oklch(0.55 0.22 25)" },
                 ].map((link) => (
                   <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
                     className="px-4 py-2 rounded text-sm font-bold transition-all hover:scale-105"
@@ -414,12 +383,12 @@ export default function MediaHub() {
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-4"
                 style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
-                THE THREE OUTCOMES
+                THREE REVIEW AREAS
               </div>
               <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-                WHAT YOU COULD<br />
+                WHAT TO ORGANIZE<br />
                 <span style={{ background: "linear-gradient(90deg, oklch(0.85 0.19 50), oklch(0.72 0.19 50))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  WALK AWAY WITH
+                  BEFORE CHOOSING A PATH
                 </span>
               </h2>
             </div>
@@ -428,20 +397,20 @@ export default function MediaHub() {
             {[
               {
                 num: "01",
-                title: "TOTAL CONTRACT CANCELLATION",
-                desc: "Full rescission of your solar lease, PPA, or loan. No buyout. No penalty. The contract is gone.",
+                title: "CANCELLATION QUESTIONS",
+                desc: "Review the agreement, transaction history, notices, disclosures, and current law before concluding that cancellation or rescission is available.",
                 color: "oklch(0.72 0.19 50)",
               },
               {
                 num: "02",
-                title: "30–60% LOAN REDUCTION",
-                desc: "If full cancellation isn't available, we negotiate your balance down — sometimes by more than half.",
+                title: "FINANCING QUESTIONS",
+                desc: "Compare the payment schedule, total cost, disclosures, payoff terms, servicing records, and any written dispute process.",
                 color: "oklch(0.65 0.18 145)",
               },
               {
                 num: "03",
-                title: "CREDIT RESTORATION & PROTECTION",
-                desc: "Solar liens and improper UCC filings damage your credit. We fight to get them removed.",
+                title: "TITLE AND CREDIT RECORDS",
+                desc: "Identify the actual filing, secured party, balance, release terms, and reporting records before choosing a response.",
                 color: "oklch(0.75 0.18 240)",
               },
             ].map((outcome, i) => (
@@ -460,7 +429,7 @@ export default function MediaHub() {
               <a href="/youtube"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded font-bold text-base transition-all hover:scale-105"
                 style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "black" }}>
-                GET YOUR FREE 15-MINUTE CASE AUDIT →
+                REQUEST DOCUMENT REVIEW →
               </a>
             </div>
           </Reveal>
@@ -472,7 +441,7 @@ export default function MediaHub() {
         <div className="container max-w-6xl">
           <Reveal>
             <h2 className="font-display text-white mb-12 text-center" style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)" }}>
-              EVERYTHING YOU NEED TO KNOW
+              EXPLORE PUBLIC RESOURCES
             </h2>
           </Reveal>
 
@@ -481,7 +450,7 @@ export default function MediaHub() {
             <Reveal delay={0}>
               <div>
                 <h3 className="font-display text-lg mb-4" style={{ color: "oklch(0.85 0.19 50)" }}>
-                  CANCEL BY COMPANY
+                  SOURCE-REVIEWED COMPANIES
                 </h3>
                 <ul className="space-y-2">
                   {COMPANY_LINKS.map((c) => (
@@ -492,6 +461,12 @@ export default function MediaHub() {
                       </Link>
                     </li>
                   ))}
+                  <li>
+                    <Link href="/solar-companies"
+                      className="text-amber-400 hover:text-amber-300 text-sm font-semibold transition-colors flex items-center gap-1.5">
+                      <span>›</span> Company Research Hub →
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </Reveal>
@@ -500,7 +475,7 @@ export default function MediaHub() {
             <Reveal delay={0.1}>
               <div>
                 <h3 className="font-display text-lg mb-4" style={{ color: "oklch(0.85 0.19 50)" }}>
-                  LEARN YOUR RIGHTS
+                  REVIEWED ARTICLES
                 </h3>
                 <ul className="space-y-2">
                   {BLOG_LINKS.map((b) => (
@@ -511,6 +486,12 @@ export default function MediaHub() {
                       </Link>
                     </li>
                   ))}
+                  <li>
+                    <Link href="/blog"
+                      className="text-amber-400 hover:text-amber-300 text-sm font-semibold transition-colors flex items-center gap-1.5">
+                      <span>›</span> Reviewed Article Hub →
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </Reveal>
@@ -519,7 +500,7 @@ export default function MediaHub() {
             <Reveal delay={0.2}>
               <div>
                 <h3 className="font-display text-lg mb-4" style={{ color: "oklch(0.85 0.19 50)" }}>
-                  YOUR STATE'S LAWS
+                  SOURCE-REVIEWED STATE PAGES
                 </h3>
                 <ul className="space-y-2">
                   {STATE_LINKS.map((s) => (
@@ -560,25 +541,6 @@ export default function MediaHub() {
             </Reveal>
           </div>
 
-          {/* Both domains */}
-          <Reveal delay={0.4}>
-            <div className="mt-16 p-6 rounded-xl border border-white/10 text-center" style={{ background: "oklch(0.13 0.012 265)" }}>
-              <p className="text-gray-400 text-sm font-mono uppercase tracking-wider mb-3">FIND US AT BOTH DOMAINS</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://breakyoursolarcontract.com" target="_blank" rel="noopener noreferrer"
-                  className="font-display text-xl hover:text-amber-300 transition-colors"
-                  style={{ color: "oklch(0.85 0.19 50)" }}>
-                  breakyoursolarcontract.com
-                </a>
-                <span className="text-gray-600 hidden sm:block">|</span>
-                <a href="https://cancelyoursolar.co" target="_blank" rel="noopener noreferrer"
-                  className="font-display text-xl hover:text-amber-300 transition-colors"
-                  style={{ color: "oklch(0.85 0.19 50)" }}>
-                  cancelyoursolar.co
-                </a>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </section>
 
@@ -595,12 +557,12 @@ export default function MediaHub() {
               <span className="font-display text-lg tracking-wider text-white">SOLAR FREEDOM</span>
             </div>
             <p className="text-gray-600 text-xs text-center">
-              © 2026 Solar Freedom. Not legal advice. Results vary. Free case audit is a consultation only.
+              © 2026 Solar Freedom. Educational information only. No representation, result, or response time is promised.
             </p>
             <div className="flex gap-4 text-xs text-gray-500">
               <a href="/" className="hover:text-white transition-colors">Home</a>
               <a href="/blog" className="hover:text-white transition-colors">Blog</a>
-              <a href="/youtube" className="hover:text-amber-400 transition-colors">Free Audit</a>
+              <a href="/youtube" className="hover:text-amber-400 transition-colors">Document Review</a>
             </div>
           </div>
         </div>

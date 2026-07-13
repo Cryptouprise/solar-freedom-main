@@ -11,7 +11,7 @@ vi.mock("./_core/sdk", () => ({
 
 vi.mock("./db", () => ({ getDb: vi.fn() }));
 
-import { adminAuthMiddleware, type AdminRequest } from "./adminAuth";
+import { adminAuthMiddleware, isApiKeyCurrent, type AdminRequest } from "./adminAuth";
 
 function request(method: string, origin?: string): AdminRequest {
   return {
@@ -70,5 +70,28 @@ describe("adminAuthMiddleware session authentication", () => {
 
     expect(next).not.toHaveBeenCalled();
     expect(status).toHaveBeenCalledWith(401);
+  });
+});
+
+describe("API key lifetime", () => {
+  const now = new Date("2026-07-12T12:00:00Z");
+
+  it("requires an active, unrevoked, unexpired key", () => {
+    expect(isApiKeyCurrent({
+      active: 1,
+      revokedAt: null,
+      expiresAt: new Date("2026-07-13T12:00:00Z"),
+    }, now)).toBe(true);
+    expect(isApiKeyCurrent({ active: 1, revokedAt: null, expiresAt: null }, now)).toBe(false);
+    expect(isApiKeyCurrent({
+      active: 1,
+      revokedAt: null,
+      expiresAt: new Date("2026-07-11T12:00:00Z"),
+    }, now)).toBe(false);
+    expect(isApiKeyCurrent({
+      active: 1,
+      revokedAt: now,
+      expiresAt: new Date("2026-07-13T12:00:00Z"),
+    }, now)).toBe(false);
   });
 });

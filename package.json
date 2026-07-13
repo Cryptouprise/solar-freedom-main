@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
     "build": "node scripts/generate-sitemap.mjs && node scripts/generate-llms.mjs && vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && node scripts/prerender.mjs",
+    "bundle:budget": "node scripts/check-bundle-budget.mjs",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
@@ -72,7 +73,6 @@
     "@trpc/client": "^11.6.0",
     "@trpc/react-query": "^11.6.0",
     "@trpc/server": "^11.6.0",
-    "@types/bcryptjs": "^3.0.0",
     "axios": "^1.16.1",
     "bcryptjs": "^3.0.3",
     "cheerio": "^1.2.0",
@@ -95,7 +95,6 @@
     "mysql2": "^3.15.0",
     "nanoid": "^5.1.5",
     "next-themes": "^0.4.6",
-    "playwright": "^1.60.0",
     "react": "^19.2.1",
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.2.1",
@@ -112,7 +111,6 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.3.2",
     "@types/express": "4.17.21",
@@ -121,11 +119,11 @@
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1",
     "@vitejs/plugin-react": "^5.2.0",
-    "add": "^2.0.6",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.4",
     "esbuild": "^0.28.1",
     "pnpm": "^10.34.5",
+    "playwright": "^1.60.0",
     "postcss": "^8.5.18",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.14",
@@ -136,17 +134,5 @@
     "vite-plugin-manus-runtime": "^0.0.57",
     "vitest": "^3.2.7"
   },
-  "packageManager": "pnpm@10.34.5",
-  "pnpm": {
-    "patchedDependencies": {
-      "wouter@3.7.1": "patches/wouter@3.7.1.patch"
-    },
-    "overrides": {
-      "@aws-sdk/core": "3.975.1",
-      "@aws-sdk/xml-builder": "3.972.34",
-      "@esbuild-kit/core-utils>esbuild": "0.28.1",
-      "tailwindcss>nanoid": "3.3.7",
-      "undici": "7.28.0"
-    }
-  }
+  "packageManager": "pnpm@10.34.5"
 }

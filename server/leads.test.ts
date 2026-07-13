@@ -21,11 +21,25 @@ global.fetch = vi.fn().mockResolvedValue({ ok: true } as Response);
 process.env.GHL_WEBHOOK_URL = "https://example.invalid/test-hook";
 
 import { insertLead, insertExitIntentCapture, markLeadGhlSent } from "./db";
+import {
+  CONTACT_CONSENT_VERSION,
+  MARKETING_CONSENT_VERSION,
+} from "./security/leadConsent";
+import { clearRateLimitsForTests } from "./security/rateLimit";
 
 // ─── Helpers to create a minimal tRPC caller ──────────────────────────────────
 import { appRouter } from "./routers";
 
 const createCaller = appRouter.createCaller;
+const contactPermission = {
+  contactConsent: true as const,
+  smsConsent: false,
+  consentVersion: CONTACT_CONSENT_VERSION,
+};
+const guidePermission = {
+  marketingConsent: true as const,
+  consentVersion: MARKETING_CONSENT_VERSION,
+};
 
 function makePublicCtx() {
   return {
@@ -55,6 +69,7 @@ function makeUserCtx() {
 describe("leads.submit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearRateLimitsForTests();
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true } as Response);
   });
 
@@ -62,6 +77,7 @@ describe("leads.submit", () => {
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.leads.submit({
+      ...contactPermission,
       firstName: "John",
       lastName: "Smith",
       email: "john@example.com",
@@ -73,7 +89,8 @@ describe("leads.submit", () => {
       intent: "Yes — I want out ASAP",
       formName: "Solar Freedom Contact Form",
       sourcePage: "/",
-      sourceUrl: "https://example.com/",
+      sourceUrl: "https://user:secret@www.breakyoursolarcontract.com/"
+        + "?utm_source=google&utm_campaign=spring&email=john%40example.com#contact",
     });
 
     expect(result.success).toBe(true);
@@ -89,6 +106,12 @@ describe("leads.submit", () => {
         firstName: "John",
         lastName: "Smith",
         email: "john@example.com",
+        phone: "+19049214971",
+        contactConsent: 1,
+        smsConsent: 0,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        consentRecordedAt: expect.any(Date),
+        sourceUrl: "https://breakyoursolarcontract.com/?utm_source=google&utm_campaign=spring",
         status: "new",
         ghlWebhookSent: 0,
       })
@@ -99,6 +122,7 @@ describe("leads.submit", () => {
     const caller = createCaller(makePublicCtx());
 
     await caller.leads.submit({
+      ...contactPermission,
       firstName: "Jane",
       lastName: "Doe",
       email: "jane@example.com",
@@ -108,11 +132,28 @@ describe("leads.submit", () => {
     expect(markLeadGhlSent).toHaveBeenCalledWith(42);
   });
 
+  it("rejects personal information when required contact consent is absent", async () => {
+    const caller = createCaller(makePublicCtx());
+
+    await expect(caller.leads.submit({
+      firstName: "No",
+      lastName: "Consent",
+      email: "no-consent@example.com",
+      phone: "5551234567",
+      contactConsent: false,
+      smsConsent: false,
+    })).rejects.toThrow(/Contact consent is required/);
+
+    expect(insertLead).not.toHaveBeenCalled();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
   it("keeps a delivered lead successful when the delivery marker update fails", async () => {
     vi.mocked(markLeadGhlSent).mockRejectedValueOnce(new Error("database marker failure"));
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.leads.submit({
+      ...contactPermission,
       firstName: "Marker",
       lastName: "Pending",
       email: "marker-pending@example.com",
@@ -136,6 +177,7 @@ describe("leads.submit", () => {
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.leads.submit({
+      ...contactPermission,
       firstName: "Bob",
       lastName: "Builder",
       email: "bob@example.com",
@@ -154,6 +196,7 @@ describe("leads.submit", () => {
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.leads.submit({
+      ...contactPermission,
       firstName: "CRM",
       lastName: "Pending",
       email: "crm-pending@example.com",
@@ -175,6 +218,7 @@ describe("leads.submit", () => {
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.leads.submit({
+      ...contactPermission,
       firstName: "Database",
       lastName: "Unavailable",
       email: "db-unavailable@example.com",
@@ -198,6 +242,7 @@ describe("leads.submit", () => {
 
     await expect(
       caller.leads.submit({
+        ...contactPermission,
         firstName: "Bad",
         lastName: "Email",
         email: "not-an-email",
@@ -205,6 +250,7 @@ describe("leads.submit", () => {
       })
     ).rejects.toThrow();
   });
+
 });
 
 describe("leads.list", () => {
@@ -223,6 +269,7 @@ describe("leads.list", () => {
 describe("leads.quickCallback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearRateLimitsForTests();
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true } as Response);
   });
 
@@ -230,10 +277,12 @@ describe("leads.quickCallback", () => {
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.leads.quickCallback({
+      ...contactPermission,
       phone: "9049214971",
       name: "Grace Hopper",
       sourcePage: "/blog/example",
-      sourceUrl: "https://example.com/blog/example",
+      sourceUrl: "https://breakyoursolarcontract.com/blog/example"
+        + "?utm_medium=internal&phone=9049214971#form",
       formName: "sticky_blog_sidebar",
     });
 
@@ -243,8 +292,9 @@ describe("leads.quickCallback", () => {
       expect.objectContaining({
         firstName: "Grace",
         lastName: "Hopper",
-        phone: "9049214971",
+        phone: "+19049214971",
         formName: "sticky_blog_sidebar",
+        sourceUrl: "https://breakyoursolarcontract.com/blog/example?utm_medium=internal",
         status: "new",
       })
     );
@@ -256,6 +306,7 @@ describe("leads.quickCallback", () => {
 
     await expect(
       caller.leads.quickCallback({
+        ...contactPermission,
         phone: "5551234567",
       })
     ).resolves.toEqual({
@@ -288,6 +339,7 @@ describe("leads.updateStatus", () => {
 describe("exitIntent.capture", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearRateLimitsForTests();
     vi.mocked(insertExitIntentCapture).mockResolvedValue(77);
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true } as Response);
   });
@@ -296,6 +348,7 @@ describe("exitIntent.capture", () => {
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.exitIntent.capture({
+      ...guidePermission,
       email: "visitor@example.com",
       sourcePage: "/",
     });
@@ -308,6 +361,9 @@ describe("exitIntent.capture", () => {
     expect(insertExitIntentCapture).toHaveBeenCalledWith({
       email: "visitor@example.com",
       sourcePage: "/",
+      marketingConsent: 1,
+      consentVersion: MARKETING_CONSENT_VERSION,
+      consentRecordedAt: expect.any(Date),
     });
   });
 
@@ -316,6 +372,7 @@ describe("exitIntent.capture", () => {
     const caller = createCaller(makePublicCtx());
 
     const result = await caller.exitIntent.capture({
+      ...guidePermission,
       email: "visitor@example.com",
       sourcePage: "/",
     });
@@ -327,6 +384,18 @@ describe("exitIntent.capture", () => {
       crmPending: false,
       captureId: null,
     });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects an email address when required marketing consent is absent", async () => {
+    const caller = createCaller(makePublicCtx());
+
+    await expect(caller.exitIntent.capture({
+      email: "no-consent@example.com",
+      marketingConsent: false,
+    })).rejects.toThrow(/Marketing consent is required/);
+
+    expect(insertExitIntentCapture).not.toHaveBeenCalled();
     expect(global.fetch).not.toHaveBeenCalled();
   });
 

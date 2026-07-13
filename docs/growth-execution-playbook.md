@@ -1,83 +1,56 @@
 # Growth Execution Playbook
 
-This playbook operationalizes conversion, SEO, topic-cluster, and distribution loops for Solar Freedom.
+This playbook turns technical and content findings into controlled experiments.
+It does not treat modeled scores, AI drafts, sitemap membership, or submission
+receipts as rankings or business outcomes.
 
-## 1) Homepage Conversion Funnel
+## Conversion
 
-- Keep one primary on-page CTA language: **"Get My Free Case Review"**
-- Run phone-first callback capture before multi-step qualification
-- Keep trust proof directly before contact-form submit:
-  - outcomes credibility
-  - attorney credibility
-  - FAQ reassurance snippet
+- Use one plain-language primary action: request an individual document review.
+- Collect only information needed for the request.
+- Require the applicable contact/marketing consent and preserve its version,
+  timestamp, and delivery evidence.
+- Do not imply representation, eligibility, response time, fee structure, or
+  outcome before an authorized reviewer confirms it.
+- Track persisted leads and downstream delivery separately. A browser success
+  message is not CRM proof.
 
-## 2) Chat/Callback Qualification Engine
+## Search operations
 
-- Capture one intent before callback request:
-  - `cancel_contract`
-  - `lien_issue`
-  - `selling_home`
-- Route each intent to dedicated pages:
-  - `/solar-contract-help`
-  - `/solar-lien-removal`
-  - `/selling-house-with-solar`
-- Include callback follow-up metadata in lead payload so CRM automations can escalate within 5 minutes for unworked callback requests.
+1. Verify the exact production release and run the production smoke.
+2. Refresh private GSC/GA4 evidence with rotated least-privilege credentials.
+3. Select one approved page cluster and one falsifiable hypothesis.
+4. Draft the smallest source-backed change.
+5. Obtain editorial, privacy, legal/business, and release approval as applicable.
+6. Deploy an exact commit with a rollback record.
+7. Observe the case-study window and compare against the retained baseline.
+8. Keep, revise, or roll back based on the predeclared primary metric and
+   guardrails.
 
-## 3) SEO Operations Cadence
+The recurring GitHub heartbeat remains paused while the repository is public.
+Do not place raw page/query measurements in public issues or artifacts.
 
-Daily automated workflow already runs:
-- `pnpm seo:agent -- --base https://breakyoursolarcontract.com`
-- `pnpm seo:indexing`
-- `pnpm seo:alert-summary`
+## Content expansion
 
-Manual weekly review:
+Create a new city, state, company, or article page only when it adds unique user
+value and has current primary sources, a named reviewer, a review date, and
+claim-level support. Do not mass-produce location or company pages to capture
+similar queries.
 
-1. Open latest heartbeat issue and review critical/high items.
-2. Clear source-visible content/internal-link issues first.
-3. Resolve duplicate and truncated title/description issues.
-4. Process top business-priority URLs from indexing queue.
+Internal links should help a reader move between approved, relevant resources.
+Do not create a bulk crawl network for evidence-withheld pages.
 
-## 4) Topic Cluster Expansion Rules
+## Distribution
 
-For each money/legal pillar query, add supporting pages across:
+Distribution is review-only until a typed provider adapter can prove
+authentication, destination, submitted payload, response, live URL, timestamp,
+and rollback/takedown path. A generated press draft or historical database row
+is not publication evidence.
 
-- state
-- city
-- lender/company
-- timeline
-- cost/payment burden
-- case type/comparison
+## Metrics
 
-Internal-link every supporting page back to its pillar page and at least two sibling pages.
-
-## 5) Claude Artifact Traffic Engine
-
-Publish artifact-style tools with strong hooks and matching landing pages:
-
-- Solar Contract Exit Probability Checker
-- Solar Payment Burden Calculator
-- Solar Lien Risk Estimator
-
-For each artifact launch:
-
-1. Publish artifact.
-2. Publish one supporting article on-site.
-3. Publish one short distribution asset (social/video/email teaser).
-4. Drive clicks to one matching landing page with UTM parameters.
-
-UTM template:
-
-`?utm_source=claude_artifact&utm_medium=referral&utm_campaign=<artifact_slug>`
-
-## 6) Weekly Distribution Loop
-
-Every week:
-
-- 1 artifact/tool launch
-- 1 supporting article
-- 1 press-style distribution push
-
-Monthly:
-
-- refresh top-performing artifacts and pages based on CTR, rankings, and booked calls.
-
+Primary metrics and windows are defined in
+[CASE-STUDY-PROTOCOL.md](CASE-STUDY-PROTOCOL.md). Track qualified conversions
+alongside search clicks, impressions, CTR, position distribution, technical
+health, and consent/delivery guardrails. Never promise a traffic or ranking
+multiple.

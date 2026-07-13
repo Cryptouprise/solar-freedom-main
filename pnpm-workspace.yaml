@@ -1,0 +1,12 @@
+packages:
+  - "."
+
+patchedDependencies:
+  wouter@3.7.1: patches/wouter@3.7.1.patch
+
+overrides:
+  "@aws-sdk/core": 3.975.1
+  "@aws-sdk/xml-builder": 3.972.34
+  "@esbuild-kit/core-utils>esbuild": 0.28.1
+  "tailwindcss>nanoid": 3.3.7
+  undici: 7.28.0

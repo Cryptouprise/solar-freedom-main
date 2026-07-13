@@ -1,8 +1,18 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
+import { blogPosts, companies, exitIntentCaptures, InsertBlogPost, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
+import {
+  type BlogEditorialReviewFields,
+  getBlogEditorialReviewIssues,
+} from "../shared/blogEditorialReview";
+import {
+  hasUnsupportedFirstPartyClaims,
+  isBlogPostPublishable,
+} from "../client/src/data/publication-governance";
 import { sanitizeStoredHtml } from "./security/html";
 import { ENV } from './_core/env';
+import { logSafeError } from "./_core/safeLog";
+import { normalizeLeadSourceUrl } from "./security/leadSourceUrl";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -12,7 +22,7 @@ export async function getDb() {
     try {
       _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      logSafeError("database.connect_failed", error);
       _db = null;
     }
   }
@@ -73,8 +83,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       set: updateSet,
     });
   } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
+    logSafeError("database.user_upsert_failed", error);
+    throw new Error("Database operation failed");
   }
 }
 
@@ -104,11 +114,14 @@ export async function insertLead(lead: InsertLead): Promise<number | null> {
   }
 
   try {
-    const result = await db.insert(leads).values(lead);
+    const result = await db.insert(leads).values({
+      ...lead,
+      sourceUrl: normalizeLeadSourceUrl(lead.sourceUrl),
+    });
     return (result as unknown as { insertId: number }[])[0]?.insertId ?? null;
   } catch (error) {
-    console.error("[Database] Failed to insert lead:", error);
-    throw error;
+    logSafeError("database.lead_insert_failed", error);
+    throw new Error("Database operation failed");
   }
 }
 
@@ -157,40 +170,104 @@ function safeJson(val: string | null | undefined, fallback: unknown) {
   try { return JSON.parse(val); } catch { return fallback; }
 }
 
+export class BlogEditorialReviewError extends Error {
+  readonly issues: string[];
+
+  constructor(issues: string[]) {
+    super("Published blog posts require a complete evidence-first editorial review");
+    this.name = "BlogEditorialReviewError";
+    this.issues = [...issues];
+  }
+}
+
 /**
- * List published blog posts (lightweight — no content body).
+ * The final server-side publication boundary. Every database write that can
+ * leave a post published must pass through this assertion.
+ */
+export function assertPublishableBlogPostReview(
+  value: BlogEditorialReviewFields & { published?: unknown },
+  now = new Date(),
+) {
+  if (value.published !== 1) return;
+  const issues = getBlogEditorialReviewIssues(value, now);
+  if (hasUnsupportedFirstPartyClaims(value)) {
+    issues.push("unsupported_first_party_claims");
+  }
+  if (issues.length > 0) throw new BlogEditorialReviewError(issues);
+}
+
+/**
+ * Apply the public evidence and unsupported-claim boundary before pagination.
+ * The input must contain full stored rows rather than lightweight card fields.
+ */
+export function filterPublishableBlogPostPage<T>(
+  rows: readonly T[],
+  limit = 50,
+  offset = 0,
+): T[] {
+  const safeLimit = Math.max(0, Math.trunc(limit));
+  const safeOffset = Math.max(0, Math.trunc(offset));
+  return rows
+    .filter(isBlogPostPublishable)
+    .slice(safeOffset, safeOffset + safeLimit);
+}
+
+/**
+ * List public, evidence-approved blog posts as lightweight cards. Filtering is
+ * performed against full stored rows because unsafe copy can live outside the
+ * card fields. Only approved card fields cross the public API.
  */
 export async function getDbBlogPosts(limit = 50, offset = 0) {
+  const rows = await getDbBlogPostsForPublication(5000, 0);
+
+  return filterPublishableBlogPostPage(rows, limit, offset).map(row => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    metaTitle: row.metaTitle,
+    metaDescription: row.metaDescription,
+    heroImage: row.heroImage,
+    category: row.category,
+    tags: row.tags,
+    excerpt: row.excerpt,
+    readTime: row.readTime,
+    relatedSlugs: row.relatedSlugs,
+    editorialReviewerName: row.editorialReviewerName,
+    editorialReviewerRole: row.editorialReviewerRole,
+    editorialReviewedAt: row.editorialReviewedAt,
+    editorialPrimarySources: row.editorialPrimarySources,
+    editorialUniqueValueSummary: row.editorialUniqueValueSummary,
+    editorialFunnelOnlyDuplicate: row.editorialFunnelOnlyDuplicate,
+    published: row.published,
+    publishedAt: row.publishedAt,
+    updatedAt: row.updatedAt,
+  }));
+}
+
+/**
+ * Internal-only published-post inventory including every public copy surface.
+ * SEO publication gates must inspect the body, FAQs, and media copy rather than
+ * deciding from the lightweight card fields returned by getDbBlogPosts().
+ */
+export async function getDbBlogPostsForPublication(limit = 5000, offset = 0) {
   const db = await getDb();
   if (!db) return [];
 
   const rows = await db
-    .select({
-      id: blogPosts.id,
-      slug: blogPosts.slug,
-      title: blogPosts.title,
-      metaTitle: blogPosts.metaTitle,
-      metaDescription: blogPosts.metaDescription,
-      heroImage: blogPosts.heroImage,
-      category: blogPosts.category,
-      tags: blogPosts.tags,
-      excerpt: blogPosts.excerpt,
-      readTime: blogPosts.readTime,
-      relatedSlugs: blogPosts.relatedSlugs,
-      published: blogPosts.published,
-      publishedAt: blogPosts.publishedAt,
-      updatedAt: blogPosts.updatedAt,
-    })
+    .select()
     .from(blogPosts)
     .where(eq(blogPosts.published, 1))
     .orderBy(desc(blogPosts.publishedAt))
     .limit(limit)
     .offset(offset);
 
-  return rows.map(r => ({
-    ...r,
-    tags: safeJson(r.tags, []),
-    relatedSlugs: safeJson(r.relatedSlugs, []),
+  return rows.map(row => ({
+    ...row,
+    tags: safeJson(row.tags, []),
+    relatedSlugs: safeJson(row.relatedSlugs, []),
+    faqItems: safeJson(row.faqItems, []),
+    galleryImages: safeJson(row.galleryImages, []),
+    editorialPrimarySources: safeJson(row.editorialPrimarySources, []),
   }));
 }
 
@@ -215,11 +292,13 @@ export async function getDbBlogPostStatus(slug: string) {
     tags: safeJson(post.tags, []),
     relatedSlugs: safeJson(post.relatedSlugs, []),
     faqItems: safeJson(post.faqItems, []),
+    editorialPrimarySources: safeJson(post.editorialPrimarySources, []),
   } };
 }
 
 export async function getDbBlogPost(slug: string) {
-  return (await getDbBlogPostStatus(slug)).post;
+  const post = (await getDbBlogPostStatus(slug)).post;
+  return post && isBlogPostPublishable(post) ? post : null;
 }
 
 // ─── Company helpers (DB-backed content) ──────────────────────────────────────
@@ -317,8 +396,8 @@ export async function insertExitIntentCapture(data: InsertExitIntentCapture): Pr
     const result = await db.insert(exitIntentCaptures).values(data);
     return (result as unknown as { insertId: number }[])[0]?.insertId ?? null;
   } catch (error) {
-    console.error("[Database] Failed to insert exit intent capture:", error);
-    throw error;
+    logSafeError("database.exit_intent_insert_failed", error);
+    throw new Error("Database operation failed");
   }
 }
 
@@ -332,20 +411,46 @@ export async function getAllBlogPostsAdmin(limit = 200, offset = 0) {
   if (!db) return [];
 
   const rows = await db
-    .select({
-      id: blogPosts.id,
-      slug: blogPosts.slug,
-      title: blogPosts.title,
-      published: blogPosts.published,
-      updatedAt: blogPosts.updatedAt,
-      publishedAt: blogPosts.publishedAt,
-    })
+    .select()
     .from(blogPosts)
     .orderBy(desc(blogPosts.updatedAt))
     .limit(limit)
     .offset(offset);
 
-  return rows;
+  return rows.map(row => {
+    const normalized = {
+      ...row,
+      content: sanitizeStoredHtml(row.content),
+      tags: safeJson(row.tags, []),
+      relatedSlugs: safeJson(row.relatedSlugs, []),
+      faqItems: safeJson(row.faqItems, []),
+      galleryImages: safeJson(row.galleryImages, []),
+      editorialPrimarySources: safeJson(row.editorialPrimarySources, []),
+    };
+    return {
+      id: normalized.id,
+      slug: normalized.slug,
+      title: normalized.title,
+      metaTitle: normalized.metaTitle,
+      metaDescription: normalized.metaDescription,
+      heroImage: normalized.heroImage,
+      category: normalized.category,
+      tags: normalized.tags,
+      excerpt: normalized.excerpt,
+      readTime: normalized.readTime,
+      relatedSlugs: normalized.relatedSlugs,
+      published: normalized.published,
+      editorialReviewerName: normalized.editorialReviewerName,
+      editorialReviewerRole: normalized.editorialReviewerRole,
+      editorialReviewedAt: normalized.editorialReviewedAt,
+      editorialPrimarySources: normalized.editorialPrimarySources,
+      editorialUniqueValueSummary: normalized.editorialUniqueValueSummary,
+      editorialFunnelOnlyDuplicate: normalized.editorialFunnelOnlyDuplicate,
+      updatedAt: normalized.updatedAt,
+      publishedAt: normalized.publishedAt,
+      publiclyEligible: normalized.published === 1 && isBlogPostPublishable(normalized),
+    };
+  });
 }
 
 /**
@@ -361,40 +466,73 @@ export async function getAdminBlogPost(slug: string) {
     .where(eq(blogPosts.slug, slug))
     .limit(1);
 
-  return post ? { ...post, content: sanitizeStoredHtml(post.content) } : null;
+  return post ? {
+    ...post,
+    content: sanitizeStoredHtml(post.content),
+    tags: safeJson(post.tags, []),
+    relatedSlugs: safeJson(post.relatedSlugs, []),
+    faqItems: safeJson(post.faqItems, []),
+    galleryImages: safeJson(post.galleryImages, []),
+    editorialPrimarySources: safeJson(post.editorialPrimarySources, []),
+  } : null;
 }
 
 /**
- * Update a blog post by slug.
+ * Create a database-backed blog post. New rows default to draft even though the
+ * legacy schema default is published; publication is always explicit.
+ */
+export async function createBlogPost(data: InsertBlogPost) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const values: InsertBlogPost = {
+    ...data,
+    content: sanitizeStoredHtml(data.content),
+    published: data.published ?? 0,
+  };
+  if (values.published === 1 && values.publishedAt === undefined) {
+    values.publishedAt = new Date();
+  }
+  assertPublishableBlogPostReview(values);
+  await db.insert(blogPosts).values(values);
+  return { success: true };
+}
+
+/**
+ * Update a blog post by slug. The current row is merged before validation so a
+ * partial update cannot bypass the review gate or accidentally publish legacy
+ * content without evidence.
  */
 export async function updateBlogPost(
   slug: string,
-  data: Partial<{
-    title: string;
-    metaTitle: string;
-    metaDescription: string;
-    heroImage: string;
-    category: string;
-    tags: string;
-    content: string;
-    excerpt: string;
-    readTime: string;
-    relatedSlugs: string;
-    faqItems: string;
-    canonicalUrl: string;
-    published: number;
-  }>
+  data: Partial<InsertBlogPost>,
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+
+  const [existing] = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.slug, slug))
+    .limit(1);
+  if (!existing) throw new Error("Blog post not found");
+
+  const merged = { ...existing, ...data };
+  assertPublishableBlogPostReview(merged);
 
   const safeData = data.content === undefined
     ? data
     : { ...data, content: sanitizeStoredHtml(data.content) };
 
+  const publishTimestamp = data.published === 1
+    && existing.published !== 1
+    && data.publishedAt === undefined
+      ? { publishedAt: new Date() }
+      : {};
+
   await db
     .update(blogPosts)
-    .set({ ...safeData, updatedAt: new Date() })
+    .set({ ...safeData, ...publishTimestamp, updatedAt: new Date() })
     .where(eq(blogPosts.slug, slug));
 
   return { success: true };

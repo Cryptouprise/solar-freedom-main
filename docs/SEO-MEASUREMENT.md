@@ -41,11 +41,12 @@ property, measurement window, fetch time, row count, truncation state, and
 content hashes. It contains no private key.
 
 These files and the generated `reports/seo-agent/` directory are private
-operational evidence. They are ignored by Git. Because this repository is
-public, the heartbeat does not cache, open public issues, or upload artifacts
-containing those measurements. Connect a private operations repository or an
-approved private evidence store before enabling recurring GSC collection. Do
-not copy page/query performance into a public issue as a workaround.
+operational evidence. They are ignored by Git and blocked by the public-artifact
+scanner. Because this repository is public, the entire heartbeat job is skipped:
+it does not cache data, open public issues, or upload artifacts containing those
+measurements. Connect a private operations repository or an approved private
+evidence store before enabling recurring GSC collection. Do not copy page/query
+performance into a public issue as a workaround.
 
 For a private repository, every workflow run uploads machine-readable evidence
 and restores the previous `reports/seo-agent/state.json` through a

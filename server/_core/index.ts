@@ -11,10 +11,12 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import adminRouter from "../adminRouter";
-import { startPressReleaseCron } from "../cron/pressRelease";
-import { startBacklinkDiscoveryCron } from "../cron/backlinkDiscovery";
 import { automationRunHandler } from "../scheduled/automationRun";
 import { rateLimit } from "express-rate-limit";
+import { sql } from "drizzle-orm";
+import { getDb } from "../db";
+import { applyHttpSecurityHeaders, getReleaseIdentity } from "./httpSecurity";
+import { logSafeError } from "./safeLog";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -43,9 +45,47 @@ async function startServer() {
     .filter(Boolean);
   if (trustedProxies?.length) app.set("trust proxy", trustedProxies);
   const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  app.disable("x-powered-by");
+  app.use(applyHttpSecurityHeaders);
+
+  const healthRateLimit = rateLimit({
+    windowMs: 60_000,
+    limit: 120,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.get("/healthz", healthRateLimit, (_req, res) => {
+    res.status(200).json({ status: "ok", ...getReleaseIdentity() });
+  });
+  app.get("/readyz", healthRateLimit, async (_req, res) => {
+    try {
+      const db = await getDb();
+      if (!db) {
+        res.status(503).json({ status: "not_ready", ...getReleaseIdentity() });
+        return;
+      }
+      await db.execute(sql`SELECT 1`);
+      res.status(200).json({ status: "ready", ...getReleaseIdentity() });
+    } catch (error) {
+      logSafeError("server.readiness_failed", error);
+      res.status(503).json({ status: "not_ready", ...getReleaseIdentity() });
+    }
+  });
+  // Keep unauthenticated request bodies small. Admin uploads are parsed only
+  // after authentication inside adminRouter, with a separate bounded limit.
+  const publicJsonParser = express.json({ limit: "1mb" });
+  const publicFormParser = express.urlencoded({ limit: "256kb", extended: true });
+  app.use((req, res, next) =>
+    req.path.startsWith("/api/admin") ? next() : publicJsonParser(req, res, next)
+  );
+  app.use((req, res, next) =>
+    req.path.startsWith("/api/admin") ? next() : publicFormParser(req, res, next)
+  );
+  // Some browsers still request the legacy icon path even when favicon.svg is
+  // declared. Keep that request successful without duplicating a binary asset.
+  app.get("/favicon.ico", (_req, res) => {
+    res.redirect(308, "/favicon.svg");
+  });
   // Redirect legacy /city/* paths to /cancel-solar-contract/* (fixes soft 404 in GSC)
   app.get('/city/:slug', (req, res) => {
     res.redirect(301, `/cancel-solar-contract/${req.params.slug}`);
@@ -68,7 +108,6 @@ async function startServer() {
     '/blog/freedom-forever-solar-bankruptcy': '/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026',
     '/blog/how-to-cancel-sunnova-solar-contract': '/blog/how-to-cancel-sunnova-solar-contract-2026',
     '/blog/solar-contract-escalator-clause-what-it-means': '/blog/solar-contract-escalator-clause-explained-how-to-fight-it',
-    '/blog/solar-panel-scam-signs-what-to-do': '/blog/solar-panel-scam-signs-and-solutions',
     '/blog/solar-contract-red-flags-and-scams': '/blog/solar-contract-red-flags',
     '/blog/solar-lease-vs-loan-vs-ppa': '/blog/solar-loan-vs-lease-problems',
   };
@@ -138,7 +177,7 @@ async function startServer() {
         markdownUrl: "https://breakyoursolarcontract.com/api/capabilities.md",
         adminApiBase: "https://breakyoursolarcontract.com/api/admin",
         trpcBase: "https://breakyoursolarcontract.com/api/trpc",
-        authHeader: "X-API-Key",
+        authHeader: "Authorization: Bearer <ADMIN_API_KEY>",
         sections: Object.keys(sections),
         markdown: md,
       });
@@ -175,10 +214,14 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
-    // Start background cron jobs
-    startPressReleaseCron();
-    startBacklinkDiscoveryCron();
+    // External publication is deliberately not started from the web process.
+    // Drafting and publication require an approval-bound, idempotent adapter.
+    // Discovery/publishing jobs run only in a leased, idempotent worker. The
+    // web process never starts external automation on boot.
   });
 }
 
-startServer().catch(console.error);
+startServer().catch(error => {
+  logSafeError("server.start_failed", error);
+  process.exitCode = 1;
+});

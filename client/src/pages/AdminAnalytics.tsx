@@ -118,7 +118,7 @@ export default function AdminAnalytics() {
         {error && (
           <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
             <p className="text-red-400 font-mono text-sm">
-              GA4 API error: {error.message}
+              GA4 data is unavailable. Review sanitized server diagnostics and the private provider configuration.
             </p>
           </div>
         )}

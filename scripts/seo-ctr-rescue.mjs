@@ -1,9 +1,9 @@
 /**
  * SEO CTR Rescue Agent
  *
- * The May 2026 audit found the site's #1 problem is NOT rankings — it is
- * click-through rate. Many pages rank on page 1 (position < 10) but earn a
- * <1% CTR because their title/description in search results are weak.
+ * Builds review-only title and description experiments from a fresh private
+ * Search Console snapshot. Average position and CTR are observations for the
+ * selected window, not fixed rankings or proof that copy caused performance.
  *
  * This agent:
  *   1. Reads Google Search Console performance (gsc_all_pages.json or
@@ -42,8 +42,7 @@ const DEFAULT_OUT_MD = path.resolve(ROOT, "reports/seo-agent/CTR_RESCUE.md");
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODELS = [
-  process.env.OPENROUTER_MODEL || "openrouter/owl-alpha",
-  "google/gemini-flash-1.5:free",
+  process.env.OPENROUTER_MODEL || "openrouter/free",
 ];
 
 function parseArgs(argv) {
@@ -186,16 +185,16 @@ function selectCandidates(rows, args) {
 
 async function draftCopyWithOpenRouter(candidate, apiKey) {
   const topic = topicFromUrl(candidate.url);
-  const prompt = `You are an SEO copywriter for breakyoursolarcontract.com, a legal resource that helps homeowners cancel solar contracts, leases, PPAs, and loans.
+  const prompt = `You are drafting search-snippet options for breakyoursolarcontract.com, a consumer-information site that accepts individual solar-agreement document-review requests.
 
-A page is ranking at Google position ${candidate.position.toFixed(1)} with ${candidate.impressions} impressions but only a ${candidate.ctr.toFixed(2)}% click-through rate. The copy in search results is not compelling enough.
+For the selected Search Console window, this page has an observed average position of ${candidate.position.toFixed(1)}, ${candidate.impressions} impressions, and ${candidate.ctr.toFixed(2)}% click-through rate. Do not claim the title or description caused these observations.
 
 Page topic (from URL): ${topic}
 URL: ${candidate.url}
 
 Write 2 improved options. Each option needs:
 - "title": an SEO title tag, max 60 characters, primary keyword first, compelling and specific.
-- "description": a meta description, 140-155 characters, includes the primary keyword and a clear call to action (e.g. "Free case review").
+- "description": a meta description, 140-155 characters, includes the primary keyword and a source-conscious call to action (e.g. "Review the records to gather"). Do not promise a price, outcome, professional relationship, or response time.
 
 Constraints: factual, no guarantees of outcome, no hype that violates legal-advertising norms. Return STRICT JSON only, no markdown:
 {"options":[{"title":"...","description":"..."},{"title":"...","description":"..."}]}`;

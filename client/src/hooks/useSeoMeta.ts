@@ -87,7 +87,7 @@ export function useSeoMeta({ title, description, canonical, ogImage, ogType, noi
 
     // Cleanup: restore defaults when component unmounts
     return () => {
-      document.title = "Solar Freedom — Get Out of Your Solar Contract Today";
+      document.title = "Solar Contract Record Review & Consumer Resources | Solar Freedom";
       const d = document.querySelector<HTMLMetaElement>('meta[name="description"]');
       if (d) d.content = "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.";
       const r = document.querySelector<HTMLMetaElement>('meta[name="robots"]');

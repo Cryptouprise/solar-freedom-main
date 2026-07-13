@@ -47,6 +47,21 @@ pids
 *.seed
 *.pid.lock
 *.bak
+.manus/
+.playwright-profile/
+.playwright-screenshots/
+__pycache__/
+*.py[cod]
+
+# Private operational measurements and generated SEO queues. These may contain
+# page-level Search Console performance and must not enter the public repo.
+/gsc_all_pages.json
+/gsc_data_metadata.json
+/gsc_report.csv
+/indexing-results.txt
+/indexing-results-full.json
+/indexing-status.txt
+/reports/seo-agent/
 
 # Coverage directory used by tools like istanbul
 coverage/
@@ -102,6 +117,7 @@ jspm_packages/
 # Temporary folders
 tmp/
 temp/
+.playwright-cli/
 
 # Database
 *.db

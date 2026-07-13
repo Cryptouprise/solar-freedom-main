@@ -1,7 +1,10 @@
 import { COOKIE_NAME, SITE_CONFIG_DEFAULTS } from "@shared/const";
+import { TRPCError } from "@trpc/server";
+import { parse as parseCookieHeader } from "cookie";
 import { desc } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { logSafeError } from "./_core/safeLog";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
@@ -13,23 +16,69 @@ import {
   updateLeadStatus,
   getDbBlogPosts,
   getDbBlogPost,
-  getDbCompanies,
-  getDbCompany,
   getSiteConfigValues,
   getAllBlogPostsAdmin,
   getAdminBlogPost,
+  BlogEditorialReviewError,
   updateBlogPost,
 } from "./db";
 import { storagePut } from "./storage";
 import { getGA4Report } from "./ga4";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
-import { enforcePublicMutationLimit } from "./security/rateLimit";
-import { isAllowedPressReleaseSetting, PRESS_RELEASE_OPERATIONAL_KEYS } from "./security/configPolicy";
+import {
+  enforcePublicIdentifierLimit,
+  enforcePublicMutationLimit,
+} from "./security/rateLimit";
+import {
+  CONTACT_CONSENT_VERSION,
+  MARKETING_CONSENT_VERSION,
+  consentFields,
+  isBotSubmission,
+  normalizeUsPhone,
+  validateContactConsent,
+  validateMarketingConsent,
+} from "./security/leadConsent";
+import {
+  isAllowedPressReleaseSetting,
+  PRESS_RELEASE_OPERATIONAL_KEYS,
+  validatePressReleaseSetting,
+} from "./security/configPolicy";
+import { normalizeLeadSourceUrl } from "./security/leadSourceUrl";
+import { callLLM } from "./cron/aiCostTracker";
+import {
+  isValidEditorialPrimarySource,
+  parseEditorialPrimarySources,
+} from "../shared/blogEditorialReview";
+
+const editorialPrimarySourcesInput = z
+  .union([z.string(), z.array(z.unknown())])
+  .nullable()
+  .optional()
+  .refine((value) => {
+    if (value === undefined || value === null) return true;
+    const sources = parseEditorialPrimarySources(value);
+    return Boolean(sources && sources.every(source => isValidEditorialPrimarySource(source)));
+  }, "editorialPrimarySources must contain valid HTTPS sources with title and accessedAt");
+
+function getServerSessionToken(cookieHeader: string | undefined): string {
+  if (!cookieHeader) return "";
+  try {
+    return parseCookieHeader(cookieHeader)[COOKIE_NAME] ?? "";
+  } catch {
+    return "";
+  }
+}
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
 async function sendToGHL(payload: Record<string, string | undefined>) {
   const webhookUrl = process.env.GHL_WEBHOOK_URL;
   if (!webhookUrl) return false;
+  try {
+    const parsed = new URL(webhookUrl);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password) return false;
+  } catch {
+    return false;
+  }
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
@@ -38,12 +87,14 @@ async function sendToGHL(payload: Record<string, string | undefined>) {
       signal: AbortSignal.timeout(5_000),
     });
     if (!response.ok) {
-      console.error(`[GHL] Webhook returned HTTP ${response.status}`);
+      logSafeError("ghl.webhook_failed", new Error("Upstream rejected request"), {
+        upstreamStatus: response.status,
+      });
       return false;
     }
     return true;
   } catch (err) {
-    console.error("[GHL] Webhook failed:", err);
+    logSafeError("ghl.webhook_failed", err);
     return false;
   }
 }
@@ -58,10 +109,7 @@ async function recordGhlDelivery(leadId: number, crmSent: boolean) {
     await markLeadGhlSent(leadId);
     return { crmMarkerPending: false, syncWarning: null } as const;
   } catch (error) {
-    console.error("[GHL] Delivery marker update failed after a successful webhook", {
-      leadId,
-      errorName: error instanceof Error ? error.name : "UnknownError",
-    });
+    logSafeError("ghl.delivery_marker_failed", error);
     return {
       crmMarkerPending: true,
       syncWarning: "crm_delivery_marker_pending",
@@ -71,7 +119,7 @@ async function recordGhlDelivery(leadId: number, crmSent: boolean) {
 
 function buildSmsConfirmation(firstName?: string) {
   const safeName = firstName?.trim() ? firstName.trim() : "there";
-  return `Hi ${safeName}, this is Grace from Solar Freedom. Your case review request was received — I’ll be reaching out within the hour. Reply with any questions!`;
+  return `Hi ${safeName}, Solar Freedom received your request. We may contact you about it. Reply STOP to opt out or HELP for help. Msg & data rates may apply.`;
 }
 
 // ─── Routers ───────────────────────────────────────────────────────────────────
@@ -98,22 +146,49 @@ export const appRouter = router({
           firstName: z.string().trim().min(1).max(100),
           lastName: z.string().trim().min(1).max(100),
           email: z.string().email().max(320),
-          phone: z.string().min(7).max(40),
-          solarCompany: z.string().max(200).optional(),
+          phone: z.string().min(7).max(30),
+          solarCompany: z.string().max(100).optional(),
           problemType: z.string().max(200).optional(),
-          contractType: z.string().max(200).optional(),
-          monthlyPayment: z.string().max(100).optional(),
-          intent: z.string().max(200).optional(),
-          formName: z.string().max(200).optional(),
-          sourcePage: z.string().max(500).optional(),
+          contractType: z.string().max(100).optional(),
+          monthlyPayment: z.string().max(50).optional(),
+          intent: z.string().max(100).optional(),
+          formName: z.string().max(100).optional(),
+          sourcePage: z.string().max(255).optional(),
           sourceUrl: z.string().max(2_000).optional(),
+          ...consentFields,
         })
       )
       .mutation(async ({ ctx, input }) => {
         enforcePublicMutationLimit(ctx.req, "lead-submit");
+        if (isBotSubmission(input.website)) {
+          return {
+            success: true,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            crmMarkerPending: false,
+            syncWarning: null,
+            leadId: null,
+          } as const;
+        }
+        validateContactConsent(input);
+        const normalizedPhone = normalizeUsPhone(input.phone);
+        enforcePublicIdentifierLimit(ctx.req, "lead-submit", normalizedPhone);
+        const {
+          website: _website,
+          sourceUrl: submittedSourceUrl,
+          ...leadInput
+        } = input;
+        const sourceUrl = normalizeLeadSourceUrl(submittedSourceUrl);
         // 1. Persist to database
         const leadId = await insertLead({
-          ...input,
+          ...leadInput,
+          sourceUrl,
+          phone: normalizedPhone,
+          contactConsent: input.contactConsent ? 1 : 0,
+          smsConsent: input.smsConsent ? 1 : 0,
+          consentVersion: input.contactConsent ? CONTACT_CONSENT_VERSION : null,
+          consentRecordedAt: input.contactConsent ? new Date() : null,
           formName: input.formName ?? "main_contact_form",
           status: "new",
           ghlWebhookSent: 0,
@@ -133,11 +208,12 @@ export const appRouter = router({
         }
 
         // 2. Forward to GHL webhook
-        const ghlSuccess = await sendToGHL({
+        const crmEligible = input.contactConsent;
+        const ghlSuccess = crmEligible && await sendToGHL({
           first_name: input.firstName,
           last_name: input.lastName,
           email: input.email,
-          phone: input.phone,
+          phone: normalizedPhone,
           full_name: `${input.firstName} ${input.lastName}`.trim(),
           solar_company: input.solarCompany,
           problem_type: input.problemType,
@@ -147,8 +223,10 @@ export const appRouter = router({
           source: input.sourcePage ?? "solar-freedom",
           form_name: input.formName ?? "main_contact_form",
           "contact.first_name": input.firstName,
-          trigger_sms_confirmation: "1",
-          sms_confirmation_message: buildSmsConfirmation(input.firstName),
+          trigger_sms_confirmation: input.smsConsent ? "1" : "0",
+          sms_confirmation_message: input.smsConsent
+            ? buildSmsConfirmation(input.firstName)
+            : undefined,
         });
 
         // 3. Record delivery without turning bookkeeping failure into lead failure.
@@ -158,7 +236,7 @@ export const appRouter = router({
           success: true,
           persisted: true,
           crmSent: ghlSuccess,
-          crmPending: !ghlSuccess,
+          crmPending: crmEligible && !ghlSuccess,
           ...crmMarker,
           leadId,
         } as const;
@@ -171,30 +249,49 @@ export const appRouter = router({
     quickCallback: publicProcedure
       .input(
         z.object({
-          phone: z.string().min(7).max(40),
+          phone: z.string().min(7).max(30),
           name: z.string().max(200).optional(),
-          intent: z.string().max(200).optional(),
-          sourcePage: z.string().max(500).optional(),
+          intent: z.string().max(100).optional(),
+          sourcePage: z.string().max(255).optional(),
           sourceUrl: z.string().max(2_000).optional(),
-          formName: z.string().max(200).optional(),
+          formName: z.string().max(100).optional(),
+          ...consentFields,
         })
       )
       .mutation(async ({ ctx, input }) => {
         enforcePublicMutationLimit(ctx.req, "lead-callback");
+        if (isBotSubmission(input.website)) {
+          return {
+            success: true,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            crmMarkerPending: false,
+            syncWarning: null,
+            leadId: null,
+          } as const;
+        }
+        validateContactConsent(input);
+        const normalizedPhone = normalizeUsPhone(input.phone);
+        enforcePublicIdentifierLimit(ctx.req, "lead-callback", normalizedPhone);
         const firstName = (input.name?.trim().split(" ")[0] || "").trim();
         const lastName = input.name?.trim().split(" ").slice(1).join(" ") || "";
 
         const leadId = await insertLead({
           firstName: firstName || null,
           lastName: lastName || null,
-          phone: input.phone,
+          phone: normalizedPhone,
           email: null,
           formName: input.formName ?? "quick_callback_request",
           intent: input.intent,
           sourcePage: input.sourcePage ?? "unknown",
-          sourceUrl: input.sourceUrl,
+          sourceUrl: normalizeLeadSourceUrl(input.sourceUrl),
           status: "new",
           ghlWebhookSent: 0,
+          contactConsent: input.contactConsent ? 1 : 0,
+          smsConsent: input.smsConsent ? 1 : 0,
+          consentVersion: input.contactConsent ? CONTACT_CONSENT_VERSION : null,
+          consentRecordedAt: input.contactConsent ? new Date() : null,
         });
 
         const persisted = typeof leadId === "number" && leadId > 0;
@@ -210,8 +307,9 @@ export const appRouter = router({
           } as const;
         }
 
-        const ghlSuccess = await sendToGHL({
-          phone: input.phone,
+        const crmEligible = input.contactConsent;
+        const ghlSuccess = crmEligible && await sendToGHL({
+          phone: normalizedPhone,
           first_name: firstName || "Website",
           last_name: lastName || "Visitor",
           full_name: input.name?.trim() || "Website Visitor",
@@ -225,8 +323,10 @@ export const appRouter = router({
           callback_follow_up_reason: input.intent
             ? `intent:${input.intent}`
             : "quick_callback_request",
-          trigger_sms_confirmation: "1",
-          sms_confirmation_message: buildSmsConfirmation(firstName),
+          trigger_sms_confirmation: input.smsConsent ? "1" : "0",
+          sms_confirmation_message: input.smsConsent
+            ? buildSmsConfirmation(firstName)
+            : undefined,
         });
 
         const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
@@ -235,7 +335,7 @@ export const appRouter = router({
           success: true,
           persisted: true,
           crmSent: ghlSuccess,
-          crmPending: !ghlSuccess,
+          crmPending: crmEligible && !ghlSuccess,
           ...crmMarker,
           leadId,
         } as const;
@@ -291,15 +391,23 @@ export const appRouter = router({
       )
       .query(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        return getGA4Report(input.range, "today");
+        try {
+          return await getGA4Report(input.range, "today");
+        } catch (error) {
+          logSafeError("analytics.ga4_fetch_failed", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Analytics report is unavailable.",
+          });
+        }
       }),
   }),
 
   // ── Content (DB-backed blog posts + companies) ──────────────────────────────
   content: router({
     /**
-     * List published blog posts from the database.
-     * Returns lightweight list (no full content body).
+     * List evidence-approved blog posts from full stored database rows.
+     * Returns only lightweight card fields (no full content body).
      */
     listPosts: publicProcedure
       .input(z.object({
@@ -311,7 +419,7 @@ export const appRouter = router({
       }),
 
     /**
-     * Get a single blog post by slug.
+     * Get an evidence-approved blog post by slug.
      */
     getPost: publicProcedure
       .input(z.object({ slug: z.string() }))
@@ -319,35 +427,34 @@ export const appRouter = router({
         return getDbBlogPost(input.slug);
       }),
 
-    /**
-     * List all published companies from the database.
-     */
+    /** Company profiles remain private until dedicated evidence fields exist. */
     listCompanies: publicProcedure
-      .query(async () => {
-        return getDbCompanies();
-      }),
+      .query(() => []),
 
-    /**
-     * Get a single company by slug.
-     */
+    /** Company profiles remain private until dedicated evidence fields exist. */
     getCompany: publicProcedure
       .input(z.object({ slug: z.string() }))
-      .query(async ({ input }) => {
-        return getDbCompany(input.slug);
-      }),
+      .query(() => null),
     /**
      * Get runtime site config values used by public pages.
      * Values are managed through /api/admin/config/:key.
      */
     getSiteConfig: publicProcedure.query(async () => {
-      const configured = await getSiteConfigValues([
-        "phone_number",
-        "phone_number_e164",
-        "assistant_name",
-        "assistant_title",
-      ]);
+      try {
+        const configured = await getSiteConfigValues([
+          "phone_number",
+          "phone_number_e164",
+          "assistant_name",
+          "assistant_title",
+        ]);
 
-      return { ...SITE_CONFIG_DEFAULTS, ...configured };
+        return { ...SITE_CONFIG_DEFAULTS, ...configured };
+      } catch (error) {
+        // Public pages have safe compiled defaults and must remain usable during
+        // a transient config-store outage. Readiness still reports DB failure.
+        logSafeError("content.site_config_unavailable", error);
+        return { ...SITE_CONFIG_DEFAULTS };
+      }
     }),
 
     /**
@@ -388,12 +495,51 @@ export const appRouter = router({
         relatedSlugs: z.string().optional(),
         faqItems: z.string().optional(),
         canonicalUrl: z.string().optional(),
-        published: z.number().optional(),
+        editorialReviewerName: z.string().max(200).nullable().optional(),
+        editorialReviewerRole: z.string().max(200).nullable().optional(),
+        editorialReviewedAt: z.coerce.date().nullable().optional(),
+        editorialPrimarySources: editorialPrimarySourcesInput,
+        editorialUniqueValueSummary: z.string().max(20_000).nullable().optional(),
+        editorialFunnelOnlyDuplicate: z.boolean().optional(),
+        published: z.number().int().min(0).max(1).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        const { slug, ...data } = input;
-        return updateBlogPost(slug, data);
+        const {
+          slug,
+          editorialPrimarySources,
+          editorialFunnelOnlyDuplicate,
+          ...data
+        } = input;
+        const normalizedData = {
+          ...data,
+          ...(editorialPrimarySources === undefined
+            ? {}
+            : {
+                editorialPrimarySources: editorialPrimarySources === null
+                  ? null
+                  : JSON.stringify(parseEditorialPrimarySources(editorialPrimarySources)),
+              }),
+          ...(editorialFunnelOnlyDuplicate === undefined
+            ? {}
+            : { editorialFunnelOnlyDuplicate: editorialFunnelOnlyDuplicate ? 1 : 0 }),
+        };
+        try {
+          return await updateBlogPost(slug, normalizedData);
+        } catch (error) {
+          if (error instanceof BlogEditorialReviewError) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `${error.message}: ${error.issues.join(", ")}`,
+              cause: error,
+            });
+          }
+          logSafeError("content.blog_post_update_failed", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Unable to update the blog post.",
+          });
+        }
       }),
 
     /**
@@ -421,13 +567,32 @@ export const appRouter = router({
       .input(
         z.object({
           email: z.string().email().max(320),
-          sourcePage: z.string().max(500).optional(),
+          sourcePage: z.string().max(255).optional(),
           wantsGuide: z.boolean().optional(),
+          marketingConsent: z.boolean().default(false),
+          consentVersion: z.string().max(64).optional(),
+          website: z.string().max(200).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
         enforcePublicMutationLimit(ctx.req, "exit-intent");
-        const captureId = await insertExitIntentCapture({ email: input.email, sourcePage: input.sourcePage });
+        if (isBotSubmission(input.website)) {
+          return {
+            success: true,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            captureId: null,
+          } as const;
+        }
+        validateMarketingConsent(input);
+        const captureId = await insertExitIntentCapture({
+          email: input.email,
+          sourcePage: input.sourcePage,
+          marketingConsent: input.marketingConsent ? 1 : 0,
+          consentVersion: input.marketingConsent ? MARKETING_CONSENT_VERSION : null,
+          consentRecordedAt: input.marketingConsent ? new Date() : null,
+        });
         const persisted = typeof captureId === "number" && captureId > 0;
         if (!persisted) {
           return {
@@ -438,7 +603,7 @@ export const appRouter = router({
             captureId: null,
           } as const;
         }
-        const crmSent = await sendToGHL({
+        const crmSent = input.marketingConsent && await sendToGHL({
           email: input.email,
           source: "exit_intent_popup",
           form_name: "Exit Intent — Solar Freedom",
@@ -450,7 +615,7 @@ export const appRouter = router({
           success: true,
           persisted: true,
           crmSent,
-          crmPending: !crmSent,
+          crmPending: input.marketingConsent && !crmSent,
           captureId,
         } as const;
       }),
@@ -570,6 +735,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
         if (!isAllowedPressReleaseSetting(input.key)) throw new Error("Setting key is not allowlisted; secrets must be supplied through server environment variables");
+        validatePressReleaseSetting(input.key, input.value);
         const { getDb } = await import("./db");
         const { pressReleaseSettings } = await import("../drizzle/schema");
         const db = await getDb();
@@ -586,7 +752,7 @@ export const appRouter = router({
     runNow: protectedProcedure
       .input(z.object({
         topicId: z.number().optional(),
-        dryRun: z.boolean().default(false),
+        dryRun: z.literal(true).default(true),
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
@@ -595,17 +761,25 @@ export const appRouter = router({
       }),
 
     /**
-     * Run backlink discovery now.
+     * Generate an unverified backlink research queue for manual review.
      */
     runDiscovery: protectedProcedure.mutation(async ({ ctx }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
-      const { runBacklinkDiscovery } = await import("./cron/backlinkDiscovery");
-      return runBacklinkDiscovery();
+      try {
+        const { runBacklinkDiscovery } = await import("./cron/backlinkDiscovery");
+        return await runBacklinkDiscovery();
+      } catch (error) {
+        logSafeError("backlink.discovery_failed", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Backlink research could not run.",
+        });
+      }
     }),
 
     /**
-     * Open a Playwright browser window for the user to log in to Medium, LinkedIn, or Substack.
-     * The session is saved to the persistent profile so future automated runs work without re-auth.
+     * Disabled compatibility endpoint retained for older admin clients.
+     * It does not launch a browser, authenticate, or persist a session.
      */
     browserLogin: protectedProcedure
       .input(z.object({
@@ -613,17 +787,25 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        const { launchBrowserLoginSession } = await import("./cron/browserLoginSession");
-        return launchBrowserLoginSession(input.site);
+        return {
+          success: false,
+          loginUrl: "",
+          message: `${input.site} browser login is disabled until publishing runs in an isolated, approval-bound worker.`,
+        };
       }),
 
     /**
-     * Check login status for Medium, LinkedIn, and Substack.
+     * Disabled compatibility status: all legacy distribution sessions report
+     * disconnected while the isolated approval-bound worker is unavailable.
      */
     checkLoginStatus: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
-      const { checkLoginStatus } = await import("./cron/browserLoginSession");
-      return checkLoginStatus();
+      return {
+        medium: false,
+        linkedin: false,
+        substack: false,
+        lastChecked: new Date().toISOString(),
+      };
     }),
   }),
 
@@ -635,26 +817,38 @@ export const appRouter = router({
     getOpportunities: protectedProcedure
       .input(z.object({
         status: z.enum(["new", "approved", "rejected", "promoted"]).optional(),
-        limit: z.number().default(100),
-        offset: z.number().default(0),
+        limit: z.number().int().min(1).max(100).default(100),
+        offset: z.number().int().min(0).max(10_000).default(0),
       }))
       .query(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        const { getDb } = await import("./db");
-        const { backlinkOpportunities } = await import("../drizzle/schema");
-        const { eq, desc } = await import("drizzle-orm");
-        const db = await getDb();
-        if (!db) return [];
-        const query = db.select().from(backlinkOpportunities)
-          .orderBy(desc(backlinkOpportunities.relevanceScore))
-          .limit(input.limit).offset(input.offset);
-        if (input.status) {
-          return db.select().from(backlinkOpportunities)
-            .where(eq(backlinkOpportunities.status, input.status))
+        try {
+          const { getDb } = await import("./db");
+          const { backlinkOpportunities } = await import("../drizzle/schema");
+          const { eq, desc } = await import("drizzle-orm");
+          const { normalizeBacklinkCandidateUrl } = await import("./cron/backlinkDiscovery");
+          const db = await getDb();
+          if (!db) throw new Error("Database unavailable");
+          const rows = input.status
+            ? await db.select().from(backlinkOpportunities)
+              .where(eq(backlinkOpportunities.status, input.status))
+              .orderBy(desc(backlinkOpportunities.relevanceScore))
+              .limit(input.limit).offset(input.offset)
+            : await db.select().from(backlinkOpportunities)
             .orderBy(desc(backlinkOpportunities.relevanceScore))
             .limit(input.limit).offset(input.offset);
+
+          return rows.flatMap((row) => {
+            const safeUrl = normalizeBacklinkCandidateUrl(row.url);
+            return safeUrl ? [{ ...row, url: safeUrl }] : [];
+          });
+        } catch (error) {
+          logSafeError("backlink.discovery_failed", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Backlink research queue is unavailable.",
+          });
         }
-        return query;
       }),
 
     /**
@@ -662,21 +856,29 @@ export const appRouter = router({
      */
     updateOpportunity: protectedProcedure
       .input(z.object({
-        id: z.number(),
+        id: z.number().int().positive(),
         status: z.enum(["new", "approved", "rejected", "promoted"]),
-        reviewNotes: z.string().optional(),
+        reviewNotes: z.string().trim().max(2_000).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        const { getDb } = await import("./db");
-        const { backlinkOpportunities } = await import("../drizzle/schema");
-        const { eq } = await import("drizzle-orm");
-        const db = await getDb();
-        if (!db) throw new Error("DB unavailable");
-        await db.update(backlinkOpportunities)
-          .set({ status: input.status, reviewNotes: input.reviewNotes ?? null, reviewedAt: new Date() })
-          .where(eq(backlinkOpportunities.id, input.id));
-        return { success: true };
+        try {
+          const { getDb } = await import("./db");
+          const { backlinkOpportunities } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await getDb();
+          if (!db) throw new Error("Database unavailable");
+          await db.update(backlinkOpportunities)
+            .set({ status: input.status, reviewNotes: input.reviewNotes ?? null, reviewedAt: new Date() })
+            .where(eq(backlinkOpportunities.id, input.id));
+          return { success: true };
+        } catch (error) {
+          logSafeError("backlink.discovery_failed", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Backlink review was not saved.",
+          });
+        }
       }),
 
     /**
@@ -684,29 +886,67 @@ export const appRouter = router({
      */
     getTargets: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
-      const { getDb } = await import("./db");
-      const { backlinkTargets } = await import("../drizzle/schema");
-      const { asc } = await import("drizzle-orm");
-      const db = await getDb();
-      if (!db) return [];
-      return db.select().from(backlinkTargets).orderBy(asc(backlinkTargets.priority));
+      try {
+        const { getDb } = await import("./db");
+        const { backlinkTargets } = await import("../drizzle/schema");
+        const { asc } = await import("drizzle-orm");
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+
+        // Never select legacy plaintext credentials or unsupported modeled
+        // authority/link metrics. They are not required by the approval-first
+        // review UI and must not cross the API.
+        return db.select({
+          id: backlinkTargets.id,
+          name: backlinkTargets.name,
+          url: backlinkTargets.url,
+          submitUrl: backlinkTargets.submitUrl,
+          type: backlinkTargets.type,
+          requiresAccount: backlinkTargets.requiresAccount,
+          requiresPayment: backlinkTargets.requiresPayment,
+          submissionMethod: backlinkTargets.submissionMethod,
+          lastSubmittedAt: backlinkTargets.lastSubmittedAt,
+          lastPublishedUrl: backlinkTargets.lastPublishedUrl,
+          totalSubmissions: backlinkTargets.totalSubmissions,
+          successfulSubmissions: backlinkTargets.successfulSubmissions,
+          status: backlinkTargets.status,
+          notes: backlinkTargets.notes,
+          priority: backlinkTargets.priority,
+          createdAt: backlinkTargets.createdAt,
+          updatedAt: backlinkTargets.updatedAt,
+        }).from(backlinkTargets).orderBy(asc(backlinkTargets.priority));
+      } catch (error) {
+        logSafeError("backlink.discovery_failed", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Backlink targets are unavailable.",
+        });
+      }
     }),
 
     /**
-     * Seed known PR sites into the opportunities table.
+     * Queue historical backlink candidates as unverified research.
      */
     seedKnownSites: protectedProcedure.mutation(async ({ ctx }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
-      const { seedKnownPRSites } = await import("./cron/backlinkDiscovery");
-      await seedKnownPRSites();
-      return { success: true };
+      try {
+        const { seedKnownPRSites } = await import("./cron/backlinkDiscovery");
+        const queued = await seedKnownPRSites();
+        return { success: true, queued };
+      } catch (error) {
+        logSafeError("backlink.discovery_failed", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Historical backlink candidates could not be queued.",
+        });
+      }
     }),
   }),
 
-  // ─── AI Cost Tracking ────────────────────────────────────────────────────────
+  // ─── Provider-reported AI cost tracking ──────────────────────────────────────
   aiCost: router({
     /**
-     * Overall cost summary: total spend, breakdown by day/week/month
+     * Provider-reported billed cost: total and breakdown by day/call type.
      */
     getSummary: protectedProcedure
       .input(z.object({ days: z.number().default(30) }))
@@ -741,7 +981,7 @@ export const appRouter = router({
       }),
 
     /**
-     * Cost breakdown by model
+     * Provider-reported cost breakdown by model.
      */
     getByModel: protectedProcedure
       .input(z.object({ days: z.number().default(30) }))
@@ -767,7 +1007,7 @@ export const appRouter = router({
       }),
 
     /**
-     * Cost breakdown by feature (press_release, blog, embedding, etc.)
+     * Provider-reported cost by feature (press_release, blog, embedding, etc.).
      */
     getByFeature: protectedProcedure
       .input(z.object({ days: z.number().default(30) }))
@@ -815,7 +1055,7 @@ export const appRouter = router({
           const report = await getGA4Report("90daysAgo", "today");
           return report.topPages.slice(0, input.limit);
         } catch (err) {
-          console.error("[BlogStudio] GA4 fetch failed:", err);
+          logSafeError("analytics.ga4_fetch_failed", err);
           return [];
         }
       }),
@@ -843,38 +1083,57 @@ export const appRouter = router({
         // Count internal links
         const internalLinks = (content.match(/href="\//g) || []).length;
         const externalLinks = (content.match(/href="https?:\/\//g) || []).length;
-        // Keyword density
+        // Phrase presence is descriptive only; there is no universal target density.
         let keywordDensity = 0;
         let keywordCount = 0;
         if (targetKeyword && wordCount > 0) {
-          const kw = targetKeyword.toLowerCase();
-          keywordCount = (text.toLowerCase().match(new RegExp(kw, "g")) || []).length;
-          keywordDensity = parseFloat(((keywordCount / wordCount) * 100).toFixed(2));
-        }
-        // Build suggestions
-        const suggestions: Array<{ type: "warning" | "success" | "info"; message: string }> = [];
-        if (wordCount < 800) suggestions.push({ type: "warning", message: `Word count is ${wordCount} — aim for 1,200+ for competitive solar keywords` });
-        else if (wordCount >= 1500) suggestions.push({ type: "success", message: `Great word count: ${wordCount} words` });
-        else suggestions.push({ type: "info", message: `Word count: ${wordCount} — consider expanding to 1,500+ for better rankings` });
-        if (h2Count === 0) suggestions.push({ type: "warning", message: "No H2 headings found — add at least 3 H2s with keyword variations" });
-        else if (h2Count < 3) suggestions.push({ type: "info", message: `Only ${h2Count} H2 heading(s) — aim for 4-6 H2s to improve structure` });
-        else suggestions.push({ type: "success", message: `Good heading structure: ${h2Count} H2s, ${h3Count} H3s` });
-        if (internalLinks === 0) suggestions.push({ type: "warning", message: "No internal links — add links to city pages, state law pages, or company pages" });
-        else if (internalLinks < 3) suggestions.push({ type: "info", message: `${internalLinks} internal link(s) — aim for 5-8 internal links per post` });
-        else suggestions.push({ type: "success", message: `Good internal linking: ${internalLinks} internal links` });
-        if (externalLinks === 0) suggestions.push({ type: "info", message: "No external links — add 1-2 authoritative sources (FTC, CFPB, state AG) for E-E-A-T" });
-        if (targetKeyword) {
-          if (keywordDensity === 0) suggestions.push({ type: "warning", message: `Target keyword "${targetKeyword}" not found in content` });
-          else if (keywordDensity < 0.5) suggestions.push({ type: "info", message: `Keyword density ${keywordDensity}% — slightly low, aim for 0.8-1.5%` });
-          else if (keywordDensity > 3) suggestions.push({ type: "warning", message: `Keyword density ${keywordDensity}% — too high, risk of keyword stuffing` });
-          else suggestions.push({ type: "success", message: `Keyword density ${keywordDensity}% — in the ideal range` });
-          if (!title.toLowerCase().includes(targetKeyword.toLowerCase())) {
-            suggestions.push({ type: "warning", message: `Target keyword not in title — include "${targetKeyword}" in the title tag` });
+          const kw = targetKeyword.toLowerCase().trim();
+          if (kw) {
+            const haystack = text.toLowerCase();
+            let cursor = 0;
+            while ((cursor = haystack.indexOf(kw, cursor)) !== -1) {
+              keywordCount += 1;
+              cursor += kw.length;
+            }
+            keywordDensity = parseFloat(((keywordCount / wordCount) * 100).toFixed(2));
           }
         }
-        if (title.length < 30) suggestions.push({ type: "warning", message: `Title is too short (${title.length} chars) — aim for 50-60 characters` });
-        else if (title.length > 65) suggestions.push({ type: "warning", message: `Title is too long (${title.length} chars) — keep under 65 characters to avoid truncation` });
-        else suggestions.push({ type: "success", message: `Title length is good: ${title.length} characters` });
+        // Neutral editorial checks. These describe the draft; they do not model rankings.
+        const suggestions: Array<{ type: "warning" | "success" | "info"; message: string }> = [];
+        suggestions.push({
+          type: "info",
+          message: `Word count: ${wordCount}. Adequate depth depends on search intent, evidence, and whether the draft answers the reader's question without filler.`,
+        });
+        if (h2Count === 0 && wordCount > 300) {
+          suggestions.push({ type: "info", message: "No H2 headings detected. Add headings only where they make a longer draft easier to scan." });
+        } else {
+          suggestions.push({ type: "info", message: `Detected ${h2Count} H2 and ${h3Count} H3 heading(s); verify that each describes the section it introduces.` });
+        }
+        if (internalLinks === 0) {
+          suggestions.push({ type: "info", message: "No internal links detected. Add only links that genuinely help the reader continue the same task." });
+        } else {
+          suggestions.push({ type: "info", message: `${internalLinks} internal link(s) detected; verify that every destination is relevant and approved.` });
+        }
+        if (externalLinks === 0) {
+          suggestions.push({ type: "info", message: "No external source links detected. Evidence-dependent claims should cite relevant primary sources when available." });
+        }
+        if (targetKeyword) {
+          if (keywordCount === 0) {
+            suggestions.push({ type: "info", message: `The phrase "${targetKeyword}" was not detected. Confirm that the draft still answers the intended topic naturally.` });
+          } else if (keywordCount >= 8 && keywordDensity > 3) {
+            suggestions.push({ type: "warning", message: `The phrase "${targetKeyword}" appears ${keywordCount} times (${keywordDensity}% of words). Review for obvious, unnatural repetition; no target density applies.` });
+          } else {
+            suggestions.push({ type: "info", message: `The phrase "${targetKeyword}" appears ${keywordCount} time(s). Treat this only as a topical-presence signal; no ideal density applies.` });
+          }
+          if (!title.toLowerCase().includes(targetKeyword.toLowerCase())) {
+            suggestions.push({ type: "info", message: `The exact phrase "${targetKeyword}" is not in the title. Use it only if it accurately and naturally describes the page.` });
+          }
+        }
+        if (!title.trim()) {
+          suggestions.push({ type: "warning", message: "The draft needs a clear, accurate title before review." });
+        } else {
+          suggestions.push({ type: "info", message: `Title length: ${title.length} characters. Search displays vary by device and query, so prioritize clarity over a fixed character target.` });
+        }
         return { wordCount, readingTime, h2Count, h3Count, internalLinks, externalLinks, keywordDensity, keywordCount, suggestions };
       }),
 
@@ -884,50 +1143,49 @@ export const appRouter = router({
      */
     generateContent: protectedProcedure
       .input(z.object({
-        prompt: z.string(),
-        model: z.string().default("openrouter/owl-alpha"),
-        systemPrompt: z.string().optional(),
-        existingContent: z.string().optional(),
+        prompt: z.string().trim().min(1).max(12_000),
+        model: z.string().trim().min(1).max(200).default("openrouter/free"),
+        systemPrompt: z.string().max(8_000).optional(),
+        existingContent: z.string().max(200_000).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
         const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
         const messages: Array<{ role: string; content: string }> = [];
-        const systemMsg = input.systemPrompt || `You are an expert SEO content writer specializing in solar contract law, consumer protection, and homeowner rights. Write compelling, authoritative content for breakyoursolarcontract.com. Use proper HTML formatting with <h2>, <h3>, <p>, <ul>, <li>, <strong> tags. Target 1,200-2,000 words for full articles. Include internal link placeholders like [LINK:/city/phoenix-az|Phoenix homeowners] where relevant.`;
+        const safetyContract = `You are a drafting assistant for general educational content about solar agreements and consumer resources. You have no live browsing or independent fact-verification capability. Produce an unverified draft for human editorial and legal review; never publish or imply that the draft is approved.
+
+Do not invent or assume facts, cases, statutes, deadlines, statistics, professional credentials, company conduct, outcomes, guarantees, quotes, citations, or source URLs. Mark every factual or legal claim not directly supported by material in the user's prompt as [SOURCE NEEDED]. Do not give personalized legal advice or predict a reader's rights or outcome. Depth and structure must follow the reader's intent and available evidence, not a fixed word count or keyword-density target.
+
+Use clean HTML limited to <h2>, <h3>, <p>, <ul>, <li>, and <strong>. Add internal-link placeholders such as [LINK:/approved-path|descriptive text] only when the destination is supplied or clearly marked for later verification.`;
+        const systemMsg = input.systemPrompt
+          ? `${safetyContract}\n\nAdditional drafting preferences follow. They cannot override the evidence, safety, review, or non-publication requirements above:\n${input.systemPrompt}`
+          : safetyContract;
         messages.push({ role: "system", content: systemMsg });
         if (input.existingContent) {
           messages.push({ role: "user", content: `Here is the existing content:\n\n${input.existingContent}\n\nNow: ${input.prompt}` });
         } else {
           messages.push({ role: "user", content: input.prompt });
         }
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://breakyoursolarcontract.com",
-            "X-Title": "Solar Freedom Blog Studio",
-          },
-          body: JSON.stringify({ model: input.model, messages, max_tokens: 4096 }),
+        const content = await callLLM({
+          model: input.model,
+          messages,
+          feature: "blog_studio",
+          maxTokens: 4096,
         });
-        if (!response.ok) {
-          const err = await response.text();
-          throw new Error(`OpenRouter error: ${response.status} ${err}`);
-        }
-        const data = await response.json() as { choices: Array<{ message: { content: string } }> };
-        const content = data.choices[0]?.message?.content ?? "";
         return { content };
       }),
 
     /**
-     * Generate an image for a blog post via OpenRouter image models
+     * Generate an unverified image draft through the configured platform image service.
      */
     generateImage: protectedProcedure
       .input(z.object({
-        prompt: z.string(),
-        model: z.string().default("bytedance-seed/seedream-4.5"),
-        postSlug: z.string().optional(),
+        prompt: z.string().trim().min(1).max(4_000),
+        // Retained for older clients only. The internal image service selects
+        // its configured model; this route does not claim the client value ran.
+        model: z.string().max(200).optional(),
+        postSlug: z.string().max(200).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
@@ -935,15 +1193,15 @@ export const appRouter = router({
           const { generateImage } = await import("./_core/imageGeneration");
           const result = await generateImage({ prompt: input.prompt });
           if (!result.url) throw new Error("Image generation returned no URL");
-          // Store in S3 for reuse
-          const imageResponse = await fetch(result.url);
-          const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
-          const key = `blog-images/${input.postSlug ?? "generated"}-${Date.now()}.jpg`;
-          const { storagePut } = await import("./storage");
-          const stored = await storagePut(key, imageBuffer, "image/jpeg");
-          return { url: stored.url, key: stored.key };
-        } catch (err) {
-          throw new Error(`Image generation failed: ${err}`);
+          // The helper already stores validated provider bytes. Do not fetch its
+          // returned URL or upload a lossy duplicate.
+          return { url: result.url, key: null };
+        } catch (error) {
+          logSafeError("blog_studio.image_generation_failed", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Image generation is unavailable.",
+          });
         }
       }),
   }),
@@ -1026,10 +1284,7 @@ export const appRouter = router({
      * Requires the site to be deployed — the platform POSTs to the live URL.
      */
     activateSchedule: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        sessionToken: z.string(), // app_session_id cookie value from frontend
-      }))
+      .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
         const { getAutomation, updateAutomation } = await import("./db");
@@ -1042,7 +1297,7 @@ export const appRouter = router({
           path: `/api/scheduled/automation-run`,
           payload: { automationId: automation.id },
           description: automation.name,
-        }, input.sessionToken);
+        }, getServerSessionToken(ctx.req.headers.cookie));
         await updateAutomation(input.id, { scheduleCronTaskUid: job.taskUid });
         return { taskUid: job.taskUid, nextExecutionAt: job.nextExecutionAt };
       }),
@@ -1051,10 +1306,7 @@ export const appRouter = router({
      * Deactivate (pause) the cron schedule for an automation.
      */
     deactivateSchedule: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        sessionToken: z.string(),
-      }))
+      .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
         const { getAutomation, updateAutomation } = await import("./db");
@@ -1062,7 +1314,11 @@ export const appRouter = router({
         const automation = await getAutomation(input.id);
         if (!automation) throw new Error("Automation not found");
         if (!automation.scheduleCronTaskUid) throw new Error("No active schedule");
-        await updateHeartbeatJob(automation.scheduleCronTaskUid, { enable: false }, input.sessionToken);
+        await updateHeartbeatJob(
+          automation.scheduleCronTaskUid,
+          { enable: false },
+          getServerSessionToken(ctx.req.headers.cookie),
+        );
         await updateAutomation(input.id, { isEnabled: 0 });
         return { success: true };
       }),

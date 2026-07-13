@@ -1,17 +1,19 @@
 # SEO CTR Opportunity Report — May 2026
 **Site:** breakyoursolarcontract.com | **Data Period:** 90 days (GSC)
 
+> **Historical, unverified snapshot — not a current release claim.** This file is retained as dated analyst evidence. The underlying public GSC/indexing exports were removed from the repository, so the figures and submission notes are not independently reproducible from the current tree. Search Console average position is an aggregate, not a fixed or “#1” ranking. Revalidate every metric from a fresh private source before making a decision. Impact numbers below are old hypotheses, not forecasts or guarantees. The referenced bulk detail pages are withheld from indexing in the current release candidate pending evidence and editorial approval.
+
 ---
 
 ## Executive Summary
 
-The site is performing exceptionally well for a 2-month-old domain — **8,500+ impressions** in 90 days with rankings on page 1 for dozens of competitive keywords. However, the **average CTR is critically low** on many high-impression pages. The root cause: compelling rankings without compelling meta titles/descriptions. Fixing the top 10 zero-click page-1 pages could add 50–100+ clicks per month with zero new content needed.
+The historical snapshot recorded **8,500+ impressions** across its stated 90-day window and identified low-CTR candidates. It did not establish a single root cause or prove that a metadata change would add a particular number of clicks. Current prioritization requires a fresh private export, current indexability, and a measured experiment.
 
 ---
 
-## Bulk Indexing Status (Submitted May 17, 2026)
+## Historical Bulk-Submission Note (Not Current Indexing Proof)
 
-All 483 sitemap URLs were submitted to Google's URL Inspection API for priority crawling. Google will crawl queued URLs within **1–7 days**.
+The old report stated that 483 sitemap URLs were submitted on May 17, 2026. Submission is not evidence of indexing and does not establish a crawl deadline. The current release candidate intentionally excludes withheld bulk-detail URLs from the sitemap.
 
 | Category | Count |
 |---|---|
@@ -23,9 +25,9 @@ All 483 sitemap URLs were submitted to Google's URL Inspection API for priority 
 
 ---
 
-## Your #1 Rankings (Protect These)
+## Highest Observed Average Positions in the Snapshot (Not “#1 Rankings”)
 
-These pages are ranking in the **top 5 positions** — they are your strongest assets and need to be protected with strong meta descriptions and internal linking.
+These were the highest-position rows in the dated aggregate. The displayed averages are roughly positions 5–7, not position 1, and they must be revalidated before any change.
 
 | Page | Clicks | Impressions | Position |
 |---|---|---|---|
@@ -36,9 +38,9 @@ These pages are ranking in the **top 5 positions** — they are your strongest a
 
 ---
 
-## Critical Zero-Click Pages (Page 1 Rankings with 0 Clicks)
+## Historical Zero-Click Candidates
 
-These pages are ranking on **page 1 of Google** but getting zero clicks. This is a pure meta description problem — the title/description in Google is not compelling enough to make people click. These are the highest-ROI fixes available right now.
+The dated rows combined low click counts with favorable average positions. That pattern can justify investigation, but it does not prove a metadata cause or establish ROI. Confirm current query, device, country, date-range, page state, and search-result appearance before testing a change.
 
 ### Priority 1 — Fix Immediately
 
@@ -133,28 +135,28 @@ These pages are ranking but on page 2–3. They need stronger content, more inte
 
 ---
 
-## 34 Medium Articles — Backlink Opportunity
+## User-Reported Medium Articles — Historical Research Note
 
-You mentioned posting 34 articles to Medium. Make sure each article links back to the most relevant page on breakyoursolarcontract.com. Priority link targets:
+The report recorded a user statement that 34 Medium articles existed; the repository does not verify those publications, their links, current policies, or search impact. Any future placement must be editorially relevant and reviewed for destination policy rather than used as a bulk-link tactic. Historical candidate targets were:
 
-1. `/blog/sunrun-solar-contract-cancellation-2026` — highest impressions, needs CTR boost
-2. `/cancel-solar-contract/los-angeles-ca` — highest impressions, needs ranking boost (position 35)
-3. `/cancel-solar-contract/dallas-tx` — needs ranking boost (position 25)
-4. `/solar-lien-removal` — service page that needs more authority
-5. `/blog/cancel-solar-contract-boston-ma` — position 5.7, needs CTR boost
+1. `/blog/sunrun-solar-contract-cancellation-2026` — highest impressions in the old snapshot; revalidate CTR
+2. `/cancel-solar-contract/los-angeles-ca` — historical position 35; currently withheld pending review
+3. `/cancel-solar-contract/dallas-tx` — historical position 25; currently withheld pending review
+4. `/solar-lien-removal` — approved service-page candidate for user-focused internal-link review
+5. `/blog/cancel-solar-contract-boston-ma` — historical average position 5.7; revalidate CTR
 
 ---
 
 ## 30-Day Action Plan
 
-| Week | Action | Expected Impact |
+| Week | Historical experiment idea | Measurement requirement (not a forecast) |
 |---|---|---|
-| This week | Re-index sunrun 2026 article (meta fix deployed) | +50–100 clicks/month on that one article |
-| This week | Rewrite meta for Boston, FL laws, LV, selling home pages | +20–40 clicks/month |
-| Next week | Improve content on LA, Dallas, SF city pages | Move from page 3 to page 1 |
-| Next week | Add internal links from blog posts to city pages | Boost city page rankings |
-| Week 3 | Add backlinks from 34 Medium articles to priority pages | Ranking improvements across the board |
-| Week 4 | Check GSC — should see 150+ indexed pages | Confirm indexing progress |
+| This week | Revalidate the Sunrun page and any prior metadata change | Compare a fresh baseline with a defined post-change window |
+| This week | Review metadata candidates | Test approved factual copy; measure impressions, CTR, and position separately |
+| Next week | Review LA, Dallas, and SF page evidence and unique value | Keep withheld unless publication governance passes |
+| Next week | Review internal-link candidates | Confirm links help users and point only to approved canonical pages |
+| Week 3 | Verify any claimed third-party placements | Record current URLs, policies, attributes, and referral evidence; do not infer ranking impact |
+| Week 4 | Check private GSC and URL Inspection evidence | Report observed coverage without an index-count target |
 
 ---
 

@@ -11,7 +11,7 @@
  */
 import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { load } from "cheerio";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,6 +31,8 @@ const ISSUE_WEIGHTS = {
   multiple_h1: 35,
   missing_json_ld: 45,
   invalid_json_ld: 45,
+  duplicate_json_ld: 35,
+  placeholder_json_ld: 80,
   thin_content: 55,
   short_title: 25,
   long_title: 20,
@@ -119,6 +121,57 @@ function normalizeText(text) {
   return text.replace(/\s+/g, " ").trim();
 }
 
+export function countVisibleWords(html) {
+  const $ = load(html || "");
+  const body = $("body").clone();
+  body.find("script, style, noscript, template, svg, canvas, iframe, [hidden], [aria-hidden='true']").remove();
+  body.find('[style*="display:none"], [style*="display: none"], [style*="visibility:hidden"], [style*="visibility: hidden"]').remove();
+  const visibleText = normalizeText(body.text());
+  return visibleText ? visibleText.split(/\s+/).length : 0;
+}
+
+function isObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+export function extractJsonLdNodes(value) {
+  if (Array.isArray(value)) return value.flatMap(extractJsonLdNodes);
+  if (!isObject(value)) return [];
+  if (Array.isArray(value["@graph"])) return value["@graph"].flatMap(extractJsonLdNodes);
+  return value["@type"] ? [value] : [];
+}
+
+function schemaTypesFor(node) {
+  const raw = node["@type"];
+  return (Array.isArray(raw) ? raw : [raw]).filter((value) => typeof value === "string");
+}
+
+function stableJson(value) {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
+  if (isObject(value)) {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+function schemaIdentityKeys(node) {
+  const types = schemaTypesFor(node).sort().join("|");
+  const directUrl = [node.url, node["@id"], node.mainEntityOfPage]
+    .find((value) => typeof value === "string");
+  const keys = [`json:${stableJson(node)}`];
+  if (types && directUrl) keys.push(`type-url:${types}:${String(directUrl).replace(/#(?:webpage|article)$/i, "")}`);
+  if (["BreadcrumbList", "FAQPage"].some((type) => schemaTypesFor(node).includes(type))) {
+    keys.push(`singleton:${types}`);
+  }
+  return keys;
+}
+
+function hasSchemaPlaceholder(node) {
+  return /\[VERIFY(?:[:\]])|\b(?:TODO|TBD|CHANGEME|REPLACE_ME)\b|https?:\/\/(?:www\.)?example\.(?:com|org|net)|\{\{[^{}]+\}\}/i.test(
+    JSON.stringify(node)
+  );
+}
+
 function classifyUrl(pathname) {
   if (pathname === "/") return "home";
   if (pathname === "/blog") return "blog_index";
@@ -138,7 +191,7 @@ function addIssue(issues, code, message, evidence = {}) {
   });
 }
 
-function analyzeHtml({ publicUrl, localUrl, fetchResult }) {
+export function analyzeHtml({ publicUrl, localUrl, fetchResult }) {
   const parsed = new URL(publicUrl);
   const issues = [];
 
@@ -174,17 +227,23 @@ function analyzeHtml({ publicUrl, localUrl, fetchResult }) {
   );
   const images = $("img").length;
   const imagesWithAlt = $("img[alt]").filter((_, el) => normalizeText($(el).attr("alt") || "").length > 0).length;
-  const bodyText = normalizeText($("body").text());
-  const wordCount = bodyText ? bodyText.split(/\s+/).length : 0;
+  const wordCount = countVisibleWords(fetchResult.html);
 
   const schemaTypes = [];
   let invalidJsonLd = 0;
+  let duplicateJsonLd = 0;
+  let placeholderJsonLd = 0;
+  const schemaKeys = new Set();
   for (const scriptText of jsonLdScripts) {
     try {
       const parsedJson = JSON.parse(scriptText);
-      const blocks = Array.isArray(parsedJson) ? parsedJson : [parsedJson];
+      const blocks = extractJsonLdNodes(parsedJson);
       for (const block of blocks) {
-        if (block && typeof block === "object" && block["@type"]) schemaTypes.push(block["@type"]);
+        schemaTypes.push(...schemaTypesFor(block));
+        if (hasSchemaPlaceholder(block)) placeholderJsonLd += 1;
+        const keys = schemaIdentityKeys(block);
+        if (keys.some((key) => schemaKeys.has(key))) duplicateJsonLd += 1;
+        keys.forEach((key) => schemaKeys.add(key));
       }
     } catch {
       invalidJsonLd += 1;
@@ -215,6 +274,8 @@ function analyzeHtml({ publicUrl, localUrl, fetchResult }) {
   if (h1s.length > 1) addIssue(issues, "multiple_h1", "Multiple H1 elements found", { h1s });
   if (jsonLdScripts.length === 0) addIssue(issues, "missing_json_ld", "Missing JSON-LD structured data");
   if (invalidJsonLd > 0) addIssue(issues, "invalid_json_ld", "Invalid JSON-LD block found", { invalidJsonLd });
+  if (duplicateJsonLd > 0) addIssue(issues, "duplicate_json_ld", "Duplicate or conflicting JSON-LD nodes found", { duplicateJsonLd });
+  if (placeholderJsonLd > 0) addIssue(issues, "placeholder_json_ld", "Placeholder data found in JSON-LD", { placeholderJsonLd });
   if (wordCount < 350) addIssue(issues, "thin_content", "Page body appears thin for an SEO landing page", { wordCount });
   if (internalLinks.size < 5) addIssue(issues, "low_internal_links", "Low internal link count", { internalLinks: internalLinks.size });
   if (images > 0 && imagesWithAlt / images < 0.8) {
@@ -233,6 +294,8 @@ function analyzeHtml({ publicUrl, localUrl, fetchResult }) {
       canonical,
       h1s,
       schemaTypes: [...new Set(schemaTypes)].flat(),
+      duplicateJsonLd,
+      placeholderJsonLd,
       wordCount,
       internalLinks: internalLinks.size,
       images,
@@ -406,7 +469,12 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

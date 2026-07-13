@@ -13,55 +13,47 @@ import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 const SCAM_TACTICS = [
   {
     icon: "🚪",
-    title: "Door-to-Door High Pressure",
-    description: "Salespeople show up unannounced, claim your neighbors already signed up, and pressure you to sign on the spot. They often misrepresent savings, tax credits, and contract terms.",
+    title: "Sales-Process Records",
+    description: "Preserve texts, emails, advertisements, presentations, and notes showing what was said, when documents were delivered, and how the transaction was signed.",
   },
   {
     icon: "💰",
-    title: "Fake Tax Credit Promises",
-    description: "Told you'd get a $10,000–$15,000 federal tax credit? Many homeowners were never eligible — but the loan was structured assuming you'd use that credit to pay it down. Now you owe the full amount.",
+    title: "Tax-Credit Assumptions",
+    description: "Compare every written tax-credit representation with the payment schedule and current IRS guidance. Eligibility and use of a credit depend on individual tax facts.",
   },
   {
     icon: "📈",
-    title: "Inflated Savings Projections",
-    description: "Promised your electric bill would drop to near zero? Salespeople routinely used inflated utility rate projections to make the numbers look good. The real savings never materialized.",
+    title: "Savings and Production Claims",
+    description: "Keep the proposal, production estimate, utility assumptions, monitoring data, and bills. Compare a written projection with actual inputs before deciding whether it was inaccurate.",
   },
   {
     icon: "📋",
-    title: "Hidden Contract Terms",
-    description: "20–25 year contracts with escalator clauses, UCC liens on your home, and automatic renewal terms buried in fine print. Many homeowners had no idea what they actually signed.",
+    title: "Agreement Terms",
+    description: "Identify the stated term, payment or rate formula, transfer or purchase provisions, security language, cancellation notice, and dispute address in the signed agreement.",
   },
   {
     icon: "🏚️",
-    title: "Bankrupt Company, Still Paying",
-    description: "Your solar company went out of business — but your loan payments keep going to GoodLeap, Mosaic, or Sunlight Financial. You're paying for a system with no warranty and no support.",
+    title: "Counterparty Status",
+    description: "Confirm the current legal name and status of the installer, seller, owner, lender, and servicer using the agreement, written notices, and official business or court records.",
   },
   {
     icon: "🏠",
-    title: "Home Sale Blocked by Solar Lien",
-    description: "A UCC lien filed by your solar company or lender is blocking your home sale. Buyers can't get financing, and you can't close until the lien is resolved — sometimes costing tens of thousands.",
+    title: "Title or Filing Questions",
+    description: "Use a current title report and a copy of any recorded instrument or UCC filing. Ask the listed holder and closing professional for written payoff, release, or transfer requirements.",
   },
 ];
 
-const BANKRUPT_COMPANIES = [
-  "SunPower", "Sunnova", "Pink Energy", "ADT Solar", "Lumio Solar",
-  "Titan Solar Power", "Vision Solar", "Infinity Energy", "Kayo Energy",
-  "Solcius", "Erus Energy", "Shine Solar", "Suntuity", "Moxie Solar",
-  "Encor Solar", "Alternative Solar", "Solar Titan USA", "iSun",
-  "Sunworks", "EcoMark Solar", "Expert Solar", "Pure Light Power",
-];
-
 const RED_FLAGS = [
-  "Salesperson showed up at your door uninvited",
-  "Promised your electric bill would be $0 or near zero",
-  "Said you'd get a large federal tax credit to pay down the loan",
-  "Rushed you to sign the same day — 'offer expires tonight'",
-  "Couldn't clearly explain the full 20–25 year contract terms",
-  "System was installed but never performed as promised",
-  "Company went out of business after installation",
-  "You're now paying more combined (solar + electric) than before",
-  "Trying to sell your home but the solar contract is blocking it",
-  "Your credit score dropped after signing the solar agreement",
+  "A material sales statement is missing from the written agreement or proposal",
+  "The cash price and amount financed differ and the difference was not explained",
+  "A payment change or expected prepayment was not understood at signing",
+  "A tax-credit statement was presented as certain without reviewing individual eligibility",
+  "The production model, utility-rate assumption, or savings calculation is unavailable",
+  "The signed agreement, cancellation notice, or financing disclosures are missing",
+  "The current owner, lender, servicer, or warranty provider is unclear",
+  "Actual bills or production differ from a preserved written representation",
+  "A title report or closing party identified an unfamiliar filing or transfer condition",
+  "The written complaint or dispute procedure has not been provided",
 ];
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -125,16 +117,16 @@ export default function SolarPanelScam() {
               className="text-white font-black leading-none mb-6"
               style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem, 8vw, 6rem)" }}
             >
-              SOLAR PANEL
+              SOLAR SALES &amp;
               <br />
-              <span style={{ color: "oklch(0.72 0.19 50)" }}>SCAMS ARE</span>
+              <span style={{ color: "oklch(0.72 0.19 50)" }}>FINANCING</span>
               <br />
-              EVERYWHERE.
+              RED FLAGS.
             </h1>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-zinc-300 text-xl leading-relaxed max-w-2xl mb-8">
-              Millions of American homeowners were deceived by solar companies using fake tax credit promises, inflated savings projections, and high-pressure door-to-door tactics. If you were misled — <strong className="text-white">you may be able to cancel your contract and get your money back.</strong>
+              Some consumer complaints describe disputed tax-credit statements, savings projections, or high-pressure sales tactics. Compare the signed agreement, written sales materials, bills, and performance records with current official sources before drawing a conclusion or assuming a remedy.
             </p>
           </Reveal>
           <Reveal delay={0.15}>
@@ -144,7 +136,7 @@ export default function SolarPanelScam() {
                 className="flex items-center gap-2 px-8 py-4 rounded-lg font-black text-black uppercase tracking-wider transition-all hover:brightness-110 hover:scale-[1.02]"
                 style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem" }}
               >
-                Check If I Was Scammed <ArrowRight className="w-5 h-5" />
+                Organize My Records <ArrowRight className="w-5 h-5" />
               </a>
               <a
                 href="tel:9049214971"
@@ -159,9 +151,9 @@ export default function SolarPanelScam() {
           <Reveal delay={0.2}>
             <div className="grid grid-cols-3 gap-6 mt-16 pt-10 border-t border-white/8 max-w-2xl">
               {[
-                { num: "4M+", label: "Homeowners affected" },
-                { num: "30+", label: "Companies bankrupt" },
-                { num: "$0", label: "Cost to get reviewed" },
+                { num: "FTC", label: "Covered-sale rule" },
+                { num: "CFPB", label: "Solar-loan guidance" },
+                { num: "1", label: "Individual record set" },
               ].map(s => (
                 <div key={s.label}>
                   <div className="font-black text-3xl" style={{ fontFamily: "'Bebas Neue', sans-serif", color: "oklch(0.72 0.19 50)" }}>{s.num}</div>
@@ -178,9 +170,9 @@ export default function SolarPanelScam() {
         <div className="container">
           <Reveal>
             <div className="text-center mb-14">
-              <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">The Playbook They Used On You</div>
+              <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">Records to Review</div>
               <h2 className="font-black text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-                6 SOLAR SCAM TACTICS <span style={{ color: "oklch(0.72 0.19 50)" }}>EXPOSED</span>
+                6 RECORD CATEGORIES <span style={{ color: "oklch(0.72 0.19 50)" }}>TO CHECK</span>
               </h2>
             </div>
           </Reveal>
@@ -209,9 +201,9 @@ export default function SolarPanelScam() {
               <Reveal>
                 <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">Warning Signs</div>
                 <h2 className="font-black text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                  10 RED FLAGS YOU
+                  10 RECORD GAPS TO
                   <br />
-                  <span style={{ color: "oklch(0.72 0.19 50)" }}>WERE SCAMMED</span>
+                  <span style={{ color: "oklch(0.72 0.19 50)" }}>INVESTIGATE</span>
                 </h2>
                 <p className="text-zinc-400 leading-relaxed mb-8">
                   If one or more of these warning signs applies, preserve the agreement, disclosures, sales materials, bills, installation records, and communications for an individual review.
@@ -228,7 +220,7 @@ export default function SolarPanelScam() {
                 ))}
               </div>
             </div>
-            {/* Bankrupt companies list */}
+            {/* Official source review */}
             <Reveal delay={0.1}>
               <div
                 className="rounded-2xl p-8"
@@ -236,25 +228,22 @@ export default function SolarPanelScam() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-4 h-4 text-amber-500" />
-                  <span className="text-amber-500 text-xs font-mono uppercase tracking-widest">Bankrupt Solar Companies</span>
+                  <span className="text-amber-500 text-xs font-mono uppercase tracking-widest">Official Consumer Sources</span>
                 </div>
                 <h3 className="font-black text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                  IS YOUR COMPANY ON THIS LIST?
+                  START WITH PRIMARY SOURCES
                 </h3>
                 <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
-                  These companies have filed for bankruptcy or shut down, leaving their customers stranded with active loans and no warranty support.
+                  Company status, transaction coverage, and individual remedies cannot be inferred from a marketing list. Verify the records and use official sources for the proposition being reviewed.
                 </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {BANKRUPT_COMPANIES.map(company => (
-                    <div key={company} className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "oklch(0.72 0.19 50)" }} />
-                      <span className="text-zinc-300 text-sm">{company}</span>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  <a className="block text-sm text-amber-400 hover:text-amber-300 underline underline-offset-2" href="https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/" target="_blank" rel="noopener noreferrer">CFPB: Issue Spotlight on Solar Financing</a>
+                  <a className="block text-sm text-amber-400 hover:text-amber-300 underline underline-offset-2" href="https://www.ftc.gov/legal-library/browse/rules/cooling-period-sales-made-home-or-other-locations" target="_blank" rel="noopener noreferrer">FTC: Cooling-Off Rule for covered sales</a>
+                  <a className="block text-sm text-amber-400 hover:text-amber-300 underline underline-offset-2" href="https://www.consumerfinance.gov/complaint/" target="_blank" rel="noopener noreferrer">CFPB: Submit a financial-product complaint</a>
                 </div>
                 <div className="mt-6 pt-6 border-t border-white/8">
                   <p className="text-zinc-500 text-xs leading-relaxed">
-                    Even if your company is still operating, you may still qualify for cancellation based on misrepresentation, consumer protection violations, or contract defects.
+                    These sources describe general rules and reported market risks. They do not decide whether an individual transaction involved misconduct or whether any remedy is available.
                   </p>
                 </div>
               </div>
@@ -270,7 +259,7 @@ export default function SolarPanelScam() {
             <div className="text-center mb-14">
               <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">Consumer Protection Law</div>
               <h2 className="font-black text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-                YOU HAVE <span style={{ color: "oklch(0.72 0.19 50)" }}>LEGAL RIGHTS</span>
+                RULES TO <span style={{ color: "oklch(0.72 0.19 50)" }}>CHECK</span>
               </h2>
               <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">
                 Federal and state consumer-protection rules may be relevant, but the applicable law and available options depend on the transaction, documents, facts, and jurisdiction.
@@ -279,7 +268,7 @@ export default function SolarPanelScam() {
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: <Shield className="w-6 h-6" />, title: "FTC Cooling-Off Rule", desc: "Federal law gives you 3 business days to cancel any door-to-door sale. Many companies violated this rule." },
+              { icon: <Shield className="w-6 h-6" />, title: "FTC Cooling-Off Rule", desc: "The rule covers certain door-to-door sales and has scope requirements and exceptions. Check the official rule and transaction date before relying on its three-business-day period." },
               { icon: <FileText className="w-6 h-6" />, title: "State Consumer Protection", desc: "State rules and available remedies vary. Verify current law with official sources and qualified counsel in the relevant jurisdiction." },
               { icon: <DollarSign className="w-6 h-6" />, title: "Truth in Lending Act", desc: "Financing disclosures may be relevant. Whether the Act applies and what remedy is available requires a fact-specific review." },
               { icon: <Home className="w-6 h-6" />, title: "UCC Filing Review", desc: "A filing's effect and any challenge depend on the record, contract, property transaction, and applicable law." },
@@ -307,9 +296,9 @@ export default function SolarPanelScam() {
               <div className="text-center mb-8">
                 <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">Case Review</div>
                 <h2 className="font-black text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 5vw, 3rem)" }}>
-                  FIND OUT IF YOU QUALIFY
+                  ORGANIZE YOUR RECORDS
                   <br />
-                  <span style={{ color: "oklch(0.72 0.19 50)" }}>IN 60 SECONDS</span>
+                  <span style={{ color: "oklch(0.72 0.19 50)" }}>FOR INDIVIDUAL REVIEW</span>
                 </h2>
                 <p className="text-zinc-400 mt-3 text-sm">Answer five intake questions. Response time, availability, fees, and next steps depend on the individual review.</p>
               </div>
@@ -329,7 +318,7 @@ export default function SolarPanelScam() {
           </Reveal>
           <div className="space-y-4">
             {[
-              { q: "Is the solar panel industry full of scams?", a: "Unfortunately, yes. The solar industry has been plagued by deceptive sales practices, including fake tax credit promises, inflated savings projections, and high-pressure door-to-door tactics. State attorneys general across the country have filed lawsuits against major solar companies for consumer fraud." },
+              { q: "Where can I verify solar-sales complaints?", a: "Check current records from the relevant state attorney general, the Federal Trade Commission, the Consumer Financial Protection Bureau, licensing agencies, courts, and other official sources. A complaint does not by itself establish wrongdoing." },
               { q: "What can I do if I believe a solar company misled me?", a: "Preserve the agreement, disclosures, proposals, bills, installation records, and communications. Report suspected misconduct through current official consumer-protection channels and request advice specific to your documents and jurisdiction." },
               { q: "Can I cancel my solar contract if I was misled?", a: "Cancellation or another remedy may be possible, but it cannot be determined from general information. The agreement, representations, performance, financing, applicable law, and parties involved must be reviewed." },
               { q: "What if my solar company went bankrupt?", a: "Bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually." },
@@ -358,9 +347,9 @@ export default function SolarPanelScam() {
         <div className="container text-center">
           <Reveal>
             <h2 className="font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}>
-              DON'T LET THEM
+              DON'T RELY ON
               <br />
-              <span style={{ color: "oklch(0.72 0.19 50)" }}>WIN.</span>
+              <span style={{ color: "oklch(0.72 0.19 50)" }}>ASSUMPTIONS.</span>
             </h2>
             <p className="text-zinc-400 max-w-xl mx-auto mb-8">
               Preserve your documents, verify current official resources, and request a fact-specific review before choosing a next step.

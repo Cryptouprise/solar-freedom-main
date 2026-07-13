@@ -65,10 +65,7 @@ export async function generateImage(
   });
 
   if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(
-      `Image generation request failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`
-    );
+    throw new Error(`Image generation request failed (HTTP ${response.status})`);
   }
 
   const result = (await response.json()) as {

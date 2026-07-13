@@ -19,6 +19,7 @@ import { automations } from "../../drizzle/schema";
 import { getDb } from "../db";
 import { eq } from "drizzle-orm";
 import { createPromptOnlyReceipt, summarizePromptOnlyReceipt } from "../automationPolicy";
+import { logSafeError } from "../_core/safeLog";
 
 export async function automationRunHandler(req: Request, res: Response) {
   const startedAt = Date.now();
@@ -103,16 +104,15 @@ export async function automationRunHandler(req: Request, res: Response) {
     });
   } catch (error: any) {
     const durationMs = Date.now() - startedAt;
-    const errorMsg = error?.message ?? String(error);
-    const stack = error?.stack ?? "";
     const errorId = crypto.randomUUID();
+    const safeSummary = `Automation run failed; reference ${errorId}`;
 
     // Update run log on error
     if (runId) {
       await updateAutomationRun(runId, {
         status: "error",
-        summary: `Error: ${errorMsg}`,
-        details: stack,
+        summary: safeSummary,
+        details: safeSummary,
         completedAt: new Date(),
         durationMs,
       }).catch(() => {});
@@ -123,11 +123,11 @@ export async function automationRunHandler(req: Request, res: Response) {
       await updateAutomation(automationId, {
         lastRunAt: new Date(),
         lastRunStatus: "error",
-        lastRunSummary: `Error: ${errorMsg}`.slice(0, 1000),
+        lastRunSummary: safeSummary,
       }).catch(() => {});
     }
 
-    console.error(`[AutomationRun:${errorId}]`, error);
+    logSafeError("automation.run_failed", error);
     return res.status(500).json({
       error: "Automation run failed",
       errorId,

@@ -2,9 +2,11 @@ import type { Express } from "express";
 import fs from "fs";
 import path from "path";
 import * as cheerio from "cheerio";
-import { getDbBlogPostStatus, getDbBlogPosts } from "./db";
+import { getDbBlogPostStatus, getDbBlogPostsForPublication } from "./db";
 import { renderDbBlogPost } from "./seo-meta";
 import { rateLimit } from "express-rate-limit";
+import { logSafeError } from "./_core/safeLog";
+import { isBlogPostPublishable } from "../client/src/data/publication-governance";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -32,14 +34,27 @@ export const CLIENT_ONLY_ROUTES = new Set([
 
 export function normalizePagePath(originalUrl: string): string | null {
   try {
-    const pathname = new URL(originalUrl, BASE_URL).pathname;
+    if (!originalUrl.startsWith("/") || originalUrl.startsWith("//")) return null;
+    const url = new URL(originalUrl, BASE_URL);
+    if (url.origin !== BASE_URL) return null;
+    const pathname = url.pathname;
     const decoded = decodeURIComponent(pathname);
     if (decoded.includes("\0") || decoded.includes("\\")) return null;
+    if (decoded.split("/").some(segment => segment === "." || segment === "..")) return null;
     const normalized = decoded.replace(/\/{2,}/g, "/");
     return normalized === "/" ? "/" : normalized.replace(/\/$/, "");
   } catch {
     return null;
   }
+}
+
+export function canonicalPageRedirect(originalUrl: string): string | null {
+  const pagePath = normalizePagePath(originalUrl);
+  if (!pagePath) return null;
+  const url = new URL(originalUrl, BASE_URL);
+  if (pagePath === "/privacy") return `/privacy-policy${url.search}`;
+  const pathNeedsRedirect = url.pathname !== pagePath;
+  return pathNeedsRedirect ? `${pagePath}${url.search}` : null;
 }
 
 export function prerenderedFileFor(
@@ -80,6 +95,33 @@ export function renderNotFoundDocument(pagePath: string): string {
   <style>body{margin:0;background:#0a0a0a;color:#f4f4f5;font:16px/1.6 system-ui,sans-serif}main{max-width:720px;margin:12vh auto;padding:2rem}strong{color:#f59e0b;font-size:4rem}a{color:#f59e0b}</style>
 </head>
 <body><main><strong>404</strong><h1>Page not found</h1><p>No Solar Freedom page exists at <code>${safePath}</code>.</p><p><a href="/">Return home</a> or <a href="/blog">browse the solar contract library</a>.</p></main></body>
+</html>`;
+}
+
+export function renderQuarantinedBlogDocument(pagePath: string): string {
+  const canonical = `${BASE_URL}${pagePath}`.replace(/[&<>'"]/g, character => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;",
+    };
+    return entities[character] ?? character;
+  });
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="${canonical}">
+  <title>Article Under Editorial Review | Solar Freedom</title>
+  <meta name="description" content="This article is withheld while service, outcome, fee, and timing statements are checked against source records and editorial standards.">
+  <style>body{margin:0;background:#0a0a0a;color:#f4f4f5;font:16px/1.6 system-ui,sans-serif}main{max-width:720px;margin:12vh auto;padding:2rem}a{color:#f59e0b}</style>
+</head>
+<body><main><p>Editorial review pending</p><h1>This article is temporarily withheld.</h1><p>This article is withheld while service, outcome, fee, and timing statements are checked against source records and editorial standards.</p><p><a href="/blog">Return to reviewed articles</a></p></main></body>
 </html>`;
 }
 
@@ -134,7 +176,7 @@ export function mergeDynamicPostsIntoSitemap(
 
   for (const post of posts) {
     const location = `${BASE_URL}/blog/${encodeURIComponent(post.slug)}`;
-    if (!post.slug || existing.has(location)) continue;
+    if (!post.slug || !isBlogPostPublishable(post) || existing.has(location)) continue;
     const lastmod = publishedDate(post.updatedAt ?? post.publishedAt);
     urlset.append(
       `<url><loc>${xmlEscape(location)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}<changefreq>monthly</changefreq><priority>0.7</priority></url>`
@@ -158,7 +200,9 @@ export function appendDynamicPostsToLlms(
       match => decodeURIComponent(match[1])
     )
   );
-  const additions = posts.filter(post => post.slug && !existing.has(post.slug));
+  const additions = posts.filter(
+    post => post.slug && isBlogPostPublishable(post) && !existing.has(post.slug)
+  );
   if (!additions.length) return staticInventory;
 
   const lines = additions.map(post => {
@@ -191,13 +235,13 @@ export function registerDynamicSeoInventory(app: Express, publicDir: string) {
     }
     const base = fs.readFileSync(sitemapPath, "utf8");
     try {
-      const posts = await getDbBlogPosts(5000, 0);
+      const posts = await getDbBlogPostsForPublication(5000, 0);
       response
         .type("application/xml")
         .set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=600")
         .send(mergeDynamicPostsIntoSitemap(base, posts));
     } catch (error) {
-      console.warn("[SEO] Dynamic sitemap fell back to static inventory:", error);
+      logSafeError("seo.inventory_failed", error);
       response.type("application/xml").send(base);
     }
   });
@@ -211,13 +255,13 @@ export function registerDynamicSeoInventory(app: Express, publicDir: string) {
       }
       const base = fs.readFileSync(inventoryPath, "utf8");
       try {
-        const posts = await getDbBlogPosts(5000, 0);
+        const posts = await getDbBlogPostsForPublication(5000, 0);
         response
           .type("text/plain")
           .set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=600")
           .send(appendDynamicPostsToLlms(base, posts));
       } catch (error) {
-        console.warn(`[SEO] Dynamic ${filename} fell back to static inventory:`, error);
+        logSafeError("seo.inventory_failed", error);
         response.type("text/plain").send(base);
       }
     });
@@ -236,6 +280,11 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
     const pagePath = normalizePagePath(request.originalUrl);
     if (!pagePath) {
       response.status(400).type("text").send("Invalid URL");
+      return;
+    }
+    const canonicalRedirect = canonicalPageRedirect(request.originalUrl);
+    if (canonicalRedirect) {
+      response.redirect(301, canonicalRedirect);
       return;
     }
 
@@ -271,13 +320,21 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
             return;
           }
           if (lookup.post) {
+            if (!isBlogPostPublishable(lookup.post)) {
+              seoHeaders(response);
+              response
+                .set("X-Robots-Tag", "noindex, follow")
+                .status(200)
+                .send(renderQuarantinedBlogDocument(pagePath));
+              return;
+            }
             const html = fs.readFileSync(rootIndex, "utf8");
             seoHeaders(response);
             response.status(200).send(renderDbBlogPost(html, pagePath, lookup.post));
             return;
           }
         } catch (error) {
-          console.warn(`[SEO] DB page lookup failed for ${pagePath}:`, error);
+          logSafeError("seo.db_lookup_failed", error);
         }
       }
     }

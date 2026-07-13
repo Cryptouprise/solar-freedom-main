@@ -1,6 +1,8 @@
 # SEO Audit — breakyoursolarcontract.com
 **Date:** May 17, 2026 | **Data window:** 90 days (Google Search Console)
 
+> **Historical, unverified snapshot — not a current release claim.** This report is retained as dated analyst evidence. Its former public GSC/indexing exports were removed, so the figures, index-count estimates, appointment attribution, deployments, and third-party publication statements are not independently reproducible from the current repository. Average position is an aggregate, not a fixed ranking. Revalidate from fresh private primary evidence before acting. The current release candidate withholds the referenced bulk blog/city/state/company pages from indexing until evidence and editorial review pass.
+
 ---
 
 ## Overall Performance
@@ -13,7 +15,7 @@
 | Overall CTR | 0.70% |
 | Pages indexed (approximate) | ~90 out of ~475 |
 
-The site is **barely 2 months old** and already generating 8,500+ impressions/month with 60 clicks and 3 confirmed booked appointments. That is a strong early signal. The primary lever right now is **CTR improvement** — the site is ranking but not getting clicked.
+The old report recorded 8,516 impressions and 60 clicks across its stated 90-day window. It also mentioned three appointments, but the repository does not contain approved attribution evidence for that claim. CTR improvement was a historical hypothesis, not a proven primary lever or current performance statement.
 
 ---
 
@@ -38,9 +40,9 @@ The site is **barely 2 months old** and already generating 8,500+ impressions/mo
 
 The `/blog/sunrun-solar-contract-cancellation-2026` article has **2,994 impressions** at position 7.4 — but only a **0.1% CTR**. This is the single biggest opportunity on the site.
 
-**Root cause (now fixed):** The article was a DB-published post and was showing the generic homepage title/description in Google search results instead of its own meta tags. The SEO meta fix deployed today corrects this. After Google re-crawls the page, the CTR should jump significantly.
+**Historical hypothesis:** The report attributed the low CTR to generic metadata and stated that a fix had deployed. The current repository cannot independently prove the old live rendering, exact deployment, crawl state, or causal effect. A fresh baseline and controlled comparison are required before crediting a change.
 
-**Action required:** Go to Google Search Console → URL Inspection → paste `https://breakyoursolarcontract.com/blog/sunrun-solar-contract-cancellation-2026` → click **Request Indexing**. Do this today.
+**Current gate:** Keep the page withheld unless its evidence and editorial review pass. If it is later approved and deployed, use private URL Inspection evidence to verify the rendered canonical/indexability before considering an indexing request.
 
 ---
 
@@ -68,7 +70,7 @@ These pages are ranking but getting zero clicks. Most have strong positions — 
 
 ## Pages Close to Top 3 (Ranking Push Opportunities)
 
-These pages are on page 1 of Google and just need a small push to reach the top 3, which would dramatically increase clicks.
+These rows had favorable average positions in the dated snapshot. They do not establish current page-one placement, show what change would alter position, or predict a click increase.
 
 | Page | Clicks | Impressions | CTR | Position |
 |---|---|---|---|---|
@@ -82,25 +84,22 @@ These pages are on page 1 of Google and just need a small push to reach the top 
 
 ---
 
-## Indexing Status
+## Historical Indexing Estimate (Not URL Inspection Evidence)
 
 - **~90 pages indexed** out of ~475 total (19% indexed)
 - The site was at 70 → 78 → 83 → ~90 over the past weeks — Google is slowly crawling and indexing
 - City pages (`/cancel-solar-contract/[city]`) have 301 pages but most are not yet indexed
 - State law pages (`/solar-contract-laws/[state]`) have low indexing
 
-**Why indexing is slow:** Google prioritizes pages with backlinks and engagement signals. The city/state pages are thin and similar to each other — Google is being selective. The blog posts are indexing faster because they have more unique content.
+**Historical interpretation:** The old report speculated about backlinks, engagement, and page similarity. Search Analytics rows do not prove URL-level index status or causation. The current governance response is to withhold repetitive or unsupported pages until they demonstrate sourced, unique value.
 
 ---
 
-## Medium Articles (34 Published)
+## User-Reported Medium Articles (Publication and Impact Unverified)
 
-You mentioned 34 articles published to Medium. These are valuable for:
-1. **Backlinks** — each Medium article linking back to `breakyoursolarcontract.com` builds domain authority
-2. **Indexing acceleration** — Google follows links from Medium (high-authority domain) to discover and index your pages faster
-3. **Keyword coverage** — Medium articles can rank for long-tail queries that send traffic directly
+The report recorded a user statement that 34 articles were published to Medium. The repository does not verify the live articles, current links, link attributes, platform policy, referral traffic, discovery, or ranking impact. A third-party link does not by itself prove “domain authority,” faster indexing, or traffic.
 
-**Action:** Make sure every Medium article has at least 2-3 links pointing to specific pages on `breakyoursolarcontract.com` (not just the homepage). Link to the relevant blog post or city page for the topic.
+**Current gate:** Verify each claimed placement individually from current primary evidence. Keep only editorially relevant links to approved canonical pages, and do not prescribe a bulk link count.
 
 ---
 
@@ -114,14 +113,14 @@ You mentioned 34 articles published to Medium. These are valuable for:
 ### This Month (Medium Impact)
 4. **Add internal links** from high-traffic blog posts to the zero-click city pages (LA, Las Vegas, Dallas) to help Google discover and rank them
 5. **Improve the Vivint article** (`/blog/cancel-vivint-solar-contract`) — 72 impressions at position 14, needs better content to push to page 1
-6. **Build backlinks** to the GoodLeap article (665 impressions, position 7.4) — one or two backlinks could push it to top 3
+6. **Revalidate the GoodLeap row** and review the page's evidence, unique value, search intent, and internal discovery; do not predict a position change from a backlink count
 
 ### Ongoing
 7. **Submit Medium article links** to GSC for indexing after each publish
-8. **Monitor the sunrun article CTR** weekly — it should improve significantly after the meta fix is re-crawled
+8. **If the Sunrun article is approved and deployed, monitor its CTR** with a defined baseline and comparison window; do not assume improvement
 
 ---
 
 ## Summary
 
-The site is performing well for its age. The biggest single opportunity is the Sunrun 2026 article — 2,994 impressions at position 7.4 with a broken meta description. That fix is now live. The second biggest opportunity is improving CTR on the 15+ zero-click pages that are already ranking on page 1. The site does not have a ranking problem — it has a **click-through rate problem** on its best pages.
+The snapshot identified the Sunrun article and several zero-click rows as investigation candidates. It did not prove a broken live description, a deployed fix, current page-one placement, or a single site-wide cause. Establish a fresh private baseline and current page eligibility before prioritizing experiments.

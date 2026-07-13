@@ -7,12 +7,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
+import {
+  MARKETING_CONSENT_DISCLOSURE,
+  MARKETING_CONSENT_VERSION,
+} from "@shared/leadConsent";
 
 export default function ExitIntentPopup() {
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [email, setEmail] = useState("");
-  const [wantsGuide, setWantsGuide] = useState(true);
+  const [marketingConsent, setMarketingConsent] = useState(false);
+  const [website, setWebsite] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
 
@@ -48,13 +53,20 @@ export default function ExitIntentPopup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    if (!marketingConsent) {
+      setSubmissionError("Please agree to receive the requested guide before submitting.");
+      return;
+    }
     setSubmissionError("");
     try {
       // Persist to DB via tRPC
       const result = await captureExitIntent.mutateAsync({
         email,
         sourcePage: window.location.pathname,
-        wantsGuide,
+        wantsGuide: true,
+        marketingConsent,
+        consentVersion: MARKETING_CONSENT_VERSION,
+        website,
       });
       if (!recordLeadSubmission(result, "exit_intent_popup", window.location.pathname)) {
         setSubmissionError("We couldn't save your request. Please try again.");
@@ -124,7 +136,7 @@ export default function ExitIntentPopup() {
                     </h2>
 
                     <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-                      Find out in 60 seconds if you qualify to cancel — even if your company went bankrupt, your system doesn't work, or you're paying more than your old electric bill.
+                      Request a guide to common solar-contract concerns, including company closures, system problems, and unexpected costs.
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-3">
@@ -132,44 +144,67 @@ export default function ExitIntentPopup() {
                         type="email"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        placeholder="Enter your email for a free case review"
+                        placeholder="Enter your email to request the guide"
                         required
                         className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 focus:ring-amber-500/50"
                         style={{ background: "oklch(0.18 0.012 265)", border: "1px solid oklch(0.3 0.01 265)" }}
                       />
+                      <div
+                        aria-hidden="true"
+                        className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden"
+                      >
+                        <label htmlFor="exit-intent-website">Leave this field blank</label>
+                        <input
+                          id="exit-intent-website"
+                          name="website"
+                          type="text"
+                          value={website}
+                          onChange={(event) => setWebsite(event.target.value)}
+                          autoComplete="off"
+                          tabIndex={-1}
+                        />
+                      </div>
+                      <label
+                        htmlFor="exit-intent-marketing-consent"
+                        className="flex cursor-pointer items-start gap-2.5 text-left text-xs leading-relaxed text-zinc-400"
+                      >
+                        <input
+                          id="exit-intent-marketing-consent"
+                          name="marketingConsent"
+                          type="checkbox"
+                          checked={marketingConsent}
+                          required
+                          aria-required="true"
+                          onChange={(event) => setMarketingConsent(event.target.checked)}
+                          className="mt-0.5 h-4 w-4 shrink-0 accent-amber-500"
+                        />
+                        <span>
+                          <span className="font-semibold text-zinc-300">Required: </span>
+                          {MARKETING_CONSENT_DISCLOSURE}
+                        </span>
+                      </label>
                       <button
                         type="submit"
-                        disabled={captureExitIntent.isPending}
+                        disabled={captureExitIntent.isPending || !marketingConsent}
                         className="w-full py-3.5 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
                         style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
                       >
-                        GET MY FREE CASE REVIEW + GUIDE →
+                        REQUEST MY GUIDE →
                       </button>
                       {submissionError && (
                         <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
                       )}
-                      <label className="flex items-start gap-2 text-zinc-500 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={wantsGuide}
-                          onChange={(e) => setWantsGuide(e.target.checked)}
-                          className="mt-0.5 accent-amber-500"
-                        />
-                        <span>
-                          Email me the free PDF: <span className="text-zinc-400">The Solar Contract Escape Guide (7 legal loopholes)</span>.
-                        </span>
-                      </label>
                     </form>
 
                     <p className="text-zinc-600 text-xs text-center mt-3">
-                      No obligation. No cost. 100% confidential.
+                      No obligation. No cost. Submission does not guarantee representation or a result.
                     </p>
 
                     <button
                       onClick={handleDismiss}
                       className="block w-full text-center text-zinc-600 text-xs mt-3 hover:text-zinc-400 transition-colors"
                     >
-                      No thanks, I'll stay trapped in my contract
+                      No thanks, close this window
                     </button>
                   </>
                 ) : (
@@ -181,7 +216,7 @@ export default function ExitIntentPopup() {
                       YOU'RE IN.
                     </div>
                     <p className="text-white font-semibold mb-2">Your information was submitted for review.</p>
-                    <p className="text-zinc-400 text-sm">Response time, availability, and next steps vary. You may also receive an SMS confirmation and, if selected, an educational email sequence.</p>
+                    <p className="text-zinc-400 text-sm">We received your guide request. You can unsubscribe from informational emails at any time.</p>
                     <button
                       onClick={handleDismiss}
                       className="mt-6 text-amber-500 text-sm font-bold hover:text-amber-400 transition-colors"

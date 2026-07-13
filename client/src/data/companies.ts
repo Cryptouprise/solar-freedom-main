@@ -1,6 +1,8 @@
 // Solar company profiles for SEO landing pages
 // Each company has complaint data, fraud allegations, BBB rating, and cancellation grounds
 
+import type { EditorialReview } from './publication-governance';
+
 export interface CompanyData {
   slug: string;
   name: string;
@@ -22,6 +24,8 @@ export interface CompanyData {
   lawsuits: string[];
   statesActive: string[];
   relatedCompanies: string[];
+  /** Required before this company page may enter search discovery. */
+  editorialReview?: EditorialReview;
 }
 
 export const companies: CompanyData[] = [

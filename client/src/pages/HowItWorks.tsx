@@ -1,4 +1,5 @@
 import { useSeoMeta } from "@/hooks/useSeoMeta";
+import { SchemaInjector } from "@/components/SchemaInjector";
 import {
   ArrowRight,
   BadgeCheck,
@@ -16,25 +17,25 @@ const processSteps = [
     step: "01",
     icon: <ClipboardCheck className="h-6 w-6" />,
     title: "Tell Us What Happened",
-    body: "Start with the basics: company name, payment amount, signing date, installation status, and what the salesperson promised. This helps us identify the strongest legal path quickly.",
+    body: "Start with the basics: company name, payment amount, signing date, installation status, and what the salesperson represented. This creates a factual inventory for review.",
   },
   {
     step: "02",
     icon: <FileSearch className="h-6 w-6" />,
-    title: "We Review the Contract Trail",
-    body: "Our team looks for missing cancellation notices, Truth in Lending Act disclosure problems, inflated savings claims, undisclosed liens, and state consumer protection violations.",
+    title: "Review the Contract Trail",
+    body: "Compare the signed agreement, disclosures, sales materials, bills, installation records, and communications. Legal conclusions require a fact-specific review of current law.",
   },
   {
     step: "03",
     icon: <Scale className="h-6 w-6" />,
-    title: "You Get an Exit Strategy",
-    body: "You receive a plain-English explanation of your options: cancellation, rescission, lender dispute, negotiated reduction, lien removal, or transfer support if you are selling.",
+    title: "Map Questions and Possible Paths",
+    body: "Identify contract provisions and questions to discuss, which may include cancellation, a lender dispute, negotiation, transfer, or title-related issues. Availability depends on the documents and facts.",
   },
   {
     step: "04",
     icon: <CalendarCheck className="h-6 w-6" />,
-    title: "We Move the Case Forward",
-    body: "If you qualify, we help organize the evidence, contact the right parties, and pursue the best outcome: total cancellation, reduced loan balance, lien release, or credit repair support.",
+    title: "Choose the Next Step",
+    body: "Decide whether to contact a company or lender, file a regulator complaint, seek independent legal advice, or take another documented step. No result or timeline is promised.",
   },
 ];
 
@@ -65,24 +66,24 @@ const outcomes = [
 const faq = [
   {
     q: "How long does solar contract cancellation take?",
-    a: "Most reviews start within days. Actual cancellation or settlement timing depends on the company, lender, evidence, and state law, but many cases move in a 30 to 90 day window.",
+    a: "Timing depends on the agreement, facts, parties, selected process, and applicable law. No general page can predict a response time, settlement, or result.",
   },
   {
     q: "Do I need my full solar contract before asking for help?",
     a: "No. You can start with what you have. Helpful documents include the contract, proposal, financing disclosures, utility bills, texts, emails, and screenshots of savings promises.",
   },
   {
-    q: "Can Solar Freedom help if the panels are already installed?",
-    a: "Yes. Installed systems are more complicated, but misrepresentation, disclosure violations, underperformance, and lien problems can still create legal options.",
+    q: "What if the panels are already installed?",
+    a: "Installation status is one fact to review alongside the agreement, financing, disclosures, performance records, communications, and current law. It does not determine an outcome by itself.",
   },
 ];
 
 const schema = {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  name: "How Solar Freedom helps homeowners cancel solar contracts",
+  name: "How to prepare a solar contract for individual review",
   description:
-    "A four-step process for reviewing solar contracts, identifying legal issues, and pursuing cancellation, reduction, lien release, or transfer support.",
+    "A four-step process for organizing solar contract records, identifying questions, and choosing a documented next step.",
   step: processSteps.map((step) => ({
     "@type": "HowToStep",
     name: step.title,
@@ -107,7 +108,7 @@ export default function HowItWorks() {
   useSeoMeta({
     title: "How Solar Contract Cancellation Works | Solar Freedom",
     description:
-      "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
+      "Learn how to organize solar agreement records, identify questions for review, and compare possible next steps without assuming an outcome.",
     canonical: "https://breakyoursolarcontract.com/how-it-works",
   });
 
@@ -119,14 +120,7 @@ export default function HowItWorks() {
         color: "oklch(0.95 0.01 265)",
       }}
     >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      <SchemaInjector schemas={[schema, faqSchema]} />
 
       <nav
         className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 px-6 py-4"
@@ -167,21 +161,20 @@ export default function HowItWorks() {
                 className="mb-6 text-5xl font-black leading-none text-white md:text-7xl"
                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
-                HOW WE HELP YOU
+                HOW TO PREPARE
                 <br />
-                <span className="text-amber-400">BREAK FREE</span>
+                <span className="text-amber-400">FOR A REVIEW</span>
               </h1>
               <p className="mb-8 max-w-3xl text-xl leading-relaxed text-gray-300">
-                Solar Freedom turns a confusing solar contract problem into a
-                clear action plan. We review what you signed, compare it to the
-                promises you were sold, and identify the fastest legal route
-                toward cancellation, loan reduction, lien release, or transfer
-                support.
+                Organize what you signed, compare it with the written sales
+                materials, and identify questions that require a document-specific
+                review. Possible next steps depend on the agreement, facts, parties,
+                and current law.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/#contact">
                   <button className="flex items-center gap-2 rounded-lg bg-amber-400 px-6 py-3 font-bold text-black transition-transform hover:scale-[1.02]">
-                    Start Free Review <ArrowRight className="h-4 w-4" />
+                    Request Document Review <ArrowRight className="h-4 w-4" />
                   </button>
                 </Link>
                 <Link href="/solar-contract-help">
@@ -195,7 +188,7 @@ export default function HowItWorks() {
             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-6">
               <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-amber-400">
                 <BadgeCheck className="h-4 w-4" />
-                Most Cases Start With These Clues
+                Start With These Record Clues
               </div>
               <div className="space-y-3">
                 {qualifyingSignals.slice(0, 4).map((signal) => (
@@ -220,8 +213,8 @@ export default function HowItWorks() {
               </h2>
               <p className="text-gray-400">
                 The process is built to be simple for homeowners and specific
-                enough for attorneys, lenders, and solar companies to take the
-                dispute seriously.
+                enough to support a careful conversation with a company, lender,
+                regulator, or attorney you choose.
               </p>
             </div>
             <div className="grid gap-5 md:grid-cols-2">
@@ -258,9 +251,9 @@ export default function HowItWorks() {
                 WHAT WE LOOK FOR
               </h2>
               <p className="text-gray-400">
-                You do not need to know the law before you ask for help. The
-                point of the review is to find whether the contract, sales
-                process, financing, or system performance gives you leverage.
+                You do not need to reach a legal conclusion before organizing the
+                record. The purpose is to identify what the documents establish,
+                what remains disputed, and what needs professional review.
               </p>
             </div>
             <div className="grid gap-3">
@@ -336,12 +329,12 @@ export default function HowItWorks() {
               KNOW WHAT YOUR CONTRACT IS DOING TO YOU
             </h2>
             <p className="mx-auto mb-6 max-w-2xl text-gray-300">
-              Send the facts once. We will help you understand whether your
-              solar agreement has a legal pressure point.
+              Submit the agreement and supporting records for an individual
+              review. No representation, result, or response time is promised.
             </p>
             <Link href="/#contact">
               <button className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-6 py-3 font-bold text-black transition-transform hover:scale-[1.02]">
-                Get My Free Review <ArrowRight className="h-4 w-4" />
+                Request My Document Review <ArrowRight className="h-4 w-4" />
               </button>
             </Link>
           </div>

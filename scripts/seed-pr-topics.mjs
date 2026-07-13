@@ -8,7 +8,7 @@ import mysql from "mysql2/promise";
 const topics = [
   {
     title: "Solar Homeowners Win Contract Cancellations in Record Numbers Across the US",
-    angle: "Focus on the growing trend of successful solar contract exits. Mention that thousands of homeowners have successfully cancelled predatory solar contracts using consumer protection laws.",
+    angle: "Focus on how homeowners can organize solar agreement records and locate current public consumer resources. Do not state a volume of cases, professional role, legal conclusion, or outcome unless a cited primary source supports it.",
     targetKeywords: "solar contract cancellation, cancel solar contract, solar contract exit",
     targetUrl: "https://breakyoursolarcontract.com",
     sortOrder: 10,

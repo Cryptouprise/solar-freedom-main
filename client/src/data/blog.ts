@@ -12,6 +12,7 @@ import { blogArticlesBatch8 } from './blog-articles-batch8';
 import { batch9BlogPosts } from './blog-articles-batch9';
 import { batch10BlogPosts } from './blog-articles-batch10';
 import type { QuoteVerification } from '@shared/contentGovernance';
+import type { EditorialReview } from './publication-governance';
 
 export interface BlogSection {
   type: 'h2' | 'h3' | 'p' | 'callout' | 'warning' | 'quote' | 'list' | 'stat-block' | 'image' | 'video';
@@ -42,6 +43,8 @@ export interface BlogPost {
   content: BlogSection[];
   faq: { q: string; a: string }[];
   relatedSlugs: string[];
+  /** Required before the post may enter search discovery or render publicly. */
+  editorialReview?: EditorialReview;
   canonicalUrl?: string; // Override canonical — use when this post duplicates a city/company page
 }
 

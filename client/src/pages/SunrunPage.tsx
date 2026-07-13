@@ -9,10 +9,12 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import BookingModal from "@/components/BookingModal";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission, trackPhoneClick } from "@/lib/analytics";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 // ─── Scroll Reveal ─────────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -34,28 +36,28 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 // ─── Sunrun Contract Clause Data ───────────────────────────────────────────────
 const SUNRUN_CLAUSES = [
   {
-    clause: "2.9% Annual Escalator",
-    what: "Your monthly payment increases by 2.9% every year for 20–25 years.",
-    impact: "A $150/mo payment becomes $270/mo by year 20. Most reps never showed you this math.",
-    legal: "If this wasn't clearly disclosed before signing, it may constitute a TILA violation.",
+    clause: "Payment Schedule",
+    what: "Locate every payment amount, annual adjustment, fee, and end-of-term provision in the agreement you signed.",
+    impact: "Calculate the payment schedule from your own documents rather than relying on a general percentage or example.",
+    legal: "Whether a disclosure rule applies requires review of the transaction, financing documents, and current law.",
   },
   {
-    clause: "20–25 Year Lease Term",
-    what: "You're locked into paying Sunrun for two decades — regardless of whether the system works.",
-    impact: "Sunrun's average lease is 25 years. Your roof, your home value, and your life situation will all change.",
-    legal: "Performance guarantees in the contract create grounds for cancellation if the system underperforms.",
+    clause: "Term and Renewal",
+    what: "Identify the initial term, renewal language, early-termination provisions, and any purchase option.",
+    impact: "Compare those terms with your expected ownership, roof, refinancing, and sale timeline.",
+    legal: "A contract term does not establish a remedy by itself; review performance and dispute provisions as written.",
   },
   {
-    clause: "Home Sale Transfer Requirement",
-    what: "Buyers must assume your Sunrun lease or you must buy it out to sell your home.",
-    impact: "Buyout quotes often run $15,000–$40,000. Many buyers refuse to assume solar leases — deals fall through.",
-    legal: "This restriction on your property rights may constitute an unlawful encumbrance under state law.",
+    clause: "Transfer and Buyout",
+    what: "Review transfer eligibility, buyer approval, payoff or purchase terms, fees, and required notices.",
+    impact: "Ask the buyer's lender, title professional, and contract counterparty for current written requirements.",
+    legal: "Do not characterize a filing or transfer term as unlawful without a document-specific legal review.",
   },
   {
-    clause: "Performance Guarantee Loopholes",
-    what: "Sunrun guarantees a minimum production level — but the calculation method often makes it nearly impossible to trigger.",
-    impact: "Even if your system produces 30% less than promised, Sunrun's formula may show it as 'within spec.'",
-    legal: "Independent production analysis can expose gaps between promised and actual output, supporting a fraud claim.",
+    clause: "Performance Terms",
+    what: "Find the production methodology, exclusions, notice requirements, cure process, and remedy stated in the agreement.",
+    impact: "Compare that language with utility bills, monitoring data, maintenance records, and written representations.",
+    legal: "A performance difference does not establish breach or fraud without the contract, facts, and applicable law.",
   },
 ];
 
@@ -66,13 +68,24 @@ function SunrunContactForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [form, setForm] = useState({
-    firstName: "", lastName: "", phone: "", email: "", issue: "", agree: false,
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    issue: "",
+    contactConsent: false,
+    smsConsent: false,
+    website: "",
   });
 
   const submitLead = trpc.leads.submit.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.contactConsent) {
+      setSubmissionError("Please authorize contact about this request before submitting.");
+      return;
+    }
     setSubmissionError("");
     try {
       const result = await submitLead.mutateAsync({
@@ -85,6 +98,10 @@ function SunrunContactForm() {
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
         formName: "Sunrun Dedicated Page Form",
+        contactConsent: form.contactConsent,
+        smsConsent: form.smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website: form.website,
       });
       if (!recordLeadSubmission(result, "sunrun_dedicated_form", window.location.pathname)) {
         setSubmissionError("We couldn't save your request. Please try again.");
@@ -110,7 +127,7 @@ function SunrunContactForm() {
           </svg>
         </div>
         <h3 className="font-display text-3xl text-white mb-2">CASE REVIEW REQUESTED</h3>
-        <p className="text-gray-300 mb-1">A Sunrun case specialist will contact you within <span className="text-amber-400 font-semibold">2 business hours</span>.</p>
+        <p className="text-gray-300 mb-1">Your information was submitted for review. Availability and response time require individual confirmation.</p>
         <p className="text-gray-500 text-sm font-mono">Your calendar is opening now...</p>
         <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
       </div>
@@ -169,23 +186,22 @@ function SunrunContactForm() {
           <option value="Other">Other</option>
         </select>
       </div>
-      <label className="flex items-start gap-3 cursor-pointer">
-        <input
-          type="checkbox" checked={form.agree} onChange={e => update("agree", e.target.checked)}
-          className="mt-1 accent-amber-500 w-4 h-4 flex-shrink-0"
-        />
-        <span className="text-gray-400 text-xs leading-relaxed">
-          By submitting, I agree to be contacted by Solar Freedom regarding my Sunrun contract review via phone, text, and email.{" "}
-          <a href="/privacy" className="text-amber-400 underline">Privacy Policy</a>.
-        </span>
-      </label>
+      <ContactConsentFields
+        idPrefix="sunrun-document-review"
+        contactConsent={form.contactConsent}
+        smsConsent={form.smsConsent}
+        website={form.website}
+        onContactConsentChange={(checked) => update("contactConsent", checked)}
+        onSmsConsentChange={(checked) => update("smsConsent", checked)}
+        onWebsiteChange={(value) => update("website", value)}
+      />
       <button
         type="submit"
-        disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !form.agree || submitLead.isPending}
+        disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !form.contactConsent || submitLead.isPending}
         className="w-full py-5 rounded text-lg font-black uppercase tracking-widest transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
         style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "#000" }}
       >
-        {submitLead.isPending ? "SUBMITTING..." : "GET MY FREE SUNRUN CASE REVIEW →"}
+        {submitLead.isPending ? "SUBMITTING..." : "REQUEST MY SUNRUN DOCUMENT REVIEW →"}
       </button>
       {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
     </form>
@@ -196,9 +212,10 @@ function SunrunContactForm() {
 export default function SunrunPage() {
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   useSeoMeta({
-    title: "Sunrun Solar Contract Cancellation — Free Legal Review | Solar Freedom",
+    title: "Sunrun Solar Agreement Review Guide | Solar Freedom",
     description: "Review Sunrun agreement terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
     canonical: "https://breakyoursolarcontract.com/sunrun",
+    noindex: true,
   });
 
   return (
@@ -219,7 +236,7 @@ export default function SunrunPage() {
               {phoneDisplay}
             </a>
             <a href="#case-review" className="px-4 py-2 rounded font-black text-sm uppercase tracking-wider transition-all" style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "#000" }}>
-              Free Review
+              Document Review
             </a>
           </div>
         </div>
@@ -233,7 +250,7 @@ export default function SunrunPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <div className="inline-flex items-center gap-2 border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-mono uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                Sunrun Contract Specialists
+                Sunrun Agreement Research
               </div>
             </motion.div>
             <motion.h1
@@ -260,13 +277,13 @@ export default function SunrunPage() {
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded font-black text-lg uppercase tracking-wider transition-all hover:scale-105"
                 style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "#000" }}
               >
-                Get Free Case Review →
+                Request Document Review →
               </a>
               <a
-                href="/blog/sunrun-solar-contract-cancellation-2026"
+                href="/solar-contract-help"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded font-bold text-base uppercase tracking-wider border border-white/20 text-gray-300 hover:border-amber-500/50 hover:text-amber-400 transition-all"
               >
-                Read the Full Guide
+                Review the Document Checklist
               </a>
             </motion.div>
           </div>
@@ -278,10 +295,10 @@ export default function SunrunPage() {
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { stat: "2,500+", label: "BBB Complaints Against Sunrun" },
-              { stat: "20–25 yr", label: "Average Sunrun Lease Length" },
-              { stat: "2.9%", label: "Annual Payment Escalator" },
-              { stat: "Free", label: "Case Review — No Obligation" },
+              { stat: "1", label: "Signed Agreement" },
+              { stat: "2", label: "Financing + Disclosures" },
+              { stat: "3", label: "Bills + Performance" },
+              { stat: "4", label: "Communications" },
             ].map(({ stat, label }) => (
               <div key={label}>
                 <div className="font-black text-3xl mb-1" style={{ fontFamily: "'Bebas Neue', sans-serif", color: "oklch(0.72 0.19 50)" }}>{stat}</div>
@@ -344,18 +361,18 @@ export default function SunrunPage() {
               <div>
                 <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-3">— Legal Grounds</div>
                 <h2 className="font-black text-white uppercase leading-none mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                  HOW WE CANCEL<br />SUNRUN CONTRACTS
+                  QUESTIONS TO REVIEW IN<br />SUNRUN DOCUMENTS
                 </h2>
                 <p className="text-gray-400 leading-relaxed mb-8">
                   No general page can determine whether a Sunrun agreement is enforceable or whether a remedy is available. These are questions to investigate using your documents and current law:
                 </p>
                 <div className="space-y-4">
                   {[
-                    { title: "TILA Violations", desc: "Truth in Lending Act requires full disclosure of all financing terms. Undisclosed escalator clauses and dealer fees are common violations." },
-                    { title: "FTC Cooling-Off Rule", desc: "Door-to-door sales must include a 3-day right of rescission. Many Sunrun reps fail to provide proper cancellation notice." },
-                    { title: "State DTPA Claims", desc: "Deceptive Trade Practices Act claims apply when savings projections were materially false or misleading." },
-                    { title: "Performance Breach", desc: "If your system produces significantly less than the contractual guarantee, Sunrun is in breach — giving you cancellation rights." },
-                    { title: "Home Sale Impossibility", desc: "Sunrun's transfer requirements can constitute an unlawful restriction on your property rights under state law." },
+                    { title: "Financing Disclosures", desc: "Compare the signed financing disclosures, payment schedule, total cost, fees, and any written sales materials." },
+                    { title: "Cooling-Off Rule", desc: "Check the transaction location, dates, notices, scope, and exemptions against the current federal rule." },
+                    { title: "Written Representations", desc: "Preserve proposals, messages, recordings, and other evidence of what was represented before signing." },
+                    { title: "Performance Records", desc: "Compare contractual performance terms with bills, monitoring data, maintenance history, and written notices." },
+                    { title: "Transfer Requirements", desc: "Obtain current written transfer, buyout, buyer-approval, title, and lender requirements before a home sale." },
                   ].map((item, i) => (
                     <div key={item.title} className="flex gap-4">
                       <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "oklch(0.72 0.19 50 / 0.2)", border: "1px solid oklch(0.72 0.19 50 / 0.4)" }}>
@@ -372,14 +389,14 @@ export default function SunrunPage() {
             </Reveal>
             <Reveal delay={0.15}>
               <div className="rounded-2xl border border-amber-500/30 p-8" style={{ background: "oklch(0.12 0.015 265)" }}>
-                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-2">— Our Process</div>
+                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-2">— Document workflow</div>
                 <h3 className="font-black text-white text-2xl mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WHAT HAPPENS AFTER YOU SUBMIT</h3>
                 <div className="space-y-5">
                   {[
-                    { step: "01", title: "Free Case Review", desc: "A Sunrun specialist reviews your contract within 2 business hours and identifies potential violations." },
+                    { step: "01", title: "Document Submission", desc: "Submit the signed agreement and supporting records for an individual review. No response time is promised." },
                     { step: "02", title: "Contract Analysis", desc: "Review the agreement, financing disclosures, escalator provisions, performance terms, and related records." },
-                    { step: "03", title: "Legal Strategy", desc: "We present your options: cancellation, renegotiation, or lien removal — with realistic timelines and outcomes." },
-                    { step: "04", title: "Resolution", desc: "Most Sunrun cancellations resolve in 30–90 days. We handle all communication with Sunrun directly." },
+                    { step: "03", title: "Questions and Possible Paths", desc: "Identify provisions and questions that may warrant company, lender, regulator, or independent legal follow-up." },
+                    { step: "04", title: "Next Step", desc: "Choose a documented next step based on the agreement, facts, parties, current law, and any written engagement terms." },
                   ].map(item => (
                     <div key={item.step} className="flex gap-4">
                       <div className="font-black text-2xl flex-shrink-0 w-10" style={{ fontFamily: "'Bebas Neue', sans-serif", color: "oklch(0.72 0.19 50)" }}>{item.step}</div>
@@ -402,11 +419,11 @@ export default function SunrunPage() {
           <div className="max-w-2xl mx-auto">
             <Reveal>
               <div className="text-center mb-10">
-                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-3">— Free, No Obligation</div>
+                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-3">— Individual Document Review</div>
                 <h2 className="font-black text-white uppercase leading-none mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                  GET YOUR FREE<br />SUNRUN CASE REVIEW
+                  REQUEST A SUNRUN<br />DOCUMENT REVIEW
                 </h2>
-                <p className="text-gray-400">A Sunrun specialist will review your contract and identify your legal options within 2 business hours.</p>
+                <p className="text-gray-400">Submit the agreement and supporting records. No representation, legal conclusion, result, or response time is promised.</p>
               </div>
             </Reveal>
             <Reveal delay={0.1}>
@@ -428,9 +445,9 @@ export default function SunrunPage() {
           </Reveal>
           <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             {[
-              { href: "/blog/sunrun-solar-contract-cancellation-2026", label: "Sunrun Cancellation Guide 2026", desc: "Full legal breakdown" },
-              { href: "/blog/how-to-cancel-sunrun-solar-contract", label: "How to Cancel Sunrun Step-by-Step", desc: "Detailed process guide" },
-              { href: "/cancel-sunrun-solar-contract", label: "Sunrun Complaint Database", desc: "2,500+ documented complaints" },
+              { href: "/solar-contract-help", label: "Solar Contract Help", desc: "Records and questions to review" },
+              { href: "/solar-loan-help", label: "Solar Loan Help", desc: "Financing documents and dispute records" },
+              { href: "/solar-companies", label: "Company Research Hub", desc: "Source-review status for company pages" },
             ].map(link => (
               <a key={link.href} href={link.href} className="block rounded-xl border border-white/10 hover:border-amber-500/40 bg-zinc-900/50 p-5 transition-all group">
                 <div className="text-white font-bold text-sm group-hover:text-amber-400 transition-colors mb-1">{link.label}</div>
@@ -452,13 +469,13 @@ export default function SunrunPage() {
             <span className="font-black text-white text-sm" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>SOLAR FREEDOM</span>
           </a>
           <p className="text-gray-600 text-xs max-w-lg mx-auto">
-            Solar Freedom provides legal referral services connecting homeowners with attorneys experienced in solar contract law. Results vary. This page is for informational purposes only and does not constitute legal advice.
+            Solar Freedom provides educational information and an intake pathway for individual document review. No attorney relationship, representation, result, or response time is created by this page.
           </p>
           <div className="flex justify-center gap-6 mt-4 text-xs text-gray-600">
             <a href="/" className="hover:text-amber-400 transition-colors">Home</a>
             <a href="/blog" className="hover:text-amber-400 transition-colors">Blog</a>
             <a href="/solar-contract-laws" className="hover:text-amber-400 transition-colors">State Laws</a>
-            <a href="/cancel-sunrun-solar-contract" className="hover:text-amber-400 transition-colors">Sunrun Complaints</a>
+            <a href="/solar-companies" className="hover:text-amber-400 transition-colors">Company Research</a>
           </div>
         </div>
       </footer>
