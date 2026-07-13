@@ -504,59 +504,6 @@ function loadBlogData() {
 }
 
 // ─── City-specific meta overrides for high-opportunity pages ─────────────────
-const CITY_OVERRIDES = {
-  "phoenix-az": {
-    title: "Cancel Solar Contract in Phoenix, AZ | Get Out of Your Solar Lease",
-    description:
-      "Phoenix homeowners: APS net metering changes may have voided your solar contract's savings promises. Our attorneys cancel solar leases and loans. Free case review.",
-  },
-  "los-angeles-ca": {
-    title: "Cancel Solar Contract in Los Angeles, CA | NEM 3.0 Rights",
-    description:
-      "Los Angeles homeowners: NEM 3.0 cut solar export credits by 75%. If your savings projections were based on NEM 2.0, you may have grounds to cancel. Free legal review.",
-  },
-  "north-las-vegas-nv": {
-    title: "Cancel Solar Contract in North Las Vegas, NV | NV Energy Rights",
-    description:
-      "North Las Vegas homeowners: NV Energy net metering changes may have invalidated your solar contract. Nevada law requires specific disclosures. Free case review.",
-  },
-  "denver-co": {
-    title: "Cancel Solar Contract in Denver, CO | Colorado Solar Rights",
-    description:
-      "Denver homeowners trapped in solar contracts: Colorado consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.",
-  },
-  "san-diego-ca": {
-    title: "Cancel Solar Contract in San Diego, CA | NEM 3.0 Legal Help",
-    description:
-      "San Diego homeowners: SDG&E NEM 3.0 cut solar export credits by 75%. If your savings projections were based on NEM 2.0, you have legal grounds to cancel. Free review.",
-  },
-  "las-vegas-nv": {
-    title: "Cancel Solar Contract in Las Vegas, NV | Nevada Solar Rights",
-    description:
-      "Las Vegas homeowners: Nevada net metering changes may have invalidated your solar contract's savings promises. Our attorneys cancel solar leases and loans. Free review.",
-  },
-  "houston-tx": {
-    title: "Cancel Solar Contract in Houston, TX | Texas Solar Rights",
-    description:
-      "Houston homeowners: Texas has strong consumer protection laws for solar contracts. Our attorneys cancel solar leases and loans across the Houston metro. Free case review.",
-  },
-  "dallas-tx": {
-    title: "Cancel Solar Contract in Dallas, TX | Texas Solar Rights",
-    description:
-      "Dallas homeowners trapped in solar contracts: Texas consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.",
-  },
-  "orlando-fl": {
-    title: "Cancel Solar Contract in Orlando, FL | Florida Solar Rights",
-    description:
-      "Orlando homeowners: Florida's solar contract laws include a 3-day rescission right. Our attorneys cancel solar leases and loans across Central Florida. Free case review.",
-  },
-  "tampa-fl": {
-    title: "Cancel Solar Contract in Tampa, FL | Florida Solar Rights",
-    description:
-      "Tampa homeowners trapped in solar contracts: Florida consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.",
-  },
-};
-
 // ─── Build meta map ───────────────────────────────────────────────────────────
 function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   const map = {};
@@ -565,24 +512,20 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   map["/"] = {
     title: "Solar Freedom — Get Out of Your Solar Contract Today",
     description:
-      "Trapped in a solar contract? Our attorneys have helped 3,000+ homeowners cancel solar contracts from Sunrun, SunPower, Tesla Solar & more. Free case review.",
+      "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.",
     canonical: `${BASE_URL}/`,
   };
 
   // City pages — 303 pages
   for (const city of cityEntries) {
     const urlPath = `/cancel-solar-contract/${city.slug}`;
-    const override = CITY_OVERRIDES[city.slug];
     const cityLabel = city.stateCode
       ? `${city.name}, ${city.stateCode}`
       : city.name;
     map[urlPath] = {
-      title:
-        override?.title ??
-        `Cancel Solar Contract in ${cityLabel} | Solar Freedom`,
+      title: `Cancel Solar Contract in ${cityLabel} | Solar Freedom`,
       description: fitMetaDescription(
-        override?.description ??
-          `Trapped in a solar contract in ${cityLabel}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`
+        `Review solar contract terms and consumer resources for ${cityLabel}. Options and timing depend on your agreement, facts, and jurisdiction.`
       ),
       canonical: `${BASE_URL}${urlPath}`,
       geo: { city: city.name, region: city.stateCode || undefined },
@@ -603,7 +546,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     const urlPath = `/cancel-${company.slug}-solar-contract`;
     map[urlPath] = {
       title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
-      description: `Trapped in a ${company.name} solar contract? Our attorneys specialize in ${company.name} cancellations. Free case review — no obligation.`,
+      description: `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`,
       canonical: `${BASE_URL}${urlPath}`,
       // Rich fields for unique prerender content
       companyData: {
@@ -625,9 +568,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     const title = state.metaTitle
       ? `${state.metaTitle} | Solar Freedom`
       : `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`;
-    const description = state.metaDescription
-      ? state.metaDescription
-      : `Learn your legal rights under ${state.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`;
+    const description = `Review solar-contract consumer information for ${state.state}, including records to gather and official sources to verify. Options depend on facts and current law.`;
     map[urlPath] = {
       title,
       description,
@@ -652,13 +593,13 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     const urlPath = `/blog/${slug}`;
     map[urlPath] = {
       title: data.title,
-      description: data.description,
+      description: suppressUnverifiedFirstPartyClaims(data.description),
       canonical: `${BASE_URL}${urlPath}`,
-      faq: data.faq,
+      faq: data.faq?.map(item => ({ ...item, a: suppressUnverifiedFirstPartyClaims(item.a) })),
       datePublished: data.datePublished,
       dateModified: data.dateModified,
       contentSections: data.contentSections,
-      excerpt: data.excerpt,
+      excerpt: suppressUnverifiedFirstPartyClaims(data.excerpt),
       category: data.category,
     };
   }
@@ -678,7 +619,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     {
       path: "/solar-contract-help",
       title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",
-      desc: "Need solar contract help? Compare rescission, fraud claims, lender disputes, lien removal, and other legal options. Free case review.",
+      desc: "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review.",
     },
     {
       path: "/solar-panel-scam",
@@ -693,32 +634,27 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     {
       path: "/sunrun",
       title: "Sunrun Solar Contract Cancellation | Solar Freedom",
-      desc: "Sunrun contract problems, lease escalators, solar loan disputes, and cancellation options for homeowners who need a free legal review.",
+      desc: "Review Sunrun contract terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
     },
     {
       path: "/solar-lien-removal",
       title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom",
-      desc: "A solar lien (UCC-1 fixture filing) on your home can block a sale or refinance. Our attorneys remove solar liens. Free review.",
+      desc: "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
     },
     {
       path: "/solar-loan-help",
       title: "Solar Loan Help | Fight Predatory Solar Loans | Solar Freedom",
-      desc: "Trapped in a high-interest solar loan with hidden dealer fees? Our attorneys challenge solar loans under TILA and consumer protection law.",
+      desc: "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law.",
     },
     {
       path: "/selling-house-with-solar",
       title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
-      desc: "Solar loan blocking your home sale? We help homeowners pay off, negotiate, or legally challenge solar loans and liens so you can close. Free case review.",
+      desc: "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment.",
     },
     {
       path: "/solar-exit-options",
       title: "Solar Exit Options | How to Get Out of a Solar Contract",
-      desc: "Explore every legal path to exit your solar contract — rescission, fraud claims, lender disputes, and more. Free case review.",
-    },
-    {
-      path: "/solar-fraud-report",
-      title: "Report Solar Fraud | File a Solar Complaint | Solar Freedom",
-      desc: "Were you misled by a solar salesperson? Report solar fraud to the right agencies and explore your legal options. Free case review.",
+      desc: "Compare possible solar-contract paths and the documents, limits, and risks to review before deciding what to do next.",
     },
     {
       path: "/solar-contract-laws",
@@ -758,6 +694,27 @@ function escapeHtml(value) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+const unsupportedFirstPartyClaimPatterns = [
+  /3,000\+/i,
+  /Our attorneys/i,
+  /Success Rate/i,
+  /Homeowners (?:Helped|Freed)/i,
+  /Avg\. Resolution Time/i,
+  /Results in 30[–-]90 days/i,
+  /within 24 hours/i,
+  /licensed counsel/i,
+  /nationwide coverage/i,
+  /limited number of new cases/i,
+  /Contract cancelled\. No more payments/i,
+  /(?:Solar Freedom|\bwe\b|\bour (?:team|attorneys)\b)[^.!?]{0,160}(?:no upfront cost|contingency basis|all 50 states)/i,
+];
+
+function suppressUnverifiedFirstPartyClaims(input) {
+  const value = String(input ?? "");
+  if (!unsupportedFirstPartyClaimPatterns.some(pattern => pattern.test(value))) return value;
+  return "This material is withheld pending documented evidence and review. Options depend on the agreement, facts, jurisdiction, and any written engagement terms.";
 }
 
 function stripBrand(title) {
@@ -1000,7 +957,7 @@ function buildCompanyUniqueContent(meta) {
 
   return `
       <h2>About ${escapeHtml(companyName)}</h2>
-      ${cd.summary ? `<p>${escapeHtml(cd.summary)}</p>` : ''}
+      ${cd.summary ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(cd.summary))}</p>` : ''}
       ${complaintsText ? `<h2>Complaints listed on this page</h2><ul>${complaintsText}</ul>` : ''}
       ${knownIssuesText ? `<h2>Issues listed on this page</h2><ul>${knownIssuesText}</ul>` : ''}
       ${groundsText ? `<h2>Cancellation grounds listed on this page</h2><ul>${groundsText}</ul>` : ''}
@@ -1022,7 +979,7 @@ function hasVerifiedQuoteEvidence(value) {
 function renderContentSections(sections) {
   return (sections || [])
     .map(section => {
-      const content = escapeHtml(section.content || "");
+      const content = escapeHtml(suppressUnverifiedFirstPartyClaims(section.content || ""));
       if (section.type === "h2") return `<h2>${content}</h2>`;
       if (section.type === "h3") return `<h3>${content}</h3>`;
       if (section.type === "quote") {
@@ -1033,10 +990,11 @@ function renderContentSections(sections) {
         return `<p${section.type !== "p" ? ` data-content-type="${section.type}"` : ""}>${content}</p>`;
       }
       if (section.type === "list" && section.items?.length) {
-        return `<ul>${section.items.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+        return `<ul>${section.items.map(item => `<li>${escapeHtml(suppressUnverifiedFirstPartyClaims(item))}</li>`).join("")}</ul>`;
       }
       if (section.type === "stat-block" && section.stats?.length) {
         return `<dl>${section.stats
+          .filter(stat => suppressUnverifiedFirstPartyClaims(stat.value) === String(stat.value) && suppressUnverifiedFirstPartyClaims(stat.label) === String(stat.label))
           .map(stat => `<dt>${escapeHtml(stat.value)}</dt><dd>${escapeHtml(stat.label)}</dd>`)
           .join("")}</dl>`;
       }
@@ -1049,11 +1007,11 @@ function buildStateUniqueContent(meta) {
   const state = meta.stateData;
   if (!state) return "";
   const faq = (state.faq || [])
-    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`)
     .join("");
   return `
-    ${state.heroHook ? `<p>${escapeHtml(state.heroHook)}</p>` : ""}
-    ${state.heroSubhook ? `<p>${escapeHtml(state.heroSubhook)}</p>` : ""}
+    ${state.heroHook ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(state.heroHook))}</p>` : ""}
+    ${state.heroSubhook ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(state.heroSubhook))}</p>` : ""}
     ${state.primaryStatuteTitle ? `<h2>${escapeHtml(state.primaryStatuteTitle)}</h2>` : ""}
     ${state.primaryStatute ? `<p>${escapeHtml(state.primaryStatute)}</p>` : ""}
     ${state.coolingOffNote ? `<p>${escapeHtml(state.coolingOffNote)}</p>` : ""}
@@ -1064,7 +1022,7 @@ function buildStateUniqueContent(meta) {
 function buildBlogUniqueContent(meta) {
   const sections = renderContentSections(meta.contentSections);
   const faq = (meta.faq || [])
-    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`)
     .join("");
   return `
     ${meta.category ? `<p>${escapeHtml(meta.category)}</p>` : ""}

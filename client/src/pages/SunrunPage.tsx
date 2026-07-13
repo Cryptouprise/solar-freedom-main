@@ -197,7 +197,7 @@ export default function SunrunPage() {
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   useSeoMeta({
     title: "Sunrun Solar Contract Cancellation — Free Legal Review | Solar Freedom",
-    description: "Sunrun locked you into a 20-year contract with a 2.9% annual escalator. Our attorneys have cancelled hundreds of Sunrun agreements. Free case review — no obligation.",
+    description: "Review Sunrun agreement terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
     canonical: "https://breakyoursolarcontract.com/sunrun",
   });
 
@@ -249,7 +249,7 @@ export default function SunrunPage() {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
               className="text-xl text-gray-300 leading-relaxed mb-8 max-w-2xl"
             >
-              Sunrun's 20-year leases with 2.9% annual escalators have trapped hundreds of thousands of homeowners. Our attorneys have cancelled hundreds of Sunrun agreements — and found legal grounds in the vast majority of cases.
+              Review the term, escalator, transfer, performance, financing, and dispute provisions in the Sunrun documents you actually signed. Options depend on the agreement, facts, parties, and jurisdiction.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.35 }}
@@ -347,7 +347,7 @@ export default function SunrunPage() {
                   HOW WE CANCEL<br />SUNRUN CONTRACTS
                 </h2>
                 <p className="text-gray-400 leading-relaxed mb-8">
-                  Sunrun contracts aren't bulletproof. Our attorneys have identified consistent patterns of legal violations across thousands of Sunrun agreements. Here are the grounds we most commonly use:
+                  No general page can determine whether a Sunrun agreement is enforceable or whether a remedy is available. These are questions to investigate using your documents and current law:
                 </p>
                 <div className="space-y-4">
                   {[
@@ -377,7 +377,7 @@ export default function SunrunPage() {
                 <div className="space-y-5">
                   {[
                     { step: "01", title: "Free Case Review", desc: "A Sunrun specialist reviews your contract within 2 business hours and identifies potential violations." },
-                    { step: "02", title: "Contract Analysis", desc: "Our attorneys analyze your specific Sunrun agreement for TILA violations, escalator disclosures, and performance guarantees." },
+                    { step: "02", title: "Contract Analysis", desc: "Review the agreement, financing disclosures, escalator provisions, performance terms, and related records." },
                     { step: "03", title: "Legal Strategy", desc: "We present your options: cancellation, renegotiation, or lien removal — with realistic timelines and outcomes." },
                     { step: "04", title: "Resolution", desc: "Most Sunrun cancellations resolve in 30–90 days. We handle all communication with Sunrun directly." },
                   ].map(item => (

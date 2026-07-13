@@ -28,7 +28,6 @@ if (typeof window !== 'undefined') {
     "/blog",
     "/how-it-works",
     "/seo-command-center",
-    "/solar-fraud-report",
     "/solar-contract-help",
     "/solar-panel-scam",
     "/solar-exit-options",

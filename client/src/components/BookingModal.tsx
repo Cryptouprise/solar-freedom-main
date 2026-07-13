@@ -179,7 +179,7 @@ export default function BookingModal({ isOpen, onClose, firstName }: BookingModa
               ))}
             </div>
             <div>
-              <div className="text-white text-xs font-semibold">3,000+ homeowners helped</div>
+              <div className="text-white text-xs font-semibold">Individual document review</div>
               <div className="text-zinc-500 text-[10px]">Average case resolved in 60–90 days</div>
             </div>
           </div>

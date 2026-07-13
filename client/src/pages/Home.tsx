@@ -192,14 +192,14 @@ function MultiStepForm() {
             </svg>
           </div>
           <h3 className="font-display text-4xl text-white mb-3">YOU'RE IN THE QUEUE</h3>
-          <p className="text-gray-300 text-lg mb-2">A case specialist will contact you within <span className="text-amber-400 font-semibold">2 business hours</span>.</p>
+          <p className="text-gray-300 text-lg mb-2">Your information was submitted for review. Response time and availability vary.</p>
           <p className="text-gray-500 text-sm font-mono mb-6">Case #{Math.floor(Math.random() * 90000) + 10000} — {new Date().toLocaleDateString()}</p>
           <button
             onClick={() => setShowBooking(true)}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
           >
-            📅 Book My Free Case Review
+            📅 Request a Case Review
           </button>
         </motion.div>
         <BookingModal
@@ -216,7 +216,7 @@ function MultiStepForm() {
     <div key="s0" className="space-y-4">
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
         <div className="text-amber-400 text-xs font-mono uppercase tracking-wider mb-1">Prefer phone-first?</div>
-        <div className="text-white font-semibold text-sm mb-3">Get a free case review callback now.</div>
+        <div className="text-white font-semibold text-sm mb-3">Request a case review callback.</div>
         <form onSubmit={handleQuickCallback} className="space-y-2.5">
           <input
             type="text"
@@ -238,7 +238,7 @@ function MultiStepForm() {
             disabled={quickCallback.isPending || !fallbackPhone.trim()}
             className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40"
           >
-            {quickCallback.isPending ? "REQUESTING..." : "GET MY FREE CASE REVIEW CALL →"}
+            {quickCallback.isPending ? "REQUESTING..." : "REQUEST MY CASE REVIEW CALL →"}
           </button>
           {submissionError && (
             <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
@@ -362,13 +362,13 @@ function MultiStepForm() {
         onClick={() => trackCTAClick("main_form_schedule_consult_step3", "/")}
         className="block text-center text-amber-400 hover:text-amber-300 text-sm font-semibold"
       >
-        Just researching? Get your free case review on a 15-min call →
+        Just researching? Request a short case-review call →
       </a>
     </div>,
 
     // Step 4 — contact info
     <div key="s4" className="space-y-4">
-      <h3 className="font-display text-3xl text-white">WHERE SHOULD WE SEND YOUR FREE CASE REVIEW?</h3>
+      <h3 className="font-display text-3xl text-white">WHERE SHOULD WE SEND INFORMATION ABOUT YOUR CASE REVIEW?</h3>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1.5">First Name *</label>
@@ -420,17 +420,16 @@ function MultiStepForm() {
         />
         <span className="text-gray-400 text-xs leading-relaxed">
           By submitting, I agree to be contacted by Solar Freedom via phone, text, and email including automated technology regarding my solar contract review. Reply STOP to opt out.{" "}
-          <a href="#" className="text-amber-400 underline">Privacy Policy</a> &{" "}
-          <a href="#" className="text-amber-400 underline">Terms</a>.
+          Consent is not a condition of purchase. Message and data rates may apply.
         </span>
       </label>
       <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-4">
-        <div className="text-amber-400 text-[11px] font-mono uppercase tracking-widest mb-2">Why homeowners trust us</div>
+        <div className="text-amber-400 text-[11px] font-mono uppercase tracking-widest mb-2">What to expect</div>
         <div className="grid grid-cols-1 gap-2 text-sm">
-          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> 3,000+ contracts reviewed by consumer protection attorneys</div>
-          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Typical resolution in 30–90 days, depending on case complexity</div>
-          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Free review first — no obligation to hire us</div>
-          <div className="text-gray-400 text-xs pt-1">FAQ: “Can I really cancel my solar contract?” In many cases, yes — legal violations and misrepresentation often create cancellation pathways.</div>
+          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Review of the agreement and supporting records you provide</div>
+          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> Fact-specific next steps, not a guaranteed result or timeline</div>
+          <div className="text-gray-200"><span className="text-amber-400 font-bold">✓</span> No attorney-client relationship is created by submitting this form</div>
+          <div className="text-gray-400 text-xs pt-1">Available options depend on your agreement, facts, jurisdiction, and the professionals who agree to handle the matter.</div>
         </div>
       </div>
       <button
@@ -439,7 +438,7 @@ function MultiStepForm() {
         disabled={submitLead.isPending || !form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
         className="w-full btn-amber btn-amber-pulse py-5 rounded text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:animation-none"
       >
-        GET MY FREE CASE REVIEW →
+        REQUEST MY CASE REVIEW →
       </button>
       {submissionError && (
         <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
@@ -520,11 +519,11 @@ const QUICK_REPLIES = [
 ];
 
 const AI_RESPONSES: Record<string, string> = {
-  default: "Great question. Every solar contract is different, but our attorneys have found cancellation pathways in over 85% of cases we've reviewed. The best first step is a free contract review — it takes less than 24 hours and costs you nothing. Want to get started?",
-  cancel: "Yes — in most cases, absolutely. Solar contracts often contain misrepresentation clauses, TILA violations, and right-of-rescission windows that were never properly disclosed. Our attorneys have successfully cancelled contracts for 3,000+ homeowners. The key is knowing which legal angle applies to YOUR contract.",
-  long: "Most cases are resolved in 30–90 days. Some straightforward cases close in as little as 2 weeks. Complex cases with multiple parties can take up to 6 months. We handle all the negotiation and paperwork — you don't have to do anything except sign what we send you.",
-  cost: "Our initial contract review is completely FREE. If we take your case, we work on a contingency or flat-fee basis depending on your situation — meaning you don't pay us unless we succeed. We'll be 100% transparent about fees before you commit to anything.",
-  bankrupt: "This is actually one of the strongest cases we handle. When a solar company goes bankrupt, it often triggers contract voidability clauses. We've helped dozens of homeowners in this exact situation walk away from their contracts entirely. Tell me more about your situation.",
+  default: "Every solar contract is different. Gather the signed agreement, financing documents, disclosures, proposals, bills, installation records, and communications before requesting an individual review.",
+  cancel: "Cancellation or another remedy may be available, but that cannot be determined from a general question. The agreement, disclosures, sales representations, performance records, applicable law, and parties involved all matter.",
+  long: "Timing varies with the agreement, facts, parties, process, and jurisdiction. No responsible review can promise a result or timeline before examining the documents.",
+  cost: "Fees and engagement terms must be disclosed and agreed before any paid service begins. Submitting this intake form does not create an attorney-client relationship or guarantee representation.",
+  bankrupt: "A company's bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually.",
 };
 
 function getAIResponse(msg: string): string {
@@ -724,7 +723,7 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const formRef = useRef<HTMLDivElement>(null);
-  const { phoneDisplay, phoneHref, phoneDigits, phoneE164 } = useSiteConfig();
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
 
   useEffect(() => {
     const cleanup = initScrollTracking("home");
@@ -739,43 +738,9 @@ export default function Home() {
   const homeSchemas: object[] = [
     {
       '@context': 'https://schema.org',
-      '@type': 'Organization',
+      '@type': 'WebSite',
       name: 'Solar Freedom',
       url: 'https://breakyoursolarcontract.com',
-      logo: 'https://breakyoursolarcontract.com/favicon.ico',
-      description: 'Solar contract cancellation attorneys helping homeowners escape predatory solar agreements. Free case review. 3,000+ contracts cancelled.',
-      telephone: phoneE164,
-      areaServed: 'US',
-      serviceType: 'Solar Contract Cancellation',
-      sameAs: [
-        'https://www.facebook.com/solarfreedom',
-        'https://www.instagram.com/solarfreedom',
-      ],
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: [
-        { '@type': 'Question', name: 'Can I actually cancel my solar contract?', acceptedAnswer: { '@type': 'Answer', text: 'In most cases, yes. Solar contracts frequently contain violations of the Truth in Lending Act (TILA), the FTC cooling-off rule, state consumer protection statutes, and misrepresentation clauses. Our attorneys have found valid cancellation pathways in over 85% of contracts reviewed.' } },
-        { '@type': 'Question', name: 'What does solar contract cancellation cost?', acceptedAnswer: { '@type': 'Answer', text: 'Your initial contract review is completely free. If we take your case, we work on a contingency or flat-fee basis — meaning you do not pay us unless we succeed.' } },
-        { '@type': 'Question', name: 'How long does the solar contract cancellation process take?', acceptedAnswer: { '@type': 'Answer', text: 'Most cases are resolved in 30–90 days. Some straightforward cases close in as little as 2 weeks. Complex multi-party cases can take up to 6 months.' } },
-        { '@type': 'Question', name: 'Will cancelling my solar contract hurt my credit score?', acceptedAnswer: { '@type': 'Answer', text: 'We take credit protection seriously. Our process includes monitoring and disputing any negative credit reporting that results from the cancellation. In most cases, we can prevent any credit impact entirely.' } },
-        { '@type': 'Question', name: 'What if I have a solar loan instead of a lease?', acceptedAnswer: { '@type': 'Answer', text: 'Both loans and leases are covered. Solar loans often have TILA violations. Leases often have right-of-rescission issues. Both can be cancelled through the right legal strategy.' } },
-        { '@type': 'Question', name: 'What if my solar company went bankrupt?', acceptedAnswer: { '@type': 'Answer', text: 'This is actually one of the strongest cases we handle. When a solar company goes bankrupt, it often triggers contract voidability clauses and eliminates the company ability to enforce the agreement.' } },
-      ],
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'HowTo',
-      name: 'How to Cancel Your Solar Contract',
-      description: 'Step-by-step process for cancelling a solar lease, loan, or PPA with the help of Solar Freedom attorneys.',
-      totalTime: 'P90D',
-      step: [
-        { '@type': 'HowToStep', position: 1, name: 'Free Case Review', text: 'Share your contract details. Our attorneys analyze it within 24 hours and identify every cancellation angle available to you.' },
-        { '@type': 'HowToStep', position: 2, name: 'Custom Legal Strategy', text: 'We build a case-specific legal strategy based on your contract terms, the sales tactics used, and applicable consumer protection laws.' },
-        { '@type': 'HowToStep', position: 3, name: 'We Fight the Solar Company', text: 'Our team negotiates directly with the solar company and their lenders, files all necessary paperwork, and handles every communication.' },
-        { '@type': 'HowToStep', position: 4, name: 'Contract Cancelled', text: 'Contract cancelled. No more payments. No more obligations. You get written confirmation and we handle any credit reporting issues.' },
-      ],
     },
   ];
 
@@ -803,7 +768,7 @@ export default function Home() {
             <a href="/media" className="hover:text-white transition-colors">Watch &amp; Listen</a>
           </div>
           <button onClick={() => scrollToForm("nav_free_review")} className="btn-amber px-5 py-2.5 rounded text-sm font-bold">
-            FREE REVIEW
+            CASE REVIEW
           </button>
         </div>
       </nav>
@@ -842,7 +807,7 @@ export default function Home() {
               className="inline-flex items-center gap-2 mb-6"
             >
               <span className="badge-danger">⚠ SOLAR CONTRACT TRAP</span>
-              <span className="text-gray-500 text-xs font-mono">3,000+ homeowners helped</span>
+              <span className="text-gray-500 text-xs font-mono">Individual document review</span>
             </motion.div>
 
             {/* Main headline */}
@@ -853,13 +818,13 @@ export default function Home() {
               className="font-display leading-none mb-6"
               style={{ fontSize: "clamp(3.5rem, 9vw, 7rem)" }}
             >
-              <span className="text-white">THEY TRAPPED</span>
+              <span className="text-white">REVIEW YOUR</span>
               <br />
-              <span className="text-amber-gradient">YOU IN A</span>
+              <span className="text-amber-gradient">SOLAR</span>
               <br />
               <span className="text-white">CONTRACT.</span>
               <br />
-              <span className="text-amber-gradient">WE GET YOU OUT.</span>
+              <span className="text-amber-gradient">KNOW YOUR OPTIONS.</span>
             </motion.h1>
 
             {/* Sub-headline */}
@@ -869,7 +834,7 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="text-gray-300 text-xl leading-relaxed mb-8 max-w-xl"
             >
-              Hidden fees. Broken promises. Aggressive sales tactics. You were misled — and our consumer protection attorneys know exactly how to prove it.
+              Gather the agreement, disclosures, financing records, proposals, bills, and communications needed for a fact-specific review.
             </motion.p>
 
             {/* CTAs */}
@@ -880,7 +845,7 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
               <button onClick={() => scrollToForm("hero_get_free_review")} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
-                GET MY FREE CASE REVIEW →
+                REQUEST MY CASE REVIEW →
               </button>
               <a href={phoneHref} onClick={() => trackPhoneClick("hero_phone", phoneDigits)} className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
                 📞 Call {phoneDisplay}
@@ -895,10 +860,10 @@ export default function Home() {
               className="flex flex-wrap gap-6 text-sm text-gray-400"
             >
               {[
-                { icon: "✓", text: "No upfront cost" },
-                { icon: "✓", text: "Results in 30–90 days" },
-                { icon: "✓", text: "100% confidential" },
-                { icon: "✓", text: "No obligation to proceed" },
+                { icon: "✓", text: "Document-focused intake" },
+                { icon: "✓", text: "Fact-specific review" },
+                { icon: "✓", text: "No guaranteed outcome" },
+                { icon: "✓", text: "No guaranteed timeline" },
               ].map((item) => (
                 <span key={item.text} className="flex items-center gap-1.5">
                   <span className="text-amber-400 font-bold">{item.icon}</span>
@@ -926,10 +891,10 @@ export default function Home() {
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { display: "3,000+", label: "Contracts Reviewed" },
-              { display: "89%", label: "Success Rate" },
-              { display: "47 Days", label: "Avg. Resolution Time" },
-              { display: "2,400+", label: "Homeowners Freed" },
+              { display: "01", label: "Agreement" },
+              { display: "02", label: "Disclosures" },
+              { display: "03", label: "Performance Records" },
+              { display: "04", label: "Communications" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="font-display text-amber-gradient mb-1" style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}>
@@ -949,7 +914,7 @@ export default function Home() {
             {/* Left: Copy */}
             <div className="space-y-8 lg:sticky lg:top-24">
               <Reveal>
-                <div className="badge-danger mb-4">FREE CASE REVIEW</div>
+                <div className="badge-danger mb-4">CASE REVIEW</div>
                 <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
                   FIND OUT IF WE CAN HELP YOU
                   <br />
@@ -960,16 +925,16 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.1}>
                 <p className="text-gray-300 text-xl leading-relaxed font-semibold">
-                  Most people have their solar canceled and still get to keep their equipment.
+                  A review can identify questions to investigate and possible next steps. It cannot guarantee cancellation, equipment ownership, or any other result.
                 </p>
               </Reveal>
               <div className="space-y-3">
                 {[
-                  "Free contract analysis by licensed attorneys",
-                  "Identify all cancellation options available to you",
-                  "Learn your rights under consumer protection law",
-                  "No obligation to proceed after review",
-                  "100% confidential — your data is never sold",
+                  "Gather the contract and related financing documents",
+                  "Document what was represented during the sale",
+                  "Compare performance records with written promises",
+                  "Identify questions for a qualified professional",
+                  "Understand that results and timelines vary",
                 ].map((item, i) => (
                   <Reveal key={item} delay={0.1 + i * 0.07}>
                     <div className="flex items-center gap-3 text-gray-300">
@@ -984,8 +949,8 @@ export default function Home() {
                   <div className="flex items-start gap-3">
                     <div className="text-2xl">⏰</div>
                     <div>
-                      <div className="font-semibold text-amber-400 mb-1">Limited Review Slots Available</div>
-                      <p className="text-gray-400 text-sm">Our attorneys can only take on a limited number of new cases each week. Don't wait — the sooner you act, the more options you have.</p>
+                      <div className="font-semibold text-amber-400 mb-1">Prepare for Review</div>
+                      <p className="text-gray-400 text-sm">Collect the signed agreement, disclosures, bills, proposals, installation records, and communications so your situation can be reviewed accurately.</p>
                     </div>
                   </div>
                 </div>
@@ -1002,10 +967,10 @@ export default function Home() {
                 <div className="mb-6 text-center relative">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest mb-3" style={{ background: "oklch(0.72 0.19 50 / 15%)", color: "oklch(0.85 0.19 50)", border: "1px solid oklch(0.72 0.19 50 / 40%)" }}>
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                    FREE CASE REVIEW — NO OBLIGATION
+                    INDIVIDUAL CASE REVIEW
                   </div>
-                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT</h3>
-                  <p className="text-gray-300 text-sm font-semibold">Most people have their solar canceled and still get to keep their equipment.</p>
+                  <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">START A DOCUMENT-BASED REVIEW OF YOUR SOLAR CONTRACT</h3>
+                  <p className="text-gray-300 text-sm font-semibold">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
                 </div>
                 <MultiStepForm />
               </div>
@@ -1076,7 +1041,7 @@ export default function Home() {
 
               <Reveal delay={0.5}>
                 <button onClick={() => scrollToForm("mid_get_free_case_review")} className="btn-amber px-8 py-4 rounded text-base font-bold">
-                  GET MY FREE CASE REVIEW →
+                  REQUEST MY CASE REVIEW →
                 </button>
               </Reveal>
             </div>
@@ -1099,10 +1064,10 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { num: "01", title: "FREE REVIEW", desc: "Share your contract details. Our attorneys analyze it within 24 hours and identify every cancellation angle available to you.", icon: "📋" },
+              { num: "01", title: "DOCUMENT INTAKE", desc: "Share the agreement and supporting records needed to understand your situation.", icon: "📋" },
               { num: "02", title: "CUSTOM STRATEGY", desc: "We build a case-specific legal strategy based on your contract terms, the sales tactics used, and applicable consumer protection laws.", icon: "⚖️" },
-              { num: "03", title: "WE FIGHT", desc: "Our team negotiates directly with the solar company and their lenders, files all necessary paperwork, and handles every communication.", icon: "🥊" },
-              { num: "04", title: "YOU'RE FREE", desc: "Contract cancelled. No more payments. No more obligations. You get written confirmation and we handle any credit reporting issues.", icon: "🔓" },
+              { num: "03", title: "OPTIONS REVIEW", desc: "Review available paths, limits, costs, and risks with an appropriately qualified professional before proceeding.", icon: "🥊" },
+              { num: "04", title: "NEXT STEPS", desc: "Review the available paths, limits, costs, and risks before deciding how to proceed.", icon: "🔓" },
             ].map((step, i) => (
               <Reveal key={step.num} delay={i * 0.12}>
                 <div className="relative p-6 rounded-xl border border-white/8 bg-white/3 h-full group hover:border-amber-500/30 transition-colors duration-300">
@@ -1122,7 +1087,7 @@ export default function Home() {
           <Reveal delay={0.5}>
             <div className="text-center mt-12">
               <button onClick={() => scrollToForm("how_it_works_start_review")} className="btn-amber btn-amber-pulse px-10 py-5 rounded text-lg font-bold">
-                START MY FREE REVIEW →
+                START MY REVIEW →
               </button>
             </div>
           </Reveal>
@@ -1145,10 +1110,10 @@ export default function Home() {
 
               <div className="grid grid-cols-1 gap-4">
                 {[
-                  { title: "SOLAR-SPECIFIC LEGAL EXPERTISE", desc: "Our attorneys focus exclusively on solar contract law and consumer protection. We know every loophole, every violation pattern, and every leverage point." },
-                  { title: "NO WIN, NO FEE", desc: "We don't get paid unless you get results. That means we're 100% motivated to win your case — not just bill you for hours." },
-                  { title: "30–90 DAY RESOLUTION", desc: "We move fast. Most cases are fully resolved in under 90 days. We handle all negotiations, paperwork, and communications." },
-                  { title: "CREDIT PROTECTION INCLUDED", desc: "We monitor and dispute any negative credit reporting that results from the cancellation process at no additional cost." },
+                   { title: "CONTRACT-FOCUSED REVIEW", desc: "The signed agreement, disclosures, financing terms, sales representations, and performance records are reviewed together." },
+                   { title: "FACT-SPECIFIC OPTIONS", desc: "Possible next steps depend on the documents, parties, applicable law, and professionals who agree to handle the matter." },
+                   { title: "NO PROMISED TIMELINE", desc: "Disputes vary in duration. Timing cannot be responsibly estimated before the relevant records and process are known." },
+                   { title: "NO PROMISED OUTCOME", desc: "A review can identify questions and options; it cannot guarantee cancellation, damages, credit treatment, or any other result." },
                 ].map((item, i) => (
                   <Reveal key={item.title} delay={i * 0.1}>
                     <div className="card-amber-border rounded-r-lg p-5">
@@ -1244,37 +1209,37 @@ export default function Home() {
           <div className="space-y-3">
             <FAQItem
               q="Can I actually cancel my solar contract?"
-              a="In most cases, yes. Solar contracts frequently contain violations of the Truth in Lending Act (TILA), the FTC's cooling-off rule, state consumer protection statutes, and misrepresentation clauses. Our attorneys have found valid cancellation pathways in over 85% of contracts reviewed."
+              a="Cancellation or another remedy may be possible, but it depends on the agreement, disclosures, sales representations, performance records, applicable law, and parties involved. An individual review is required."
               delay={0}
             />
             <FAQItem
               q="What does this cost me?"
-              a="Your initial contract review is completely free. If we take your case, we work on a contingency or flat-fee basis — meaning you don't pay us unless we succeed. We are fully transparent about fees before you commit to anything."
+              a="Any fees, scope, and engagement terms must be disclosed and agreed before paid services begin. Submitting an intake form does not create an attorney-client relationship or guarantee representation."
               delay={0.05}
             />
             <FAQItem
               q="How long does the process take?"
-              a="Most cases are resolved in 30–90 days. Some straightforward cases close in as little as 2 weeks. Complex multi-party cases can take up to 6 months. We handle all negotiations and paperwork — you don't have to do anything except sign what we send you."
+              a="Timing varies with the agreement, facts, parties, process, and jurisdiction. No result or timeline can be determined from general information alone."
               delay={0.1}
             />
             <FAQItem
               q="What if my solar company went bankrupt?"
-              a="This is actually one of the strongest cases we handle. When a solar company goes bankrupt, it often triggers contract voidability clauses and eliminates the company's ability to enforce the agreement. We've helped dozens of homeowners in this exact situation."
+              a="A company's bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually."
               delay={0.15}
             />
             <FAQItem
               q="Will this hurt my credit score?"
-              a="We take credit protection seriously. Our process includes monitoring and disputing any negative credit reporting that results from the cancellation. In most cases, we can prevent any credit impact entirely."
+              a="Credit reporting can be affected by payment and dispute activity. Review the account status and obtain advice specific to your circumstances before changing payments or obligations."
               delay={0.2}
             />
             <FAQItem
               q="What if I have a solar loan, not a lease?"
-              a="Both loans and leases are covered. Solar loans often have TILA violations. Leases often have right-of-rescission issues. Both can be cancelled through the right legal strategy. We handle both types regularly."
+              a="Loans, leases, and power purchase agreements create different rights and obligations. The signed documents and applicable law determine which questions and options are relevant."
               delay={0.25}
             />
             <FAQItem
               q="I already tried to cancel and was told I couldn't. Can you still help?"
-              a="Absolutely. Solar companies routinely tell customers they have no options — because it's in their financial interest to do so. What a salesperson or customer service rep tells you is not the same as what a court or arbitrator would decide. We've won cases where customers were told cancellation was impossible."
+              a="A prior denial does not answer every legal or contractual question. Preserve the denial, agreement, disclosures, and communications for an independent, fact-specific review."
               delay={0.3}
             />
           </div>
@@ -1287,10 +1252,10 @@ export default function Home() {
           <Reveal>
             <div className="text-center mb-14">
               <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-4" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                NATIONWIDE COVERAGE
+                LOCATION-SPECIFIC INFORMATION
               </div>
               <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                WE FIGHT SOLAR CONTRACTS IN EVERY MAJOR CITY
+                BROWSE SOLAR-CONTRACT INFORMATION BY CITY
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-sm">
                 Click your city for a dedicated case review page with local state laws, local solar companies, and city-specific legal strategies.
@@ -1372,7 +1337,7 @@ export default function Home() {
                   The most common grounds for <strong className="text-gray-200">solar contract cancellation</strong> include violations of the Federal Truth in Lending Act (TILA), failure to honor the FTC's three-day right of rescission, material misrepresentation of projected savings, undisclosed escalator clauses, and breach of performance warranties. A qualified <strong className="text-gray-200">solar contract attorney</strong> can identify which of these apply to your specific agreement within hours of reviewing it.
                 </p>
                 <p>
-                  Whether you have a <strong className="text-gray-200">solar lease</strong>, a <strong className="text-gray-200">solar loan</strong>, or a Power Purchase Agreement (PPA), each contract type has distinct vulnerabilities. Solar leases are frequently challenged on misrepresentation grounds. Solar loans are often attacked via TILA violations. PPAs can be voided when the host property is sold and the buyer refuses assumption. Our attorneys have successfully pursued all three pathways.
+                  A <strong className="text-gray-200">solar lease</strong>, <strong className="text-gray-200">solar loan</strong>, and Power Purchase Agreement (PPA) create different obligations. Review the transfer, payment, disclosure, performance, dispute-resolution, and termination terms in the documents you actually signed.
                 </p>
               </div>
             </Reveal>
@@ -1385,7 +1350,7 @@ export default function Home() {
                   If your solar company has gone out of business — including companies like <strong className="text-gray-200">Pink Energy, Sungevity, Verengo Solar</strong>, or dozens of smaller regional installers — your contract may be voidable entirely. Bankruptcy by the original installer does not necessarily transfer your obligation to a third-party lender, particularly if the installation was never completed or the system never performed as promised.
                 </p>
                 <p>
-                  The first step in any <strong className="text-gray-200">solar contract dispute</strong> is a thorough legal review of your agreement. Our attorneys analyze every clause — the performance guarantee, the escalator rate, the transfer provisions, the dispute resolution clause, and the financing terms — to build the strongest possible case for cancellation. Start with a free review today.
+                  The first step in a <strong className="text-gray-200">solar contract dispute</strong> is to gather the agreement and supporting records. Review the performance guarantee, escalator rate, transfer provisions, dispute-resolution clause, financing terms, disclosures, and communications before choosing a path.
                 </p>
               </div>
             </Reveal>
@@ -1394,7 +1359,7 @@ export default function Home() {
           {/* State targeting grid */}
           <Reveal delay={0.15}>
             <div className="mt-12 pt-8 border-t border-white/8">
-              <h3 className="font-display text-xl text-white mb-4">WE SERVE HOMEOWNERS IN ALL 50 STATES</h3>
+              <h3 className="font-display text-xl text-white mb-4">BROWSE STATE-SPECIFIC INFORMATION</h3>
               <div className="flex flex-wrap gap-2">
                 {[
                   "California","Texas","Florida","Arizona","Nevada","New Jersey","New York",
@@ -1414,7 +1379,7 @@ export default function Home() {
           {/* Company targeting */}
           <Reveal delay={0.2}>
             <div className="mt-8 pt-8 border-t border-white/8">
-              <h3 className="font-display text-xl text-white mb-4">SOLAR COMPANIES WE'VE FOUGHT</h3>
+              <h3 className="font-display text-xl text-white mb-4">SOLAR COMPANY INFORMATION</h3>
               <div className="flex flex-wrap gap-2">
                 {[
                   "Sunrun","SunPower","Tesla Solar","Vivint Solar","ADT Solar",
@@ -1450,11 +1415,11 @@ export default function Home() {
           </Reveal>
           <Reveal delay={0.2}>
             <button onClick={() => scrollToForm("footer_final_cta")} className="btn-amber btn-amber-pulse px-12 py-6 rounded text-xl font-bold">
-              GET MY FREE CASE REVIEW NOW →
+              REQUEST MY CASE REVIEW NOW →
             </button>
           </Reveal>
           <Reveal delay={0.3}>
-            <p className="text-gray-600 text-sm mt-6 font-mono">No cost. No obligation. Results in 24 hours.</p>
+            <p className="text-gray-600 text-sm mt-6 font-mono">No result, timeline, or representation is guaranteed.</p>
           </Reveal>
         </div>
       </section>
@@ -1478,7 +1443,7 @@ export default function Home() {
               {
                 slug: 'sunrun-solar-contract-cancellation-2026',
                 title: 'Sunrun Solar Contract Cancellation 2026: Your Legal Options',
-                excerpt: 'Sunrun locked you into a 20-year contract with a 2.9% annual escalator. Our attorneys have helped hundreds of Sunrun customers cancel. Free case review.',
+                excerpt: 'Review Sunrun agreement terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.',
                 category: 'Most Read',
                 readTime: '11 min read',
                 img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
@@ -1544,7 +1509,7 @@ export default function Home() {
             <h2 className="font-display text-2xl text-white">CANCEL YOUR SOLAR CONTRACT — FIND YOUR CITY</h2>
             <Link href="/sitemap" className="text-amber-500 text-sm hover:text-amber-400 transition-colors font-mono uppercase tracking-wider">Full Site Map →</Link>
           </div>
-          <p className="text-gray-500 text-sm mb-6">We help homeowners in every major U.S. city escape predatory solar contracts. Click your city for state-specific legal options and a free case review.</p>
+          <p className="text-gray-500 text-sm mb-6">Browse location-specific consumer information. Availability and next steps depend on the documents, facts, and jurisdiction.</p>
           {(() => {
             // Group cities by state for SEO-optimized internal linking
             const stateMap: Record<string, typeof CITIES> = {};
@@ -1613,7 +1578,7 @@ export default function Home() {
               <div className="space-y-2">
                 <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Privacy Policy</a>
                 <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Terms of Service</a>
-                <a href="#" className="block text-gray-500 text-sm hover:text-amber-400 transition-colors">Attorney Advertising Disclosure</a>
+                <span className="block text-gray-500 text-sm">Consumer information; not legal advice</span>
               </div>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   hasVerifiedQuoteEvidence,
   suppressUnverifiedQuoteMarkup,
+  suppressUnverifiedFirstPartyClaims,
 } from "./contentGovernance";
 
 describe("content governance", () => {
@@ -23,6 +24,12 @@ describe("content governance", () => {
         consentConfirmed: true,
       })
     ).toBe(true);
+  });
+
+  it("fails closed for unsupported first-party outcomes and fee claims", () => {
+    expect(suppressUnverifiedFirstPartyClaims("Our attorneys helped 3,000+ homeowners.")).toContain("withheld pending documented evidence");
+    expect(suppressUnverifiedFirstPartyClaims("Solar Freedom works on a contingency basis.")).toContain("withheld pending documented evidence");
+    expect(suppressUnverifiedFirstPartyClaims("Review the signed agreement and disclosures.")).toBe("Review the signed agreement and disclosures.");
   });
 
   it("strips unverified quote containers while preserving surrounding content", () => {

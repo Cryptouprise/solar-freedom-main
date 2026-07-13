@@ -22,6 +22,14 @@ function requirePattern(relativePath, patterns) {
   }
 }
 
+function walkFiles(directory) {
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const absolute = path.join(directory, entry.name);
+    return entry.isDirectory() ? walkFiles(absolute) : [absolute];
+  });
+}
+
 for (const relativePath of [
   "client/src/components/SocialProofTicker.tsx",
   "client/src/components/UrgencyTimer.tsx",
@@ -70,6 +78,48 @@ for (const relativePath of [
   reject(relativePath, [/SocialProofTicker/, /UrgencyTimer/]);
 }
 
+const firstPartyClaimPatterns = [
+  /3,000\+/i,
+  /Our attorneys/i,
+  /licensed counsel/i,
+  /Success Rate/i,
+  /Homeowners (?:Helped|Freed)/i,
+  /Avg\. Resolution Time/i,
+  /Results in 30[–-]90 days/i,
+  /within 24 hours/i,
+  /nationwide coverage/i,
+  /zero financial risk/i,
+  /limited number of new cases/i,
+  /Contract cancelled\. No more payments/i,
+  /(?:Solar Freedom|\bwe\b|\bour (?:team|attorneys)\b)[^.!?]{0,160}(?:no upfront cost|contingency basis|all 50 states)/i,
+];
+
+for (const relativePath of [
+  "client/src/pages/Home.tsx",
+  "client/src/pages/BlogPost.tsx",
+  "client/src/pages/CityPage.tsx",
+  "client/src/pages/CompanyPage.tsx",
+  "client/src/pages/SolarPanelScam.tsx",
+  "client/src/pages/YouTubeLanding.tsx",
+  "client/src/pages/Yt2Landing.tsx",
+  "client/src/pages/Yt3Landing.tsx",
+  "server/seo-meta.ts",
+]) reject(relativePath, firstPartyClaimPatterns);
+requirePattern("scripts/prerender.mjs", [
+  /function suppressUnverifiedFirstPartyClaims/,
+  /suppressUnverifiedFirstPartyClaims\(section\.content/,
+  /suppressUnverifiedFirstPartyClaims\(data\.description/,
+]);
+
+for (const relativePath of [
+  "client/src/App.tsx",
+  "client/src/main.tsx",
+  "client/src/pages/SitemapPage.tsx",
+  "server/seo-meta.ts",
+  "scripts/prerender.mjs",
+  "scripts/generate-sitemap.mjs",
+]) reject(relativePath, [/\/solar-fraud-report(?=[/?#"'\s<]|$)/i, /SolarFraudReport/]);
+
 for (const relativePath of [
   "client/src/pages/Home.tsx",
   "client/src/pages/SunrunPage.tsx",
@@ -108,6 +158,22 @@ const publicSource = [
     .map(entry => `client/src/${entry.replaceAll("\\", "/")}`),
 ];
 for (const relativePath of publicSource) reject(relativePath, [/\[VERIFY(?:[:\]])/]);
+
+const builtRoot = path.join(root, "dist", "public");
+for (const absolute of walkFiles(builtRoot).filter(file => file.endsWith(".html"))) {
+  const source = fs.readFileSync(absolute, "utf8");
+  const relativePath = path.relative(root, absolute).replaceAll("\\", "/");
+  for (const pattern of firstPartyClaimPatterns) {
+    if (pattern.test(source)) failures.push(`${relativePath}: rendered forbidden pattern ${pattern}`);
+  }
+  if (/\/solar-fraud-report(?=[/?#"'\s<]|$)/i.test(source)) {
+    failures.push(`${relativePath}: rendered output links to quarantined solar-fraud-report`);
+  }
+}
+
+if (fs.existsSync(path.join(builtRoot, "solar-fraud-report"))) {
+  failures.push("dist/public/solar-fraud-report: quarantined route was rendered");
+}
 
 if (failures.length) {
   console.error(`Trust governance audit failed (${failures.length}):`);

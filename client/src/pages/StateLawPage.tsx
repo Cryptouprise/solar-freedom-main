@@ -367,7 +367,7 @@ export default function StateLawPage() {
                 Need Help Now?
               </h4>
               <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                Our team reviews {law.state} solar contracts and can tell you within 24 hours if you have grounds to cancel.
+                Request an individual review of your {law.state} agreement and supporting records. No result or response time is guaranteed.
               </p>
               <Link href="/#contact">
                 <Button variant="outline" className="w-full border-amber-400/50 text-amber-400 hover:bg-amber-400/10">

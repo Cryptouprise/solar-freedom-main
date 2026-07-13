@@ -108,7 +108,7 @@ function CityForm({ city, state }: { city: string; state: string }) {
           <div className="text-green-400 text-xl mt-0.5">✅</div>
           <div>
             <h3 className="font-display text-xl text-white mb-1">CASE SUBMITTED</h3>
-            <p className="text-gray-400 text-sm">Our attorneys will review your {city} case. Want to lock in a time to talk?</p>
+            <p className="text-gray-400 text-sm">Request an individual review of your {city} situation and available next steps.</p>
           </div>
         </div>
         <div className="rounded-xl overflow-hidden border border-amber-500/20">
@@ -117,7 +117,7 @@ function CityForm({ city, state }: { city: string; state: string }) {
             width="100%"
             height="520"
             frameBorder="0"
-            title="Book your free case review call"
+            title="Book a case review call"
             className="block"
           />
         </div>
@@ -168,7 +168,7 @@ function CityForm({ city, state }: { city: string; state: string }) {
         ))}
       </div>
       <h3 className="font-display text-xl text-white">LAST STEP — WHERE DO WE REACH YOU?</h3>
-      <p className="text-gray-500 text-sm">Free review of your {city}, {state} solar contract within 24 hours.</p>
+      <p className="text-gray-500 text-sm">Request a review of your {city}, {state} solar contract. Response time and availability vary.</p>
       <div className="grid grid-cols-2 gap-3">
         <input
           placeholder="First Name"
@@ -206,9 +206,9 @@ function CityForm({ city, state }: { city: string; state: string }) {
         className="w-full py-4 rounded font-bold text-black text-lg transition-all disabled:opacity-40"
         style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
       >
-        GET MY FREE {city.toUpperCase()} CASE REVIEW →
+        REQUEST MY {city.toUpperCase()} CASE REVIEW →
       </button>
-      <p className="text-gray-600 text-xs text-center font-mono">No cost. No obligation. 100% confidential.</p>
+      <p className="text-gray-600 text-xs text-center font-mono">No result, timeline, or representation is guaranteed.</p>
     </div>
   );
 }
@@ -224,8 +224,8 @@ export default function CityPage() {
       ? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`
       : 'Cancel Solar Contract | Solar Freedom',
     description: city
-      ? `Trapped in a solar contract in ${city.name}, ${city.stateCode}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`
-      : 'Expert legal help to cancel your solar contract. Free case review.',
+      ? `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`
+      : 'Review solar contract terms and consumer resources. Options depend on your agreement, facts, and jurisdiction.',
     canonical: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
     noindex: false,
   });
@@ -245,11 +245,10 @@ export default function CityPage() {
     );
   }
 
-  // Build FAQ schema — use depth FAQs if available, otherwise generic
-  const faqItems = depth?.localFaq ?? [
-    { q: `Can I cancel a solar contract in ${city.name}?`, a: `Yes. Many ${city.name} homeowners have grounds to cancel based on misrepresentation, TILA violations, or failure to provide required cancellation notices. A free case review identifies your specific options.` },
-    { q: `How long does it take to cancel a solar contract in ${city.stateCode}?`, a: `Depending on the path taken, resolution typically takes 30–90 days. Legal cancellation based on misrepresentation can sometimes be resolved in 30–45 days with an attorney demand letter.` },
-    { q: `What solar companies have the most complaints in ${city.name}?`, a: `Based on BBB and state AG complaint data, the most complained-about companies in ${city.name} include Sunrun, Freedom Forever, and ADT Solar. Common issues include undisclosed escalator clauses, dealer fees, and savings projections that did not materialize.` },
+  const faqItems = [
+    { q: `What records should I gather for a solar contract review in ${city.name}?`, a: 'Gather the signed agreement, loan or lease documents, disclosures, sales proposals, utility bills, installation records, and communications with the seller, installer, servicer, or lender.' },
+    { q: `How long does a solar contract dispute take in ${city.stateCode}?`, a: 'Timing varies with the agreement, facts, parties involved, selected process, and applicable law. No result or timeline can be determined before an individual review.' },
+    { q: `Where can I verify solar-company complaint information for ${city.name}?`, a: 'Check current records from the relevant state attorney general, the Consumer Financial Protection Bureau, the Federal Trade Commission, and other official regulators. Third-party ratings and complaint totals can change.' },
   ];
 
   // Emit only page-verifiable navigation and FAQ data as structured data.
@@ -280,12 +279,10 @@ export default function CityPage() {
   const stateLawEntry = stateLaws.find((s) => s.state === city.state);
   const stateLawSlug = stateLawEntry?.slug ?? null;
 
-  // Market stats — use depth stats if available, otherwise generic
-  const marketStats = depth?.marketStats ?? [
+  const marketStats = [
     { label: "City Population", value: city.population },
     { label: "Solar Market", value: city.solarActivity },
-    { label: "Avg. Resolution", value: "30–90 Days" },
-    { label: "Case Review", value: "FREE" },
+    { label: "Case Review", value: "Request Review" },
   ];
 
   return (
@@ -310,7 +307,7 @@ export default function CityPage() {
             className="px-5 py-2 rounded font-bold text-sm text-black"
             style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
           >
-            FREE REVIEW
+            CASE REVIEW
           </a>
         </div>
       </nav>
@@ -347,13 +344,13 @@ export default function CityPage() {
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-gray-300 text-lg max-w-2xl mb-8 leading-relaxed">
-              {depth?.localHook ?? `${city.name} is one of the fastest-growing solar markets in ${city.state}. Our consumer protection attorneys have helped hundreds of ${city.state} homeowners escape predatory solar contracts — for free.`}
+              Review your agreement, disclosures, financing documents, installation records, and communications before deciding which next step fits your situation.
             </p>
           </Reveal>
           <Reveal delay={0.15}>
             <div className="flex flex-wrap gap-4">
               <a href="#city-form" className="px-8 py-4 rounded font-bold text-black text-lg" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-                GET FREE CASE REVIEW →
+                REQUEST CASE REVIEW →
               </a>
               <Link href="/">
                 <span className="px-8 py-4 rounded font-bold text-white text-lg border border-white/20 hover:border-amber-500/50 transition-colors cursor-pointer">
@@ -433,7 +430,7 @@ export default function CityPage() {
                 <Reveal delay={0.1}>
                   <div>
                     <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      SOLAR COMPANIES WE FIGHT IN {city.name.toUpperCase()}
+                      SOLAR COMPANY INFORMATION FOR {city.name.toUpperCase()}
                     </h3>
                     <div className="space-y-4">
                       {depth.companyProblems.map((cp, i) => (
@@ -449,7 +446,7 @@ export default function CityPage() {
                 <Reveal delay={0.1}>
                   <div>
                     <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      COMPANIES WE FIGHT IN {city.name.toUpperCase()}
+                      COMPANY INFORMATION FOR {city.name.toUpperCase()}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {city.companies.map((co) => (
@@ -505,12 +502,12 @@ export default function CityPage() {
                 <div className="p-8 rounded-xl form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
                   <div className="mb-6">
                     <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-3" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                      FREE CASE REVIEW — NO OBLIGATION
+                      INDIVIDUAL CASE REVIEW
                     </div>
                     <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                       60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
                     </h2>
-                    <p className="text-gray-400 text-sm mt-2">Most people have their solar canceled and still get to keep their equipment.</p>
+                    <p className="text-gray-400 text-sm mt-2">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
                   </div>
                   <CityForm city={city.name} state={city.stateCode} />
                 </div>
@@ -545,9 +542,9 @@ export default function CityPage() {
           </div>
           <Reveal delay={0.3}>
             <div className="mt-10 p-6 rounded-xl border border-amber-500/30 text-center" style={{ background: "oklch(0.72 0.19 50 / 8%)" }}>
-              <p className="text-gray-300 text-sm mb-4">Have a question not answered here? Our attorneys review every case for free.</p>
+              <p className="text-gray-300 text-sm mb-4">Have a question not answered here? Request an individual review of your documents and circumstances.</p>
               <a href="#city-form" className="inline-block px-8 py-3 rounded font-bold text-black text-sm" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-                GET YOUR FREE CASE REVIEW →
+                REQUEST YOUR CASE REVIEW →
               </a>
             </div>
           </Reveal>
@@ -630,7 +627,7 @@ export default function CityPage() {
             </div>
           </Link>
           <p className="text-gray-600 text-xs font-mono text-center max-w-xl">
-            Solar contract cancellation attorneys serving {city.name}, {city.state} and all 50 states. Results vary by case. Free consultation does not create attorney-client relationship. © {new Date().getFullYear()} Solar Freedom.
+            Consumer information and intake resources for {city.name}, {city.state}. Not legal advice. Options and outcomes depend on the agreement, facts, and jurisdiction. © {new Date().getFullYear()} Solar Freedom.
           </p>
         </div>
       </footer>

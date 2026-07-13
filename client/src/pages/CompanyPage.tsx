@@ -95,7 +95,7 @@ function CompanyForm({ companyName }: { companyName: string }) {
           </svg>
         </div>
         <h3 className="font-display text-white text-xl mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>CASE REVIEW SUBMITTED</h3>
-        <p className="text-gray-400 text-sm">Our team will contact you within 24 hours to discuss your {companyName} contract options.</p>
+        <p className="text-gray-400 text-sm">Your information was submitted for review. Response time and availability vary.</p>
       </div>
     );
   }
@@ -135,7 +135,7 @@ function CompanyForm({ companyName }: { companyName: string }) {
         ))}
       </div>
       <p className="text-gray-400 text-xs font-mono mb-3">FINAL STEP — YOUR CONTACT INFO</p>
-      <h3 className="text-white font-semibold text-lg mb-5">Where should we send your free case review?</h3>
+      <h3 className="text-white font-semibold text-lg mb-5">Where should we send information about your case review?</h3>
       <div className="space-y-3">
         {[
           { key: "firstName", label: "First Name", type: "text", placeholder: "John" },
@@ -184,8 +184,8 @@ export default function CompanyPage() {
       ? `Cancel ${company.name} Solar Contract | Get Out Now | Solar Freedom`
       : 'Cancel Solar Contract | Solar Freedom',
     description: company
-      ? `${company.name} contract trapping you? Our attorneys have helped homeowners cancel ${company.name} solar agreements. ${company.complaintCount}+ complaints filed. Free case review.`
-      : 'Expert legal help to cancel your solar contract. Free case review.',
+      ? `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`
+      : 'Review solar contract terms and records to gather before requesting an individual case review.',
     canonical: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract`,
   });
 
@@ -204,8 +204,8 @@ export default function CompanyPage() {
     );
   }
 
-  const statusColor = company.status === "Bankrupt" ? "#ef4444" : company.status === "Acquired" ? "#f59e0b" : "#22c55e";
-  const statusBg = company.status === "Bankrupt" ? "oklch(0.15 0.05 20 / 30%)" : company.status === "Acquired" ? "oklch(0.15 0.05 50 / 30%)" : "oklch(0.15 0.05 145 / 30%)";
+  // Company claims remain hidden until each record has source and as-of metadata.
+  const companyEvidenceAvailable = false;
   const companySchemas: object[] = [
     {
       '@context': 'https://schema.org',
@@ -213,32 +213,6 @@ export default function CompanyPage() {
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
         { '@type': 'ListItem', position: 2, name: `Cancel ${company.name} Contract`, item: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract` },
-      ],
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: [
-        {
-          '@type': 'Question',
-          name: `Can I cancel my ${company.name} solar contract?`,
-          acceptedAnswer: { '@type': 'Answer', text: `Yes. ${company.name} contracts frequently contain grounds for cancellation including ${company.cancellationGrounds.slice(0, 2).join(' and ')}. Our attorneys have helped hundreds of ${company.name} customers cancel their agreements. Start with a free case review.` },
-        },
-        {
-          '@type': 'Question',
-          name: `How many complaints has ${company.name} received?`,
-          acceptedAnswer: { '@type': 'Answer', text: `${company.name} has received ${company.complaintCount} complaints. Common issues include: ${company.topComplaints.slice(0, 3).join('; ')}.` },
-        },
-        {
-          '@type': 'Question',
-          name: `What is ${company.name}'s BBB rating?`,
-          acceptedAnswer: { '@type': 'Answer', text: `${company.name} currently holds a ${company.bbRating} rating from the Better Business Bureau. Their current status is: ${company.status}.` },
-        },
-        {
-          '@type': 'Question',
-          name: `What are the legal grounds to cancel a ${company.name} solar contract?`,
-          acceptedAnswer: { '@type': 'Answer', text: `Common legal grounds to cancel a ${company.name} contract include: ${company.cancellationGrounds.join('; ')}.` },
-        },
       ],
     },
   ];
@@ -263,7 +237,7 @@ export default function CompanyPage() {
           <div className="flex items-center gap-4">
             <Link href="/blog"><span className="text-gray-400 text-sm hover:text-white transition-colors cursor-pointer hidden md:block">Blog</span></Link>
             <a href="#company-form" className="px-5 py-2 rounded font-bold text-sm text-black" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-              FREE REVIEW
+              CASE REVIEW
             </a>
           </div>
         </div>
@@ -287,12 +261,9 @@ export default function CompanyPage() {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/40 text-red-400 text-xs font-mono" style={{ background: "oklch(0.15 0.05 20 / 40%)" }}>
                 ⚠ {company.name.toUpperCase()} CONTRACT ALERT
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono" style={{ background: statusBg, borderColor: statusColor + "40", color: statusColor }}>
-                ● {company.status.toUpperCase()}
-              </div>
-              {company.bbRating && (
+              {companyEvidenceAvailable && (
                 <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/10 text-gray-400 text-xs font-mono" style={{ background: "oklch(0.14 0.01 265)" }}>
-                  BBB: {company.bbRating}
+                  Verified company evidence available
                 </div>
               )}
             </div>
@@ -312,13 +283,13 @@ export default function CompanyPage() {
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-gray-300 text-lg max-w-2xl mb-8 leading-relaxed">
-              {company.summary.split(".")[0] + "."}
+              Review your signed {company.name} agreement, financing records, disclosures, sales materials, bills, installation records, and communications before choosing a next step.
             </p>
           </Reveal>
           <Reveal delay={0.15}>
             <div className="flex flex-wrap gap-4">
               <a href="#company-form" className="px-8 py-4 rounded font-bold text-black text-lg" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-                GET FREE CASE REVIEW →
+                REQUEST CASE REVIEW →
               </a>
               <Link href="/">
                 <span className="px-8 py-4 rounded font-bold text-white text-lg border border-white/20 hover:border-amber-500/50 transition-colors cursor-pointer">
@@ -335,10 +306,10 @@ export default function CompanyPage() {
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { label: "BBB Rating", value: company.bbRating },
-              { label: "Complaints Filed", value: company.complaintCount },
-              { label: "Avg. Contract Length", value: company.avgContractLength },
-              { label: "Case Review", value: "FREE" },
+              { label: "Record 1", value: "Agreement" },
+              { label: "Record 2", value: "Disclosures" },
+              { label: "Record 3", value: "Bills + Performance" },
+              { label: "Record 4", value: "Communications" },
             ].map((stat) => (
               <div key={stat.label}>
                 <div className="font-display text-2xl text-amber-400" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{stat.value}</div>
@@ -356,6 +327,8 @@ export default function CompanyPage() {
 
             {/* Left: Company-specific content */}
             <div className="space-y-10">
+              {companyEvidenceAvailable ? (
+                <>
               <Reveal>
                 <div>
                   <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
@@ -439,7 +412,7 @@ export default function CompanyPage() {
               <Reveal delay={0.25}>
                 <div>
                   <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    STATES WHERE WE FIGHT {company.name.toUpperCase()} CONTRACTS
+                    STATE INFORMATION FOR {company.name.toUpperCase()} CONTRACTS
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {company.statesActive.map((state) => (
@@ -450,6 +423,22 @@ export default function CompanyPage() {
                   </div>
                 </div>
               </Reveal>
+                </>
+              ) : (
+                <Reveal>
+                  <div className="p-6 rounded-lg border border-amber-500/20" style={{ background: "oklch(0.14 0.015 50 / 20%)" }}>
+                    <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
+                      VERIFY CURRENT {company.name.toUpperCase()} INFORMATION
+                    </h2>
+                    <p className="text-gray-400 leading-relaxed mb-4">
+                      Ratings, complaint totals, company status, legal matters, and claimed remedies can change. They are not published here until a source URL and verification date are recorded.
+                    </p>
+                    <p className="text-gray-400 leading-relaxed">
+                      Check current official regulator records and preserve the documents from your own transaction for an individual review.
+                    </p>
+                  </div>
+                </Reveal>
+              )}
             </div>
 
             {/* Right: Form */}
@@ -458,19 +447,19 @@ export default function CompanyPage() {
                 <div className="p-8 rounded-xl form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
                   <div className="mb-6">
                     <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-3" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                      FREE CASE REVIEW — NO OBLIGATION
+                      INDIVIDUAL CASE REVIEW
                     </div>
                     <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                       60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
                     </h2>
-                    <p className="text-gray-400 text-sm mt-2">Most people have their solar canceled and still get to keep their equipment.</p>
+                    <p className="text-gray-400 text-sm mt-2">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
                   </div>
                   <CompanyForm companyName={company.name} />
                 </div>
               </Reveal>
 
               {/* Company Quick Facts */}
-              <Reveal delay={0.2}>
+              {companyEvidenceAvailable && <Reveal delay={0.2}>
                 <div className="mt-6 p-5 rounded-xl border border-white/8" style={{ background: "oklch(0.12 0.01 265)" }}>
                   <h4 className="text-gray-500 text-xs font-mono mb-3">COMPANY QUICK FACTS</h4>
                   <div className="space-y-2">
@@ -489,7 +478,12 @@ export default function CompanyPage() {
                     ))}
                   </div>
                 </div>
-              </Reveal>
+              </Reveal>}
+              {!companyEvidenceAvailable && (
+                <div className="mt-6 p-5 rounded-xl border border-white/8 text-gray-400 text-sm" style={{ background: "oklch(0.12 0.01 265)" }}>
+                  Company facts and third-party ratings are withheld until source and as-of metadata are attached.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -532,7 +526,7 @@ export default function CompanyPage() {
         <div className="container">
           <Reveal>
             <h3 className="font-display text-gray-500 text-lg mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              ALL SOLAR COMPANIES WE FIGHT
+              OTHER SOLAR COMPANY INFORMATION
             </h3>
           </Reveal>
           <div className="flex flex-wrap gap-2">
@@ -561,7 +555,7 @@ export default function CompanyPage() {
             </div>
           </Link>
           <p className="text-gray-600 text-xs font-mono text-center max-w-xl">
-            Solar contract cancellation attorneys fighting {company.name} contracts nationwide. Results vary by case. Free consultation does not create attorney-client relationship. © {new Date().getFullYear()} Solar Freedom.
+            Consumer information and intake resources for {company.name} agreements. Not legal advice. Options and outcomes depend on the agreement, facts, and jurisdiction. © {new Date().getFullYear()} Solar Freedom.
           </p>
         </div>
       </footer>

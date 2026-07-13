@@ -87,6 +87,7 @@ describe("truthful SEO page delivery", () => {
     "/solar-contract-laws/not-a-state",
     "/blog/not-an-article",
     "/admin/not-an-admin-page",
+    "/solar-fraud-report",
   ])("returns a noindex HTTP 404 for %s", async page => {
     const response = await fetch(`${baseUrl}${page}`);
     expect(response.status).toBe(404);
