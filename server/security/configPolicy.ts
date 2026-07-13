@@ -7,6 +7,8 @@ export const PUBLIC_SITE_CONFIG_KEYS = new Set([
 
 export const PRESS_RELEASE_OPERATIONAL_KEYS = new Set([
   "model",
+  "image_model",
+  "embedding_model",
   "schedule_enabled",
   "playwright_enabled",
   "medium_enabled",
@@ -22,4 +24,3 @@ export function isAllowedPublicConfigKey(key: string): boolean {
 export function isAllowedPressReleaseSetting(key: string): boolean {
   return PRESS_RELEASE_OPERATIONAL_KEYS.has(key);
 }
-

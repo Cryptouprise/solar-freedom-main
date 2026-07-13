@@ -255,6 +255,9 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
     if (!slug || !title || !content) {
       return res.status(400).json({ error: "slug, title, and content are required" });
     }
+    if (published !== undefined && typeof published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
 
     // Check for duplicate slug
     const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, slug));
@@ -301,6 +304,9 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     if (!existing) return res.status(404).json({ error: "Post not found" });
 
     const updates: Record<string, unknown> = {};
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
     if (req.body.published === true && !hasPermission(req, "posts:publish")) {
       return res.status(403).json({ error: "Publishing requires 'posts:publish'" });
     }
@@ -390,6 +396,9 @@ router.post("/companies", requirePermission("companies:write"), async (req: Admi
 
     const { slug, name } = req.body;
     if (!slug || !name) return res.status(400).json({ error: "slug and name are required" });
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
 
     const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, slug));
     if (existing) return res.status(409).json({ error: `Company with slug '${slug}' already exists` });
@@ -424,6 +433,9 @@ router.put("/companies/:slug", requirePermission("companies:write"), async (req:
     const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, req.params.slug));
     if (!existing) return res.status(404).json({ error: "Company not found" });
 
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
     if (req.body.published === true && !hasPermission(req, "companies:publish")) {
       return res.status(403).json({ error: "Publishing requires 'companies:publish'" });
     }

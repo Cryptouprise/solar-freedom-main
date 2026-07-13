@@ -7,3 +7,5 @@ Required variables are documented in `.env.example`. After setting or rotating a
 The CRM webhook value that previously appeared in source history must be rotated at the provider before `GHL_WEBHOOK_URL` is enabled. Removing it from the current tree does not remove it from Git history.
 
 The admin configuration API only accepts public runtime display fields. Press-release settings accept operational toggles and non-secret URLs only. Credential state should be managed in the hosting provider, not the application database.
+
+`TRUST_PROXY` may contain a comma-separated allowlist of verified reverse-proxy IP addresses or CIDR ranges. Leave it empty when the application is directly reachable. Never set a blanket trust value merely to make forwarded client-IP headers work; public rate limits use Express's trusted-proxy result and production ingress should enforce a second limit.

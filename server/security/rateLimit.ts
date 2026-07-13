@@ -6,9 +6,10 @@ const buckets = new Map<string, Bucket>();
 const MAX_BUCKETS = 10_000;
 
 function clientAddress(req: Request): string {
-  const forwarded = req.headers?.["x-forwarded-for"];
-  const first = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0];
-  return first?.trim() || req.ip || req.socket?.remoteAddress || "unknown";
+  // Express derives req.ip from the socket and the configured trust-proxy
+  // policy. Reading X-Forwarded-For directly would let a caller rotate a
+  // spoofed header and evade this per-address limit.
+  return req.ip || req.socket?.remoteAddress || "unknown";
 }
 
 /** Best-effort per-instance abuse control. Production ingress should also rate-limit. */

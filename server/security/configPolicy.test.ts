@@ -10,6 +10,8 @@ describe("configuration allowlists", () => {
 
   it("allows operational PR settings but rejects credential storage", () => {
     expect(isAllowedPressReleaseSetting("schedule_enabled")).toBe(true);
+    expect(isAllowedPressReleaseSetting("image_model")).toBe(true);
+    expect(isAllowedPressReleaseSetting("embedding_model")).toBe(true);
     expect(isAllowedPressReleaseSetting("prlog_password")).toBe(false);
     expect(isAllowedPressReleaseSetting("newsbywire_api_key")).toBe(false);
   });
