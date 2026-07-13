@@ -19,7 +19,7 @@ import {
   Phone, Scale, XCircle, Clock, Home, Gavel
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { trackFormSubmit } from "@/lib/analytics";
+import { recordLeadSubmission } from "@/lib/analytics";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -44,6 +44,7 @@ function LienForm() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState({
     lienType: "", goal: "",
@@ -89,9 +90,10 @@ function LienForm() {
     e.preventDefault();
     const firstName = form.name.split(" ")[0] || form.name;
     const lastName = form.name.split(" ").slice(1).join(" ") || "";
+    setSubmissionError("");
     try {
       // Persist to DB via tRPC
-      await submitLead.mutateAsync({
+      const result = await submitLead.mutateAsync({
         firstName,
         lastName,
         phone: form.phone,
@@ -102,11 +104,18 @@ function LienForm() {
         sourcePage: "/solar-lien-removal",
         sourceUrl: window.location.href,
       });
-    } catch (_) {}
+      if (!recordLeadSubmission(result, "solar_lien_removal_form", window.location.pathname)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "solar_lien_removal_form", window.location.pathname);
+      setSubmissionError("We couldn't save your request. Please try again.");
+      return;
+    }
     const fn = form.name.split(" ")[0] || form.name;
     const ln = form.name.split(" ").slice(1).join(" ") || "";
     updateContactInfo({ firstName: fn, lastName: ln, phone: form.phone, email: form.email });
-    trackFormSubmit("solar_lien_removal_form", "/solar-lien-removal");
     setSubmitted(true);
     setTimeout(() => setBookingOpen(true), 1200);
   };
@@ -179,10 +188,11 @@ function LienForm() {
         <input required type="email" placeholder="Email Address" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
           style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 20%)" }} />
-        <button type="submit" className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90"
+        <button type="submit" disabled={submitLead.isPending} className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50"
           style={{ background: "#f97316", color: "#0D0F14" }}>
           Get My Free Lien Review →
         </button>
+        {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
         <p className="text-center text-xs text-slate-500">No obligation. We respond within minutes.</p>
       </div>
     </form>

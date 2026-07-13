@@ -10,6 +10,7 @@ import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
 import CallbackWidget from "./components/CallbackWidget";
 import DesktopCallButton from "./components/DesktopCallButton";
+import { trackPageView } from "./lib/analytics";
 
 const CityPage = lazy(() => import("./pages/CityPage"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -65,11 +66,27 @@ function LegacyCityRedirect() {
   return null;
 }
 
+function AnalyticsPageViews() {
+  const [location] = useLocation();
+  useEffect(() => {
+    if (
+      (location !== "/" && location.endsWith("/")) ||
+      /^\/cancel-solar-contract-[a-z0-9-]+$/.test(location)
+    ) {
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => trackPageView(location));
+    return () => window.cancelAnimationFrame(frame);
+  }, [location]);
+  return null;
+}
+
 function Router() {
   return (
     <>
       <TrailingSlashRedirect />
       <LegacyCityRedirect />
+      <AnalyticsPageViews />
       <Suspense fallback={<div className="min-h-screen bg-background" />}>
         <Switch>
           <Route path={"/"} component={Home} />

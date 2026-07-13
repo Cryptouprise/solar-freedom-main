@@ -3,6 +3,8 @@ import { cities } from "@/data/cities";
 import { companies } from "@/data/companies";
 import { stateLaws } from "@/data/state-laws";
 import { blogPosts } from "@/data/blog";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { trackPhoneClick } from "@/lib/analytics";
 
 // Group cities by state
 function groupByState(cityList: typeof cities) {
@@ -30,6 +32,7 @@ const STATIC_PAGES = [
 ];
 
 export default function SitemapPage() {
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   const byState = groupByState(cities);
   const sortedStates = Object.keys(byState).sort();
 
@@ -175,10 +178,11 @@ export default function SitemapPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="tel:+18005551234"
+              href={phoneHref}
+              onClick={() => trackPhoneClick("sitemap_cta", phoneDigits)}
               className="bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 px-8 rounded transition-colors"
             >
-              CALL NOW — FREE REVIEW
+              CALL {phoneDisplay} — FREE REVIEW
             </a>
             <Link
               href="/"

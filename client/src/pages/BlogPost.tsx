@@ -13,6 +13,8 @@ import { motion } from 'framer-motion';
 import { useEffect, ReactElement, ReactNode } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
+import { useSiteConfig } from '@/hooks/useSiteConfig';
+import { trackPhoneClick } from '@/lib/analytics';
 
 function renderInlineContent(content?: string): ReactNode {
   if (!content) return null;
@@ -162,8 +164,7 @@ function renderSection(section: BlogSection, index: number) {
 
 // Inline CTA component — appears at midpoint of article
 function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
-  const phoneNumber = "(904) 906-5844";
-  const phoneHref = "tel:+19049065844";
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   return (
     <div className="my-12 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800/80 border border-amber-500/40 p-8">
       <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">-- No Obligation. No BS.</div>
@@ -180,9 +181,9 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
         <a
           href={phoneHref}
           className="flex items-center justify-center gap-2 border border-white/20 hover:border-amber-500/60 text-white hover:text-amber-400 font-bold px-6 py-3.5 rounded-lg text-sm transition-colors"
-          onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_inline_cta' })}
+          onClick={() => trackPhoneClick('blog_inline_cta', phoneDigits)}
         >
-          📞 Call {phoneNumber}
+          📞 Call {phoneDisplay}
         </a>
       </div>
       <p className="text-zinc-600 text-xs mt-3 font-mono">Free review. No cost. We've cancelled 3,000+ contracts.</p>
@@ -312,6 +313,7 @@ function dbPostToBlogPost(dbPost: Record<string, unknown>) {
 }
 
 export default function BlogPost() {
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   const params = useParams<{ slug: string }>();
   const slug = params.slug || '';
   const staticPost = getBlogPost(slug);
@@ -534,11 +536,11 @@ export default function BlogPost() {
                       </span>
                     </Link>
                     <a
-                      href="tel:+19049065844"
+                      href={phoneHref}
                       className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
-                      onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_final_cta' })}
+                      onClick={() => trackPhoneClick('blog_final_cta', phoneDigits)}
                     >
-                      📞 Call (904) 906-5844
+                      📞 Call {phoneDisplay}
                     </a>
                   </div>
                   <p className="text-black/50 text-xs mt-4 font-mono">3,000+ contracts cancelled. Free review. No obligation.</p>
@@ -822,11 +824,11 @@ export default function BlogPost() {
                   </span>
                 </Link>
                 <a
-                  href="tel:+19049065844"
+                  href={phoneHref}
                   className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
-                  onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_final_cta' })}
+                  onClick={() => trackPhoneClick('blog_final_cta', phoneDigits)}
                 >
-                  📞 Call (904) 906-5844
+                  📞 Call {phoneDisplay}
                 </a>
               </div>
               <p className="text-black/50 text-xs mt-4 font-mono">3,000+ contracts cancelled. Free review. No obligation.</p>

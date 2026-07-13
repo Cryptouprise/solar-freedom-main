@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { trackCTAClick, trackFormSubmit } from "@/lib/analytics";
+import { recordLeadSubmission, trackCTAClick } from "@/lib/analytics";
 
 interface QuickCallbackFormProps {
   formName: string;
@@ -32,6 +32,7 @@ export default function QuickCallbackForm({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
   const callbackMutation = trpc.leads.quickCallback.useMutation();
 
   // Build the GHL calendar URL with pre-filled name/phone from the form.
@@ -61,16 +62,26 @@ export default function QuickCallbackForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone.trim()) return;
-    await callbackMutation.mutateAsync({
-      name: name.trim() || undefined,
-      phone: phone.trim(),
-      intent: intentTag,
-      formName,
-      sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
-      sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
-    });
-    trackFormSubmit(formName, typeof window !== "undefined" ? window.location.pathname : "unknown");
-    setSubmitted(true);
+    setSubmissionError("");
+    const page = typeof window !== "undefined" ? window.location.pathname : "unknown";
+    try {
+      const result = await callbackMutation.mutateAsync({
+        name: name.trim() || undefined,
+        phone: phone.trim(),
+        intent: intentTag,
+        formName,
+        sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
+        sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
+      });
+      if (!recordLeadSubmission(result, formName, page)) {
+        setSubmissionError("We couldn't save your callback request. Please try again.");
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      recordLeadSubmission(null, formName, page);
+      setSubmissionError("We couldn't save your callback request. Please try again.");
+    }
   };
 
   if (submitted) {
@@ -133,6 +144,9 @@ export default function QuickCallbackForm({
         >
           {callbackMutation.isPending ? "Submitting..." : buttonLabel}
         </button>
+        {submissionError && (
+          <p role="alert" className="text-red-400 text-xs text-center">{submissionError}</p>
+        )}
       </form>
 
       {showSchedule && (

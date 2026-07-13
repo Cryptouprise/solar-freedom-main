@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { trackFormSubmit } from "@/lib/analytics";
+import { recordLeadSubmission } from "@/lib/analytics";
 
 export default function ExitIntentPopup() {
   const [show, setShow] = useState(false);
@@ -14,6 +14,7 @@ export default function ExitIntentPopup() {
   const [email, setEmail] = useState("");
   const [wantsGuide, setWantsGuide] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
 
   const handleMouseLeave = useCallback((e: MouseEvent) => {
     if (e.clientY <= 10 && !dismissed && !show) {
@@ -47,15 +48,23 @@ export default function ExitIntentPopup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    setSubmissionError("");
     try {
       // Persist to DB via tRPC
-      await captureExitIntent.mutateAsync({
+      const result = await captureExitIntent.mutateAsync({
         email,
         sourcePage: window.location.pathname,
         wantsGuide,
       });
-    } catch (_) { /* silent */ }
-    trackFormSubmit("exit_intent_popup", window.location.pathname);
+      if (!recordLeadSubmission(result, "exit_intent_popup", window.location.pathname)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "exit_intent_popup", window.location.pathname);
+      setSubmissionError("We couldn't save your request. Please try again.");
+      return;
+    }
     setSubmitted(true);
   };
 
@@ -130,11 +139,15 @@ export default function ExitIntentPopup() {
                       />
                       <button
                         type="submit"
+                        disabled={captureExitIntent.isPending}
                         className="w-full py-3.5 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
                         style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
                       >
                         GET MY FREE CASE REVIEW + GUIDE →
                       </button>
+                      {submissionError && (
+                        <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
+                      )}
                       <label className="flex items-start gap-2 text-zinc-500 text-xs">
                         <input
                           type="checkbox"
