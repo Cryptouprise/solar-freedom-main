@@ -7,12 +7,12 @@ import { createServer, type Server } from "http";
 import * as cheerio from "cheerio";
 import { blogPosts as clientBlogPosts } from "../client/src/data/blog";
 
-const { getDbBlogPost, getDbBlogPosts } = vi.hoisted(() => ({
-  getDbBlogPost: vi.fn(),
+const { getDbBlogPostStatus, getDbBlogPosts } = vi.hoisted(() => ({
+  getDbBlogPostStatus: vi.fn(),
   getDbBlogPosts: vi.fn(),
 }));
 
-vi.mock("./db", () => ({ getDbBlogPost, getDbBlogPosts }));
+vi.mock("./db", () => ({ getDbBlogPostStatus, getDbBlogPosts }));
 
 import {
   CLIENT_ONLY_ROUTES,
@@ -39,7 +39,9 @@ describe("truthful SEO page delivery", () => {
       "<!doctype html><h1>Known static article</h1>"
     );
 
-    getDbBlogPost.mockImplementation(async (slug: string) =>
+    getDbBlogPostStatus.mockImplementation(async (slug: string) => ({
+      available: true,
+      post:
       slug === "database-article"
         ? {
             slug,
@@ -53,8 +55,8 @@ describe("truthful SEO page delivery", () => {
             updatedAt: new Date("2026-06-02T00:00:00Z"),
             faqItems: [{ q: "Is this discoverable?", a: "Yes, in the initial HTML." }],
           }
-        : null
-    );
+        : null,
+    }));
 
     const app = express();
     registerSeoPageDelivery(app, publicDir);
@@ -121,6 +123,15 @@ describe("truthful SEO page delivery", () => {
     expect(html).not.toContain("xlink:");
     expect(html).not.toContain("SVG payload");
     expect(html).toContain('href="/safe"');
+  });
+
+  it("returns a no-store 503 when dynamic post availability is unknown", async () => {
+    getDbBlogPostStatus.mockResolvedValueOnce({ available: false, post: null });
+    const response = await fetch(`${baseUrl}/blog/database-outage`);
+    expect(response.status).toBe(503);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("retry-after")).toBe("60");
+    expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
   });
 
   it("normalizes query strings and trailing slashes without accepting traversal", () => {

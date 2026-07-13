@@ -5,7 +5,8 @@ import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
-import { buildMetaMap, injectMetaDynamic } from "../seo-meta";
+import { buildMetaMap, renderDbBlogPost } from "../seo-meta";
+import { getDbBlogPostStatus } from "../db";
 import {
   CLIENT_ONLY_ROUTES,
   normalizePagePath,
@@ -60,9 +61,19 @@ export async function setupVite(app: Express, server: Server) {
       let page = await vite.transformIndexHtml(url, template);
 
       if (!knownPublicPage && !CLIENT_ONLY_ROUTES.has(pagePath) && dynamicCandidate) {
-        page = await injectMetaDynamic(page, pagePath);
-        if (page.includes('data-content-source="database"')) {
-          res.status(200).type("html").end(page);
+        const lookup = await getDbBlogPostStatus(pagePath.slice("/blog/".length));
+        if (!lookup.available) {
+          res
+            .status(503)
+            .type("html")
+            .set("Cache-Control", "no-store")
+            .set("Retry-After", "60")
+            .set("X-Robots-Tag", "noindex, nofollow")
+            .end("<!doctype html><title>Temporarily unavailable</title><h1>Temporarily unavailable</h1><p>Please try again shortly.</p>");
+          return;
+        }
+        if (lookup.post) {
+          res.status(200).type("html").end(renderDbBlogPost(page, pagePath, lookup.post));
           return;
         }
       }

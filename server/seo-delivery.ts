@@ -2,7 +2,7 @@ import type { Express } from "express";
 import fs from "fs";
 import path from "path";
 import * as cheerio from "cheerio";
-import { getDbBlogPost, getDbBlogPosts } from "./db";
+import { getDbBlogPostStatus, getDbBlogPosts } from "./db";
 import { renderDbBlogPost } from "./seo-meta";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
@@ -256,11 +256,21 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
       const slug = pagePath.slice("/blog/".length);
       if (slug && !slug.includes("/")) {
         try {
-          const post = await getDbBlogPost(slug);
-          if (post) {
+          const lookup = await getDbBlogPostStatus(slug);
+          if (!lookup.available) {
+            response
+              .status(503)
+              .type("html")
+              .set("Cache-Control", "no-store")
+              .set("Retry-After", "60")
+              .set("X-Robots-Tag", "noindex, nofollow")
+              .send("<!doctype html><title>Temporarily unavailable</title><h1>Temporarily unavailable</h1><p>Please try again shortly.</p>");
+            return;
+          }
+          if (lookup.post) {
             const html = fs.readFileSync(rootIndex, "utf8");
             seoHeaders(response);
-            response.status(200).send(renderDbBlogPost(html, pagePath, post));
+            response.status(200).send(renderDbBlogPost(html, pagePath, lookup.post));
             return;
           }
         } catch (error) {
