@@ -5,10 +5,10 @@
  *
  * Tabs:
  *   1. Topic Queue — add/remove/reorder press release topics
- *   2. Run Now — trigger generation + submission, watch live status
- *   3. Logs — history of all published press releases with links
- *   4. Backlinks — discovered opportunities + approval queue
- *   5. Settings — model selector, schedule toggle, site credentials
+ *   2. Run Now — generate a draft preview for human review
+ *   3. Logs — draft and historical adapter evidence
+ *   4. Backlinks — unverified research candidates + review queue
+ *   5. Settings — draft model and inactive legacy-adapter inventory
  */
 
 import { useState } from "react";
@@ -56,10 +56,6 @@ import {
   RotateCcw,
   DollarSign,
   TrendingUp,
-  LogIn,
-  Loader2,
-  Wifi,
-  WifiOff,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -80,10 +76,21 @@ function StatusBadge({ status }: { status: string }) {
     promoted: { color: "bg-purple-500/20 text-purple-300 border-purple-500/30", icon: <ChevronRight className="w-3 h-3" /> },
   };
   const cfg = map[status] ?? map.pending;
+  const label = status === "new"
+    ? "unverified"
+    : status === "approved"
+      ? "reviewed candidate"
+      : status === "promoted"
+        ? "promoted to queue"
+        : status === "success"
+          ? "adapter-reported success"
+          : status === "published"
+            ? "legacy published status"
+        : status;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${cfg.color}`}>
       {cfg.icon}
-      {status}
+      {label}
     </span>
   );
 }
@@ -110,7 +117,7 @@ function AddTopicDialog({ onAdded }: { onAdded: () => void }) {
       utils.pressRelease.getTopics.invalidate();
       onAdded();
     },
-    onError: (e) => toast.error('Error', { description: e.message }),
+    onError: () => toast.error('Topic was not added', { description: 'Review sanitized server diagnostics.' }),
   });
 
   return (
@@ -125,26 +132,30 @@ function AddTopicDialog({ onAdded }: { onAdded: () => void }) {
           <DialogTitle className="text-white">Add Press Release Topic</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
+          <p className="rounded border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-200">
+            This creates an unverified draft prompt only. Provide current primary-source URLs and facts you have
+            independently verified; generation does not validate a claim or authorize publication.
+          </p>
           <div>
             <Label className="text-gray-400 text-xs uppercase tracking-wider">Topic / Headline Angle *</Label>
             <Input
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              placeholder="e.g. Solar Homeowners Win Contract Cancellations in Record Numbers"
+              placeholder="e.g. Proposed consumer-education update on reviewing solar agreement terms"
               className="mt-1 bg-white/5 border-white/10 text-white placeholder-gray-600"
             />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider">Additional Context / Angle</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider">Verified Context / Primary Sources</Label>
             <Textarea
               value={form.angle}
               onChange={(e) => setForm((f) => ({ ...f, angle: e.target.value }))}
-              placeholder="Extra talking points, stats, or context for the AI to use..."
+              placeholder="Current primary-source URLs and precisely supported facts only. Do not add unverified statistics, outcomes, allegations, or legal conclusions."
               className="mt-1 bg-white/5 border-white/10 text-white placeholder-gray-600 h-24"
             />
           </div>
           <div>
-            <Label className="text-gray-400 text-xs uppercase tracking-wider">Target Keywords (comma-separated)</Label>
+            <Label className="text-gray-400 text-xs uppercase tracking-wider">Optional Search Phrases (comma-separated; no stuffing)</Label>
             <Input
               value={form.targetKeywords}
               onChange={(e) => setForm((f) => ({ ...f, targetKeywords: e.target.value }))}
@@ -191,7 +202,7 @@ function TopicQueueTab() {
 
   const deleteTopic = trpc.pressRelease.deleteTopic.useMutation({
     onSuccess: () => { toast.success('Topic deleted'); utils.pressRelease.getTopics.invalidate(); },
-    onError: (e) => toast.error('Error', { description: e.message }),
+    onError: () => toast.error('Topic was not deleted', { description: 'Review sanitized server diagnostics.' }),
   });
 
   const updateStatus = trpc.pressRelease.updateTopicStatus.useMutation({
@@ -262,7 +273,7 @@ function TopicQueueTab() {
 function RunNowTab() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [dryRun, setDryRun] = useState(false);
+  const dryRun = true as const;
   const { data: topics = [] } = trpc.pressRelease.getTopics.useQuery();
   const [selectedTopicId, setSelectedTopicId] = useState<string>("next");
   
@@ -274,11 +285,11 @@ function RunNowTab() {
       setRunning(false);
       utils.pressRelease.getTopics.invalidate();
       utils.pressRelease.getLogs.invalidate();
-      toast.success(dryRun ? "Dry run complete" : "Press release published!", { description: `"${data.headline}"` });
+      toast.success("Draft preview complete", { description: `"${data.headline}"` });
     },
-    onError: (e) => {
+    onError: () => {
       setRunning(false);
-      toast.error('Run failed', { description: e.message });
+      toast.error('Draft generation failed', { description: 'Review sanitized server diagnostics.' });
     },
   });
 
@@ -307,7 +318,7 @@ function RunNowTab() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#1a1d24] border-white/10 text-white">
-                <SelectItem value="next">Next pending topic (automatic)</SelectItem>
+                <SelectItem value="next">Next pending topic</SelectItem>
                 {pendingTopics.map((t) => (
                   <SelectItem key={t.id} value={String(t.id)}>
                     #{t.id}: {t.title.substring(0, 60)}...
@@ -317,16 +328,9 @@ function RunNowTab() {
             </Select>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Switch
-              id="dry-run"
-              checked={dryRun}
-              onCheckedChange={setDryRun}
-            />
-            <Label htmlFor="dry-run" className="text-gray-300 text-sm cursor-pointer">
-              Dry run (generate only, don't submit)
-            </Label>
-          </div>
+          <p className="rounded border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+            Approval-first mode is enforced: this action generates a draft preview only and never publishes externally.
+          </p>
 
           <Button
             onClick={handleRun}
@@ -336,7 +340,7 @@ function RunNowTab() {
             {running ? (
               <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Running... (this takes 30–60 seconds)</>
             ) : (
-              <><Play className="w-4 h-4 mr-2" /> {dryRun ? "Generate Preview" : "Generate & Submit Now"}</>
+              <><Play className="w-4 h-4 mr-2" /> Generate Draft Preview</>
             )}
           </Button>
 
@@ -352,7 +356,7 @@ function RunNowTab() {
           <CardHeader className="pb-3">
             <CardTitle className="text-green-400 text-base flex items-center gap-2">
               <CheckCircle className="w-5 h-5" />
-              {dryRun ? "Preview Generated" : "Run Complete"}
+              Preview Generated
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -367,7 +371,7 @@ function RunNowTab() {
 
             {result.submissions && result.submissions.length > 0 && (
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Submissions</p>
+                <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Historical Adapter Evidence (Unverified)</p>
                 <div className="space-y-2">
                   {result.submissions.map((s: any, i: number) => (
                     <div key={i} className="flex items-center justify-between bg-white/5 rounded p-3">
@@ -376,13 +380,13 @@ function RunNowTab() {
                         <span className="text-white text-sm">{s.siteLabel}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        {s.publishedUrl && (
-                          <a href={s.publishedUrl} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">
+                        {s.publishedUrl && safeBacklinkHref(s.publishedUrl) && (
+                          <a href={safeBacklinkHref(s.publishedUrl)!} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">
                             <ExternalLink className="w-4 h-4" />
                           </a>
                         )}
                         {s.errorMessage && (
-                          <span className="text-red-400 text-xs max-w-48 truncate" title={s.errorMessage}>{s.errorMessage}</span>
+                          <span className="text-red-400 text-xs max-w-64">Adapter reported an error; use sanitized server diagnostics.</span>
                         )}
                         {s.durationMs && (
                           <span className="text-gray-500 text-xs">{(s.durationMs / 1000).toFixed(1)}s</span>
@@ -392,9 +396,9 @@ function RunNowTab() {
                   ))}
                 </div>
                 <div className="flex gap-4 mt-3 text-sm">
-                  <span className="text-green-400">✓ {result.successCount} succeeded</span>
-                  <span className="text-red-400">✗ {result.failedCount} failed</span>
-                  <span className="text-gray-400">⊘ {result.skippedCount} skipped</span>
+                  <span className="text-amber-300">{result.successCount} adapter-reported successes (unverified)</span>
+                  <span className="text-red-400">{result.failedCount} adapter-reported failures</span>
+                  <span className="text-gray-400">{result.skippedCount} skipped</span>
                 </div>
               </div>
             )}
@@ -414,7 +418,7 @@ function LogsTab() {
     return (
       <div className="text-center py-12 text-gray-500">
         <Clock className="w-12 h-12 mx-auto mb-3 opacity-30" />
-        <p>No press releases published yet. Run your first one in the "Run Now" tab.</p>
+        <p>No draft or distribution evidence yet. Generate a draft preview in the "Run Now" tab.</p>
       </div>
     );
   }
@@ -429,7 +433,9 @@ function LogsTab() {
 
   return (
     <div className="space-y-4">
-      <p className="text-gray-400 text-sm">{Object.keys(grouped).length} press releases · {logs.filter((l) => l.status === "success").length} successful submissions</p>
+      <p className="text-gray-400 text-sm">
+        {Object.keys(grouped).length} historical draft/adapter records · {logs.filter((l) => l.status === "success").length} adapter-reported successes, unverified until current URL and destination evidence is reviewed
+      </p>
 
       {Object.entries(grouped).map(([key, entries]) => (
         <Card key={key} className="bg-white/5 border-white/10">
@@ -451,14 +457,14 @@ function LogsTab() {
                     <span className="text-gray-300">{log.siteLabel}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {log.publishedUrl && (
-                      <a href={log.publishedUrl} target="_blank" rel="noopener noreferrer"
+                    {log.publishedUrl && safeBacklinkHref(log.publishedUrl) && (
+                      <a href={safeBacklinkHref(log.publishedUrl)!} target="_blank" rel="noopener noreferrer"
                         className="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-xs">
                         View <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
                     {log.errorMessage && (
-                      <span className="text-red-400 text-xs max-w-48 truncate" title={log.errorMessage}>{log.errorMessage}</span>
+                      <span className="text-red-400 text-xs max-w-64">Adapter reported an error; use sanitized server diagnostics.</span>
                     )}
                   </div>
                 </div>
@@ -473,9 +479,39 @@ function LogsTab() {
 
 // ─── Backlinks Tab ────────────────────────────────────────────────────────────
 
+function safeBacklinkHref(value: string): string | null {
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    const isIpAddress = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(host) || host.includes(":");
+    const isFirstParty = host === "breakyoursolarcontract.com"
+      || host.endsWith(".breakyoursolarcontract.com");
+    const isLocal = host === "localhost"
+      || host.endsWith(".localhost")
+      || host.endsWith(".local")
+      || host.endsWith(".internal");
+
+    if (
+      parsed.protocol !== "https:"
+      || parsed.username
+      || parsed.password
+      || (parsed.port && parsed.port !== "443")
+      || !host.includes(".")
+      || isIpAddress
+      || isFirstParty
+      || isLocal
+    ) return null;
+
+    parsed.hash = "";
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}
+
 function BacklinksTab() {
   const [statusFilter, setStatusFilter] = useState<"new" | "approved" | "rejected" | "promoted" | undefined>("new");
-  const { data: opportunities = [], refetch } = trpc.backlinks.getOpportunities.useQuery({
+  const { data: opportunities = [] } = trpc.backlinks.getOpportunities.useQuery({
     status: statusFilter,
     limit: 100,
     offset: 0,
@@ -485,19 +521,29 @@ function BacklinksTab() {
 
   const updateOpp = trpc.backlinks.updateOpportunity.useMutation({
     onSuccess: () => { utils.backlinks.getOpportunities.invalidate(); },
-    onError: (e) => toast.error('Error', { description: e.message }),
+    onError: () => toast.error('Candidate was not updated', { description: 'Review sanitized server diagnostics.' }),
   });
 
   const seedSites = trpc.backlinks.seedKnownSites.useMutation({
-    onSuccess: () => { toast.success('Seeded 25 known PR sites'); utils.backlinks.getOpportunities.invalidate(); },
+    onSuccess: (result) => {
+      toast.success(`Queued ${result.queued} historical candidates for verification`);
+      utils.backlinks.getOpportunities.invalidate();
+    },
+    onError: () => toast.error('Unable to queue research candidates'),
   });
 
   const runDiscovery = trpc.pressRelease.runDiscovery.useMutation({
     onSuccess: (r) => {
-      toast.success(`Discovery complete: ${r.newOpportunities} new opportunities found`);
+      if (r.errors.length > 0) {
+        toast.warning('Research queue completed with limited results', {
+          description: `${r.newOpportunities} unverified candidate(s) added; review sanitized server diagnostics.`,
+        });
+      } else {
+        toast.success(`Research queue updated: ${r.newOpportunities} unverified candidates added`);
+      }
       utils.backlinks.getOpportunities.invalidate();
     },
-    onError: (e) => toast.error('Discovery failed', { description: e.message }),
+    onError: () => toast.error('Unable to generate the research queue'),
   });
 
   return (
@@ -527,7 +573,7 @@ function BacklinksTab() {
             disabled={seedSites.isPending}
           >
             <Link2 className="w-3.5 h-3.5 mr-1" />
-            {seedSites.isPending ? "Seeding..." : "Seed Known Sites"}
+            {seedSites.isPending ? "Queuing..." : "Queue Historical Candidates"}
           </Button>
           <Button
             size="sm"
@@ -536,7 +582,7 @@ function BacklinksTab() {
             disabled={runDiscovery.isPending}
           >
             <Search className="w-3.5 h-3.5 mr-1" />
-            {runDiscovery.isPending ? "Discovering..." : "Run AI Discovery"}
+            {runDiscovery.isPending ? "Generating..." : "Generate Research Queue"}
           </Button>
         </div>
       </div>
@@ -544,31 +590,41 @@ function BacklinksTab() {
       {opportunities.length === 0 && (
         <div className="text-center py-12 text-gray-500">
           <Link2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="mb-3">No opportunities yet.</p>
-          <p className="text-sm">Click "Seed Known Sites" to load 25 pre-vetted PR sites, or "Run AI Discovery" to find new ones.</p>
+          <p className="mb-3">No research candidates yet.</p>
+          <p className="text-sm max-w-2xl mx-auto">
+            Queue historical candidates or generate model suggestions. Every result is unverified and must be checked for current availability, editorial fit, submission policy, pricing, and link attributes before approval.
+          </p>
         </div>
       )}
 
       <div className="space-y-2">
-        {opportunities.map((opp) => (
+        {opportunities.map((opp) => {
+          const safeHref = safeBacklinkHref(opp.url);
+          return (
           <div key={opp.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <StatusBadge status={opp.status} />
                   <span className="text-xs text-gray-500 font-mono">{opp.type}</span>
-                  {opp.domainAuthority && (
-                    <span className={`text-xs font-mono ${opp.domainAuthority >= 60 ? "text-green-400" : opp.domainAuthority >= 40 ? "text-yellow-400" : "text-gray-400"}`}>
-                      DA {opp.domainAuthority}
+                  {opp.status === "new" && (
+                    <span className="text-xs text-amber-300">unverified research</span>
+                  )}
+                  {opp.relevanceScore !== null && opp.relevanceScore !== undefined && (
+                    <span className="text-xs text-gray-500" title="Model-generated topical-fit sorting aid; not authority or expected SEO impact">
+                      modeled topical fit {opp.relevanceScore}/100
                     </span>
                   )}
-                  {opp.doFollow === 1 && <span className="text-xs text-blue-400">dofollow</span>}
                 </div>
                 <p className="text-white font-medium text-sm">{opp.name ?? opp.url}</p>
-                <a href={opp.url} target="_blank" rel="noopener noreferrer"
-                  className="text-amber-400/70 text-xs hover:text-amber-400 flex items-center gap-1 mt-0.5">
-                  {opp.url} <ExternalLink className="w-3 h-3" />
-                </a>
+                {safeHref ? (
+                  <a href={safeHref} target="_blank" rel="noopener noreferrer"
+                    className="text-amber-400/70 text-xs hover:text-amber-400 flex items-center gap-1 mt-0.5">
+                    {safeHref} <ExternalLink className="w-3 h-3" />
+                  </a>
+                ) : (
+                  <p className="text-red-300/80 text-xs mt-0.5">Unsafe or invalid external URL hidden</p>
+                )}
                 {opp.relevanceReason && (
                   <p className="text-gray-400 text-xs mt-1">{opp.relevanceReason}</p>
                 )}
@@ -583,7 +639,7 @@ function BacklinksTab() {
                     className="bg-green-600/20 hover:bg-green-600/40 text-green-300 border border-green-500/30 h-7 px-2 text-xs"
                     onClick={() => updateOpp.mutate({ id: opp.id, status: "approved" })}
                   >
-                    Approve
+                    Approve after verification
                   </Button>
                   <Button
                     size="sm"
@@ -597,7 +653,8 @@ function BacklinksTab() {
               )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -607,62 +664,44 @@ function BacklinksTab() {
 
 function SettingsTab() {
   const { data: settings = {} } = trpc.pressRelease.getSettings.useQuery();
-  const { data: loginStatus, refetch: refetchLoginStatus } = trpc.pressRelease.checkLoginStatus.useQuery();
-  const [loginPending, setLoginPending] = useState<string | null>(null);
-  
   const utils = trpc.useUtils();
-
-  const browserLoginMutation = trpc.pressRelease.browserLogin.useMutation({
-    onSuccess: (result) => {
-      setLoginPending(null);
-      if (result.success) {
-        toast.success('Login successful!', { description: result.message });
-      } else {
-        toast.warning('Browser session ended', { description: result.message });
-      }
-      refetchLoginStatus();
-    },
-    onError: (e) => {
-      setLoginPending(null);
-      toast.error('Login failed', { description: e.message });
-    },
-  });
 
   const updateSetting = trpc.pressRelease.updateSetting.useMutation({
     onSuccess: () => { toast.success('Setting saved'); utils.pressRelease.getSettings.invalidate(); },
-    onError: (e) => toast.error('Error', { description: e.message }),
+    onError: () => toast.error('Setting was not saved', { description: 'Review sanitized server diagnostics.' }),
   });
 
   const MODELS = [
-    { value: "openrouter/owl-alpha", label: "Owl Alpha (Free) ⭐ Recommended" },
-    { value: "qwen/qwen3-8b:free", label: "Qwen 3 8B (Free)" },
-    { value: "google/gemini-flash-1.5:free", label: "Gemini Flash 1.5 (Free)" },
-    { value: "meta-llama/llama-3.1-8b-instruct:free", label: "Llama 3.1 8B (Free)" },
-    { value: "tencent/hunyuan-a13b-instruct:free", label: "Tencent HunyuanT1 Preview (Free)" },
-    { value: "deepseek/deepseek-chat-v3-0324:free", label: "DeepSeek V4 Flash (Free)" },
-    { value: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash Preview (~$0.001/run)" },
-    { value: "qwen/qwen3-14b", label: "Qwen 3 14B (~$0.001/run)" },
-    { value: "google/gemini-flash-2.0", label: "Gemini Flash 2.0 (~$0.001/run)" },
-    { value: "anthropic/claude-3-haiku", label: "Claude 3 Haiku (~$0.005/run) — Premium" },
+    { value: "openrouter/free", label: "OpenRouter Free Models Router — variable availability" },
+    { value: "openrouter/owl-alpha", label: "Owl Alpha — verify provider availability" },
+    { value: "qwen/qwen3-8b:free", label: "Qwen 3 8B — verify provider availability" },
+    { value: "google/gemini-flash-1.5:free", label: "Gemini Flash 1.5 — verify provider availability" },
+    { value: "meta-llama/llama-3.1-8b-instruct:free", label: "Llama 3.1 8B — verify provider availability" },
+    { value: "tencent/hunyuan-a13b-instruct:free", label: "Tencent HunyuanT1 Preview — verify provider availability" },
+    { value: "deepseek/deepseek-chat-v3-0324:free", label: "DeepSeek V4 Flash — verify provider availability" },
+    { value: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash Preview — verify provider availability" },
+    { value: "qwen/qwen3-14b", label: "Qwen 3 14B — verify provider availability" },
+    { value: "google/gemini-flash-2.0", label: "Gemini Flash 2.0 — verify provider availability" },
+    { value: "anthropic/claude-3-haiku", label: "Claude 3 Haiku — verify provider availability" },
   ];
 
   const IMAGE_MODELS = [
     { value: "none", label: "Disabled — no image generation" },
-    { value: "bytedance-seed/seedream-4.5", label: "Seedream 4.5 (~$0.025/image) — High quality" },
-    { value: "google/gemini-3.1-flash-image-preview", label: "Gemini 3.1 Flash Image (~$0.020/image)" },
-    { value: "google/gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image (~$0.020/image)" },
+    { value: "bytedance-seed/seedream-4.5", label: "Seedream 4.5 — verify provider availability" },
+    { value: "google/gemini-3.1-flash-image-preview", label: "Gemini 3.1 Flash Image — verify provider availability" },
+    { value: "google/gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image — verify provider availability" },
   ];
 
   const EMBEDDING_MODELS = [
     { value: "none", label: "Disabled — no embeddings" },
-    { value: "qwen/qwen3-embedding-8b:nitro", label: "Qwen3 Embedding 8B Nitro (~$0.05/1M tokens) — Fast" },
-    { value: "qwen/qwen3-embedding-8b:exacto", label: "Qwen3 Embedding 8B Exacto (~$0.05/1M tokens) — Precise" },
+    { value: "qwen/qwen3-embedding-8b:nitro", label: "Qwen3 Embedding 8B Nitro — verify provider availability" },
+    { value: "qwen/qwen3-embedding-8b:exacto", label: "Qwen3 Embedding 8B Exacto — verify provider availability" },
   ];
 
-  const currentModel = (settings as any)["model"] ?? "openrouter/owl-alpha";
+  const currentModel = (settings as any)["model"] ?? "openrouter/free";
   const currentImageModel = (settings as any)["image_model"] ?? "none";
   const currentEmbeddingModel = (settings as any)["embedding_model"] ?? "none";
-  const scheduleEnabled = (settings as any)["schedule_enabled"] ?? "true";
+  const storedScheduleEnabled = (settings as any)["schedule_enabled"] === "true";
 
   return (
     <div className="space-y-6 max-w-lg">
@@ -671,7 +710,7 @@ function SettingsTab() {
           <CardTitle className="text-white text-base">AI Writing Model</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-gray-400 text-sm">Choose the model used to write press releases. Free models cost $0/run. Paid models offer higher quality.</p>
+          <p className="text-gray-400 text-sm">Legacy provider options are listed for compatibility. Verify current availability, policy, and price in the provider account before an approved dry run.</p>
           <Select
             value={currentModel}
             onValueChange={(v) => updateSetting.mutate({ key: "model", value: v })}
@@ -690,13 +729,13 @@ function SettingsTab() {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base">Image Generation Model</CardTitle>
+          <CardTitle className="text-white text-base">Legacy Image Model Setting (Inactive)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-gray-400 text-sm">When enabled, generates a featured image for each press release and blog post. Images are stored in S3.</p>
+          <p className="text-gray-400 text-sm">This retained setting is not connected to the approval-first press-release draft flow and does not generate or store an image.</p>
           <Select
             value={currentImageModel}
-            onValueChange={(v) => updateSetting.mutate({ key: "image_model", value: v })}
+            disabled
           >
             <SelectTrigger className="bg-white/5 border-white/10 text-white">
               <SelectValue />
@@ -712,13 +751,13 @@ function SettingsTab() {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base">Embedding Model</CardTitle>
+          <CardTitle className="text-white text-base">Legacy Embedding Model Setting (Inactive)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-gray-400 text-sm">Used for semantic search, content deduplication, and finding related articles. Qwen3 Embedding is highly accurate for English legal/consumer content.</p>
+          <p className="text-gray-400 text-sm">This retained setting is not connected to a production semantic-search or deduplication workflow. No quality claim is made for the listed legacy models.</p>
           <Select
             value={currentEmbeddingModel}
-            onValueChange={(v) => updateSetting.mutate({ key: "embedding_model", value: v })}
+            disabled
           >
             <SelectTrigger className="bg-white/5 border-white/10 text-white">
               <SelectValue />
@@ -734,107 +773,71 @@ function SettingsTab() {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base">Weekly Schedule</CardTitle>
+          <CardTitle className="text-white text-base">External Schedule (Disabled)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-gray-400 text-sm">When enabled, a press release is automatically generated and submitted every Monday at 9am Mountain Time.</p>
+          <p className="text-gray-400 text-sm">The runtime scheduler is fail-closed. It cannot generate or submit external content, regardless of any retained legacy preference.</p>
           <div className="flex items-center gap-3">
             <Switch
               id="schedule"
-              checked={scheduleEnabled === "true"}
-              onCheckedChange={(v) => updateSetting.mutate({ key: "schedule_enabled", value: v ? "true" : "false" })}
+              checked={false}
+              disabled
             />
-            <Label htmlFor="schedule" className="text-gray-300 cursor-pointer">
-              {scheduleEnabled === "true" ? "Schedule enabled — runs every Monday 9am MT" : "Schedule disabled"}
+            <Label htmlFor="schedule" className="text-gray-300">
+              Runtime execution disabled
             </Label>
           </div>
+          {storedScheduleEnabled && (
+            <p className="text-amber-300 text-xs">A legacy enabled preference is stored, but it has no execution authority.</p>
+          )}
         </CardContent>
       </Card>
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base">Distribution Sites</CardTitle>
+          <CardTitle className="text-white text-base">Legacy Distribution Adapters (Inactive)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-gray-400 text-sm">Enable or disable each distribution site. Sites marked <span className="text-orange-400">needs login</span> require one-time browser authentication — click the button to open a browser window and log in once.</p>
+          <p className="text-gray-400 text-sm">These adapters are retained as migration inventory only. The current runtime cannot authenticate, submit, or publish through them, and no destination metric or acceptance claim is current.</p>
 
           {/* Playwright master toggle */}
-          {[{ key: "playwright_enabled", label: "Playwright Browser Automation", desc: "Master toggle for all browser-based submissions (1888, OpenPR, PRFree, PRBuzz)", default: "true" }].map((toggle) => {
-            const val = (settings as any)[toggle.key] ?? toggle.default;
-            return (
+          {[{ key: "playwright_enabled", label: "Playwright Browser Automation", desc: "Inactive legacy browser-submission adapter inventory (1888, OpenPR, PRFree, PRBuzz)" }].map((toggle) => (
               <div key={toggle.key} className="flex items-start gap-3 py-2 border-b border-white/5">
                 <Switch
                   id={toggle.key}
-                  checked={val === "true"}
-                  onCheckedChange={(v) => updateSetting.mutate({ key: toggle.key, value: v ? "true" : "false" })}
+                  checked={false}
+                  disabled
                   className="mt-0.5"
                 />
                 <div>
-                  <Label htmlFor={toggle.key} className="text-gray-200 text-sm cursor-pointer">{toggle.label}</Label>
+                  <Label htmlFor={toggle.key} className="text-gray-200 text-sm">{toggle.label}</Label>
                   <p className="text-gray-500 text-xs mt-0.5">{toggle.desc}</p>
                 </div>
               </div>
-            );
-          })}
+          ))}
 
-          {/* High-DA sites with login buttons */}
+          {/* Inactive legacy publication destinations */}
           {([
-            { key: "medium_enabled", site: "medium" as const, label: "Medium.com", da: "DA 95", desc: "Publishes as a story on your Medium account" },
-            { key: "linkedin_enabled", site: "linkedin" as const, label: "LinkedIn Articles", da: "DA 98", desc: "Publishes as a long-form article on your LinkedIn profile" },
-            { key: "substack_enabled", site: "substack" as const, label: "Substack", da: "DA 90", desc: "Publishes as a post to your Substack newsletter" },
+            { key: "medium_enabled", label: "Medium.com", desc: "Legacy adapter only; account state, policy, and publication acceptance are unverified." },
+            { key: "linkedin_enabled", label: "LinkedIn Articles", desc: "Legacy adapter only; account state, policy, and publication acceptance are unverified." },
+            { key: "substack_enabled", label: "Substack", desc: "Legacy adapter only; account state, policy, and publication acceptance are unverified." },
           ] as const).map((item) => {
-            const val = (settings as any)[item.key] ?? "false";
-            const isLoggedIn = loginStatus?.[item.site] ?? false;
-            const isPending = loginPending === item.site;
             return (
-              <div key={item.key} className="py-3 border-b border-white/5 last:border-0 space-y-2">
+              <div key={item.key} className="py-3 border-b border-white/5 last:border-0">
                 <div className="flex items-start gap-3">
                   <Switch
                     id={item.key}
-                    checked={val === "true"}
-                    onCheckedChange={(v) => updateSetting.mutate({ key: item.key, value: v ? "true" : "false" })}
+                    checked={false}
+                    disabled
                     className="mt-0.5"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Label htmlFor={item.key} className="text-gray-200 text-sm cursor-pointer">{item.label}</Label>
-                      <span className="text-xs text-gray-500 font-mono">{item.da}</span>
-                      {isLoggedIn ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-green-400">
-                          <Wifi className="w-3 h-3" /> Connected
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs text-orange-400">
-                          <WifiOff className="w-3 h-3" /> Not logged in
-                        </span>
-                      )}
+                      <Label htmlFor={item.key} className="text-gray-200 text-sm">{item.label}</Label>
+                      <span className="text-xs text-amber-300">inactive</span>
                     </div>
                     <p className="text-gray-500 text-xs mt-0.5">{item.desc}</p>
                   </div>
-                </div>
-                <div className="ml-11">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-xs border-white/20 text-gray-300 hover:text-white hover:border-amber-500/50 hover:bg-amber-500/10"
-                    disabled={isPending}
-                    onClick={() => {
-                      setLoginPending(item.site);
-                      toast.info(`Opening ${item.label} login...`, { description: 'A browser window will open on the server. Log in and the session will be saved automatically.' });
-                      browserLoginMutation.mutate({ site: item.site });
-                    }}
-                  >
-                    {isPending ? (
-                      <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Waiting for login...</>
-                    ) : (
-                      <><LogIn className="w-3 h-3 mr-1.5" /> {isLoggedIn ? 'Re-authenticate' : 'Login with Browser'}</>
-                    )}
-                  </Button>
-                  {isPending && (
-                    <p className="text-amber-400 text-xs mt-1.5">
-                      Browser is open on the server — log in to {item.label} and the session saves automatically (3 min timeout).
-                    </p>
-                  )}
                 </div>
               </div>
             );
@@ -844,69 +847,15 @@ function SettingsTab() {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base">Deployment Secrets</CardTitle>
+          <CardTitle className="text-white text-base">Distribution Credentials</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <p className="text-gray-400 text-sm">
-            PR-site credentials are server-only. Configure them in the hosting provider's encrypted
-            environment, then restart or redeploy the server. This page never reads, stores, or displays
-            secret values.
+            No third-party distribution credentials are accepted, stored, or used by this release. A future
+            approved adapter must define a new least-privilege secret contract outside the browser bundle.
           </p>
-          <div className="rounded-md border border-white/10 bg-black/20 p-3 text-xs text-gray-300">
-            <p className="mb-2 text-gray-400">Server environment variable names:</p>
-            <code className="block whitespace-pre-wrap leading-6">PRLOG_API_KEY{`\n`}PRLOG_EMAIL{`\n`}PRLOG_PASSWORD{`\n`}NEWSBYWIRE_API_KEY{`\n`}NEWSBYWIRE_EMAIL{`\n`}NEWSBYWIRE_PASSWORD{`\n`}OPENPR_EMAIL{`\n`}OPENPR_PASSWORD</code>
-          </div>
-          <CredentialField
-            fieldKey="substack_url"
-            label="Public Substack URL (not a secret)"
-            currentValue={(settings as any)["substack_url"] ?? ""}
-            onSave={(v) => updateSetting.mutate({ key: "substack_url", value: v })}
-          />
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function CredentialField({
-  fieldKey, label, type = "text", currentValue, onSave,
-}: {
-  fieldKey: string; label: string; type?: string; currentValue: string; onSave: (v: string) => void;
-}) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(currentValue);
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex-1">
-        <Label className="text-gray-400 text-xs">{label}</Label>
-        {editing ? (
-          <div className="flex gap-2 mt-1">
-            <Input
-              type={type}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              className="bg-white/5 border-white/10 text-white h-8 text-sm"
-              autoFocus
-            />
-            <Button size="sm" className="h-8 bg-amber-500 hover:bg-amber-600 text-black"
-              onClick={() => { onSave(value); setEditing(false); }}>
-              Save
-            </Button>
-            <Button size="sm" variant="ghost" className="h-8 text-gray-400"
-              onClick={() => { setValue(currentValue); setEditing(false); }}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm text-gray-300 font-mono">
-              {currentValue ? (type === "password" ? "••••••••" : currentValue) : <span className="text-gray-600">not set</span>}
-            </span>
-            <button onClick={() => setEditing(true)} className="text-amber-400 text-xs hover:text-amber-300">edit</button>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -928,8 +877,8 @@ function CostDashboardTab() {
       {/* Header row */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-semibold text-lg">AI Cost Dashboard</h2>
-          <p className="text-gray-400 text-sm">Tracks every LLM, image, and embedding call across all features.</p>
+          <h2 className="text-white font-semibold text-lg">Provider-Reported AI Cost</h2>
+          <p className="text-gray-400 text-sm">Shows only calls routed through the cost tracker for which the provider returned billed cost. Direct or legacy calls can be absent; provider billing remains authoritative.</p>
         </div>
         <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
           <SelectTrigger className="bg-white/5 border-white/10 text-white w-36">
@@ -947,10 +896,10 @@ function CostDashboardTab() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total Spend", value: `$${totalUsd.toFixed(4)}`, sub: `last ${days} days` },
-          { label: "Total Calls", value: totalCalls.toLocaleString(), sub: "API calls" },
-          { label: "Avg Cost/Call", value: totalCalls > 0 ? `$${(totalUsd / totalCalls).toFixed(6)}` : "$0", sub: "per call" },
-          { label: "Projected/Month", value: `$${((totalUsd / days) * 30).toFixed(4)}`, sub: "at current rate" },
+          { label: "Reported Cost", value: `$${totalUsd.toFixed(4)}`, sub: `last ${days} days` },
+          { label: "Priced Calls", value: totalCalls.toLocaleString(), sub: "provider-reported" },
+          { label: "Avg Reported/Call", value: totalCalls > 0 ? `$${(totalUsd / totalCalls).toFixed(6)}` : "—", sub: "priced calls only" },
+          { label: "30-Day Run Rate", value: totalCalls > 0 ? `$${((totalUsd / days) * 30).toFixed(4)}` : "—", sub: "not a forecast or invoice" },
         ].map((card) => (
           <Card key={card.label} className="bg-white/5 border-white/10">
             <CardContent className="pt-4 pb-3">
@@ -970,7 +919,7 @@ function CostDashboardTab() {
           </CardHeader>
           <CardContent>
             {byModel.length === 0 ? (
-              <p className="text-gray-500 text-sm">No data yet. Run a press release to start tracking.</p>
+              <p className="text-gray-500 text-sm">No tracked priced calls in this period.</p>
             ) : (
               <div className="space-y-2">
                 {byModel.map((row) => (
@@ -994,7 +943,7 @@ function CostDashboardTab() {
           </CardHeader>
           <CardContent>
             {byFeature.length === 0 ? (
-              <p className="text-gray-500 text-sm">No data yet. Run a press release to start tracking.</p>
+              <p className="text-gray-500 text-sm">No tracked priced calls in this period.</p>
             ) : (
               <div className="space-y-2">
                 {byFeature.map((row) => (
@@ -1015,7 +964,7 @@ function CostDashboardTab() {
       {/* Recent log */}
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-sm">Recent API Calls</CardTitle>
+          <CardTitle className="text-white text-sm">Recent Tracked Priced Calls</CardTitle>
         </CardHeader>
         <CardContent>
           {recentLogs.length === 0 ? (
@@ -1067,7 +1016,7 @@ export default function PressReleaseAdmin() {
   // Auth is handled by AdminLayout
 
   return (
-    <AdminLayout title="Press Release & Backlink Engine" subtitle="Auto-distribution engine · breakyoursolarcontract.com">
+    <AdminLayout title="Press Release & Backlink Engine" subtitle="Approval-first review engine · breakyoursolarcontract.com">
       <div className="max-w-5xl mx-auto px-4 py-6">
         <Tabs defaultValue="queue">
           <TabsList className="bg-white/5 border border-white/10 mb-6">

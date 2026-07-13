@@ -14,6 +14,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import {
   Home, AlertTriangle, CheckCircle, DollarSign, FileText,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -46,6 +48,9 @@ function SellForm() {
   const [submitted, setSubmitted] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
+  const [contactConsent, setContactConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [website, setWebsite] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState({
     situation: "", loanBalance: "",
@@ -86,6 +91,10 @@ function SellForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!contactConsent) {
+      setSubmissionError("Please authorize contact about this request before submitting.");
+      return;
+    }
     const firstName = form.name.split(" ")[0] || form.name;
     const lastName = form.name.split(" ").slice(1).join(" ") || "";
     setSubmissionError("");
@@ -99,6 +108,10 @@ function SellForm() {
         problemType: form.situation,
         contractType: form.loanBalance,
         formName: "Selling House With Solar Form",
+        contactConsent,
+        smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website,
         sourcePage: "/selling-house-with-solar",
         sourceUrl: window.location.href,
       });
@@ -127,8 +140,8 @@ function SellForm() {
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
             <CheckCircle className="w-8 h-8 text-amber-400" />
           </div>
-          <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
-          <p className="text-slate-400 mb-4">Grace will reach out within minutes to discuss your options for closing the sale.</p>
+          <h3 className="font-display text-2xl text-white mb-2">REQUEST RECEIVED</h3>
+          <p className="text-slate-400 mb-4">Your information was submitted for review. Response timing and availability vary.</p>
           <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
             <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
           </a>
@@ -177,7 +190,7 @@ function SellForm() {
         ))}
       </div>
       <p className="text-slate-400 text-sm mb-2">Step {steps.length + 1} of {steps.length + 1}</p>
-      <h3 className="font-display text-xl text-white mb-5">Where should we send your options?</h3>
+      <h3 className="font-display text-xl text-white mb-5">Where should we send information about your review?</h3>
       <div className="space-y-3">
         <input required placeholder="Full Name" value={form.name}
           onChange={e => { setForm(f => ({ ...f, name: e.target.value })); }}
@@ -191,66 +204,36 @@ function SellForm() {
           onChange={e => { setForm(f => ({ ...f, email: e.target.value })); }}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
           style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 20%)" }} />
-        <button type="submit" disabled={submitLead.isPending} className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50"
+        <ContactConsentFields
+          idPrefix="selling-house-with-solar"
+          contactConsent={contactConsent}
+          smsConsent={smsConsent}
+          website={website}
+          onContactConsentChange={setContactConsent}
+          onSmsConsentChange={setSmsConsent}
+          onWebsiteChange={setWebsite}
+        />
+        <button type="submit" disabled={submitLead.isPending || !contactConsent} className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50"
           style={{ background: "#f97316", color: "#0D0F14" }}>
-          Get My Free Case Review →
+          Request My Document Review →
         </button>
         {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
-        <p className="text-center text-xs text-slate-500">No obligation. We respond within minutes.</p>
+        <p className="text-center text-xs text-slate-500">No representation, result, or response time is promised.</p>
       </div>
     </form>
   );
 }
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
-const PAGE_SCHEMAS = [
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Can I sell my house if I have a solar loan?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes, but it's complicated. A solar loan secured by your home (like a PACE loan or home equity loan) shows up as a lien on title and must be paid off at closing. An unsecured solar loan doesn't appear on title but buyers' lenders may still require it to be paid off. We help homeowners navigate both situations." }
-      },
-      {
-        "@type": "Question",
-        "name": "Does a solar loan affect home sale?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. If the solar loan is secured (PACE, HERO, or similar), it appears as a lien on your property title. Most buyers' mortgage lenders will not approve financing until the lien is cleared. Even unsecured solar loans can complicate sales because buyers don't want to assume the debt." }
-      },
-      {
-        "@type": "Question",
-        "name": "What happens to solar panels when you sell your house with a loan?",
-        "acceptedAnswer": { "@type": "Answer", "text": "With a solar loan, you own the panels. You have three options: (1) pay off the loan from sale proceeds at closing, (2) negotiate with the buyer to assume the loan, or (3) challenge the loan terms legally if you were misled during the sale. We can help you evaluate all three." }
-      },
-      {
-        "@type": "Question",
-        "name": "Can a buyer assume my solar loan?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Some solar loans are assumable, meaning the buyer can take over the payments. However, many lenders require credit approval and the buyer must agree. In practice, most buyers refuse to assume solar debt, leaving the seller responsible for paying it off." }
-      },
-      {
-        "@type": "Question",
-        "name": "How do I get a solar lien removed to sell my house?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A solar lien (from a PACE or secured solar loan) can be removed by paying off the balance, negotiating a reduced payoff with the lender, or challenging the lien legally if it was improperly placed. We specialize in helping homeowners clear solar liens so they can close their home sale." }
-      },
-    ]
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Solar Loan Home Sale Assistance",
-    "description": "We help homeowners with solar loans sell their home by negotiating payoffs, challenging improper liens, and clearing title so you can close.",
-    "provider": { "@type": "Organization", "name": "Solar Freedom", "url": "https://breakyoursolarcontract.com" },
-    "serviceType": "Solar Contract Legal Services",
-    "areaServed": "United States",
-  }
-];
+// FAQ and Service schema remain disabled until the legal/service claims have
+// primary-source and provider verification metadata.
+const PAGE_SCHEMAS: object[] = [];
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SellingHouseWithSolar() {
   useSeoMeta({
     title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
-    description: "Solar loan blocking your home sale? We help homeowners pay off, negotiate, or legally challenge solar loans and liens so you can close. Free case review.",
+    description: "Review solar loan payoff, transfer, title, and closing questions before selling a home with financed solar equipment.",
     canonical: "https://breakyoursolarcontract.com/selling-house-with-solar",
   });
 
@@ -300,11 +283,11 @@ export default function SellingHouseWithSolar() {
                 You bought solar panels. Now you're trying to sell your home — and the solar loan is blocking the deal. The buyer's lender won't approve it. The title has a lien. The buyer won't assume the debt.
               </p>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
-                <strong className="text-white">We help homeowners with solar loans close their sale</strong> — by negotiating payoffs, challenging improper liens, and clearing title.
+                <strong className="text-white">Prepare for a sale involving a solar loan</strong> by reviewing payoff, transfer, title, buyer-lender, and closing requirements.
               </p>
 
               <div className="flex flex-wrap gap-3 mb-8">
-                {["Solar Loan Payoff Negotiation", "PACE Lien Removal", "Title Clearance", "Free Case Review"].map(tag => (
+                {["Solar Loan Payoff Questions", "PACE Filing Review", "Title Records", "Document Review"].map(tag => (
                   <span key={tag} className="text-xs px-3 py-1.5 rounded-full text-slate-300" style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 15%)" }}>{tag}</span>
                 ))}
               </div>
@@ -316,7 +299,7 @@ export default function SellingHouseWithSolar() {
                 </a>
                 <a href="#get-help" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:border-amber-500 hover:text-amber-400"
                   style={{ border: "1px solid oklch(1 0 0 / 25%)", color: "#F8FAFC" }}>
-                  Free Case Review <ArrowRight className="w-4 h-4" />
+                  Document Review <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
             </motion.div>
@@ -326,7 +309,7 @@ export default function SellingHouseWithSolar() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             id="get-help" className="rounded-2xl p-8" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 12%)" }}>
             <h2 className="font-display text-2xl text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
-              GET YOUR FREE CASE REVIEW
+              REQUEST A DOCUMENT REVIEW
             </h2>
             <p className="text-slate-400 text-sm mb-6">Tell us about your situation — we'll tell you your options.</p>
             <SellForm />
@@ -342,7 +325,7 @@ export default function SellingHouseWithSolar() {
               { stat: "1 in 3", label: "Solar home sales fall through due to financing issues" },
               { stat: "$25K+", label: "Average remaining solar loan balance at time of sale" },
               { stat: "47%", label: "Of buyers refuse to assume seller's solar loan" },
-              { stat: "Free", label: "Initial case review — know your options before you decide" },
+              { stat: "Individual", label: "Document review before choosing a path" },
             ].map(({ stat, label }) => (
               <div key={stat}>
                 <div className="font-display text-4xl md:text-5xl mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", color: "#f97316" }}>{stat}</div>
@@ -370,21 +353,21 @@ export default function SellingHouseWithSolar() {
               icon: <Scale className="w-6 h-6" />,
               title: "PACE / Secured Loan Lien",
               problem: "PACE loans (Property Assessed Clean Energy) and some solar loans are secured by your home. They appear as a lien on your property title — just like a mortgage. Most buyers' lenders require all liens to be cleared before they'll fund.",
-              solution: "We negotiate payoff amounts, challenge improper lien placements, and work with title companies to clear the path to closing.",
+              solution: "Obtain the recorded instrument, current payoff, release requirements, and title-company conditions before evaluating a path to closing.",
               severity: "HIGH",
             },
             {
               icon: <DollarSign className="w-6 h-6" />,
               title: "Unsecured Loan — Buyer Refuses",
               problem: "Even if your solar loan doesn't appear on title, buyers often refuse to purchase a home with solar debt attached. They don't want the financial obligation, and their lender may require it paid off anyway.",
-              solution: "We help you negotiate a reduced payoff with the solar lender, or challenge the loan terms if you were misled during the original sale.",
+              solution: "Review the written payoff terms, lender procedures, title records, and any evidence of what was represented during the original sale.",
               severity: "MEDIUM",
             },
             {
               icon: <FileText className="w-6 h-6" />,
               title: "Loan Assumption Complications",
-              problem: "Some solar loans are technically assumable — but the buyer must qualify with the lender, and most buyers simply refuse. This leaves sellers stuck paying off the full balance from sale proceeds.",
-              solution: "We review your loan documents for assumption rights, negotiate with lenders, and explore legal grounds to reduce or eliminate the balance.",
+              problem: "An assumption may require lender approval, buyer qualification, specific documents, and underwriting. The written requirements can affect a proposed closing.",
+              solution: "Request the lender's current assumption and payoff requirements, then compare them with the signed loan and purchase contract.",
               severity: "MEDIUM",
             },
           ].map(({ icon, title, problem, solution, severity }) => (
@@ -395,7 +378,7 @@ export default function SellingHouseWithSolar() {
                     {icon}
                   </div>
                   <span className="text-xs font-mono px-2 py-1 rounded" style={{ background: severity === "HIGH" ? "oklch(0.45 0.2 25 / 30%)" : "oklch(0.72 0.19 50 / 15%)", color: severity === "HIGH" ? "#f87171" : "#f97316" }}>
-                    {severity} IMPACT
+                    RECORDS REVIEW
                   </span>
                 </div>
                 <h3 className="font-display text-lg text-white mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>{title}</h3>
@@ -404,7 +387,7 @@ export default function SellingHouseWithSolar() {
                   <p className="text-sm text-slate-400 leading-relaxed">{problem}</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold mb-1.5"><CheckCircle className="w-3 h-3" /> OUR APPROACH</div>
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold mb-1.5"><CheckCircle className="w-3 h-3" /> RECORDS TO CHECK</div>
                   <p className="text-sm text-slate-300 leading-relaxed">{solution}</p>
                 </div>
               </div>
@@ -419,18 +402,18 @@ export default function SellingHouseWithSolar() {
           <Reveal>
             <div className="text-center mb-14">
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-                HOW WE HELP YOU CLOSE
+                HOW TO PREPARE FOR CLOSING
               </h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">From initial review to cleared title — here's our process for getting you to closing day.</p>
+              <p className="text-slate-400 max-w-2xl mx-auto">Use this workflow to organize title, payoff, assumption, and closing records without assuming approval, a release, or a timeline.</p>
             </div>
           </Reveal>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { step: "01", title: "Free Case Review", body: "We review your solar loan documents, title report, and sale situation to identify exactly what's blocking your closing and what options you have.", icon: <FileText className="w-5 h-5" /> },
-              { step: "02", title: "Identify Legal Grounds", body: "Many solar loans contain TILA violations, misrepresentation, or improper lien placements that give you leverage to negotiate a reduced payoff or full cancellation.", icon: <Scale className="w-5 h-5" /> },
-              { step: "03", title: "Negotiate With Lender", body: "We work directly with your solar lender — Mosaic, GoodLeap, Sunlight Financial, or others — to negotiate a payoff that doesn't wipe out your equity.", icon: <DollarSign className="w-5 h-5" /> },
-              { step: "04", title: "Clear Title & Close", body: "Once the lien is resolved or the loan is settled, we coordinate with your title company to clear the path so you can close on schedule.", icon: <CheckCircle className="w-5 h-5" /> },
+              { step: "01", title: "Document Review", body: "Submit the solar loan documents, title report, and sale timeline to identify the terms and questions that need follow-up.", icon: <FileText className="w-5 h-5" /> },
+              { step: "02", title: "Compare the Terms", body: "Review transfer, assumption, payoff, disclosure, dispute, and recorded-filing terms. Whether a legal issue exists requires qualified individual review.", icon: <Scale className="w-5 h-5" /> },
+              { step: "03", title: "Request Written Requirements", body: "Ask the lender or servicer for a current payoff, assumption process, dispute address, required forms, and expected response process in writing.", icon: <DollarSign className="w-5 h-5" /> },
+              { step: "04", title: "Verify Closing Conditions", body: "Confirm the buyer, lender, title company, recorder, and solar-finance holder agree on the required documents before relying on a proposed closing path.", icon: <CheckCircle className="w-5 h-5" /> },
             ].map(({ step, title, body, icon }, i) => (
               <Reveal key={step} delay={i * 0.1}>
                 <div className="relative rounded-xl p-6" style={{ background: "oklch(0.13 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
@@ -452,27 +435,26 @@ export default function SellingHouseWithSolar() {
         <Reveal>
           <div className="text-center mb-12">
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-              SOLAR LENDERS WE DEAL WITH
+              NAMES THAT MAY APPEAR IN SOLAR FINANCE RECORDS
             </h2>
-            <p className="text-slate-400 max-w-xl mx-auto">We have experience negotiating with every major solar loan provider in the country.</p>
+            <p className="text-slate-400 max-w-xl mx-auto">Use the exact legal name on the agreement, statement, title record, and correspondence; brands and servicers can change.</p>
           </div>
         </Reveal>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[
-            { name: "Mosaic Solar Loans", note: "Most common — often negotiable" },
-            { name: "GoodLeap", note: "Formerly Loanpal" },
-            { name: "Sunlight Financial", note: "Now Pineapple Energy" },
-            { name: "Service Finance", note: "Wells Fargo backed" },
-            { name: "GreenSky", note: "Goldman Sachs portfolio" },
-            { name: "PACE / HERO Loans", note: "Property-secured liens" },
-            { name: "Dividend Finance", note: "Common in CA, TX, FL" },
-            { name: "Other Lenders", note: "All lenders considered" },
-          ].map(({ name, note }) => (
+            {[
+              "Mosaic Solar Loans",
+              "GoodLeap",
+              "Sunlight Financial",
+              "Service Finance",
+              "GreenSky",
+              "PACE / HERO records",
+              "Dividend Finance",
+              "Other named holder or servicer",
+            ].map((name) => (
             <Reveal key={name}>
               <div className="rounded-lg p-4" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
-                <div className="font-semibold text-white text-sm mb-1">{name}</div>
-                <div className="text-xs text-slate-500">{note}</div>
+                <div className="font-semibold text-white text-sm">{name}</div>
               </div>
             </Reveal>
           ))}
@@ -492,27 +474,27 @@ export default function SellingHouseWithSolar() {
             {[
               {
                 q: "Can I sell my house if I have a solar loan?",
-                a: "Yes — but you need to address the loan before or at closing. If it's a secured loan (PACE), it appears as a lien and must be paid off. If it's unsecured, you'll likely need to pay it off from sale proceeds or negotiate with the buyer. We help you find the most cost-effective path."
+                a: "Review the recorded title documents, payoff and transfer terms, buyer and lender requirements, and closing instructions. The available path and cost depend on those records and the parties involved."
               },
               {
                 q: "Does a solar loan show up on a title search?",
-                a: "PACE loans and other property-secured solar financing always appear on title. Some solar loans are recorded as UCC filings which also show up. Unsecured personal solar loans typically do not appear on title, but may still complicate the sale."
+                a: "A title search may show a PACE assessment, deed of trust, UCC fixture filing, or another recorded instrument, depending on the transaction and jurisdiction. Obtain the current search and underlying filing rather than assuming how a particular loan was recorded."
               },
               {
                 q: "Can the buyer assume my solar loan?",
-                a: "Some solar loans allow assumption, but the buyer must qualify with the lender and agree to take on the debt. In practice, most buyers refuse — especially if the loan balance is significant or the interest rate is high. We can review your loan documents to confirm assumption rights."
+                a: "Assumption depends on the agreement, lender approval, buyer qualification, transaction terms, and underwriting. Request the lender's current written assumption requirements and compare them with the signed documents."
               },
               {
                 q: "What if I can't afford to pay off the solar loan at closing?",
-                a: "This is exactly where we help. We negotiate directly with solar lenders for reduced payoff amounts, challenge loan terms if there were misrepresentations during the sale, and in some cases can get the balance reduced significantly — or eliminated entirely if legal grounds exist."
+                a: "Obtain a current payoff statement and the lender's written dispute or hardship procedures. A reduction, cancellation, or other result cannot be assumed and requires individual review."
               },
               {
                 q: "How long does it take to resolve a solar loan for a home sale?",
-                a: "Timeline depends on the lender and complexity. Simple payoff negotiations can be resolved in 2–4 weeks. Legal challenges to improper liens may take longer. We work to match your closing timeline whenever possible."
+                a: "There is no universal timeline. Timing depends on the lender or holder, title records, payoff or assumption process, buyer financing, facts, and closing requirements. Obtain every deadline and condition in writing."
               },
               {
                 q: "Do you help with solar leases?",
-                a: "No — we specialize exclusively in solar purchases (loans and cash purchases). If you have a solar lease or PPA, we are not the right fit. Our expertise is in solar loan disputes, PACE lien removal, and purchase-related contract issues."
+                a: "Loan, cash-purchase, lease, and PPA agreements use different transfer and payoff provisions. Identify the agreement type before requesting an individual review."
               },
             ].map(({ q, a }, i) => (
               <Reveal key={i} delay={i * 0.05}>
@@ -578,7 +560,7 @@ export default function SellingHouseWithSolar() {
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
               DON'T LET YOUR SOLAR LOAN<br />KILL YOUR SALE
             </h2>
-            <p className="text-slate-400 mb-8 text-lg">Every day you wait is another day your buyer could walk. Get a free case review now and know exactly what your options are.</p>
+            <p className="text-slate-400 mb-8 text-lg">Gather the agreement, payoff statement, title report, buyer and lender requirements, and closing timeline before choosing a next step.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="tel:9049214971" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-base transition-all hover:opacity-90"
                 style={{ background: "#f97316", color: "#0D0F14" }}>
@@ -586,12 +568,12 @@ export default function SellingHouseWithSolar() {
               </a>
               <a href="#get-help" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-base transition-all hover:border-amber-500 hover:text-amber-400"
                 style={{ border: "1px solid oklch(1 0 0 / 25%)", color: "#F8FAFC" }}>
-                Free Online Review <ArrowRight className="w-5 h-5" />
+                Request Online Review <ArrowRight className="w-5 h-5" />
               </a>
             </div>
             <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
               <Clock className="w-4 h-4" />
-              <span>We respond within minutes during business hours</span>
+              <span>Availability and response time require individual confirmation</span>
             </div>
           </Reveal>
         </div>

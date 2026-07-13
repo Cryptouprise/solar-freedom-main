@@ -4,11 +4,25 @@ import {
   resetAnalyticsStateForTests,
   trackPageView,
 } from "../client/src/lib/analytics";
+import {
+  PRIVACY_PREFERENCE_VERSION,
+  PRIVACY_STORAGE_KEY,
+} from "../client/src/lib/privacy";
 import { clearLegacyContactStorage } from "../client/src/hooks/useContactInfo";
 
 describe("truthful client analytics", () => {
   const gtag = vi.fn();
   const originalWindow = globalThis.window;
+  const grantedPreference = JSON.stringify({
+    version: PRIVACY_PREFERENCE_VERSION,
+    analytics: "granted",
+    updatedAt: 1,
+  });
+
+  const consentStorage = {
+    getItem: (key: string) =>
+      key === PRIVACY_STORAGE_KEY ? grantedPreference : null,
+  };
 
   beforeEach(() => {
     gtag.mockClear();
@@ -17,7 +31,8 @@ describe("truthful client analytics", () => {
       configurable: true,
       value: {
         gtag,
-        location: { href: "https://breakyoursolarcontract.com/" },
+        localStorage: consentStorage,
+        location: new URL("https://breakyoursolarcontract.com/"),
       },
     });
   });
@@ -34,9 +49,9 @@ describe("truthful client analytics", () => {
     trackPageView("/");
     trackPageView("/blog");
 
-    const pageViews = gtag.mock.calls.filter((call) => call[1] === "page_view");
+    const pageViews = gtag.mock.calls.filter(call => call[1] === "page_view");
     expect(pageViews).toHaveLength(2);
-    expect(pageViews.map((call) => call[2].page_path)).toEqual(["/", "/blog"]);
+    expect(pageViews.map(call => call[2].page_path)).toEqual(["/", "/blog"]);
   });
 
   it("strips query and fragment PII from SPA page-view parameters", () => {
@@ -44,15 +59,16 @@ describe("truthful client analytics", () => {
       configurable: true,
       value: {
         gtag,
-        location: {
-          href: "https://breakyoursolarcontract.com/thank-you?email=person%40example.com#token=secret-123",
-        },
+        localStorage: consentStorage,
+        location: new URL(
+          "https://breakyoursolarcontract.com/thank-you?email=person%40example.com#token=secret-123"
+        ),
       },
     });
 
     trackPageView("/thank-you?email=person%40example.com#token=secret-123");
 
-    const pageView = gtag.mock.calls.find((call) => call[1] === "page_view");
+    const pageView = gtag.mock.calls.find(call => call[1] === "page_view");
     expect(pageView?.[2]).toMatchObject({
       page_path: "/thank-you",
       page_location: "https://breakyoursolarcontract.com/thank-you",
@@ -64,17 +80,25 @@ describe("truthful client analytics", () => {
   it("does not generate a lead when persistence failed", () => {
     expect(recordLeadSubmission(null, "test_form", "/test")).toBe(false);
 
-    expect(gtag.mock.calls.some((call) => call[1] === "generate_lead")).toBe(false);
-    expect(gtag.mock.calls.some((call) => call[1] === "form_error")).toBe(true);
+    expect(gtag.mock.calls.some(call => call[1] === "generate_lead")).toBe(
+      false
+    );
+    expect(gtag.mock.calls.some(call => call[1] === "form_error")).toBe(true);
   });
 
   it("records a persisted lead while measuring pending CRM separately", () => {
     expect(
-      recordLeadSubmission({ persisted: true, crmSent: false }, "test_form", "/test")
+      recordLeadSubmission(
+        { persisted: true, crmSent: false },
+        "test_form",
+        "/test"
+      )
     ).toBe(true);
 
-    expect(gtag.mock.calls.some((call) => call[1] === "generate_lead")).toBe(true);
-    const crmEvent = gtag.mock.calls.find((call) => call[1] === "crm_delivery");
+    expect(gtag.mock.calls.some(call => call[1] === "generate_lead")).toBe(
+      true
+    );
+    const crmEvent = gtag.mock.calls.find(call => call[1] === "crm_delivery");
     expect(crmEvent?.[2]).toMatchObject({ delivery_status: "pending" });
     expect(JSON.stringify(gtag.mock.calls)).not.toContain("email");
     expect(JSON.stringify(gtag.mock.calls)).not.toContain("phone_number");

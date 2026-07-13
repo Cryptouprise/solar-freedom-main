@@ -13,6 +13,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import {
   AlertTriangle, CheckCircle, FileText, ArrowRight,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -45,6 +47,9 @@ function LoanHelpForm() {
   const [submitted, setSubmitted] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
+  const [contactConsent, setContactConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [website, setWebsite] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState({
     lender: "", problem: "",
@@ -94,6 +99,10 @@ function LoanHelpForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!contactConsent) {
+      setSubmissionError("Please authorize contact about this request before submitting.");
+      return;
+    }
     const firstName = form.name.split(" ")[0] || form.name;
     const lastName = form.name.split(" ").slice(1).join(" ") || "";
     setSubmissionError("");
@@ -107,6 +116,10 @@ function LoanHelpForm() {
         solarCompany: form.lender,
         problemType: form.problem,
         formName: "Solar Loan Help Form",
+        contactConsent,
+        smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website,
         sourcePage: "/solar-loan-help",
         sourceUrl: window.location.href,
       });
@@ -133,8 +146,8 @@ function LoanHelpForm() {
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
             <CheckCircle className="w-8 h-8 text-amber-400" />
           </div>
-          <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
-          <p className="text-slate-400 mb-4">Grace will reach out within minutes to review your solar loan situation.</p>
+          <h3 className="font-display text-2xl text-white mb-2">REQUEST RECEIVED</h3>
+          <p className="text-slate-400 mb-4">Your information was submitted for review. Response timing and availability vary.</p>
           <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
             <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
           </a>
@@ -183,7 +196,7 @@ function LoanHelpForm() {
         ))}
       </div>
       <p className="text-slate-400 text-sm mb-2">Step {steps.length + 1} of {steps.length + 1}</p>
-      <h3 className="font-display text-xl text-white mb-5">Where should we send your options?</h3>
+      <h3 className="font-display text-xl text-white mb-5">Where should we send information about your review?</h3>
       <div className="space-y-3">
         <input required placeholder="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
@@ -194,93 +207,66 @@ function LoanHelpForm() {
         <input required type="email" placeholder="Email Address" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
           style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 20%)" }} />
-        <button type="submit" disabled={submitLead.isPending} className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50"
+        <ContactConsentFields
+          idPrefix="solar-loan-help"
+          contactConsent={contactConsent}
+          smsConsent={smsConsent}
+          website={website}
+          onContactConsentChange={setContactConsent}
+          onSmsConsentChange={setSmsConsent}
+          onWebsiteChange={setWebsite}
+        />
+        <button type="submit" disabled={submitLead.isPending || !contactConsent} className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50"
           style={{ background: "#f97316", color: "#0D0F14" }}>
-          Get My Free Loan Review →
+          Request My Document Review →
         </button>
         {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
-        <p className="text-center text-xs text-slate-500">No obligation. We respond within minutes.</p>
+        <p className="text-center text-xs text-slate-500">No representation, result, or response time is promised.</p>
       </div>
     </form>
   );
 }
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
-const PAGE_SCHEMAS = [
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Can I cancel a solar loan?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Solar loans are harder to cancel than leases, but it's not impossible. If the loan was originated through misrepresentation, TILA violations, or failure to provide required disclosures, you may have legal grounds to challenge or reduce the obligation. We review solar loans for these violations and help homeowners negotiate with lenders." }
-      },
-      {
-        "@type": "Question",
-        "name": "What are my options if I can't afford my solar loan payment?",
-        "acceptedAnswer": { "@type": "Answer", "text": "If your solar loan payment is unaffordable, your options include: (1) refinancing at a lower rate, (2) negotiating a hardship modification with the lender, (3) challenging the loan terms if you were misled about the payment amount, or (4) selling the home and paying off the loan from proceeds. We help evaluate which path makes sense for your situation." }
-      },
-      {
-        "@type": "Question",
-        "name": "What happens to my solar loan if I sell my house?",
-        "acceptedAnswer": { "@type": "Answer", "text": "If the loan is secured by your home (PACE), it must be paid off at closing. If it's unsecured, you can negotiate with the buyer to assume it, or pay it off from sale proceeds. We help homeowners navigate both scenarios and minimize the financial impact." }
-      },
-    ]
-  }
-];
+// FAQ schema remains disabled until each legal answer has a primary source and
+// an editorial review record.
+const PAGE_SCHEMAS: object[] = [];
 
 // ─── Lender Data ───────────────────────────────────────────────────────────────
-const LENDERS_DATA = [
+// Company-wide allegations are intentionally excluded. Each review must use
+// the consumer's own records and current primary sources.
+const COUNTERPARTY_RECORDS = [
   {
-    name: "Mosaic Solar Loans",
-    slug: "mosaic",
-    issues: ["High interest rates (up to 29.99% APR)", "Dealer fees not disclosed to borrowers", "Misrepresented monthly savings", "TILA disclosure violations"],
-    states: "Nationwide",
-    notes: "One of the most common solar lenders. Known for dealer fee issues.",
+    name: "Sales and Installation Records",
+    scope: "Seller / installer",
+    documents: ["Signed proposal and installation agreement", "Advertisements and written sales statements", "Change orders, permits, and completion records", "Production estimate and monitoring records"],
+    notes: "Use the exact legal name and contact information printed on the signed documents.",
   },
   {
-    name: "GoodLeap (Loanpal)",
-    slug: "goodleap",
-    issues: ["Payment shock after promotional period", "Undisclosed dealer fees", "Misrepresented system performance", "Aggressive sales tactics by installers"],
-    states: "Nationwide",
-    notes: "Formerly Loanpal. Rebranded but same loan products.",
+    name: "Financing Disclosures",
+    scope: "Originator / lender",
+    documents: ["Promissory note and payment schedule", "Amount financed, APR, and itemization", "Cash-price comparison and fee explanation", "Any notice of a right to cancel"],
+    notes: "Which federal or state disclosure rule applies depends on the transaction and security documents.",
   },
   {
-    name: "Sunlight Financial",
-    slug: "sunlight",
-    issues: ["Acquired by Pineapple Energy — service disruptions", "Misrepresented loan terms", "Hidden fees in loan documents", "Poor customer service post-acquisition"],
-    states: "Nationwide",
-    notes: "Now operating as Pineapple Energy. Transition caused many issues.",
+    name: "Servicing and Payoff Records",
+    scope: "Current servicer",
+    documents: ["Payment history and current statement", "Written payoff quote and expiration date", "Dispute and error-resolution address", "Transfer-of-servicing notices"],
+    notes: "Confirm the current servicer from a recent statement rather than assuming the original party still services the account.",
   },
   {
-    name: "Service Finance Company",
-    slug: "service-finance",
-    issues: ["High origination fees", "Misleading APR disclosures", "Undisclosed dealer compensation", "Difficult to reach for disputes"],
-    states: "Nationwide",
-    notes: "Wells Fargo backed. Primarily used by HVAC/solar installers.",
-  },
-  {
-    name: "GreenSky",
-    slug: "greensky",
-    issues: ["FTC enforcement action (2021)", "Unauthorized loan origination complaints", "Misleading promotional terms", "Difficult cancellation process"],
-    states: "Nationwide",
-    notes: "Subject to FTC action for deceptive practices. Now Goldman Sachs portfolio.",
-  },
-  {
-    name: "PACE / HERO Loans",
-    slug: "pace",
-    issues: ["Super-priority lien blocks home sale", "Added to property tax bill without clear disclosure", "Extremely high total cost of financing", "Difficult to remove from title"],
-    states: "CA, FL, MO and others",
-    notes: "Most problematic loan type. Creates a lien that supersedes your mortgage.",
+    name: "Title, UCC, or PACE Records",
+    scope: "Public record / assessment",
+    documents: ["Current title report", "Recorded instrument or UCC filing", "PACE assessment and property-tax bill", "Written release, termination, or transfer requirements"],
+    notes: "The effect and priority of a filing are record- and jurisdiction-specific.",
   },
 ];
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SolarLoanHelp() {
   useSeoMeta({
-    title: "Solar Loan Problems? Mosaic, GoodLeap, PACE Loan Help | Solar Freedom",
-    description: "Stuck in a solar loan? We help homeowners dispute Mosaic, GoodLeap, PACE, and other solar loans — reduce payments, cancel contracts, or clear liens. Free review.",
+    title: "Solar Loan Document Review | Payment, Disclosure & Payoff Records",
+    description: "Review solar loan terms, disclosures, payment schedules, payoff provisions, servicing records, and consumer resources before choosing a next step.",
     canonical: "https://breakyoursolarcontract.com/solar-loan-help",
   });
 
@@ -320,20 +306,20 @@ export default function SolarLoanHelp() {
               </div>
 
               <h1 className="font-display text-5xl md:text-6xl lg:text-7xl leading-none mb-6 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>
-                TRAPPED IN A<br />
+                REVIEW YOUR<br />
                 <span style={{ color: "#f97316" }}>SOLAR LOAN</span><br />
-                YOU REGRET?
+                RECORDS
               </h1>
 
               <p className="text-lg text-slate-300 mb-4 leading-relaxed max-w-lg">
-                You bought solar panels with a loan — Mosaic, GoodLeap, PACE, or another lender. Now the payment is too high, the system doesn't perform, or you can't sell your home because of the debt.
+                If a payment, payoff, disclosure, production, servicing, or title issue is unclear, start with the signed loan documents and current written account records.
               </p>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
-                <strong className="text-white">We help homeowners challenge, reduce, and escape solar loans</strong> — using consumer protection law, TILA violations, and direct lender negotiation.
+                <strong className="text-white">Review solar loan records and possible dispute channels</strong> using the signed documents, current consumer resources, and written lender procedures.
               </p>
 
               <div className="flex flex-wrap gap-3 mb-8">
-                {["Mosaic Loan Disputes", "GoodLeap Problems", "PACE Lien Removal", "TILA Violations", "Free Review"].map(tag => (
+                {["Mosaic Loan Records", "GoodLeap Records", "PACE Filing Review", "Disclosure Questions", "Document Review"].map(tag => (
                   <span key={tag} className="text-xs px-3 py-1.5 rounded-full text-slate-300" style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 15%)" }}>{tag}</span>
                 ))}
               </div>
@@ -345,7 +331,7 @@ export default function SolarLoanHelp() {
                 </a>
                 <a href="#get-help" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:border-amber-500 hover:text-amber-400"
                   style={{ border: "1px solid oklch(1 0 0 / 25%)", color: "#F8FAFC" }}>
-                  Free Loan Review <ArrowRight className="w-4 h-4" />
+                  Document Review <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
             </motion.div>
@@ -355,9 +341,9 @@ export default function SolarLoanHelp() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             id="get-help" className="rounded-2xl p-8" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 12%)" }}>
             <h2 className="font-display text-2xl text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
-              FREE SOLAR LOAN REVIEW
+              SOLAR LOAN DOCUMENT REVIEW
             </h2>
-            <p className="text-slate-400 text-sm mb-6">Tell us about your loan — we'll tell you your options.</p>
+            <p className="text-slate-400 text-sm mb-6">Share the agreement type and record categories that need individual review.</p>
             <LoanHelpForm />
           </motion.div>
         </div>
@@ -369,9 +355,9 @@ export default function SolarLoanHelp() {
           <Reveal>
             <div className="text-center mb-14">
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-                HOW SOLAR LOANS GO WRONG
+                SOLAR-LOAN RECORDS TO CHECK
               </h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Most solar loan disputes involve one or more of these violations — and each one gives you legal leverage.</p>
+              <p className="text-slate-400 max-w-2xl mx-auto">The CFPB has reported risks in some solar-specific loans. Its market findings do not establish a violation or remedy in an individual transaction.</p>
             </div>
           </Reveal>
 
@@ -379,33 +365,33 @@ export default function SolarLoanHelp() {
             {[
               {
                 icon: <FileText className="w-6 h-6" />,
-                title: "TILA Violations",
-                body: "The Truth in Lending Act requires lenders to clearly disclose APR, total cost, and all fees. Many solar lenders bury dealer fees and origination costs, violating TILA. This can give you grounds to rescind the loan.",
+                title: "Credit Disclosures",
+                body: "Compare the note, amount financed, APR, finance charge, payment schedule, and itemization. Which Truth in Lending or Regulation Z requirements apply depends on the credit transaction.",
               },
               {
                 icon: <DollarSign className="w-6 h-6" />,
-                title: "Undisclosed Dealer Fees",
-                body: "Solar installers often receive 'dealer fees' from lenders — sometimes 20–30% of the loan amount — without telling you. This inflates your loan balance and violates disclosure requirements.",
+                title: "Cash Price and Amount Financed",
+                body: "The CFPB reported that some solar-specific lenders include markups or fees above the cash price. Compare the written cash price, amount financed, itemization, and fee explanation in your own records.",
               },
               {
                 icon: <Zap className="w-6 h-6" />,
-                title: "Misrepresented Savings",
-                body: "Salespeople routinely promise specific monthly savings that never materialize. If the savings projections were materially false and you relied on them, this constitutes fraud or misrepresentation.",
+                title: "Savings and Production Inputs",
+                body: "Compare written savings or production representations with the assumptions used, actual monitoring data, utility bills, and the agreement. A variance alone does not decide liability.",
               },
               {
                 icon: <Scale className="w-6 h-6" />,
-                title: "State Consumer Protection",
-                body: "Most states have consumer protection laws that go beyond federal law. Deceptive solar sales practices often violate state UDAP (Unfair and Deceptive Acts and Practices) statutes, which can provide additional remedies.",
+                title: "Payment Changes and Prepayments",
+                body: "Check whether the payment schedule assumes a large prepayment or later re-amortization. The CFPB reports that some solar loans use this structure; confirm the dates and amounts in the signed note.",
               },
               {
                 icon: <AlertTriangle className="w-6 h-6" />,
-                title: "Failure to Provide Right of Rescission",
-                body: "For loans secured by your home, federal law requires a 3-day right to cancel. Many solar lenders fail to properly provide this notice — which can extend your rescission rights significantly.",
+                title: "Rescission Notice",
+                body: "Regulation Z provides rescission rights for some credit transactions secured by a principal dwelling, with exceptions and time limits. Confirm coverage from the security documents and official rule.",
               },
               {
                 icon: <XCircle className="w-6 h-6" />,
-                title: "System Performance Fraud",
-                body: "If your solar system was sold based on projected production numbers that were knowingly inflated, this may constitute fraud — especially if the installer had access to accurate data and chose to misrepresent it.",
+                title: "Written Dispute Channels",
+                body: "Request the current dispute address and preserve the complaint, delivery proof, response, account history, and any supporting sales or performance record. Do not stop payments based on this general information.",
               },
             ].map(({ icon, title, body }) => (
               <Reveal key={title}>
@@ -419,6 +405,10 @@ export default function SolarLoanHelp() {
               </Reveal>
             ))}
           </div>
+          <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm">
+            <a href="https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline underline-offset-2">Official source: CFPB solar-financing spotlight</a>
+            <a href="https://www.consumerfinance.gov/rules-policy/regulations/1026/23/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline underline-offset-2">Official source: Regulation Z § 1026.23</a>
+          </div>
         </div>
       </section>
 
@@ -427,27 +417,27 @@ export default function SolarLoanHelp() {
         <Reveal>
           <div className="text-center mb-14">
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-              YOUR LENDER — WHAT WE KNOW
+              RECORDS BY COUNTERPARTY
             </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">Each solar lender has known patterns of complaints and violations. Here's what we've seen.</p>
+            <p className="text-slate-400 max-w-2xl mx-auto">Use the names shown in your documents. This page does not infer company-wide conduct from an individual account or complaint.</p>
           </div>
         </Reveal>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {LENDERS_DATA.map(({ name, issues, states, notes }) => (
+          {COUNTERPARTY_RECORDS.map(({ name, documents, scope, notes }) => (
             <Reveal key={name}>
               <div className="rounded-xl p-6 h-full" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="font-display text-lg text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>{name}</h3>
-                  <span className="text-xs text-slate-500 font-mono ml-3 flex-shrink-0">{states}</span>
+                  <span className="text-xs text-slate-500 font-mono ml-3 flex-shrink-0">{scope}</span>
                 </div>
                 <p className="text-xs text-slate-500 mb-3 italic">{notes}</p>
-                <div className="text-xs font-semibold text-red-400 mb-2 flex items-center gap-1"><XCircle className="w-3 h-3" /> KNOWN ISSUES</div>
+                <div className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1"><FileText className="w-3 h-3" /> RECORDS TO REQUEST</div>
                 <ul className="space-y-1">
-                  {issues.map(issue => (
-                    <li key={issue} className="text-xs text-slate-400 flex items-start gap-2">
+                  {documents.map(document => (
+                    <li key={document} className="text-xs text-slate-400 flex items-start gap-2">
                       <ArrowRight className="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5" />
-                      {issue}
+                      {document}
                     </li>
                   ))}
                 </ul>
@@ -463,18 +453,18 @@ export default function SolarLoanHelp() {
           <Reveal>
             <div className="text-center mb-14">
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-                YOUR OPTIONS
+                DOCUMENTS AND QUESTIONS
               </h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Depending on your situation, one or more of these paths may be available to you.</p>
+              <p className="text-slate-400 max-w-2xl mx-auto">Use these categories to organize the records and questions that require individual review; none promises a remedy or result.</p>
             </div>
           </Reveal>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: "Loan Cancellation", desc: "If legal violations exist in your loan origination, we may be able to challenge the loan entirely — reducing or eliminating the balance.", icon: <XCircle className="w-5 h-5" />, best: "TILA violations, misrepresentation" },
-              { title: "Reduced Payoff", desc: "We negotiate directly with your lender for a settlement below the full balance — especially effective when you're selling your home.", icon: <DollarSign className="w-5 h-5" />, best: "Home sale, financial hardship" },
-              { title: "Rate Modification", desc: "If your interest rate was misrepresented or is unconscionably high, we work to get it modified to a fair rate through negotiation or legal action.", icon: <Scale className="w-5 h-5" />, best: "High APR, dealer fee issues" },
-              { title: "Lien Removal", desc: "For PACE and secured loans, we work to remove the lien from your title so you can sell or refinance without the solar debt blocking the deal.", icon: <CheckCircle className="w-5 h-5" />, best: "PACE loans, home sale" },
+              { title: "Origination Records", desc: "Compare the signed note, disclosures, itemization, sales materials, and communications. Whether a violation or remedy exists requires qualified review.", icon: <XCircle className="w-5 h-5" />, best: "Disclosure and sales questions" },
+              { title: "Written Payoff Terms", desc: "Request a current payoff, itemized balance, hardship or dispute procedures, and any sale-related requirements directly from the listed lender or servicer.", icon: <DollarSign className="w-5 h-5" />, best: "Home sale or payment questions" },
+              { title: "Rate and Fee Terms", desc: "Review the stated APR, dealer or finance charges, payment schedule, and any written rate representation before assuming a modification is available.", icon: <Scale className="w-5 h-5" />, best: "APR and fee questions" },
+              { title: "Recorded Filings", desc: "Obtain a current title report and copies of any assessment, deed of trust, or UCC filing, then verify the holder's written release requirements.", icon: <CheckCircle className="w-5 h-5" />, best: "Title and refinance questions" },
             ].map(({ title, desc, icon, best }, i) => (
               <Reveal key={title} delay={i * 0.1}>
                 <div className="rounded-xl p-6 h-full" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
@@ -496,7 +486,7 @@ export default function SolarLoanHelp() {
         <Reveal>
           <div className="text-center mb-10">
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-              DO YOU QUALIFY FOR HELP?
+              ORGANIZE YOUR LOAN RECORDS
             </h2>
             <p className="text-slate-400">Answer 5 quick questions to see what options are available for your solar loan.</p>
           </div>
@@ -512,9 +502,9 @@ export default function SolarLoanHelp() {
           </Reveal>
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              { href: "/selling-house-with-solar", title: "Selling House With Solar Loan", desc: "Solar loan blocking your home sale? We help you close." },
-              { href: "/solar-lien-removal", title: "Solar Lien Removal", desc: "Remove PACE and secured solar loan liens from your title." },
-              { href: "/solar-exit-options", title: "Solar Exit Options", desc: "All the ways to get out of a solar purchase contract." },
+              { href: "/selling-house-with-solar", title: "Selling House With Solar Loan", desc: "Review payoff, transfer, title, and closing requirements." },
+              { href: "/solar-lien-removal", title: "Solar Lien Record Review", desc: "Review PACE assessments, title records, and UCC filings." },
+              { href: "/solar-exit-options", title: "Solar Exit Options", desc: "Compare agreement types and written terms to request." },
             ].map(({ href, title, desc }) => (
               <Link key={href} href={href} className="group block rounded-xl p-5 transition-all hover:border-amber-500/50" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
                 <div className="flex items-center justify-between mb-2">
@@ -534,9 +524,9 @@ export default function SolarLoanHelp() {
           <Reveal>
             <AlertTriangle className="w-12 h-12 text-amber-400 mx-auto mb-6" />
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-              YOUR SOLAR LOAN MAY<br />HAVE VIOLATIONS
+              START WITH THE<br />SIGNED LOAN RECORDS
             </h2>
-            <p className="text-slate-400 mb-8 text-lg">Most homeowners don't know what's in their loan documents. A free review takes 15 minutes and could save you thousands — or get you out entirely.</p>
+            <p className="text-slate-400 mb-8 text-lg">Gather the signed loan documents, disclosures, payment history, payoff statement, servicing correspondence, and related sales materials for an individual review.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="tel:9049214971" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-base transition-all hover:opacity-90"
                 style={{ background: "#f97316", color: "#0D0F14" }}>
@@ -544,12 +534,12 @@ export default function SolarLoanHelp() {
               </a>
               <a href="#get-help" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-base transition-all hover:border-amber-500 hover:text-amber-400"
                 style={{ border: "1px solid oklch(1 0 0 / 25%)", color: "#F8FAFC" }}>
-                Free Loan Review <ArrowRight className="w-5 h-5" />
+                Request Document Review <ArrowRight className="w-5 h-5" />
               </a>
             </div>
             <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
               <Clock className="w-4 h-4" />
-              <span>We respond within minutes during business hours</span>
+              <span>Availability and response time require individual confirmation</span>
             </div>
           </Reveal>
         </div>

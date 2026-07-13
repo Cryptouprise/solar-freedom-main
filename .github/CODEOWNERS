@@ -1,0 +1,13 @@
+# Default owner for all repository changes.
+* @Cryptouprise
+
+# Release, security, deployment, and public trust surfaces.
+/.github/ @Cryptouprise
+/docs/PRODUCTION-CUTOVER.md @Cryptouprise
+/DEPLOY_CHECKLIST.md @Cryptouprise
+/CAPABILITIES.md @Cryptouprise
+/SECURITY.md @Cryptouprise
+/scripts/ci-public-artifact-scan.mjs @Cryptouprise
+/server/security/ @Cryptouprise
+/server/adminAuth.ts @Cryptouprise
+/server/automationPolicy.ts @Cryptouprise

@@ -18,34 +18,29 @@ import {
   Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link2,
   ImageIcon, Mic, Video, Search, Wand2, RefreshCw, Save, Eye, EyeOff,
   Upload, Plus, Trash2, CheckCircle, AlertTriangle, Info, ChevronDown,
-  ChevronUp, Loader2, FileText, Globe, Sparkles, AlignLeft, X, Clock,
+  ChevronUp, Loader2, FileText, Sparkles, AlignLeft, X, Clock,
   BookOpen, FolderOpen
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const AI_MODELS = [
-  { id: "openrouter/owl-alpha", label: "⭐ Owl Alpha (Free)", group: "Free" },
-  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash Preview", group: "Free" },
-  { id: "deepseek/deepseek-v4-flash", label: "DeepSeek V4 Flash", group: "Fast" },
-  { id: "tencent/hunyuan-t1-preview", label: "Tencent HunyuanT1", group: "Fast" },
-  { id: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash", group: "Premium" },
-  { id: "anthropic/claude-3-haiku", label: "Claude 3 Haiku", group: "Premium" },
-  { id: "openai/gpt-4o-mini", label: "GPT-4o Mini", group: "Premium" },
-];
-
-const IMAGE_MODELS = [
-  { id: "bytedance-seed/seedream-4.5", label: "Seedream 4.5" },
-  { id: "google/gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image" },
-  { id: "google/gemini-3.1-flash-image-preview", label: "Gemini 3.1 Flash Image" },
+  { id: "openrouter/free", label: "OpenRouter Free Models Router — variable availability", group: "Current router" },
+  { id: "openrouter/owl-alpha", label: "Owl Alpha — verify provider", group: "Legacy option" },
+  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash Preview — verify provider", group: "Legacy option" },
+  { id: "deepseek/deepseek-v4-flash", label: "DeepSeek V4 Flash — verify provider", group: "Legacy option" },
+  { id: "tencent/hunyuan-t1-preview", label: "Tencent HunyuanT1 — verify provider", group: "Legacy option" },
+  { id: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash — verify provider", group: "Legacy option" },
+  { id: "anthropic/claude-3-haiku", label: "Claude 3 Haiku — verify provider", group: "Legacy option" },
+  { id: "openai/gpt-4o-mini", label: "GPT-4o Mini — verify provider", group: "Legacy option" },
 ];
 
 const REWRITE_TONES = [
-  { id: "more_aggressive", label: "More Aggressive / Urgent" },
+  { id: "more_direct", label: "More Direct" },
   { id: "simpler", label: "Simpler / Clearer" },
-  { id: "seo_optimized", label: "SEO Optimized" },
+  { id: "search_intent_clarity", label: "Search-Intent Clarity" },
   { id: "shorter", label: "Shorter / Tighter" },
-  { id: "more_authoritative", label: "More Authoritative" },
+  { id: "evidence_led", label: "Evidence-Led" },
   { id: "conversational", label: "More Conversational" },
 ];
 
@@ -84,14 +79,12 @@ function ToolbarBtn({
   );
 }
 
-// ─── SEO Score Badge ──────────────────────────────────────────────────────────
+// ─── Descriptive editorial-check badge ────────────────────────────────────────
 
-function SeoScoreBadge({ score }: { score: number }) {
-  const color = score >= 80 ? "text-green-400" : score >= 50 ? "text-amber-400" : "text-red-400";
-  const bg = score >= 80 ? "bg-green-500/10 border-green-500/30" : score >= 50 ? "bg-amber-500/10 border-amber-500/30" : "bg-red-500/10 border-red-500/30";
+function EditorialChecksBadge({ count }: { count: number }) {
   return (
-    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-mono font-bold ${bg} ${color}`}>
-      SEO {score}/100
+    <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-mono text-gray-300">
+      Heuristic checks reviewed: {count}
     </div>
   );
 }
@@ -113,7 +106,7 @@ export default function BlogStudio() {
   const [heroImage, setHeroImage] = useState("");
   const [targetKeyword, setTargetKeyword] = useState("");
   const [excerpt, setExcerpt] = useState("");
-  const [published, setPublished] = useState(true);
+  const [published, setPublished] = useState(false);
 
   // Podcast fields
   const [podcastTitle, setPodcastTitle] = useState("");
@@ -129,12 +122,11 @@ export default function BlogStudio() {
   const [videoThumbnail, setVideoThumbnail] = useState("");
 
   // AI state
-  const [aiModel, setAiModel] = useState("openrouter/owl-alpha");
-  const [imageModel, setImageModel] = useState("bytedance-seed/seedream-4.5");
+  const [aiModel, setAiModel] = useState("openrouter/free");
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiOutput, setAiOutput] = useState("");
-  const [rewriteTone, setRewriteTone] = useState("more_aggressive");
+  const [rewriteTone, setRewriteTone] = useState("more_direct");
   const [researchQuery, setResearchQuery] = useState("");
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageLoading, setImageLoading] = useState(false);
@@ -367,8 +359,8 @@ export default function BlogStudio() {
         existingContent: editor?.getHTML(),
       });
       setAiOutput(result.content);
-    } catch (err: any) {
-      toast.error(err.message || "AI generation failed");
+    } catch {
+      toast.error("AI generation failed. Review sanitized server diagnostics.");
     } finally {
       setAiLoading(false);
     }
@@ -388,30 +380,41 @@ export default function BlogStudio() {
     try {
       const toneLabel = REWRITE_TONES.find(t => t.id === rewriteTone)?.label || rewriteTone;
       const result = await generateContent.mutateAsync({
-        prompt: `Rewrite the following text to be ${toneLabel}. Keep the same core message but improve it. Return only the rewritten text, no explanation:\n\n${selectedText}`,
+        prompt: `Rewrite the following text for ${toneLabel}. Preserve every factual claim, qualification, date, citation, and link. Do not add facts, statistics, legal conclusions, urgency, authority, allegations, guarantees, or outcome language that the source text does not support. Return only the rewritten text, no explanation:\n\n${selectedText}`,
         model: aiModel,
       });
       setAiOutput(result.content);
-    } catch (err: any) {
-      toast.error(err.message || "Rewrite failed");
+    } catch {
+      toast.error("Rewrite failed. Review sanitized server diagnostics.");
     } finally {
       setAiLoading(false);
     }
   };
 
-  // AI research
+  // Unverified research-question/source-plan generation. This model has no live browsing.
   const handleResearch = async () => {
     if (!researchQuery.trim()) return;
     setAiLoading(true);
     setAiOutput("");
     try {
       const result = await generateContent.mutateAsync({
-        prompt: `Research the following topic and provide a comprehensive summary with key facts, statistics, and talking points that would be useful for a blog post about solar contract issues and consumer protection. Format as bullet points with headers. Topic: ${researchQuery}`,
+        prompt: `Create an UNVERIFIED research-question and source-verification plan for this topic: ${researchQuery}
+
+You do not have live web access. Do not state or invent facts, statistics, citations, URLs, current events, legal conclusions, company allegations, rankings, or outcomes.
+
+Return only these sections:
+1. Factual questions a human must answer.
+2. Primary-source categories to search (for example FTC, CFPB, a named state regulator, court docket, filed contract, or company policy), without claiming that a source exists or supports anything.
+3. Suggested search queries for a human researcher.
+4. Evidence gaps and date/jurisdiction checks.
+5. A provisional article outline whose factual sections are marked [SOURCE REQUIRED].
+
+This output is a planning aid, not research evidence and not publishable copy.`,
         model: aiModel,
       });
       setAiOutput(result.content);
-    } catch (err: any) {
-      toast.error(err.message || "Research failed");
+    } catch {
+      toast.error("Research-plan generation failed. Review sanitized server diagnostics.");
     } finally {
       setAiLoading(false);
     }
@@ -424,7 +427,7 @@ export default function BlogStudio() {
     editor.chain().focus().insertContent(html).run();
     setAiOutput("");
     setIsDirty(true);
-    toast.success("Content inserted into editor");
+    toast.warning("Unverified AI output inserted. This does not satisfy the editorial evidence or publication gate.");
   };
 
   // Replace selection with AI output
@@ -440,7 +443,7 @@ export default function BlogStudio() {
     }
     setAiOutput("");
     setIsDirty(true);
-    toast.success("Content inserted");
+    toast.warning("Unverified AI output inserted. This does not satisfy the editorial evidence or publication gate.");
   };
 
   // ─── SEO analysis ────────────────────────────────────────────────────────────
@@ -455,8 +458,8 @@ export default function BlogStudio() {
         slug,
       });
       setSeoData(result);
-    } catch (err: any) {
-      toast.error(err.message || "SEO analysis failed");
+    } catch {
+      toast.error("Content analysis failed. Review sanitized server diagnostics.");
     } finally {
       setSeoLoading(false);
     }
@@ -469,14 +472,13 @@ export default function BlogStudio() {
     try {
       const result = await generateImageMutation.mutateAsync({
         prompt: imagePrompt,
-        model: imageModel,
         postSlug: slug || "blog",
       });
       setHeroImage(result.url);
       setIsDirty(true);
-      toast.success("Image generated and set as hero image");
-    } catch (err: any) {
-      toast.error(err.message || "Image generation failed");
+      toast.warning("Platform image draft generated. Review accuracy, rights, and suitability before saving or publishing.");
+    } catch {
+      toast.error("Image generation failed. Review sanitized server diagnostics.");
     } finally {
       setImageLoading(false);
     }
@@ -508,8 +510,8 @@ export default function BlogStudio() {
         setImageLoading(false);
       };
       reader.readAsDataURL(file);
-    } catch (err: any) {
-      toast.error(err.message || "Upload failed");
+    } catch {
+      toast.error("Upload failed. Review sanitized server diagnostics.");
       setImageLoading(false);
     }
   };
@@ -575,7 +577,7 @@ export default function BlogStudio() {
               <span className="text-amber-400 text-xs font-mono">● Unsaved changes</span>
             )}
             <span className="text-gray-500 text-xs font-mono">{wordCount} words · {readingTime} min read</span>
-            {seoData && <SeoScoreBadge score={Math.min(100, seoData.suggestions.filter(s => s.type === "success").length * 20)} />}
+            {seoData && <EditorialChecksBadge count={seoData.suggestions.length} />}
             {/* Drafts button */}
             {selectedSlug && (
               <Button
@@ -591,11 +593,15 @@ export default function BlogStudio() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPublished(!published)}
+              onClick={() => published && setPublished(false)}
+              disabled={!published}
+              title={published
+                ? "Unpublish this post on save"
+                : "Publishing requires a separate evidence-first editorial review and publish permission"}
               className={`border-white/10 text-xs ${published ? "text-green-400" : "text-gray-400"}`}
             >
               {published ? <Eye className="w-3.5 h-3.5 mr-1" /> : <EyeOff className="w-3.5 h-3.5 mr-1" />}
-              {published ? "Published" : "Draft"}
+              {published ? "Published — click to unpublish" : "Draft — review required to publish"}
             </Button>
             <Button
               size="sm"
@@ -620,7 +626,7 @@ export default function BlogStudio() {
                   <Input
                     value={draftName}
                     onChange={e => setDraftName(e.target.value)}
-                    placeholder="Draft name (e.g. 'Version 2 — more aggressive')"
+                    placeholder="Draft name (e.g. 'Evidence revision — FTC source review')"
                     className="bg-white/5 border-white/10 text-gray-200 text-sm flex-1"
                     onKeyDown={e => e.key === "Enter" && handleSaveNamedDraft()}
                   />
@@ -720,9 +726,9 @@ export default function BlogStudio() {
                     <span className={`text-xs mt-0.5 ${metaTitle.length > 65 ? "text-red-400" : "text-gray-500"}`}>{metaTitle.length}/65</span>
                   </div>
                   <div>
-                    <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Target Keyword</label>
+                    <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Focus Phrase (Optional)</label>
                     <Input value={targetKeyword} onChange={e => { setTargetKeyword(e.target.value); setIsDirty(true); }}
-                      className="bg-white/5 border-white/10 text-white text-sm" placeholder="e.g. cancel solar contract" />
+                      className="bg-white/5 border-white/10 text-white text-sm" placeholder="e.g. cancel solar contract (used only for descriptive phrase checks)" />
                   </div>
                   <div className="col-span-2">
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Meta Description</label>
@@ -821,7 +827,7 @@ export default function BlogStudio() {
             <div className="flex border-b border-white/10 sticky top-0 bg-[#0D0F14] z-10">
               {[
                 { id: "ai", icon: <Wand2 className="w-3.5 h-3.5" />, label: "AI" },
-                { id: "seo", icon: <Search className="w-3.5 h-3.5" />, label: "SEO" },
+                { id: "seo", icon: <Search className="w-3.5 h-3.5" />, label: "Review" },
                 { id: "media", icon: <ImageIcon className="w-3.5 h-3.5" />, label: "Images" },
                 { id: "podcast", icon: <Mic className="w-3.5 h-3.5" />, label: "Podcast" },
                 { id: "video", icon: <Video className="w-3.5 h-3.5" />, label: "Video" },
@@ -868,7 +874,7 @@ export default function BlogStudio() {
                   <Textarea
                     value={aiPrompt}
                     onChange={e => setAiPrompt(e.target.value)}
-                    placeholder="e.g. Write an intro section about why solar contracts trap homeowners..."
+                    placeholder="e.g. Draft a source-gated intro explaining which agreement records to review..."
                     className="bg-white/5 border-white/10 text-gray-200 text-sm resize-none"
                     rows={3}
                   />
@@ -907,13 +913,16 @@ export default function BlogStudio() {
                   </Button>
                 </div>
 
-                {/* Research */}
+                {/* Research-question/source plan */}
                 <div className="space-y-2 border-t border-white/10 pt-4">
-                  <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">AI Research</label>
+                  <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Research Questions / Source Plan</label>
+                  <p className="text-amber-300/80 text-xs leading-relaxed">
+                    The model has no live web access. It can only suggest questions and searches; verify every fact from current primary sources.
+                  </p>
                   <Input
                     value={researchQuery}
                     onChange={e => setResearchQuery(e.target.value)}
-                    placeholder="e.g. Sunrun contract cancellation statistics 2024"
+                    placeholder="e.g. Questions to verify about a specific solar contract term in Colorado"
                     className="bg-white/5 border-white/10 text-gray-200 text-sm"
                   />
                   <Button
@@ -922,8 +931,8 @@ export default function BlogStudio() {
                     variant="outline"
                     className="w-full border-white/10 text-gray-300 hover:text-white text-sm"
                   >
-                    {aiLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Globe className="w-4 h-4 mr-2" />}
-                    Research Topic
+                    {aiLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+                    Generate Verification Plan
                   </Button>
                 </div>
 
@@ -931,7 +940,7 @@ export default function BlogStudio() {
                 {aiOutput && (
                   <div className="border-t border-white/10 pt-4 space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-gray-400 text-xs font-mono uppercase tracking-wider">AI Output</label>
+                      <label className="text-amber-300 text-xs font-mono uppercase tracking-wider">Unverified AI Output</label>
                       <button type="button" onClick={() => setAiOutput("")} className="text-gray-600 hover:text-gray-400">
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -939,6 +948,9 @@ export default function BlogStudio() {
                     <div className="bg-white/5 rounded-lg p-3 text-gray-300 text-sm max-h-64 overflow-y-auto leading-relaxed whitespace-pre-wrap">
                       {aiOutput}
                     </div>
+                    <p className="rounded border border-amber-500/30 bg-amber-500/10 p-2 text-xs leading-relaxed text-amber-200">
+                      No live-source verification occurred. Inserting this output does not satisfy source, legal, editorial, originality, or publication approval requirements.
+                    </p>
                     <div className="flex gap-2">
                       <Button onClick={handleInsertOutput} size="sm" className="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs">
                         <Plus className="w-3.5 h-3.5 mr-1" /> Insert into Body
@@ -947,7 +959,7 @@ export default function BlogStudio() {
                         <RefreshCw className="w-3.5 h-3.5 mr-1" /> Replace Selection
                       </Button>
                     </div>
-                    <p className="text-gray-600 text-xs text-center">Markdown is automatically converted to formatted HTML</p>
+                    <p className="text-gray-600 text-xs text-center">Markdown is converted to HTML; evidence status does not change.</p>
                   </div>
                 )}
               </div>
@@ -962,8 +974,11 @@ export default function BlogStudio() {
                   className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm"
                 >
                   {seoLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-                  Analyze SEO
+                  Review Structure
                 </Button>
+                <p className="text-gray-500 text-xs leading-relaxed">
+                  These are descriptive heuristics for readability, structure, links, and source coverage. They are not a ranking score, ranking prediction, or publishing approval.
+                </p>
 
                 {seoData && (
                   <div className="space-y-3">
@@ -975,7 +990,7 @@ export default function BlogStudio() {
                         { label: "H2s", value: seoData.h2Count },
                         { label: "H3s", value: seoData.h3Count },
                         { label: "Int. Links", value: seoData.internalLinks },
-                        { label: "Keyword %", value: `${seoData.keywordDensity}%` },
+                        { label: "Phrase frequency", value: `${seoData.keywordDensity}%` },
                       ].map(stat => (
                         <div key={stat.label} className="bg-white/5 rounded-lg p-2 text-center">
                           <div className="text-white font-bold text-sm">{stat.value}</div>
@@ -983,6 +998,7 @@ export default function BlogStudio() {
                         </div>
                       ))}
                     </div>
+                    <p className="text-gray-600 text-xs">Phrase frequency is descriptive only; no universal ideal percentage is claimed.</p>
                     {/* Suggestions */}
                     <div className="space-y-2">
                       {seoData.suggestions.map((s, i) => (
@@ -1044,23 +1060,16 @@ export default function BlogStudio() {
                   </div>
                 )}
 
-                {/* Generate image */}
+                {/* Platform image draft */}
                 <div className="space-y-2">
-                  <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Generate with AI</label>
-                  <Select value={imageModel} onValueChange={setImageModel}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-200 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#1a1d24] border-white/10">
-                      {IMAGE_MODELS.map(m => (
-                        <SelectItem key={m.id} value={m.id} className="text-gray-200 text-sm">{m.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Platform Image Draft</label>
+                  <p className="text-amber-300/80 text-xs leading-relaxed">
+                    Uses the platform-managed image service; no model selector is exposed. This call may be absent from the OpenRouter cost ledger, so provider and hosting billing remain authoritative.
+                  </p>
                   <Textarea
                     value={imagePrompt}
                     onChange={e => setImagePrompt(e.target.value)}
-                    placeholder="e.g. Frustrated homeowner looking at solar panels on roof, dramatic lighting, photorealistic"
+                    placeholder="e.g. Neutral editorial illustration of a homeowner reviewing a solar agreement, with no logos or identifiable people"
                     className="bg-white/5 border-white/10 text-gray-200 text-sm resize-none"
                     rows={3}
                   />
@@ -1070,8 +1079,11 @@ export default function BlogStudio() {
                     className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm"
                   >
                     {imageLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                    Generate Image
+                    Generate Draft Image
                   </Button>
+                  <p className="text-gray-500 text-xs leading-relaxed">
+                    Generated images are unapproved drafts. Check factual implications, consent, licensing, trademarks, accessibility, and editorial fit before use.
+                  </p>
                 </div>
 
                 {/* Import from URL */}

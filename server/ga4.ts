@@ -46,8 +46,7 @@ async function runReport(body: object) {
     }
   );
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`GA4 API error ${res.status}: ${err}`);
+    throw new Error(`GA4 API request failed (HTTP ${res.status})`);
   }
   return res.json() as Promise<GA4ReportResponse>;
 }

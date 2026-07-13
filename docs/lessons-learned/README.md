@@ -1,14 +1,11 @@
-# Solar Freedom — Lessons Learned
+# Solar Freedom - Lessons Learned
 
-This folder documents critical technical and SEO lessons discovered during development and operations of breakyoursolarcontract.com. Read these before making any architectural changes.
+These references capture reusable release and search-safety lessons. They do not
+claim current production state or independently verified historical metrics.
 
----
-
-## Index
-
-| File | Topic | Severity |
+| File | Topic | Priority |
 |---|---|---|
-| [01-spa-soft-404-seo.md](./01-spa-soft-404-seo.md) | SPA serving causes Soft 404 for all non-homepage URLs | **CRITICAL** |
-| [02-duplicate-faqpage-schema.md](./02-duplicate-faqpage-schema.md) | Duplicate FAQPage JSON-LD schema blocks indexing | **HIGH** |
-| [03-gsc-indexing-workflow.md](./03-gsc-indexing-workflow.md) | GSC indexing request workflow and limits | **MEDIUM** |
-| [04-ai-prompt-for-gsc-access.md](./04-ai-prompt-for-gsc-access.md) | How to give another AI agent access to GSC and Google tools | **REFERENCE** |
+| [01-spa-soft-404-seo.md](01-spa-soft-404-seo.md) | Truthful SPA route delivery and soft-404 prevention | High |
+| [02-duplicate-faqpage-schema.md](02-duplicate-faqpage-schema.md) | Structured-data duplication and eligibility gates | High |
+| [03-gsc-indexing-workflow.md](03-gsc-indexing-workflow.md) | Safe Search Console validation workflow | Reference |
+| [04-ai-prompt-for-gsc-access.md](04-ai-prompt-for-gsc-access.md) | Least-privilege AI access to Search Console | Reference |

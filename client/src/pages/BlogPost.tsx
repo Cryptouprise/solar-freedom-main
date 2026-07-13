@@ -4,18 +4,18 @@
 import { Link, useParams } from 'wouter';
 import { getBlogPost, getRelatedPosts, BlogSection } from '@/data/blog';
 import { trpc } from '@/lib/trpc';
-import TopicClusterWidget from '@/components/TopicClusterWidget';
 import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import QuickCallbackForm from '@/components/QuickCallbackForm';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2 } from 'lucide-react';
 import StickyMobileBar from '@/components/StickyMobileBar';
 import { motion } from 'framer-motion';
-import { useEffect, ReactElement, ReactNode } from 'react';
+import React, { useEffect, ReactElement, ReactNode } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
 import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { trackPhoneClick } from '@/lib/analytics';
 import { hasVerifiedQuoteEvidence, suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from '@shared/contentGovernance';
+import { isBlogPostPublishable, PUBLICATION_PENDING_COPY } from '@/data/publication-governance';
 
 function renderInlineContent(content?: string): ReactNode {
   if (!content) return null;
@@ -267,6 +267,12 @@ function dbPostToBlogPost(dbPost: Record<string, unknown>) {
     tags: Array.isArray(dbPost.tags) ? dbPost.tags as string[] : [],
     relatedSlugs: Array.isArray(dbPost.relatedSlugs) ? dbPost.relatedSlugs as string[] : [],
     faqItems: Array.isArray(dbPost.faqItems) ? dbPost.faqItems as Array<{ question: string; answer: string }> : [],
+    editorialReviewerName: dbPost.editorialReviewerName,
+    editorialReviewerRole: dbPost.editorialReviewerRole,
+    editorialReviewedAt: dbPost.editorialReviewedAt,
+    editorialPrimarySources: dbPost.editorialPrimarySources,
+    editorialUniqueValueSummary: dbPost.editorialUniqueValueSummary,
+    editorialFunnelOnlyDuplicate: dbPost.editorialFunnelOnlyDuplicate,
     canonicalUrl: dbPost.canonicalUrl ? String(dbPost.canonicalUrl) : `https://breakyoursolarcontract.com/blog/${dbPost.slug}`,
     content,
     isDbPost: true,
@@ -285,7 +291,7 @@ export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || '';
   const staticPost = getBlogPost(slug);
-  const related = getRelatedPosts(slug, 3);
+  const related = getRelatedPosts(slug, 3).filter(isBlogPostPublishable);
 
   // Only fetch from DB if static post not found
   const { data: dbPostRaw, isLoading: dbLoading } = trpc.content.getPost.useQuery(
@@ -295,13 +301,15 @@ export default function BlogPost() {
 
   const dbPost = dbPostRaw ? dbPostToBlogPost(dbPostRaw as Record<string, unknown>) : null;
   const post = staticPost || dbPost;
+  const postIsPublishable = isBlogPostPublishable(post);
 
   useSeoMeta({
-    title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
-    description: suppressUnverifiedFirstPartyClaims(post?.metaDescription ?? post?.excerpt ?? 'Review solar-contract documents and consumer information.'),
+    title: post && postIsPublishable ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Under Editorial Review | Solar Freedom',
+    description: post && !postIsPublishable ? PUBLICATION_PENDING_COPY : suppressUnverifiedFirstPartyClaims(post?.metaDescription ?? post?.excerpt ?? 'Review solar-contract documents and consumer information.'),
     canonical: (post as { canonicalUrl?: string | null } | undefined)?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${slug}`,
     ogType: 'article',
-    ogImage: post?.heroImage ?? undefined,
+    ogImage: postIsPublishable ? post?.heroImage ?? undefined : undefined,
+    noindex: Boolean(post && !postIsPublishable),
   });
 
   useEffect(() => {
@@ -335,7 +343,28 @@ export default function BlogPost() {
   }
 
   // ─── DB post render path (content stored as HTML) ────────────────────────────
-  if (!staticPost && dbPost) {
+  // Publication governance must run before either the static or database render
+  // path. A database row marked `published` is not sufficient to expose
+  // unsupported service, outcome, fee, or timing claims.
+  if (!postIsPublishable) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] px-6 py-24 text-white">
+        <main className="mx-auto max-w-3xl rounded-2xl border border-amber-500/30 bg-zinc-900 p-8 md:p-12">
+          <p className="mb-3 font-mono text-xs uppercase tracking-widest text-amber-400">Editorial review pending</p>
+          <h1 className="mb-5 text-3xl font-black">This article is temporarily withheld.</h1>
+          <p className="mb-8 leading-relaxed text-zinc-300">{PUBLICATION_PENDING_COPY}</p>
+          <h2 className="mb-3 text-xl font-bold">Use primary consumer resources meanwhile</h2>
+          <ul className="mb-8 list-disc space-y-3 pl-5 text-zinc-300">
+            <li><a className="text-amber-400 underline" href="https://www.ecfr.gov/current/title-16/part-429" target="_blank" rel="noopener noreferrer">Federal door-to-door sales rule (eCFR)</a></li>
+            <li><a className="text-amber-400 underline" href="https://www.usa.gov/state-attorney-general" target="_blank" rel="noopener noreferrer">Find your state attorney general (USA.gov)</a></li>
+          </ul>
+          <Link href="/blog"><span className="font-bold text-amber-400 cursor-pointer">&larr; Return to reviewed articles</span></Link>
+        </main>
+      </div>
+    );
+  }
+
+  if (!staticPost && dbPost && postIsPublishable) {
     const rawFaqItems = (dbPostRaw as Record<string,unknown>)?.faqItems;
     const faq: { q: string; a: string }[] = Array.isArray(rawFaqItems)
       ? (rawFaqItems as Array<{question?: string; answer?: string; q?: string; a?: string}>).map(f => ({
@@ -354,8 +383,12 @@ export default function BlogPost() {
         '@type': 'Article',
         headline: dbPost.title,
         description: suppressUnverifiedFirstPartyClaims(dbPost.metaDescription ?? dbPost.excerpt),
-        datePublished: (dbPostRaw as Record<string,unknown>)?.publishedAt ? String((dbPostRaw as Record<string,unknown>).publishedAt) : '2026-01-01',
-        dateModified: (dbPostRaw as Record<string,unknown>)?.updatedAt ? String((dbPostRaw as Record<string,unknown>).updatedAt) : '2026-01-01',
+        ...((dbPostRaw as Record<string,unknown>)?.publishedAt
+          ? { datePublished: String((dbPostRaw as Record<string,unknown>).publishedAt) }
+          : {}),
+        ...((dbPostRaw as Record<string,unknown>)?.updatedAt
+          ? { dateModified: String((dbPostRaw as Record<string,unknown>).updatedAt) }
+          : {}),
         publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${slug}` },
         image: dbPost.heroImage ?? '',
@@ -535,13 +568,6 @@ export default function BlogPost() {
           </div>
         </div>
 
-        {/* TOPIC CLUSTER INTERNAL LINKS */}
-        <section className="px-6 pb-0">
-          <div className="max-w-4xl mx-auto">
-            <TopicClusterWidget currentUrl={`/blog/${slug}`} />
-          </div>
-        </section>
-
         {/* RELATED ARTICLES */}
         {related.length > 0 && (
           <section className="px-6 pb-24 border-t border-white/10 pt-16">
@@ -597,11 +623,10 @@ export default function BlogPost() {
       '@type': 'Article',
       headline: post.title,
       description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
-      datePublished: post.publishDate ?? '2026-01-01',
-      dateModified: post.publishDate ?? '2026-01-01',
+      ...(post.publishDate ? { datePublished: post.publishDate, dateModified: post.publishDate } : {}),
       publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
       mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${params.slug}` },
-      image: post.heroImage ?? '',
+      ...(post.heroImage ? { image: post.heroImage } : {}),
     },
     {
       '@context': 'https://schema.org',
@@ -642,21 +667,25 @@ export default function BlogPost() {
     });
   }
 
-  // Add VideoObject schema placeholder — future YouTube embeds will populate this
-  schemas.push({
-    '@context': 'https://schema.org',
-    '@type': 'VideoObject',
-    name: `${post.title} — Solar Freedom Video`,
-    description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
-    thumbnailUrl: post.heroImage ?? 'https://breakyoursolarcontract.com/favicon.ico',
-    uploadDate: post.publishDate ?? '2026-01-01',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Solar Freedom',
-      logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' },
-    },
-    url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
-  });
+  // Emit VideoObject only when the article contains an actual video and the
+  // required publication metadata. Never synthesize a placeholder video.
+  const videoSection = post.content.find((section) => section.type === 'video');
+  if (videoSection?.src && videoSection.poster && post.publishDate) {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'VideoObject',
+      name: `${post.title} — Solar Freedom Video`,
+      description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
+      thumbnailUrl: videoSection.poster,
+      uploadDate: post.publishDate,
+      contentUrl: videoSection.src,
+      publisher: {
+        '@type': 'Organization',
+        name: 'Solar Freedom',
+        logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' },
+      },
+    });
+  }
 
   // Insert exactly ONE inline CTA at the midpoint of the article
   const sectionsWithCTAs: ReactElement[] = [];
@@ -814,13 +843,6 @@ export default function BlogPost() {
           </aside>
         </div>
       </div>
-
-      {/* TOPIC CLUSTER INTERNAL LINKS */}
-      <section className="px-6 pb-0">
-        <div className="max-w-4xl mx-auto">
-          <TopicClusterWidget currentUrl={`/blog/${params.slug}`} />
-        </div>
-      </section>
 
       {/* RELATED ARTICLES */}
       {related.length > 0 && (

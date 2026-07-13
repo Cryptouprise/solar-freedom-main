@@ -9,6 +9,7 @@ import { buildMetaMap, renderDbBlogPost } from "../seo-meta";
 import { getDbBlogPostStatus } from "../db";
 import {
   CLIENT_ONLY_ROUTES,
+  canonicalPageRedirect,
   normalizePagePath,
   registerDynamicSeoInventory,
   registerSeoPageDelivery,
@@ -52,6 +53,11 @@ export async function setupVite(app: Express, server: Server) {
       const pagePath = normalizePagePath(url);
       if (!pagePath) {
         res.status(400).type("text").send("Invalid URL");
+        return;
+      }
+      const canonicalRedirect = canonicalPageRedirect(url);
+      if (canonicalRedirect) {
+        res.redirect(301, canonicalRedirect);
         return;
       }
 

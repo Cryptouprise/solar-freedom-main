@@ -4,7 +4,7 @@
 **Authentication:** `Authorization: Bearer <your-api-key>`  
 **Content-Type:** `application/json`
 
-This API allows external AI tools (Claude, Cursor, etc.) to fully manage the content of `breakyoursolarcontract.com` — creating, editing, and deleting blog posts, company pages, and site configuration — without requiring Manus access.
+This API allows approved external tools to create and edit review-gated content records without requiring Manus access. It does not deploy code, bypass publication evidence checks, or make a draft publicly discoverable by itself.
 
 ---
 
@@ -55,15 +55,15 @@ Keys begin with `sf_` followed by 64 hex characters. If the key is invalid or mi
 
 | Method | Path | Permission | Description |
 |--------|------|-----------|-------------|
-| GET | `/api/admin/posts/all` | `posts:read` | **All posts (static + DB)** — use for interlinking |
-| GET | `/api/admin/posts/slugs` | `posts:read` | **Lightweight slug list** — all 160+ articles |
+| GET | `/api/admin/posts/all` | `posts:read` | Research inventory (static + DB); presence does not mean public approval |
+| GET | `/api/admin/posts/slugs` | `posts:read` | Lightweight research inventory; cross-check links against the public sitemap |
 | GET | `/api/admin/posts` | `posts:read` | List DB-managed posts only |
 | GET | `/api/admin/posts/:slug` | `posts:read` | Get single DB post with full content |
 | POST | `/api/admin/posts` | `posts:write` | Create new post |
 | PUT | `/api/admin/posts/:slug` | `posts:write` | Update existing post |
 | DELETE | `/api/admin/posts/:slug` | `posts:delete` | Delete a post |
 
-> **Interlinking Workflow:** Before writing a new article, call `GET /api/admin/posts/slugs` to get all 160+ existing article slugs and titles. Pick 3-5 relevant ones and include them in the `relatedSlugs` field and as `<a href="/blog/SLUG">` links within your content.
+> **Interlinking workflow:** Use the inventory to detect overlap, then check the public sitemap. Add only genuinely relevant destinations that are currently approved and public; do not link users or crawlers to withheld research records.
 
 #### Create a Blog Post
 
@@ -72,22 +72,17 @@ curl -X POST \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "slug": "how-to-cancel-sunrun-contract-2026",
-    "title": "How to Cancel Your Sunrun Contract in 2026",
-    "metaTitle": "Cancel Sunrun Contract 2026 | Solar Freedom",
-    "metaDescription": "Learn how to legally cancel your Sunrun solar contract. Attorney-reviewed guide covering rescission rights, PACE loans, and complaint process.",
-    "heroImage": "https://cdn.example.com/sunrun-cancel.jpg",
-    "category": "Company Guides",
-    "tags": ["Sunrun", "cancel solar contract", "solar complaints"],
-    "excerpt": "Sunrun is the largest residential solar company in the US — and one of the most complained about. Here is how to get out.",
-    "readTime": "8 min read",
-    "content": "<h2>Understanding Your Sunrun Contract</h2><p>...</p>",
-    "faqItems": [
-      {"q": "Can I cancel my Sunrun contract?", "a": "Yes, under certain conditions..."},
-      {"q": "What is the Sunrun cancellation fee?", "a": "Sunrun typically charges..."}
-    ],
-    "relatedSlugs": ["sunrun-solar-complaints", "solar-contract-rescission-rights"],
-    "published": true
+    "slug": "solar-agreement-records-checklist",
+    "title": "Solar Agreement Records Checklist",
+    "metaTitle": "Solar Agreement Records Checklist",
+    "metaDescription": "A practical checklist for organizing a signed solar agreement, disclosures, bills, performance records, and written communications.",
+    "category": "Agreement Records",
+    "tags": ["solar agreement", "document checklist"],
+    "excerpt": "Organize the records needed to understand the agreement and document the timeline.",
+    "readTime": "6 min read",
+    "content": "<h2>Start with the signed agreement</h2><p>...</p>",
+    "relatedSlugs": [],
+    "published": false
   }' \
   https://breakyoursolarcontract.com/api/admin/posts
 ```
@@ -99,11 +94,11 @@ curl -X PUT \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Updated Title",
-    "content": "<h2>New Content</h2><p>Updated body...</p>",
-    "published": true
+    "title": "Updated Draft Title",
+    "content": "<h2>Updated draft</h2><p>...</p>",
+    "published": false
   }' \
-  https://breakyoursolarcontract.com/api/admin/posts/how-to-cancel-sunrun-contract-2026
+  https://breakyoursolarcontract.com/api/admin/posts/solar-agreement-records-checklist
 ```
 
 Only include the fields you want to change — all other fields are preserved.
@@ -122,10 +117,15 @@ Only include the fields you want to change — all other fields are preserved.
 | `tags` | array | No | Array of tag strings |
 | `excerpt` | string | No | Short summary for blog index cards |
 | `readTime` | string | No | e.g. `7 min read` |
-| `faqItems` | array | No | Array of `{q, a}` objects for FAQ schema |
+| `faqItems` | array | No | Useful, source-supported `{q, a}` content; schema is emitted only when the page passes the public gate |
 | `relatedSlugs` | array | No | Array of related post slugs |
 | `canonicalUrl` | string | No | Override canonical URL if needed |
-| `published` | boolean | No | `true` = live, `false` = draft (default: true) |
+| `published` | boolean | No | `true` requests publication; new posts default to draft |
+
+Publication also requires a named reviewer and role, a non-future review date,
+valid HTTPS primary sources with access dates, a substantive unique-value
+summary, and `editorialFunnelOnlyDuplicate=false`. A publish-capable key cannot
+bypass this server-side gate.
 
 ---
 
@@ -148,13 +148,12 @@ curl -X POST \
     "slug": "sunnova",
     "name": "Sunnova Energy",
     "status": "active",
-    "bbbRating": "B",
-    "complaintCount": "800+",
-    "heroHeadline": "Trapped in a Sunnova Contract?",
-    "heroSubheadline": "Get a free case review from our solar attorneys",
-    "customerComplaints": ["High monthly payments", "System underperformance"],
-    "legalGrounds": ["Misrepresentation", "PACE loan violations"],
-    "published": true
+    "heroHeadline": "Sunnova Agreement Research Draft",
+    "heroSubheadline": "Organize the agreement, disclosures, bills, performance records, and communications.",
+    "customerComplaints": [],
+    "documentedIssues": [],
+    "legalGrounds": [],
+    "published": false
   }' \
   https://breakyoursolarcontract.com/api/admin/companies
 ```
@@ -336,6 +335,7 @@ The response includes the full key — **save it immediately, it will not be sho
 |-----------|----------------|
 | `posts:read` | Read blog posts |
 | `posts:write` | Create and update blog posts |
+| `posts:publish` | Request publication; the evidence gate still applies and this permission is excluded from new keys by default |
 | `posts:delete` | Delete blog posts |
 | `companies:read` | Read company data |
 | `companies:write` | Create and update companies |
@@ -347,40 +347,42 @@ The response includes the full key — **save it immediately, it will not be sho
 
 ---
 
-## Using This API with Claude
+## Using This API with an External Draft Agent
 
-### System Prompt for Claude
+### Draft-Agent Prompt
 
-When starting a Claude conversation to manage this site, use this system prompt:
+Use a scoped `posts:read,posts:write` key and this prompt. Keep `posts:publish`
+out of the drafting key so the human review gate cannot be bypassed.
 
 ```
-You are the content manager for breakyoursolarcontract.com, a legal resource site 
-helping homeowners cancel predatory solar contracts.
+You are a draft assistant for breakyoursolarcontract.com, a consumer-information
+site that accepts individual solar-agreement document-review requests.
 
 You have access to the Admin API at:
   https://breakyoursolarcontract.com/api/admin
 
-Your API key: <copy-once-key-from-the-admin-panel>
+Authentication: Authorization: Bearer <scoped-key-from-your-secret-manager>
 
-Content guidelines:
-- All articles target homeowners trapped in solar contracts
-- Tone: authoritative, empathetic, urgent but not alarmist
-- Always include FAQ sections with 3-5 questions
+Content and evidence rules:
+- Create drafts only; never treat model memory, search-result snippets, or another article as a source
+- Use a calm, factual, source-conscious tone; do not manufacture urgency
+- Include an FAQ only when useful and every answer is supported by visible approved sources
 - Use HTML for content (h2, h3, p, ul, li tags)
-- Target 1,200-2,000 words per article
-- Include a clear CTA to the free case review form
-- Meta descriptions should be 150-160 characters
-- Slugs should be lowercase, hyphenated, keyword-rich
+- Use the length needed to answer the reader's question; do not pad to a word quota
+- Invite an individual document-review request without promising price, representation, outcome, or timing
+- Do not invent professional identities, fees, results, timing, legal conclusions, company misconduct, or statistics
+- Link only to current primary sources and approved pages present in the public sitemap
+- New records must use published: false until the editorial evidence gate is complete
 
-When creating articles:
-1. Call GET /api/admin/posts/slugs to get all existing article slugs for interlinking
-2. Research the topic thoroughly
-3. Generate a hero image, then upload its trusted bytes:
+When creating a draft:
+1. Define a nonduplicative reader question and a primary-source plan
+2. Collect current primary sources outside the model
+3. Optionally generate a hero-image draft, then upload its trusted bytes:
    POST /api/admin/upload with { "data": "<base64>", "contentType": "image/png", "filename": "descriptive-name" }
    Save the returned CDN url for the heroImage field
-4. Write the full HTML content (1,200-2,000 words) with 3-5 internal links to existing articles
-5. POST to /api/admin/posts with all fields including heroImage URL and relatedSlugs
-6. Confirm the post was created and return the URL
+4. Write the HTML draft and mark unresolved statements [SOURCE REQUIRED]
+5. POST with published: false and only relevant, approved relatedSlugs
+6. Confirm persistence and hand the draft to a named reviewer
 
 When uploading images:
 - POST /api/admin/upload with { "data": "base64...", "contentType": "image/png" }
@@ -394,15 +396,15 @@ When updating articles:
 3. PUT to /api/admin/posts/:slug with only the changed fields
 ```
 
-### Example Claude Workflow
+### Example Draft Workflow
 
-**You:** "Write a new article about GoodLeap solar loan problems and publish it."
+**You:** "Prepare a sourced draft explaining records a homeowner may want to gather before reviewing a solar loan agreement."
 
-**Claude will:**
-1. Research GoodLeap complaints and legal issues
-2. Write a 1,500-word HTML article with FAQ
-3. POST to `/api/admin/posts` with the full content
-4. Return the confirmation with the new post's URL
+**The draft agent will:**
+1. Propose a primary-source plan and identify overlap with existing approved pages
+2. Write a calm HTML draft, leaving unsupported statements visibly unresolved
+3. POST to `/api/admin/posts` with `published: false`
+4. Return the draft identifier and source checklist for human review
 
 ---
 
@@ -422,18 +424,18 @@ Blog post `content` should be valid HTML. Example structure:
   <li><strong>Issue 2:</strong> Description...</li>
 </ul>
 
-<h2>Your Legal Rights</h2>
-<p>Attorney-reviewed legal information...</p>
+<h2>Primary Sources and Scope</h2>
+<p>Summarize only the current primary sources recorded in the editorial review.</p>
 
-<h2>How to Get Out of Your Contract</h2>
+<h2>Questions for an Individual Review</h2>
 <ol>
-  <li>Step one...</li>
-  <li>Step two...</li>
+  <li>Which termination, dispute, financing, and transfer provisions appear in the signed documents?</li>
+  <li>Which written records support or contradict the issue being described?</li>
 </ol>
 
 <div class="cta-block">
-  <h3>Get a Free Case Review</h3>
-  <p>Our solar attorneys have helped 3,000+ homeowners...</p>
+  <h3>Request a Document Review</h3>
+  <p>Options and outcomes depend on the agreement, facts, and jurisdiction. No representation or result is promised.</p>
 </div>
 ```
 
@@ -454,4 +456,4 @@ Blog post `content` should be valid HTML. Example structure:
 
 ---
 
-*Last updated: May 2026*
+*Last updated: July 2026*

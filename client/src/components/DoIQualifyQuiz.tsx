@@ -8,7 +8,9 @@ import { CheckCircle, XCircle, ChevronRight, AlertTriangle } from "lucide-react"
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
 import BookingModal from "@/components/BookingModal";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
 import { useContactInfo } from "@/hooks/useContactInfo";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 type Answer = { label: string; value: string; qualifies: boolean };
 type Question = { id: string; text: string; sub?: string; answers: Answer[] };
@@ -86,6 +88,9 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
   const [loading, setLoading] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
+  const [contactConsent, setContactConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [website, setWebsite] = useState("");
 
   const currentQ = QUESTIONS[step];
   const progress = ((step) / QUESTIONS.length) * 100;
@@ -105,6 +110,10 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!contactConsent) {
+      setSubmissionError("Please authorize contact about this request before submitting.");
+      return;
+    }
     setLoading(true);
     setSubmissionError("");
     const firstName = name.split(" ")[0] || name;
@@ -119,6 +128,10 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
         problemType: answers.problem_type,
         contractType: answers.contract_type,
         formName: "Do I Qualify Quiz — Solar Freedom",
+        contactConsent,
+        smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website,
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
       });
@@ -154,7 +167,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
             className="font-black text-white mb-2"
             style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.6rem, 3vw, 2rem)" }}
           >
-            YOU LIKELY QUALIFY
+            REQUEST RECEIVED
           </h3>
           <p className="text-zinc-400 text-sm leading-relaxed mb-4">
             Your answers can be submitted for an individual review. They do not determine qualification, representation, or an outcome.
@@ -164,7 +177,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
           >
-            📅 Book My Free Case Review
+            Open Optional Scheduler
           </button>
           <div className="text-amber-500 text-sm font-bold mt-4">📞 (904) 921-4971 — Text or Call Grace Silver</div>
         </div>
@@ -189,9 +202,9 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
         style={{ background: "oklch(0.10 0.01 265)", borderBottom: "1px solid oklch(0.2 0.01 265)" }}
       >
         <div>
-          <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-0.5">FREE CASE REVIEW — NO OBLIGATION</div>
+          <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-0.5">DOCUMENT REVIEW REQUEST</div>
           <div className="font-black text-white text-sm" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-            60 SECONDS — FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
+            ANSWER A FEW QUESTIONS ABOUT YOUR SOLAR CONTRACT
           </div>
         </div>
         <div className="text-zinc-500 text-xs font-mono shrink-0">
@@ -253,13 +266,13 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
               <div className="flex items-center gap-3 mb-5 p-4 rounded-xl" style={{ background: "oklch(0.72 0.19 50 / 0.1)", border: "1px solid oklch(0.72 0.19 50 / 0.3)" }}>
                 <CheckCircle className="w-6 h-6 text-amber-500 shrink-0" />
                 <div>
-                  <div className="text-amber-400 font-black text-sm uppercase tracking-wide">You Likely Qualify!</div>
+                  <div className="text-amber-400 font-black text-sm uppercase tracking-wide">Ready for individual review</div>
                   <div className="text-zinc-400 text-xs">Your answers can be submitted for an individual review.</div>
                 </div>
               </div>
 
               <h3 className="text-white font-bold text-base mb-4">
-                Where should we send your free case review?
+                Where may we contact you about this review request?
               </h3>
 
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -294,20 +307,29 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
                   className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 focus:ring-amber-500/50"
                   style={{ background: "oklch(0.18 0.012 265)", border: "1px solid oklch(0.3 0.01 265)" }}
                 />
+                <ContactConsentFields
+                  idPrefix="qualification-quiz"
+                  contactConsent={contactConsent}
+                  smsConsent={smsConsent}
+                  website={website}
+                  onContactConsentChange={setContactConsent}
+                  onSmsConsentChange={setSmsConsent}
+                  onWebsiteChange={setWebsite}
+                />
                 <button
                   type="submit"
-                  disabled={loading || !name || !phone || !email}
+                  disabled={loading || !name || !phone || !email || !contactConsent}
                   className="w-full py-3.5 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
                   style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
                 >
-                  {loading ? "Submitting..." : "GET MY FREE CASE REVIEW →"}
+                  {loading ? "Submitting..." : "REQUEST MY DOCUMENT REVIEW →"}
                 </button>
                 {submissionError && (
                   <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
                 )}
               </form>
               <p className="text-zinc-600 text-[10px] text-center mt-3">
-                No obligation. No cost. Grace Silver will reach out within minutes.
+                No payment is collected with this request. Response timing and service availability vary.
               </p>
             </motion.div>
           )}

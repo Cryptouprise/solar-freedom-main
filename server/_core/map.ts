@@ -80,10 +80,7 @@ export async function makeRequest<T = unknown>(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Google Maps API request failed (${response.status} ${response.statusText}): ${errorText}`
-    );
+    throw new Error(`Google Maps API request failed (HTTP ${response.status})`);
   }
 
   return (await response.json()) as T;

@@ -90,7 +90,14 @@ interface DbPost {
   excerpt: string | null;
   readTime: string | null;
   relatedSlugs: string[];
+  editorialReviewerName: string | null;
+  editorialReviewerRole: string | null;
+  editorialReviewedAt: Date | null;
+  editorialPrimarySources: Array<{ title: string; url: string; accessedAt: string }>;
+  editorialUniqueValueSummary: string | null;
+  editorialFunnelOnlyDuplicate: number;
   published: number;
+  publiclyEligible: boolean;
   publishedAt: Date | null;
   updatedAt: Date | null;
 }
@@ -126,7 +133,7 @@ function PostDetailModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { data: post, isLoading } = trpc.content.getPost.useQuery(
+  const { data: post, isLoading } = trpc.content.getAdminPost.useQuery(
     { slug: slug ?? "" },
     { enabled: !!slug && open }
   );
@@ -247,7 +254,13 @@ export default function AdminContent() {
     heroImage: "",
     readTime: "",
     relatedSlugs: "",
-    published: true,
+    editorialReviewerName: "",
+    editorialReviewerRole: "",
+    editorialReviewedAt: "",
+    editorialPrimarySources: "[]",
+    editorialUniqueValueSummary: "",
+    editorialFunnelOnlyDuplicate: true,
+    published: false,
   });
 
   const openEdit = (post: DbPost) => {
@@ -264,16 +277,37 @@ export default function AdminContent() {
       heroImage: post.heroImage ?? "",
       readTime: post.readTime ?? "",
       relatedSlugs: Array.isArray(post.relatedSlugs) ? post.relatedSlugs.join(", ") : "",
+      editorialReviewerName: post.editorialReviewerName ?? "",
+      editorialReviewerRole: post.editorialReviewerRole ?? "",
+      editorialReviewedAt: post.editorialReviewedAt
+        ? new Date(post.editorialReviewedAt).toISOString().slice(0, 10)
+        : "",
+      editorialPrimarySources: JSON.stringify(post.editorialPrimarySources ?? [], null, 2),
+      editorialUniqueValueSummary: post.editorialUniqueValueSummary ?? "",
+      editorialFunnelOnlyDuplicate: post.editorialFunnelOnlyDuplicate !== 0,
       published: post.published === 1,
     });
     // Fetch full content
     fetch(`/api/admin/posts/${post.slug}`)
-      .then((r) => r.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("post_load_failed");
+        return response.json();
+      })
       .then((data) => {
-        if (data.post) {
-          setEditForm((f) => ({ ...f, content: data.post.content ?? "" }));
-        }
-      });
+        setEditForm((current) => ({
+          ...current,
+          content: data.content ?? "",
+          editorialReviewerName: data.editorialReviewerName ?? "",
+          editorialReviewerRole: data.editorialReviewerRole ?? "",
+          editorialReviewedAt: data.editorialReviewedAt
+            ? new Date(data.editorialReviewedAt).toISOString().slice(0, 10)
+            : "",
+          editorialPrimarySources: JSON.stringify(data.editorialPrimarySources ?? [], null, 2),
+          editorialUniqueValueSummary: data.editorialUniqueValueSummary ?? "",
+          editorialFunnelOnlyDuplicate: data.editorialFunnelOnlyDuplicate !== 0,
+        }));
+      })
+      .catch(() => toast.error("Unable to load the draft. Review sanitized server diagnostics."));
     setEditOpen(true);
   };
 
@@ -282,6 +316,17 @@ export default function AdminContent() {
     if (!editPost) return;
     setEditing(true);
     try {
+      let editorialPrimarySources: unknown;
+      try {
+        editorialPrimarySources = JSON.parse(editForm.editorialPrimarySources || "[]");
+      } catch {
+        toast.error("Primary sources must be a valid JSON array.");
+        return;
+      }
+      if (!Array.isArray(editorialPrimarySources)) {
+        toast.error("Primary sources must be a JSON array.");
+        return;
+      }
       const res = await fetch(`/api/admin/posts/${editPost.slug}`, {
         method: "PUT",
         headers: {
@@ -293,6 +338,8 @@ export default function AdminContent() {
           relatedSlugs: editForm.relatedSlugs ? editForm.relatedSlugs.split(",").map((s) => s.trim()).filter(Boolean) : [],
           metaTitle: editForm.metaTitle || editForm.title,
           readTime: editForm.readTime || "5 min read",
+          editorialReviewedAt: editForm.editorialReviewedAt || null,
+          editorialPrimarySources,
         }),
       });
       const data = await res.json();
@@ -301,8 +348,8 @@ export default function AdminContent() {
       setEditOpen(false);
       setEditPost(null);
       refetchDb();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to update post.");
+    } catch {
+      toast.error("Failed to update post. Publishing requires a complete evidence-first editorial review; review sanitized server diagnostics.");
     } finally {
       setEditing(false);
     }
@@ -320,7 +367,7 @@ export default function AdminContent() {
     heroImage: "",
     readTime: "",
     relatedSlugs: "",
-    published: true,
+    published: false,
   });
 
   // Auto-generate slug from title
@@ -354,12 +401,12 @@ export default function AdminContent() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Create failed");
-      toast.success(`Post "${createForm.title}" created and ${createForm.published ? "published" : "saved as draft"}!`);
+      toast.success(`Post "${createForm.title}" saved as a draft for editorial review.`);
       setCreateOpen(false);
-      setCreateForm({ title: "", slug: "", excerpt: "", content: "", category: "", tags: "", metaTitle: "", metaDescription: "", heroImage: "", readTime: "", relatedSlugs: "", published: true });
+      setCreateForm({ title: "", slug: "", excerpt: "", content: "", category: "", tags: "", metaTitle: "", metaDescription: "", heroImage: "", readTime: "", relatedSlugs: "", published: false });
       refetchDb();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to create post.");
+    } catch {
+      toast.error("Failed to create draft. Review sanitized server diagnostics.");
     } finally {
       setCreating(false);
     }
@@ -370,9 +417,11 @@ export default function AdminContent() {
     data: dbData,
     isLoading: dbLoading,
     refetch: refetchDb,
-  } = trpc.content.listPosts.useQuery({ limit: 200, offset: 0 });
+  } = trpc.content.listAllPosts.useQuery({ limit: 200, offset: 0 });
 
   const dbPosts = (dbData ?? []) as DbPost[];
+  const publicDbPosts = dbPosts.filter((post) => post.publiclyEligible);
+  const withheldDbPosts = dbPosts.length - publicDbPosts.length;
 
   // Filter by search
   const filteredPosts = useMemo(() => {
@@ -402,18 +451,19 @@ export default function AdminContent() {
     setDeleteSlug(null);
   };
 
-  // Toggle publish/unpublish
-  const handleTogglePublish = async (slug: string, currentPublished: number) => {
+  // Fast path is intentionally unpublish-only. Publication requires the review
+  // fields in the edit dialog and a successful server-side gate.
+  const handleUnpublish = async (slug: string) => {
     try {
       const res = await fetch(`/api/admin/posts/${slug}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ published: currentPublished === 1 ? false : true }),
+        body: JSON.stringify({ published: false }),
       });
       if (!res.ok) throw new Error("Update failed");
-      toast.success(currentPublished === 1 ? `"${slug}" unpublished` : `"${slug}" published`);
+      toast.success(`"${slug}" unpublished`);
       refetchDb();
     } catch {
       toast.error("Failed to update post.");
@@ -466,7 +516,7 @@ export default function AdminContent() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-white">{dbPosts.length}</div>
-                  <div className="text-xs text-gray-400">AI-Published Posts</div>
+                  <div className="text-xs text-gray-400">Database records</div>
                 </div>
               </div>
             </CardContent>
@@ -479,8 +529,8 @@ export default function AdminContent() {
                   <FileText className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-white">97</div>
-                  <div className="text-xs text-gray-400">Static Articles</div>
+                  <div className="text-2xl font-bold text-white">{withheldDbPosts}</div>
+                  <div className="text-xs text-gray-400">DB drafts / withheld</div>
                 </div>
               </div>
             </CardContent>
@@ -494,9 +544,9 @@ export default function AdminContent() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-white">
-                    {dbPosts.filter((p) => p.published === 1).length}
+                    {publicDbPosts.length}
                   </div>
-                  <div className="text-xs text-gray-400">DB Posts Live</div>
+                  <div className="text-xs text-gray-400">Review-gated public</div>
                 </div>
               </div>
             </CardContent>
@@ -510,9 +560,9 @@ export default function AdminContent() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-white">
-                    {97 + dbPosts.filter((p) => p.published === 1).length}
+                    Withheld
                   </div>
-                  <div className="text-xs text-gray-400">Total Live Articles</div>
+                  <div className="text-xs text-gray-400">Legacy static backlog</div>
                 </div>
               </div>
             </CardContent>
@@ -524,15 +574,15 @@ export default function AdminContent() {
           <TabsList className="bg-white/5 border border-white/10">
             <TabsTrigger value="db-posts" className="data-[state=active]:bg-amber-500 data-[state=active]:text-black">
               <Bot className="h-3.5 w-3.5 mr-1.5" />
-              AI-Published ({dbPosts.length})
+              Database ({dbPosts.length})
             </TabsTrigger>
             <TabsTrigger value="static-posts" className="data-[state=active]:bg-amber-500 data-[state=active]:text-black">
               <FileText className="h-3.5 w-3.5 mr-1.5" />
-              Static Articles (97)
+              Static Backlog
             </TabsTrigger>
             <TabsTrigger value="api-info" className="data-[state=active]:bg-amber-500 data-[state=active]:text-black">
               <Globe className="h-3.5 w-3.5 mr-1.5" />
-              API & Claude Setup
+              API Safety
             </TabsTrigger>
           </TabsList>
 
@@ -542,9 +592,9 @@ export default function AdminContent() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-white text-base">
-                    AI-Published Posts
+                    Database Posts
                     <span className="ml-2 text-xs font-normal text-gray-400">
-                      Created via Claude or Admin API
+                      Drafts and evidence-reviewed records
                     </span>
                   </CardTitle>
                   <div className="relative w-64">
@@ -566,9 +616,9 @@ export default function AdminContent() {
                 ) : filteredPosts.length === 0 ? (
                   <div className="text-center py-16 text-gray-400">
                     <Bot className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                    <p className="text-lg font-medium mb-1">No AI-published posts yet</p>
+                    <p className="text-lg font-medium mb-1">No database posts yet</p>
                     <p className="text-sm">
-                      Use Claude with the Admin API to create posts — they'll appear here instantly.
+                      Create a source-backed draft here or through a scoped Admin API key.
                     </p>
                   </div>
                 ) : (
@@ -578,7 +628,7 @@ export default function AdminContent() {
                         <TableHead className="text-gray-400 font-mono text-xs uppercase">Title</TableHead>
                         <TableHead className="text-gray-400 font-mono text-xs uppercase">Category</TableHead>
                         <TableHead className="text-gray-400 font-mono text-xs uppercase">Status</TableHead>
-                        <TableHead className="text-gray-400 font-mono text-xs uppercase">Published</TableHead>
+                        <TableHead className="text-gray-400 font-mono text-xs uppercase">Publication date</TableHead>
                         <TableHead className="text-gray-400 font-mono text-xs uppercase">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -600,10 +650,15 @@ export default function AdminContent() {
                             )}
                           </TableCell>
                           <TableCell>
-                            {post.published === 1 ? (
+                            {post.publiclyEligible ? (
                               <Badge variant="outline" className="text-xs border-green-500/30 text-green-400 bg-green-500/10">
                                 <CheckCircle className="h-2.5 w-2.5 mr-1" />
-                                Live
+                                Public
+                              </Badge>
+                            ) : post.published === 1 ? (
+                              <Badge variant="outline" className="text-xs border-red-500/30 text-red-300 bg-red-500/10">
+                                <AlertCircle className="h-2.5 w-2.5 mr-1" />
+                                Withheld by gate
                               </Badge>
                             ) : (
                               <Badge variant="outline" className="text-xs border-gray-500/30 text-gray-400 bg-gray-500/10">
@@ -632,15 +687,17 @@ export default function AdminContent() {
                               >
                                 <Eye className="h-3.5 w-3.5" />
                               </button>
-                              <a
-                                href={`/blog/${post.slug}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-amber-400 transition-colors"
-                                title="Open live post"
-                              >
-                                <ExternalLink className="h-3.5 w-3.5" />
-                              </a>
+                              {post.publiclyEligible && (
+                                <a
+                                  href={`/blog/${post.slug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-amber-400 transition-colors"
+                                  title="Open public post"
+                                >
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              )}
                               <button
                                 onClick={() => openEdit(post)}
                                 className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-amber-400 transition-colors"
@@ -648,17 +705,15 @@ export default function AdminContent() {
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
-                              <button
-                                onClick={() => handleTogglePublish(post.slug, post.published)}
-                                className={`p-1.5 rounded hover:bg-white/10 transition-colors ${
-                                  post.published === 1
-                                    ? "text-green-400 hover:text-gray-400"
-                                    : "text-gray-400 hover:text-green-400"
-                                }`}
-                                title={post.published === 1 ? "Unpublish" : "Publish"}
-                              >
-                                <Globe className="h-3.5 w-3.5" />
-                              </button>
+                              {post.publiclyEligible && (
+                                <button
+                                  onClick={() => handleUnpublish(post.slug)}
+                                  className="p-1.5 rounded hover:bg-white/10 text-green-400 hover:text-gray-400 transition-colors"
+                                  title="Unpublish"
+                                >
+                                  <Globe className="h-3.5 w-3.5" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => {
                                   setDeleteSlug(post.slug);
@@ -685,20 +740,20 @@ export default function AdminContent() {
             <Card className="bg-white/5 border-white/10">
               <CardHeader>
                 <CardTitle className="text-white text-base">
-                  Static Articles
+                  Static Content Backlog
                   <span className="ml-2 text-xs font-normal text-gray-400">
-                    Hardcoded in TypeScript source files — edit via Manus or GitHub
+                    Source-controlled and currently withheld from search publication
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { file: "blog.ts", count: 12, desc: "Original core articles" },
-                    { file: "blog-extra.ts", count: 5, desc: "Supplemental articles" },
-                    { file: "blog-articles-batch9.ts", count: 8, desc: "Batch 9 — state/city targeting" },
-                    { file: "blog-articles-batch10.ts", count: 5, desc: "Batch 10 — company-specific" },
-                    { file: "blog-articles-batch*.ts", count: 67, desc: "Batches 1–8 — core SEO content" },
+                    { file: "blog.ts", count: "Withheld", desc: "Legacy static research backlog" },
+                    { file: "blog-extra.ts", count: "Withheld", desc: "Legacy static research backlog" },
+                    { file: "blog-articles-batch9.ts", count: "Withheld", desc: "Legacy static research backlog" },
+                    { file: "blog-articles-batch10.ts", count: "Withheld", desc: "Legacy static research backlog" },
+                    { file: "blog-articles-batch*.ts", count: "Withheld", desc: "Legacy static research backlog" },
                   ].map((item) => (
                     <div
                       key={item.file}
@@ -709,17 +764,16 @@ export default function AdminContent() {
                         <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
                       </div>
                       <Badge variant="outline" className="border-white/20 text-gray-300">
-                        {item.count} posts
+                        {item.count}
                       </Badge>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
                   <p className="text-sm text-blue-300">
-                    <strong>To edit static articles:</strong> Use Manus to modify the TypeScript files
-                    in <code className="font-mono text-xs bg-white/10 px-1 rounded">client/src/data/</code>,
-                    then redeploy. Static articles are faster to load but require a code deployment to update.
-                    New AI-generated content should use the Admin API instead.
+                    <strong>Publication boundary:</strong> Revise static records through a reviewed Git pull request.
+                    They remain absent from the sitemap and AI inventory until their sources, reviewer, review date,
+                    supported claims, and unique user value pass the release gate. New work should begin as a database draft.
                   </p>
                 </div>
               </CardContent>
@@ -747,15 +801,15 @@ export default function AdminContent() {
                 </CardContent>
               </Card>
 
-              {/* Claude System Prompt */}
+              {/* External draft-agent prompt */}
               <Card className="bg-white/5 border-white/10">
                 <CardHeader>
-                  <CardTitle className="text-white text-base">Claude System Prompt</CardTitle>
+                  <CardTitle className="text-white text-base">External Draft-Agent Prompt</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
                     <pre className="text-xs text-gray-300 bg-black/40 border border-white/10 rounded-lg p-4 overflow-x-auto whitespace-pre-wrap leading-relaxed">
-{`You are the content manager for breakyoursolarcontract.com, a legal resource site helping homeowners cancel predatory solar contracts.
+{`You are a draft assistant for breakyoursolarcontract.com, a consumer-information site that accepts individual solar-agreement document-review requests.
 
 You have access to the Admin API at:
   https://breakyoursolarcontract.com/api/admin
@@ -763,30 +817,30 @@ You have access to the Admin API at:
 Authentication: Authorization: Bearer <scoped-key-from-your-secret-manager>
 
 Key endpoints:
-- GET  /api/admin/posts/all    — all posts (static + DB), use for browsing and interlinking
+- GET  /api/admin/posts/all    — research inventory only; presence does not mean a page is approved
 - GET  /api/admin/posts/slugs  — lightweight list of all slugs + titles for picking relatedSlugs
 - GET  /api/admin/posts        — DB-managed posts only
 - POST /api/admin/posts        — create a new post
 - PUT  /api/admin/posts/:slug  — update an existing post
 - DEL  /api/admin/posts/:slug  — delete a post
 
-Content guidelines:
-- All articles target homeowners trapped in solar contracts
-- Tone: authoritative, empathetic, urgent but not alarmist  
-- Always include FAQ sections with 3-5 questions
+Content and evidence rules:
+- Create drafts only; never treat model memory, search-result snippets, or another article as a source
+- Use a calm, factual, source-conscious tone; do not manufacture urgency
+- Include an FAQ only when the questions are useful and every answer is supported by visible approved sources
 - Use HTML for content (h2, h3, p, ul, li tags)
-- Target 1,200-2,000 words per article
-- Include a clear CTA to the free case review form
-- Meta descriptions should be 150-160 characters
-- Slugs should be lowercase, hyphenated, keyword-rich
-- Always fetch /api/admin/posts/slugs first to find relevant relatedSlugs
+- Use the length needed to answer the question; do not pad drafts to meet a word quota
+- Include a clear CTA to request an individual document review; do not promise price, representation, outcome, or response time
+- Do not invent professional identities, fees, results, timing, legal conclusions, company misconduct, or statistics
+- Link only to current primary sources and approved pages present in the public sitemap
+- New records must use published: false until the editorial evidence gate is complete
 
-When creating articles:
-1. Fetch GET /api/admin/posts/slugs to gather existing slugs for interlinking
-2. Research the topic thoroughly
-3. Write the full HTML content  
-4. POST to /api/admin/posts with all fields including relatedSlugs
-5. Confirm the post was created successfully`}
+When creating a draft:
+1. Define the nonduplicative reader question and a primary-source plan
+2. Collect current primary sources outside the model
+3. Write the HTML draft and mark unresolved statements [SOURCE REQUIRED]
+4. POST with published: false and only relevant, approved relatedSlugs
+5. Confirm persistence and hand the draft to a named reviewer`}
                     </pre>
                     <CopyButton text={`You are the content manager for breakyoursolarcontract.com...\n\nAuthentication: Authorization: Bearer <scoped-key-from-your-secret-manager>\nBase URL: https://breakyoursolarcontract.com/api/admin\nAll posts: /api/admin/posts/all\nAll slugs: /api/admin/posts/slugs`} />
                   </div>
@@ -999,28 +1053,9 @@ When creating articles:
               />
             </div>
 
-            {/* Published toggle */}
-            <div className="flex items-center gap-3 pt-1">
-              <button
-                type="button"
-                onClick={() => setCreateForm(f => ({ ...f, published: !f.published }))}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                  createForm.published ? "bg-green-500" : "bg-white/20"
-                }`}
-              >
-                <span
-                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
-                    createForm.published ? "translate-x-4" : "translate-x-1"
-                  }`}
-                />
-              </button>
-              <span className="text-sm text-gray-300">
-                {createForm.published ? (
-                  <span className="text-green-400 font-medium">Publish immediately</span>
-                ) : (
-                  <span className="text-gray-400">Save as draft</span>
-                )}
-              </span>
+            <div className="rounded border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+              New posts are saved as drafts. Publication requires a separate evidence-first editorial review,
+              current primary sources, dedicated publish permission, and the server-side publication gate.
             </div>
 
             {/* Submit */}
@@ -1041,7 +1076,7 @@ When creating articles:
                 {creating ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</>
                 ) : (
-                  <><Plus className="h-4 w-4 mr-2" /> {createForm.published ? "Publish Post" : "Save Draft"}</>
+                  <><Plus className="h-4 w-4 mr-2" /> Save Draft</>
                 )}
               </Button>
             </div>
@@ -1186,6 +1221,85 @@ When creating articles:
               />
             </div>
 
+            <div className="space-y-4 rounded-lg border border-amber-500/25 bg-amber-500/5 p-4">
+              <div>
+                <h3 className="font-semibold text-amber-300">Evidence-first publication review</h3>
+                <p className="mt-1 text-xs leading-relaxed text-gray-400">
+                  Publishing remains blocked unless these records are complete and the full draft has no unsupported
+                  service, fee, outcome, timing, or professional-identity claims.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Reviewer name</Label>
+                  <Input
+                    value={editForm.editorialReviewerName}
+                    onChange={(event) => setEditForm((current) => ({ ...current, editorialReviewerName: event.target.value }))}
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Reviewer role</Label>
+                  <Input
+                    value={editForm.editorialReviewerRole}
+                    onChange={(event) => setEditForm((current) => ({ ...current, editorialReviewerRole: event.target.value }))}
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Reviewed on</Label>
+                  <Input
+                    type="date"
+                    value={editForm.editorialReviewedAt}
+                    onChange={(event) => setEditForm((current) => ({ ...current, editorialReviewedAt: event.target.value }))}
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">Duplicate funnel page?</Label>
+                  <button
+                    type="button"
+                    onClick={() => setEditForm((current) => ({
+                      ...current,
+                      editorialFunnelOnlyDuplicate: !current.editorialFunnelOnlyDuplicate,
+                    }))}
+                    className={`w-full rounded border px-3 py-2 text-left text-sm ${
+                      editForm.editorialFunnelOnlyDuplicate
+                        ? "border-red-500/30 bg-red-500/10 text-red-300"
+                        : "border-green-500/30 bg-green-500/10 text-green-300"
+                    }`}
+                  >
+                    {editForm.editorialFunnelOnlyDuplicate
+                      ? "Yes / unknown - publication blocked"
+                      : "No - reviewer confirms unique user value"}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">
+                  Primary sources JSON
+                </Label>
+                <Textarea
+                  value={editForm.editorialPrimarySources}
+                  onChange={(event) => setEditForm((current) => ({ ...current, editorialPrimarySources: event.target.value }))}
+                  placeholder={'[{"title":"Official source title","url":"https://...","accessedAt":"2026-07-12"}]'}
+                  className="h-32 resize-y bg-white/5 border-white/10 text-white font-mono text-xs"
+                />
+                <p className="text-xs text-gray-500">Every source needs an HTTPS URL, title, and non-future access date.</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-gray-300 text-xs font-mono uppercase tracking-wider">
+                  Unique value summary
+                </Label>
+                <Textarea
+                  value={editForm.editorialUniqueValueSummary}
+                  onChange={(event) => setEditForm((current) => ({ ...current, editorialUniqueValueSummary: event.target.value }))}
+                  placeholder="Explain the page-specific, source-backed value that is not duplicated elsewhere."
+                  className="h-24 resize-y bg-white/5 border-white/10 text-white"
+                />
+              </div>
+            </div>
+
             {/* Published toggle */}
             <div className="flex items-center gap-3 pt-1">
               <button
@@ -1203,9 +1317,9 @@ When creating articles:
               </button>
               <span className="text-sm text-gray-300">
                 {editForm.published ? (
-                  <span className="text-green-400 font-medium">Published (live)</span>
+                  <span className="text-green-400 font-medium">Request public eligibility on save</span>
                 ) : (
-                  <span className="text-gray-400">Draft (hidden)</span>
+                  <span className="text-gray-400">Draft / withheld</span>
                 )}
               </span>
             </div>

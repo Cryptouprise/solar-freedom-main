@@ -85,23 +85,21 @@ const callForge = async <T>(
       headers,
       body: JSON.stringify(body),
     });
-  } catch (error) {
+  } catch {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: `Heartbeat ${rpc} network error: ${String(error)}`,
+      message: `Heartbeat ${rpc} network error`,
     });
   }
 
   if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw mapForgeError(response, detail, rpc);
+    throw mapForgeError(response, rpc);
   }
   return (await response.json()) as T;
 };
 
 const mapForgeError = (
   response: Response,
-  detail: string,
   rpc: string
 ): TRPCError => {
   const status = response.status;
@@ -114,7 +112,7 @@ const mapForgeError = (
   else if (status === 429) code = "TOO_MANY_REQUESTS";
   return new TRPCError({
     code,
-    message: `Heartbeat ${rpc} failed (${status})${detail ? `: ${detail}` : ""}`,
+    message: `Heartbeat ${rpc} failed (${status})`,
   });
 };
 

@@ -23,16 +23,23 @@ import * as cheerio from "cheerio";
 import { suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from "@shared/contentGovernance";
 import { cities } from "../client/src/data/cities";
 import { companies } from "../client/src/data/companies";
-import { stateLaws } from "../client/src/data/state-laws";
+import { hasPublishableStateLawEvidence, stateLaws } from "../client/src/data/state-laws";
 import { blogPosts } from "../client/src/data/blog";
+import {
+  hasPublishableEditorialReview,
+  isBlogPostPublishable,
+  PUBLICATION_PENDING_COPY,
+} from "../client/src/data/publication-governance";
 import { sanitizeStoredHtml } from "./security/html";
+import { logSafeError } from "./_core/safeLog";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
-interface MetaEntry {
+export interface MetaEntry {
   title: string;
   description: string;
   canonical: string;
+  noindex?: boolean;
 }
 
 let _metaMap: Record<string, MetaEntry> | null = null;
@@ -45,29 +52,29 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   // ─── Static pages ────────────────────────────────────────────────────────────
   const staticPages: Record<string, { title: string; description: string }> = {
     "/": {
-      title: "Solar Freedom — Get Out of Your Solar Contract Today",
+      title: "Solar Contract Record Review & Consumer Resources | Solar Freedom",
       description:
         "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.",
     },
     "/blog": {
-      title: "Solar Contract Help Blog | Solar Freedom",
+      title: "Solar Contract Editorial Library | Solar Freedom",
       description:
-        "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner.",
+        "Source-reviewed solar agreement guides, document checklists, and official consumer resources.",
     },
     "/how-it-works": {
-      title: "How Solar Contract Cancellation Works | Solar Freedom",
+      title: "How Solar Contract Document Review Works | Solar Freedom",
       description:
-        "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
+        "Learn how to organize an agreement, disclosures, financing records, and communications for an individual document review.",
     },
     "/solar-contract-help": {
-      title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",
+      title: "Solar Contract Help: Records and Questions to Review | Solar Freedom",
       description:
         "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review.",
     },
     "/solar-panel-scam": {
-      title: "Solar Panel Scam Warning Signs | Solar Freedom",
+      title: "Solar Sales & Financing Record Checklist | Solar Freedom",
       description:
-        "Learn the solar panel scam warning signs, from fake tax credit promises to hidden loan fees and liens. Free solar contract review.",
+        "Review warning signs involving solar sales representations, financing terms, tax-credit statements, fees, and property filings.",
     },
     "/sunrun": {
       title:
@@ -76,17 +83,17 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Review Sunrun contract terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
     },
     "/solar-exit-options": {
-      title: "Solar Exit Options | How to Get Out of a Solar Contract",
+      title: "Solar Exit Options: Documents and Questions to Review | Solar Freedom",
       description:
         "Compare possible solar-contract paths and the documents, limits, and risks to review before deciding what to do next.",
     },
     "/solar-lien-removal": {
-      title: "Solar Lien Removal | Remove a UCC-1 Solar Lien From Your Home",
+      title: "Solar Lien Record Review | PACE Assessments & UCC Filings",
       description:
         "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
     },
     "/solar-loan-help": {
-      title: "Solar Loan Help | Fight Back Against Predatory Solar Loans",
+      title: "Solar Loan Document Review | Payment, Disclosure & Payoff Records",
       description:
         "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law.",
     },
@@ -96,30 +103,40 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment.",
     },
     "/solar-contract-laws": {
-      title: "Solar Contract Laws by State | Your Legal Rights",
+      title: "Solar Contract Research by State | Solar Freedom",
       description:
-        "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
+        "Use official federal and state consumer resources and view state detail pages only after their source and editorial-review records are complete.",
     },
     "/solar-companies": {
       title:
-        "Solar Company Complaints & Cancellation Guide 2026 | Solar Freedom",
+        "Solar Company Agreement Research Hub | Solar Freedom",
       description:
-        "Complete guide to canceling contracts with Sunrun, SunPower, Vivint Solar, Freedom Forever, GoodLeap, Sunnova, Tesla Solar & more. BBB ratings, complaint data, and legal grounds.",
+        "Organize company agreement records and locate official consumer resources. Company-specific claims remain withheld until source-reviewed.",
     },
     "/media": {
       title: "Solar Contract Truth Hub — Watch & Listen | Solar Freedom",
       description:
-        "Watch explainer videos and listen to the Elite Solar Recovery Podcast. Real cases, real outcomes — Sunrun, SunPower, GoodLeap, Pink Energy cancellations. Free 15-min case audit.",
+        "Watch solar agreement explainers and podcast discussions covering educational scenarios, records to gather, and questions to investigate.",
     },
     "/watch": {
       title: "Solar Contract Videos & Podcast | Solar Freedom",
       description:
-        "Explainer videos and podcast episodes on solar contract cancellation, loan reduction, and credit restoration. Learn your rights and get a free case audit.",
+        "Watch educational videos and podcast episodes about solar agreements, financing documents, consumer resources, and review questions.",
     },
     "/sitemap": {
-      title: "Site Map — All Pages | Solar Freedom",
+      title: "Site Map — Publication-Eligible Pages | Solar Freedom",
       description:
-        "Browse the Solar Freedom website directory, including service, company, city, state-law, and blog pages.",
+        "Browse search-publication-eligible Solar Freedom resources. Unreviewed research backlogs are intentionally omitted.",
+    },
+    "/privacy-policy": {
+      title: "Privacy Policy | Solar Freedom",
+      description:
+        "How Solar Freedom collects, uses, shares, and protects information submitted through this website.",
+    },
+    "/terms": {
+      title: "Terms of Use | Solar Freedom",
+      description:
+        "Rules and important limitations for using the Solar Freedom website, educational content, intake forms, and scheduling tools.",
     },
   };
 
@@ -130,48 +147,85 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   // ─── Company cancel pages ─────────────────────────────────────────────────
   for (const company of companies) {
     const path = `/cancel-${company.slug}-solar-contract`;
-    const desc = `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`;
+    const publishable = hasPublishableEditorialReview(company);
     map[path] = {
-      title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
-      description: desc,
+      title: publishable
+        ? `Cancel ${company.name} Solar Contract | Solar Freedom`
+        : `${company.name} Solar Contract Research Status | Solar Freedom`,
+      description: publishable
+        ? `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`
+        : `This ${company.name} research page is withheld from search until primary sources, as-of dates, an editorial reviewer, and unique user value are recorded.`,
       canonical: BASE_URL + path,
+      noindex: !publishable,
     };
   }
 
   // ─── City pages ───────────────────────────────────────────────────────────
   for (const city of cities) {
     const path = `/cancel-solar-contract/${city.slug}`;
+    const publishable = hasPublishableEditorialReview(city);
     map[path] = {
-      title: `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
-      description: `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`,
+      title: publishable
+        ? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`
+        : `${city.name}, ${city.stateCode} Solar Contract Research Status | Solar Freedom`,
+      description: publishable
+        ? `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`
+        : `This ${city.name}, ${city.stateCode} research page is withheld from search until primary sources, as-of dates, an editorial reviewer, and unique local value are recorded.`,
       canonical: BASE_URL + path,
+      noindex: !publishable,
     };
   }
 
   // ─── State law pages ──────────────────────────────────────────────────────
   for (const law of stateLaws) {
     const path = `/solar-contract-laws/${law.slug}`;
-    // Use the data file's metaTitle/metaDescription (they are specific and compelling)
-    const title = law.metaTitle
+    const publishable = hasPublishableStateLawEvidence(law);
+    const title = publishable && law.metaTitle
       ? `${law.metaTitle} | Solar Freedom`
-      : `${law.state} Solar Contract Laws | Your Rights | Solar Freedom`;
-    const description = `Review solar-contract consumer information for ${law.state}, including records to gather and official sources to verify. Options depend on facts and current law.`;
-    map[path] = { title, description, canonical: BASE_URL + path };
+      : `${law.state} Solar Contract Research Status | Solar Freedom`;
+    const description = publishable
+      ? `Review source-checked solar-contract consumer information for ${law.state}. Options depend on the agreement, facts, jurisdiction, and current law.`
+      : `This ${law.state} research page is withheld from search until official primary sources and an editorial reviewer are recorded.`;
+    map[path] = { title, description, canonical: BASE_URL + path, noindex: !publishable };
   }
 
   // ─── Blog posts ───────────────────────────────────────────────────────────
   for (const post of blogPosts) {
     const path = `/blog/${post.slug}`;
+    const publishable = isBlogPostPublishable(post);
     map[path] = {
-      title: `${post.metaTitle} | Solar Freedom`,
-      description: suppressUnverifiedFirstPartyClaims(post.metaDescription),
+      title: publishable
+        ? `${post.metaTitle} | Solar Freedom`
+        : "Article Under Editorial Review | Solar Freedom",
+      description: publishable
+        ? suppressUnverifiedFirstPartyClaims(post.metaDescription)
+        : PUBLICATION_PENDING_COPY,
       canonical: BASE_URL + path,
+      noindex: !publishable,
     };
   }
 
   _metaMap = map;
   console.log(`[SEO] Meta map built: ${Object.keys(map).length} URLs`);
   return map;
+}
+
+function applyMetaEntry(html: string, meta: MetaEntry): string {
+  const $ = cheerio.load(html);
+  $("title").text(meta.title);
+  $('meta[name="description"]').attr("content", meta.description);
+  $('link[rel="canonical"]').remove();
+  $("head").append(`<link rel="canonical" href="${meta.canonical}" />`);
+  $('meta[property="og:url"]').attr("content", meta.canonical);
+  $('meta[property="og:title"]').attr("content", meta.title);
+  $('meta[property="og:description"]').attr("content", meta.description);
+  $('meta[name="twitter:title"]').attr("content", meta.title);
+  $('meta[name="twitter:description"]').attr("content", meta.description);
+  $('meta[name="robots"]').remove();
+  $("head").append(
+    `<meta name="robots" content="${meta.noindex ? "noindex, follow" : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"}">`
+  );
+  return $.html();
 }
 
 /**
@@ -191,35 +245,7 @@ export function injectMeta(html: string, path: string): string {
 
   const meta = map[normalizedPath];
   if (!meta) return html; // Unknown path — serve as-is (homepage meta is fine)
-
-  const $ = cheerio.load(html);
-
-  // <title>
-  $("title").text(meta.title);
-
-  // meta description
-  $('meta[name="description"]').attr("content", meta.description);
-
-  // canonical — remove all existing canonicals first, then set one
-  $('link[rel="canonical"]').remove();
-  $("head").append(`<link rel="canonical" href="${meta.canonical}" />`);
-
-  // og:url
-  $('meta[property="og:url"]').attr("content", meta.canonical);
-
-  // og:title
-  $('meta[property="og:title"]').attr("content", meta.title);
-
-  // og:description
-  $('meta[property="og:description"]').attr("content", meta.description);
-
-  // twitter:title
-  $('meta[name="twitter:title"]').attr("content", meta.title);
-
-  // twitter:description
-  $('meta[name="twitter:description"]').attr("content", meta.description);
-
-  return $.html();
+  return applyMetaEntry(html, meta);
 }
 
 function escapeHtml(str: string): string {
@@ -384,40 +410,22 @@ export async function injectMetaDynamic(
       const { getDbBlogPost } = await import("./db");
       const slug = normalizedPath.replace("/blog/", "");
       const post = await getDbBlogPost(slug);
-      if (post) return renderDbBlogPost(html, normalizedPath, post);
+      if (post && isBlogPostPublishable(post)) {
+        return renderDbBlogPost(html, normalizedPath, post);
+      }
+      if (post) {
+        meta = {
+          title: "Article Under Editorial Review | Solar Freedom",
+          description: PUBLICATION_PENDING_COPY,
+          canonical: `${BASE_URL}${normalizedPath}`,
+          noindex: true,
+        };
+      }
     } catch (err) {
-      console.warn(`[SEO] DB lookup failed for ${normalizedPath}:`, err);
+      logSafeError("seo.db_lookup_failed", err);
     }
   }
 
   if (!meta) return html; // Unknown path — serve as-is
-
-  const $ = cheerio.load(html);
-
-  // <title>
-  $("title").text(meta.title);
-
-  // meta description
-  $('meta[name="description"]').attr("content", meta.description);
-
-  // canonical — remove all existing canonicals first, then set one
-  $('link[rel="canonical"]').remove();
-  $("head").append(`<link rel="canonical" href="${meta.canonical}" />`);
-
-  // og:url
-  $('meta[property="og:url"]').attr("content", meta.canonical);
-
-  // og:title
-  $('meta[property="og:title"]').attr("content", meta.title);
-
-  // og:description
-  $('meta[property="og:description"]').attr("content", meta.description);
-
-  // twitter:title
-  $('meta[name="twitter:title"]').attr("content", meta.title);
-
-  // twitter:description
-  $('meta[name="twitter:description"]').attr("content", meta.description);
-
-  return $.html();
+  return applyMetaEntry(html, meta);
 }

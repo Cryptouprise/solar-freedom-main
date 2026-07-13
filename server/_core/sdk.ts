@@ -1,7 +1,8 @@
-import { AXIOS_TIMEOUT_MS, COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+import { AXIOS_TIMEOUT_MS, COOKIE_NAME, SESSION_DURATION_MS } from "@shared/const";
 import { ForbiddenError } from "@shared/_core/errors";
 import axios, { type AxiosInstance } from "axios";
 import { parse as parseCookieHeader } from "cookie";
+import { randomUUID } from "node:crypto";
 import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
@@ -31,7 +32,8 @@ function buildCronUser(userInfo: GetUserInfoWithJwtResponse): AuthenticatedUser 
   } as AuthenticatedUser;
 }
 import * as db from "../db";
-import { ENV } from "./env";
+import { ENV, isStrongSessionSecret, type RuntimeConfig } from "./env";
+import { logSafeError } from "./safeLog";
 import type {
   ExchangeTokenRequest,
   ExchangeTokenResponse,
@@ -49,19 +51,21 @@ export type SessionPayload = {
   name: string;
 };
 
+type VerifiedSession = {
+  openId: string;
+  appId: string;
+  name: string;
+};
+
 const EXCHANGE_TOKEN_PATH = `/webdev.v1.WebDevAuthPublicService/ExchangeToken`;
 const GET_USER_INFO_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserInfo`;
 const GET_USER_INFO_WITH_JWT_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserInfoWithJwt`;
 
 class OAuthService {
-  constructor(private client: ReturnType<typeof axios.create>) {
-    console.log("[OAuth] Initialized with baseURL:", ENV.oAuthServerUrl);
-    if (!ENV.oAuthServerUrl) {
-      console.error(
-        "[OAuth] ERROR: OAUTH_SERVER_URL is not configured! Set OAUTH_SERVER_URL environment variable."
-      );
-    }
-  }
+  constructor(
+    private client: ReturnType<typeof axios.create>,
+    private config: RuntimeConfig,
+  ) {}
 
   private decodeState(state: string): string {
     const redirectUri = atob(state);
@@ -73,7 +77,7 @@ class OAuthService {
     state: string
   ): Promise<ExchangeTokenResponse> {
     const payload: ExchangeTokenRequest = {
-      clientId: ENV.appId,
+      clientId: this.config.appId,
       grantType: "authorization_code",
       code,
       redirectUri: this.decodeState(state),
@@ -101,19 +105,22 @@ class OAuthService {
   }
 }
 
-const createOAuthHttpClient = (): AxiosInstance =>
+const createOAuthHttpClient = (config: RuntimeConfig): AxiosInstance =>
   axios.create({
-    baseURL: ENV.oAuthServerUrl,
+    baseURL: config.oAuthServerUrl,
     timeout: AXIOS_TIMEOUT_MS,
   });
 
-class SDKServer {
+export class SDKServer {
   private readonly client: AxiosInstance;
   private readonly oauthService: OAuthService;
 
-  constructor(client: AxiosInstance = createOAuthHttpClient()) {
-    this.client = client;
-    this.oauthService = new OAuthService(this.client);
+  constructor(
+    client?: AxiosInstance,
+    private readonly config: RuntimeConfig = ENV,
+  ) {
+    this.client = client ?? createOAuthHttpClient(this.config);
+    this.oauthService = new OAuthService(this.client, this.config);
   }
 
   private deriveLoginMethod(
@@ -180,8 +187,47 @@ class SDKServer {
   }
 
   private getSessionSecret() {
-    const secret = ENV.cookieSecret;
+    const secret = this.config.cookieSecret;
+    if (!isStrongSessionSecret(secret)) {
+      throw new Error("Session signing is not securely configured");
+    }
     return new TextEncoder().encode(secret);
+  }
+
+  private getSessionIssuer() {
+    return `urn:manus-app:${this.config.appId}:session`;
+  }
+
+  private readSessionIdentity(
+    payload: Record<string, unknown>,
+  ): VerifiedSession | null {
+    const { openId, appId, name } = payload;
+    if (
+      !isNonEmptyString(openId)
+      || appId !== this.config.appId
+      || typeof name !== "string"
+    ) {
+      return null;
+    }
+    return { openId, appId, name };
+  }
+
+  /**
+   * Manus scheduled-task cookies predate the app-specific iss/aud/jti claims.
+   * Keep a narrow compatibility path for signed, unexpired cron identities;
+   * authenticateRequest immediately validates the raw JWT with Manus and
+   * requires a platform-issued taskUid before granting cron access.
+   */
+  private async verifyLegacyCronSession(
+    cookieValue: string,
+    secretKey: Uint8Array,
+  ): Promise<VerifiedSession | null> {
+    const { payload } = await jwtVerify(cookieValue, secretKey, {
+      algorithms: ["HS256"],
+      requiredClaims: ["exp"],
+    });
+    const identity = this.readSessionIdentity(payload as Record<string, unknown>);
+    return identity?.openId.startsWith(CRON_OPEN_ID_PREFIX) ? identity : null;
   }
 
   /**
@@ -196,7 +242,7 @@ class SDKServer {
     return this.signSession(
       {
         openId,
-        appId: ENV.appId,
+        appId: this.config.appId,
         name: options.name || "",
       },
       options
@@ -207,9 +253,23 @@ class SDKServer {
     payload: SessionPayload,
     options: { expiresInMs?: number } = {}
   ): Promise<string> {
-    const issuedAt = Date.now();
-    const expiresInMs = options.expiresInMs ?? ONE_YEAR_MS;
-    const expirationSeconds = Math.floor((issuedAt + expiresInMs) / 1000);
+    if (!isNonEmptyString(payload.openId)) {
+      throw new Error("Session openId is required");
+    }
+    if (payload.appId !== this.config.appId) {
+      throw new Error("Session appId does not match this application");
+    }
+    if (typeof payload.name !== "string") {
+      throw new Error("Session name must be a string");
+    }
+
+    const requestedDuration = options.expiresInMs ?? SESSION_DURATION_MS;
+    if (!Number.isFinite(requestedDuration) || requestedDuration <= 0) {
+      throw new Error("Session duration must be positive");
+    }
+    const expiresInMs = Math.min(requestedDuration, SESSION_DURATION_MS);
+    const issuedAtSeconds = Math.floor(Date.now() / 1000);
+    const expirationSeconds = issuedAtSeconds + Math.ceil(expiresInMs / 1000);
     const secretKey = this.getSessionSecret();
 
     return new SignJWT({
@@ -218,43 +278,63 @@ class SDKServer {
       name: payload.name,
     })
       .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+      .setIssuer(this.getSessionIssuer())
+      .setAudience(this.config.appId)
+      .setIssuedAt(issuedAtSeconds)
+      .setJti(randomUUID())
       .setExpirationTime(expirationSeconds)
       .sign(secretKey);
   }
 
   async verifySession(
     cookieValue: string | undefined | null
-  ): Promise<{ openId: string; appId: string; name: string } | null> {
+  ): Promise<VerifiedSession | null> {
     if (!cookieValue) {
       console.warn("[Auth] Missing session cookie");
       return null;
     }
 
+    const secretKey = (() => {
+      try {
+        return this.getSessionSecret();
+      } catch (error) {
+        logSafeError("auth.session_verification_failed", error);
+        return null;
+      }
+    })();
+    if (!secretKey) return null;
+
     try {
-      const secretKey = this.getSessionSecret();
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
+        audience: this.config.appId,
+        issuer: this.getSessionIssuer(),
+        maxTokenAge: Math.floor(SESSION_DURATION_MS / 1000),
+        requiredClaims: ["exp", "iat", "jti"],
+        typ: "JWT",
       });
-      const { openId, appId, name } = payload as Record<string, unknown>;
+      const identity = this.readSessionIdentity(payload as Record<string, unknown>);
 
       if (
-        !isNonEmptyString(openId) ||
-        !isNonEmptyString(appId) ||
-        !isNonEmptyString(name)
+        !identity
+        || typeof payload.iat !== "number"
+        || !isNonEmptyString(payload.jti)
       ) {
         console.warn("[Auth] Session payload missing required fields");
         return null;
       }
 
-      return {
-        openId,
-        appId,
-        name,
-      };
-    } catch (error) {
-      console.warn("[Auth] Session verification failed", String(error));
-      return null;
+      return identity;
+    } catch (strictError) {
+      try {
+        const legacyCron = await this.verifyLegacyCronSession(cookieValue, secretKey);
+        if (legacyCron) return legacyCron;
+      } catch {
+        // Log only the already-redacted outer error classification below.
+      }
+      logSafeError("auth.session_verification_failed", strictError);
     }
+    return null;
   }
 
   async getUserInfoWithJwt(
@@ -262,7 +342,7 @@ class SDKServer {
   ): Promise<GetUserInfoWithJwtResponse> {
     const payload: GetUserInfoWithJwtRequest = {
       jwtToken,
-      projectId: ENV.appId,
+      projectId: this.config.appId,
     };
 
     const { data } = await this.client.post<GetUserInfoWithJwtResponse>(
@@ -316,7 +396,7 @@ class SDKServer {
         });
         user = await db.getUserByOpenId(userInfo.openId);
       } catch (error) {
-        console.error("[Auth] Failed to sync user from OAuth:", error);
+        logSafeError("auth.user_sync_failed", error);
         throw ForbiddenError("Failed to sync user info");
       }
     }

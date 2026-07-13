@@ -1,17 +1,25 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
 import CallbackWidget from "./components/CallbackWidget";
 import DesktopCallButton from "./components/DesktopCallButton";
-import { trackPageView } from "./lib/analytics";
+import PrivacyConsent from "./components/PrivacyConsent";
+import { syncOptionalAnalytics, trackPageView } from "./lib/analytics";
+import {
+  isPrivateRoute,
+  PRIVACY_PREFERENCE_EVENT,
+  PRIVACY_RESET_EVENT,
+  PRIVACY_STORAGE_KEY,
+  shouldRenderMarketingWidgets,
+} from "./lib/privacy";
 
+const Home = lazy(() => import("./pages/Home"));
 const CityPage = lazy(() => import("./pages/CityPage"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -23,7 +31,9 @@ const SolarPanelScam = lazy(() => import("./pages/SolarPanelScam"));
 const SolarExitOptions = lazy(() => import("./pages/SolarExitOptions"));
 const StateLawsIndex = lazy(() => import("./pages/StateLawsIndex"));
 const StateLawPage = lazy(() => import("@/pages/StateLawPage"));
-const SellingHouseWithSolar = lazy(() => import("@/pages/SellingHouseWithSolar"));
+const SellingHouseWithSolar = lazy(
+  () => import("@/pages/SellingHouseWithSolar")
+);
 const SolarLienRemoval = lazy(() => import("@/pages/SolarLienRemoval"));
 const SolarLoanHelp = lazy(() => import("@/pages/SolarLoanHelp"));
 const AdminLeads = lazy(() => import("@/pages/AdminLeads"));
@@ -41,6 +51,8 @@ const MediaHub = lazy(() => import("@/pages/MediaHub"));
 const SitemapPage = lazy(() => import("@/pages/SitemapPage"));
 const SolarCompanyHub = lazy(() => import("@/pages/SolarCompanyHub"));
 const SunrunPage = lazy(() => import("@/pages/SunrunPage"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const TermsOfUse = lazy(() => import("@/pages/TermsOfUse"));
 
 // Normalize trailing slashes: redirect /foo/ to /foo so wouter routes always match.
 function TrailingSlashRedirect() {
@@ -65,10 +77,37 @@ function LegacyCityRedirect() {
   return null;
 }
 
-function AnalyticsPageViews() {
+function RoutePrivacyBoundary() {
   const [location] = useLocation();
+  const [privacyRevision, setPrivacyRevision] = useState(0);
+
   useEffect(() => {
+    const refreshPrivacy = () => {
+      // Consent events are synchronous: disable immediately on decline/reset,
+      // then let the layout effect handle the corresponding page view.
+      syncOptionalAnalytics(location);
+      setPrivacyRevision(revision => revision + 1);
+    };
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === PRIVACY_STORAGE_KEY || event.key === null) {
+        refreshPrivacy();
+      }
+    };
+
+    window.addEventListener(PRIVACY_PREFERENCE_EVENT, refreshPrivacy);
+    window.addEventListener(PRIVACY_RESET_EVENT, refreshPrivacy);
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener(PRIVACY_PREFERENCE_EVENT, refreshPrivacy);
+      window.removeEventListener(PRIVACY_RESET_EVENT, refreshPrivacy);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [location]);
+
+  useLayoutEffect(() => {
+    const analyticsEnabled = syncOptionalAnalytics(location);
     if (
+      !analyticsEnabled ||
       (location !== "/" && location.endsWith("/")) ||
       /^\/cancel-solar-contract-[a-z0-9-]+$/.test(location)
     ) {
@@ -76,8 +115,20 @@ function AnalyticsPageViews() {
     }
     const frame = window.requestAnimationFrame(() => trackPageView(location));
     return () => window.cancelAnimationFrame(frame);
-  }, [location]);
-  return null;
+  }, [location, privacyRevision]);
+
+  const privateRoute = isPrivateRoute(location);
+  if (privateRoute || !shouldRenderMarketingWidgets(location)) return null;
+
+  return (
+    <>
+      <PrivacyConsent />
+      <ExitIntentPopup />
+      <StickyMobileBar />
+      <DesktopCallButton />
+      <CallbackWidget />
+    </>
+  );
 }
 
 function Router() {
@@ -85,7 +136,7 @@ function Router() {
     <>
       <TrailingSlashRedirect />
       <LegacyCityRedirect />
-      <AnalyticsPageViews />
+      <RoutePrivacyBoundary />
       <Suspense fallback={<div className="min-h-screen bg-background" />}>
         <Switch>
           <Route path={"/"} component={Home} />
@@ -105,7 +156,10 @@ function Router() {
           <Route path={"/solar-exit-options"} component={SolarExitOptions} />
           <Route path={"/sunrun"} component={SunrunPage} />
           <Route path={"/solar-contract-laws"} component={StateLawsIndex} />
-          <Route path={"/solar-contract-laws/:state"} component={StateLawPage} />
+          <Route
+            path={"/solar-contract-laws/:state"}
+            component={StateLawPage}
+          />
           <Route
             path={"/selling-house-with-solar"}
             component={SellingHouseWithSolar}
@@ -127,6 +181,8 @@ function Router() {
           <Route path={"/media"} component={MediaHub} />
           <Route path={"/watch"} component={MediaHub} />
           <Route path={"/sitemap"} component={SitemapPage} />
+          <Route path={"/privacy-policy"} component={PrivacyPolicy} />
+          <Route path={"/terms"} component={TermsOfUse} />
           <Route path={"/login"} component={Login} />
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />
@@ -143,10 +199,6 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
-          <ExitIntentPopup />
-          <StickyMobileBar />
-          <DesktopCallButton />
-          <CallbackWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

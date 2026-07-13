@@ -70,8 +70,8 @@ async function submitToIndexNow(urls, keyConfig) {
         console.log(`Batch ${i + 1} accepted (HTTP ${response.status})`);
         totalSuccess += batch.length;
       } else {
-        const body = await response.text();
-        console.log(`Batch ${i + 1} returned HTTP ${response.status}: ${body}`);
+        await response.arrayBuffer();
+        console.log(`Batch ${i + 1} returned HTTP ${response.status}`);
       }
     } catch (err) {
       console.error(`Batch ${i + 1} failed:`, err.message);
@@ -104,8 +104,8 @@ async function submitToBing(urls, keyConfig) {
       return true;
     }
 
-    const body = await response.text();
-    console.log(`Bing returned HTTP ${response.status}: ${body}`);
+    await response.arrayBuffer();
+    console.log(`Bing returned HTTP ${response.status}`);
     return false;
   } catch (err) {
     console.error("Bing submission failed:", err.message);
@@ -121,7 +121,7 @@ let acceptedSubmission = null;
 const attempts = [];
 
 for (const keyConfig of INDEXNOW_KEYS) {
-  console.log(`\nUsing ${keyConfig.label}: ${keyConfig.key}`);
+  console.log(`\nUsing ${keyConfig.label}`);
 
   const submitted = await submitToIndexNow(urls, keyConfig);
   const bingAccepted = await submitToBing(urls, keyConfig);
@@ -139,14 +139,14 @@ if (!acceptedSubmission) {
   console.log("\nIndexNow attempts:");
   for (const attempt of attempts) {
     console.log(
-      `  - ${attempt.keyConfig.key}: ${attempt.submitted}/${urls.length} URLs, Bing accepted: ${attempt.bingAccepted}`,
+      `  - ${attempt.keyConfig.label}: ${attempt.submitted}/${urls.length} URLs, Bing accepted: ${attempt.bingAccepted}`,
     );
   }
   console.error("\nIndexNow rejected every submission. Verify the key file is live before retrying.");
   process.exitCode = 1;
 } else {
   const { keyConfig, submitted } = acceptedSubmission;
-  console.log(`\nIndexNow submission complete with ${keyConfig.key}: ${submitted}/${urls.length} URLs submitted`);
+  console.log(`\nIndexNow submission complete with ${keyConfig.label}: ${submitted}/${urls.length} URLs submitted`);
   console.log("\nSearch engines notified:");
   console.log("  - Bing");
   console.log("  - Yandex");

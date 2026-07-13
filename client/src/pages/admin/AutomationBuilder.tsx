@@ -196,36 +196,25 @@ function AutomationCard({ automation, onRefresh }: {
       onRefresh();
       toast.success("Schedule activated", { description: `Next run: ${data.nextExecutionAt ? new Date(data.nextExecutionAt).toLocaleString() : "soon"}` });
     },
-    onError: (e) => toast.error("Failed to activate", { description: e.message }),
+    onError: () => toast.error("Failed to activate", { description: "Review sanitized server diagnostics." }),
   });
   const deactivateMut = trpc.automations.deactivateSchedule.useMutation({
     onSuccess: () => { onRefresh(); toast.success("Schedule paused"); },
-    onError: (e) => toast.error("Failed to pause", { description: e.message }),
+    onError: () => toast.error("Failed to pause", { description: "Review sanitized server diagnostics." }),
   });
   const runsQuery = trpc.automations.runs.useQuery(
     { id: automation.id, limit: 10 },
     { enabled: showHistory }
   );
 
-  // Get session token from cookie for heartbeat API
-  const getSessionToken = () => {
-    const match = document.cookie.match(/app_session_id=([^;]+)/);
-    return match ? match[1] : "";
-  };
-
   const handleActivate = () => {
-    const token = getSessionToken();
-    if (!token) {
-      toast.error("Not authenticated", { description: "Please log in first." });
-      return;
-    }
-    activateMut.mutate({ id: automation.id, sessionToken: token });
+    // The server authenticates this protected mutation from the HttpOnly cookie
+    // and forwards credentials itself. Browser code must never read the token.
+    activateMut.mutate({ id: automation.id });
   };
 
   const handleDeactivate = () => {
-    const token = getSessionToken();
-    if (!token) return;
-    deactivateMut.mutate({ id: automation.id, sessionToken: token });
+    deactivateMut.mutate({ id: automation.id });
   };
 
   const isActive = !!automation.scheduleCronTaskUid && automation.isEnabled === 1;
@@ -378,7 +367,7 @@ export default function AutomationBuilder() {
       setCreating(false);
       toast.success("Automation created", { description: "Click the play button to activate the schedule after deploying." });
     },
-    onError: (e) => toast.error("Failed to create", { description: e.message }),
+    onError: () => toast.error("Failed to create", { description: "Review sanitized server diagnostics." }),
   });
 
   const SEO_HEARTBEAT_SPEC = `Planning request only. Do not claim that any external action ran.

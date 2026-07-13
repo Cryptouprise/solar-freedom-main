@@ -53,19 +53,19 @@ const NAV_ITEMS = [
     label: "Blog Studio",
     href: "/admin/blog-studio",
     icon: Wand2,
-    description: "AI writing, SEO, media",
+    description: "Review-gated draft assistant",
   },
   {
     label: "Press Releases",
     href: "/admin/press-releases",
     icon: Newspaper,
-    description: "Auto-distribution engine",
+    description: "Approval-first draft queue",
   },
   {
     label: "Backlinks",
     href: "/admin/press-releases#backlinks",
     icon: Link2,
-    description: "Link acquisition tracker",
+    description: "Source verification queue",
   },
   {
     label: "AI Costs",
@@ -83,7 +83,7 @@ const NAV_ITEMS = [
     label: "Automations",
     href: "/admin/automations",
     icon: Bot,
-    description: "Custom schedules & AI agents",
+    description: "Dry-run plans and schedules",
   },
 ];
 

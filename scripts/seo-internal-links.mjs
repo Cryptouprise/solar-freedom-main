@@ -1,27 +1,24 @@
 /**
  * SEO Internal-Link Opportunity Finder
  *
- * The May 2026 audit found the site's biggest structural weakness is that the
- * 301 city pages (`/cancel-solar-contract/[city]`) and 51 state-law pages
- * (`/solar-contract-laws/[state]`) are thin and near-duplicate, so Google
- * indexes them slowly and ranks them poorly. The fastest, fully-in-our-control
- * lever is internal links: pointing the blog posts Google already trusts at the
- * city/state pages that need discovery and authority.
+ * Builds review-only internal-link experiments between pages already approved
+ * in the public sitemap. Evidence-withheld city, state, company, and blog pages
+ * are therefore ineligible by construction.
  *
  * This agent:
- *   1. Reads the sitemap inventory and splits it into authority "sources"
- *      (blog posts) and "targets" (city + state-law pages).
+ *   1. Reads the sitemap inventory and splits it into candidate "sources"
+ *      (approved blog posts) and "targets" (approved city + state-law pages).
  *   2. Reads Google Search Console performance (gsc_all_pages.json or
- *      gsc_report.csv) to rank sources by the authority they can pass and to
+ *      gsc_report.csv) to order sources by observed activity and to
  *      flag targets with observed low performance or unknown performance.
  *      Absence from Search Analytics is never treated as proof of index status.
  *   3. Emits a deterministic, prioritized queue of internal links to add:
- *      for each target, the highest-authority, most topically-relevant blog
- *      posts that should link to it, plus a suggested anchor text.
+ *      for each target, performance-observed, potentially relevant blog
+ *      posts that may be relevant, plus a suggested anchor text.
  *
  * The deterministic queue is the source of truth. This script never edits
  * source files or publishes anything — it only tells a human which contextual
- * internal links to add for the biggest indexing/ranking lift.
+ * internal-link candidates to review. It does not predict an indexing or ranking lift.
  *
  * Output:
  *   reports/seo-agent/latest-internal-links.json
@@ -230,8 +227,9 @@ function describeTarget(p, type) {
   return { label: titleize(slug), keywords: new Set(slug.split("-").filter(Boolean)) };
 }
 
-// Rank performance-observed sources by clicks first, then impressions.
-function sourceAuthority(perf) {
+// Deterministic ordering for pages observed in this private measurement
+// window. This is not authority and is not a modeled ranking factor.
+function sourceActivityScore(perf) {
   if (!perf) return 0;
   return perf.clicks * 50 + perf.impressions;
 }
@@ -270,17 +268,17 @@ function build(args, sitemapPaths, perfByPath) {
     const type = classify(p);
     const perf = perfByPath.get(p) || null;
     if (type === "blog") {
-      sources.push({ path: p, slug: slugFromPath(p), perf, authority: sourceAuthority(perf) });
+      sources.push({ path: p, slug: slugFromPath(p), perf, activity: sourceActivityScore(perf) });
     } else if (type === "city" || type === "state") {
       targets.push({ path: p, type, perf, ...describeTarget(p, type) });
     }
   }
 
   // Performance-observed blog posts only. A missing row is unknown, not an
-  // index-status conclusion, and cannot support a data-driven authority score.
+  // index-status conclusion, and cannot support an activity score.
   const rankedSources = sources
-    .filter((s) => s.authority > 0)
-    .sort((a, b) => b.authority - a.authority);
+    .filter((s) => s.activity > 0)
+    .sort((a, b) => b.activity - a.activity);
 
   // Globally strongest "pillar" posts: the fallback linkers when no topical
   // match exists for a target.
@@ -314,7 +312,7 @@ function build(args, sitemapPaths, perfByPath) {
     const ranked = rankedSources
       .map((s) => ({ s, rel: relevanceScore(s.slug, t.keywords) }))
       .filter((x) => x.rel > 0)
-      .sort((a, b) => b.rel - a.rel || b.s.authority - a.s.authority)
+      .sort((a, b) => b.rel - a.rel || b.s.activity - a.s.activity)
       .map((x) => x.s);
 
     // Fill with topically-relevant sources first, then pillars, de-duplicated.
@@ -355,7 +353,7 @@ function build(args, sitemapPaths, perfByPath) {
     summary: {
       sitemapPaths: sitemapPaths.length,
       blogSources: sources.length,
-      authoritativeSources: rankedSources.length,
+      performanceObservedSources: rankedSources.length,
       cityTargets: targets.filter((t) => t.type === "city").length,
       stateTargets: targets.filter((t) => t.type === "state").length,
       queued: queue.length,
@@ -379,22 +377,22 @@ function formatMarkdown(report) {
   lines.push(`Base URL: ${report.baseUrl}`);
   lines.push("");
   lines.push(
-    "The fastest in-our-control lever for the thin city/state pages is internal " +
-      "links from blog posts Google already trusts. Add the contextual links below " +
-      "(natural placement in body copy), then resubmit the target in GSC."
+    "These are review-only link-coverage hypotheses between pages already present " +
+      "in the approved sitemap. Confirm reader relevance and source support before " +
+      "editing; no indexing or ranking effect is promised."
   );
   lines.push("");
   lines.push("## Summary");
   lines.push("");
   lines.push(`- Sitemap paths scanned: ${report.summary.sitemapPaths}`);
   lines.push(`- Blog posts (potential sources): ${report.summary.blogSources}`);
-  lines.push(`- Performance-observed source pages: ${report.summary.authoritativeSources}`);
+  lines.push(`- Performance-observed source pages: ${report.summary.performanceObservedSources}`);
   lines.push(`- City targets: ${report.summary.cityTargets} | State-law targets: ${report.summary.stateTargets}`);
   lines.push(`- Link opportunities queued: ${report.summary.queued} (performance unknown: ${report.summary.performanceUnknownQueued})`);
   lines.push("");
 
   if (report.pillars.length) {
-    lines.push("## Pillar sources (highest authority, safe to link from anywhere)");
+    lines.push("## Observed source candidates (review relevance before linking)");
     lines.push("");
     for (const p of report.pillars) {
       lines.push(`- \`${p.path}\` — ${p.clicks} clicks, ${p.impressions} impressions`);
@@ -444,7 +442,7 @@ async function main() {
 
   console.log("\nSEO Internal-Link Opportunities");
   console.log("===============================");
-  console.log(`Authoritative sources: ${report.summary.authoritativeSources}`);
+  console.log(`Performance-observed sources: ${report.summary.performanceObservedSources}`);
   console.log(`Targets queued: ${report.summary.queued} (performance unknown: ${report.summary.performanceUnknownQueued})`);
   console.log(`Queue: ${path.relative(ROOT, args.outMd)}`);
 }

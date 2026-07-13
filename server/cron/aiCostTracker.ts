@@ -1,69 +1,19 @@
 /**
- * AI Cost Tracker
- * Centralizes all OpenRouter API calls and logs cost to aiCostLog table.
+ * AI usage tracker
+ * Centralizes OpenRouter API calls and logs provider-reported billed cost.
  * Supports text (LLM), image generation, and embedding calls.
- *
- * Pricing reference (OpenRouter, May 2026 — update as needed):
- * https://openrouter.ai/models
  */
 
 import { getDb } from "../db";
 import { aiCostLog } from "../../drizzle/schema";
+import { logSafeError } from "../_core/safeLog";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1";
 
-// ─── Per-model pricing (USD per 1M tokens or per image) ───────────────────────
-// Text models: { inputPer1M, outputPer1M }
-// Image models: { perImage }
-// Embedding models: { inputPer1M }
-// Free models = 0
-
-const MODEL_PRICING: Record<string, { inputPer1M?: number; outputPer1M?: number; perImage?: number }> = {
-  // Free text models
-  "openrouter/owl-alpha":                    { inputPer1M: 0,      outputPer1M: 0 },
-  "qwen/qwen3-8b:free":                      { inputPer1M: 0,      outputPer1M: 0 },
-  "google/gemini-flash-1.5:free":            { inputPer1M: 0,      outputPer1M: 0 },
-  "meta-llama/llama-3.1-8b-instruct:free":   { inputPer1M: 0,      outputPer1M: 0 },
-  "tencent/hunyuan-a13b-instruct:free":      { inputPer1M: 0,      outputPer1M: 0 },
-  "deepseek/deepseek-chat-v3-0324:free":     { inputPer1M: 0,      outputPer1M: 0 },
-
-  // Paid text models
-  "google/gemini-2.5-flash-preview":         { inputPer1M: 0.15,   outputPer1M: 0.60 },
-  "google/gemini-flash-2.0":                 { inputPer1M: 0.10,   outputPer1M: 0.40 },
-  "qwen/qwen3-14b":                          { inputPer1M: 0.14,   outputPer1M: 0.14 },
-  "anthropic/claude-3-haiku":                { inputPer1M: 0.25,   outputPer1M: 1.25 },
-
-  // Image generation models (cost per image)
-  "bytedance-seed/seedream-4.5":             { perImage: 0.025 },
-  "google/gemini-3.1-flash-image-preview":   { perImage: 0.020 },
-  "google/gemini-2.5-flash-image":           { perImage: 0.020 },
-
-  // Embedding models
-  "qwen/qwen3-embedding-8b:nitro":           { inputPer1M: 0.05 },
-  "qwen/qwen3-embedding-8b:exacto":          { inputPer1M: 0.05 },
-};
-
-function estimateCost(
-  model: string,
-  type: "text" | "image" | "embedding",
-  tokensIn = 0,
-  tokensOut = 0,
-  imageCount = 0
-): number {
-  const pricing = MODEL_PRICING[model];
-  if (!pricing) return 0;
-
-  if (type === "image" && pricing.perImage) {
-    return pricing.perImage * imageCount;
-  }
-
-  if ((type === "text" || type === "embedding") && pricing.inputPer1M !== undefined) {
-    const inputCost = (tokensIn / 1_000_000) * pricing.inputPer1M;
-    const outputCost = pricing.outputPer1M ? (tokensOut / 1_000_000) * pricing.outputPer1M : 0;
-    return inputCost + outputCost;
-  }
-
-  return 0;
+export function readProviderCost(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? value
+    : null;
 }
 
 async function logCost(params: {
@@ -73,19 +23,24 @@ async function logCost(params: {
   tokensIn?: number;
   tokensOut?: number;
   imageCount?: number;
+  providerCostUsd?: unknown;
   referenceId?: number;
   referenceType?: string;
 }) {
   try {
+    const providerCostUsd = readProviderCost(params.providerCostUsd);
+    if (providerCostUsd === null) {
+      // Never turn missing or stale pricing into a false $0 record. OpenRouter
+      // non-streaming responses normally include usage.cost; an absent value is
+      // an observability gap, not proof that the request was free.
+      logSafeError(
+        "ai_cost.provider_cost_unavailable",
+        new Error("Provider response omitted billed cost"),
+      );
+      return;
+    }
     const db = await getDb();
     if (!db) return;
-    const cost = estimateCost(
-      params.model,
-      params.callType,
-      params.tokensIn ?? 0,
-      params.tokensOut ?? 0,
-      params.imageCount ?? 0
-    );
     await db.insert(aiCostLog).values({
       feature: params.feature,
       callType: params.callType,
@@ -93,12 +48,12 @@ async function logCost(params: {
       tokensIn: params.tokensIn ?? 0,
       tokensOut: params.tokensOut ?? 0,
       imageCount: params.imageCount ?? 0,
-      costUsd: cost.toFixed(6),
+      costUsd: providerCostUsd.toFixed(6),
       referenceId: params.referenceId,
       referenceType: params.referenceType,
     });
   } catch (err) {
-    console.error("[CostTracker] Failed to log cost:", err);
+    logSafeError("ai_cost.log_failed", err);
   }
 }
 
@@ -112,6 +67,7 @@ export async function callLLM(params: {
   referenceType?: string;
   temperature?: number;
   maxTokens?: number;
+  responseFormat?: { type: "json_object" };
 }): Promise<string> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY not set");
@@ -122,19 +78,21 @@ export async function callLLM(params: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://breakyoursolarcontract.com",
-      "X-Title": "Solar Freedom Press Release Engine",
+      "X-Title": "Solar Freedom Search Operations",
     },
     body: JSON.stringify({
       model: params.model,
       messages: params.messages,
       temperature: params.temperature ?? 0.7,
       max_tokens: params.maxTokens ?? 2000,
+      ...(params.responseFormat
+        ? { response_format: params.responseFormat }
+        : {}),
     }),
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter LLM error ${res.status}: ${err}`);
+    throw new Error(`OpenRouter LLM request failed (HTTP ${res.status})`);
   }
 
   const data = await res.json();
@@ -148,6 +106,7 @@ export async function callLLM(params: {
     model: params.model,
     tokensIn,
     tokensOut,
+    providerCostUsd: data.usage?.cost,
     referenceId: params.referenceId,
     referenceType: params.referenceType,
   });
@@ -175,7 +134,7 @@ export async function callImageGen(params: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://breakyoursolarcontract.com",
-      "X-Title": "Solar Freedom Press Release Engine",
+      "X-Title": "Solar Freedom Search Operations",
     },
     body: JSON.stringify({
       model: params.model,
@@ -186,8 +145,7 @@ export async function callImageGen(params: {
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter Image error ${res.status}: ${err}`);
+    throw new Error(`OpenRouter image request failed (HTTP ${res.status})`);
   }
 
   const data = await res.json();
@@ -198,6 +156,7 @@ export async function callImageGen(params: {
     callType: "image",
     model: params.model,
     imageCount: 1,
+    providerCostUsd: data.usage?.cost,
     referenceId: params.referenceId,
     referenceType: params.referenceType,
   });
@@ -225,7 +184,7 @@ export async function callEmbedding(params: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://breakyoursolarcontract.com",
-      "X-Title": "Solar Freedom Press Release Engine",
+      "X-Title": "Solar Freedom Search Operations",
     },
     body: JSON.stringify({
       model: params.model,
@@ -234,8 +193,7 @@ export async function callEmbedding(params: {
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter Embedding error ${res.status}: ${err}`);
+    throw new Error(`OpenRouter embedding request failed (HTTP ${res.status})`);
   }
 
   const data = await res.json();
@@ -247,13 +205,10 @@ export async function callEmbedding(params: {
     callType: "embedding",
     model: params.model,
     tokensIn,
+    providerCostUsd: data.usage?.cost,
     referenceId: params.referenceId,
     referenceType: params.referenceType,
   });
 
   return embeddings;
 }
-
-// ─── Cost query helpers ───────────────────────────────────────────────────────
-
-export { estimateCost, MODEL_PRICING };

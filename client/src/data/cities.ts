@@ -1,6 +1,8 @@
 // Auto-generated city data — 130+ cities across all 50 states + DC
 // Each city has unique state law, solar companies, and related cities for internal linking
 
+import type { EditorialReview } from './publication-governance';
+
 export interface CityData {
   name: string;
   state: string;
@@ -11,6 +13,8 @@ export interface CityData {
   stateLaw: string;
   companies: string[];
   relatedCities: string[];
+  /** Required before this location page may enter search discovery. */
+  editorialReview?: EditorialReview;
 }
 
 export const cities: CityData[] = [

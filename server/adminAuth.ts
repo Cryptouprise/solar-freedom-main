@@ -14,6 +14,7 @@ import { getDb } from "./db";
 import { apiKeys } from "../drizzle/schema";
 import { and, eq } from "drizzle-orm";
 import { sdk } from "./_core/sdk";
+import { logSafeError } from "./_core/safeLog";
 
 export interface AdminRequest extends Request {
   apiKey?: {
@@ -26,6 +27,17 @@ export interface AdminRequest extends Request {
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 const MAX_KEY_LENGTH = 128;
 const MAX_PREFIX_CANDIDATES = 5;
+
+export function isApiKeyCurrent(key: {
+  active: number;
+  expiresAt: Date | null;
+  revokedAt: Date | null;
+}, now = new Date()): boolean {
+  return key.active === 1
+    && key.revokedAt === null
+    && key.expiresAt instanceof Date
+    && key.expiresAt.getTime() > now.getTime();
+}
 
 function isSameOrigin(req: Request): boolean {
   const origin = req.headers.origin;
@@ -105,7 +117,7 @@ export async function adminAuthMiddleware(
     let matchedKey = null;
     for (const key of candidates) {
       const matches = await bcrypt.compare(rawKey, key.keyHash);
-      if (matches) {
+      if (matches && isApiKeyCurrent(key)) {
         matchedKey = key;
         break;
       }
@@ -125,15 +137,25 @@ export async function adminAuthMiddleware(
       .catch(() => {});
 
     // Attach key info to request
+    let permissions: unknown;
+    try {
+      permissions = JSON.parse(matchedKey.permissions);
+    } catch {
+      return res.status(401).json({ error: "Unauthorized", message: "Invalid API key" });
+    }
+    if (!Array.isArray(permissions) || !permissions.every(value => typeof value === "string")) {
+      return res.status(401).json({ error: "Unauthorized", message: "Invalid API key" });
+    }
+
     req.apiKey = {
       id: matchedKey.id,
       name: matchedKey.name,
-      permissions: JSON.parse(matchedKey.permissions),
+      permissions,
     };
 
     next();
   } catch (err) {
-    console.error("[AdminAuth] Error:", err);
+    logSafeError("admin.auth_failed", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 }

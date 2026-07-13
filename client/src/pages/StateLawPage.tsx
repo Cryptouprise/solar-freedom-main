@@ -1,14 +1,13 @@
 // Solar Freedom — StateLawPage
 // Design: Pro-homeowner, pro-solar technology, anti-predatory-sales
-// Psychology: Curiosity gaps, social proof, authority, urgency, specificity
-// AEO: FAQ schema, HowTo schema, structured Q&A for AI answer engines
+// State-specific content is published only after primary-source and reviewer metadata exists.
 
 import { useParams, Link } from 'wouter';
-import { useEffect } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
-import { getStateLaw, StateLawSection } from '@/data/state-laws';
+import { getStateLaw, hasPublishableStateLawEvidence, StateLaw, StateLawSection } from '@/data/state-laws';
 import { cities as ALL_CITIES } from '@/data/cities';
+import { hasPublishableEditorialReview } from '@/data/publication-governance';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -30,6 +29,7 @@ import {
   Gavel,
   FileText,
   HelpCircle,
+  ExternalLink,
 } from 'lucide-react';
 
 const HERO_IMAGE =
@@ -134,45 +134,167 @@ function ContentSection({ section }: { section: StateLawSection }) {
   }
 }
 
+function StateResearchDraft({ law, schemas }: { law: StateLaw; schemas: object[] }) {
+  const records = [
+    'Signed agreement and all addenda',
+    'Loan, lease, or PPA documents',
+    'Cancellation notices and disclosures',
+    'Sales proposals and savings estimates',
+    'Utility bills and production records',
+    'Installer, seller, lender, and servicer communications',
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white">
+      <SchemaInjector schemas={schemas} />
+      <header
+        className="relative min-h-[390px] flex items-end pb-12 pt-24"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.66) 0%, rgba(15,23,42,0.94) 65%, rgba(15,23,42,1) 100%), url(${HERO_IMAGE})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="container max-w-4xl">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-400 mb-6">
+            <Link href="/" className="hover:text-amber-400">Home</Link>
+            <ChevronRight size={14} />
+            <Link href="/solar-contract-laws" className="hover:text-amber-400">State research</Link>
+            <ChevronRight size={14} />
+            <span className="text-white">{law.state}</span>
+          </nav>
+          <Badge className="bg-amber-400/20 text-amber-300 border-amber-400/30 mb-4">
+            Editorial review pending · noindex
+          </Badge>
+          <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4">
+            {law.state} solar contract research page
+          </h1>
+          <p className="text-xl text-slate-300 leading-relaxed max-w-3xl">
+            The legacy state summary is not published here because it does not yet have a complete primary-source record, named reviewer, and review date.
+          </p>
+        </div>
+      </header>
+
+      <main className="container max-w-4xl py-12 space-y-10">
+        <section className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-7">
+          <div className="flex gap-4">
+            <Shield className="text-amber-400 shrink-0 mt-1" size={25} />
+            <div>
+              <h2 className="text-2xl font-bold mb-3">Why this page is paused</h2>
+              <p className="text-slate-300 leading-relaxed">
+                Legal rules can depend on how a transaction occurred, the contract and financing structure, exemptions, later amendments, and case-specific facts. This page will remain out of search and will not emit FAQ structured data until its claims are traceable and reviewed.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-5 flex items-center gap-3">
+            <BookOpen className="text-amber-400" size={23} /> Official research starting points
+          </h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              {
+                title: '16 CFR Part 429',
+                text: 'Current eCFR text for the federal Cooling-Off Rule, including scope and exemptions.',
+                href: 'https://www.ecfr.gov/current/title-16/part-429',
+              },
+              {
+                title: 'State attorney general directory',
+                text: 'USA.gov links to current state consumer-protection offices and complaint resources.',
+                href: 'https://www.usa.gov/state-attorney-general',
+              },
+            ].map((source) => (
+              <a
+                key={source.href}
+                href={source.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl border border-slate-700 bg-slate-800/60 p-5 hover:border-amber-400/50 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold mb-2">{source.title}</h3>
+                    <p className="text-sm text-slate-400">{source.text}</p>
+                  </div>
+                  <ExternalLink className="text-amber-400 shrink-0" size={17} />
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-700 bg-slate-800/50 p-7">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
+            <FileText className="text-amber-400" size={23} /> Records to gather
+          </h2>
+          <ul className="grid md:grid-cols-2 gap-3 text-sm text-slate-300">
+            {records.map((record) => (
+              <li key={record} className="flex items-start gap-2">
+                <CheckCircle size={15} className="text-amber-400 mt-0.5 shrink-0" /> {record}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="text-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-8">
+          <h2 className="text-3xl font-black mb-3">Request an individual document review</h2>
+          <p className="text-amber-100 max-w-2xl mx-auto mb-6">
+            No representation, result, legal conclusion, or response time is promised by submitting information.
+          </p>
+          <Link href="/#qualify">
+            <Button className="bg-white text-orange-600 hover:bg-amber-50 font-bold">
+              Submit my records <ArrowRight size={16} className="ml-2" />
+            </Button>
+          </Link>
+        </section>
+      </main>
+    </div>
+  );
+}
+
 export default function StateLawPage() {
   const params = useParams<{ state: string }>();
   const stateSlug = params.state;
   const law = getStateLaw(stateSlug || '');
+  const isPublishable = Boolean(law && hasPublishableStateLawEvidence(law));
 
   useSeoMeta({
-    title: law ? law.metaTitle : 'Solar Contract Laws by State | Solar Freedom',
-    description: law ? law.metaDescription : 'Understand your state\'s solar contract laws and consumer protections.',
+    title: law
+      ? isPublishable
+        ? law.metaTitle
+        : `${law.state} Solar Contract Research Status | Solar Freedom`
+      : 'Solar Contract Information by State | Solar Freedom',
+    description: law && isPublishable
+      ? law.metaDescription
+      : 'This state research page is withheld from search until official primary sources and an editorial reviewer are recorded.',
     canonical: `https://breakyoursolarcontract.com/solar-contract-laws/${stateSlug ?? ''}`,
+    noindex: !law || !isPublishable,
   });
 
-  const stateLawSchemas = law ? [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: law.faq.map((f) => ({
-        '@type': 'Question',
-        name: f.q,
-        acceptedAnswer: { '@type': 'Answer', text: f.a },
-      })),
-    },
+  const stateLawSchemas: object[] = law ? [
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
-        { '@type': 'ListItem', position: 2, name: 'Solar Contract Laws', item: 'https://breakyoursolarcontract.com/solar-contract-help' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com/' },
+        { '@type': 'ListItem', position: 2, name: 'State solar contract research', item: 'https://breakyoursolarcontract.com/solar-contract-laws' },
         { '@type': 'ListItem', position: 3, name: `${law.state} Solar Contract Laws`, item: `https://breakyoursolarcontract.com/solar-contract-laws/${law.slug}` },
       ],
     },
   ] : [];
 
-  useEffect(() => {
-    if (law) {
-      document.title = law.metaTitle;
-      const desc = document.querySelector('meta[name="description"]');
-      if (desc) desc.setAttribute('content', law.metaDescription);
-    }
-  }, [law]);
+  if (law && isPublishable) {
+    stateLawSchemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: law.faq.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    });
+  }
 
   if (!law) {
     return (
@@ -185,6 +307,10 @@ export default function StateLawPage() {
         </div>
       </div>
     );
+  }
+
+  if (!isPublishable) {
+    return <StateResearchDraft law={law} schemas={stateLawSchemas} />;
   }
 
   return (
@@ -217,7 +343,7 @@ export default function StateLawPage() {
               {law.coolingOffDays}-Day Cancellation Right
             </Badge>
             <Badge className="bg-blue-500/20 text-blue-400 border-blue-400/30 text-xs">
-              Updated 2026
+              Reviewed {law.editorialReview?.reviewedAt}
             </Badge>
           </div>
 
@@ -287,15 +413,18 @@ export default function StateLawPage() {
 
             {/* Related cities — pull from main cities data for this state */}
             {(() => {
-              const stateCities = ALL_CITIES.filter((c) => c.state === law.state).slice(0, 12);
+              const stateCities = ALL_CITIES
+                .filter((city) => hasPublishableEditorialReview(city))
+                .filter((city) => city.state === law.state)
+                .slice(0, 12);
               if (stateCities.length === 0) return null;
               return (
                 <div className="mt-12 bg-slate-800/40 border border-slate-700 rounded-2xl p-6">
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <BookOpen size={18} className="text-amber-400" />
-                    Cancel Your Solar Contract in {law.state} — City Resources
+                    Solar Contract Resources in {law.state}
                   </h3>
-                  <p className="text-slate-400 text-sm mb-4">We serve homeowners across all of {law.state}. Select your city for local attorney resources and case reviews.</p>
+                  <p className="text-slate-400 text-sm mb-4">Select a city for location-specific consumer information and records to gather.</p>
                   <div className="flex flex-wrap gap-2">
                     {stateCities.map((city) => (
                       <Link key={city.slug} href={`/cancel-solar-contract/${city.slug}`}>
@@ -315,9 +444,9 @@ export default function StateLawPage() {
             {/* CTA Card */}
             <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-6 text-white sticky top-6">
               <Shield className="mb-3" size={28} />
-              <h3 className="text-xl font-black mb-2">Get a Free Case Review</h3>
+              <h3 className="text-xl font-black mb-2">Request a Document Review</h3>
               <p className="text-amber-100 text-sm mb-4 leading-relaxed">
-                Find out in 60 seconds if your {law.state} solar contract has grounds for cancellation.
+                Submit your {law.state} agreement and supporting records for an individual review.
               </p>
               <Link href="/#qualify">
                 <Button className="w-full bg-white text-orange-600 hover:bg-amber-50 font-bold">
@@ -326,7 +455,7 @@ export default function StateLawPage() {
                 </Button>
               </Link>
               <p className="text-amber-200 text-xs text-center mt-3">
-                No obligation · Takes 60 seconds
+                No result or response time is promised
               </p>
             </div>
 
@@ -381,7 +510,7 @@ export default function StateLawPage() {
               <p className="text-slate-400 text-xs mb-2">Looking for another state?</p>
               <Link href="/solar-contract-help">
                 <button className="text-amber-400 text-sm font-medium hover:underline">
-                  View All 50 States →
+                  View State Directory →
                 </button>
               </Link>
             </div>

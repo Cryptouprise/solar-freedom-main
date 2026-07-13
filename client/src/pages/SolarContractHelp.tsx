@@ -6,55 +6,51 @@
 import { Link } from "wouter";
 import { ArrowRight, CheckCircle, Phone, Shield, FileText, Scale, Home, DollarSign, AlertTriangle, Clock } from "lucide-react";
 import { blogPosts } from "@/data/blog";
-import { useEffect } from "react";
+import { isBlogPostPublishable } from "@/data/publication-governance";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 const exitOptions = [
   {
     icon: <Scale className="w-6 h-6" />,
     title: "Legal Cancellation",
-    description: "Challenge the contract based on misrepresentation, TILA violations, or state consumer protection law. Often the lowest-cost path.",
-    timeline: "30–90 days",
+    description: "A fact-specific review can examine the agreement, transaction history, disclosures, and current law without assuming that cancellation is available.",
+    timeline: "Varies by facts and process",
     cost: "Terms require written confirmation",
-    href: "/blog/how-to-get-out-of-a-solar-contract",
+    href: "/solar-contract-laws",
   },
   {
     icon: <FileText className="w-6 h-6" />,
     title: "Contract Rescission",
-    description: "If you were not given a proper Notice of Cancellation at signing, your 3-day FTC cooling-off window may still be legally open.",
-    timeline: "7–30 days",
-    cost: "Low to none",
-    href: "/blog/solar-contract-rescission-rights",
+    description: "Review any cancellation notice, transaction location, dates, scope rules, and exemptions before relying on a cooling-off period.",
+    timeline: "Requires document review",
+    cost: "Confirm individually",
+    href: "/solar-contract-laws",
   },
   {
     icon: <DollarSign className="w-6 h-6" />,
     title: "Negotiated Buyout",
-    description: "Negotiate a reduced buyout amount with the solar company or lender. Often possible for 30–60% less than the stated buyout price.",
-    timeline: "30–60 days",
-    cost: "Reduced buyout",
-    href: "/blog/how-to-negotiate-solar-contract-cancellation",
+    description: "Review the written buyout terms and ask the company or lender whether any negotiated option is available. No reduction is promised.",
+    timeline: "Varies by party and process",
+    cost: "Confirm in writing",
+    href: "/solar-exit-options",
   },
   {
     icon: <Home className="w-6 h-6" />,
     title: "Transfer to Buyer",
-    description: "When selling your home, transfer the solar agreement to the buyer. Works best for leases and PPAs with reasonable terms.",
-    timeline: "At closing",
-    cost: "None if successful",
-    href: "/blog/sell-house-with-solar-panels",
+    description: "Check the agreement, buyer and lender requirements, approval process, fees, payoff terms, and closing timeline before relying on a transfer.",
+    timeline: "Depends on closing and approval",
+    cost: "Confirm in the agreement",
+    href: "/selling-house-with-solar",
   },
 ];
 
 const commonProblems = [
-  { label: "Payment higher than electric bill", href: "/blog/solar-payments-too-high-help" },
-  { label: "System not producing what was promised", href: "/blog/solar-system-underperforming" },
-  { label: "Misleading savings claims", href: "/blog/solar-misleading-savings-claims" },
-  { label: "Solar company won't respond", href: "/blog/solar-company-wont-help" },
-  { label: "Trying to sell your home", href: "/blog/selling-house-with-solar-loan" },
-  { label: "Door-to-door sales pressure", href: "/blog/solar-door-to-door-sales-pressure" },
-  { label: "Solar company went bankrupt", href: "/blog/solar-company-went-bankrupt" },
-  { label: "Contract red flags", href: "/blog/solar-contract-red-flags" },
-  { label: "Solar regret", href: "/blog/solar-regret-what-to-do" },
-  { label: "Credit score concerns", href: "/blog/solar-credit-score-fears" },
+  { label: "Loan payment or disclosure questions", href: "/solar-loan-help" },
+  { label: "System performance or sales-record questions", href: "/solar-panel-scam" },
+  { label: "Title, lien, or filing questions", href: "/solar-lien-removal" },
+  { label: "Trying to sell your home", href: "/selling-house-with-solar" },
+  { label: "Comparing possible contract paths", href: "/solar-exit-options" },
+  { label: "State-law research", href: "/solar-contract-laws" },
 ];
 
 const featuredArticles = [
@@ -68,17 +64,13 @@ const featuredArticles = [
 
 export default function SolarContractHelp() {
   useSeoMeta({
-    title: 'Solar Contract Help: All Your Options Explained | Solar Freedom',
-    description: 'Comprehensive solar contract help: legal cancellation, rescission rights, negotiated buyout, and transfer options. Free case review available.',
+    title: 'Solar Contract Help: Records and Questions to Review | Solar Freedom',
+    description: 'Review solar agreement records, cancellation questions, financing disputes, negotiated options, and transfer requirements before choosing a path.',
     canonical: 'https://breakyoursolarcontract.com/solar-contract-help',
   });
-  useEffect(() => {
-    document.title = "Solar Contract Help: All Your Options Explained | Solar Freedom";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Comprehensive solar contract help: legal cancellation, rescission rights, negotiated buyout, and transfer options. Free case review available.");
-  }, []);
-
-  const articles = blogPosts.filter(p => featuredArticles.includes(p.slug));
+  const articles = blogPosts.filter(
+    (post) => featuredArticles.includes(post.slug) && isBlogPostPublishable(post),
+  );
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.10 0.01 265)", color: "oklch(0.95 0.01 265)" }}>
@@ -91,7 +83,7 @@ export default function SolarContractHelp() {
         </Link>
         <Link href="/#contact">
           <button className="text-sm font-semibold px-4 py-2 rounded-lg text-black" style={{ background: "oklch(0.78 0.18 85)" }}>
-            Free Case Review
+            Document Review
           </button>
         </Link>
       </nav>
@@ -105,12 +97,12 @@ export default function SolarContractHelp() {
           SOLAR CONTRACT<br /><span className="text-amber-400">HELP CENTER</span>
         </h1>
         <p className="text-xl text-gray-300 max-w-3xl mb-8 leading-relaxed">
-          If you are stuck in a solar contract that is not working for you, you are not alone — and you are not necessarily trapped. This page covers every exit option available to homeowners, from legal cancellation to negotiated buyouts to transfer at sale.
+          Review common solar agreement questions and possible paths, from cancellation provisions and financing disputes to negotiated options and transfer at sale. Availability depends on the documents, facts, parties, and current law.
         </p>
         <div className="flex flex-wrap gap-4">
           <Link href="/#contact">
             <button className="flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-black" style={{ background: "oklch(0.78 0.18 85)" }}>
-              Get Free Case Review <ArrowRight className="w-4 h-4" />
+              Request Document Review <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
           <a href="tel:+19049214971" className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:border-white/40 transition-colors">
@@ -169,17 +161,21 @@ export default function SolarContractHelp() {
       {/* KEY LEGAL FACTS */}
       <section className="px-6 py-16 border-t border-white/8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-black text-white mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KEY LEGAL FACTS</h2>
+          <h2 className="text-3xl font-black text-white mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>RULES TO VERIFY</h2>
+          <p className="text-gray-400 mb-8">Coverage, exceptions, deadlines, and remedies depend on the transaction. Use the official rule and the signed records; do not assume a general rule applies.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { icon: <Clock className="w-5 h-5" />, title: "FTC Cooling-Off Rule", body: "You have 3 business days to cancel any contract signed at your home. If you were not given written notice of this right, the window may still be legally open — even years later." },
-              { icon: <AlertTriangle className="w-5 h-5" />, title: "TILA Violations", body: "The Truth in Lending Act requires specific disclosures for solar loans. If your lender failed to provide them, you may have a right of rescission regardless of how long ago you signed." },
-              { icon: <Shield className="w-5 h-5" />, title: "State Consumer Protection", body: "Most states have Deceptive Trade Practices Acts that allow consumers to void contracts obtained through misrepresentation. These laws often have stronger remedies than federal law." },
+              { icon: <Clock className="w-5 h-5" />, title: "FTC Cooling-Off Rule", body: "The FTC rule covers certain door-to-door sales and requires cancellation disclosures for covered transactions. Check its scope and exceptions before relying on the three-business-day period.", sourceUrl: "https://www.ftc.gov/legal-library/browse/rules/cooling-period-sales-made-home-or-other-locations", sourceLabel: "FTC rule" },
+              { icon: <AlertTriangle className="w-5 h-5" />, title: "Regulation Z Rescission", body: "Regulation Z provides a rescission right for some credit transactions secured by a consumer's principal dwelling, with stated exceptions and time limits. The loan and security documents determine whether it applies.", sourceUrl: "https://www.consumerfinance.gov/rules-policy/regulations/1026/23/", sourceLabel: "CFPB Regulation Z" },
+              { icon: <Shield className="w-5 h-5" />, title: "Solar Financing Records", body: "The CFPB has identified risks in some solar-specific loans, including markups, tax-credit assumptions, payment changes, and savings representations. Compare those topics with the actual agreement; the report does not establish a violation in an individual case.", sourceUrl: "https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/", sourceLabel: "CFPB issue spotlight" },
             ].map((fact) => (
               <div key={fact.title} className="p-5 rounded-xl border border-white/8" style={{ background: "oklch(0.13 0.01 265)" }}>
                 <div className="text-amber-400 mb-3">{fact.icon}</div>
                 <h3 className="font-bold text-white mb-2">{fact.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{fact.body}</p>
+                <a href={fact.sourceUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs text-amber-400 hover:text-amber-300 underline underline-offset-2">
+                  Official source: {fact.sourceLabel}
+                </a>
               </div>
             ))}
           </div>
@@ -190,7 +186,7 @@ export default function SolarContractHelp() {
       <section className="px-6 py-16 border-t border-white/8">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-black text-white mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>ESSENTIAL READING</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {articles.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {articles.map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`}>
                 <div className="p-5 rounded-xl border border-white/8 hover:border-amber-500/30 transition-all cursor-pointer h-full flex flex-col" style={{ background: "oklch(0.13 0.01 265)" }}>
@@ -202,14 +198,14 @@ export default function SolarContractHelp() {
                 </div>
               </Link>
             ))}
-          </div>
-          <div className="mt-6 text-center">
+          </div> : <p className="rounded-xl border border-white/8 p-5 text-sm text-gray-400">Articles remain out of public discovery until their claims, primary sources, reviewer, review date, and unique value pass the publication gate.</p>}
+          {articles.length > 0 && <div className="mt-6 text-center">
             <Link href="/blog">
               <button className="text-amber-400 text-sm font-semibold hover:text-amber-300 transition-colors flex items-center gap-2 mx-auto">
-                View All 45 Articles <ArrowRight className="w-4 h-4" />
+                View reviewed articles <ArrowRight className="w-4 h-4" />
               </button>
             </Link>
-          </div>
+          </div>}
         </div>
       </section>
 
@@ -225,7 +221,7 @@ export default function SolarContractHelp() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/#contact">
               <button className="flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-black text-lg" style={{ background: "oklch(0.78 0.18 85)" }}>
-                <CheckCircle className="w-5 h-5" /> Get Free Case Review
+                <CheckCircle className="w-5 h-5" /> Request Document Review
               </button>
             </Link>
           </div>

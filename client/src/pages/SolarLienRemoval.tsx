@@ -13,6 +13,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
+import { ContactConsentFields } from "@/components/ContactConsentFields";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import {
   AlertTriangle, CheckCircle, FileText, ArrowRight,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
+import { CONTACT_CONSENT_VERSION } from "@shared/leadConsent";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -45,6 +47,9 @@ function LienForm() {
   const [submitted, setSubmitted] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
+  const [contactConsent, setContactConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [website, setWebsite] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState({
     lienType: "", goal: "",
@@ -88,6 +93,10 @@ function LienForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!contactConsent) {
+      setSubmissionError("Please authorize contact about this request before submitting.");
+      return;
+    }
     const firstName = form.name.split(" ")[0] || form.name;
     const lastName = form.name.split(" ").slice(1).join(" ") || "";
     setSubmissionError("");
@@ -101,6 +110,10 @@ function LienForm() {
         problemType: form.lienType,
         intent: form.goal,
         formName: "Solar Lien Removal Form",
+        contactConsent,
+        smsConsent,
+        consentVersion: CONTACT_CONSENT_VERSION,
+        website,
         sourcePage: "/solar-lien-removal",
         sourceUrl: window.location.href,
       });
@@ -127,8 +140,8 @@ function LienForm() {
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
             <CheckCircle className="w-8 h-8 text-amber-400" />
           </div>
-          <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
-          <p className="text-slate-400 mb-4">Grace will reach out within minutes to discuss your lien removal options.</p>
+          <h3 className="font-display text-2xl text-white mb-2">REQUEST RECEIVED</h3>
+          <p className="text-slate-400 mb-4">Your information was submitted for review. Response timing and availability vary.</p>
           <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
             <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
           </a>
@@ -177,7 +190,7 @@ function LienForm() {
         ))}
       </div>
       <p className="text-slate-400 text-sm mb-2">Step {steps.length + 1} of {steps.length + 1}</p>
-      <h3 className="font-display text-xl text-white mb-5">Where should we send your options?</h3>
+      <h3 className="font-display text-xl text-white mb-5">Where should we send information about your review?</h3>
       <div className="space-y-3">
         <input required placeholder="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
@@ -188,52 +201,36 @@ function LienForm() {
         <input required type="email" placeholder="Email Address" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
           className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 outline-none focus:border-amber-500 transition-colors"
           style={{ background: "oklch(1 0 0 / 8%)", border: "1px solid oklch(1 0 0 / 20%)" }} />
-        <button type="submit" disabled={submitLead.isPending} className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50"
+        <ContactConsentFields
+          idPrefix="solar-lien-removal"
+          contactConsent={contactConsent}
+          smsConsent={smsConsent}
+          website={website}
+          onContactConsentChange={setContactConsent}
+          onSmsConsentChange={setSmsConsent}
+          onWebsiteChange={setWebsite}
+        />
+        <button type="submit" disabled={submitLead.isPending || !contactConsent} className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50"
           style={{ background: "#f97316", color: "#0D0F14" }}>
-          Get My Free Lien Review →
+          Request My Document Review →
         </button>
         {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
-        <p className="text-center text-xs text-slate-500">No obligation. We respond within minutes.</p>
+        <p className="text-center text-xs text-slate-500">No representation, result, or response time is promised.</p>
       </div>
     </form>
   );
 }
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
-const PAGE_SCHEMAS = [
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How do I remove a solar lien from my property?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A solar lien can be removed by paying off the balance in full, negotiating a reduced settlement with the lender, or legally challenging the lien if it was improperly placed. PACE loans require a formal lien release recorded with your county. We help homeowners navigate all three paths." }
-      },
-      {
-        "@type": "Question",
-        "name": "What is a solar lien on a house?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A solar lien is a legal claim against your property recorded by a solar financing company. PACE (Property Assessed Clean Energy) loans are the most common — they're recorded as a tax assessment lien, meaning they have super-priority over your mortgage. Other solar loans may be recorded as deeds of trust or UCC fixture filings." }
-      },
-      {
-        "@type": "Question",
-        "name": "Can I sell my house with a solar lien?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Technically yes, but in practice most buyers' mortgage lenders require all liens to be cleared before funding. A solar lien on your title will almost always need to be paid off or resolved before you can close a sale." }
-      },
-      {
-        "@type": "Question",
-        "name": "What is a PACE loan and why is it a lien?",
-        "acceptedAnswer": { "@type": "Answer", "text": "PACE (Property Assessed Clean Energy) loans are a type of solar financing where repayment is added to your property tax bill. Because they're tied to the property — not the borrower — they're recorded as a lien on your title. They have super-priority, meaning they're paid before your mortgage in a foreclosure." }
-      },
-    ]
-  }
-];
+// FAQ schema remains disabled until each legal answer has a primary source and
+// an editorial review record.
+const PAGE_SCHEMAS: object[] = [];
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SolarLienRemoval() {
   useSeoMeta({
-    title: "Solar Lien Removal | Remove PACE Loan & Solar Liens From Your Property",
-    description: "Solar lien on your title? We help homeowners remove PACE loans, solar deed liens, and UCC filings so you can sell, refinance, or clear your property. Free review.",
+    title: "Solar Lien Record Review | PACE Assessments & UCC Filings",
+    description: "Review PACE assessments, deeds of trust, UCC filings, payoff statements, title records, and release requirements before choosing a next step.",
     canonical: "https://breakyoursolarcontract.com/solar-lien-removal",
   });
 
@@ -274,15 +271,15 @@ export default function SolarLienRemoval() {
 
               <h1 className="font-display text-5xl md:text-6xl lg:text-7xl leading-none mb-6 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>
                 SOLAR LIEN<br />
-                <span style={{ color: "#f97316" }}>REMOVAL</span><br />
-                EXPERTS
+                <span style={{ color: "#f97316" }}>RECORD</span><br />
+                REVIEW
               </h1>
 
               <p className="text-lg text-slate-300 mb-4 leading-relaxed max-w-lg">
-                A solar lien on your property title can block your home sale, prevent refinancing, and follow you for decades. PACE loans, solar deed liens, and UCC fixture filings are all removable — but you need to know how.
+                If a title report, property-tax bill, lender, or closing party identifies a solar-related assessment, lien, security instrument, or UCC filing, obtain the exact record before assuming its effect or how it can be resolved.
               </p>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
-                <strong className="text-white">We specialize in removing solar liens</strong> from property titles across the country — through payoff negotiation, legal challenge, or lien dispute.
+                <strong className="text-white">Review the recorded filing and release requirements</strong> before considering payoff, negotiation, a dispute, or another title-related step.
               </p>
 
               <div className="flex flex-wrap gap-3 mb-8">
@@ -298,7 +295,7 @@ export default function SolarLienRemoval() {
                 </a>
                 <a href="#get-help" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:border-amber-500 hover:text-amber-400"
                   style={{ border: "1px solid oklch(1 0 0 / 25%)", color: "#F8FAFC" }}>
-                  Free Lien Review <ArrowRight className="w-4 h-4" />
+                  Document Review <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
             </motion.div>
@@ -308,9 +305,9 @@ export default function SolarLienRemoval() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             id="get-help" className="rounded-2xl p-8" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 12%)" }}>
             <h2 className="font-display text-2xl text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
-              FREE LIEN REVIEW
+              DOCUMENT REVIEW
             </h2>
-            <p className="text-slate-400 text-sm mb-6">Tell us about your lien — we'll tell you how to remove it.</p>
+            <p className="text-slate-400 text-sm mb-6">Share the recorded instrument and agreement details for an individual document review.</p>
             <LienForm />
           </motion.div>
         </div>
@@ -322,9 +319,9 @@ export default function SolarLienRemoval() {
           <Reveal>
             <div className="text-center mb-14">
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-                TYPES OF SOLAR LIENS
+                TYPES OF RECORDS TO IDENTIFY
               </h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Not all solar liens are the same. The type determines how it's removed — and how urgently you need to act.</p>
+              <p className="text-slate-400 max-w-2xl mx-auto">Labels are not interchangeable. Read the recorded instrument, agreement, title report, and written holder requirements before choosing a next step.</p>
             </div>
           </Reveal>
 
@@ -332,35 +329,35 @@ export default function SolarLienRemoval() {
             {[
               {
                 type: "PACE / HERO Loans",
-                priority: "SUPER-PRIORITY",
+                priority: "VERIFY ASSESSMENT",
                 priorityColor: "#f87171",
-                description: "Property Assessed Clean Energy loans are recorded as a tax assessment lien on your property. They have super-priority — meaning they're paid BEFORE your mortgage in a foreclosure. Most mortgage lenders refuse to fund a purchase or refinance when a PACE lien exists.",
-                howRemoved: ["Pay off the full balance at closing", "Negotiate a reduced settlement with the PACE servicer", "Challenge the lien if the loan was improperly originated", "File a legal dispute if you were misled during the sale"],
-                programs: ["Ygrene", "Renew Financial", "Renovate America", "HERO Program", "CalFirst PACE"],
+                description: "The CFPB explains that residential PACE financing is repaid through a property-tax assessment. Delinquent PACE amounts can affect tax-sale priority, and an outstanding PACE assessment may affect sale or refinance options.",
+                howRemoved: ["Obtain the current property-tax assessment", "Request the written payoff and expiration date", "Ask the closing or mortgage professional for its requirements", "Verify any paid assessment or release in the public record"],
+                programs: ["Property-tax bill", "PACE agreement", "Title report", "Written payoff"],
               },
               {
                 type: "Solar Deed of Trust / Mortgage",
-                priority: "HIGH PRIORITY",
+                priority: "VERIFY RECORD",
                 priorityColor: "#fb923c",
-                description: "Some solar companies record a deed of trust or second mortgage against your property as collateral for the solar loan. This appears on title just like a home equity loan and must be released before you can sell or refinance.",
-                howRemoved: ["Obtain a lien release from the solar lender upon payoff", "Negotiate a reduced payoff if financial hardship exists", "Challenge the lien if it was recorded without proper disclosure", "Sue for wrongful lien if the loan was fraudulent"],
-                programs: ["Sunrun (some products)", "SunPower (some products)", "Various regional lenders"],
+                description: "If the title report shows a deed of trust, mortgage, or other real-property security instrument connected to the transaction, use the recorded document to identify the beneficiary, property, priority language, and release process.",
+                howRemoved: ["Obtain the complete recorded instrument", "Confirm the current holder or servicer", "Request written payoff and release requirements", "Have the title professional verify the recorded release"],
+                programs: ["Recorded instrument", "Financing agreement", "Assignment history", "Release requirements"],
               },
               {
                 type: "UCC Fixture Filing",
-                priority: "MODERATE",
+                priority: "VERIFY FILING",
                 priorityColor: "#f97316",
-                description: "A UCC-1 fixture filing is recorded in your county to give the solar company a security interest in the panels as fixtures attached to your property. It doesn't have the same priority as a mortgage lien but can complicate title and deter buyers.",
-                howRemoved: ["Request a UCC termination statement from the lender upon payoff", "File a UCC-3 termination if the lender fails to release", "Challenge the filing if it was improperly recorded", "Negotiate release as part of a broader loan settlement"],
-                programs: ["Most solar loan companies use UCC filings", "Mosaic", "GoodLeap", "Sunlight Financial"],
+                description: "The CFPB reports that lenders commonly file UCC liens on the solar panels themselves and that treatment can vary by jurisdiction. Obtain the filing and ask the closing or title professional how it affects the transaction.",
+                howRemoved: ["Obtain the exact UCC record and filing office", "Identify the secured party and collateral description", "Request written termination or subordination requirements", "Verify any termination in the correct filing system"],
+                programs: ["UCC financing statement", "Collateral description", "Secured-party record", "Termination requirements"],
               },
               {
                 type: "Mechanics / Contractor Lien",
-                priority: "VARIABLE",
+                priority: "STATE-SPECIFIC",
                 priorityColor: "#a78bfa",
-                description: "If your solar installer wasn't paid by the financing company, they may have filed a mechanics lien against your property. This is separate from the solar loan itself and requires its own resolution process.",
-                howRemoved: ["Pay the contractor directly to obtain a lien release", "Dispute the lien if the work was defective or incomplete", "Negotiate a settlement with the contractor", "Challenge the lien in court if it was improperly filed"],
-                programs: ["Can occur with any installer", "Common when solar companies go bankrupt"],
+                description: "A mechanic's or contractor lien is governed by state law and the recorded claim. Obtain the filing, work records, notices, dates, claimant identity, and any release demand before evaluating it.",
+                howRemoved: ["Obtain the complete recorded claim", "Collect invoices, notices, and work records", "Request the claimant's written basis and release terms", "Ask qualified local counsel or a title professional about the applicable process"],
+                programs: ["Recorded claim", "Project invoices", "Required notices", "Release demand"],
               },
             ].map(({ type, priority, priorityColor, description, howRemoved, programs }) => (
               <Reveal key={type}>
@@ -373,7 +370,7 @@ export default function SolarLienRemoval() {
                   </div>
                   <p className="text-sm text-slate-400 leading-relaxed mb-4">{description}</p>
                   <div className="mb-4">
-                    <div className="text-xs font-semibold text-emerald-400 mb-2 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> HOW IT'S REMOVED</div>
+                    <div className="text-xs font-semibold text-emerald-400 mb-2 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> RECORD CHECKLIST</div>
                     <ul className="space-y-1">
                       {howRemoved.map(item => (
                         <li key={item} className="text-xs text-slate-400 flex items-start gap-2">
@@ -384,7 +381,7 @@ export default function SolarLienRemoval() {
                     </ul>
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-500 mb-2">COMMON PROGRAMS/LENDERS</div>
+                    <div className="text-xs font-semibold text-slate-500 mb-2">SOURCE RECORDS</div>
                     <div className="flex flex-wrap gap-1">
                       {programs.map(p => (
                         <span key={p} className="text-xs px-2 py-0.5 rounded" style={{ background: "oklch(1 0 0 / 8%)", color: "#94a3b8" }}>{p}</span>
@@ -403,9 +400,9 @@ export default function SolarLienRemoval() {
         <Reveal>
           <div className="text-center mb-14">
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-              OUR LIEN REMOVAL PROCESS
+              LIEN-REVIEW WORKFLOW
             </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">We handle the entire process — from identifying the lien type to getting the release recorded with your county.</p>
+            <p className="text-slate-400 max-w-2xl mx-auto">Use the recorded documents, financing agreement, and title report to identify the lien type and the questions that require individual review.</p>
           </div>
         </Reveal>
 
@@ -413,10 +410,10 @@ export default function SolarLienRemoval() {
           <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2" style={{ background: "oklch(1 0 0 / 10%)" }} />
           <div className="space-y-8">
             {[
-              { step: "01", side: "left", title: "Title Review", body: "We pull your title report and identify every lien, encumbrance, and cloud on title related to your solar installation. Many homeowners don't know exactly what type of lien they have until we review it.", icon: <FileText className="w-5 h-5" /> },
-              { step: "02", side: "right", title: "Lien Analysis & Strategy", body: "We analyze the lien for legal vulnerabilities — improper origination, TILA violations, failure to disclose, or misrepresentation. This determines whether we negotiate a payoff or challenge the lien legally.", icon: <Scale className="w-5 h-5" /> },
-              { step: "03", side: "left", title: "Lender Negotiation", body: "We contact the lien holder directly and negotiate — either a full payoff at closing, a reduced settlement, or a lien release in exchange for a payment plan. We know how these lenders operate.", icon: <Gavel className="w-5 h-5" /> },
-              { step: "04", side: "right", title: "Lien Release & Recording", body: "Once resolved, we obtain the formal lien release document and coordinate with your title company or county recorder to get it properly recorded — clearing your title for sale or refinance.", icon: <CheckCircle className="w-5 h-5" /> },
+              { step: "01", side: "left", title: "Collect the Records", body: "Obtain the current title report, recorded instrument, signed financing agreement, payment history, and any payoff or release correspondence.", icon: <FileText className="w-5 h-5" /> },
+              { step: "02", side: "right", title: "Identify the Filing", body: "Determine whether the record is a PACE assessment, deed of trust, UCC fixture filing, mechanic's lien, or another instrument. Different documents require different questions.", icon: <Scale className="w-5 h-5" /> },
+              { step: "03", side: "left", title: "Request Written Terms", body: "Ask the listed holder or servicer for a written payoff, release requirements, dispute address, and the specific document it will record if the obligation is resolved.", icon: <Gavel className="w-5 h-5" /> },
+              { step: "04", side: "right", title: "Verify the Public Record", body: "If a release or termination is issued, confirm with the title company or county recorder that it was accepted and appears correctly in the public record.", icon: <CheckCircle className="w-5 h-5" /> },
             ].map(({ step, side, title, body, icon }, i) => (
               <Reveal key={step} delay={i * 0.1}>
                 <div className={`flex ${side === "right" ? "md:flex-row-reverse" : "md:flex-row"} gap-6 items-start`}>
@@ -453,7 +450,7 @@ export default function SolarLienRemoval() {
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
                 SIGNS YOU MAY HAVE A SOLAR LIEN
               </h2>
-              <p className="text-slate-400 max-w-xl mx-auto">Many homeowners don't discover a solar lien until they try to sell or refinance. Here's what to watch for.</p>
+              <p className="text-slate-400 max-w-xl mx-auto">These observations are reasons to obtain the underlying record; none establishes the type, validity, priority, or remedy by itself.</p>
             </div>
           </Reveal>
 
@@ -464,7 +461,7 @@ export default function SolarLienRemoval() {
               { sign: "Your mortgage lender is refusing to fund a refinance", type: "PACE / Deed" },
               { sign: "A buyer's lender flagged your title during escrow", type: "Any Type" },
               { sign: "You received a notice from a solar company about a UCC filing", type: "UCC Filing" },
-              { sign: "Your solar installer went bankrupt and you got a contractor lien notice", type: "Mechanics Lien" },
+              { sign: "You received a recorded contractor- or mechanic-lien notice", type: "State-specific record" },
             ].map(({ sign, type }) => (
               <Reveal key={sign}>
                 <div className="flex items-start gap-3 p-4 rounded-xl" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
@@ -492,23 +489,23 @@ export default function SolarLienRemoval() {
           {[
             {
               q: "How do I remove a solar lien from my property?",
-              a: "The removal process depends on the lien type. PACE liens require a formal payoff and lien release recorded with your county. UCC fixture filings require a termination statement. Deeds of trust require a reconveyance. We handle all of these — and can often negotiate a reduced payoff if you were misled during the original sale."
+              a: "The process depends on the recorded instrument and the underlying agreement. Start with a current title report, a copy of the filing, and written payoff or release requirements from the listed holder. A qualified title or legal professional can assess the individual record."
             },
             {
               q: "What is a PACE loan and why does it create a lien?",
-              a: "PACE (Property Assessed Clean Energy) loans are a type of solar financing where repayment is structured as a property tax assessment. Because they're tied to the property — not the borrower — they're recorded as a lien on your title. They have super-priority, meaning they're paid before your mortgage in a foreclosure. This makes most mortgage lenders refuse to fund a purchase or refi when a PACE lien exists."
+              a: "The CFPB explains that PACE financing funds home improvements and is repaid through an assessment collected with property taxes. Delinquent PACE amounts may be paid through a tax sale before a mortgage lender receives proceeds, and an outstanding assessment may affect sale or refinance options. Confirm the exact assessment and current lender requirements."
             },
             {
               q: "Can I dispute a solar lien I didn't agree to?",
-              a: "Yes. If a lien was recorded without your knowledge or consent, or if the loan was originated through misrepresentation, you have legal grounds to challenge it. We review the origination documents, disclosure forms, and recording to identify any defects that could void or reduce the lien."
+              a: "A filing you do not recognize should be investigated, not ignored. Request the recorded document and origination records, preserve communications, and ask a qualified professional which dispute or correction process applies. No defect or remedy can be determined from general information alone."
             },
             {
               q: "How long does solar lien removal take?",
-              a: "Simple payoff-and-release transactions can be completed in 2–4 weeks. Negotiated settlements typically take 4–8 weeks. Legal challenges to improper liens can take longer depending on the lender's response. We work to match your timeline — especially if you have a pending sale or refinance."
+              a: "There is no universal timeline. Timing depends on the instrument, holder, payoff or dispute process, recorder, title company, facts, and whether a sale or refinance is pending. Get every deadline and requirement in writing."
             },
             {
               q: "Does removing a solar lien mean I lose my solar panels?",
-              a: "Not necessarily. Removing the lien means resolving the financing obligation — but the panels themselves are a separate matter. In most cases, if you pay off the loan, you keep the panels. If the loan is challenged and reduced or eliminated, the outcome depends on the specific legal resolution."
+              a: "A lien release, debt obligation, and equipment ownership are separate questions. Review the financing agreement, equipment-ownership terms, collateral description, recorded release, and any transfer document before drawing a conclusion."
             },
           ].map(({ q, a }, i) => (
             <Reveal key={i} delay={i * 0.05}>
@@ -524,6 +521,10 @@ export default function SolarLienRemoval() {
             </Reveal>
           ))}
         </div>
+        <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm">
+          <a href="https://www.consumerfinance.gov/ask-cfpb/i-am-considering-a-pace-loan-for-home-improvements-what-should-i-keep-in-mind-before-signing-up-en-2128/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline underline-offset-2">Official source: CFPB PACE guidance</a>
+          <a href="https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline underline-offset-2">Official source: CFPB solar-financing spotlight</a>
+        </div>
       </section>
 
       {/* ── Quiz ── */}
@@ -532,9 +533,9 @@ export default function SolarLienRemoval() {
           <Reveal>
             <div className="text-center mb-10">
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-                DO YOU QUALIFY FOR HELP?
+                ORGANIZE YOUR FILING RECORDS
               </h2>
-              <p className="text-slate-400">Answer 5 quick questions to see if we can help remove your solar lien.</p>
+              <p className="text-slate-400">Answer five questions to organize the filing type, agreement, and records for review.</p>
             </div>
           </Reveal>
           <DoIQualifyQuiz compact />
@@ -548,9 +549,9 @@ export default function SolarLienRemoval() {
         </Reveal>
         <div className="grid md:grid-cols-3 gap-4">
           {[
-            { href: "/selling-house-with-solar", title: "Selling House With Solar Loan", desc: "Solar loan blocking your home sale? We help you close." },
-            { href: "/solar-exit-options", title: "Solar Exit Options", desc: "All the ways to get out of a solar purchase contract." },
-            { href: "/solar-contract-help", title: "Solar Contract Help", desc: "Was your solar contract deceptive? Know your rights." },
+            { href: "/selling-house-with-solar", title: "Selling House With Solar Loan", desc: "Review payoff, transfer, title, and closing requirements." },
+            { href: "/solar-exit-options", title: "Solar Exit Options", desc: "Compare agreement types and the records to review." },
+            { href: "/solar-contract-help", title: "Solar Contract Help", desc: "Organize contract, disclosure, and transaction questions." },
           ].map(({ href, title, desc }) => (
             <Link key={href} href={href} className="group block rounded-xl p-5 transition-all hover:border-amber-500/50" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
               <div className="flex items-center justify-between mb-2">
@@ -569,9 +570,9 @@ export default function SolarLienRemoval() {
           <Reveal>
             <XCircle className="w-12 h-12 text-red-400 mx-auto mb-6" />
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-              THAT LIEN ISN'T GOING<br />AWAY ON ITS OWN
+              START WITH THE<br />RECORDED DOCUMENT
             </h2>
-            <p className="text-slate-400 mb-8 text-lg">Solar liens don't expire. They follow your property until they're formally released. Get a free review and find out exactly what it will take to clear your title.</p>
+            <p className="text-slate-400 mb-8 text-lg">Obtain the recorded filing, current payoff statement, secured-party details, and written release requirements before choosing a title-related next step.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="tel:9049214971" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-base transition-all hover:opacity-90"
                 style={{ background: "#f97316", color: "#0D0F14" }}>
@@ -579,12 +580,12 @@ export default function SolarLienRemoval() {
               </a>
               <a href="#get-help" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-base transition-all hover:border-amber-500 hover:text-amber-400"
                 style={{ border: "1px solid oklch(1 0 0 / 25%)", color: "#F8FAFC" }}>
-                Free Lien Review <ArrowRight className="w-5 h-5" />
+                Request Document Review <ArrowRight className="w-5 h-5" />
               </a>
             </div>
             <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
               <Clock className="w-4 h-4" />
-              <span>We respond within minutes during business hours</span>
+              <span>Availability and response time require individual confirmation</span>
             </div>
           </Reveal>
         </div>

@@ -50,6 +50,10 @@ export const leads = mysqlTable("leads", {
   formName: varchar("formName", { length: 100 }),
   sourcePage: varchar("sourcePage", { length: 255 }),
   sourceUrl: text("sourceUrl"),
+  contactConsent: tinyint("contactConsent").default(0).notNull(),
+  smsConsent: tinyint("smsConsent").default(0).notNull(),
+  consentVersion: varchar("consentVersion", { length: 64 }),
+  consentRecordedAt: timestamp("consentRecordedAt"),
   status: mysqlEnum("status", ["new", "contacted", "qualified", "closed_won", "closed_lost"])
     .default("new")
     .notNull(),
@@ -72,6 +76,9 @@ export const exitIntentCaptures = mysqlTable("exitIntentCaptures", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull(),
   sourcePage: varchar("sourcePage", { length: 255 }),
+  marketingConsent: tinyint("marketingConsent").default(0).notNull(),
+  consentVersion: varchar("consentVersion", { length: 64 }),
+  consentRecordedAt: timestamp("consentRecordedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -200,6 +207,14 @@ export const blogPosts = mysqlTable("blogPosts", {
   relatedSlugs: text("relatedSlugs"),     // JSON array of slugs
   faqItems: text("faqItems"),             // JSON array of {q, a} objects
   canonicalUrl: varchar("canonicalUrl", { length: 500 }),
+  // Evidence-first publication review. Legacy rows default to withheld until a
+  // real reviewer and primary-source record are supplied through an admin flow.
+  editorialReviewerName: varchar("editorialReviewerName", { length: 200 }),
+  editorialReviewerRole: varchar("editorialReviewerRole", { length: 200 }),
+  editorialReviewedAt: timestamp("editorialReviewedAt"),
+  editorialPrimarySources: text("editorialPrimarySources"), // JSON array of {url,title,accessedAt}
+  editorialUniqueValueSummary: text("editorialUniqueValueSummary"),
+  editorialFunnelOnlyDuplicate: tinyint("editorialFunnelOnlyDuplicate").default(1).notNull(),
   // Podcast fields
   podcastAudioUrl: text("podcastAudioUrl"),       // S3 or external URL to MP3/audio
   podcastTitle: varchar("podcastTitle", { length: 500 }),
@@ -286,6 +301,8 @@ export const apiKeys = mysqlTable("apiKeys", {
   keyPrefix: varchar("keyPrefix", { length: 10 }).notNull(), // first 8 chars for display
   permissions: text("permissions").notNull(),         // JSON array: ["posts:read","posts:write","companies:write",...]
   lastUsedAt: timestamp("lastUsedAt"),
+  expiresAt: timestamp("expiresAt"),
+  revokedAt: timestamp("revokedAt"),
   active: int("active").default(1).notNull(),         // 1=active, 0=revoked
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -423,7 +440,8 @@ export const backlinkTargets = mysqlTable("backlinkTargets", {
     "other",
   ]).notNull(),
 
-  // Quality metrics
+  // Legacy unverified metrics. Runtime APIs intentionally do not expose these;
+  // retain only until an approved destructive cleanup migration is planned.
   domainAuthority: int("domainAuthority"),
   domainRating: int("domainRating"),
   estimatedTraffic: int("estimatedTraffic"),
@@ -434,7 +452,8 @@ export const backlinkTargets = mysqlTable("backlinkTargets", {
     .default("playwright")
     .notNull(),
 
-  // Account credentials
+  // Legacy plaintext credential columns pending provider rotation and approved
+  // database purge. No runtime API may read, return, or write these values.
   accountEmail: varchar("accountEmail", { length: 320 }),
   accountPassword: varchar("accountPassword", { length: 500 }),
   accountUsername: varchar("accountUsername", { length: 200 }),

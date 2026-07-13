@@ -8,6 +8,7 @@ import { trpc } from '@/lib/trpc';
 import { Clock, ArrowRight, BookOpen, TrendingUp, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useMemo } from 'react';
+import { isBlogPostPublishable } from '@/data/publication-governance';
 
 const categoryColors: Record<string, string> = {
   'Legal Guide': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
@@ -31,10 +32,14 @@ export default function Blog() {
 
   // Normalize DB posts to the shape Blog.tsx expects
   const staticSlugs = new Set(staticBlogPosts.map(p => p.slug));
+  const publishableStaticPosts = useMemo(
+    () => staticBlogPosts.filter(isBlogPostPublishable),
+    []
+  );
   const dbOnlyPosts = useMemo(() => {
     if (!dbPosts.length) return [];
     return dbPosts
-      .filter(p => !staticSlugs.has(p.slug))
+      .filter(p => !staticSlugs.has(p.slug) && isBlogPostPublishable(p))
       .map(p => ({
         slug: p.slug,
         title: p.title,
@@ -48,7 +53,7 @@ export default function Blog() {
         excerpt: p.excerpt ?? '',
         heroImage: p.heroImage ?? 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80',
         heroAlt: p.title,
-        ctaText: 'Get a Free Solar Contract Review',
+        ctaText: 'Request a Solar Contract Review',
         ctaSubtext: 'Request an individual review. Options depend on your agreement, facts, and jurisdiction.',
         content: [],
         faq: [],
@@ -56,10 +61,10 @@ export default function Blog() {
       }));
   }, [dbPosts]);
 
-  // Combined list: DB-only posts first (newest), then all static posts
+  // Combined list: only entries that pass the shared editorial publication gate.
   const allPosts = useMemo(
-    () => [...dbOnlyPosts, ...staticBlogPosts],
-    [dbOnlyPosts]
+    () => [...dbOnlyPosts, ...publishableStaticPosts],
+    [dbOnlyPosts, publishableStaticPosts]
   );
 
   const categories = useMemo(() => {
@@ -96,7 +101,7 @@ export default function Blog() {
           </Link>
           <Link href="/#form">
             <span className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded cursor-pointer transition-colors">
-              Free Review
+              Document Review
             </span>
           </Link>
         </div>
@@ -108,14 +113,14 @@ export default function Blog() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <BookOpen className="w-5 h-5 text-amber-500" />
-            <span className="text-amber-500 font-mono text-sm uppercase tracking-widest">Solar Freedom Legal Blog</span>
+            <span className="text-amber-500 font-mono text-sm uppercase tracking-widest">Solar Contract Information Library</span>
           </div>
           <h1 className="font-black uppercase text-white leading-none mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2.5rem, 6vw, 5rem)' }}>
-            KNOW YOUR RIGHTS.<br />
-            <span className="text-amber-500">ESCAPE YOUR CONTRACT.</span>
+            UNDERSTAND YOUR AGREEMENT.<br />
+            <span className="text-amber-500">ORGANIZE YOUR RECORDS.</span>
           </h1>
           <p className="text-zinc-400 text-lg max-w-2xl leading-relaxed">
-            Real legal intelligence for homeowners trapped in solar contracts. Written by attorneys. Optimized for action. No fluff.
+            Educational solar-contract guides, document checklists, and official resources. Verify current law and seek qualified advice before acting.
           </p>
 
           {/* Stats bar */}
@@ -246,11 +251,11 @@ export default function Blog() {
           {filteredPosts.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-zinc-600 text-6xl mb-4">🔍</div>
-              <p className="text-zinc-400 text-lg mb-2">No articles found</p>
-              <p className="text-zinc-600 text-sm">Try a different search term or category</p>
-              <button onClick={() => { setSearchQuery(''); setActiveCategory('All'); }} className="mt-6 text-amber-500 font-bold text-sm uppercase tracking-wider hover:text-amber-400 transition-colors">
+              <p className="text-zinc-400 text-lg mb-2">{allPosts.length === 0 ? 'Editorial review is in progress' : 'No articles found'}</p>
+              <p className="text-zinc-600 text-sm">{allPosts.length === 0 ? 'Articles appear here only after their claims, primary sources, reviewer, review date, and unique value pass the publication gate.' : 'Try a different search term or category.'}</p>
+              {allPosts.length > 0 && <button onClick={() => { setSearchQuery(''); setActiveCategory('All'); }} className="mt-6 text-amber-500 font-bold text-sm uppercase tracking-wider hover:text-amber-400 transition-colors">
                 Clear filters
-              </button>
+              </button>}
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
@@ -317,7 +322,7 @@ export default function Blog() {
             </p>
             <Link href="/#form">
               <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">
-                Get Your Free Case Review →
+                Request a Document Review →
               </span>
             </Link>
           </div>
@@ -331,7 +336,7 @@ export default function Blog() {
           <div className="flex gap-6">
             <Link href="/"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Home</span></Link>
             <Link href="/blog"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Blog</span></Link>
-            <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Free Review</span></Link>
+            <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Document Review</span></Link>
           </div>
         </div>
       </footer>

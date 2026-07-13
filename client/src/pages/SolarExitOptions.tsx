@@ -12,30 +12,30 @@ const steps = [
   {
     step: "01",
     title: "Identify Your Contract Type",
-    body: "Solar loan, solar lease, or PPA — each has different exit strategies. The type of contract you have determines which paths are available to you.",
-    link: "/blog/solar-loan-vs-lease-problems",
-    linkText: "Loan vs Lease: Key Differences",
+    body: "Identify whether the signed documents describe a loan, lease, power-purchase agreement, cash purchase, or another structure. Ownership, payment, transfer, and purchase terms vary.",
+    link: "/solar-contract-help",
+    linkText: "Contract record checklist",
   },
   {
     step: "02",
-    title: "Review for Legal Grounds",
-    body: "Most homeowners who want out have at least one viable legal ground: misrepresentation, TILA violations, failure to provide cancellation notice, or state consumer protection violations.",
-    link: "/blog/solar-fraud-warning-signs",
-    linkText: "Solar Contract Red Flags",
+    title: "Review the Records and Applicable Rules",
+    body: "Compare the signed agreement, disclosures, sales materials, payment history, and current official rules. A document or rule is not a legal ground or remedy until its applicability is established for the individual transaction.",
+    link: "/solar-panel-scam",
+    linkText: "Sales and financing records",
   },
   {
     step: "03",
-    title: "Choose Your Exit Path",
-    body: "Legal cancellation, negotiated buyout, transfer to buyer, or refinancing. The right path depends on your situation, timeline, and financial goals.",
-    link: "/blog/how-to-negotiate-solar-contract-cancellation",
-    linkText: "Negotiation Guide",
+    title: "Request Written Terms",
+    body: "Ask the relevant counterparty for any current payoff, purchase, transfer, termination, dispute, or release terms. A listed process is not necessarily available in an individual agreement.",
+    link: "/selling-house-with-solar",
+    linkText: "Sale and transfer records",
   },
   {
     step: "04",
     title: "Get Legal Representation",
-    body: "Solar contract disputes are specialized. An attorney who knows solar financing law can identify options you would never find on your own — and often works on contingency.",
-    link: "/blog/solar-contract-attorney-guide",
-    linkText: "Attorney Guide",
+    body: "Solar agreement disputes can involve contract, financing, property, and consumer-protection questions. Ask any attorney you consider about relevant experience, jurisdiction, scope, and fees in writing.",
+    link: "/how-it-works",
+    linkText: "How document review works",
   },
 ];
 
@@ -43,48 +43,36 @@ const contractTypes = [
   {
     type: "Solar Loan",
     icon: <DollarSign className="w-5 h-5" />,
-    description: "You own the panels. You owe a lender. The loan may be secured by your home.",
-    exitOptions: ["Pay off the balance", "Refinance at better terms", "Challenge via TILA violations", "Negotiate a reduced payoff"],
-    difficulty: "Moderate",
-    href: "/blog/cancel-solar-loan-or-lease-early",
+    description: "Review the note, payment schedule, system-ownership terms, security documents, payoff provision, and written dispute procedure. These terms vary by agreement.",
+    exitOptions: ["Request a current payoff", "Check any transfer provision", "Compare disclosures with the note", "Ask which written dispute process applies"],
+    difficulty: "Requires document review",
   },
   {
     type: "Solar Lease",
     icon: <FileText className="w-5 h-5" />,
-    description: "The company owns the panels. You pay a monthly fee. Often 20–25 years with escalators.",
-    exitOptions: ["Transfer to home buyer", "Buy out the lease", "Challenge via misrepresentation", "Negotiate early termination"],
-    difficulty: "Moderate to Hard",
-    href: "/blog/cancel-solar-lease-san-antonio",
+    description: "Review the stated owner, term, payment or escalator formula, transfer process, purchase option, early-termination language, and required approvals.",
+    exitOptions: ["Check transfer requirements", "Request written purchase terms", "Review early-termination language", "Confirm title and closing requirements"],
+    difficulty: "Terms vary by agreement",
   },
   {
     type: "PPA",
     icon: <Scale className="w-5 h-5" />,
-    description: "You pay per kilowatt-hour. Company owns panels. Property lien complicates everything.",
-    exitOptions: ["Transfer to buyer (difficult)", "Buy out the PPA (expensive)", "Challenge via undisclosed terms", "Negotiate with lender"],
-    difficulty: "Hard",
-    href: "/blog/solar-ppa-cancellation-guide",
+    description: "Review the energy-rate formula, system ownership, term, transfer and purchase provisions, recorded filings, and any required counterparty approval.",
+    exitOptions: ["Check transfer requirements", "Request written purchase terms", "Verify the rate formula", "Review recorded filings and approvals"],
+    difficulty: "Terms vary by agreement",
   },
-];
-
-const stateLinks = [
-  { state: "Texas", href: "/cancel-solar-contract/dallas-tx" },
-  { state: "California", href: "/cancel-solar-contract/los-angeles-ca" },
-  { state: "Arizona", href: "/cancel-solar-contract/phoenix-az" },
-  { state: "Florida", href: "/cancel-solar-contract/orlando-fl" },
-  { state: "Nevada", href: "/cancel-solar-contract/las-vegas-nv" },
-  { state: "Colorado", href: "/cancel-solar-contract/denver-co" },
 ];
 
 export default function SolarExitOptions() {
   useSeoMeta({
-    title: 'Solar Exit Options: Every Way to Get Out of a Solar Contract | Solar Freedom',
-    description: 'All solar exit options explained: legal cancellation, negotiated buyout, lease transfer, and refinancing. Find out which path fits your situation.',
+    title: 'Solar Exit Options: Documents and Questions to Review | Solar Freedom',
+    description: 'Compare solar agreement types, written transfer or payoff terms, financing records, and current official resources before choosing a next step.',
     canonical: 'https://breakyoursolarcontract.com/solar-exit-options',
   });
   useEffect(() => {
-    document.title = "Solar Exit Options: Every Way to Get Out of a Solar Contract | Solar Freedom";
+    document.title = "Solar Exit Options: Documents and Questions to Review | Solar Freedom";
     const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "All solar exit options explained: legal cancellation, negotiated buyout, lease transfer, and refinancing. Find out which path fits your situation.");
+    if (meta) meta.setAttribute("content", "Compare solar agreement types, written transfer or payoff terms, financing records, and current official resources before choosing a next step.");
   }, []);
 
   return (
@@ -98,7 +86,7 @@ export default function SolarExitOptions() {
         </Link>
         <Link href="/#contact">
           <button className="text-sm font-semibold px-4 py-2 rounded-lg text-black" style={{ background: "oklch(0.78 0.18 85)" }}>
-            Free Case Review
+            Document Review
           </button>
         </Link>
       </nav>
@@ -109,14 +97,14 @@ export default function SolarExitOptions() {
           <Shield className="w-3 h-3" /> SOLAR EXIT OPTIONS
         </div>
         <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-          EVERY WAY TO<br /><span className="text-amber-400">EXIT SOLAR</span>
+          REVIEW YOUR<br /><span className="text-amber-400">SOLAR OPTIONS</span>
         </h1>
         <p className="text-xl text-gray-300 max-w-3xl mb-8 leading-relaxed">
-          There is no single exit from a solar contract. The right path depends on your contract type, how long ago you signed, and the specific facts of your situation. This page maps every option available to homeowners.
+          This page organizes the agreement types, records, written terms, and current sources to check before deciding whether any payoff, purchase, transfer, dispute, or other process is available.
         </p>
         <Link href="/#contact">
           <button className="flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-black" style={{ background: "oklch(0.78 0.18 85)" }}>
-            Find My Exit Path <ArrowRight className="w-4 h-4" />
+            Request Document Review <ArrowRight className="w-4 h-4" />
           </button>
         </Link>
       </section>
@@ -147,17 +135,16 @@ export default function SolarExitOptions() {
       {/* BY CONTRACT TYPE */}
       <section className="px-6 py-16 border-t border-white/8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>EXIT OPTIONS BY CONTRACT TYPE</h2>
-          <p className="text-gray-400 mb-10">Your contract type is the single most important factor in determining which exit paths are available.</p>
+          <h2 className="text-3xl font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>RECORDS BY AGREEMENT TYPE</h2>
+          <p className="text-gray-400 mb-10">The written agreement type affects which ownership, payment, transfer, purchase, payoff, and approval provisions should be checked.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {contractTypes.map((ct) => (
-              <Link key={ct.type} href={ct.href}>
-                <div className="p-6 rounded-xl border border-white/8 hover:border-amber-500/30 transition-all cursor-pointer h-full flex flex-col" style={{ background: "oklch(0.13 0.01 265)" }}>
+                <div key={ct.type} className="p-6 rounded-xl border border-white/8 h-full flex flex-col" style={{ background: "oklch(0.13 0.01 265)" }}>
                   <div className="text-amber-400 mb-3">{ct.icon}</div>
                   <h3 className="text-xl font-bold text-white mb-2">{ct.type}</h3>
                   <p className="text-gray-400 text-sm mb-4 leading-relaxed">{ct.description}</p>
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500 mb-2 font-mono uppercase tracking-wider">Exit Options</div>
+                    <div className="text-xs text-gray-500 mb-2 font-mono uppercase tracking-wider">Questions to Resolve</div>
                     <ul className="space-y-1">
                       {ct.exitOptions.map((opt) => (
                         <li key={opt} className="flex items-start gap-2 text-sm text-gray-300">
@@ -168,11 +155,10 @@ export default function SolarExitOptions() {
                     </ul>
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/8">
-                    <span className="text-xs text-gray-500">Difficulty: </span>
+                    <span className="text-xs text-gray-500">Review status: </span>
                     <span className="text-xs font-mono text-amber-400">{ct.difficulty}</span>
                   </div>
                 </div>
-              </Link>
             ))}
           </div>
         </div>
@@ -186,32 +172,23 @@ export default function SolarExitOptions() {
             <div>
               <h3 className="font-bold text-white mb-2">Do Not Stop Payments Without Legal Guidance</h3>
               <p className="text-gray-300 text-sm leading-relaxed">
-                Stopping solar payments unilaterally — without a legal basis — can trigger default, damage your credit, and result in a lien on your home. Always pursue legal options through proper channels before stopping payments. A free case review takes 48 hours and costs nothing.
+                Stopping payments can trigger default or other consequences under the agreement. Review the documents and obtain qualified advice before changing payments. Any service, fee, or response time requires individual written confirmation.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* BY STATE */}
+      {/* STATE RESEARCH */}
       <section className="px-6 py-16 border-t border-white/8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>EXIT OPTIONS BY STATE</h2>
-          <p className="text-gray-400 mb-8">State laws vary dramatically. Your state's consumer protection laws may provide stronger remedies than federal law.</p>
-          <div className="flex flex-wrap gap-3">
-            {stateLinks.map((s) => (
-              <Link key={s.state} href={s.href}>
-                <span className="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 border border-white/8 hover:border-amber-500/30 hover:text-amber-400 transition-all cursor-pointer" style={{ background: "oklch(0.13 0.01 265)" }}>
-                  {s.state}
-                </span>
-              </Link>
-            ))}
-            <Link href="/blog/solar-contract-state-laws-guide">
-              <span className="px-4 py-2 rounded-lg text-sm font-medium text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-all cursor-pointer">
-                View All States →
-              </span>
-            </Link>
-          </div>
+          <h2 className="text-3xl font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>STATE-LAW RESEARCH</h2>
+          <p className="text-gray-400 mb-8">State rules, filing systems, limitation periods, and available processes differ. Verify every proposition against a current official source before relying on it.</p>
+          <Link href="/solar-contract-laws">
+            <span className="inline-flex px-4 py-2 rounded-lg text-sm font-medium text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-all cursor-pointer">
+              Open state-law research hub →
+            </span>
+          </Link>
         </div>
       </section>
 
@@ -219,14 +196,14 @@ export default function SolarExitOptions() {
       <section className="px-6 py-20 border-t border-white/8">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-            READY TO FIND YOUR EXIT?
+            READY TO REVIEW THE DOCUMENTS?
           </h2>
           <p className="text-gray-400 mb-8 leading-relaxed">
             Request an individual review of the agreement and supporting records. Options, availability, fees, and timing depend on the facts and any written engagement terms.
           </p>
           <Link href="/#contact">
             <button className="flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-black text-lg mx-auto" style={{ background: "oklch(0.78 0.18 85)" }}>
-              <CheckCircle className="w-5 h-5" /> Get Free Case Review
+              <CheckCircle className="w-5 h-5" /> Request Document Review
             </button>
           </Link>
         </div>

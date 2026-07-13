@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@shared/const';
+import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
@@ -7,12 +7,12 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
-import { cities } from "./data/cities";
-import { companies } from "./data/companies";
 
-// Register known routes for the Manus runtime without making the initial JS bundle
-// parse the full city/company/blog content library before the app becomes usable.
-if (typeof window !== 'undefined') {
+// The Manus development runtime only needs route patterns. Enumerating every
+// city, company, and article here pulled the complete content catalogs into the
+// production entry bundle and eagerly downloaded all article bodies on every
+// page view.
+if (import.meta.env.DEV && typeof window !== "undefined") {
   const w = window as any;
   if (!w.__WOUTER_ROUTES__) {
     w.__WOUTER_ROUTES__ = [];
@@ -37,16 +37,15 @@ if (typeof window !== 'undefined') {
     "/solar-loan-help",
     "/solar-companies",
     "/sunrun",
+    "/media",
+    "/sitemap",
+    "/privacy-policy",
+    "/terms",
+    "/cancel-solar-contract/:slug",
+    "/cancel-:slug-solar-contract",
+    "/blog/:slug",
+    "/solar-contract-laws/:state",
   ].forEach(registerRoute);
-
-  cities.forEach((city) => registerRoute(`/cancel-solar-contract/${city.slug}`));
-  companies.forEach((company) =>
-    registerRoute(`/cancel-${company.slug}-solar-contract`)
-  );
-
-  void import("./data/blog").then((blogModule) => {
-    blogModule.blogPosts.forEach((post) => registerRoute(`/blog/${post.slug}`));
-  });
 }
 
 const queryClient = new QueryClient();
@@ -66,7 +65,7 @@ queryClient.getQueryCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.query.state.error;
     redirectToLoginIfUnauthorized(error);
-    console.error("[API Query Error]", error);
+    if (import.meta.env.DEV) console.error("[API] Query failed");
   }
 });
 
@@ -74,7 +73,7 @@ queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.mutation.state.error;
     redirectToLoginIfUnauthorized(error);
-    console.error("[API Mutation Error]", error);
+    if (import.meta.env.DEV) console.error("[API] Mutation failed");
   }
 });
 

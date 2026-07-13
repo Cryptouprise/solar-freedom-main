@@ -1,5 +1,6 @@
 import type { Request } from "express";
 import { TRPCError } from "@trpc/server";
+import { createHash } from "node:crypto";
 
 type Bucket = { count: number; resetAt: number };
 const buckets = new Map<string, Bucket>();
@@ -29,6 +30,31 @@ export function enforcePublicMutationLimit(req: Request, action: string, max = 1
   }
   if (current.count >= max) {
     throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many requests. Please try again later." });
+  }
+  current.count += 1;
+}
+
+/** Rate-limit a normalized contact identifier without retaining the raw PII. */
+export function enforcePublicIdentifierLimit(
+  req: Request,
+  action: string,
+  identifier: string,
+  max = 3,
+  windowMs = 60 * 60_000,
+): void {
+  const digest = createHash("sha256").update(identifier).digest("hex").slice(0, 24);
+  const now = Date.now();
+  const key = `${action}:identifier:${clientAddress(req)}:${digest}`;
+  const current = buckets.get(key);
+  if (!current || current.resetAt <= now) {
+    buckets.set(key, { count: 1, resetAt: now + windowMs });
+    return;
+  }
+  if (current.count >= max) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Too many requests for this contact. Please try again later.",
+    });
   }
   current.count += 1;
 }
