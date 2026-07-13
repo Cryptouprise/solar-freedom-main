@@ -29,7 +29,7 @@
 import * as cheerio from "cheerio";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -108,28 +108,26 @@ async function loadData() {
     const slugM2 = chunk.match(/\bslug:\s*["']([^"']+)["']/);
     if (!slugM2) continue;
     const nameM = chunk.match(/\bname:\s*["']([^"']+)["']/);
-    const statusM = chunk.match(/\bstatus:\s*["']([^"']+)["']/);
-    const complaintCountM = chunk.match(/\bcomplaintCount:\s*["']([^"']+)["']/);
-    const bbRatingM = chunk.match(/\bbbRating:\s*["']([^"']+)["']/);
-    const summaryM = chunk.match(/\bsummary:\s*["']([^"']+)["']/);
-    const topComplaintsM = chunk.match(/\btopComplaints:\s*\[([^\]]+)\]/);
-    const topComplaints = topComplaintsM
-      ? topComplaintsM[1].match(/["']([^"']+)["']/g)?.map(s => s.replace(/["']/g, '')) || []
-      : [];
-    const groundsM = chunk.match(/\bcancellationGrounds:\s*\[([^\]]+)\]/);
-    const cancellationGrounds = groundsM
-      ? groundsM[1].match(/["']([^"']+)["']/g)?.map(s => s.replace(/["']/g, '')) || []
-      : [];
+    const status = findStringProp(chunk, "status")?.value;
+    const complaintCount = findStringProp(chunk, "complaintCount")?.value;
+    const bbRating = findStringProp(chunk, "bbRating")?.value;
+    const summary = findStringProp(chunk, "summary")?.value;
+    const topComplaints = parseStringArray(chunk, "topComplaints");
+    const cancellationGrounds = parseStringArray(chunk, "cancellationGrounds");
+    const knownIssues = parseStringArray(chunk, "knownIssues");
+    const lawsuits = parseStringArray(chunk, "lawsuits");
     if (!nameM) continue;
     companyEntries.push({
       slug: slugM2[1],
       name: nameM[1],
-      status: statusM?.[1] || 'Active',
-      complaintCount: complaintCountM?.[1] || '',
-      bbRating: bbRatingM?.[1] || '',
-      summary: summaryM?.[1] || '',
+      status: status || 'Active',
+      complaintCount: complaintCount || '',
+      bbRating: bbRating || '',
+      summary: summary || '',
       topComplaints,
       cancellationGrounds,
+      knownIssues,
+      lawsuits,
     });
   }
 
@@ -139,6 +137,13 @@ async function loadData() {
       state: findStringProp(chunk, "state")?.value || titleFromSlug(slug),
       metaTitle: findStringProp(chunk, "metaTitle")?.value || null,
       metaDescription: findStringProp(chunk, "metaDescription")?.value || null,
+      heroHook: findStringProp(chunk, "heroHook")?.value || null,
+      heroSubhook: findStringProp(chunk, "heroSubhook")?.value || null,
+      primaryStatute: findStringProp(chunk, "primaryStatute")?.value || null,
+      primaryStatuteTitle: findStringProp(chunk, "primaryStatuteTitle")?.value || null,
+      coolingOffNote: findStringProp(chunk, "coolingOffNote")?.value || null,
+      contentSections: parseContentSections(chunk),
+      faq: parseFaqItems(chunk),
     }))
     .filter((entry) => entry.slug && entry.state);
 
@@ -218,6 +223,87 @@ function collectSlugChunks(content) {
       slugs[index + 1]?.start ?? content.length
     ),
   }));
+}
+
+function readBalanced(content, startIndex, openChar, closeChar) {
+  if (content[startIndex] !== openChar) return null;
+  let depth = 0;
+  for (let index = startIndex; index < content.length; index++) {
+    const character = content[index];
+    if (["'", '"', "`"].includes(character)) {
+      const literal = readStringLiteralAt(content, index);
+      if (literal) {
+        index = literal.end - 1;
+        continue;
+      }
+    }
+    if (character === openChar) depth += 1;
+    if (character === closeChar) {
+      depth -= 1;
+      if (depth === 0) {
+        return { value: content.slice(startIndex, index + 1), end: index + 1 };
+      }
+    }
+  }
+  return null;
+}
+
+function findArrayProp(content, prop) {
+  const property = new RegExp(`\\b${prop}\\s*:`).exec(content);
+  if (!property) return null;
+  let index = property.index + property[0].length;
+  while (index < content.length && /\s/.test(content[index])) index += 1;
+  return readBalanced(content, index, "[", "]");
+}
+
+function topLevelObjects(arraySource) {
+  const objects = [];
+  for (let index = 1; index < arraySource.length - 1; index++) {
+    if (["'", '"', "`"].includes(arraySource[index])) {
+      const literal = readStringLiteralAt(arraySource, index);
+      if (literal) index = literal.end - 1;
+      continue;
+    }
+    if (arraySource[index] !== "{") continue;
+    const object = readBalanced(arraySource, index, "{", "}");
+    if (!object) continue;
+    objects.push(object.value);
+    index = object.end - 1;
+  }
+  return objects;
+}
+
+function parseStringArray(content, prop) {
+  const array = findArrayProp(content, prop);
+  if (!array) return [];
+  const values = [];
+  for (let index = 1; index < array.value.length - 1; index++) {
+    if (!["'", '"', "`"].includes(array.value[index])) continue;
+    const literal = readStringLiteralAt(array.value, index);
+    if (!literal) continue;
+    values.push(literal.value);
+    index = literal.end - 1;
+  }
+  return values;
+}
+
+function parseContentSections(content) {
+  const array = findArrayProp(content, "content");
+  if (!array) return [];
+  return topLevelObjects(array.value)
+    .map(object => ({
+      type: findStringProp(object, "type")?.value || "p",
+      content: findStringProp(object, "content")?.value || "",
+      items: parseStringArray(object, "items"),
+      stats: (findArrayProp(object, "stats")
+        ? topLevelObjects(findArrayProp(object, "stats").value)
+        : []
+      ).map(stat => ({
+        value: findStringProp(stat, "value")?.value || "",
+        label: findStringProp(stat, "label")?.value || "",
+      })),
+    }))
+    .filter(section => section.content || section.items.length || section.stats.length);
 }
 
 // ─── FAQ + date extraction for richer structured data ────────────────────────
@@ -392,6 +478,9 @@ function loadBlogData() {
         title: `${cleanTitle} | Solar Freedom`,
         description: cleanDescription,
         faq,
+        contentSections: parseContentSections(chunk),
+        excerpt: findStringProp(chunk, "excerpt")?.value || "",
+        category: findStringProp(chunk, "category")?.value || "Solar contract guide",
         datePublished: toIsoDate(publishDate),
         dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
       };
@@ -524,6 +613,8 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
         summary: company.summary,
         topComplaints: company.topComplaints,
         cancellationGrounds: company.cancellationGrounds,
+        knownIssues: company.knownIssues,
+        lawsuits: company.lawsuits,
       },
     };
   }
@@ -537,7 +628,23 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     const description = state.metaDescription
       ? state.metaDescription
       : `Learn your legal rights under ${state.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`;
-    map[urlPath] = { title, description, canonical: `${BASE_URL}${urlPath}`, geo: { region: state.state } };
+    map[urlPath] = {
+      title,
+      description,
+      canonical: `${BASE_URL}${urlPath}`,
+      geo: { region: state.state },
+      stateData: {
+        state: state.state,
+        heroHook: state.heroHook,
+        heroSubhook: state.heroSubhook,
+        primaryStatute: state.primaryStatute,
+        primaryStatuteTitle: state.primaryStatuteTitle,
+        coolingOffNote: state.coolingOffNote,
+        contentSections: state.contentSections,
+        faq: state.faq,
+      },
+      faq: state.faq,
+    };
   }
 
   // Blog posts — ALL 100+ posts
@@ -550,6 +657,9 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       faq: data.faq,
       datePublished: data.datePublished,
       dateModified: data.dateModified,
+      contentSections: data.contentSections,
+      excerpt: data.excerpt,
+      category: data.category,
     };
   }
 
@@ -938,6 +1048,12 @@ function buildCompanyUniqueContent(meta, urlPath) {
   const groundsText = cd.cancellationGrounds?.length
     ? cd.cancellationGrounds.slice(0, 3).map(g => `<li>${escapeHtml(g)}</li>`).join('\n')
     : '<li>Misrepresentation of material facts during the sale</li><li>Truth in Lending Act disclosure failures</li><li>State consumer protection act violations</li>';
+  const knownIssuesText = cd.knownIssues?.length
+    ? cd.knownIssues.slice(0, 5).map(issue => `<li>${escapeHtml(issue)}</li>`).join("\n")
+    : "";
+  const lawsuitsText = cd.lawsuits?.length
+    ? cd.lawsuits.slice(0, 4).map(issue => `<li>${escapeHtml(issue)}</li>`).join("\n")
+    : "";
   const complaintNote = cd.complaintCount ? ` Homeowners have filed ${escapeHtml(cd.complaintCount)} complaints.` : '';
   const bbNote = cd.bbRating ? ` BBB rating: ${escapeHtml(cd.bbRating)}.` : '';
 
@@ -948,6 +1064,8 @@ function buildCompanyUniqueContent(meta, urlPath) {
       <ul>${complaintsText}</ul>
       <h2>Legal Grounds That May Apply</h2>
       <ul>${groundsText}</ul>
+      ${knownIssuesText ? `<h2>Documented ${escapeHtml(companyName)} Issues</h2><ul>${knownIssuesText}</ul>` : ""}
+      ${lawsuitsText ? `<h2>Legal and Regulatory History</h2><ul>${lawsuitsText}</ul>` : ""}
       <p>Federal law — including the Truth in Lending Act (TILA, 15 U.S.C. § 1601) and the FTC Act (15 U.S.C. § 45) — applies on top of state consumer protection statutes. Where ${escapeHtml(companyName)} financing involved undisclosed dealer fees or inflated loan amounts, lending-disclosure rules may provide additional grounds for cancellation or balance reduction.</p>
       <h2>Frequently Asked Questions — ${escapeHtml(companyName)} Contracts</h2>
       <dl>
@@ -958,6 +1076,56 @@ function buildCompanyUniqueContent(meta, urlPath) {
         <dt>How do I start the process?</dt>
         <dd>Submit a free case review request. Our attorneys will review your ${escapeHtml(companyName)} contract, identify the strongest legal grounds, and contact you within 24 hours with a plain-English assessment.</dd>
       </dl>`;
+}
+
+function renderContentSections(sections) {
+  return (sections || [])
+    .map(section => {
+      const content = escapeHtml(section.content || "");
+      if (section.type === "h2") return `<h2>${content}</h2>`;
+      if (section.type === "h3") return `<h3>${content}</h3>`;
+      if (["p", "callout", "warning", "quote"].includes(section.type) && content) {
+        return `<p${section.type !== "p" ? ` data-content-type="${section.type}"` : ""}>${content}</p>`;
+      }
+      if (section.type === "list" && section.items?.length) {
+        return `<ul>${section.items.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+      }
+      if (section.type === "stat-block" && section.stats?.length) {
+        return `<dl>${section.stats
+          .map(stat => `<dt>${escapeHtml(stat.value)}</dt><dd>${escapeHtml(stat.label)}</dd>`)
+          .join("")}</dl>`;
+      }
+      return "";
+    })
+    .join("\n");
+}
+
+function buildStateUniqueContent(meta) {
+  const state = meta.stateData;
+  if (!state) return "";
+  const faq = (state.faq || [])
+    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+    .join("");
+  return `
+    ${state.heroHook ? `<p>${escapeHtml(state.heroHook)}</p>` : ""}
+    ${state.heroSubhook ? `<p>${escapeHtml(state.heroSubhook)}</p>` : ""}
+    ${state.primaryStatuteTitle ? `<h2>${escapeHtml(state.primaryStatuteTitle)}</h2>` : ""}
+    ${state.primaryStatute ? `<p>${escapeHtml(state.primaryStatute)}</p>` : ""}
+    ${state.coolingOffNote ? `<p>${escapeHtml(state.coolingOffNote)}</p>` : ""}
+    ${renderContentSections(state.contentSections)}
+    ${faq ? `<section><h2>${escapeHtml(state.state)} solar contract FAQ</h2>${faq}</section>` : ""}`;
+}
+
+function buildBlogUniqueContent(meta) {
+  const sections = renderContentSections(meta.contentSections);
+  const faq = (meta.faq || [])
+    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+    .join("");
+  return `
+    ${meta.category ? `<p>${escapeHtml(meta.category)}</p>` : ""}
+    ${meta.excerpt ? `<p>${escapeHtml(meta.excerpt)}</p>` : ""}
+    ${sections}
+    ${faq ? `<section><h2>Frequently asked questions</h2>${faq}</section>` : ""}`;
 }
 
 function buildSemanticShellContent(meta, urlPath) {
@@ -974,9 +1142,9 @@ function buildSemanticShellContent(meta, urlPath) {
   } else if (pageType === 'company_page') {
     uniqueBody = buildCompanyUniqueContent(meta, urlPath);
   } else if (pageType === 'blog_post') {
-    // Blog posts have their own rich content in the React component;
-    // just include the meta description as the crawlable summary
-    uniqueBody = '';
+    uniqueBody = buildBlogUniqueContent(meta);
+  } else if (pageType === 'state_law') {
+    uniqueBody = buildStateUniqueContent(meta);
   } else {
     // Service pages: brief unique intro
     uniqueBody = '';
@@ -1127,7 +1295,20 @@ async function main() {
   } catch (_) {}
 }
 
-main().catch(err => {
-  console.error("Pre-render failed:", err);
-  process.exit(1);
-});
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+) {
+  main().catch(err => {
+    console.error("Pre-render failed:", err);
+    process.exit(1);
+  });
+}
+
+export {
+  buildMetaMap,
+  buildShellHtml,
+  loadBlogData,
+  loadData,
+  renderContentSections,
+};

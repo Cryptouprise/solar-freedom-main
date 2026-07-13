@@ -6,6 +6,14 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 import { buildMetaMap, injectMetaDynamic } from "../seo-meta";
+import {
+  CLIENT_ONLY_ROUTES,
+  normalizePagePath,
+  registerDynamicSeoInventory,
+  registerSeoPageDelivery,
+  renderClientOnlyDocument,
+  renderNotFoundDocument,
+} from "../seo-delivery";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -33,107 +41,88 @@ export async function setupVite(app: Express, server: Server) {
         "index.html"
       );
 
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
-      next(e);
+
+      const pagePath = normalizePagePath(url);
+      if (!pagePath) {
+        res.status(400).type("text").send("Invalid URL");
+        return;
+      }
+
+      const knownPublicPage = Boolean(buildMetaMap()[pagePath]);
+      const dynamicCandidate =
+        pagePath.startsWith("/blog/") &&
+        !pagePath.slice("/blog/".length).includes("/");
+      let page = await vite.transformIndexHtml(url, template);
+
+      if (!knownPublicPage && !CLIENT_ONLY_ROUTES.has(pagePath) && dynamicCandidate) {
+        page = await injectMetaDynamic(page, pagePath);
+        if (page.includes('data-content-source="database"')) {
+          res.status(200).type("html").end(page);
+          return;
+        }
+      }
+
+      if (!knownPublicPage && !CLIENT_ONLY_ROUTES.has(pagePath)) {
+        res
+          .status(404)
+          .type("html")
+          .set("X-Robots-Tag", "noindex, nofollow")
+          .end(renderNotFoundDocument(pagePath));
+        return;
+      }
+
+      if (CLIENT_ONLY_ROUTES.has(pagePath)) {
+        page = renderClientOnlyDocument(page, pagePath);
+        res.set("X-Robots-Tag", "noindex, nofollow");
+      }
+
+      res.status(200).type("html").end(page);
+    } catch (error) {
+      vite.ssrFixStacktrace(error as Error);
+      next(error);
     }
   });
 }
 
-/**
- * Resolve the dist/public directory robustly across different deployment environments.
- *
- * esbuild bundles all source files into a single dist/index.js. When a non-entry-point
- * module (like vite.ts) uses import.meta.dirname, esbuild resolves it to the SOURCE
- * file's directory at compile time, not the bundle output directory. This means
- * import.meta.dirname in vite.ts resolves to "server/_core/" (source), not "dist/" (output).
- *
- * To avoid this, we use process.cwd() + "dist/public" as the primary strategy in
- * production, which always resolves correctly regardless of the source file location.
- */
-function resolveDistPath(): string {
+/** Resolve dist/public robustly across local and bundled deployments. */
+export function resolveDistPath(): string {
   if (process.env.NODE_ENV === "development") {
     return path.resolve(import.meta.dirname, "../..", "dist", "public");
   }
 
-  // In production: use process.cwd()/dist/public as the primary strategy
   const cwdBased = path.resolve(process.cwd(), "dist", "public");
   if (fs.existsSync(cwdBased)) {
     console.log(`[serveStatic] distPath (cwd-based): ${cwdBased}`);
     return cwdBased;
   }
 
-  // Fallback: try import.meta.dirname-based path
   const dirnameBased = path.resolve(import.meta.dirname, "public");
   if (fs.existsSync(dirnameBased)) {
     console.log(`[serveStatic] distPath (dirname-based): ${dirnameBased}`);
     return dirnameBased;
   }
 
-  console.error(`[serveStatic] Could not find dist/public. Tried:\n  ${cwdBased}\n  ${dirnameBased}`);
+  console.error(
+    `[serveStatic] Could not find dist/public. Tried:\n  ${cwdBased}\n  ${dirnameBased}`
+  );
   return cwdBased;
 }
 
 export function serveStatic(app: Express) {
   const distPath = resolveDistPath();
 
-  // Serve static assets (JS, CSS, images, etc.) — but NOT HTML directory indexes.
-  // We handle HTML serving ourselves in the catch-all below so we can inject correct meta tags.
-  // Setting index:false prevents express.static from serving index.html for directory requests,
-  // which would bypass our pre-rendered file serving logic.
+  // Runtime inventories must win over build-time files so published DB posts
+  // become discoverable without a new deployment.
+  registerDynamicSeoInventory(app, distPath);
+
+  // HTML directory indexes are handled explicitly by the final route resolver.
   app.use(express.static(distPath, { index: false, redirect: false }));
 
-  // Pre-build the meta map at startup so first request is fast
   buildMetaMap();
-
-  // Serve pre-rendered HTML for all page routes.
-  // Pre-rendered files are generated by scripts/prerender.mjs at build time for all 371 URLs.
-  // Each URL gets its own index.html with correct title, description, and canonical tags baked in.
-  const indexPath = path.resolve(distPath, "index.html");
-  app.use("*", async (req, res) => {
-    try {
-      // IMPORTANT: When using app.use("*"), Express sets req.path = "/" always.
-      // We must use req.originalUrl to get the actual request path.
-      // Normalize: strip leading/trailing slashes and query string.
-      // "/cancel-sunrun-solar-contract" → "cancel-sunrun-solar-contract"
-      // "/cancel-sunrun-solar-contract/" → "cancel-sunrun-solar-contract"
-      // "/cancel-solar-contract/dallas-tx" → "cancel-solar-contract/dallas-tx"
-      const rawPath = req.originalUrl.split("?")[0]; // strip query string
-      const urlPath = rawPath.replace(/^\/+|\/+$/g, ""); // strip leading/trailing slashes
-
-      if (urlPath) {
-        const prerenderedPath = path.resolve(distPath, urlPath, "index.html");
-        if (fs.existsSync(prerenderedPath)) {
-          res
-            .set("Content-Type", "text/html")
-            .set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
-            .set("Surrogate-Control", "no-store")
-            .set("CDN-Cache-Control", "no-store")
-            .send(fs.readFileSync(prerenderedPath, "utf-8"));
-          return;
-        }
-      }
-
-      // Fallback: serve root index.html with dynamic meta injection.
-      // injectMetaDynamic handles DB blog posts that weren't pre-rendered at build time.
-      const html = fs.readFileSync(indexPath, "utf-8");
-      const injected = await injectMetaDynamic(html, rawPath);
-      res
-        .set("Content-Type", "text/html")
-        .set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
-        .set("Surrogate-Control", "no-store")
-        .set("CDN-Cache-Control", "no-store")
-        .send(injected);
-    } catch {
-      res.sendFile(indexPath);
-    }
-  });
+  registerSeoPageDelivery(app, distPath);
 }
