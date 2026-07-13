@@ -14,6 +14,7 @@ import adminRouter from "../adminRouter";
 import { startPressReleaseCron } from "../cron/pressRelease";
 import { startBacklinkDiscoveryCron } from "../cron/backlinkDiscovery";
 import { automationRunHandler } from "../scheduled/automationRun";
+import { rateLimit } from "express-rate-limit";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -101,8 +102,9 @@ async function startServer() {
 
   // ─── Capabilities Manifest (public — for AI agent discovery) ─────────────────
   const CAPABILITIES_PATH = path.resolve(process.cwd(), "CAPABILITIES.md");
+  const capabilitiesRateLimit = rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
-  app.get("/api/capabilities.md", (_req, res) => {
+  app.get("/api/capabilities.md", capabilitiesRateLimit, (_req, res) => {
     try {
       const md = fs.readFileSync(CAPABILITIES_PATH, "utf-8");
       res.setHeader("Content-Type", "text/markdown; charset=utf-8");
@@ -113,7 +115,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/capabilities", (_req, res) => {
+  app.get("/api/capabilities", capabilitiesRateLimit, (_req, res) => {
     try {
       const md = fs.readFileSync(CAPABILITIES_PATH, "utf-8");
       // Parse sections for structured JSON
@@ -147,7 +149,7 @@ async function startServer() {
 
   // ─── Scheduled / Heartbeat handlers ─────────────────────────────────────────
   // MUST be registered before the tRPC middleware and Vite fallthrough
-  app.post("/api/scheduled/automation-run", automationRunHandler);
+  app.post("/api/scheduled/automation-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), automationRunHandler);
 
   // tRPC API
   app.use(

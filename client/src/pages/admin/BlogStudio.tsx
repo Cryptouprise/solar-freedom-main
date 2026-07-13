@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { safeMediaUrl } from "@shared/urlSafety";
 import {
   Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link2,
   ImageIcon, Mic, Video, Search, Wand2, RefreshCw, Save, Eye, EyeOff,
@@ -514,8 +515,9 @@ export default function BlogStudio() {
   };
 
   const handleInsertImageIntoEditor = (url: string) => {
-    if (!editor || !url) return;
-    editor.commands.setImage({ src: url });
+    const safeUrl = safeMediaUrl(url);
+    if (!editor || !safeUrl) return;
+    editor.commands.setImage({ src: safeUrl });
     setIsDirty(true);
   };
 
@@ -525,6 +527,10 @@ export default function BlogStudio() {
   // Non-autosave drafts (for display in draft panel)
   const namedDrafts = (drafts as any[]).filter((d: any) => d.name !== "autosave");
   const autosaveDraft = (drafts as any[]).find((d: any) => d.name === "autosave");
+  const safeHeroImage = safeMediaUrl(heroImage);
+  const safePodcastAudioUrl = safeMediaUrl(podcastAudioUrl);
+  const safePodcastEmbedUrl = safeMediaUrl(podcastEmbedUrl);
+  const safeVideoUrl = safeMediaUrl(videoUrl);
 
   return (
     <AdminLayout>
@@ -1016,9 +1022,9 @@ export default function BlogStudio() {
             {activePanel === "media" && (
               <div className="p-4 space-y-4">
                 {/* Hero image preview */}
-                {heroImage && (
+                {safeHeroImage && (
                   <div className="relative">
-                    <img src={heroImage} alt="Hero" className="w-full h-40 object-cover rounded-lg" />
+                    <div className="min-h-24 rounded-lg bg-black/30 p-3 text-xs text-gray-400 break-all">Validated hero image URL: {safeHeroImage}</div>
                     <button
                       type="button"
                       onClick={() => { setHeroImage(""); setIsDirty(true); }}
@@ -1029,7 +1035,7 @@ export default function BlogStudio() {
                     <div className="absolute bottom-2 left-2 flex gap-2">
                       <button
                         type="button"
-                        onClick={() => heroImage && handleInsertImageIntoEditor(heroImage)}
+                        onClick={() => handleInsertImageIntoEditor(safeHeroImage)}
                         className="bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-amber-500/80"
                       >
                         Insert in body
@@ -1163,14 +1169,10 @@ export default function BlogStudio() {
                 {(podcastAudioUrl || podcastEmbedUrl) && (
                   <div className="border-t border-white/10 pt-4">
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-2">Preview</label>
-                    {podcastAudioUrl && (
-                      <audio controls className="w-full" src={podcastAudioUrl}>
-                        Your browser does not support the audio element.
-                      </audio>
-                    )}
-                    {podcastEmbedUrl && podcastEmbedUrl.includes("notebooklm") && (
+                    {safePodcastAudioUrl && <p className="text-xs text-gray-400 break-all">Validated audio URL: {safePodcastAudioUrl}</p>}
+                    {safePodcastEmbedUrl && (
                       <div className="bg-white/5 rounded-lg p-3 text-xs text-gray-400">
-                        NotebookLM embed: <a href={podcastEmbedUrl} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline break-all">{podcastEmbedUrl}</a>
+                        Validated podcast source: <span className="text-amber-400 break-all">{safePodcastEmbedUrl}</span>
                       </div>
                     )}
                   </div>
@@ -1215,29 +1217,9 @@ export default function BlogStudio() {
                 {videoUrl && (
                   <div className="border-t border-white/10 pt-4">
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-2">Preview</label>
-                    {videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") ? (
-                      <div className="aspect-video rounded-lg overflow-hidden bg-black">
-                        <iframe
-                          src={`https://www.youtube.com/embed/${videoUrl.includes("v=") ? videoUrl.split("v=")[1]?.split("&")[0] : videoUrl.split("/").pop()}`}
-                          className="w-full h-full"
-                          allowFullScreen
-                          title="Video preview"
-                        />
-                      </div>
-                    ) : videoUrl.includes("vimeo.com") ? (
-                      <div className="aspect-video rounded-lg overflow-hidden bg-black">
-                        <iframe
-                          src={`https://player.vimeo.com/video/${videoUrl.split("/").pop()}`}
-                          className="w-full h-full"
-                          allowFullScreen
-                          title="Video preview"
-                        />
-                      </div>
-                    ) : (
-                      <video controls className="w-full rounded-lg" src={videoUrl}>
-                        Your browser does not support the video element.
-                      </video>
-                    )}
+                    {safeVideoUrl
+                      ? <p className="text-xs text-gray-400 break-all">Validated video URL: {safeVideoUrl}</p>
+                      : <p className="text-red-400 text-xs">Enter a valid HTTP(S) media URL.</p>}
                   </div>
                 )}
               </div>

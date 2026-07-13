@@ -23,6 +23,7 @@
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
+import { hasExpectedHostname } from "../../shared/urlSafety";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -211,7 +212,7 @@ export async function submitToPRLog(
     const successUrl = page.url();
     const pageText = await page.textContent("body") ?? "";
 
-    if (successUrl.includes("prlog.org/") && !successUrl.includes("submit") ||
+    if (hasExpectedHostname(successUrl, "prlog.org") && !new URL(successUrl).pathname.includes("submit") ||
         pageText.toLowerCase().includes("submitted") ||
         pageText.toLowerCase().includes("pending review")) {
       await saveSession();

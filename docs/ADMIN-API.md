@@ -249,24 +249,9 @@ curl -X POST \
 | POST | `/api/admin/upload` | `posts:write` | Upload a single image, get CDN URL |
 | POST | `/api/admin/upload/batch` | `posts:write` | Upload up to 10 images at once |
 
-Claude can upload images in two ways:
+Remote URL imports are intentionally disabled because fetching an agent-supplied URL from the server creates a DNS-rebinding/SSRF boundary. Upload validated image bytes as base64 data.
 
-#### Option 1: Upload from URL (recommended for AI-generated images)
-
-If Claude generates an image via Gemini/DALL-E and has a temporary URL:
-
-```bash
-curl -X POST \
-  -H "Authorization: Bearer YOUR_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://generated-image-url.com/image.png",
-    "filename": "solar-panel-hero"
-  }' \
-  https://breakyoursolarcontract.com/api/admin/upload
-```
-
-#### Option 2: Upload base64 data
+#### Upload base64 data
 
 ```bash
 curl -X POST \
@@ -279,7 +264,7 @@ curl -X POST \
   https://breakyoursolarcontract.com/api/admin/upload
 ```
 
-#### Option 3: Batch upload (up to 10 images)
+#### Batch upload (up to 10 images)
 
 ```bash
 curl -X POST \
@@ -287,8 +272,8 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{
     "images": [
-      { "url": "https://example.com/img1.png", "filename": "hero" },
-      { "url": "https://example.com/img2.png", "filename": "section-2" }
+      { "data": "data:image/png;base64,iVBORw0KGgo...", "filename": "hero" },
+      { "data": "data:image/webp;base64,UklGRi...", "filename": "section-2" }
     ]
   }' \
   https://breakyoursolarcontract.com/api/admin/upload/batch
@@ -312,8 +297,8 @@ Use the returned `url` in your blog post's `heroImage` field or inline as `<img 
 #### Complete Workflow: Generate Image + Create Post
 
 ```
-1. Generate image with Gemini/DALL-E → get temporary URL
-2. POST /api/admin/upload with { url: "temp-url", filename: "descriptive-name" }
+1. Generate or obtain an image, then read its bytes in the trusted client
+2. POST /api/admin/upload with base64 `data`, `contentType`, and a descriptive filename
 3. Get back permanent CDN URL
 4. POST /api/admin/posts with heroImage set to the CDN URL
 ```
@@ -390,16 +375,16 @@ Content guidelines:
 When creating articles:
 1. Call GET /api/admin/posts/slugs to get all existing article slugs for interlinking
 2. Research the topic thoroughly
-3. Generate a hero image with Gemini, then upload it:
-   POST /api/admin/upload with { "url": "<gemini-image-url>", "filename": "descriptive-name" }
+3. Generate a hero image, then upload its trusted bytes:
+   POST /api/admin/upload with { "data": "<base64>", "contentType": "image/png", "filename": "descriptive-name" }
    Save the returned CDN url for the heroImage field
 4. Write the full HTML content (1,200-2,000 words) with 3-5 internal links to existing articles
 5. POST to /api/admin/posts with all fields including heroImage URL and relatedSlugs
 6. Confirm the post was created and return the URL
 
 When uploading images:
-- POST /api/admin/upload with { "url": "<image-url>" } to store from a URL
-- POST /api/admin/upload with { "data": "base64..." } to store from base64
+- POST /api/admin/upload with { "data": "base64...", "contentType": "image/png" }
+- Remote URL imports are rejected; fetch bytes only in a trusted client
 - POST /api/admin/upload/batch with { "images": [...] } for multiple images (max 10)
 - All uploads return a permanent CDN URL you can use in heroImage or <img> tags
 

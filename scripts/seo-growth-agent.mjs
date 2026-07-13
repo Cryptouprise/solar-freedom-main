@@ -184,7 +184,21 @@ function runCommand(command, args, label) {
 
 function quoteWindowsShellArg(value) {
   if (/^[A-Za-z0-9_./:=+-]+$/.test(value)) return value;
-  return `"${value.replace(/"/g, '\\"')}"`;
+  let quoted = '"';
+  let backslashes = 0;
+  for (const character of value) {
+    if (character === "\\") {
+      backslashes += 1;
+      continue;
+    }
+    if (character === '"') {
+      quoted += "\\".repeat(backslashes * 2 + 1) + '"';
+    } else {
+      quoted += "\\".repeat(backslashes) + character;
+    }
+    backslashes = 0;
+  }
+  return quoted + "\\".repeat(backslashes * 2) + '"';
 }
 
 function corepackCommand() {

@@ -15,6 +15,7 @@ import {
   renderClientOnlyDocument,
   renderNotFoundDocument,
 } from "../seo-delivery";
+import { rateLimit } from "express-rate-limit";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -31,7 +32,7 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
+  app.use("*", rateLimit({ windowMs: 60_000, limit: 600, standardHeaders: true, legacyHeaders: false }), async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
