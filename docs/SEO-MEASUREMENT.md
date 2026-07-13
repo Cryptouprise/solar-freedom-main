@@ -40,11 +40,20 @@ The refresh writes compatibility datasets (`gsc_all_pages.json` and
 property, measurement window, fetch time, row count, truncation state, and
 content hashes. It contains no private key.
 
-Every workflow run uploads machine-readable evidence and restores the previous
-`reports/seo-agent/state.json` through a branch-scoped cache so heartbeat deltas
-have a real prior observation. If the secret is absent, the technical audit can
-still run, but stale performance data is blocked from CTR/internal-link
-recommendations and the heartbeat reports `measurement_blocked`.
+These files and the generated `reports/seo-agent/` directory are private
+operational evidence. They are ignored by Git. Because this repository is
+public, the heartbeat does not cache, open public issues, or upload artifacts
+containing those measurements. Connect a private operations repository or an
+approved private evidence store before enabling recurring GSC collection. Do
+not copy page/query performance into a public issue as a workaround.
+
+For a private repository, every workflow run uploads machine-readable evidence
+and restores the previous `reports/seo-agent/state.json` through a
+branch-scoped cache so heartbeat deltas have a real prior observation. In a
+public repository, those publication steps stay disabled. If the secret is
+absent, the technical audit can still run, but stale performance data is blocked
+from CTR/internal-link recommendations and the heartbeat reports
+`measurement_blocked`.
 
 ## Important boundary
 
