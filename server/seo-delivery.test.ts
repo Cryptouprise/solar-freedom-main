@@ -49,7 +49,7 @@ describe("truthful SEO page delivery", () => {
             metaTitle: "Database Article Title",
             metaDescription: "A database-published article that is available without rebuilding.",
             excerpt: "Database article excerpt.",
-            content: '<h2 style="color:red">Actual database heading</h2><p>Actual database body.</p><a href="/safe" xlink:href="javascript:bad()">Safe link</a><svg><a xlink:href="javascript:bad()">SVG payload</a></svg><script>bad()</script>',
+            content: '<h2 style="color:red">Actual database heading</h2><p>Actual database body.</p><blockquote>Unverified testimonial</blockquote><a href="/safe" xlink:href="javascript:bad()">Safe link</a><svg><a xlink:href="javascript:bad()">SVG payload</a></svg><script>bad()</script>',
             category: "Legal Guide",
             publishedAt: new Date("2026-06-01T00:00:00Z"),
             updatedAt: new Date("2026-06-02T00:00:00Z"),
@@ -115,8 +115,10 @@ describe("truthful SEO page delivery", () => {
     expect(html).toContain("Actual database body");
     expect(html).toContain('"@type":"Article"');
     expect(html).toContain('"@type":"FAQPage"');
-    expect(html).toContain('"author":{"@type":"Organization","name":"Solar Freedom","url":"https://breakyoursolarcontract.com"}');
+    expect(html).not.toContain('"author":');
+    expect(html).toContain('"publisher":{"@type":"Organization","name":"Solar Freedom","url":"https://breakyoursolarcontract.com"}');
     expect(html).not.toContain("Solar Freedom Legal Team");
+    expect(html).not.toContain("Unverified testimonial");
     expect(html).not.toContain("<script>bad()</script>");
     expect(html).not.toContain("style=");
     expect(html).not.toContain("<svg");

@@ -7,7 +7,7 @@ import { trpc } from '@/lib/trpc';
 import TopicClusterWidget from '@/components/TopicClusterWidget';
 import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import QuickCallbackForm from '@/components/QuickCallbackForm';
-import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2, Shield, Scale } from 'lucide-react';
+import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2 } from 'lucide-react';
 import StickyMobileBar from '@/components/StickyMobileBar';
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement, ReactNode } from 'react';
@@ -15,6 +15,7 @@ import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
 import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { trackPhoneClick } from '@/lib/analytics';
+import { hasVerifiedQuoteEvidence, suppressUnverifiedQuoteMarkup } from '@shared/contentGovernance';
 
 function renderInlineContent(content?: string): ReactNode {
   if (!content) return null;
@@ -96,6 +97,7 @@ function renderSection(section: BlogSection, index: number) {
         </div>
       );
     case 'quote':
+      if (!hasVerifiedQuoteEvidence(section.verification)) return null;
       return (
         <div key={index} className="my-10 rounded-xl bg-zinc-800/60 border-l-4 border-amber-500 p-6 md:p-8">
           <Quote className="w-8 h-8 text-amber-500/40 mb-4" />
@@ -192,6 +194,7 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
 }
 
 function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
+  content = suppressUnverifiedQuoteMarkup(content);
   const sections: ReactElement[] = [];
   const paragraphRegex = /<p\b[\s\S]*?<\/p>/gi;
   let paragraphCount = 0;
@@ -239,46 +242,6 @@ function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubt
   }
 
   return sections;
-}
-
-// Author/Attorney Bio Section — E-E-A-T signal for Google
-function AuthorBio() {
-  return (
-    <div className="my-10 rounded-xl bg-zinc-900/80 border border-white/10 p-6 md:p-8">
-      <div className="flex items-start gap-4 md:gap-6">
-        <div className="shrink-0">
-          <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center">
-            <Scale className="w-7 h-7 text-amber-400" />
-          </div>
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-white font-bold text-sm">Solar Freedom Legal Team</span>
-            <Shield className="w-4 h-4 text-green-400" />
-          </div>
-          <div className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-3">
-            Reviewed by Licensed Consumer Protection Attorneys
-          </div>
-          <p className="text-zinc-400 text-sm leading-relaxed">
-            This article was researched and reviewed by our legal team specializing in solar contract disputes, 
-            consumer fraud, and UDAP violations. Our attorneys have handled 3,000+ solar contract cancellations 
-            across all 50 states. All legal information is current as of 2026 and based on actual case outcomes.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full">
-              Licensed in 50 States
-            </span>
-            <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full">
-              3,000+ Cases Handled
-            </span>
-            <span className="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full">
-              Updated May 2026
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // Converts a DB post (with HTML content string) into a BlogPost-compatible shape
@@ -388,12 +351,6 @@ export default function BlogPost() {
         description: dbPost.metaDescription ?? dbPost.excerpt,
         datePublished: (dbPostRaw as Record<string,unknown>)?.publishedAt ? String((dbPostRaw as Record<string,unknown>).publishedAt) : '2026-01-01',
         dateModified: (dbPostRaw as Record<string,unknown>)?.updatedAt ? String((dbPostRaw as Record<string,unknown>).updatedAt) : '2026-01-01',
-        author: {
-          '@type': 'Organization',
-          name: 'Solar Freedom Legal Team',
-          url: 'https://breakyoursolarcontract.com',
-          description: 'Licensed consumer protection attorneys specializing in solar contract disputes and cancellations.',
-        },
         publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${slug}` },
         image: dbPost.heroImage ?? '',
@@ -509,7 +466,6 @@ export default function BlogPost() {
               )}
 
               <DoIQualifyQuiz />
-              <AuthorBio />
 
               {/* HTML content from database with inline CTA cadence */}
               <div className="space-y-0">
@@ -638,12 +594,6 @@ export default function BlogPost() {
       description: post.metaDescription ?? post.excerpt,
       datePublished: post.publishDate ?? '2026-01-01',
       dateModified: post.publishDate ?? '2026-01-01',
-      author: {
-        '@type': 'Organization',
-        name: 'Solar Freedom Legal Team',
-        url: 'https://breakyoursolarcontract.com',
-        description: 'Licensed consumer protection attorneys specializing in solar contract disputes and cancellations.',
-      },
       publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
       mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${params.slug}` },
       image: post.heroImage ?? '',
@@ -799,9 +749,6 @@ export default function BlogPost() {
 
           {/* QUIZ — placed immediately after lead paragraph for maximum conversion */}
           <DoIQualifyQuiz />
-
-          {/* Author Bio — E-E-A-T signal */}
-          <AuthorBio />
 
           {/* Article content */}
           <div className="prose-invert max-w-none">

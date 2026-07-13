@@ -11,7 +11,6 @@ import { getStateLaw, StateLawSection } from '@/data/state-laws';
 import { cities as ALL_CITIES } from '@/data/cities';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useSiteConfig } from '@/hooks/useSiteConfig';
 import {
   Accordion,
   AccordionContent,
@@ -136,7 +135,6 @@ function ContentSection({ section }: { section: StateLawSection }) {
 }
 
 export default function StateLawPage() {
-  const { phoneE164 } = useSiteConfig();
   const params = useParams<{ state: string }>();
   const stateSlug = params.state;
   const law = getStateLaw(stateSlug || '');
@@ -148,21 +146,6 @@ export default function StateLawPage() {
   });
 
   const stateLawSchemas = law ? [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'LegalService',
-      name: `Solar Contract Help — ${law.state}`,
-      description: law.metaDescription,
-      url: `https://breakyoursolarcontract.com/solar-contract-laws/${law.slug}`,
-      areaServed: { '@type': 'State', name: law.state },
-      serviceType: 'Solar Contract Cancellation Assistance',
-      provider: {
-        '@type': 'Organization',
-        name: 'Solar Freedom',
-        url: 'https://breakyoursolarcontract.com',
-        telephone: phoneE164,
-      },
-    },
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',

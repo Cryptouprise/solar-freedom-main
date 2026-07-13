@@ -59,38 +59,6 @@ const SUNRUN_CLAUSES = [
   },
 ];
 
-// ─── Attorney Testimonials ─────────────────────────────────────────────────────
-const TESTIMONIALS = [
-  {
-    name: "Marcus T.",
-    state: "Arizona",
-    quote: "I was paying $218/month for a system that barely covered 40% of my bill. Solar Freedom's attorneys found a TILA violation in my Sunrun paperwork. Contract cancelled in 67 days.",
-    result: "Contract Cancelled",
-    days: 67,
-  },
-  {
-    name: "Jennifer R.",
-    state: "California",
-    quote: "My Sunrun rep told me I'd save $200/month. My bill went up. When I tried to sell my house, Sunrun wanted $28,000 to release the lien. Solar Freedom got the whole thing unwound.",
-    result: "Lien Released",
-    days: 91,
-  },
-  {
-    name: "David & Susan K.",
-    state: "Florida",
-    quote: "We were told the 2.9% escalator was 'standard and barely noticeable.' By year 8, our payment had gone up $60/month. Our attorney found misrepresentation grounds and we got out.",
-    result: "Contract Cancelled",
-    days: 54,
-  },
-  {
-    name: "Robert M.",
-    state: "Nevada",
-    quote: "Sunrun's buyout quote to sell my home was $31,000. Solar Freedom negotiated it down to zero — they found performance violations that gave us full leverage.",
-    result: "Buyout Waived",
-    days: 78,
-  },
-];
-
 // ─── Mini Contact Form ─────────────────────────────────────────────────────────
 function SunrunContactForm() {
   const { updateContactInfo } = useContactInfo();
@@ -424,44 +392,6 @@ export default function SunrunPage() {
                 </div>
               </div>
             </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ── */}
-      <section className="py-20">
-        <div className="container">
-          <Reveal>
-            <div className="text-center mb-14">
-              <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-3">— Real Results</div>
-              <h2 className="font-black text-white uppercase leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                SUNRUN CUSTOMERS WE'VE HELPED
-              </h2>
-            </div>
-          </Reveal>
-          <div className="grid md:grid-cols-2 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <Reveal key={t.name} delay={i * 0.1}>
-                <div className="rounded-xl border border-white/10 bg-zinc-900/50 p-6 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-black text-sm" style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))" }}>
-                        {t.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="text-white font-bold text-sm">{t.name}</div>
-                        <div className="text-gray-500 text-xs">{t.state}</div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-amber-400 font-black text-sm">{t.result}</div>
-                      <div className="text-gray-500 text-xs">{t.days} days</div>
-                    </div>
-                  </div>
-                  <p className="text-gray-300 text-sm leading-relaxed flex-1 italic">"{t.quote}"</p>
-                </div>
-              </Reveal>
-            ))}
           </div>
         </div>
       </section>

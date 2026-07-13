@@ -10,8 +10,6 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { AlertTriangle, CheckCircle, XCircle, Phone, ArrowRight, Shield, FileText, DollarSign, Home, Zap } from "lucide-react";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
-import SocialProofTicker from "@/components/SocialProofTicker";
-import UrgencyTimer from "@/components/UrgencyTimer";
 
 const SCAM_TACTICS = [
   {
@@ -367,8 +365,6 @@ export default function SolarPanelScam() {
                 <p className="text-zinc-400 mt-3 text-sm">Answer 5 quick questions. Our attorneys review your case within 24 hours. No cost, no obligation.</p>
               </div>
             </Reveal>
-            <SocialProofTicker />
-            <UrgencyTimer />
             <DoIQualifyQuiz />
           </div>
         </div>

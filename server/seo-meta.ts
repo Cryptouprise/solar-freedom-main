@@ -20,6 +20,7 @@
  */
 
 import * as cheerio from "cheerio";
+import { suppressUnverifiedQuoteMarkup } from "@shared/contentGovernance";
 import { cities } from "../client/src/data/cities";
 import { companies } from "../client/src/data/companies";
 import { stateLaws } from "../client/src/data/state-laws";
@@ -478,7 +479,7 @@ function renderDbPostContent(rawContent: string): string {
   if (!content) return "<p>This article is being prepared for publication.</p>";
 
   if (content.startsWith("<")) {
-    return sanitizeStoredHtml(content);
+    return suppressUnverifiedQuoteMarkup(sanitizeStoredHtml(content));
   }
 
   // Preserve useful source-visible structure for the occasional Markdown/plain
@@ -539,7 +540,6 @@ export function renderDbBlogPost(
     mainEntityOfPage: canonical,
     datePublished: safeIsoDate(post.publishedAt),
     dateModified: safeIsoDate(post.updatedAt ?? post.publishedAt),
-    author: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
     publisher: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
   };
   const schemas: object[] = [articleSchema];

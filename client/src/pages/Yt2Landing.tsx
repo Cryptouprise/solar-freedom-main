@@ -2,14 +2,12 @@
  * SOLAR FREEDOM — YouTube Landing Page
  * Tight, no-nav, no-footer conversion page for YouTube traffic.
  * Sections: Quiz Hero → Stats Bar → Counter Playbook → 4 Steps → We Break Them →
- *           Attorney Team → Testimonials → Videos → FAQ → States We Fight
+ *           Educational Videos → FAQ → State Resources
  */
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { useContactInfo } from "@/hooks/useContactInfo";
-import SocialProofTicker from "@/components/SocialProofTicker";
-import UrgencyTimer from "@/components/UrgencyTimer";
 import BookingModal from "@/components/BookingModal";
 import { trackPhoneClick, trackCTAClick, recordLeadSubmission } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
@@ -20,7 +18,6 @@ import OutcomesSection from "@/components/OutcomesSection";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 const FRUSTRATED_HOMEOWNER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/frustrated-homeowner-PQnVnTRrmQXJQnmBJ8whqw.webp";
 const FREEDOM_VISUAL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/freedom-visual-FjotebYoCq2THFJ9FesUTU.webp";
-const ATTORNEY_TEAM = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/attorney-team-babeeFpBFrVLC85VvSkpfJ.webp";
 
 // ─── Animated Counter ─────────────────────────────────────────────────────────
 function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
@@ -353,37 +350,6 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
   );
 }
 
-// ─── Testimonial Card ─────────────────────────────────────────────────────────
-function TestimonialCard({ name, location, quote, amount, company, delay }: {
-  name: string; location: string; quote: string; amount: string; company: string; delay: number;
-}) {
-  return (
-    <Reveal delay={delay}>
-      <div className="card-amber-border rounded-r-lg p-6 h-full">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <div className="font-semibold text-white">{name}</div>
-            <div className="text-gray-500 text-sm font-mono">{location}</div>
-          </div>
-          <div className="text-right">
-            <div className="badge-success">FREED</div>
-            <div className="text-amber-400 font-mono text-sm mt-1">{amount}/mo saved</div>
-          </div>
-        </div>
-        <p className="text-gray-300 text-sm leading-relaxed italic mb-4">"{quote}"</p>
-        <div className="text-gray-600 text-xs font-mono">Former {company} customer</div>
-        <div className="flex mt-3">
-          {[...Array(5)].map((_, i) => (
-            <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-          ))}
-        </div>
-      </div>
-    </Reveal>
-  );
-}
-
 // ─── FAQ Item ─────────────────────────────────────────────────────────────────
 function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
   const [open, setOpen] = useState(false);
@@ -509,8 +475,6 @@ export default function Yt2Landing() {
                 </h3>
                 <p className="text-gray-300 text-sm font-semibold">Most people have their solar canceled and still get to keep their equipment.</p>
               </div>
-              <SocialProofTicker />
-              <UrgencyTimer />
               <MultiStepForm onScrollToTop={scrollToTop} />
             </div>
           </motion.div>
@@ -677,87 +641,6 @@ export default function Yt2Landing() {
                 </div>
               </div>
             </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ── ATTORNEY TEAM ── */}
-      <section className="py-24 lg:py-32 relative overflow-hidden" style={{ background: "oklch(0.13 0.012 265)" }}>
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <Reveal>
-              <div className="relative">
-                <img src={ATTORNEY_TEAM} alt="Solar Freedom legal team" className="rounded-xl w-full object-cover shadow-2xl" loading="lazy" />
-                <div className="absolute inset-0 rounded-xl" style={{ background: "linear-gradient(to top, oklch(0.11 0.012 265 / 50%) 0%, transparent 60%)" }} />
-              </div>
-            </Reveal>
-            <div className="space-y-6">
-              <Reveal>
-                <div className="badge-success mb-4">THE TEAM</div>
-                <h2 className="font-display text-white leading-none" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                  ATTORNEYS WHO FIGHT
-                  <br />
-                  <span className="text-amber-gradient">ON YOUR SIDE.</span>
-                </h2>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  Our legal team specializes exclusively in consumer protection and solar contract law. We've gone up against every major solar company and lender in the country — and we know exactly how to win.
-                </p>
-              </Reveal>
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  { name: "Legal Operations Team", role: "Consumer Protection Counsel", spec: "Multi-state attorney network" },
-                  { name: "Case Review Unit", role: "Contract & TILA Analysis", spec: "Loan, lease, and PPA review" },
-                  { name: "Client Advocacy Desk", role: "Escalation & Resolution", spec: "Lender + installer negotiations" },
-                ].map((person, i) => (
-                  <Reveal key={person.name} delay={i * 0.1}>
-                    <div className="text-center p-4 rounded-lg border border-white/8 bg-white/3">
-                      <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto mb-3">
-                        <span className="text-amber-400 font-bold text-lg">{person.name[0]}</span>
-                      </div>
-                      <div className="font-semibold text-white text-sm">{person.name}</div>
-                      <div className="text-gray-500 text-xs">{person.role}</div>
-                      <div className="text-amber-400/70 text-xs font-mono mt-1">{person.spec}</div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-              <Reveal delay={0.4}>
-                <div className="flex flex-wrap gap-3">
-                  {["BBB Profile Available", "State Bar-Licensed Counsel", "TCPA-Compliant Outreach", "Documented Case Outcomes"].map((badge) => (
-                    <span key={badge} className="badge-success">{badge}</span>
-                  ))}
-                </div>
-              </Reveal>
-              <Reveal delay={0.5}>
-                <button onClick={() => scrollToForm("attorney_section_cta")} className="btn-amber px-8 py-4 rounded text-base font-bold">
-                  GET MY FREE CASE REVIEW →
-                </button>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ── */}
-      <section className="py-24 lg:py-32">
-        <div className="container">
-          <Reveal>
-            <div className="text-center mb-16">
-              <div className="badge-success inline-block mb-4">REAL RESULTS</div>
-              <h2 className="font-display text-white" style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}>
-                HOMEOWNERS WHO <span className="text-amber-gradient">BROKE FREE</span>
-              </h2>
-            </div>
-          </Reveal>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <TestimonialCard name="Michael T." location="Phoenix, AZ" quote="I was paying $210 a month for a system that barely worked. Solar Freedom got my contract cancelled in 52 days. I wish I'd found them sooner." amount="$210" company="Sunrun" delay={0} />
-            <TestimonialCard name="Jennifer & Mark S." location="Las Vegas, NV" quote="The salesperson told us we'd save $150/month. We were actually paying MORE than before. Solar Freedom proved the misrepresentation and got us out completely." amount="$185" company="Vivint Solar" delay={0.1} />
-            <TestimonialCard name="Robert L." location="San Diego, CA" quote="I couldn't sell my house because of the solar lien. These attorneys cleared it in 6 weeks. My house sold within a month after that." amount="$230" company="SunPower" delay={0.2} />
-            <TestimonialCard name="Patricia W." location="Dallas, TX" quote="My solar company went bankrupt and I was still expected to pay. Solar Freedom showed me I had zero obligation. Contract voided, credit protected." amount="$165" company="Freedom Forever" delay={0.3} />
-            <TestimonialCard name="Carlos M." location="Miami, FL" quote="They found three TILA violations in my contract within 24 hours of reviewing it. The solar company settled within 45 days. Unbelievable team." amount="$195" company="Tesla Solar" delay={0.4} />
-            <TestimonialCard name="Linda & Tom H." location="Sacramento, CA" quote="We were told the contract was 10 years. It was actually 25. Solar Freedom used that misrepresentation to get us out in under 60 days." amount="$220" company="Sunnova" delay={0.5} />
           </div>
         </div>
       </section>

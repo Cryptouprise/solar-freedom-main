@@ -18,7 +18,6 @@ import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
-import { SITE_CONFIG_DEFAULTS } from "@shared/const";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -253,35 +252,8 @@ export default function CityPage() {
     { q: `What solar companies have the most complaints in ${city.name}?`, a: `Based on BBB and state AG complaint data, the most complained-about companies in ${city.name} include Sunrun, Freedom Forever, and ADT Solar. Common issues include undisclosed escalator clauses, dealer fees, and savings projections that did not materialize.` },
   ];
 
-  // LegalService + LocalBusiness + BreadcrumbList + FAQ schema stacking for city pages
+  // Emit only page-verifiable navigation and FAQ data as structured data.
   const citySchemas: object[] = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'LegalService',
-      name: `Solar Freedom — ${city.name}, ${city.stateCode}`,
-      description: `Expert solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}. Cancel your solar lease, loan, or PPA legally.`,
-      url: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
-      areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
-      serviceType: 'Solar Contract Cancellation',
-      telephone: SITE_CONFIG_DEFAULTS.phone_number_e164,
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'LocalBusiness',
-      name: 'Solar Freedom',
-      description: `Solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}.`,
-      url: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
-      telephone: SITE_CONFIG_DEFAULTS.phone_number_e164,
-      areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: city.name,
-        addressRegion: city.stateCode,
-        addressCountry: 'US',
-      },
-      priceRange: 'Free Consultation',
-      openingHours: 'Mo-Fr 09:00-17:00',
-    },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',

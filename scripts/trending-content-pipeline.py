@@ -203,7 +203,7 @@ def discover_trending_topic(forced_topic: str | None = None) -> str:
         {
             "role": "system",
             "content": (
-                "You are an SEO strategist for a solar contract cancellation law firm. "
+                "You are an SEO strategist for a consumer-facing solar contract information website. "
                 "Identify the single most trending, high-intent solar complaint topic "
                 "right now based on the scraped content. Return ONLY the topic as a "
                 "short phrase (5-10 words), e.g. 'Sunrun contract cancellation 2026' "
@@ -289,8 +289,8 @@ def generate_article(topic: str) -> dict:
             {
                 "role": "system",
                 "content": textwrap.dedent(f"""
-                    You are a senior content strategist for Solar Freedom, a consumer protection 
-                    law firm that helps homeowners cancel predatory solar contracts. 
+                    You are a senior content strategist for Solar Freedom, a consumer-facing
+                    solar contract information and case-review intake website.
                     
                     Your writing style: Direct, authoritative, empathetic. No fluff. 
                     Use specific facts, dollar amounts, legal statute names, and real company names.
@@ -310,9 +310,10 @@ def generate_article(topic: str) -> dict:
                     - Every factual claim must be specific: cite statutes, percentages, dollar amounts
                     - Include at least 1 callout block with a key legal insight (cite a specific law)
                     - Include at least 1 warning block about risks of inaction
-                    - Include at least 1 quote block with a realistic homeowner testimonial and attribution
+                    - Do not create testimonials, client stories, attributed quotes, or outcome claims
+                    - A quote may be included only when the input supplies its source URL, verification date, and documented consent
                     - Include at least 1 list block with 4-6 bullet points
-                    - Last section MUST be an author bio: "This article was reviewed by the Solar Freedom legal team, specializing in consumer protection law and solar contract disputes since 2019."
+                    - Last section MUST be a neutral sources and methodology note; do not claim attorney review, legal-team authorship, licensing, or case experience
                     - Do NOT use generic filler phrases like "it is important to note"
                     - Write in present tense, active voice
                     - In 'p' sections, include inline links to related articles using format: [anchor text](/blog/slug)

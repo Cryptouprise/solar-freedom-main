@@ -925,38 +925,6 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
     },
   ];
 
-  if (
-    pageType === "city_page" ||
-    pageType === "company_page" ||
-    pageType === "service_page" ||
-    pageType === "state_law"
-  ) {
-    const legalService = {
-      "@context": "https://schema.org",
-      "@type": "LegalService",
-      name: "Solar Freedom",
-      url: meta.canonical,
-      description: meta.description,
-      areaServed:
-        meta.geo && (meta.geo.city || meta.geo.region)
-          ? {
-              "@type": "Place",
-              address: {
-                "@type": "PostalAddress",
-                ...(meta.geo.city ? { addressLocality: meta.geo.city } : {}),
-                ...(meta.geo.region ? { addressRegion: meta.geo.region } : {}),
-                addressCountry: "US",
-              },
-            }
-          : "United States",
-      serviceType:
-        pageType === "company_page"
-          ? "Solar company contract cancellation"
-          : "Solar contract cancellation",
-    };
-    blocks.push(legalService);
-  }
-
   if (pageType === "blog_post") {
     const article = {
       "@context": "https://schema.org",
@@ -964,11 +932,6 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
       headline: pageName,
       description: meta.description,
       mainEntityOfPage: meta.canonical,
-      author: {
-        "@type": "Organization",
-        name: "Solar Freedom",
-        url: BASE_URL,
-      },
       publisher: {
         "@type": "Organization",
         name: "Solar Freedom",
@@ -1044,13 +1007,29 @@ function buildCompanyUniqueContent(meta) {
       ${lawsuitsText ? `<h2>Legal matters listed on this page</h2><ul>${lawsuitsText}</ul>` : ''}`;
 }
 
+function hasVerifiedQuoteEvidence(value) {
+  const evidence = value?.verification;
+  if (!evidence || evidence.consentConfirmed !== true) return false;
+  if (typeof evidence.sourceLabel !== "string" || !evidence.sourceLabel.trim()) return false;
+  if (Number.isNaN(Date.parse(evidence.verifiedAt))) return false;
+  try {
+    return new URL(evidence.sourceUrl).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function renderContentSections(sections) {
   return (sections || [])
     .map(section => {
       const content = escapeHtml(section.content || "");
       if (section.type === "h2") return `<h2>${content}</h2>`;
       if (section.type === "h3") return `<h3>${content}</h3>`;
-      if (["p", "callout", "warning", "quote"].includes(section.type) && content) {
+      if (section.type === "quote") {
+        if (!content || !hasVerifiedQuoteEvidence(section)) return "";
+        return `<blockquote cite="${escapeHtml(section.verification.sourceUrl)}"><p>${content}</p><cite>${escapeHtml(section.verification.sourceLabel)}</cite></blockquote>`;
+      }
+      if (["p", "callout", "warning"].includes(section.type) && content) {
         return `<p${section.type !== "p" ? ` data-content-type="${section.type}"` : ""}>${content}</p>`;
       }
       if (section.type === "list" && section.items?.length) {

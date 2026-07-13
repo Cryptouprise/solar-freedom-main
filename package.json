@@ -10,6 +10,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
+    "governance:audit": "node scripts/trust-governance-audit.mjs",
     "seo:audit": "node scripts/seo-agent-audit.mjs",
     "seo:gsc:refresh": "node scripts/gsc-search-analytics.mjs",
     "seo:gsc:status": "node scripts/gsc-data-status.mjs",

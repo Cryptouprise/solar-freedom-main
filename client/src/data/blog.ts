@@ -11,6 +11,7 @@ import { blogArticlesBatch7 } from './blog-articles-batch7';
 import { blogArticlesBatch8 } from './blog-articles-batch8';
 import { batch9BlogPosts } from './blog-articles-batch9';
 import { batch10BlogPosts } from './blog-articles-batch10';
+import type { QuoteVerification } from '@shared/contentGovernance';
 
 export interface BlogSection {
   type: 'h2' | 'h3' | 'p' | 'callout' | 'warning' | 'quote' | 'list' | 'stat-block' | 'image' | 'video';
@@ -21,6 +22,7 @@ export interface BlogSection {
   alt?: string;
   caption?: string;
   author?: string;
+  verification?: QuoteVerification;
   poster?: string; // for video type — thumbnail shown before play
 }
 
