@@ -195,14 +195,14 @@ function readStringAfterColon(content, colonEndIndex) {
 }
 
 function findStringProp(content, prop) {
-  const propRegex = new RegExp(`\\b${prop}\\s*:`, "g");
+  const propRegex = new RegExp(`(?:["'\`]${prop}["'\`]|\\b${prop})\\s*:`, "g");
   const match = propRegex.exec(content);
   if (!match) return null;
   return readStringAfterColon(content, propRegex.lastIndex);
 }
 
 function collectSlugChunks(content) {
-  const slugRegex = /\bslug\s*:/g;
+  const slugRegex = /(?:["'`]slug["'`]|\bslug)\s*:/g;
   const slugs = [];
   let match;
 
@@ -1005,77 +1005,43 @@ function buildCityUniqueContent(meta, urlPath) {
   if (!cd) return '';
   const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';
   const stateName = cd.state || cd.stateCode || 'your state';
-  const companiesList = cd.companies?.length
-    ? cd.companies.slice(0, 4).join(', ')
-    : 'Sunrun, SunPower, Freedom Forever, and GoodLeap';
-  const stateLaw = cd.stateLaw || `${stateName} consumer protection law`;
-  const activityNote = cd.solarActivity === 'Very High Activity'
-    ? `${cityName} is one of the highest solar-complaint markets in the country.`
-    : cd.solarActivity === 'High Activity'
-    ? `${cityName} has a high volume of solar complaints relative to its size.`
-    : `Solar complaints in ${cityName} have been rising steadily.`;
+  const companies = (cd.companies || [])
+    .map(company => `<li>${escapeHtml(company)}</li>`)
+    .join('');
 
   return `
-      <h2>Your Cancellation Rights in ${escapeHtml(stateName)}</h2>
-      <p>Homeowners in ${escapeHtml(cityName)} are protected by the ${escapeHtml(stateLaw)}, in addition to federal consumer protection law. If you were promised savings, a tax credit offset, or a system that would eliminate your electric bill — and the reality fell short — the gap between the sales pitch and the signed contract is often where a cancellation case begins.</p>
-      <h2>Solar Companies Active in ${escapeHtml(cityName)}</h2>
-      <p>${activityNote} The companies most frequently reported by ${escapeHtml(cityName)}-area homeowners include ${escapeHtml(companiesList)}. Common complaints involve inflated dealer fees, undisclosed payment escalators, systems that underperform written projections, and sales representatives who misrepresented tax credit eligibility.</p>
-      <h2>Legal Grounds That May Apply</h2>
-      <p>Beyond any cooling-off window, ${escapeHtml(stateName)} homeowners may still have grounds to pursue cancellation, loan reduction, or lien removal where there was misrepresentation of savings, undisclosed escalator clauses, unfulfilled performance guarantees, or Truth in Lending Act disclosure failures on the financing side. Our attorneys review contracts from ${escapeHtml(cityName)} and surrounding ${escapeHtml(stateName)} communities at no charge.</p>
-      <h2>Frequently Asked Questions — ${escapeHtml(cityName)} Solar Contracts</h2>
+      <h2>Page location</h2>
       <dl>
-        <dt>Can I cancel my solar contract in ${escapeHtml(cityName)}?</dt>
-        <dd>In many cases, yes. ${escapeHtml(stateName)} consumer protection law and federal statutes provide multiple grounds for cancellation, rescission, or negotiated exit depending on how the contract was sold and whether the system has performed as promised.</dd>
-        <dt>What if my solar company went out of business?</dt>
-        <dd>If your installer or finance company has closed or filed for bankruptcy, you may still have claims against the surviving entity, the lender, or both. A free case review will identify which parties remain liable.</dd>
-        <dt>How long does the process take in ${escapeHtml(cityName)}?</dt>
-        <dd>Most cases resolve in 30 to 90 days. Complex lien situations or active litigation may take longer. The free case review will give you a realistic timeline based on your specific contract and company.</dd>
-      </dl>`;
+        <dt>City</dt><dd>${escapeHtml(cityName)}</dd>
+        <dt>State</dt><dd>${escapeHtml(stateName)}</dd>
+      </dl>
+      ${companies ? `<h2>Companies listed for this location</h2><ul>${companies}</ul>` : ''}`;
 }
 
-function buildCompanyUniqueContent(meta, urlPath) {
+function buildCompanyUniqueContent(meta) {
   const cd = meta.companyData;
   if (!cd) return '';
   const companyName = meta.title.replace(/Cancel\s+|\s+Solar Contract.*/gi, '').trim() || 'this company';
-  const statusNote = cd.status === 'Bankrupt'
-    ? `${escapeHtml(companyName)} has filed for bankruptcy.`
-    : cd.status === 'Acquired'
-    ? `${escapeHtml(companyName)} has been acquired and operates under new ownership.`
-    : `${escapeHtml(companyName)} is currently active.`;
-  const complaintsText = cd.topComplaints?.length
-    ? cd.topComplaints.slice(0, 3).map(c => `<li>${escapeHtml(c)}</li>`).join('\n')
-    : '<li>Misrepresentation of savings or tax credit eligibility</li><li>Undisclosed payment escalators</li><li>System underperformance relative to written projections</li>';
-  const groundsText = cd.cancellationGrounds?.length
-    ? cd.cancellationGrounds.slice(0, 3).map(g => `<li>${escapeHtml(g)}</li>`).join('\n')
-    : '<li>Misrepresentation of material facts during the sale</li><li>Truth in Lending Act disclosure failures</li><li>State consumer protection act violations</li>';
+  const complaintsText = (cd.topComplaints || [])
+    .map(complaint => `<li>${escapeHtml(complaint)}</li>`)
+    .join('');
+  const groundsText = (cd.cancellationGrounds || [])
+    .map(ground => `<li>${escapeHtml(ground)}</li>`)
+    .join('');
   const knownIssuesText = cd.knownIssues?.length
-    ? cd.knownIssues.slice(0, 5).map(issue => `<li>${escapeHtml(issue)}</li>`).join("\n")
+    ? cd.knownIssues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
     : "";
   const lawsuitsText = cd.lawsuits?.length
-    ? cd.lawsuits.slice(0, 4).map(issue => `<li>${escapeHtml(issue)}</li>`).join("\n")
+    ? cd.lawsuits.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
     : "";
-  const complaintNote = cd.complaintCount ? ` Homeowners have filed ${escapeHtml(cd.complaintCount)} complaints.` : '';
-  const bbNote = cd.bbRating ? ` BBB rating: ${escapeHtml(cd.bbRating)}.` : '';
 
   return `
       <h2>About ${escapeHtml(companyName)}</h2>
-      <p>${statusNote}${complaintNote}${bbNote} ${cd.summary ? escapeHtml(cd.summary) : ''}</p>
-      <h2>Common ${escapeHtml(companyName)} Complaints</h2>
-      <ul>${complaintsText}</ul>
-      <h2>Legal Grounds That May Apply</h2>
-      <ul>${groundsText}</ul>
-      ${knownIssuesText ? `<h2>Documented ${escapeHtml(companyName)} Issues</h2><ul>${knownIssuesText}</ul>` : ""}
-      ${lawsuitsText ? `<h2>Legal and Regulatory History</h2><ul>${lawsuitsText}</ul>` : ""}
-      <p>Federal law — including the Truth in Lending Act (TILA, 15 U.S.C. § 1601) and the FTC Act (15 U.S.C. § 45) — applies on top of state consumer protection statutes. Where ${escapeHtml(companyName)} financing involved undisclosed dealer fees or inflated loan amounts, lending-disclosure rules may provide additional grounds for cancellation or balance reduction.</p>
-      <h2>Frequently Asked Questions — ${escapeHtml(companyName)} Contracts</h2>
-      <dl>
-        <dt>Can I cancel my ${escapeHtml(companyName)} solar contract?</dt>
-        <dd>Many ${escapeHtml(companyName)} contracts contain grounds for cancellation based on misrepresentation, undisclosed fees, or system underperformance. A free case review will determine whether your specific contract qualifies.</dd>
-        <dt>What if ${escapeHtml(companyName)} is no longer in business?</dt>
-        <dd>${cd.status === 'Bankrupt' ? `Because ${escapeHtml(companyName)} has filed for bankruptcy, claims may be pursued against the finance company, the lender, or the acquiring entity. Our attorneys handle these situations regularly.` : `If your installer or servicer has closed, claims may still be available against the lender or finance company. A case review will identify all available parties.`}</dd>
-        <dt>How do I start the process?</dt>
-        <dd>Submit a free case review request. Our attorneys will review your ${escapeHtml(companyName)} contract, identify the strongest legal grounds, and contact you within 24 hours with a plain-English assessment.</dd>
-      </dl>`;
+      ${cd.summary ? `<p>${escapeHtml(cd.summary)}</p>` : ''}
+      ${complaintsText ? `<h2>Complaints listed on this page</h2><ul>${complaintsText}</ul>` : ''}
+      ${knownIssuesText ? `<h2>Issues listed on this page</h2><ul>${knownIssuesText}</ul>` : ''}
+      ${groundsText ? `<h2>Cancellation grounds listed on this page</h2><ul>${groundsText}</ul>` : ''}
+      ${lawsuitsText ? `<h2>Legal matters listed on this page</h2><ul>${lawsuitsText}</ul>` : ''}`;
 }
 
 function renderContentSections(sections) {
@@ -1134,6 +1100,9 @@ function buildSemanticShellContent(meta, urlPath) {
   const contextLabel = pageType
     .replace(/_/g, " ")
     .replace(/\b\w/g, letter => letter.toUpperCase());
+  const sourceDescription = ["city_page", "company_page"].includes(pageType)
+    ? ""
+    : `<p>${escapeHtml(meta.description)}</p>`;
 
   // Build page-type-specific unique body content
   let uniqueBody = '';
@@ -1155,7 +1124,7 @@ function buildSemanticShellContent(meta, urlPath) {
     <main class="seo-prerender" data-page-type="${pageType}" style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 960px; margin: 0 auto; padding: 32px 20px; color: #111827;">
       <p style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f97316; font-weight: 700;">Solar Freedom ${escapeHtml(contextLabel)}</p>
       ${urlPath === "/" ? `<h2>${escapeHtml(h1)}</h2>` : `<h1>${escapeHtml(h1)}</h1>`}
-      <p>${escapeHtml(meta.description)}</p>
+      ${sourceDescription}
       ${uniqueBody}
       <nav aria-label="Related Solar Freedom resources">
         <h2>Related Solar Contract Resources</h2>

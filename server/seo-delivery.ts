@@ -19,6 +19,7 @@ export const CLIENT_ONLY_ROUTES = new Set([
   "/yt2",
   "/yt3",
   "/watch",
+  "/seo-command-center",
   "/admin/leads",
   "/admin/analytics",
   "/admin/content",

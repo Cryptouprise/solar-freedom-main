@@ -37,7 +37,7 @@ function decodeStringLiteralValue(value) {
 }
 
 function findProp(chunk, prop) {
-  const re = new RegExp(`\\b${prop}:\\s*(['"\`])((?:\\\\[\\s\\S]|(?!\\1)[\\s\\S])*?)\\1`);
+  const re = new RegExp(`(?:["'\\\`]${prop}["'\\\`]|\\b${prop})\\s*:\\s*(['"\\\`])((?:\\\\[\\s\\S]|(?!\\1)[\\s\\S])*?)\\1`);
   const m = re.exec(chunk);
   return m ? decodeStringLiteralValue(m[2]).trim() : "";
 }
@@ -62,7 +62,7 @@ function loadInventory() {
     .filter((f) => f.startsWith("blog") && f.endsWith(".ts"));
   for (const file of blogFiles) {
     const content = fs.readFileSync(path.resolve(dataDir, file), "utf-8");
-    const slugRe = /\bslug:\s*(['"`])((?:\\[\s\S]|(?!\1)[\s\S])*?)\1/g;
+    const slugRe = /(?:["'`]slug["'`]|\bslug)\s*:\s*(['"`])((?:\\[\s\S]|(?!\1)[\s\S])*?)\1/g;
     let m;
     const positions = [];
     while ((m = slugRe.exec(content)) !== null) {

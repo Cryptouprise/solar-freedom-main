@@ -24,6 +24,7 @@ import { cities } from "../client/src/data/cities";
 import { companies } from "../client/src/data/companies";
 import { stateLaws } from "../client/src/data/state-laws";
 import { blogPosts } from "../client/src/data/blog";
+import { sanitizeStoredHtml } from "./security/html";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -118,6 +119,11 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       title: "Solar Contract Videos & Podcast | Solar Freedom",
       description:
         "Explainer videos and podcast episodes on solar contract cancellation, loan reduction, and credit restoration. Learn your rights and get a free case audit.",
+    },
+    "/sitemap": {
+      title: "Site Map — All Pages | Solar Freedom",
+      description:
+        "Browse the Solar Freedom website directory, including service, company, city, state-law, and blog pages.",
     },
   };
 
@@ -467,30 +473,12 @@ function safeIsoDate(value: unknown): string | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
-function safeDbPostContent(rawContent: string): string {
+function renderDbPostContent(rawContent: string): string {
   const content = rawContent.trim();
   if (!content) return "<p>This article is being prepared for publication.</p>";
 
-  // Admin-authored posts normally store HTML. Keep editorial structure while
-  // removing executable/embedded content from the server-visible document.
   if (content.startsWith("<")) {
-    const fragment = cheerio.load(`<div id="db-post-body">${content}</div>`, null, false);
-    fragment("script,style,iframe,object,embed,form,input,button,textarea,select,link,meta").remove();
-    fragment("*").each((_, element) => {
-      const attributes = { ...(element as { attribs?: Record<string, string> }).attribs };
-      for (const name of Object.keys(attributes)) {
-        if (name.toLowerCase().startsWith("on") || name.toLowerCase() === "srcdoc") {
-          fragment(element).removeAttr(name);
-        }
-      }
-      for (const name of ["href", "src"]) {
-        const value = fragment(element).attr(name);
-        if (value && /^\s*(?:javascript|data):/i.test(value)) {
-          fragment(element).removeAttr(name);
-        }
-      }
-    });
-    return fragment("#db-post-body").html() || "";
+    return sanitizeStoredHtml(content);
   }
 
   // Preserve useful source-visible structure for the occasional Markdown/plain
@@ -551,7 +539,7 @@ export function renderDbBlogPost(
     mainEntityOfPage: canonical,
     datePublished: safeIsoDate(post.publishedAt),
     dateModified: safeIsoDate(post.updatedAt ?? post.publishedAt),
-    author: { "@type": "Organization", name: "Solar Freedom Legal Team" },
+    author: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
     publisher: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
   };
   const schemas: object[] = [articleSchema];
@@ -567,13 +555,13 @@ export function renderDbBlogPost(
     });
   }
 
-  const body = safeDbPostContent(post.content);
+  const body = renderDbPostContent(post.content);
   const faqHtml = faq.length
     ? `<section aria-labelledby="dynamic-faq"><h2 id="dynamic-faq">Frequently asked questions</h2>${faq
         .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
         .join("")}</section>`
     : "";
-  const semanticArticle = `<div id="root"><main class="seo-server-rendered" data-content-source="database" style="font:16px/1.65 system-ui,sans-serif;max-width:860px;margin:auto;padding:32px 20px;color:#18181b"><nav><a href="/">Home</a> / <a href="/blog">Blog</a></nav><article><p>${escapeHtml(post.category || "Solar contract guide")}</p><h1>${escapeHtml(post.title)}</h1>${post.excerpt ? `<p>${escapeHtml(post.excerpt)}</p>` : ""}<div class="article-body">${body}</div>${faqHtml}</article></main></div>`;
+  const semanticArticle = `<div id="root"><main class="seo-server-rendered" data-content-source="database"><nav><a href="/">Home</a> / <a href="/blog">Blog</a></nav><article><p>${escapeHtml(post.category || "Solar contract guide")}</p><h1>${escapeHtml(post.title)}</h1>${post.excerpt ? `<p>${escapeHtml(post.excerpt)}</p>` : ""}<div class="article-body">${body}</div>${faqHtml}</article></main></div>`;
 
   const $ = cheerio.load(html);
   $("title").text(`${title} | Solar Freedom`);
