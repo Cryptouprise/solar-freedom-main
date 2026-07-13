@@ -10,8 +10,6 @@ import { trackFormSubmit } from "@/lib/analytics";
 import BookingModal from "@/components/BookingModal";
 import { useContactInfo } from "@/hooks/useContactInfo";
 
-const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
-
 type Answer = { label: string; value: string; qualifies: boolean };
 type Question = { id: string; text: string; sub?: string; answers: Answer[] };
 

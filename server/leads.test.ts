@@ -18,6 +18,7 @@ vi.mock("./db", () => ({
 
 // ─── Mock fetch for GHL webhook ────────────────────────────────────────────────
 global.fetch = vi.fn().mockResolvedValue({ ok: true } as Response);
+process.env.GHL_WEBHOOK_URL = "https://example.invalid/test-hook";
 
 import { insertLead, insertExitIntentCapture, markLeadGhlSent } from "./db";
 

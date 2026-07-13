@@ -13,8 +13,6 @@ import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import SocialProofTicker from "@/components/SocialProofTicker";
 import UrgencyTimer from "@/components/UrgencyTimer";
 
-const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
-
 const SCAM_TACTICS = [
   {
     icon: "🚪",

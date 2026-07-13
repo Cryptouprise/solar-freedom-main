@@ -8,8 +8,6 @@ import { X, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { trackFormSubmit } from "@/lib/analytics";
 
-const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
-
 export default function ExitIntentPopup() {
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -54,19 +52,7 @@ export default function ExitIntentPopup() {
       await captureExitIntent.mutateAsync({
         email,
         sourcePage: window.location.pathname,
-      });
-      // Also forward to GHL webhook
-      await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          source: "exit_intent_popup",
-          form_name: "Exit Intent — Solar Freedom",
-          intent: "exit_intent",
-          lead_magnet: wantsGuide ? "solar_contract_escape_guide" : "none",
-          workflow: wantsGuide ? "escape_guide_day1_day3_day7" : "standard_exit_intent",
-        }),
+        wantsGuide,
       });
     } catch (_) { /* silent */ }
     trackFormSubmit("exit_intent_popup", window.location.pathname);

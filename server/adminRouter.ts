@@ -40,6 +40,14 @@ import { eq, desc, like, and, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { blogPosts, companies, siteConfig, apiKeys } from "../drizzle/schema";
 import { adminAuthMiddleware, requirePermission, AdminRequest } from "./adminAuth";
+import { sanitizeStoredHtml } from "./security/html";
+import { isAllowedPublicConfigKey, PUBLIC_SITE_CONFIG_KEYS } from "./security/configPolicy";
+import {
+  decodeBase64Image,
+  fetchRemoteImage,
+  ImageValidationError,
+  safeImageStem,
+} from "./security/imageUpload";
 
 const router = Router();
 const REPO_ROOT = process.cwd();
@@ -52,6 +60,12 @@ const SQL_MIGRATION_ALLOWED_PREFIXES = ["CREATE TABLE", "ALTER TABLE", "CREATE I
 const SQL_MIGRATION_BLOCKLIST = /(^|;)\s*(DROP\s+TABLE|TRUNCATE|DELETE\s+FROM|UPDATE\s+\w+|INSERT\s+INTO|REPLACE\s+INTO)\b/i;
 const SQL_COMMENT_PATTERN = /(--|\/\*|\*\/)/;
 const SQL_CREATE_AS_SELECT_PATTERN = /\bCREATE\s+TABLE\b[\s\S]*\bAS\s+SELECT\b/i;
+const COMPANY_MUTABLE_FIELDS = [
+  "name", "legalName", "status", "bbbRating", "complaintCount", "avgMonthlyPayment",
+  "avgContractLength", "founded", "headquarters", "contractTypes", "heroHeadline",
+  "heroSubheadline", "problemSummary", "customerComplaints", "documentedIssues",
+  "legalGrounds", "lawsuits", "statesCovered", "relatedSlugs",
+] as const;
 
 // ─── Apply auth to all admin routes ────────────────────────────────────────
 router.use(adminAuthMiddleware);
@@ -219,6 +233,7 @@ router.get("/posts/:slug", requirePermission("posts:read"), async (req: AdminReq
     // Parse JSON fields
     res.json({
       ...post,
+      content: sanitizeStoredHtml(post.content),
       tags: safeParseJson(post.tags, []),
       relatedSlugs: safeParseJson(post.relatedSlugs, []),
       faqItems: safeParseJson(post.faqItems, []),
@@ -240,15 +255,24 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
     if (!slug || !title || !content) {
       return res.status(400).json({ error: "slug, title, and content are required" });
     }
+    if (published !== undefined && typeof published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
 
     // Check for duplicate slug
     const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, slug));
     if (existing) return res.status(409).json({ error: `Post with slug '${slug}' already exists` });
 
+    const publishRequested = published === true;
+    if (publishRequested && !hasPermission(req, "posts:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'posts:publish'; content was not created" });
+    }
+    const safeContent = sanitizeStoredHtml(content);
+
     await db.insert(blogPosts).values({
       slug,
       title,
-      content,
+      content: safeContent,
       metaTitle: metaTitle || title,
       metaDescription,
       heroImage,
@@ -259,8 +283,8 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
       relatedSlugs: Array.isArray(relatedSlugs) ? JSON.stringify(relatedSlugs) : relatedSlugs,
       faqItems: Array.isArray(faqItems) ? JSON.stringify(faqItems) : faqItems,
       canonicalUrl,
-      published: published !== undefined ? (published ? 1 : 0) : 1,
-      publishedAt: new Date(),
+      published: publishRequested ? 1 : 0,
+      publishedAt: publishRequested ? new Date() : null,
     });
 
     const [created] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
@@ -280,16 +304,26 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     if (!existing) return res.status(404).json({ error: "Post not found" });
 
     const updates: Record<string, unknown> = {};
-    const fields = ["title", "content", "metaTitle", "metaDescription", "heroImage",
-                    "category", "excerpt", "readTime", "canonicalUrl", "published"];
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
+    if (req.body.published === true && !hasPermission(req, "posts:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'posts:publish'" });
+    }
+    const fields = ["title", "metaTitle", "metaDescription", "heroImage",
+                    "category", "excerpt", "readTime", "canonicalUrl"];
     for (const f of fields) {
       if (req.body[f] !== undefined) updates[f] = req.body[f];
     }
+    if (req.body.content !== undefined) updates.content = sanitizeStoredHtml(req.body.content);
     // JSON fields
     if (req.body.tags !== undefined) updates.tags = JSON.stringify(req.body.tags);
     if (req.body.relatedSlugs !== undefined) updates.relatedSlugs = JSON.stringify(req.body.relatedSlugs);
     if (req.body.faqItems !== undefined) updates.faqItems = JSON.stringify(req.body.faqItems);
-    if (req.body.published !== undefined) updates.published = req.body.published ? 1 : 0;
+    if (req.body.published !== undefined) {
+      updates.published = req.body.published ? 1 : 0;
+      if (req.body.published) updates.publishedAt = new Date();
+    }
 
     await db.update(blogPosts).set(updates).where(eq(blogPosts.slug, req.params.slug));
     const [updated] = await db.select().from(blogPosts).where(eq(blogPosts.slug, req.params.slug));
@@ -362,12 +396,22 @@ router.post("/companies", requirePermission("companies:write"), async (req: Admi
 
     const { slug, name } = req.body;
     if (!slug || !name) return res.status(400).json({ error: "slug and name are required" });
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
 
     const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, slug));
     if (existing) return res.status(409).json({ error: `Company with slug '${slug}' already exists` });
 
+    const publishRequested = req.body.published === true;
+    if (publishRequested && !hasPermission(req, "companies:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'companies:publish'; company was not created" });
+    }
     const jsonFields = ["contractTypes", "customerComplaints", "documentedIssues", "legalGrounds", "lawsuits", "statesCovered", "relatedSlugs"];
-    const values: Record<string, unknown> = { ...req.body };
+    const values: Record<string, unknown> = { slug, published: publishRequested ? 1 : 0 };
+    for (const field of COMPANY_MUTABLE_FIELDS) {
+      if (req.body[field] !== undefined) values[field] = req.body[field];
+    }
     for (const f of jsonFields) {
       if (Array.isArray(values[f])) values[f] = JSON.stringify(values[f]);
     }
@@ -389,13 +433,21 @@ router.put("/companies/:slug", requirePermission("companies:write"), async (req:
     const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, req.params.slug));
     if (!existing) return res.status(404).json({ error: "Company not found" });
 
-    const updates: Record<string, unknown> = { ...req.body };
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
+    if (req.body.published === true && !hasPermission(req, "companies:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'companies:publish'" });
+    }
+    const updates: Record<string, unknown> = {};
+    for (const field of COMPANY_MUTABLE_FIELDS) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+    if (req.body.published !== undefined) updates.published = req.body.published ? 1 : 0;
     const jsonFields = ["contractTypes", "customerComplaints", "documentedIssues", "legalGrounds", "lawsuits", "statesCovered", "relatedSlugs"];
     for (const f of jsonFields) {
       if (Array.isArray(updates[f])) updates[f] = JSON.stringify(updates[f]);
     }
-    delete updates.id; delete updates.slug; delete updates.createdAt;
-
     await db.update(companies).set(updates).where(eq(companies.slug, req.params.slug));
     const [updated] = await db.select().from(companies).where(eq(companies.slug, req.params.slug));
     res.json({ success: true, company: updated });
@@ -413,9 +465,10 @@ router.get("/config", requirePermission("config:read"), async (req: AdminRequest
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
     const rows = await db.select().from(siteConfig).orderBy(siteConfig.key);
+    const visibleRows = rows.filter((row) => PUBLIC_SITE_CONFIG_KEYS.has(row.key));
     const config: Record<string, string> = {};
-    for (const row of rows) config[row.key] = row.value;
-    res.json({ config, raw: rows });
+    for (const row of visibleRows) config[row.key] = row.value;
+    res.json({ config, raw: visibleRows });
   } catch (err) {
     res.status(500).json({ error: "Internal server error", details: String(err) });
   }
@@ -429,6 +482,12 @@ router.put("/config/:key", requirePermission("config:write"), async (req: AdminR
 
     const { value, description } = req.body;
     if (value === undefined) return res.status(400).json({ error: "value is required" });
+    if (!isAllowedPublicConfigKey(req.params.key)) {
+      return res.status(400).json({ error: "Config key is not in the public runtime allowlist" });
+    }
+    if (String(value).length > 500 || (description !== undefined && String(description).length > 500)) {
+      return res.status(400).json({ error: "Config value or description is too long" });
+    }
 
     const [existing] = await db.select({ id: siteConfig.id }).from(siteConfig).where(eq(siteConfig.key, req.params.key));
 
@@ -686,32 +745,7 @@ router.post("/upload", requirePermission("posts:write"), async (req: AdminReques
     const { storagePut } = await import("./storage");
     const { data, url: sourceUrl, filename, contentType: ct } = req.body;
 
-    let buffer: Buffer;
-    let mimeType = ct || "image/png";
-    let name = filename || `image-${Date.now()}`;
-
-    if (data) {
-      // Base64 encoded image data
-      const base64 = data.replace(/^data:[^;]+;base64,/, "");
-      buffer = Buffer.from(base64, "base64");
-      // Detect mime from data URI prefix if present
-      const mimeMatch = data.match(/^data:([^;]+);base64,/);
-      if (mimeMatch) mimeType = mimeMatch[1];
-    } else if (sourceUrl) {
-      // Fetch image from URL
-      const response = await fetch(sourceUrl);
-      if (!response.ok) {
-        return res.status(400).json({ error: `Failed to fetch image from URL: ${response.status}` });
-      }
-      const arrayBuf = await response.arrayBuffer();
-      buffer = Buffer.from(arrayBuf);
-      mimeType = response.headers.get("content-type") || mimeType;
-      // Extract filename from URL if not provided
-      if (!filename) {
-        const urlPath = new URL(sourceUrl).pathname;
-        name = urlPath.split("/").pop()?.split("?")[0] || name;
-      }
-    } else {
+    if (!data && !sourceUrl) {
       return res.status(400).json({ 
         error: "Provide either 'data' (base64) or 'url' (image URL to fetch)",
         example: {
@@ -721,26 +755,29 @@ router.post("/upload", requirePermission("posts:write"), async (req: AdminReques
       });
     }
 
-    // Ensure filename has extension
-    const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
-    if (!name.includes(".")) name = `${name}.${ext}`;
+    const image = data
+      ? decodeBase64Image(data, ct)
+      : await fetchRemoteImage(sourceUrl);
+    const sourceName = sourceUrl ? new URL(sourceUrl).pathname.split("/").pop() : undefined;
+    const name = `${safeImageStem(filename ?? sourceName)}.${image.extension}`;
 
     // Generate unique path to prevent enumeration
     const randomSuffix = crypto.randomBytes(8).toString("hex");
-    const fileKey = `blog-images/${name.replace(/\.[^.]+$/, "")}-${randomSuffix}.${ext}`;
+    const fileKey = `blog-images/${safeImageStem(name)}-${randomSuffix}.${image.extension}`;
 
-    const result = await storagePut(fileKey, buffer, mimeType);
+    const result = await storagePut(fileKey, image.buffer, image.mimeType);
 
     res.status(201).json({
       success: true,
       url: result.url,
       key: result.key,
-      mimeType,
-      size: buffer.length,
+      mimeType: image.mimeType,
+      size: image.buffer.length,
       filename: name
     });
   } catch (err) {
-    res.status(500).json({ error: "Upload failed", details: String(err) });
+    if (err instanceof ImageValidationError) return res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Upload failed" });
   }
 });
 
@@ -765,37 +802,22 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
     const results = [];
     for (const img of images) {
       try {
-        let buffer: Buffer;
-        let mimeType = img.contentType || "image/png";
-        let name = img.filename || `image-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-
-        if (img.data) {
-          const base64 = img.data.replace(/^data:[^;]+;base64,/, "");
-          buffer = Buffer.from(base64, "base64");
-          const mimeMatch = img.data.match(/^data:([^;]+);base64,/);
-          if (mimeMatch) mimeType = mimeMatch[1];
-        } else if (img.url) {
-          const response = await fetch(img.url);
-          if (!response.ok) {
-            results.push({ error: `Failed to fetch: ${img.url}`, status: response.status });
-            continue;
-          }
-          buffer = Buffer.from(await response.arrayBuffer());
-          mimeType = response.headers.get("content-type") || mimeType;
-        } else {
+        if (!img.data && !img.url) {
           results.push({ error: "Each image needs 'data' or 'url'" });
           continue;
         }
-
-        const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
-        if (!name.includes(".")) name = `${name}.${ext}`;
+        const image = img.data
+          ? decodeBase64Image(img.data, img.contentType)
+          : await fetchRemoteImage(img.url);
+        const sourceName = img.url ? new URL(img.url).pathname.split("/").pop() : undefined;
+        const name = `${safeImageStem(img.filename ?? sourceName)}.${image.extension}`;
         const randomSuffix = crypto.randomBytes(8).toString("hex");
-        const fileKey = `blog-images/${name.replace(/\.[^.]+$/, "")}-${randomSuffix}.${ext}`;
+        const fileKey = `blog-images/${safeImageStem(name)}-${randomSuffix}.${image.extension}`;
 
-        const result = await storagePut(fileKey, buffer, mimeType);
+        const result = await storagePut(fileKey, image.buffer, image.mimeType);
         results.push({ success: true, url: result.url, key: result.key, filename: name });
       } catch (imgErr) {
-        results.push({ error: String(imgErr) });
+        results.push({ error: imgErr instanceof ImageValidationError ? imgErr.message : "Upload failed" });
       }
     }
 
@@ -809,6 +831,10 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
 function safeParseJson(val: string | null | undefined, fallback: unknown) {
   if (!val) return fallback;
   try { return JSON.parse(val); } catch { return fallback; }
+}
+
+function hasPermission(req: AdminRequest, permission: string): boolean {
+  return Boolean(req.apiKey?.permissions.includes("*") || req.apiKey?.permissions.includes(permission));
 }
 
 function resolveAllowlistedAutomationPath(relativePath: string) {

@@ -844,33 +844,24 @@ function SettingsTab() {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-white text-base">Site Credentials</CardTitle>
+          <CardTitle className="text-white text-base">Deployment Secrets</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-gray-400 text-sm">
-            Store login credentials for each PR site. The browser automation uses these to log in and submit.
-            Credentials are stored in the database and never exposed to the frontend.
+            PR-site credentials are server-only. Configure them in the hosting provider's encrypted
+            environment, then restart or redeploy the server. This page never reads, stores, or displays
+            secret values.
           </p>
-          {[
-            { key: "prlog_api_key", label: "PRLog.com API Key" },
-            { key: "newsbywire_api_key", label: "NewsByWire API Key (optional — use email+password if no API key)" },
-            { key: "newsbywire_email", label: "NewsByWire Email / Username" },
-            { key: "newsbywire_password", label: "NewsByWire Password", type: "password" },
-            { key: "openpr_email", label: "OpenPR.com Email" },
-            { key: "openpr_password", label: "OpenPR.com Password", type: "password" },
-            { key: "prlog_email", label: "PRLog.com Email / Username" },
-            { key: "prlog_password", label: "PRLog.com Password", type: "password" },
-            { key: "substack_url", label: "Substack URL (e.g. https://yourname.substack.com)" },
-          ].map((field) => (
-            <CredentialField
-              key={field.key}
-              fieldKey={field.key}
-              label={field.label}
-              type={(field as any).type ?? "text"}
-              currentValue={(settings as any)[field.key] ?? ""}
-              onSave={(v) => updateSetting.mutate({ key: field.key, value: v })}
-            />
-          ))}
+          <div className="rounded-md border border-white/10 bg-black/20 p-3 text-xs text-gray-300">
+            <p className="mb-2 text-gray-400">Server environment variable names:</p>
+            <code className="block whitespace-pre-wrap leading-6">PRLOG_API_KEY{`\n`}PRLOG_EMAIL{`\n`}PRLOG_PASSWORD{`\n`}NEWSBYWIRE_API_KEY{`\n`}NEWSBYWIRE_EMAIL{`\n`}NEWSBYWIRE_PASSWORD{`\n`}OPENPR_EMAIL{`\n`}OPENPR_PASSWORD</code>
+          </div>
+          <CredentialField
+            fieldKey="substack_url"
+            label="Public Substack URL (not a secret)"
+            currentValue={(settings as any)["substack_url"] ?? ""}
+            onSave={(v) => updateSetting.mutate({ key: "substack_url", value: v })}
+          />
         </CardContent>
       </Card>
     </div>

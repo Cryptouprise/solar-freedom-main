@@ -1,6 +1,7 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
+import { sanitizeStoredHtml } from "./security/html";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -210,6 +211,7 @@ export async function getDbBlogPost(slug: string) {
 
   return {
     ...post,
+    content: sanitizeStoredHtml(post.content),
     tags: safeJson(post.tags, []),
     relatedSlugs: safeJson(post.relatedSlugs, []),
     faqItems: safeJson(post.faqItems, []),
@@ -354,7 +356,7 @@ export async function getAdminBlogPost(slug: string) {
     .where(eq(blogPosts.slug, slug))
     .limit(1);
 
-  return post ?? null;
+  return post ? { ...post, content: sanitizeStoredHtml(post.content) } : null;
 }
 
 /**
@@ -381,9 +383,13 @@ export async function updateBlogPost(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  const safeData = data.content === undefined
+    ? data
+    : { ...data, content: sanitizeStoredHtml(data.content) };
+
   await db
     .update(blogPosts)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...safeData, updatedAt: new Date() })
     .where(eq(blogPosts.slug, slug));
 
   return { success: true };
@@ -410,6 +416,9 @@ export async function upsertBlogDraft(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const { blogDrafts } = await import("../drizzle/schema");
+  const safeData = data.content === undefined
+    ? data
+    : { ...data, content: sanitizeStoredHtml(data.content) };
   const existing = await db
     .select({ id: blogDrafts.id })
     .from(blogDrafts)
@@ -423,12 +432,12 @@ export async function upsertBlogDraft(data: {
   if (existing.length > 0) {
     await db
       .update(blogDrafts)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...safeData, updatedAt: new Date() })
       .where(eq(blogDrafts.id, existing[0].id));
     return { id: existing[0].id };
   } else {
     const result = await db.insert(blogDrafts).values({
-      ...data,
+      ...safeData,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
