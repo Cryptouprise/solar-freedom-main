@@ -1,9 +1,0 @@
-{
-  "query": "\nUPDATE blogPosts \nSET metaTitle = 'Sunrun Complaints California 2026 — NEM 3.0 Fraud & Legal Options',\n    metaDescription = 'California Sunrun customers hit hardest by NEM 3.0 — savings cut 75%. If you were misled about bill savings, you may have grounds to cancel. Free case review.'\nWHERE slug = 'sunrun-complaints-california';\n\nUPDATE blogPosts \nSET metaTitle = 'ADT Solar Complaints 2026 — Cancel Your Contract After Acquisition',\n    metaDescription = 'ADT Solar was sold to SunPower, which then collapsed. If your warranty is void and savings never materialized, you may have grounds to cancel. Free case review.'\nWHERE slug = 'adt-solar-complaints';\n\nSELECT slug, metaTitle, metaDescription FROM blogPosts WHERE slug IN ('sunrun-complaints-california', 'adt-solar-complaints');\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4XRmbfpNqYjx7w8.1fca292f6148 --database 46qo2AwgwNWJ4wJwr8EnH8 --execute \nUPDATE blogPosts \nSET metaTitle = 'Sunrun Complaints California 2026 — NEM 3.0 Fraud & Legal Options',\n    metaDescription = 'California Sunrun customers hit hardest by NEM 3.0 — savings cut 75%. If you were misled about bill savings, you may have grounds to cancel. Free case review.'\nWHERE slug = 'sunrun-complaints-california';\n\nUPDATE blogPosts \nSET metaTitle = 'ADT Solar Complaints 2026 — Cancel Your Contract After Acquisition',\n    metaDescription = 'ADT Solar was sold to SunPower, which then collapsed. If your warranty is void and savings never materialized, you may have grounds to cancel. Free case review.'\nWHERE slug = 'adt-solar-complaints';\n\nSELECT slug, metaTitle, metaDescription FROM blogPosts WHERE slug IN ('sunrun-complaints-california', 'adt-solar-complaints');\n",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 378
-}

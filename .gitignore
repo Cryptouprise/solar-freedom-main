@@ -114,6 +114,9 @@ temp/
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
 
+# Manus runtime/database exports can contain credentials or personal data.
+.manus/
+
 # Binary/media files in docs — large files that bloat deployment image
 # These are reference files only; use CDN URLs for any media needed at runtime
 docs/*.ppm

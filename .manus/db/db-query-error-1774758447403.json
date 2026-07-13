@@ -1,8 +1,0 @@
-{
-  "query": "\nSELECT \n  COUNT(*) as total_leads,\n  SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new_leads,\n  SUM(CASE WHEN status = 'contacted' THEN 1 ELSE 0 END) as contacted,\n  SUM(CASE WHEN status = 'qualified' THEN 1 ELSE 0 END) as qualified,\n  SUM(CASE WHEN status = 'won' THEN 1 ELSE 0 END) as won,\n  SUM(CASE WHEN status = 'lost' THEN 1 ELSE 0 END) as lost,\n  SUM(CASE WHEN ghl_sent = 1 THEN 1 ELSE 0 END) as ghl_synced,\n  SUM(CASE WHEN ghl_sent = 0 OR ghl_sent IS NULL THEN 1 ELSE 0 END) as ghl_not_synced\nFROM leads;\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4XRmbfpNqYjx7w8.1fca292f6148 --database 46qo2AwgwNWJ4wJwr8EnH8 --execute \nSELECT \n  COUNT(*) as total_leads,\n  SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new_leads,\n  SUM(CASE WHEN status = 'contacted' THEN 1 ELSE 0 END) as contacted,\n  SUM(CASE WHEN status = 'qualified' THEN 1 ELSE 0 END) as qualified,\n  SUM(CASE WHEN status = 'won' THEN 1 ELSE 0 END) as won,\n  SUM(CASE WHEN status = 'lost' THEN 1 ELSE 0 END) as lost,\n  SUM(CASE WHEN ghl_sent = 1 THEN 1 ELSE 0 END) as ghl_synced,\n  SUM(CASE WHEN ghl_sent = 0 OR ghl_sent IS NULL THEN 1 ELSE 0 END) as ghl_not_synced\nFROM leads;\n",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1054 (42S22) at line 2: Unknown column 'ghl_sent' in ''"
-  ]
-}
