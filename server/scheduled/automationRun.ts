@@ -8,6 +8,7 @@
  * Auth: cron-only (user.isCron === true, user.taskUid set by platform).
  */
 import type { Request, Response } from "express";
+import crypto from "node:crypto";
 import { sdk } from "../_core/sdk";
 import {
   updateAutomation,
@@ -104,6 +105,7 @@ export async function automationRunHandler(req: Request, res: Response) {
     const durationMs = Date.now() - startedAt;
     const errorMsg = error?.message ?? String(error);
     const stack = error?.stack ?? "";
+    const errorId = crypto.randomUUID();
 
     // Update run log on error
     if (runId) {
@@ -125,11 +127,10 @@ export async function automationRunHandler(req: Request, res: Response) {
       }).catch(() => {});
     }
 
-    console.error("[AutomationRun] Error:", errorMsg);
+    console.error(`[AutomationRun:${errorId}]`, error);
     return res.status(500).json({
-      error: errorMsg,
-      stack,
-      context: { taskUid: (req as any).__taskUid, automationId },
+      error: "Automation run failed",
+      errorId,
       timestamp: new Date().toISOString(),
     });
   }

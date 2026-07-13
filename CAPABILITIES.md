@@ -100,7 +100,7 @@ All endpoints require `X-API-Key` header. Base URL: `https://breakyoursolarcontr
 
 | Method | Endpoint | Permission | Description |
 |--------|----------|-----------|-------------|
-| POST | `/automation/apply` | `automation:execute` | Apply an automation action (SEO updates, bulk content ops) |
+| POST | `/automation/apply` | `automation:execute` | Validate/hash a dry-run change plan; runtime execution is disabled |
 
 ### API Key Management
 
