@@ -15,6 +15,13 @@ jobs:
     name: Run SEO heartbeat
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      GSC_PROPERTY_URL: ${{ vars.GSC_PROPERTY_URL || 'sc-domain:breakyoursolarcontract.com' }}
+      GSC_DATE_RANGE_DAYS: ${{ vars.GSC_DATE_RANGE_DAYS || '28' }}
+      GSC_DATA_LAG_DAYS: ${{ vars.GSC_DATA_LAG_DAYS || '3' }}
+      GSC_MAX_AGE_HOURS: ${{ vars.GSC_MAX_AGE_HOURS || '36' }}
+      SEO_GSC_REQUIRE_FRESH: "true"
+      SEO_GSC_STATUS_JSON: reports/seo-agent/gsc-status.json
 
     steps:
       - name: Checkout
@@ -33,6 +40,42 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Restore prior heartbeat state
+        uses: actions/cache@v4
+        with:
+          path: reports/seo-agent/state.json
+          key: seo-heartbeat-state-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            seo-heartbeat-state-${{ runner.os }}-${{ github.ref_name }}-
+
+      - name: Detect live GSC connection
+        id: gsc_connection
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Refresh live GSC Search Analytics
+        if: steps.gsc_connection.outputs.configured == 'true'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: pnpm seo:gsc:refresh
+
+      - name: Verify GSC measurement freshness
+        id: gsc_status
+        run: |
+          pnpm seo:gsc:status -- --max-age-hours "$GSC_MAX_AGE_HOURS"
+          USABLE="$(node -e "console.log(require('./reports/seo-agent/gsc-status.json').usable ? 'true' : 'false')")"
+          echo "usable=$USABLE" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.gsc_connection.outputs.configured }}" = "true" ] && [ "$USABLE" != "true" ]; then
+            echo "A configured GSC refresh did not produce a fresh, complete measurement snapshot." >&2
+            exit 1
+          fi
 
       - name: Run SEO agent
         run: pnpm seo:agent -- --base https://breakyoursolarcontract.com
@@ -89,3 +132,16 @@ jobs:
             gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --body-file "$BODY_FILE"
             gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Daily SEO heartbeat completed. The issue body has been refreshed with the latest audit and indexing queue."
           fi
+
+      - name: Upload SEO evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-heartbeat-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            reports/seo-agent/
+            gsc_all_pages.json
+            gsc_report.csv
+            gsc_data_metadata.json

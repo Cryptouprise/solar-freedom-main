@@ -55,8 +55,8 @@ measure ──▶ decide ──▶ draft ──▶ (human approve) ──▶ pub
   and descriptions for one-click human application.
 - The biggest *structural* lever is internal linking. The 301 city pages and 51
   state-law pages are thin and indexed slowly. `pnpm seo:internal-links` reads
-  the sitemap + GSC and emits a deterministic queue that points the blog posts
-  Google already trusts at the unindexed/under-performing city/state pages,
+  the sitemap + GSC and emits a deterministic queue that points
+  performance-observed blog posts at low/unknown-performance city/state pages,
   with a suggested anchor for each. Adding those contextual links is the fastest
   fully-in-our-control way to get the thin pages discovered and ranked.
 - Off-site backlinks (the 34 Medium articles and other placements) are tracked
@@ -68,6 +68,8 @@ measure ──▶ decide ──▶ draft ──▶ (human approve) ──▶ pub
 
 ```bash
 pnpm seo:llms     # regenerate llms.txt + llms-full.txt
+pnpm seo:gsc:refresh # refresh page-level Search Analytics from an env-only service-account secret
+pnpm seo:gsc:status  # verify freshness before performance-derived recommendations
 pnpm seo:ctr      # build CTR rescue queue (add --ai to draft copy via OpenRouter)
 pnpm seo:internal-links # queue internal links from authority blog posts to thin city/state pages
 pnpm seo:backlinks      # verify off-site backlinks in references/backlinks.json (add --no-fetch offline)
@@ -81,19 +83,27 @@ pnpm submit:indexnow
 - **GitHub Actions** (`.github/workflows/seo-heartbeat.yml`) runs daily:
   audit → indexing queue → CTR rescue → internal-link queue → backlink check →
   alert summary → open/update one issue. Read-only; never publishes.
-- **Heartbeat automations** (`server/scheduled/automationRun.ts` + the
-  `automations` tRPC router) run user-defined LLM specs on a cron and log each
-  run with cost tracking (`server/cron/aiCostTracker.ts`).
+- **Prompt schedules** (`server/scheduled/automationRun.ts` + the `automations`
+  tRPC router) are safety-blocked until typed, authenticated tools exist. Each
+  trigger records an evidence receipt with zero tool calls/state changes; prose
+  can no longer be recorded as successful execution.
 
 ## Required secrets / env
 
 - `OPENROUTER_API_KEY` — blog/PR/CTR drafting (and GitHub Actions secret for the
   CTR step).
+- `GOOGLE_SERVICE_ACCOUNT_JSON` — rotated Google service-account JSON stored as
+  a GitHub Actions/runtime secret, never committed or pasted into chat.
+- `GSC_PROPERTY_URL` — GitHub Actions variable; defaults to
+  `sc-domain:breakyoursolarcontract.com`. Optional variables are
+  `GSC_DATE_RANGE_DAYS`, `GSC_DATA_LAG_DAYS`, and `GSC_MAX_AGE_HOURS`.
 - `FIRECRAWL_API_KEY` — `scripts/trending-content-pipeline.py` scraping (no longer
   hard-coded; supply via env).
 
 ## Guardrails
 
 - Deterministic queues are the source of truth; OpenRouter only proposes copy.
+- Missing Search Analytics rows are performance-unknown, not proof that a URL
+  is unindexed. Index status requires URL Inspection evidence.
 - Nothing in the SEO scripts edits source files or publishes content.
 - Human approval gates anything with user-facing legal claims.
