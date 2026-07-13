@@ -1,9 +1,0 @@
-=== Bulk Indexing Run: https://breakyoursolarcontract.com/ ===
-Total URLs: 1
-
-[1/1] ⏳ QUEUED https://breakyoursolarcontract.com/sunrun
-         Coverage: URL is unknown to Google
-
-=== SUMMARY ===
-Total: 1 | Already Indexed: 0 | Queued for Indexing: 1 | Errors: 0
-Google will crawl queued URLs within 1-7 days.

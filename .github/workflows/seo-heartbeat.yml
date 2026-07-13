@@ -25,15 +25,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           run_install: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -42,7 +42,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Restore prior heartbeat state
-        uses: actions/cache@v4
+        if: github.event.repository.private == true
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: reports/seo-agent/state.json
           key: seo-heartbeat-state-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
@@ -98,6 +99,7 @@ jobs:
         run: pnpm seo:alert-summary
 
       - name: Open or update SEO heartbeat issue
+        if: github.event.repository.private == true
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -134,8 +136,8 @@ jobs:
           fi
 
       - name: Upload SEO evidence
-        if: always()
-        uses: actions/upload-artifact@v4
+        if: always() && github.event.repository.private == true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: seo-heartbeat-${{ github.run_id }}
           if-no-files-found: warn
@@ -145,3 +147,9 @@ jobs:
             gsc_all_pages.json
             gsc_report.csv
             gsc_data_metadata.json
+
+      - name: Protect operational evidence in public repositories
+        if: always() && github.event.repository.private != true
+        run: |
+          echo "Raw SEO measurements, queues, and alert bodies are intentionally not published from a public repository."
+          echo "Move this workflow to a private operations repository or approved private evidence store before enabling external measurements."

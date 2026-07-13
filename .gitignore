@@ -117,6 +117,16 @@ client/public/__manus__/version.json
 # Manus runtime/database exports can contain credentials or personal data.
 .manus/
 
+# Private operational measurements and generated SEO queues. These may contain
+# page-level Search Console performance and must not enter the public repo.
+/gsc_all_pages.json
+/gsc_data_metadata.json
+/gsc_report.csv
+/indexing-results.txt
+/indexing-results-full.json
+/indexing-status.txt
+/reports/seo-agent/
+
 # Binary/media files in docs — large files that bloat deployment image
 # These are reference files only; use CDN URLs for any media needed at runtime
 docs/*.ppm
