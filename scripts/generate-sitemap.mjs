@@ -80,7 +80,7 @@ function loadData() {
       "utf-8"
     );
     // Match slug values written with single quotes, double quotes, or backticks.
-    const slugRegex = /\bslug:\s*(['"`])((?:\\[\s\S]|(?!\1)[\s\S])*?)\1/g;
+    const slugRegex = /(?:["'`]slug["'`]|\bslug)\s*:\s*(['"`])((?:\\[\s\S]|(?!\1)[\s\S])*?)\1/g;
     while ((m = slugRegex.exec(content)) !== null) {
       const slug = decodeStringLiteralValue(m[2]).trim();
       if (slug && !slug.includes("${") && slug.length > 5) {

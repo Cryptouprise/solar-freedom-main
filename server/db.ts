@@ -197,9 +197,9 @@ export async function getDbBlogPosts(limit = 50, offset = 0) {
 /**
  * Get a single published blog post by slug (includes full content).
  */
-export async function getDbBlogPost(slug: string) {
+export async function getDbBlogPostStatus(slug: string) {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) return { available: false as const, post: null };
 
   const [post] = await db
     .select()
@@ -207,15 +207,19 @@ export async function getDbBlogPost(slug: string) {
     .where(eq(blogPosts.slug, slug))
     .limit(1);
 
-  if (!post || !post.published) return null;
+  if (!post || !post.published) return { available: true as const, post: null };
 
-  return {
+  return { available: true as const, post: {
     ...post,
     content: sanitizeStoredHtml(post.content),
     tags: safeJson(post.tags, []),
     relatedSlugs: safeJson(post.relatedSlugs, []),
     faqItems: safeJson(post.faqItems, []),
-  };
+  } };
+}
+
+export async function getDbBlogPost(slug: string) {
+  return (await getDbBlogPostStatus(slug)).post;
 }
 
 // ─── Company helpers (DB-backed content) ──────────────────────────────────────

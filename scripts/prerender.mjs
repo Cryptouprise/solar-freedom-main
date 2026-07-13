@@ -29,7 +29,7 @@
 import * as cheerio from "cheerio";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -108,28 +108,26 @@ async function loadData() {
     const slugM2 = chunk.match(/\bslug:\s*["']([^"']+)["']/);
     if (!slugM2) continue;
     const nameM = chunk.match(/\bname:\s*["']([^"']+)["']/);
-    const statusM = chunk.match(/\bstatus:\s*["']([^"']+)["']/);
-    const complaintCountM = chunk.match(/\bcomplaintCount:\s*["']([^"']+)["']/);
-    const bbRatingM = chunk.match(/\bbbRating:\s*["']([^"']+)["']/);
-    const summaryM = chunk.match(/\bsummary:\s*["']([^"']+)["']/);
-    const topComplaintsM = chunk.match(/\btopComplaints:\s*\[([^\]]+)\]/);
-    const topComplaints = topComplaintsM
-      ? topComplaintsM[1].match(/["']([^"']+)["']/g)?.map(s => s.replace(/["']/g, '')) || []
-      : [];
-    const groundsM = chunk.match(/\bcancellationGrounds:\s*\[([^\]]+)\]/);
-    const cancellationGrounds = groundsM
-      ? groundsM[1].match(/["']([^"']+)["']/g)?.map(s => s.replace(/["']/g, '')) || []
-      : [];
+    const status = findStringProp(chunk, "status")?.value;
+    const complaintCount = findStringProp(chunk, "complaintCount")?.value;
+    const bbRating = findStringProp(chunk, "bbRating")?.value;
+    const summary = findStringProp(chunk, "summary")?.value;
+    const topComplaints = parseStringArray(chunk, "topComplaints");
+    const cancellationGrounds = parseStringArray(chunk, "cancellationGrounds");
+    const knownIssues = parseStringArray(chunk, "knownIssues");
+    const lawsuits = parseStringArray(chunk, "lawsuits");
     if (!nameM) continue;
     companyEntries.push({
       slug: slugM2[1],
       name: nameM[1],
-      status: statusM?.[1] || 'Active',
-      complaintCount: complaintCountM?.[1] || '',
-      bbRating: bbRatingM?.[1] || '',
-      summary: summaryM?.[1] || '',
+      status: status || 'Active',
+      complaintCount: complaintCount || '',
+      bbRating: bbRating || '',
+      summary: summary || '',
       topComplaints,
       cancellationGrounds,
+      knownIssues,
+      lawsuits,
     });
   }
 
@@ -139,6 +137,13 @@ async function loadData() {
       state: findStringProp(chunk, "state")?.value || titleFromSlug(slug),
       metaTitle: findStringProp(chunk, "metaTitle")?.value || null,
       metaDescription: findStringProp(chunk, "metaDescription")?.value || null,
+      heroHook: findStringProp(chunk, "heroHook")?.value || null,
+      heroSubhook: findStringProp(chunk, "heroSubhook")?.value || null,
+      primaryStatute: findStringProp(chunk, "primaryStatute")?.value || null,
+      primaryStatuteTitle: findStringProp(chunk, "primaryStatuteTitle")?.value || null,
+      coolingOffNote: findStringProp(chunk, "coolingOffNote")?.value || null,
+      contentSections: parseContentSections(chunk),
+      faq: parseFaqItems(chunk),
     }))
     .filter((entry) => entry.slug && entry.state);
 
@@ -190,14 +195,14 @@ function readStringAfterColon(content, colonEndIndex) {
 }
 
 function findStringProp(content, prop) {
-  const propRegex = new RegExp(`\\b${prop}\\s*:`, "g");
+  const propRegex = new RegExp(`(?:["'\`]${prop}["'\`]|\\b${prop})\\s*:`, "g");
   const match = propRegex.exec(content);
   if (!match) return null;
   return readStringAfterColon(content, propRegex.lastIndex);
 }
 
 function collectSlugChunks(content) {
-  const slugRegex = /\bslug\s*:/g;
+  const slugRegex = /(?:["'`]slug["'`]|\bslug)\s*:/g;
   const slugs = [];
   let match;
 
@@ -218,6 +223,87 @@ function collectSlugChunks(content) {
       slugs[index + 1]?.start ?? content.length
     ),
   }));
+}
+
+function readBalanced(content, startIndex, openChar, closeChar) {
+  if (content[startIndex] !== openChar) return null;
+  let depth = 0;
+  for (let index = startIndex; index < content.length; index++) {
+    const character = content[index];
+    if (["'", '"', "`"].includes(character)) {
+      const literal = readStringLiteralAt(content, index);
+      if (literal) {
+        index = literal.end - 1;
+        continue;
+      }
+    }
+    if (character === openChar) depth += 1;
+    if (character === closeChar) {
+      depth -= 1;
+      if (depth === 0) {
+        return { value: content.slice(startIndex, index + 1), end: index + 1 };
+      }
+    }
+  }
+  return null;
+}
+
+function findArrayProp(content, prop) {
+  const property = new RegExp(`\\b${prop}\\s*:`).exec(content);
+  if (!property) return null;
+  let index = property.index + property[0].length;
+  while (index < content.length && /\s/.test(content[index])) index += 1;
+  return readBalanced(content, index, "[", "]");
+}
+
+function topLevelObjects(arraySource) {
+  const objects = [];
+  for (let index = 1; index < arraySource.length - 1; index++) {
+    if (["'", '"', "`"].includes(arraySource[index])) {
+      const literal = readStringLiteralAt(arraySource, index);
+      if (literal) index = literal.end - 1;
+      continue;
+    }
+    if (arraySource[index] !== "{") continue;
+    const object = readBalanced(arraySource, index, "{", "}");
+    if (!object) continue;
+    objects.push(object.value);
+    index = object.end - 1;
+  }
+  return objects;
+}
+
+function parseStringArray(content, prop) {
+  const array = findArrayProp(content, prop);
+  if (!array) return [];
+  const values = [];
+  for (let index = 1; index < array.value.length - 1; index++) {
+    if (!["'", '"', "`"].includes(array.value[index])) continue;
+    const literal = readStringLiteralAt(array.value, index);
+    if (!literal) continue;
+    values.push(literal.value);
+    index = literal.end - 1;
+  }
+  return values;
+}
+
+function parseContentSections(content) {
+  const array = findArrayProp(content, "content");
+  if (!array) return [];
+  return topLevelObjects(array.value)
+    .map(object => ({
+      type: findStringProp(object, "type")?.value || "p",
+      content: findStringProp(object, "content")?.value || "",
+      items: parseStringArray(object, "items"),
+      stats: (findArrayProp(object, "stats")
+        ? topLevelObjects(findArrayProp(object, "stats").value)
+        : []
+      ).map(stat => ({
+        value: findStringProp(stat, "value")?.value || "",
+        label: findStringProp(stat, "label")?.value || "",
+      })),
+    }))
+    .filter(section => section.content || section.items.length || section.stats.length);
 }
 
 // ─── FAQ + date extraction for richer structured data ────────────────────────
@@ -392,6 +478,9 @@ function loadBlogData() {
         title: `${cleanTitle} | Solar Freedom`,
         description: cleanDescription,
         faq,
+        contentSections: parseContentSections(chunk),
+        excerpt: findStringProp(chunk, "excerpt")?.value || "",
+        category: findStringProp(chunk, "category")?.value || "Solar contract guide",
         datePublished: toIsoDate(publishDate),
         dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
       };
@@ -524,6 +613,8 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
         summary: company.summary,
         topComplaints: company.topComplaints,
         cancellationGrounds: company.cancellationGrounds,
+        knownIssues: company.knownIssues,
+        lawsuits: company.lawsuits,
       },
     };
   }
@@ -537,7 +628,23 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     const description = state.metaDescription
       ? state.metaDescription
       : `Learn your legal rights under ${state.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`;
-    map[urlPath] = { title, description, canonical: `${BASE_URL}${urlPath}`, geo: { region: state.state } };
+    map[urlPath] = {
+      title,
+      description,
+      canonical: `${BASE_URL}${urlPath}`,
+      geo: { region: state.state },
+      stateData: {
+        state: state.state,
+        heroHook: state.heroHook,
+        heroSubhook: state.heroSubhook,
+        primaryStatute: state.primaryStatute,
+        primaryStatuteTitle: state.primaryStatuteTitle,
+        coolingOffNote: state.coolingOffNote,
+        contentSections: state.contentSections,
+        faq: state.faq,
+      },
+      faq: state.faq,
+    };
   }
 
   // Blog posts — ALL 100+ posts
@@ -550,6 +657,9 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       faq: data.faq,
       datePublished: data.datePublished,
       dateModified: data.dateModified,
+      contentSections: data.contentSections,
+      excerpt: data.excerpt,
+      category: data.category,
     };
   }
 
@@ -895,69 +1005,93 @@ function buildCityUniqueContent(meta, urlPath) {
   if (!cd) return '';
   const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';
   const stateName = cd.state || cd.stateCode || 'your state';
-  const companiesList = cd.companies?.length
-    ? cd.companies.slice(0, 4).join(', ')
-    : 'Sunrun, SunPower, Freedom Forever, and GoodLeap';
-  const stateLaw = cd.stateLaw || `${stateName} consumer protection law`;
-  const activityNote = cd.solarActivity === 'Very High Activity'
-    ? `${cityName} is one of the highest solar-complaint markets in the country.`
-    : cd.solarActivity === 'High Activity'
-    ? `${cityName} has a high volume of solar complaints relative to its size.`
-    : `Solar complaints in ${cityName} have been rising steadily.`;
+  const companies = (cd.companies || [])
+    .map(company => `<li>${escapeHtml(company)}</li>`)
+    .join('');
 
   return `
-      <h2>Your Cancellation Rights in ${escapeHtml(stateName)}</h2>
-      <p>Homeowners in ${escapeHtml(cityName)} are protected by the ${escapeHtml(stateLaw)}, in addition to federal consumer protection law. If you were promised savings, a tax credit offset, or a system that would eliminate your electric bill — and the reality fell short — the gap between the sales pitch and the signed contract is often where a cancellation case begins.</p>
-      <h2>Solar Companies Active in ${escapeHtml(cityName)}</h2>
-      <p>${activityNote} The companies most frequently reported by ${escapeHtml(cityName)}-area homeowners include ${escapeHtml(companiesList)}. Common complaints involve inflated dealer fees, undisclosed payment escalators, systems that underperform written projections, and sales representatives who misrepresented tax credit eligibility.</p>
-      <h2>Legal Grounds That May Apply</h2>
-      <p>Beyond any cooling-off window, ${escapeHtml(stateName)} homeowners may still have grounds to pursue cancellation, loan reduction, or lien removal where there was misrepresentation of savings, undisclosed escalator clauses, unfulfilled performance guarantees, or Truth in Lending Act disclosure failures on the financing side. Our attorneys review contracts from ${escapeHtml(cityName)} and surrounding ${escapeHtml(stateName)} communities at no charge.</p>
-      <h2>Frequently Asked Questions — ${escapeHtml(cityName)} Solar Contracts</h2>
+      <h2>Page location</h2>
       <dl>
-        <dt>Can I cancel my solar contract in ${escapeHtml(cityName)}?</dt>
-        <dd>In many cases, yes. ${escapeHtml(stateName)} consumer protection law and federal statutes provide multiple grounds for cancellation, rescission, or negotiated exit depending on how the contract was sold and whether the system has performed as promised.</dd>
-        <dt>What if my solar company went out of business?</dt>
-        <dd>If your installer or finance company has closed or filed for bankruptcy, you may still have claims against the surviving entity, the lender, or both. A free case review will identify which parties remain liable.</dd>
-        <dt>How long does the process take in ${escapeHtml(cityName)}?</dt>
-        <dd>Most cases resolve in 30 to 90 days. Complex lien situations or active litigation may take longer. The free case review will give you a realistic timeline based on your specific contract and company.</dd>
-      </dl>`;
+        <dt>City</dt><dd>${escapeHtml(cityName)}</dd>
+        <dt>State</dt><dd>${escapeHtml(stateName)}</dd>
+      </dl>
+      ${companies ? `<h2>Companies listed for this location</h2><ul>${companies}</ul>` : ''}`;
 }
 
-function buildCompanyUniqueContent(meta, urlPath) {
+function buildCompanyUniqueContent(meta) {
   const cd = meta.companyData;
   if (!cd) return '';
   const companyName = meta.title.replace(/Cancel\s+|\s+Solar Contract.*/gi, '').trim() || 'this company';
-  const statusNote = cd.status === 'Bankrupt'
-    ? `${escapeHtml(companyName)} has filed for bankruptcy.`
-    : cd.status === 'Acquired'
-    ? `${escapeHtml(companyName)} has been acquired and operates under new ownership.`
-    : `${escapeHtml(companyName)} is currently active.`;
-  const complaintsText = cd.topComplaints?.length
-    ? cd.topComplaints.slice(0, 3).map(c => `<li>${escapeHtml(c)}</li>`).join('\n')
-    : '<li>Misrepresentation of savings or tax credit eligibility</li><li>Undisclosed payment escalators</li><li>System underperformance relative to written projections</li>';
-  const groundsText = cd.cancellationGrounds?.length
-    ? cd.cancellationGrounds.slice(0, 3).map(g => `<li>${escapeHtml(g)}</li>`).join('\n')
-    : '<li>Misrepresentation of material facts during the sale</li><li>Truth in Lending Act disclosure failures</li><li>State consumer protection act violations</li>';
-  const complaintNote = cd.complaintCount ? ` Homeowners have filed ${escapeHtml(cd.complaintCount)} complaints.` : '';
-  const bbNote = cd.bbRating ? ` BBB rating: ${escapeHtml(cd.bbRating)}.` : '';
+  const complaintsText = (cd.topComplaints || [])
+    .map(complaint => `<li>${escapeHtml(complaint)}</li>`)
+    .join('');
+  const groundsText = (cd.cancellationGrounds || [])
+    .map(ground => `<li>${escapeHtml(ground)}</li>`)
+    .join('');
+  const knownIssuesText = cd.knownIssues?.length
+    ? cd.knownIssues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
+    : "";
+  const lawsuitsText = cd.lawsuits?.length
+    ? cd.lawsuits.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
+    : "";
 
   return `
       <h2>About ${escapeHtml(companyName)}</h2>
-      <p>${statusNote}${complaintNote}${bbNote} ${cd.summary ? escapeHtml(cd.summary) : ''}</p>
-      <h2>Common ${escapeHtml(companyName)} Complaints</h2>
-      <ul>${complaintsText}</ul>
-      <h2>Legal Grounds That May Apply</h2>
-      <ul>${groundsText}</ul>
-      <p>Federal law — including the Truth in Lending Act (TILA, 15 U.S.C. § 1601) and the FTC Act (15 U.S.C. § 45) — applies on top of state consumer protection statutes. Where ${escapeHtml(companyName)} financing involved undisclosed dealer fees or inflated loan amounts, lending-disclosure rules may provide additional grounds for cancellation or balance reduction.</p>
-      <h2>Frequently Asked Questions — ${escapeHtml(companyName)} Contracts</h2>
-      <dl>
-        <dt>Can I cancel my ${escapeHtml(companyName)} solar contract?</dt>
-        <dd>Many ${escapeHtml(companyName)} contracts contain grounds for cancellation based on misrepresentation, undisclosed fees, or system underperformance. A free case review will determine whether your specific contract qualifies.</dd>
-        <dt>What if ${escapeHtml(companyName)} is no longer in business?</dt>
-        <dd>${cd.status === 'Bankrupt' ? `Because ${escapeHtml(companyName)} has filed for bankruptcy, claims may be pursued against the finance company, the lender, or the acquiring entity. Our attorneys handle these situations regularly.` : `If your installer or servicer has closed, claims may still be available against the lender or finance company. A case review will identify all available parties.`}</dd>
-        <dt>How do I start the process?</dt>
-        <dd>Submit a free case review request. Our attorneys will review your ${escapeHtml(companyName)} contract, identify the strongest legal grounds, and contact you within 24 hours with a plain-English assessment.</dd>
-      </dl>`;
+      ${cd.summary ? `<p>${escapeHtml(cd.summary)}</p>` : ''}
+      ${complaintsText ? `<h2>Complaints listed on this page</h2><ul>${complaintsText}</ul>` : ''}
+      ${knownIssuesText ? `<h2>Issues listed on this page</h2><ul>${knownIssuesText}</ul>` : ''}
+      ${groundsText ? `<h2>Cancellation grounds listed on this page</h2><ul>${groundsText}</ul>` : ''}
+      ${lawsuitsText ? `<h2>Legal matters listed on this page</h2><ul>${lawsuitsText}</ul>` : ''}`;
+}
+
+function renderContentSections(sections) {
+  return (sections || [])
+    .map(section => {
+      const content = escapeHtml(section.content || "");
+      if (section.type === "h2") return `<h2>${content}</h2>`;
+      if (section.type === "h3") return `<h3>${content}</h3>`;
+      if (["p", "callout", "warning", "quote"].includes(section.type) && content) {
+        return `<p${section.type !== "p" ? ` data-content-type="${section.type}"` : ""}>${content}</p>`;
+      }
+      if (section.type === "list" && section.items?.length) {
+        return `<ul>${section.items.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+      }
+      if (section.type === "stat-block" && section.stats?.length) {
+        return `<dl>${section.stats
+          .map(stat => `<dt>${escapeHtml(stat.value)}</dt><dd>${escapeHtml(stat.label)}</dd>`)
+          .join("")}</dl>`;
+      }
+      return "";
+    })
+    .join("\n");
+}
+
+function buildStateUniqueContent(meta) {
+  const state = meta.stateData;
+  if (!state) return "";
+  const faq = (state.faq || [])
+    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+    .join("");
+  return `
+    ${state.heroHook ? `<p>${escapeHtml(state.heroHook)}</p>` : ""}
+    ${state.heroSubhook ? `<p>${escapeHtml(state.heroSubhook)}</p>` : ""}
+    ${state.primaryStatuteTitle ? `<h2>${escapeHtml(state.primaryStatuteTitle)}</h2>` : ""}
+    ${state.primaryStatute ? `<p>${escapeHtml(state.primaryStatute)}</p>` : ""}
+    ${state.coolingOffNote ? `<p>${escapeHtml(state.coolingOffNote)}</p>` : ""}
+    ${renderContentSections(state.contentSections)}
+    ${faq ? `<section><h2>${escapeHtml(state.state)} solar contract FAQ</h2>${faq}</section>` : ""}`;
+}
+
+function buildBlogUniqueContent(meta) {
+  const sections = renderContentSections(meta.contentSections);
+  const faq = (meta.faq || [])
+    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+    .join("");
+  return `
+    ${meta.category ? `<p>${escapeHtml(meta.category)}</p>` : ""}
+    ${meta.excerpt ? `<p>${escapeHtml(meta.excerpt)}</p>` : ""}
+    ${sections}
+    ${faq ? `<section><h2>Frequently asked questions</h2>${faq}</section>` : ""}`;
 }
 
 function buildSemanticShellContent(meta, urlPath) {
@@ -966,6 +1100,9 @@ function buildSemanticShellContent(meta, urlPath) {
   const contextLabel = pageType
     .replace(/_/g, " ")
     .replace(/\b\w/g, letter => letter.toUpperCase());
+  const sourceDescription = ["city_page", "company_page"].includes(pageType)
+    ? ""
+    : `<p>${escapeHtml(meta.description)}</p>`;
 
   // Build page-type-specific unique body content
   let uniqueBody = '';
@@ -974,9 +1111,9 @@ function buildSemanticShellContent(meta, urlPath) {
   } else if (pageType === 'company_page') {
     uniqueBody = buildCompanyUniqueContent(meta, urlPath);
   } else if (pageType === 'blog_post') {
-    // Blog posts have their own rich content in the React component;
-    // just include the meta description as the crawlable summary
-    uniqueBody = '';
+    uniqueBody = buildBlogUniqueContent(meta);
+  } else if (pageType === 'state_law') {
+    uniqueBody = buildStateUniqueContent(meta);
   } else {
     // Service pages: brief unique intro
     uniqueBody = '';
@@ -987,7 +1124,7 @@ function buildSemanticShellContent(meta, urlPath) {
     <main class="seo-prerender" data-page-type="${pageType}" style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 960px; margin: 0 auto; padding: 32px 20px; color: #111827;">
       <p style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f97316; font-weight: 700;">Solar Freedom ${escapeHtml(contextLabel)}</p>
       ${urlPath === "/" ? `<h2>${escapeHtml(h1)}</h2>` : `<h1>${escapeHtml(h1)}</h1>`}
-      <p>${escapeHtml(meta.description)}</p>
+      ${sourceDescription}
       ${uniqueBody}
       <nav aria-label="Related Solar Freedom resources">
         <h2>Related Solar Contract Resources</h2>
@@ -1127,7 +1264,20 @@ async function main() {
   } catch (_) {}
 }
 
-main().catch(err => {
-  console.error("Pre-render failed:", err);
-  process.exit(1);
-});
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+) {
+  main().catch(err => {
+    console.error("Pre-render failed:", err);
+    process.exit(1);
+  });
+}
+
+export {
+  buildMetaMap,
+  buildShellHtml,
+  loadBlogData,
+  loadData,
+  renderContentSections,
+};

@@ -24,6 +24,7 @@ import { cities } from "../client/src/data/cities";
 import { companies } from "../client/src/data/companies";
 import { stateLaws } from "../client/src/data/state-laws";
 import { blogPosts } from "../client/src/data/blog";
+import { sanitizeStoredHtml } from "./security/html";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -118,6 +119,11 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       title: "Solar Contract Videos & Podcast | Solar Freedom",
       description:
         "Explainer videos and podcast episodes on solar contract cancellation, loan reduction, and credit restoration. Learn your rights and get a free case audit.",
+    },
+    "/sitemap": {
+      title: "Site Map — All Pages | Solar Freedom",
+      description:
+        "Browse the Solar Freedom website directory, including service, company, city, state-law, and blog pages.",
     },
   };
 
@@ -442,8 +448,136 @@ function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
     .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+type DynamicBlogPost = {
+  slug: string;
+  title: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  excerpt?: string | null;
+  content: string;
+  category?: string | null;
+  canonicalUrl?: string | null;
+  publishedAt?: Date | string | null;
+  updatedAt?: Date | string | null;
+  faqItems?: unknown;
+};
+
+function safeIsoDate(value: unknown): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value as string | number | Date);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function renderDbPostContent(rawContent: string): string {
+  const content = rawContent.trim();
+  if (!content) return "<p>This article is being prepared for publication.</p>";
+
+  if (content.startsWith("<")) {
+    return sanitizeStoredHtml(content);
+  }
+
+  // Preserve useful source-visible structure for the occasional Markdown/plain
+  // post without introducing a second Markdown runtime into the request path.
+  return content
+    .split(/\n{2,}/)
+    .map(block => {
+      const normalized = block.trim();
+      if (!normalized) return "";
+      const heading = normalized.match(/^(#{2,3})\s+([\s\S]+)$/);
+      if (heading) {
+        const level = heading[1].length;
+        return `<h${level}>${escapeHtml(heading[2].trim())}</h${level}>`;
+      }
+      return `<p>${escapeHtml(normalized).replace(/\n/g, "<br>")}</p>`;
+    })
+    .join("\n");
+}
+
+function normalizeFaqItems(value: unknown): Array<{ q: string; a: string }> {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(item => {
+      const candidate = item as Record<string, unknown>;
+      return {
+        q: String(candidate.q ?? candidate.question ?? "").trim(),
+        a: String(candidate.a ?? candidate.answer ?? "").trim(),
+      };
+    })
+    .filter(item => item.q && item.a);
+}
+
+/**
+ * Render a database-published article into the initial response. The React app
+ * still takes over for interaction, but crawlers and no-JS readers receive the
+ * same title, article body, FAQs, and Article schema immediately.
+ */
+export function renderDbBlogPost(
+  html: string,
+  pagePath: string,
+  post: DynamicBlogPost
+): string {
+  const title = post.metaTitle || post.title;
+  const description =
+    post.metaDescription ||
+    post.excerpt ||
+    "Solar contract cancellation guidance from Solar Freedom.";
+  const canonical =
+    post.canonicalUrl?.startsWith(`${BASE_URL}/`)
+      ? post.canonicalUrl
+      : `${BASE_URL}${pagePath}`;
+  const faq = normalizeFaqItems(post.faqItems);
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description,
+    mainEntityOfPage: canonical,
+    datePublished: safeIsoDate(post.publishedAt),
+    dateModified: safeIsoDate(post.updatedAt ?? post.publishedAt),
+    author: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
+    publisher: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
+  };
+  const schemas: object[] = [articleSchema];
+  if (faq.length) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faq.map(item => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    });
+  }
+
+  const body = renderDbPostContent(post.content);
+  const faqHtml = faq.length
+    ? `<section aria-labelledby="dynamic-faq"><h2 id="dynamic-faq">Frequently asked questions</h2>${faq
+        .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+        .join("")}</section>`
+    : "";
+  const semanticArticle = `<div id="root"><main class="seo-server-rendered" data-content-source="database"><nav><a href="/">Home</a> / <a href="/blog">Blog</a></nav><article><p>${escapeHtml(post.category || "Solar contract guide")}</p><h1>${escapeHtml(post.title)}</h1>${post.excerpt ? `<p>${escapeHtml(post.excerpt)}</p>` : ""}<div class="article-body">${body}</div>${faqHtml}</article></main></div>`;
+
+  const $ = cheerio.load(html);
+  $("title").text(`${title} | Solar Freedom`);
+  $('meta[name="description"]').attr("content", description);
+  $('link[rel="canonical"]').remove();
+  $("head").append(`<link rel="canonical" href="${escapeHtml(canonical)}">`);
+  $('meta[property="og:url"]').attr("content", canonical);
+  $('meta[property="og:title"]').attr("content", title);
+  $('meta[property="og:description"]').attr("content", description);
+  $('meta[name="twitter:title"]').attr("content", title);
+  $('meta[name="twitter:description"]').attr("content", description);
+  $("head").append(
+    `<script type="application/ld+json">${JSON.stringify(schemas).replace(/</g, "\\u003c")}</script>`
+  );
+  $("#root").replaceWith(semanticArticle);
+  return $.html();
 }
 
 /**
@@ -472,15 +606,7 @@ export async function injectMetaDynamic(
       const { getDbBlogPost } = await import("./db");
       const slug = normalizedPath.replace("/blog/", "");
       const post = await getDbBlogPost(slug);
-      if (post && post.metaTitle) {
-        meta = {
-          title: `${post.metaTitle} | Solar Freedom`,
-          description:
-            post.metaDescription ||
-            `Learn how to cancel your solar contract. Free case review from Solar Freedom attorneys.`,
-          canonical: `${BASE_URL}${normalizedPath}`,
-        };
-      }
+      if (post) return renderDbBlogPost(html, normalizedPath, post);
     } catch (err) {
       console.warn(`[SEO] DB lookup failed for ${normalizedPath}:`, err);
     }
