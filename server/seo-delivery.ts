@@ -4,6 +4,7 @@ import path from "path";
 import * as cheerio from "cheerio";
 import { getDbBlogPostStatus, getDbBlogPosts } from "./db";
 import { renderDbBlogPost } from "./seo-meta";
+import { rateLimit } from "express-rate-limit";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -181,7 +182,8 @@ function seoHeaders(response: import("express").Response) {
  * posts cannot be hidden behind the build-time sitemap/llms.txt files.
  */
 export function registerDynamicSeoInventory(app: Express, publicDir: string) {
-  app.get("/sitemap.xml", async (_request, response) => {
+  const inventoryRateLimit = rateLimit({ windowMs: 60_000, limit: 300, standardHeaders: true, legacyHeaders: false });
+  app.get("/sitemap.xml", inventoryRateLimit, async (_request, response) => {
     const sitemapPath = path.resolve(publicDir, "sitemap.xml");
     if (!fs.existsSync(sitemapPath)) {
       response.status(404).type("text").send("Sitemap not found");
@@ -201,7 +203,7 @@ export function registerDynamicSeoInventory(app: Express, publicDir: string) {
   });
 
   for (const filename of ["llms.txt", "llms-full.txt"]) {
-    app.get(`/${filename}`, async (_request, response) => {
+    app.get(`/${filename}`, inventoryRateLimit, async (_request, response) => {
       const inventoryPath = path.resolve(publicDir, filename);
       if (!fs.existsSync(inventoryPath)) {
         response.status(404).type("text").send("Inventory not found");
@@ -228,8 +230,9 @@ export function registerDynamicSeoInventory(app: Express, publicDir: string) {
  */
 export function registerSeoPageDelivery(app: Express, publicDir: string) {
   const rootIndex = path.resolve(publicDir, "index.html");
+  const pageRateLimit = rateLimit({ windowMs: 60_000, limit: 600, standardHeaders: true, legacyHeaders: false });
 
-  app.get("*", async (request, response) => {
+  app.get("*", pageRateLimit, async (request, response) => {
     const pagePath = normalizePagePath(request.originalUrl);
     if (!pagePath) {
       response.status(400).type("text").send("Invalid URL");

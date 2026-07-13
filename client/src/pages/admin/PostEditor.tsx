@@ -8,6 +8,7 @@ import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { trpc } from "@/lib/trpc";
+import { safeMediaUrl } from "@shared/urlSafety";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -211,6 +212,8 @@ function ImageDialog({
     }
   };
 
+  const safeUrl = safeMediaUrl(url);
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="bg-[#1a1d24] border-white/10 text-white max-w-md">
@@ -241,9 +244,9 @@ function ImageDialog({
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
             </div>
           </div>
-          {url && (
+          {safeUrl && (
             <div className="rounded-lg overflow-hidden border border-white/10 bg-white/5">
-              <img src={url} alt={alt} className="w-full max-h-40 object-contain" />
+              <p className="p-3 text-xs text-gray-400 break-all">Validated image URL: {safeUrl}</p>
             </div>
           )}
           <div>
@@ -259,8 +262,8 @@ function ImageDialog({
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} className="text-gray-400">Cancel</Button>
           <Button
-            onClick={() => { onConfirm(url, alt); onClose(); }}
-            disabled={!url}
+            onClick={() => { if (safeUrl) onConfirm(safeUrl, alt); onClose(); }}
+            disabled={!safeUrl}
             className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
           >
             Insert Image
@@ -400,23 +403,34 @@ export default function PostEditor() {
   // Link insert
   const handleLinkConfirm = (url: string, text: string, newTab: boolean) => {
     if (!editor) return;
+    const safeUrl = safeMediaUrl(url);
+    if (!safeUrl) {
+      toast.error("Enter a valid HTTP(S) or site-relative URL");
+      return;
+    }
     if (text && editor.state.selection.empty) {
-      editor.chain().focus().insertContent(`<a href="${url}" ${newTab ? 'target="_blank"' : ""}>${text}</a>`).run();
+      editor.chain().focus().insertContent({
+        type: "text",
+        text,
+        marks: [{ type: "link", attrs: { href: safeUrl, target: newTab ? "_blank" : "" } }],
+      }).run();
     } else {
-      editor.chain().focus().setLink({ href: url, target: newTab ? "_blank" : "" }).run();
+      editor.chain().focus().setLink({ href: safeUrl, target: newTab ? "_blank" : "" }).run();
     }
   };
 
   // Image insert
   const handleImageConfirm = (url: string, alt: string) => {
     if (!editor) return;
-    editor.chain().focus().setImage({ src: url, alt }).run();
+    const safeUrl = safeMediaUrl(url);
+    if (safeUrl) editor.chain().focus().setImage({ src: safeUrl, alt }).run();
   };
 
   const filteredPosts = (postsData ?? []).filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase()) ||
     p.slug.toLowerCase().includes(search.toLowerCase())
   );
+  const safeHeroImage = safeMediaUrl(heroImage);
 
   return (
     <AdminLayout title="Post Editor" subtitle="Edit content, images, and links for any post">
@@ -627,9 +641,9 @@ export default function PostEditor() {
                         </Button>
                       )}
                     </div>
-                    {heroImage && (
+                    {safeHeroImage && (
                       <div className="rounded-lg overflow-hidden border border-white/10">
-                        <img src={heroImage} alt="Hero" className="w-full max-h-48 object-cover" />
+                        <p className="p-3 text-xs text-gray-400 break-all">Validated hero image URL: {safeHeroImage}</p>
                       </div>
                     )}
                   </CardContent>

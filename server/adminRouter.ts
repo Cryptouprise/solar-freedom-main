@@ -44,11 +44,11 @@ import { sanitizeStoredHtml } from "./security/html";
 import { isAllowedPublicConfigKey, PUBLIC_SITE_CONFIG_KEYS } from "./security/configPolicy";
 import {
   decodeBase64Image,
-  fetchRemoteImage,
   ImageValidationError,
   safeImageStem,
 } from "./security/imageUpload";
 import { evaluateAdminAutomationRequest } from "./automationPolicy";
+import { rateLimit } from "express-rate-limit";
 
 const router = Router();
 
@@ -76,7 +76,7 @@ const COMPANY_MUTABLE_FIELDS = [
 ] as const;
 
 // ─── Apply auth to all admin routes ────────────────────────────────────────
-router.use(adminAuthMiddleware);
+router.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }), adminAuthMiddleware);
 
 // ─── STATUS / HEALTH CHECK ──────────────────────────────────────────────────
 router.get("/status", async (req: AdminRequest, res) => {
@@ -755,28 +755,28 @@ router.delete("/keys/:id", requirePermission("keys:manage"), async (req: AdminRe
 
 /// ─── IMAGE UPLOAD ───────────────────────────────────────────────────────────
 // POST /api/admin/upload
-// Accepts: base64 image data OR a URL to fetch
+// Accepts base64 image data only. Remote URL imports are disabled to prevent
+// DNS-rebinding/server-side request-forgery paths.
 // Returns: { url: "https://cdn.../image.png", key: "images/..." }
 router.post("/upload", requirePermission("posts:write"), async (req: AdminRequest, res) => {
   try {
     const { storagePut } = await import("./storage");
     const { data, url: sourceUrl, filename, contentType: ct } = req.body;
 
-    if (!data && !sourceUrl) {
+    if (sourceUrl) {
+      return res.status(400).json({ error: "Remote URL imports are disabled; upload image bytes as base64 data" });
+    }
+    if (!data) {
       return res.status(400).json({ 
-        error: "Provide either 'data' (base64) or 'url' (image URL to fetch)",
+        error: "Provide 'data' with base64-encoded image bytes",
         example: {
-          option1: { data: "base64-encoded-image-data", filename: "hero.png", contentType: "image/png" },
-          option2: { url: "https://example.com/image.png", filename: "hero.png" }
+          data: "base64-encoded-image-data", filename: "hero.png", contentType: "image/png"
         }
       });
     }
 
-    const image = data
-      ? decodeBase64Image(data, ct)
-      : await fetchRemoteImage(sourceUrl);
-    const sourceName = sourceUrl ? new URL(sourceUrl).pathname.split("/").pop() : undefined;
-    const name = `${safeImageStem(filename ?? sourceName)}.${image.extension}`;
+    const image = decodeBase64Image(data, ct);
+    const name = `${safeImageStem(filename)}.${image.extension}`;
 
     // Generate unique path to prevent enumeration
     const randomSuffix = crypto.randomBytes(8).toString("hex");
@@ -807,8 +807,8 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
 
     if (!images || !Array.isArray(images) || images.length === 0) {
       return res.status(400).json({ 
-        error: "Provide 'images' array with objects containing 'data' or 'url'",
-        example: { images: [{ url: "https://...", filename: "hero.png" }] }
+        error: "Provide 'images' array with base64 data objects",
+        example: { images: [{ data: "base64-encoded-image-data", filename: "hero.png", contentType: "image/png" }] }
       });
     }
 
@@ -819,15 +819,16 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
     const results = [];
     for (const img of images) {
       try {
-        if (!img.data && !img.url) {
-          results.push({ error: "Each image needs 'data' or 'url'" });
+        if (img.url) {
+          results.push({ error: "Remote URL imports are disabled" });
           continue;
         }
-        const image = img.data
-          ? decodeBase64Image(img.data, img.contentType)
-          : await fetchRemoteImage(img.url);
-        const sourceName = img.url ? new URL(img.url).pathname.split("/").pop() : undefined;
-        const name = `${safeImageStem(img.filename ?? sourceName)}.${image.extension}`;
+        if (!img.data) {
+          results.push({ error: "Each image needs base64 'data'" });
+          continue;
+        }
+        const image = decodeBase64Image(img.data, img.contentType);
+        const name = `${safeImageStem(img.filename)}.${image.extension}`;
         const randomSuffix = crypto.randomBytes(8).toString("hex");
         const fileKey = `blog-images/${safeImageStem(name)}-${randomSuffix}.${image.extension}`;
 
