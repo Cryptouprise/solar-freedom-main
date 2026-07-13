@@ -27,11 +27,14 @@ export function trackPhoneClick(source: string, _phoneNumber?: string) {
 
 /** Emit one explicit page_view for each distinct Wouter location. */
 export function trackPageView(path: string) {
-  if (typeof window === "undefined" || lastPagePath === path) return;
-  lastPagePath = path;
+  if (typeof window === "undefined") return;
+  const currentUrl = new URL(window.location.href);
+  const pathname = new URL(path, currentUrl.origin).pathname || "/";
+  if (lastPagePath === pathname) return;
+  lastPagePath = pathname;
   trackEvent("page_view", {
-    page_path: path,
-    page_location: window.location.href,
+    page_path: pathname,
+    page_location: `${currentUrl.origin}${pathname}`,
   });
 }
 

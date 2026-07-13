@@ -39,6 +39,28 @@ describe("truthful client analytics", () => {
     expect(pageViews.map((call) => call[2].page_path)).toEqual(["/", "/blog"]);
   });
 
+  it("strips query and fragment PII from SPA page-view parameters", () => {
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: {
+        gtag,
+        location: {
+          href: "https://breakyoursolarcontract.com/thank-you?email=person%40example.com#token=secret-123",
+        },
+      },
+    });
+
+    trackPageView("/thank-you?email=person%40example.com#token=secret-123");
+
+    const pageView = gtag.mock.calls.find((call) => call[1] === "page_view");
+    expect(pageView?.[2]).toMatchObject({
+      page_path: "/thank-you",
+      page_location: "https://breakyoursolarcontract.com/thank-you",
+    });
+    expect(JSON.stringify(pageView)).not.toContain("person%40example.com");
+    expect(JSON.stringify(pageView)).not.toContain("secret-123");
+  });
+
   it("does not generate a lead when persistence failed", () => {
     expect(recordLeadSubmission(null, "test_form", "/test")).toBe(false);
 
