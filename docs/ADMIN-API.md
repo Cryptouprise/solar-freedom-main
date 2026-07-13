@@ -34,7 +34,7 @@ A successful response looks like:
 Every request must include an `Authorization` header with a Bearer token:
 
 ```
-Authorization: Bearer sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726
+Authorization: Bearer <scoped-api-key-from-your-secret-manager>
 ```
 
 Keys begin with `sf_` followed by 64 hex characters. If the key is invalid or missing, the API returns `401 Unauthorized`. If the key lacks the required permission for an endpoint, it returns `403 Forbidden`.
@@ -371,7 +371,7 @@ helping homeowners cancel predatory solar contracts.
 You have access to the Admin API at:
   https://breakyoursolarcontract.com/api/admin
 
-Your API key: sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726
+Your API key: <copy-once-key-from-the-admin-panel>
 
 Content guidelines:
 - All articles target homeowners trapped in solar contracts

@@ -2,7 +2,7 @@
 
 **Site:** breakyoursolarcontract.com  
 **API Base:** `https://breakyoursolarcontract.com/api/admin`  
-**Auth:** `Authorization: Bearer sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726`
+**Auth:** `Authorization: Bearer <scoped-api-key-from-your-secret-manager>`
 
 This document is a quick-reference for what is and is not possible through the Admin Content API without Manus access.
 
@@ -183,13 +183,13 @@ Every article published via the API should include:
 
 ## API Key Permissions
 
-The current key (`sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726`) has `*` (all permissions).
+Do not use a broad `*` key for routine automation. Grant only the permissions required for the task.
 
 To create a restricted key for a specific use case:
 
 ```bash
 curl -X POST \
-  -H "Authorization: Bearer sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726" \
+  -H "Authorization: Bearer <scoped-api-key-from-your-secret-manager>" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Content Writer (read + write only)",

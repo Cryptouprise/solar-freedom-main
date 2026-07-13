@@ -13,6 +13,7 @@ import bcrypt from "bcryptjs";
 import { getDb } from "./db";
 import { apiKeys } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { sdk } from "./_core/sdk";
 
 export interface AdminRequest extends Request {
   apiKey?: {
@@ -20,6 +21,41 @@ export interface AdminRequest extends Request {
     name: string;
     permissions: string[];
   };
+}
+
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+function isSameOrigin(req: Request): boolean {
+  const origin = req.headers.origin;
+  const forwardedHost = req.headers["x-forwarded-host"];
+  const rawHost = Array.isArray(forwardedHost)
+    ? forwardedHost[0]
+    : forwardedHost?.split(",")[0]?.trim() || req.headers.host;
+
+  if (!origin || !rawHost) return false;
+  try {
+    return new URL(origin).host === rawHost;
+  } catch {
+    return false;
+  }
+}
+
+async function authenticateAdminSession(req: AdminRequest): Promise<boolean> {
+  if (!req.headers.cookie) return false;
+  if (!SAFE_METHODS.has(req.method) && !isSameOrigin(req)) return false;
+
+  try {
+    const user = await sdk.authenticateRequest(req);
+    if (user.role !== "admin") return false;
+    req.apiKey = {
+      id: user.id,
+      name: `admin-session:${user.openId}`,
+      permissions: ["*"],
+    };
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function adminAuthMiddleware(
@@ -30,9 +66,10 @@ export async function adminAuthMiddleware(
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (await authenticateAdminSession(req)) return next();
     return res.status(401).json({
       error: "Unauthorized",
-      message: "Missing or invalid Authorization header. Use: Authorization: Bearer <your-api-key>",
+      message: "Use an authenticated admin session or a scoped Bearer API key.",
     });
   }
 
