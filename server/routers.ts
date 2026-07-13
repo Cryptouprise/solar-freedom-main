@@ -48,6 +48,27 @@ async function sendToGHL(payload: Record<string, string | undefined>) {
   }
 }
 
+async function recordGhlDelivery(leadId: number, crmSent: boolean) {
+  if (!crmSent) {
+    // The initial database value already truthfully records an unsent webhook.
+    return { crmMarkerPending: false, syncWarning: null } as const;
+  }
+
+  try {
+    await markLeadGhlSent(leadId);
+    return { crmMarkerPending: false, syncWarning: null } as const;
+  } catch (error) {
+    console.error("[GHL] Delivery marker update failed after a successful webhook", {
+      leadId,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+    return {
+      crmMarkerPending: true,
+      syncWarning: "crm_delivery_marker_pending",
+    } as const;
+  }
+}
+
 function buildSmsConfirmation(firstName?: string) {
   const safeName = firstName?.trim() ? firstName.trim() : "there";
   return `Hi ${safeName}, this is Grace from Solar Freedom. Your case review request was received — I’ll be reaching out within the hour. Reply with any questions!`;
@@ -105,6 +126,8 @@ export const appRouter = router({
             persisted: false,
             crmSent: false,
             crmPending: false,
+            crmMarkerPending: false,
+            syncWarning: null,
             leadId: null,
           } as const;
         }
@@ -128,16 +151,15 @@ export const appRouter = router({
           sms_confirmation_message: buildSmsConfirmation(input.firstName),
         });
 
-        // 3. Mark GHL sent status in DB
-        if (leadId && ghlSuccess) {
-          await markLeadGhlSent(leadId);
-        }
+        // 3. Record delivery without turning bookkeeping failure into lead failure.
+        const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
 
         return {
           success: true,
           persisted: true,
           crmSent: ghlSuccess,
           crmPending: !ghlSuccess,
+          ...crmMarker,
           leadId,
         } as const;
       }),
@@ -182,6 +204,8 @@ export const appRouter = router({
             persisted: false,
             crmSent: false,
             crmPending: false,
+            crmMarkerPending: false,
+            syncWarning: null,
             leadId: null,
           } as const;
         }
@@ -205,15 +229,14 @@ export const appRouter = router({
           sms_confirmation_message: buildSmsConfirmation(firstName),
         });
 
-        if (leadId && ghlSuccess) {
-          await markLeadGhlSent(leadId);
-        }
+        const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
 
         return {
           success: true,
           persisted: true,
           crmSent: ghlSuccess,
           crmPending: !ghlSuccess,
+          ...crmMarker,
           leadId,
         } as const;
       }),

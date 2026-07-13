@@ -80,6 +80,8 @@ describe("leads.submit", () => {
     expect(result.persisted).toBe(true);
     expect(result.crmSent).toBe(true);
     expect(result.crmPending).toBe(false);
+    expect(result.crmMarkerPending).toBe(false);
+    expect(result.syncWarning).toBeNull();
     expect(result.leadId).toBe(42);
     expect(insertLead).toHaveBeenCalledOnce();
     expect(insertLead).toHaveBeenCalledWith(
@@ -104,6 +106,28 @@ describe("leads.submit", () => {
     });
 
     expect(markLeadGhlSent).toHaveBeenCalledWith(42);
+  });
+
+  it("keeps a delivered lead successful when the delivery marker update fails", async () => {
+    vi.mocked(markLeadGhlSent).mockRejectedValueOnce(new Error("database marker failure"));
+    const caller = createCaller(makePublicCtx());
+
+    const result = await caller.leads.submit({
+      firstName: "Marker",
+      lastName: "Pending",
+      email: "marker-pending@example.com",
+      phone: "5551234567",
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      persisted: true,
+      crmSent: true,
+      crmPending: false,
+      crmMarkerPending: true,
+      syncWarning: "crm_delivery_marker_pending",
+      leadId: 42,
+    });
   });
 
   it("still returns success even if GHL webhook fails", async () => {
@@ -162,6 +186,8 @@ describe("leads.submit", () => {
       persisted: false,
       crmSent: false,
       crmPending: false,
+      crmMarkerPending: false,
+      syncWarning: null,
       leadId: null,
     });
     expect(global.fetch).not.toHaveBeenCalled();
@@ -237,6 +263,8 @@ describe("leads.quickCallback", () => {
       persisted: true,
       crmSent: true,
       crmPending: false,
+      crmMarkerPending: false,
+      syncWarning: null,
       leadId: 42,
     });
   });
