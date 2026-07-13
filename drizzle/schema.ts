@@ -550,7 +550,7 @@ export const automations = mysqlTable("automations", {
   scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }), // platform cron task uid
   isEnabled: tinyint("isEnabled").default(1).notNull(),
   lastRunAt: timestamp("lastRunAt"),
-  lastRunStatus: varchar("lastRunStatus", { length: 50 }), // 'success' | 'error' | 'running'
+  lastRunStatus: varchar("lastRunStatus", { length: 50 }), // 'blocked' | 'error' | 'running'; success requires a future typed runner
   lastRunSummary: text("lastRunSummary"),
   runCount: int("runCount").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -565,7 +565,7 @@ export type InsertAutomation = typeof automations.$inferInsert;
 export const automationRuns = mysqlTable("automationRuns", {
   id: int("id").autoincrement().primaryKey(),
   automationId: int("automationId").notNull(),
-  status: varchar("status", { length: 50 }).notNull(),    // 'success' | 'error' | 'running'
+  status: varchar("status", { length: 50 }).notNull(),    // 'blocked' | 'error' | 'running'; success requires evidence from a typed runner
   summary: text("summary"),
   details: text("details"),                               // full output / error trace
   startedAt: timestamp("startedAt").defaultNow().notNull(),

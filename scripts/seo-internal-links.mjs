@@ -13,7 +13,8 @@
  *      (blog posts) and "targets" (city + state-law pages).
  *   2. Reads Google Search Console performance (gsc_all_pages.json or
  *      gsc_report.csv) to rank sources by the authority they can pass and to
- *      flag targets that are unindexed (absent from GSC) or under-performing.
+ *      flag targets with observed low performance or unknown performance.
+ *      Absence from Search Analytics is never treated as proof of index status.
  *   3. Emits a deterministic, prioritized queue of internal links to add:
  *      for each target, the highest-authority, most topically-relevant blog
  *      posts that should link to it, plus a suggested anchor text.
@@ -33,6 +34,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGscMeasurementGate } from "./lib/gsc-core.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -71,12 +73,14 @@ function parseArgs(argv) {
     sitemap: process.env.SEO_LINKS_SITEMAP || DEFAULT_SITEMAP,
     gscJson: process.env.SEO_LINKS_GSC_JSON || DEFAULT_GSC_JSON,
     gscCsv: process.env.SEO_LINKS_GSC_CSV || DEFAULT_GSC_CSV,
+    gscStatus: path.resolve(ROOT, process.env.SEO_GSC_STATUS_JSON || "reports/seo-agent/gsc-status.json"),
+    requireFreshGsc: process.env.SEO_GSC_REQUIRE_FRESH === "true",
     outJson: process.env.SEO_LINKS_OUT_JSON || DEFAULT_OUT_JSON,
     outMd: process.env.SEO_LINKS_OUT_MD || DEFAULT_OUT_MD,
     limit: Number(process.env.SEO_LINKS_LIMIT || 40),
     sourcesPerTarget: Number(process.env.SEO_LINKS_SOURCES_PER_TARGET || 3),
     // Targets with more impressions than this are already getting discovered, so
-    // they are lower priority than unindexed/near-silent pages.
+    // they are lower priority than unknown/near-silent pages.
     maxTargetImpressions: Number(process.env.SEO_LINKS_MAX_TARGET_IMPRESSIONS || 150),
   };
 
@@ -87,6 +91,7 @@ function parseArgs(argv) {
     if (arg === "--sitemap" && next) args.sitemap = path.resolve(ROOT, next);
     if (arg === "--gsc-json" && next) args.gscJson = path.resolve(ROOT, next);
     if (arg === "--gsc-csv" && next) args.gscCsv = path.resolve(ROOT, next);
+    if (arg === "--gsc-status" && next) args.gscStatus = path.resolve(ROOT, next);
     if (arg === "--out-json" && next) args.outJson = path.resolve(ROOT, next);
     if (arg === "--out-md" && next) args.outMd = path.resolve(ROOT, next);
     if (arg === "--limit" && next) args.limit = Number(next);
@@ -141,6 +146,11 @@ async function loadSitemapPaths(args) {
 // path so we can join them with the sitemap inventory.
 async function loadPerformanceByPath(args) {
   const byPath = new Map();
+  const gate = await readGscMeasurementGate({
+    statusPath: args.gscStatus,
+    requireFresh: args.requireFreshGsc,
+  });
+  if (!gate.usable) return { byPath, gate };
   const add = (url, clicks, impressions, ctr, position) => {
     const p = pathFromUrl(url);
     if (!p) return;
@@ -178,7 +188,7 @@ async function loadPerformanceByPath(args) {
     }
   }
 
-  return byPath;
+  return { byPath, gate };
 }
 
 function slugFromPath(p) {
@@ -220,8 +230,7 @@ function describeTarget(p, type) {
   return { label: titleize(slug), keywords: new Set(slug.split("-").filter(Boolean)) };
 }
 
-// A source can pass authority it has actually earned. Rank by clicks first
-// (proven engagement) then impressions (proven reach); both gate on indexed.
+// Rank performance-observed sources by clicks first, then impressions.
 function sourceAuthority(perf) {
   if (!perf) return 0;
   return perf.clicks * 50 + perf.impressions;
@@ -267,8 +276,8 @@ function build(args, sitemapPaths, perfByPath) {
     }
   }
 
-  // Indexed, authoritative blog posts only — a source with no GSC footprint
-  // cannot pass authority it does not yet have.
+  // Performance-observed blog posts only. A missing row is unknown, not an
+  // index-status conclusion, and cannot support a data-driven authority score.
   const rankedSources = sources
     .filter((s) => s.authority > 0)
     .sort((a, b) => b.authority - a.authority);
@@ -278,23 +287,23 @@ function build(args, sitemapPaths, perfByPath) {
   const pillars = rankedSources.slice(0, 8);
 
   // Prioritize targets that need discovery the most:
-  //   1. unindexed (absent from GSC),
-  //   2. indexed but under the impressions ceiling (near-silent),
+  //   1. unknown performance (absent from this dataset),
+  //   2. observed but under the impressions ceiling (near-silent),
   // and within each bucket, surface the ones with the most latent demand.
   const scoredTargets = targets
     .map((t) => {
       const impressions = t.perf?.impressions || 0;
-      const indexed = Boolean(t.perf);
-      const needsLinks = !indexed || impressions <= args.maxTargetImpressions;
+      const performanceObserved = Boolean(t.perf);
+      const needsLinks = !performanceObserved || impressions <= args.maxTargetImpressions;
       // Lower priorityScore = more urgent.
-      const bucket = !indexed ? 0 : 1;
-      return { ...t, impressions, indexed, needsLinks, bucket };
+      const bucket = !performanceObserved ? 0 : 1;
+      return { ...t, impressions, performanceObserved, needsLinks, bucket };
     })
     .filter((t) => t.needsLinks)
     .sort((a, b) => {
       if (a.bucket !== b.bucket) return a.bucket - b.bucket;
-      // Within unindexed, prefer city pages (more of them, higher intent) then
-      // alphabetical for stable output. Within indexed, most impressions first.
+      // Within unknown performance, prefer city pages then alphabetical.
+      // Within observed performance, most impressions first.
       if (a.bucket === 1) return b.impressions - a.impressions;
       if (a.type !== b.type) return a.type === "city" ? -1 : 1;
       return a.path.localeCompare(b.path);
@@ -328,17 +337,18 @@ function build(args, sitemapPaths, perfByPath) {
       target: t.path,
       type: t.type,
       label: t.label,
-      indexed: t.indexed,
+      performanceObserved: t.performanceObserved,
+      indexStatus: "not_measured",
       impressions: t.impressions,
-      reason: t.indexed
-        ? `Indexed but only ${t.impressions} impressions — needs internal authority to climb.`
-        : "Not found in GSC — likely unindexed; needs internal links so Google can discover and trust it.",
+      reason: t.performanceObserved
+        ? `Only ${t.impressions} observed impressions; a contextual internal-link experiment may help.`
+        : "No row exists in the available page-performance dataset. Index status is unknown; treat this as a link-coverage hypothesis, not proof of non-indexing.",
       anchor: suggestAnchor(t),
       sources: chosen,
     };
-  });
+  }).filter((item) => item.sources.length > 0);
 
-  const unindexed = scoredTargets.filter((t) => !t.indexed).length;
+  const performanceUnknown = queue.filter((t) => !t.performanceObserved).length;
   return {
     generatedAt: new Date().toISOString(),
     baseUrl: args.base,
@@ -349,7 +359,7 @@ function build(args, sitemapPaths, perfByPath) {
       cityTargets: targets.filter((t) => t.type === "city").length,
       stateTargets: targets.filter((t) => t.type === "state").length,
       queued: queue.length,
-      unindexedQueued: unindexed,
+      performanceUnknownQueued: performanceUnknown,
     },
     pillars: pillars.map((p) => ({
       path: p.path,
@@ -378,9 +388,9 @@ function formatMarkdown(report) {
   lines.push("");
   lines.push(`- Sitemap paths scanned: ${report.summary.sitemapPaths}`);
   lines.push(`- Blog posts (potential sources): ${report.summary.blogSources}`);
-  lines.push(`- Authoritative sources (have GSC footprint): ${report.summary.authoritativeSources}`);
+  lines.push(`- Performance-observed source pages: ${report.summary.authoritativeSources}`);
   lines.push(`- City targets: ${report.summary.cityTargets} | State-law targets: ${report.summary.stateTargets}`);
-  lines.push(`- Link opportunities queued: ${report.summary.queued} (unindexed: ${report.summary.unindexedQueued})`);
+  lines.push(`- Link opportunities queued: ${report.summary.queued} (performance unknown: ${report.summary.performanceUnknownQueued})`);
   lines.push("");
 
   if (report.pillars.length) {
@@ -395,12 +405,12 @@ function formatMarkdown(report) {
   lines.push("## Queue");
   lines.push("");
   if (!report.queue.length) {
-    lines.push("- None. Every city/state page is already indexed and above the impressions ceiling.");
+    lines.push("- No supported recommendation. Fresh GSC performance evidence or an eligible source page may be unavailable.");
   }
   report.queue.forEach((item, index) => {
     lines.push(`### ${index + 1}. \`${item.target}\` — ${item.label}`);
     lines.push("");
-    lines.push(`- Type: ${item.type} | Indexed: ${item.indexed ? "yes" : "no"} | Impressions: ${item.impressions}`);
+    lines.push(`- Type: ${item.type} | Performance observed: ${item.performanceObserved ? "yes" : "no"} | Index status: not measured | Impressions: ${item.impressions}`);
     lines.push(`- Why: ${item.reason}`);
     lines.push(`- Suggested anchor: "${item.anchor}"`);
     lines.push("- Add a contextual link from:");
@@ -417,7 +427,7 @@ function formatMarkdown(report) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const sitemapPaths = await loadSitemapPaths(args);
-  const perfByPath = await loadPerformanceByPath(args);
+  const { byPath: perfByPath, gate: measurementGate } = await loadPerformanceByPath(args);
 
   if (!sitemapPaths.length) {
     console.error(`No sitemap URLs found at ${args.sitemap}. Run \`pnpm build\` or point --sitemap at a generated sitemap.xml.`);
@@ -426,6 +436,7 @@ async function main() {
   }
 
   const report = build(args, sitemapPaths, perfByPath);
+  report.measurement = measurementGate;
 
   await fs.mkdir(path.dirname(args.outJson), { recursive: true });
   await fs.writeFile(args.outJson, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
@@ -434,7 +445,7 @@ async function main() {
   console.log("\nSEO Internal-Link Opportunities");
   console.log("===============================");
   console.log(`Authoritative sources: ${report.summary.authoritativeSources}`);
-  console.log(`Targets queued: ${report.summary.queued} (unindexed: ${report.summary.unindexedQueued})`);
+  console.log(`Targets queued: ${report.summary.queued} (performance unknown: ${report.summary.performanceUnknownQueued})`);
   console.log(`Queue: ${path.relative(ROOT, args.outMd)}`);
 }
 

@@ -2,23 +2,22 @@
  * /api/scheduled/automation-run
  *
  * Called by the Heartbeat platform when a user-defined automation cron fires.
- * Looks up the automation by taskUid, runs the spec as an LLM agent, and logs
- * the result.
+ * Looks up the automation by taskUid and records a truthful evidence receipt.
+ * Prompt-only specs are blocked because this route has no typed tool runner.
  *
  * Auth: cron-only (user.isCron === true, user.taskUid set by platform).
  */
 import type { Request, Response } from "express";
 import { sdk } from "../_core/sdk";
 import {
-  getAutomation,
   updateAutomation,
   createAutomationRun,
   updateAutomationRun,
 } from "../db";
 import { automations } from "../../drizzle/schema";
-import { invokeLLM } from "../_core/llm";
 import { getDb } from "../db";
 import { eq } from "drizzle-orm";
+import { createPromptOnlyReceipt, summarizePromptOnlyReceipt } from "../automationPolicy";
 
 export async function automationRunHandler(req: Request, res: Response) {
   const startedAt = Date.now();
@@ -61,35 +60,26 @@ export async function automationRunHandler(req: Request, res: Response) {
     });
     runId = run?.id;
 
-    // 4. Run the spec as an LLM agent
-    const response = await invokeLLM({
-      messages: [
-        {
-          role: "system",
-          content: `You are an automation agent. Execute the following automation spec precisely and completely. 
-Return a concise summary of what you did, what succeeded, what failed, and any actions that require human approval.
-Be specific — include URLs, issue numbers, file names, and counts.
-Format your response as plain text, not markdown.`,
-        },
-        {
-          role: "user",
-          content: `Execute this automation spec:\n\n${automation.spec}\n\nToday's date: ${new Date().toISOString().split("T")[0]}`,
-        },
-      ],
+    // 4. Prompt text is not an executor. Record a content-addressed receipt
+    // proving that no tool call or external state change was attempted.
+    const completedAt = new Date();
+    const receipt = createPromptOnlyReceipt({
+      automationId: automation.id,
+      taskUid: user.taskUid,
+      spec: automation.spec,
+      startedAt: new Date(startedAt),
+      completedAt,
     });
-
-    const summary =
-      (response as any)?.choices?.[0]?.message?.content?.trim() ??
-      "Automation completed but no summary was returned.";
-
+    const summary = summarizePromptOnlyReceipt(receipt);
     const durationMs = Date.now() - startedAt;
 
     // 5. Update run log
     if (runId) {
       await updateAutomationRun(runId, {
-        status: "success",
+        status: "blocked",
         summary,
-        completedAt: new Date(),
+        details: JSON.stringify(receipt, null, 2),
+        completedAt,
         durationMs,
       });
     }
@@ -97,12 +87,19 @@ Format your response as plain text, not markdown.`,
     // 6. Update automation last run metadata
     await updateAutomation(automation.id, {
       lastRunAt: new Date(),
-      lastRunStatus: "success",
+      lastRunStatus: "blocked",
       lastRunSummary: summary.slice(0, 1000),
       runCount: (automation.runCount ?? 0) + 1,
     });
 
-    return res.json({ ok: true, summary, durationMs });
+    return res.json({
+      ok: true,
+      executed: false,
+      outcome: "blocked",
+      summary,
+      receipt,
+      durationMs,
+    });
   } catch (error: any) {
     const durationMs = Date.now() - startedAt;
     const errorMsg = error?.message ?? String(error);

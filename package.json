@@ -11,6 +11,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "seo:audit": "node scripts/seo-agent-audit.mjs",
+    "seo:gsc:refresh": "node scripts/gsc-search-analytics.mjs",
+    "seo:gsc:status": "node scripts/gsc-data-status.mjs",
     "seo:llms": "node scripts/generate-llms.mjs",
     "seo:ctr": "node scripts/seo-ctr-rescue.mjs",
     "seo:internal-links": "node scripts/seo-internal-links.mjs",
