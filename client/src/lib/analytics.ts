@@ -1,11 +1,4 @@
-/**
- * Solar Freedom — GA4 Analytics Utility
- * Measurement ID: G-WVL7BKD68V
- *
- * Usage:
- *   import { trackEvent, trackPhoneClick, trackFormStep, trackFormSubmit, trackCTAClick } from "@/lib/analytics";
- */
-
+/** Solar Freedom GA4 analytics helpers. Contact PII must never enter events. */
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
@@ -14,8 +7,8 @@ declare global {
 }
 
 const GA_ID = "G-WVL7BKD68V";
+let lastPagePath: string | null = null;
 
-/** Fire a raw GA4 event */
 export function trackEvent(
   eventName: string,
   params: Record<string, string | number | boolean> = {}
@@ -25,25 +18,31 @@ export function trackEvent(
   }
 }
 
-/** Track a phone number click */
-export function trackPhoneClick(source: string, phoneNumber = "9049214971") {
+export function trackPhoneClick(source: string, _phoneNumber?: string) {
   trackEvent("phone_click", {
     event_category: "engagement",
     event_label: source,
-    phone_number: phoneNumber,
   });
 }
 
-/** Track a CTA button click */
+/** Emit one explicit page_view for each distinct Wouter location. */
+export function trackPageView(path: string) {
+  if (typeof window === "undefined" || lastPagePath === path) return;
+  lastPagePath = path;
+  trackEvent("page_view", {
+    page_path: path,
+    page_location: window.location.href,
+  });
+}
+
 export function trackCTAClick(label: string, page: string) {
   trackEvent("cta_click", {
     event_category: "engagement",
     event_label: label,
-    page_location: page,
+    page_path: page,
   });
 }
 
-/** Track a form step completion (multi-step forms) */
 export function trackFormStep(formName: string, step: number, stepLabel: string) {
   trackEvent("form_step", {
     event_category: "form",
@@ -53,21 +52,62 @@ export function trackFormStep(formName: string, step: number, stepLabel: string)
   });
 }
 
-/** Track a successful form/webhook submission */
+/** Called only after the API confirms durable lead persistence. */
 export function trackFormSubmit(formName: string, page: string) {
   trackEvent("form_submit", {
-    event_category: "conversion",
+    event_category: "form",
     form_name: formName,
-    page_location: page,
+    page_path: page,
   });
-  // Also fire GA4 recommended conversion event
   trackEvent("generate_lead", {
     event_category: "conversion",
     form_name: formName,
+    page_path: page,
   });
 }
 
-/** Track scroll depth milestones (25%, 50%, 75%, 100%) */
+export function trackFormError(formName: string, page: string) {
+  trackEvent("form_error", {
+    event_category: "form",
+    form_name: formName,
+    page_path: page,
+    error_type: "submission_failed",
+  });
+}
+
+/** CRM delivery is operational evidence, separate from lead conversion. */
+export function trackCrmDelivery(formName: string, page: string, crmSent: boolean) {
+  trackEvent("crm_delivery", {
+    event_category: "operations",
+    form_name: formName,
+    page_path: page,
+    delivery_status: crmSent ? "sent" : "pending",
+  });
+}
+
+export type LeadSubmissionStatus = {
+  persisted: boolean;
+  crmSent: boolean;
+};
+
+export function recordLeadSubmission(
+  result: LeadSubmissionStatus | null | undefined,
+  formName: string,
+  page: string
+) {
+  if (!result?.persisted) {
+    trackFormError(formName, page);
+    return false;
+  }
+  trackFormSubmit(formName, page);
+  trackCrmDelivery(formName, page, result.crmSent);
+  return true;
+}
+
+export function resetAnalyticsStateForTests() {
+  lastPagePath = null;
+}
+
 export function initScrollTracking(pageName: string) {
   if (typeof window === "undefined") return;
   const milestones = [25, 50, 75, 100];
@@ -76,13 +116,13 @@ export function initScrollTracking(pageName: string) {
   const handler = () => {
     const scrolled =
       (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-    milestones.forEach((m) => {
-      if (scrolled >= m && !fired.has(m)) {
-        fired.add(m);
+    milestones.forEach((milestone) => {
+      if (scrolled >= milestone && !fired.has(milestone)) {
+        fired.add(milestone);
         trackEvent("scroll_depth", {
           event_category: "engagement",
           page_name: pageName,
-          depth_percent: m,
+          depth_percent: milestone,
         });
       }
     });
@@ -92,7 +132,6 @@ export function initScrollTracking(pageName: string) {
   return () => window.removeEventListener("scroll", handler);
 }
 
-/** Track outbound link clicks */
 export function trackOutboundLink(url: string, label: string) {
   trackEvent("click", {
     event_category: "outbound",

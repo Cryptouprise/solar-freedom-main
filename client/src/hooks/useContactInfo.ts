@@ -1,83 +1,87 @@
 /**
- * useContactInfo — Sticky contact info hook
+ * Ephemeral contact details shared between forms and the booking modal.
  *
- * Persists name, phone, and email to localStorage so users never have to
- * retype their contact details across any form on the site.
- *
- * Usage:
- *   const { contactInfo, updateContactInfo, clearContactInfo } = useContactInfo();
- *   // contactInfo.firstName, contactInfo.lastName, contactInfo.phone, contactInfo.email
- *   // Call updateContactInfo({ phone: "..." }) to update individual fields
+ * Contact PII intentionally lives in memory only. Older versions wrote it to
+ * `localStorage`; every hook consumer now removes that legacy value on mount.
  */
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
-import { useState, useCallback } from "react";
-
-const STORAGE_KEY = "sf_contact_info";
+const LEGACY_STORAGE_KEY = "sf_contact_info";
 
 export interface ContactInfo {
   firstName: string;
   lastName: string;
   phone: string;
   email: string;
-  /** Combined full name — convenience field */
   fullName: string;
 }
 
-function loadFromStorage(): ContactInfo {
+const EMPTY_CONTACT_INFO: ContactInfo = {
+  firstName: "",
+  lastName: "",
+  phone: "",
+  email: "",
+  fullName: "",
+};
+
+let contactInfo = EMPTY_CONTACT_INFO;
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  return contactInfo;
+}
+
+function publish(next: ContactInfo) {
+  contactInfo = next;
+  listeners.forEach((listener) => listener());
+}
+
+export function clearLegacyContactStorage(
+  storage?: Pick<Storage, "removeItem">
+) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { firstName: "", lastName: "", phone: "", email: "", fullName: "" };
-    const parsed = JSON.parse(raw);
-    const firstName = parsed.firstName || "";
-    const lastName = parsed.lastName || "";
-    return {
-      firstName,
-      lastName,
-      phone: parsed.phone || "",
-      email: parsed.email || "",
-      fullName: [firstName, lastName].filter(Boolean).join(" "),
-    };
+    const target = storage ?? (typeof window === "undefined" ? undefined : window.localStorage);
+    target?.removeItem(LEGACY_STORAGE_KEY);
   } catch {
-    return { firstName: "", lastName: "", phone: "", email: "", fullName: "" };
+    // Storage can be unavailable in hardened/private browser contexts.
   }
 }
 
-function saveToStorage(info: Omit<ContactInfo, "fullName">) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(info));
-  } catch {
-    // localStorage may be unavailable in private browsing — fail silently
-  }
-}
+// Remove legacy PII as soon as this module is loaded in the browser.
+clearLegacyContactStorage();
 
 export function useContactInfo() {
-  const [contactInfo, setContactInfo] = useState<ContactInfo>(loadFromStorage);
+  const current = useSyncExternalStore(subscribe, getSnapshot, () => EMPTY_CONTACT_INFO);
+
+  useEffect(() => {
+    clearLegacyContactStorage();
+  }, []);
 
   const updateContactInfo = useCallback(
     (updates: Partial<Omit<ContactInfo, "fullName">>) => {
-      setContactInfo((prev) => {
-        const next = {
-          firstName: updates.firstName ?? prev.firstName,
-          lastName: updates.lastName ?? prev.lastName,
-          phone: updates.phone ?? prev.phone,
-          email: updates.email ?? prev.email,
-        };
-        saveToStorage(next);
-        return {
-          ...next,
-          fullName: [next.firstName, next.lastName].filter(Boolean).join(" "),
-        };
+      const next = {
+        firstName: updates.firstName ?? contactInfo.firstName,
+        lastName: updates.lastName ?? contactInfo.lastName,
+        phone: updates.phone ?? contactInfo.phone,
+        email: updates.email ?? contactInfo.email,
+      };
+      publish({
+        ...next,
+        fullName: [next.firstName, next.lastName].filter(Boolean).join(" "),
       });
     },
     []
   );
 
   const clearContactInfo = useCallback(() => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {}
-    setContactInfo({ firstName: "", lastName: "", phone: "", email: "", fullName: "" });
+    clearLegacyContactStorage();
+    publish(EMPTY_CONTACT_INFO);
   }, []);
 
-  return { contactInfo, updateContactInfo, clearContactInfo };
+  return { contactInfo: current, updateContactInfo, clearContactInfo };
 }

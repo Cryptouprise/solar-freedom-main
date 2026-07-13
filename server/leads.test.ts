@@ -10,7 +10,7 @@ vi.mock("./db", () => ({
   getLeads: vi.fn().mockResolvedValue([]),
   updateLeadStatus: vi.fn().mockResolvedValue(undefined),
   markLeadGhlSent: vi.fn().mockResolvedValue(undefined),
-  insertExitIntentCapture: vi.fn().mockResolvedValue(undefined),
+  insertExitIntentCapture: vi.fn().mockResolvedValue(77),
   upsertUser: vi.fn().mockResolvedValue(undefined),
   getUserByOpenId: vi.fn().mockResolvedValue(undefined),
   getDb: vi.fn().mockResolvedValue(null),
@@ -77,6 +77,9 @@ describe("leads.submit", () => {
     });
 
     expect(result.success).toBe(true);
+    expect(result.persisted).toBe(true);
+    expect(result.crmSent).toBe(true);
+    expect(result.crmPending).toBe(false);
     expect(result.leadId).toBe(42);
     expect(insertLead).toHaveBeenCalledOnce();
     expect(insertLead).toHaveBeenCalledWith(
@@ -116,7 +119,52 @@ describe("leads.submit", () => {
     });
 
     expect(result.success).toBe(true);
+    expect(result.persisted).toBe(true);
+    expect(result.crmSent).toBe(false);
+    expect(result.crmPending).toBe(true);
     expect(insertLead).toHaveBeenCalledOnce();
+  });
+
+  it.each([400, 500])("treats GHL HTTP %s as pending without losing the persisted lead", async (status) => {
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: false, status } as Response);
+    const caller = createCaller(makePublicCtx());
+
+    const result = await caller.leads.submit({
+      firstName: "CRM",
+      lastName: "Pending",
+      email: "crm-pending@example.com",
+      phone: "5559876543",
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      persisted: true,
+      crmSent: false,
+      crmPending: true,
+      leadId: 42,
+    });
+    expect(markLeadGhlSent).not.toHaveBeenCalled();
+  });
+
+  it("does not report success or forward to CRM when persistence is unavailable", async () => {
+    vi.mocked(insertLead).mockResolvedValueOnce(null);
+    const caller = createCaller(makePublicCtx());
+
+    const result = await caller.leads.submit({
+      firstName: "Database",
+      lastName: "Unavailable",
+      email: "db-unavailable@example.com",
+      phone: "5559876543",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      persisted: false,
+      crmSent: false,
+      crmPending: false,
+      leadId: null,
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it("rejects invalid email", async () => {
@@ -184,7 +232,13 @@ describe("leads.quickCallback", () => {
       caller.leads.quickCallback({
         phone: "5551234567",
       })
-    ).resolves.toEqual({ success: true, leadId: 42 });
+    ).resolves.toEqual({
+      success: true,
+      persisted: true,
+      crmSent: true,
+      crmPending: false,
+      leadId: 42,
+    });
   });
 });
 
@@ -204,6 +258,12 @@ describe("leads.updateStatus", () => {
 });
 
 describe("exitIntent.capture", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(insertExitIntentCapture).mockResolvedValue(77);
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true } as Response);
+  });
+
   it("persists an exit intent capture", async () => {
     const caller = createCaller(makePublicCtx());
 
@@ -213,10 +273,33 @@ describe("exitIntent.capture", () => {
     });
 
     expect(result.success).toBe(true);
+    expect(result.persisted).toBe(true);
+    expect(result.crmSent).toBe(true);
+    expect(result.crmPending).toBe(false);
+    expect(result.captureId).toBe(77);
     expect(insertExitIntentCapture).toHaveBeenCalledWith({
       email: "visitor@example.com",
       sourcePage: "/",
     });
+  });
+
+  it("does not report a capture when the database did not persist it", async () => {
+    vi.mocked(insertExitIntentCapture).mockResolvedValueOnce(null);
+    const caller = createCaller(makePublicCtx());
+
+    const result = await caller.exitIntent.capture({
+      email: "visitor@example.com",
+      sourcePage: "/",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      persisted: false,
+      crmSent: false,
+      crmPending: false,
+      captureId: null,
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it("rejects invalid email", async () => {

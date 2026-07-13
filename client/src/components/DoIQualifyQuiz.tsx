@@ -6,7 +6,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, ChevronRight, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { trackFormSubmit } from "@/lib/analytics";
+import { recordLeadSubmission } from "@/lib/analytics";
 import BookingModal from "@/components/BookingModal";
 import { useContactInfo } from "@/hooks/useContactInfo";
 
@@ -78,13 +78,14 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showCapture, setShowCapture] = useState(false);
   const { contactInfo, updateContactInfo } = useContactInfo();
-  // Pre-fill from localStorage; the quiz uses a single "full name" field
+  // Prefill from ephemeral in-memory state; the quiz uses a full-name field.
   const [name, setName] = useState(contactInfo.fullName);
   const [phone, setPhone] = useState(contactInfo.phone);
   const [email, setEmail] = useState(contactInfo.email);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
 
   const currentQ = QUESTIONS[step];
   const progress = ((step) / QUESTIONS.length) * 100;
@@ -105,11 +106,12 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSubmissionError("");
     const firstName = name.split(" ")[0] || name;
     const lastName = name.split(" ").slice(1).join(" ") || "";
     try {
       // Persist to DB via tRPC (also forwards to GHL server-side)
-      await submitLead.mutateAsync({
+      const result = await submitLead.mutateAsync({
         firstName,
         lastName,
         phone,
@@ -120,9 +122,17 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
       });
-    } catch (_) { /* silent */ }
-    trackFormSubmit("do_i_qualify_quiz", window.location.pathname);
-    setLoading(false);
+      if (!recordLeadSubmission(result, "do_i_qualify_quiz", window.location.pathname)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "do_i_qualify_quiz", window.location.pathname);
+      setSubmissionError("We couldn't save your request. Please try again.");
+      return;
+    } finally {
+      setLoading(false);
+    }
     setSubmitted(true);
     // Show booking modal after a short delay so the success state is visible first
     setTimeout(() => setShowBooking(true), 1200);
@@ -292,6 +302,9 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
                 >
                   {loading ? "Submitting..." : "GET MY FREE CASE REVIEW →"}
                 </button>
+                {submissionError && (
+                  <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
+                )}
               </form>
               <p className="text-zinc-600 text-[10px] text-center mt-3">
                 No obligation. No cost. Grace Silver will reach out within minutes.

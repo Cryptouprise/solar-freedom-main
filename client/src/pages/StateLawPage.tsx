@@ -11,6 +11,7 @@ import { getStateLaw, StateLawSection } from '@/data/state-laws';
 import { cities as ALL_CITIES } from '@/data/cities';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useSiteConfig } from '@/hooks/useSiteConfig';
 import {
   Accordion,
   AccordionContent,
@@ -135,6 +136,7 @@ function ContentSection({ section }: { section: StateLawSection }) {
 }
 
 export default function StateLawPage() {
+  const { phoneE164 } = useSiteConfig();
   const params = useParams<{ state: string }>();
   const stateSlug = params.state;
   const law = getStateLaw(stateSlug || '');
@@ -158,7 +160,7 @@ export default function StateLawPage() {
         '@type': 'Organization',
         name: 'Solar Freedom',
         url: 'https://breakyoursolarcontract.com',
-        telephone: '+1-904-664-0877',
+        telephone: phoneE164,
       },
     },
     {

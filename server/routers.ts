@@ -37,7 +37,11 @@ async function sendToGHL(payload: Record<string, string | undefined>) {
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(5_000),
     });
-    return response.ok;
+    if (!response.ok) {
+      console.error(`[GHL] Webhook returned HTTP ${response.status}`);
+      return false;
+    }
+    return true;
   } catch (err) {
     console.error("[GHL] Webhook failed:", err);
     return false;
@@ -94,6 +98,17 @@ export const appRouter = router({
           ghlWebhookSent: 0,
         });
 
+        const persisted = typeof leadId === "number" && leadId > 0;
+        if (!persisted) {
+          return {
+            success: false,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            leadId: null,
+          } as const;
+        }
+
         // 2. Forward to GHL webhook
         const ghlSuccess = await sendToGHL({
           first_name: input.firstName,
@@ -118,7 +133,13 @@ export const appRouter = router({
           await markLeadGhlSent(leadId);
         }
 
-        return { success: true, leadId };
+        return {
+          success: true,
+          persisted: true,
+          crmSent: ghlSuccess,
+          crmPending: !ghlSuccess,
+          leadId,
+        } as const;
       }),
 
     /**
@@ -154,6 +175,17 @@ export const appRouter = router({
           ghlWebhookSent: 0,
         });
 
+        const persisted = typeof leadId === "number" && leadId > 0;
+        if (!persisted) {
+          return {
+            success: false,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            leadId: null,
+          } as const;
+        }
+
         const ghlSuccess = await sendToGHL({
           phone: input.phone,
           first_name: firstName || "Website",
@@ -177,7 +209,13 @@ export const appRouter = router({
           await markLeadGhlSent(leadId);
         }
 
-        return { success: true, leadId };
+        return {
+          success: true,
+          persisted: true,
+          crmSent: ghlSuccess,
+          crmPending: !ghlSuccess,
+          leadId,
+        } as const;
       }),
 
     /**
@@ -366,8 +404,18 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         enforcePublicMutationLimit(ctx.req, "exit-intent");
-        await insertExitIntentCapture({ email: input.email, sourcePage: input.sourcePage });
-        await sendToGHL({
+        const captureId = await insertExitIntentCapture({ email: input.email, sourcePage: input.sourcePage });
+        const persisted = typeof captureId === "number" && captureId > 0;
+        if (!persisted) {
+          return {
+            success: false,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            captureId: null,
+          } as const;
+        }
+        const crmSent = await sendToGHL({
           email: input.email,
           source: "exit_intent_popup",
           form_name: "Exit Intent — Solar Freedom",
@@ -375,7 +423,13 @@ export const appRouter = router({
           lead_magnet: input.wantsGuide ? "solar_contract_escape_guide" : "none",
           workflow: input.wantsGuide ? "escape_guide_day1_day3_day7" : "standard_exit_intent",
         });
-        return { success: true };
+        return {
+          success: true,
+          persisted: true,
+          crmSent,
+          crmPending: !crmSent,
+          captureId,
+        } as const;
       }),
   }),
 

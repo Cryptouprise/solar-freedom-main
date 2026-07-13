@@ -11,6 +11,8 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import BookingModal from "@/components/BookingModal";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { trpc } from "@/lib/trpc";
+import { recordLeadSubmission, trackPhoneClick } from "@/lib/analytics";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 // ─── Scroll Reveal ─────────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -94,33 +96,39 @@ function SunrunContactForm() {
   const { updateContactInfo } = useContactInfo();
   const [showBooking, setShowBooking] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
   const [form, setForm] = useState({
     firstName: "", lastName: "", phone: "", email: "", issue: "", agree: false,
   });
 
-  const submitLead = trpc.leads.submit.useMutation({
-    onSuccess: () => {
+  const submitLead = trpc.leads.submit.useMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmissionError("");
+    try {
+      const result = await submitLead.mutateAsync({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phone: form.phone,
+        email: form.email,
+        solarCompany: "Sunrun",
+        problemType: form.issue,
+        sourcePage: window.location.pathname,
+        sourceUrl: window.location.href,
+        formName: "Sunrun Dedicated Page Form",
+      });
+      if (!recordLeadSubmission(result, "sunrun_dedicated_form", window.location.pathname)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
       updateContactInfo({ firstName: form.firstName, lastName: form.lastName, phone: form.phone, email: form.email });
       setSubmitted(true);
       setTimeout(() => setShowBooking(true), 1200);
-    },
-    onError: () => {
-      alert("Submission error. Please try again or call us directly.");
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitLead.mutate({
-      firstName: form.firstName,
-      lastName: form.lastName,
-      phone: form.phone,
-      email: form.email,
-      solarCompany: "Sunrun",
-      problemType: form.issue,
-      sourcePage: "sunrun-landing-page",
-      formName: "Sunrun Dedicated Page Form",
-    });
+    } catch {
+      recordLeadSubmission(null, "sunrun_dedicated_form", window.location.pathname);
+      setSubmissionError("We couldn't save your request. Please try again.");
+    }
   };
 
   const update = (key: string, val: string | boolean) => setForm(f => ({ ...f, [key]: val }));
@@ -211,12 +219,14 @@ function SunrunContactForm() {
       >
         {submitLead.isPending ? "SUBMITTING..." : "GET MY FREE SUNRUN CASE REVIEW →"}
       </button>
+      {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
     </form>
   );
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SunrunPage() {
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   useSeoMeta({
     title: "Sunrun Solar Contract Cancellation — Free Legal Review | Solar Freedom",
     description: "Sunrun locked you into a 20-year contract with a 2.9% annual escalator. Our attorneys have cancelled hundreds of Sunrun agreements. Free case review — no obligation.",
@@ -236,9 +246,9 @@ export default function SunrunPage() {
             <span className="font-black text-white text-lg tracking-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>SOLAR FREEDOM</span>
           </a>
           <div className="flex items-center gap-4">
-            <a href="tel:+19049012790" className="hidden md:flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <a href={phoneHref} onClick={() => trackPhoneClick("sunrun_nav_phone", phoneDigits)} className="hidden md:flex items-center gap-2 text-amber-400 font-bold text-sm">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-              (904) 901-2790
+              {phoneDisplay}
             </a>
             <a href="#case-review" className="px-4 py-2 rounded font-black text-sm uppercase tracking-wider transition-all" style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "#000" }}>
               Free Review

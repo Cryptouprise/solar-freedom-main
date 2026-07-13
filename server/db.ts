@@ -306,15 +306,16 @@ export async function getSiteConfigValues(keys?: string[]) {
 /**
  * Insert an exit intent email capture.
  */
-export async function insertExitIntentCapture(data: InsertExitIntentCapture): Promise<void> {
+export async function insertExitIntentCapture(data: InsertExitIntentCapture): Promise<number | null> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot insert exit intent capture: database not available");
-    return;
+    return null;
   }
 
   try {
-    await db.insert(exitIntentCaptures).values(data);
+    const result = await db.insert(exitIntentCaptures).values(data);
+    return (result as unknown as { insertId: number }[])[0]?.insertId ?? null;
   } catch (error) {
     console.error("[Database] Failed to insert exit intent capture:", error);
     throw error;

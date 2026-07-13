@@ -17,7 +17,8 @@ import { stateLaws } from "@/data/state-laws";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trpc } from "@/lib/trpc";
-import { trackFormSubmit } from "@/lib/analytics";
+import { recordLeadSubmission } from "@/lib/analytics";
+import { SITE_CONFIG_DEFAULTS } from "@shared/const";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -59,7 +60,7 @@ function CityForm({ city, state }: { city: string; state: string }) {
     if (!form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.email.trim()) return;
     setError("");
     try {
-      await submitLead.mutateAsync({
+      const result = await submitLead.mutateAsync({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         email: form.email.trim(),
@@ -72,9 +73,14 @@ function CityForm({ city, state }: { city: string; state: string }) {
         sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
         sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
       });
-      trackFormSubmit("city_landing_case_review", typeof window !== "undefined" ? window.location.pathname : "unknown");
+      const page = typeof window !== "undefined" ? window.location.pathname : "unknown";
+      if (!recordLeadSubmission(result, "city_landing_case_review", page)) {
+        setError("We couldn't save your review. Please try again.");
+        return;
+      }
       setSubmitted(true);
     } catch {
+      recordLeadSubmission(null, "city_landing_case_review", typeof window !== "undefined" ? window.location.pathname : "unknown");
       setError("Something went wrong submitting your review. Please try again or call us directly.");
     }
   };
@@ -257,7 +263,7 @@ export default function CityPage() {
       url: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
       areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
       serviceType: 'Solar Contract Cancellation',
-      telephone: '(904) 921-4971',
+      telephone: SITE_CONFIG_DEFAULTS.phone_number_e164,
     },
     {
       '@context': 'https://schema.org',
@@ -265,7 +271,7 @@ export default function CityPage() {
       name: 'Solar Freedom',
       description: `Solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}.`,
       url: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
-      telephone: '(904) 921-4971',
+      telephone: SITE_CONFIG_DEFAULTS.phone_number_e164,
       areaServed: { '@type': 'City', name: city.name, containedInPlace: { '@type': 'State', name: city.state } },
       address: {
         '@type': 'PostalAddress',

@@ -11,7 +11,7 @@ import { useContactInfo } from "@/hooks/useContactInfo";
 import SocialProofTicker from "@/components/SocialProofTicker";
 import UrgencyTimer from "@/components/UrgencyTimer";
 import BookingModal from "@/components/BookingModal";
-import { trackPhoneClick, trackCTAClick, trackFormSubmit } from "@/lib/analytics";
+import { trackPhoneClick, trackCTAClick, recordLeadSubmission } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import OutcomesSection from "@/components/OutcomesSection";
@@ -81,6 +81,7 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
   const [showBooking, setShowBooking] = useState(false);
   const [fallbackName, setFallbackName] = useState("");
   const [fallbackPhone, setFallbackPhone] = useState("");
+  const [submissionError, setSubmissionError] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState(() => ({
     paying: "",
@@ -108,8 +109,10 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmissionError("");
+    const page = window.location.pathname;
     try {
-      await submitLead.mutateAsync({
+      const result = await submitLead.mutateAsync({
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
@@ -120,11 +123,18 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
         monthlyPayment: form.paying,
         intent: form.intent,
         formName: "YouTube Landing Page Form",
-        sourcePage: "/youtube",
+        sourcePage: page,
         sourceUrl: window.location.href,
       });
-    } catch (_) { /* silent */ }
-    trackFormSubmit("youtube_landing_form", "/youtube");
+      if (!recordLeadSubmission(result, "youtube_landing_form", page)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "youtube_landing_form", page);
+      setSubmissionError("We couldn't save your request. Please try again.");
+      return;
+    }
     setSubmitted(true);
     setTimeout(() => setShowBooking(true), 1200);
   };
@@ -132,16 +142,25 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
   const handleQuickCallback = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fallbackPhone.trim()) return;
+    setSubmissionError("");
+    const page = window.location.pathname;
     try {
-      await quickCallback.mutateAsync({
+      const result = await quickCallback.mutateAsync({
         name: fallbackName.trim() || undefined,
         phone: fallbackPhone.trim(),
         formName: "youtube_landing_callback",
-        sourcePage: "/youtube",
+        sourcePage: page,
         sourceUrl: window.location.href,
       });
-    } catch (_) { /* silent */ }
-    trackFormSubmit("youtube_landing_callback", "/youtube");
+      if (!recordLeadSubmission(result, "youtube_landing_callback", page)) {
+        setSubmissionError("We couldn't save your callback request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "youtube_landing_callback", page);
+      setSubmissionError("We couldn't save your callback request. Please try again.");
+      return;
+    }
     setSubmitted(true);
     setTimeout(() => setShowBooking(true), 1200);
   };
@@ -205,6 +224,7 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
           <button type="submit" disabled={quickCallback.isPending || !fallbackPhone.trim()} className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40">
             {quickCallback.isPending ? "REQUESTING..." : "REQUEST A CALL BACK IN 60 SECONDS →"}
           </button>
+          {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
         </form>
       </div>
     </div>,
@@ -283,10 +303,11 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
           <a href="/terms" className="text-amber-400 underline">Terms</a>.
         </span>
       </label>
-      <button type="submit" disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
+      <button type="submit" disabled={submitLead.isPending || !form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
         className="w-full btn-amber btn-amber-pulse py-5 rounded text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
         GET MY FREE CASE REVIEW →
       </button>
+      {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
     </div>,
   ];
 

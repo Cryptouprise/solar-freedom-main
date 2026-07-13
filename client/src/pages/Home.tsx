@@ -16,7 +16,7 @@ import SocialProofTicker from "@/components/SocialProofTicker";
 import UrgencyTimer from "@/components/UrgencyTimer";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
-import { trackPhoneClick, trackCTAClick, initScrollTracking, trackFormSubmit } from "@/lib/analytics";
+import { trackPhoneClick, trackCTAClick, initScrollTracking, recordLeadSubmission } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
@@ -93,6 +93,7 @@ function MultiStepForm() {
   const [showBooking, setShowBooking] = useState(false);
   const [fallbackName, setFallbackName] = useState("");
   const [fallbackPhone, setFallbackPhone] = useState("");
+  const [submissionError, setSubmissionError] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState(() => ({
     paying: "",
@@ -100,7 +101,7 @@ function MultiStepForm() {
     company: "",
     payment: "",
     intent: "",
-    // Pre-fill from localStorage if available
+    // Prefill only from ephemeral in-memory state.
     firstName: contactInfo.firstName,
     lastName: contactInfo.lastName,
     phone: contactInfo.phone,
@@ -116,7 +117,7 @@ function MultiStepForm() {
 
   const update = (key: string, val: string | boolean) => {
     setForm((f) => ({ ...f, [key]: val }));
-    // Persist contact fields to localStorage as user types
+    // Share contact fields in memory with the booking modal.
     if (key === "firstName" || key === "lastName" || key === "phone" || key === "email") {
       updateContactInfo({ [key]: val as string });
     }
@@ -124,9 +125,10 @@ function MultiStepForm() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    setSubmissionError("");
     try {
       // Submit via tRPC — persists to DB and forwards to GHL webhook server-side
-      await submitLead.mutateAsync({
+      const result = await submitLead.mutateAsync({
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
@@ -140,10 +142,15 @@ function MultiStepForm() {
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
       });
-    } catch (_) {
-      // Fail silently — still show success to user
+      if (!recordLeadSubmission(result, "main_contact_form", window.location.pathname)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "main_contact_form", window.location.pathname);
+      setSubmissionError("We couldn't save your request. Please try again.");
+      return;
     }
-    trackFormSubmit("main_contact_form", "/");
     setSubmitted(true);
     // Show booking modal after brief delay so success state is visible first
     setTimeout(() => setShowBooking(true), 1200);
@@ -152,18 +159,24 @@ function MultiStepForm() {
   const handleQuickCallback = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fallbackPhone.trim()) return;
+    setSubmissionError("");
     try {
-      await quickCallback.mutateAsync({
+      const result = await quickCallback.mutateAsync({
         name: fallbackName.trim() || undefined,
         phone: fallbackPhone.trim(),
         formName: "main_form_step1_callback_fallback",
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
       });
-    } catch (_) {
-      // silent
+      if (!recordLeadSubmission(result, "main_form_step1_callback_fallback", window.location.pathname)) {
+        setSubmissionError("We couldn't save your callback request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "main_form_step1_callback_fallback", window.location.pathname);
+      setSubmissionError("We couldn't save your callback request. Please try again.");
+      return;
     }
-    trackFormSubmit("main_form_step1_callback_fallback", "/");
     setSubmitted(true);
     setTimeout(() => setShowBooking(true), 1200);
   };
@@ -230,6 +243,9 @@ function MultiStepForm() {
           >
             {quickCallback.isPending ? "REQUESTING..." : "GET MY FREE CASE REVIEW CALL →"}
           </button>
+          {submissionError && (
+            <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
+          )}
         </form>
       </div>
       <h3 className="font-display text-3xl text-white">ARE YOU CURRENTLY PAYING ON A SOLAR CONTRACT?</h3>
@@ -423,11 +439,14 @@ function MultiStepForm() {
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={!form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
+        disabled={submitLead.isPending || !form.firstName || !form.lastName || !form.phone || !form.email || !form.agree}
         className="w-full btn-amber btn-amber-pulse py-5 rounded text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:animation-none"
       >
         GET MY FREE CASE REVIEW →
       </button>
+      {submissionError && (
+        <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
+      )}
     </div>,
   ];
 
@@ -739,7 +758,7 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const formRef = useRef<HTMLDivElement>(null);
-  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
+  const { phoneDisplay, phoneHref, phoneDigits, phoneE164 } = useSiteConfig();
 
   useEffect(() => {
     const cleanup = initScrollTracking("home");
@@ -759,7 +778,7 @@ export default function Home() {
       url: 'https://breakyoursolarcontract.com',
       logo: 'https://breakyoursolarcontract.com/favicon.ico',
       description: 'Solar contract cancellation attorneys helping homeowners escape predatory solar agreements. Free case review. 3,000+ contracts cancelled.',
-      telephone: phoneDisplay,
+      telephone: phoneE164,
       areaServed: 'US',
       serviceType: 'Solar Contract Cancellation',
       sameAs: [
