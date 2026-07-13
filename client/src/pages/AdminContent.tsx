@@ -98,9 +98,6 @@ interface DbPost {
 // ─── Static post info (pulled from blog.ts at build time via tRPC) ─────────────
 // We'll just show the count + list from a separate endpoint
 
-// ─── API Key display ───────────────────────────────────────────────────────────
-const CLAUDE_KEY = "sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726";
-
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
@@ -270,9 +267,7 @@ export default function AdminContent() {
       published: post.published === 1,
     });
     // Fetch full content
-    fetch(`/api/admin/posts/${post.slug}`, {
-      headers: { Authorization: `Bearer ${CLAUDE_KEY}` },
-    })
+    fetch(`/api/admin/posts/${post.slug}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.post) {
@@ -290,7 +285,6 @@ export default function AdminContent() {
       const res = await fetch(`/api/admin/posts/${editPost.slug}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${CLAUDE_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -348,7 +342,6 @@ export default function AdminContent() {
       const res = await fetch("/api/admin/posts", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${CLAUDE_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -393,14 +386,11 @@ export default function AdminContent() {
     );
   }, [dbPosts, search]);
 
-  // Delete mutation via fetch (uses admin API key)
+  // Mutations use the authenticated same-origin admin session.
   const handleDelete = async (slug: string) => {
     try {
       const res = await fetch(`/api/admin/posts/${slug}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${CLAUDE_KEY}`,
-        },
       });
       if (!res.ok) throw new Error("Delete failed");
       toast.success(`Post "${slug}" deleted`);
@@ -418,7 +408,6 @@ export default function AdminContent() {
       const res = await fetch(`/api/admin/posts/${slug}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${CLAUDE_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ published: currentPublished === 1 ? false : true }),
@@ -740,21 +729,20 @@ export default function AdminContent() {
           {/* API Info Tab */}
           <TabsContent value="api-info" className="mt-4">
             <div className="space-y-4">
-              {/* API Key */}
+              {/* API credential policy */}
               <Card className="bg-white/5 border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white text-base flex items-center gap-2">
                     <Bot className="h-4 w-4 text-amber-400" />
-                    Claude API Key
+                    Admin API Credentials
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-black/40 border border-white/10 font-mono text-xs">
-                    <span className="text-green-400 flex-1 break-all">{CLAUDE_KEY}</span>
-                    <CopyButton text={CLAUDE_KEY} />
+                  <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-100">
+                    Browser-embedded keys are disabled. This console uses your authenticated admin session.
                   </div>
                   <p className="text-xs text-gray-400">
-                    This key has full permissions: posts:read/write/delete, companies:read/write, config:read/write, keys:manage.
+                    For external automation, create a scoped key, copy it once, and store it in a secret manager. Never paste it into source code, documentation, or chat.
                   </p>
                 </CardContent>
               </Card>
@@ -772,7 +760,7 @@ export default function AdminContent() {
 You have access to the Admin API at:
   https://breakyoursolarcontract.com/api/admin
 
-Your API key: ${CLAUDE_KEY}
+Authentication: Authorization: Bearer <scoped-key-from-your-secret-manager>
 
 Key endpoints:
 - GET  /api/admin/posts/all    — all posts (static + DB), use for browsing and interlinking
@@ -800,7 +788,7 @@ When creating articles:
 4. POST to /api/admin/posts with all fields including relatedSlugs
 5. Confirm the post was created successfully`}
                     </pre>
-                    <CopyButton text={`You are the content manager for breakyoursolarcontract.com...\n\nAPI key: ${CLAUDE_KEY}\nBase URL: https://breakyoursolarcontract.com/api/admin\nAll posts: /api/admin/posts/all\nAll slugs: /api/admin/posts/slugs`} />
+                    <CopyButton text={`You are the content manager for breakyoursolarcontract.com...\n\nAuthentication: Authorization: Bearer <scoped-key-from-your-secret-manager>\nBase URL: https://breakyoursolarcontract.com/api/admin\nAll posts: /api/admin/posts/all\nAll slugs: /api/admin/posts/slugs`} />
                   </div>
                 </CardContent>
               </Card>
