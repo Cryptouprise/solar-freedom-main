@@ -1,6 +1,23 @@
 import crypto from "node:crypto";
 
 export const PROMPT_ONLY_POLICY_VERSION = "prompt-only-block-v1";
+export const ADMIN_AUTOMATION_POLICY_VERSION = "plan-only-v1";
+
+export function evaluateAdminAutomationRequest(dryRun: unknown) {
+  const planningAllowed = dryRun === true;
+  return {
+    policyVersion: ADMIN_AUTOMATION_POLICY_VERSION,
+    executionEnabled: false as const,
+    planningAllowed,
+    outcome: planningAllowed ? "plan_only" as const : "blocked" as const,
+    reasonCode: planningAllowed
+      ? "REVIEWABLE_PLAN_ONLY" as const
+      : "DIRECT_RUNTIME_MUTATION_DISABLED" as const,
+    reason: planningAllowed
+      ? "Operations were validated and hashed, but no file, database, Git, CMS, or deployment state was changed."
+      : "Direct runtime mutation is disabled. Request a dry run, then execute reviewed changes through Git or an approved typed adapter with rollback.",
+  };
+}
 
 export type PromptOnlyReceipt = {
   schemaVersion: 1;

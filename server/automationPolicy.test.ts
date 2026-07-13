@@ -3,6 +3,7 @@ import {
   createPromptOnlyReceipt,
   PROMPT_ONLY_POLICY_VERSION,
   summarizePromptOnlyReceipt,
+  evaluateAdminAutomationRequest,
 } from "./automationPolicy";
 
 describe("prompt-only automation policy", () => {
@@ -38,5 +39,21 @@ describe("prompt-only automation policy", () => {
     expect(serialized).not.toContain("private prompt contents");
     expect(serialized).not.toContain("private-trigger-id");
     expect(summarizePromptOnlyReceipt(receipt)).toContain("zero tool calls");
+  });
+});
+
+describe("admin automation mutation policy", () => {
+  it("allows reviewable planning but never runtime execution", () => {
+    expect(evaluateAdminAutomationRequest(true)).toMatchObject({
+      planningAllowed: true,
+      executionEnabled: false,
+      outcome: "plan_only",
+    });
+    expect(evaluateAdminAutomationRequest(false)).toMatchObject({
+      planningAllowed: false,
+      executionEnabled: false,
+      outcome: "blocked",
+      reasonCode: "DIRECT_RUNTIME_MUTATION_DISABLED",
+    });
   });
 });

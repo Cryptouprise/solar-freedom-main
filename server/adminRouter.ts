@@ -26,7 +26,7 @@
  *   POST   /api/admin/keys               - Generate new API key
  *   DELETE /api/admin/keys/:id           - Revoke API key
  *
- *   POST   /api/admin/automation/apply   - Allowlisted file edits + schema migrations
+ *   POST   /api/admin/automation/apply   - Validate and hash a dry-run change plan
  * 
  *   GET    /api/admin/status             - Health check + site stats
  */
@@ -35,8 +35,8 @@ import { Router, Response } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import path from "path";
-import { mkdir, readFile, writeFile } from "fs/promises";
-import { eq, desc, like, and, sql } from "drizzle-orm";
+import { readFile } from "fs/promises";
+import { eq, desc, like, and } from "drizzle-orm";
 import { getDb } from "./db";
 import { blogPosts, companies, siteConfig, apiKeys } from "../drizzle/schema";
 import { adminAuthMiddleware, requirePermission, AdminRequest } from "./adminAuth";
@@ -48,8 +48,16 @@ import {
   ImageValidationError,
   safeImageStem,
 } from "./security/imageUpload";
+import { evaluateAdminAutomationRequest } from "./automationPolicy";
 
 const router = Router();
+
+function sendInternalError(res: Response, error: unknown, publicMessage = "Internal server error") {
+  const errorId = crypto.randomUUID();
+  console.error(`[AdminAPI:${errorId}]`, error);
+  return res.status(500).json({ error: publicMessage, errorId });
+}
+
 const REPO_ROOT = process.cwd();
 const MAX_AUTOMATION_OPERATIONS = 20;
 const MAX_AUTOMATION_FILE_BYTES = 300_000;
@@ -125,7 +133,7 @@ router.get("/posts", requirePermission("posts:read"), async (req: AdminRequest, 
 
     res.json({ posts: rows, count: rows.length, limit, offset });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -191,7 +199,7 @@ router.get("/posts/all", requirePermission("posts:read"), async (req: AdminReque
       posts: merged,
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -217,7 +225,7 @@ router.get("/posts/slugs", requirePermission("posts:read"), async (req: AdminReq
 
     res.json({ total: all.length, slugs: all });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -239,7 +247,7 @@ router.get("/posts/:slug", requirePermission("posts:read"), async (req: AdminReq
       faqItems: safeParseJson(post.faqItems, []),
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -290,7 +298,7 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
     const [created] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
     res.status(201).json({ success: true, post: created });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -329,7 +337,7 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     const [updated] = await db.select().from(blogPosts).where(eq(blogPosts.slug, req.params.slug));
     res.json({ success: true, post: updated });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -345,7 +353,7 @@ router.delete("/posts/:slug", requirePermission("posts:delete"), async (req: Adm
     await db.delete(blogPosts).where(eq(blogPosts.slug, req.params.slug));
     res.json({ success: true, message: `Post '${req.params.slug}' deleted` });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -360,7 +368,7 @@ router.get("/companies", requirePermission("companies:read"), async (req: AdminR
     const rows = await db.select().from(companies).orderBy(companies.name);
     res.json({ companies: rows.map(c => ({ ...c, contractTypes: safeParseJson(c.contractTypes, []), customerComplaints: safeParseJson(c.customerComplaints, []), documentedIssues: safeParseJson(c.documentedIssues, []), legalGrounds: safeParseJson(c.legalGrounds, []), lawsuits: safeParseJson(c.lawsuits, []), statesCovered: safeParseJson(c.statesCovered, []), relatedSlugs: safeParseJson(c.relatedSlugs, []) })), count: rows.length });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -384,7 +392,7 @@ router.get("/companies/:slug", requirePermission("companies:read"), async (req: 
       relatedSlugs: safeParseJson(company.relatedSlugs, []),
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -420,7 +428,7 @@ router.post("/companies", requirePermission("companies:write"), async (req: Admi
     const [created] = await db.select().from(companies).where(eq(companies.slug, slug));
     res.status(201).json({ success: true, company: created });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -452,7 +460,7 @@ router.put("/companies/:slug", requirePermission("companies:write"), async (req:
     const [updated] = await db.select().from(companies).where(eq(companies.slug, req.params.slug));
     res.json({ success: true, company: updated });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -470,7 +478,7 @@ router.get("/config", requirePermission("config:read"), async (req: AdminRequest
     for (const row of visibleRows) config[row.key] = row.value;
     res.json({ config, raw: visibleRows });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -500,7 +508,7 @@ router.put("/config/:key", requirePermission("config:write"), async (req: AdminR
     const [updated] = await db.select().from(siteConfig).where(eq(siteConfig.key, req.params.key));
     res.json({ success: true, config: updated });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -525,6 +533,14 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
     const { operations, dryRun } = req.body ?? {};
+    const executionPolicy = evaluateAdminAutomationRequest(dryRun);
+    if (!executionPolicy.planningAllowed) {
+      return res.status(409).json({
+        error: "Direct runtime automation is disabled",
+        ...executionPolicy,
+        requiredFlow: "Submit dryRun:true, review the hashed plan, then use Git or an approved typed adapter with verification and rollback.",
+      });
+    }
     if (!Array.isArray(operations) || operations.length === 0) {
       return res.status(400).json({ error: "operations array is required" });
     }
@@ -532,7 +548,7 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
       return res.status(400).json({ error: `Maximum ${MAX_AUTOMATION_OPERATIONS} operations per request` });
     }
 
-    const applyDryRun = Boolean(dryRun);
+    const applyDryRun = true;
     const results: Array<Record<string, unknown>> = [];
     const auditOperations: Array<Record<string, unknown>> = [];
 
@@ -548,7 +564,8 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
         try {
           targetPath = resolveAllowlistedAutomationPath(op.path);
         } catch (pathErr) {
-          return res.status(400).json({ error: `write_file operation ${i} has invalid path`, details: String(pathErr) });
+          console.warn(`[AdminAPI] Rejected automation path at operation ${i}:`, pathErr);
+          return res.status(400).json({ error: `write_file operation ${i} has invalid path` });
         }
         const contentBytes = Buffer.byteLength(op.content, "utf8");
         if (contentBytes > MAX_AUTOMATION_FILE_BYTES) {
@@ -564,11 +581,6 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
             expectedSha256: op.expectedSha256,
             actualSha256: beforeSha256,
           });
-        }
-
-        if (!applyDryRun) {
-          await mkdir(path.dirname(targetPath), { recursive: true });
-          await writeFile(targetPath, op.content, "utf8");
         }
 
         results.push({
@@ -616,10 +628,6 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
           return res.status(400).json({ error: `sql_migration operation ${i} contains a blocked SQL command` });
         }
 
-        if (!applyDryRun) {
-          await db.execute(sql.raw(statement));
-        }
-
         results.push({
           index: i,
           type: op.type,
@@ -650,9 +658,18 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
     };
 
     const auditKey = await writeAutomationAuditLog(db, auditPayload);
-    res.status(200).json({ success: true, dryRun: applyDryRun, applied: results.length, results, auditKey });
+    res.status(200).json({
+      success: true,
+      dryRun: true,
+      executionEnabled: false,
+      applied: 0,
+      planned: results.length,
+      results,
+      auditKey,
+      policy: executionPolicy,
+    });
   } catch (err) {
-    res.status(500).json({ error: "Automation apply failed", details: String(err) });
+    sendInternalError(res, err, "Automation planning failed");
   }
 });
 
@@ -679,7 +696,7 @@ router.get("/keys", requirePermission("keys:manage"), async (req: AdminRequest, 
 
     res.json({ keys: rows.map(k => ({ ...k, permissions: safeParseJson(k.permissions, []) })) });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -716,7 +733,7 @@ router.post("/keys", requirePermission("keys:manage"), async (req: AdminRequest,
       permissions: perms,
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -732,7 +749,7 @@ router.delete("/keys/:id", requirePermission("keys:manage"), async (req: AdminRe
     await db.update(apiKeys).set({ active: 0 }).where(eq(apiKeys.id, id));
     res.json({ success: true, message: `API key ${id} revoked` });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -823,7 +840,7 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
 
     res.status(201).json({ success: true, uploaded: results.filter(r => r.success).length, results });
   } catch (err) {
-    res.status(500).json({ error: "Batch upload failed", details: String(err) });
+    sendInternalError(res, err, "Batch upload failed");
   }
 });
 

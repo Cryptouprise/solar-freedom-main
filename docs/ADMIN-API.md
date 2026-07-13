@@ -197,13 +197,15 @@ curl -X PUT \
 
 ---
 
-### Automation (Allowlisted file edits + schema migrations)
+### Automation change planning (dry-run only)
 
 | Method | Path | Permission | Description |
 |--------|------|-----------|-------------|
-| POST | `/api/admin/automation/apply` | `automation:execute` | Apply a batch of allowlisted file writes and/or schema migrations |
+| POST | `/api/admin/automation/apply` | `automation:execute` | Validate and hash a proposed batch without changing runtime state |
 
 Safeguards:
+- `dryRun` must be exactly `true`; non-dry-run requests return HTTP 409
+- The endpoint never writes files, executes SQL, publishes content, commits Git, deploys, or reports an operation as applied
 - Max 20 operations per request
 - File writes are restricted to allowlisted paths under `client/src`, `server`, `shared`, `drizzle`, and `docs`
 - File extensions are restricted (`.ts`, `.tsx`, `.js`, `.mjs`, `.json`, `.md`, `.sql`, `.css`)
@@ -212,6 +214,8 @@ Safeguards:
 - SQL containing destructive data/table commands (`DROP TABLE`, `TRUNCATE`, `DELETE`, `UPDATE`, `INSERT`) is blocked
 - SQL comments and `CREATE TABLE ... AS SELECT` are blocked
 - Every request is audit-logged to `siteConfig` under an `automation_audit_*` key
+
+The response reports `executionEnabled: false`, `applied: 0`, and a `planned` count. Execute an approved plan through a Git pull request or a typed deployment/CMS adapter that records verification and rollback evidence.
 
 #### Example: Dry run
 
@@ -352,7 +356,7 @@ The response includes the full key — **save it immediately, it will not be sho
 | `companies:write` | Create and update companies |
 | `config:read` | Read site config values |
 | `config:write` | Set site config values |
-| `automation:execute` | Apply allowlisted file edits and schema migrations |
+| `automation:execute` | Validate and hash dry-run change plans; direct execution is disabled |
 | `keys:manage` | List, create, and revoke API keys |
 | `*` | All permissions |
 
