@@ -226,7 +226,7 @@ export default function StateLawsIndex() {
             Not Sure If Your Contract Qualifies?
           </h2>
           <p className="text-amber-100 mb-6 max-w-xl mx-auto leading-relaxed">
-            Our team reviews solar contracts from all 50 states. Tell us what happened and we'll tell you in 24 hours whether you have grounds to cancel.
+            Browse state-specific consumer information and official resources. An individual review is required to assess any agreement, and no response time or outcome is guaranteed.
           </p>
           <Link href="/#qualify">
             <Button className="bg-white text-orange-600 hover:bg-amber-50 font-bold text-lg px-8 py-3">

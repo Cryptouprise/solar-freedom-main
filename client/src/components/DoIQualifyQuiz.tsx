@@ -157,7 +157,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
             YOU LIKELY QUALIFY
           </h3>
           <p className="text-zinc-400 text-sm leading-relaxed mb-4">
-            Based on your answers, our attorneys will review your case. Click below to book your free 30-minute case review call.
+            Your answers can be submitted for an individual review. They do not determine qualification, representation, or an outcome.
           </p>
           <button
             onClick={() => setShowBooking(true)}
@@ -254,7 +254,7 @@ export default function DoIQualifyQuiz({ compact = false }: QuizProps) {
                 <CheckCircle className="w-6 h-6 text-amber-500 shrink-0" />
                 <div>
                   <div className="text-amber-400 font-black text-sm uppercase tracking-wide">You Likely Qualify!</div>
-                  <div className="text-zinc-400 text-xs">Based on your answers, our attorneys can review your case.</div>
+                  <div className="text-zinc-400 text-xs">Your answers can be submitted for an individual review.</div>
                 </div>
               </div>
 

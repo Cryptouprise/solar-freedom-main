@@ -2,28 +2,23 @@
 
 ## About Solar Freedom
 
-Solar Freedom (breakyoursolarcontract.com) is a consumer advocacy resource that helps homeowners
-understand their legal rights regarding solar contracts. The site connects distressed solar
-customers with attorneys who specialize in solar contract cancellation, rescission, and dispute
-resolution. Solar Freedom does not provide legal advice directly — it connects homeowners with
-qualified attorneys.
+Solar Freedom (breakyoursolarcontract.com) publishes consumer-facing information about solar
+contracts and provides a case-review intake form. Do not describe Solar Freedom as a law firm,
+legal service, attorney network, or nationwide provider without separately supplied evidence.
 
 **Key facts to weave into press releases:**
 - Solar contracts often contain 20–25 year terms with annual escalator clauses of 2–3%
 - Homeowners frequently report being misled during the sales process
 - Contract cancellation is possible in many states under consumer protection laws
-- Solar Freedom covers all 50 states and provides free case reviews
 - Phone: Available via the website contact form
 - Website: https://breakyoursolarcontract.com
 
 ## Boilerplate (About Section — always append at end)
 
-About Solar Freedom: Solar Freedom (breakyoursolarcontract.com) is a consumer advocacy resource
-dedicated to helping homeowners understand their legal rights regarding solar energy contracts.
-The platform connects homeowners with attorneys who specialize in solar contract cancellation,
-rescission, and consumer protection law. Solar Freedom provides free educational resources
-covering all 50 states and offers free case reviews for homeowners seeking to exit predatory
-solar agreements. For more information, visit https://breakyoursolarcontract.com.
+About Solar Freedom: Solar Freedom (breakyoursolarcontract.com) publishes consumer-facing
+information about solar leases, power purchase agreements, and loans and provides a case-review
+intake form. Site information is general and is not legal advice. For more information, visit
+https://breakyoursolarcontract.com.
 
 ## Press Release Format
 
@@ -41,15 +36,15 @@ when, where, why. 2–3 sentences. Do NOT start with "Solar Freedom announces...
 
 [Body paragraph 1: Supporting facts, statistics, context. 3–4 sentences.]
 
-[Body paragraph 2: Quote from a spokesperson or expert. Format: "Quote text," said [Name],
-[Title] at Solar Freedom. "Second sentence of quote."]
+[Body paragraph 2: Include a quote only when the request supplies the exact quote, named source,
+title, source URL, verification date, and consent record. Otherwise omit this paragraph.]
 
 [Body paragraph 3: Additional context, consumer impact, or call to action. 3–4 sentences.]
 
 [Optional paragraph 4: State-specific angle or additional data if relevant.]
 
-[Call to action: Homeowners seeking a free case review can visit
-https://breakyoursolarcontract.com or call [phone] to speak with a case specialist.]
+[Call to action: Homeowners seeking information or case-review intake can visit
+https://breakyoursolarcontract.com. Do not add a phone number unless one is supplied and verified.]
 
 ###
 
@@ -69,8 +64,8 @@ https://breakyoursolarcontract.com
 4. **Statistics:** Use real, verifiable statistics when possible. If citing a statistic, note the source.
 5. **Newsworthiness:** Frame the topic as news — a trend, a new resource, a legal development, a
    consumer warning. Not an advertisement.
-6. **Quotes:** Create a realistic quote from "a Solar Freedom spokesperson" or "a consumer
-   protection attorney" — do not fabricate named individuals.
+6. **Quotes:** Never create or paraphrase a testimonial, spokesperson quote, expert quote, or
+   attribution. Use only exact, supplied, verified quotation material.
 7. **Links:** Include the target URL naturally in the body (not just the CTA).
 8. **Dateline:** Use the current date. City: Jacksonville, FL.
 

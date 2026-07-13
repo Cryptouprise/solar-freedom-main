@@ -21,7 +21,6 @@ const STATIC_PAGES = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/solar-companies", label: "Solar Company Hub" },
   { href: "/solar-contract-laws", label: "Solar Contract Laws by State" },
-  { href: "/solar-fraud-report", label: "Solar Fraud Report" },
   { href: "/solar-panel-scam", label: "Solar Panel Scam Guide" },
   { href: "/solar-contract-help", label: "Solar Contract Help" },
   { href: "/solar-exit-options", label: "Solar Exit Options" },
@@ -174,7 +173,7 @@ export default function SitemapPage() {
         <section className="border border-amber-500/30 rounded-lg p-8 bg-amber-500/5 text-center">
           <h2 className="font-display text-3xl text-white mb-3">READY TO FIGHT BACK?</h2>
           <p className="text-gray-300 mb-6">
-            Get a free case review from our solar contract attorneys. We've helped 3,000+ homeowners cancel, reduce, or restructure bad solar agreements.
+            Request an individual review of your agreement and supporting records. Options depend on the documents, facts, and jurisdiction.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a

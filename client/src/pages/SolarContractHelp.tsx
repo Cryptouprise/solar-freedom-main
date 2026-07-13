@@ -15,7 +15,7 @@ const exitOptions = [
     title: "Legal Cancellation",
     description: "Challenge the contract based on misrepresentation, TILA violations, or state consumer protection law. Often the lowest-cost path.",
     timeline: "30–90 days",
-    cost: "Contingency basis available",
+    cost: "Terms require written confirmation",
     href: "/blog/how-to-get-out-of-a-solar-contract",
   },
   {
@@ -220,7 +220,7 @@ export default function SolarContractHelp() {
             NOT SURE WHICH PATH IS RIGHT FOR YOU?
           </h2>
           <p className="text-gray-400 mb-8 leading-relaxed">
-            Every solar contract situation is different. Our attorneys review your specific agreement, identify your legal options, and recommend the path that minimizes your cost and timeline. The review is free.
+            Every solar contract situation is different. Gather the agreement and supporting records for an individual review before choosing a path. No result, fee arrangement, or timeline is guaranteed.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/#contact">
@@ -229,7 +229,7 @@ export default function SolarContractHelp() {
               </button>
             </Link>
           </div>
-          <p className="text-gray-600 text-xs mt-4">No obligation. No upfront cost. Results in 48 hours.</p>
+          <p className="text-gray-600 text-xs mt-4">Availability, fees, and response time require individual confirmation.</p>
         </div>
       </section>
     </div>

@@ -180,8 +180,8 @@ export default function ExitIntentPopup() {
                     >
                       YOU'RE IN.
                     </div>
-                    <p className="text-white font-semibold mb-2">Check your inbox within 24 hours.</p>
-                    <p className="text-zinc-400 text-sm">Our attorneys will review your situation and reach out with your options. You’ll also receive immediate SMS confirmation and, if selected, your Solar Contract Escape Guide email sequence.</p>
+                    <p className="text-white font-semibold mb-2">Your information was submitted for review.</p>
+                    <p className="text-zinc-400 text-sm">Response time, availability, and next steps vary. You may also receive an SMS confirmation and, if selected, an educational email sequence.</p>
                     <button
                       onClick={handleDismiss}
                       className="mt-6 text-amber-500 text-sm font-bold hover:text-amber-400 transition-colors"

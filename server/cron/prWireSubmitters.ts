@@ -320,7 +320,7 @@ export async function submitToPRBuzz(pr: GeneratedPR): Promise<PRWireResult> {
     // Contact info
     const nameField = page.locator('input[name="contact_name"], input[name="name"]').first();
     if (await nameField.isVisible()) {
-      await nameField.fill("Solar Freedom Legal Team");
+      await nameField.fill("Solar Freedom");
     }
 
     const emailField = page.locator('input[name="contact_email"], input[name="email"], input[type="email"]').first();

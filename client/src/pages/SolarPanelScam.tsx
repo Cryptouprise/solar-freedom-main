@@ -4,14 +4,11 @@
  * Secondary: "solar scam", "solar door to door scam", "solar company scam"
  * Design: Dark Industrial Brutalism — matches site-wide system
  */
-import { useEffect } from "react";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { AlertTriangle, CheckCircle, XCircle, Phone, ArrowRight, Shield, FileText, DollarSign, Home, Zap } from "lucide-react";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
-import SocialProofTicker from "@/components/SocialProofTicker";
-import UrgencyTimer from "@/components/UrgencyTimer";
 
 const SCAM_TACTICS = [
   {
@@ -83,59 +80,9 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 export default function SolarPanelScam() {
   useSeoMeta({
     title: 'Solar Panel Scam — Were You Deceived? | Solar Freedom',
-    description: 'Millions of homeowners were deceived by solar panel scams — fake tax credits, inflated savings, high-pressure door-to-door sales, and hidden contract terms. Find out if you qualify to cancel your contract and recover your money.',
+    description: 'Learn common warning signs in solar sales and financing, which records to preserve, and where to verify consumer-protection information.',
     canonical: 'https://breakyoursolarcontract.com/solar-panel-scam',
   });
-  useEffect(() => {
-    document.title = "Solar Panel Scam — Were You Deceived? | Solar Freedom";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) {
-      meta.setAttribute("content", "Millions of homeowners were deceived by solar panel scams — fake tax credits, inflated savings, high-pressure door-to-door sales, and hidden contract terms. Find out if you qualify to cancel your contract and recover your money.");
-    }
-    // Schema markup
-    const schema = document.createElement("script");
-    schema.type = "application/ld+json";
-    schema.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Is the solar panel industry full of scams?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Unfortunately, yes. The solar industry has been plagued by deceptive sales practices, including fake tax credit promises, inflated savings projections, high-pressure door-to-door tactics, and hidden contract terms. State attorneys general across the country have filed lawsuits against major solar companies for consumer fraud."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What can I do if I was scammed by a solar company?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "You may be able to cancel your solar contract and recover money you've paid. Consumer protection attorneys can review your contract for violations of state and federal law, including the FTC's cooling-off rule, state consumer protection acts, and Truth in Lending Act violations. Solar Freedom offers free case reviews."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I cancel my solar contract if I was misled?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes — in many cases. If you were misled about tax credits, savings projections, or contract terms, you may have grounds to cancel under consumer protection law. An attorney can review your specific contract and state laws to determine your options."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What if my solar company went bankrupt?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "If your solar company went bankrupt, you may still be making loan payments to a third-party lender like GoodLeap or Mosaic. In many cases, the bankruptcy of the installer gives you grounds to dispute the loan and potentially have it voided. Contact Solar Freedom for a free case review."
-          }
-        }
-      ]
-    });
-    document.head.appendChild(schema);
-    return () => { document.head.removeChild(schema); };
-  }, []);
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.10 0.01 265)", color: "oklch(0.92 0.01 265)" }}>
@@ -267,7 +214,7 @@ export default function SolarPanelScam() {
                   <span style={{ color: "oklch(0.72 0.19 50)" }}>WERE SCAMMED</span>
                 </h2>
                 <p className="text-zinc-400 leading-relaxed mb-8">
-                  If even one of these applies to you, our attorneys want to review your contract. Many homeowners qualify for full cancellation and recovery of payments made.
+                  If one or more of these warning signs applies, preserve the agreement, disclosures, sales materials, bills, installation records, and communications for an individual review.
                 </p>
               </Reveal>
               <div className="space-y-3">
@@ -326,16 +273,16 @@ export default function SolarPanelScam() {
                 YOU HAVE <span style={{ color: "oklch(0.72 0.19 50)" }}>LEGAL RIGHTS</span>
               </h2>
               <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">
-                Multiple federal and state laws protect homeowners from deceptive solar sales practices. Our attorneys use these laws to cancel contracts and recover money.
+                Federal and state consumer-protection rules may be relevant, but the applicable law and available options depend on the transaction, documents, facts, and jurisdiction.
               </p>
             </div>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: <Shield className="w-6 h-6" />, title: "FTC Cooling-Off Rule", desc: "Federal law gives you 3 business days to cancel any door-to-door sale. Many companies violated this rule." },
-              { icon: <FileText className="w-6 h-6" />, title: "State Consumer Protection Acts", desc: "All 50 states have consumer protection laws against deceptive trade practices. Violations can result in triple damages." },
-              { icon: <DollarSign className="w-6 h-6" />, title: "Truth in Lending Act", desc: "Lenders must fully disclose loan terms. Violations of TILA can void the loan entirely." },
-              { icon: <Home className="w-6 h-6" />, title: "UCC Lien Removal", desc: "Improperly filed liens on your home can be challenged and removed, freeing your home for sale." },
+              { icon: <FileText className="w-6 h-6" />, title: "State Consumer Protection", desc: "State rules and available remedies vary. Verify current law with official sources and qualified counsel in the relevant jurisdiction." },
+              { icon: <DollarSign className="w-6 h-6" />, title: "Truth in Lending Act", desc: "Financing disclosures may be relevant. Whether the Act applies and what remedy is available requires a fact-specific review." },
+              { icon: <Home className="w-6 h-6" />, title: "UCC Filing Review", desc: "A filing's effect and any challenge depend on the record, contract, property transaction, and applicable law." },
             ].map((item, i) => (
               <Reveal key={item.title} delay={i * 0.08}>
                 <div
@@ -358,17 +305,15 @@ export default function SolarPanelScam() {
           <div className="max-w-2xl mx-auto">
             <Reveal>
               <div className="text-center mb-8">
-                <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">Free Case Review</div>
+                <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">Case Review</div>
                 <h2 className="font-black text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 5vw, 3rem)" }}>
                   FIND OUT IF YOU QUALIFY
                   <br />
                   <span style={{ color: "oklch(0.72 0.19 50)" }}>IN 60 SECONDS</span>
                 </h2>
-                <p className="text-zinc-400 mt-3 text-sm">Answer 5 quick questions. Our attorneys review your case within 24 hours. No cost, no obligation.</p>
+                <p className="text-zinc-400 mt-3 text-sm">Answer five intake questions. Response time, availability, fees, and next steps depend on the individual review.</p>
               </div>
             </Reveal>
-            <SocialProofTicker />
-            <UrgencyTimer />
             <DoIQualifyQuiz />
           </div>
         </div>
@@ -385,11 +330,11 @@ export default function SolarPanelScam() {
           <div className="space-y-4">
             {[
               { q: "Is the solar panel industry full of scams?", a: "Unfortunately, yes. The solar industry has been plagued by deceptive sales practices, including fake tax credit promises, inflated savings projections, and high-pressure door-to-door tactics. State attorneys general across the country have filed lawsuits against major solar companies for consumer fraud." },
-              { q: "What can I do if I was scammed by a solar company?", a: "You may be able to cancel your solar contract and recover money you've paid. Consumer protection attorneys can review your contract for violations of state and federal law, including the FTC's cooling-off rule, state consumer protection acts, and Truth in Lending Act violations." },
-              { q: "Can I cancel my solar contract if I was misled?", a: "Yes — in many cases. If you were misled about tax credits, savings projections, or contract terms, you may have grounds to cancel under consumer protection law. An attorney can review your specific contract and state laws to determine your options." },
-              { q: "What if my solar company went bankrupt?", a: "If your solar company went bankrupt, you may still be making loan payments to a third-party lender like GoodLeap or Mosaic. In many cases, the bankruptcy of the installer gives you grounds to dispute the loan and potentially have it voided." },
-              { q: "How much does it cost to get help?", a: "Solar Freedom offers free case reviews with no upfront cost. Our attorneys work on a contingency basis — meaning we only get paid if we recover money for you. There is zero financial risk to you." },
-              { q: "How long does the process take?", a: "It varies by case. Some contracts are canceled within 30–60 days. Cases involving litigation or lender disputes can take 6–12 months. Our attorneys will give you a realistic timeline after reviewing your specific situation." },
+              { q: "What can I do if I believe a solar company misled me?", a: "Preserve the agreement, disclosures, proposals, bills, installation records, and communications. Report suspected misconduct through current official consumer-protection channels and request advice specific to your documents and jurisdiction." },
+              { q: "Can I cancel my solar contract if I was misled?", a: "Cancellation or another remedy may be possible, but it cannot be determined from general information. The agreement, representations, performance, financing, applicable law, and parties involved must be reviewed." },
+              { q: "What if my solar company went bankrupt?", a: "Bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually." },
+              { q: "How much does it cost to get help?", a: "Any fees, scope, and engagement terms must be disclosed and agreed before paid services begin. Submitting intake information does not guarantee representation." },
+              { q: "How long does the process take?", a: "Timing varies with the agreement, facts, parties, process, and jurisdiction. No result or timeline can be determined from general information alone." },
             ].map((faq, i) => (
               <Reveal key={faq.q} delay={i * 0.05}>
                 <div
@@ -418,7 +363,7 @@ export default function SolarPanelScam() {
               <span style={{ color: "oklch(0.72 0.19 50)" }}>WIN.</span>
             </h2>
             <p className="text-zinc-400 max-w-xl mx-auto mb-8">
-              You were deceived. You have rights. Our attorneys are ready to fight for you — at zero cost to you unless we win.
+              Preserve your documents, verify current official resources, and request a fact-specific review before choosing a next step.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <a
@@ -426,7 +371,7 @@ export default function SolarPanelScam() {
                 className="flex items-center gap-2 px-10 py-4 rounded-lg font-black text-black uppercase tracking-wider transition-all hover:brightness-110 hover:scale-[1.02]"
                 style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.1rem" }}
               >
-                Get My Free Case Review <ArrowRight className="w-5 h-5" />
+                Request My Case Review <ArrowRight className="w-5 h-5" />
               </a>
               <a
                 href="tel:9049214971"
@@ -447,7 +392,7 @@ export default function SolarPanelScam() {
             <span className="font-black text-white cursor-pointer hover:text-amber-500 transition-colors" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>← Back to Solar Freedom</span>
           </Link>
           <p className="text-zinc-600 text-xs mt-4 max-w-2xl mx-auto">
-            DISCLAIMER: Results vary by case. Past results do not guarantee future outcomes. This website is attorney advertising. Consultation does not create an attorney-client relationship until a formal engagement agreement is signed. © {new Date().getFullYear()} Solar Freedom. All rights reserved.
+            Consumer information only; not legal advice. Submitting information does not create an attorney-client relationship or guarantee representation, a result, or a timeline. © {new Date().getFullYear()} Solar Freedom. All rights reserved.
           </p>
         </div>
       </footer>

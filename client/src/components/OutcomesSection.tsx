@@ -52,7 +52,7 @@ export default function OutcomesSection({ onBookCall }: { onBookCall?: () => voi
                 </span>
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Our attorneys fight for two outcomes. In 15 minutes, we'll tell you which one applies to your contract — and what we can realistically get you.
+                Possible outcomes depend on the agreement, facts, parties, process, and jurisdiction. A short intake cannot guarantee what will happen.
               </p>
             </div>
           </Reveal>

@@ -222,7 +222,7 @@ export default function SolarExitOptions() {
             READY TO FIND YOUR EXIT?
           </h2>
           <p className="text-gray-400 mb-8 leading-relaxed">
-            Our attorneys review your specific agreement and identify which exit options are available to you. Free, no obligation, results in 48 hours.
+            Request an individual review of the agreement and supporting records. Options, availability, fees, and timing depend on the facts and any written engagement terms.
           </p>
           <Link href="/#contact">
             <button className="flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-black text-lg mx-auto" style={{ background: "oklch(0.78 0.18 85)" }}>

@@ -89,7 +89,7 @@ export function useSeoMeta({ title, description, canonical, ogImage, ogType, noi
     return () => {
       document.title = "Solar Freedom — Get Out of Your Solar Contract Today";
       const d = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-      if (d) d.content = "Trapped in a solar contract? Our attorneys cancel solar agreements for 3,000+ homeowners. Free case review. Results in 30–90 days.";
+      if (d) d.content = "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.";
       const r = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
       if (r) r.content = "index, follow";
       const t = document.querySelector<HTMLMetaElement>('meta[property="og:type"]');
