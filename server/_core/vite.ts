@@ -21,6 +21,9 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  // Pre-build the meta map at startup (for noindex injection in dev mode)
+  buildMetaMap();
+
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
@@ -39,7 +42,9 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
-      const page = await vite.transformIndexHtml(url, template);
+      let page = await vite.transformIndexHtml(url, template);
+      // Inject noindex for non-whitelisted city pages (spam penalty recovery)
+      page = await injectMetaDynamic(page, url.split("?")[0]);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);

@@ -412,3 +412,21 @@
 - [x] Add /media to sitemap.xml (priority 0.9, weekly)
 - [x] Add /media to generate-sitemap.mjs (durable across regenerations)
 - [x] Add /media to prerender.mjs (static HTML for Googlebot)
+
+## Phase 41 — CRITICAL: Google Spam Penalty Recovery (July 2026)
+
+- [x] Pull GSC 90-day performance data for all city pages
+- [x] Identify top 25 city pages with actual search demand (clicks + high impressions)
+- [x] Create client/src/data/indexed-cities.ts whitelist (25 slugs)
+- [x] Update CityPage.tsx to use isCityIndexed() for noindex flag
+- [x] Update server/seo-meta.ts to inject noindex for non-whitelisted city pages (server-side)
+- [x] Update server/_core/vite.ts to inject noindex in dev mode via injectMetaDynamic
+- [x] Update scripts/prerender.mjs to set noindex in prerendered HTML for non-whitelisted cities
+- [x] Update scripts/generate-sitemap.mjs to exclude noindexed cities (276 removed, 25 remain)
+- [x] Regenerate sitemap.xml — now 262 URLs (was 483+)
+- [x] Verify noindex works: orlando-fl shows "noindex, follow", dallas-tx shows "index, follow"
+- [ ] PUBLISH — deploy so Google sees the noindex signals
+- [ ] Submit updated sitemap.xml to GSC
+- [ ] Request re-crawl on top 25 indexed city pages via GSC URL Inspection
+- [ ] Monitor: expect "Excluded by noindex" to appear for 276 city pages within 1-2 weeks
+- [ ] Monitor: spam penalty should lift within 2-4 weeks after Google processes noindex signals

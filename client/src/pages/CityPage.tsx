@@ -12,6 +12,7 @@ import { SchemaInjector } from "@/components/SchemaInjector";
 import { motion, useInView } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
+import { isCityIndexed } from "@/data/indexed-cities";
 import { getCityContentDepthAll as getCityContentDepth } from "@/data/city-content-depth-all";
 import { stateLaws } from "@/data/state-laws";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
@@ -222,7 +223,7 @@ export default function CityPage() {
       ? `Trapped in a solar contract in ${city.name}, ${city.stateCode}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`
       : 'Expert legal help to cancel your solar contract. Free case review.',
     canonical: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
-    noindex: false,
+    noindex: !isCityIndexed(slug),
   });
 
   useEffect(() => {

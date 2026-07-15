@@ -125,3 +125,4 @@ docs/*.pdf
 docs/*.xlsx
 docs/*.xls
 *.ppm
+.project-config.json

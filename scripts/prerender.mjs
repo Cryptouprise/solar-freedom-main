@@ -414,6 +414,16 @@ function loadBlogData() {
   return blogEntries;
 }
 
+// ─── Indexed city whitelist (must match client/src/data/indexed-cities.ts) ────
+const INDEXED_CITY_SLUGS = new Set([
+  "hartford-ct", "phoenix-az", "cincinnati-oh", "north-las-vegas-nv",
+  "houston-tx", "greenville-sc", "denver-co", "san-antonio-tx",
+  "little-rock-ar", "las-vegas-nv", "youngstown-oh", "west-valley-city-ut",
+  "shreveport-la", "santa-ana-ca", "new-haven-ct", "los-angeles-ca",
+  "dallas-tx", "san-diego-ca", "austin-tx", "murfreesboro-tn",
+  "miami-fl", "nashville-tn", "san-francisco-ca", "san-jose-ca", "savannah-ga",
+]);
+
 // ─── City-specific meta overrides for high-opportunity pages ─────────────────
 const CITY_OVERRIDES = {
   "phoenix-az": {
@@ -496,6 +506,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
           `Trapped in a solar contract in ${cityLabel}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`
       ),
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_CITY_SLUGS.has(city.slug),
       geo: { city: city.name, region: city.stateCode || undefined },
       // Rich fields for unique prerender content
       cityData: {
@@ -1022,7 +1033,7 @@ function buildShellHtml(meta, jsFile, cssFile, urlPath) {
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${desc}">
-  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="robots" content="${meta.noindex ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}">
   <meta name="theme-color" content="#1a1a2e">
   <script type="application/ld+json">${schemaBlocks}</script>
   ${cssFile ? `<link rel="stylesheet" crossorigin href="/assets/${cssFile}">` : ""}

@@ -24,6 +24,7 @@ import { cities } from "../client/src/data/cities";
 import { companies } from "../client/src/data/companies";
 import { stateLaws } from "../client/src/data/state-laws";
 import { blogPosts } from "../client/src/data/blog";
+import { INDEXED_CITY_SLUGS } from "../client/src/data/indexed-cities";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -31,6 +32,7 @@ interface MetaEntry {
   title: string;
   description: string;
   canonical: string;
+  noindex?: boolean;
 }
 
 let _metaMap: Record<string, MetaEntry> | null = null;
@@ -359,6 +361,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         override?.description ??
         `Trapped in a solar contract in ${city.name}, ${city.state}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`,
       canonical: BASE_URL + path,
+      noindex: !INDEXED_CITY_SLUGS.has(city.slug),
     };
   }
 
@@ -434,6 +437,12 @@ export function injectMeta(html: string, path: string): string {
 
   // twitter:description
   $('meta[name="twitter:description"]').attr("content", meta.description);
+
+  // robots noindex — critical for spam penalty recovery
+  if (meta.noindex) {
+    $('meta[name="robots"]').remove();
+    $('head').append('<meta name="robots" content="noindex, follow" />');
+  }
 
   return $.html();
 }
@@ -514,6 +523,12 @@ export async function injectMetaDynamic(
 
   // twitter:description
   $('meta[name="twitter:description"]').attr("content", meta.description);
+
+  // robots noindex — critical for spam penalty recovery
+  if (meta.noindex) {
+    $('meta[name="robots"]').remove();
+    $('head').append('<meta name="robots" content="noindex, follow" />');
+  }
 
   return $.html();
 }

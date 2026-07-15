@@ -19,6 +19,16 @@ const ROOT = path.resolve(__dirname, "..");
 const BASE_URL = "https://breakyoursolarcontract.com";
 const TODAY = new Date().toISOString().split("T")[0];
 
+// ─── Indexed city whitelist (must match client/src/data/indexed-cities.ts) ────
+const INDEXED_CITY_SLUGS = new Set([
+  "hartford-ct", "phoenix-az", "cincinnati-oh", "north-las-vegas-nv",
+  "houston-tx", "greenville-sc", "denver-co", "san-antonio-tx",
+  "little-rock-ar", "las-vegas-nv", "youngstown-oh", "west-valley-city-ut",
+  "shreveport-la", "santa-ana-ca", "new-haven-ct", "los-angeles-ca",
+  "dallas-tx", "san-diego-ca", "austin-tx", "murfreesboro-tn",
+  "miami-fl", "nashville-tn", "san-francisco-ca", "san-jose-ca", "savannah-ga",
+]);
+
 function decodeStringLiteralValue(value) {
   return value
     .replace(/\\n/g, "\n")
@@ -142,13 +152,16 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     });
   }
 
-  // City pages
+  // City pages — ONLY indexed cities (spam penalty recovery)
+  let cityCount = 0;
   for (const city of cityEntries) {
+    if (!INDEXED_CITY_SLUGS.has(city.slug)) continue; // skip noindexed cities
     entries.push({
       url: `${BASE_URL}/cancel-solar-contract/${city.slug}`,
       priority: "0.8",
       changefreq: "monthly",
     });
+    cityCount++;
   }
 
   // State law pages
@@ -204,12 +217,13 @@ const xml = generateXml(entries);
 const outPath = path.resolve(ROOT, "client/public/sitemap.xml");
 fs.writeFileSync(outPath, xml, "utf-8");
 
-console.log(`✅ Generated sitemap.xml with ${entries.length} URLs`);
+const indexedCityCount = cityEntries.filter(c => INDEXED_CITY_SLUGS.has(c.slug)).length;
+console.log(`\u2705 Generated sitemap.xml with ${entries.length} URLs`);
 console.log(
-  `   Homepage + static: ${entries.length - companyEntries.length - cityEntries.length - stateEntries.length - blogSlugs.length} pages`
+  `   Homepage + static: ${entries.length - companyEntries.length - indexedCityCount - stateEntries.length - blogSlugs.length} pages`
 );
 console.log(`   Company pages: ${companyEntries.length}`);
-console.log(`   City pages: ${cityEntries.length}`);
+console.log(`   City pages: ${indexedCityCount} (of ${cityEntries.length} total, ${cityEntries.length - indexedCityCount} noindexed)`);
 console.log(`   State law pages: ${stateEntries.length}`);
 console.log(`   Blog articles: ${blogSlugs.length}`);
 console.log(`   Output: ${outPath}`);
