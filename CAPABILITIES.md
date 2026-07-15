@@ -94,13 +94,13 @@ All endpoints require `X-API-Key` header. Base URL: `https://breakyoursolarcontr
 | POST | `/upload` | `posts:write` | Upload single file to S3, returns `{ url, key }` |
 | POST | `/upload/batch` | `posts:write` | Upload multiple files, returns array of `{ url, key }` |
 
-**Upload format:** `multipart/form-data` with field `file` (single) or `files[]` (batch).
+**Upload format:** authenticated JSON containing base64 `data`, `filename`, and `contentType`. Remote URL imports are disabled; batch requests contain up to 10 base64 image objects.
 
 ### Automation
 
 | Method | Endpoint | Permission | Description |
 |--------|----------|-----------|-------------|
-| POST | `/automation/apply` | `automation:execute` | Apply an automation action (SEO updates, bulk content ops) |
+| POST | `/automation/apply` | `automation:execute` | Validate/hash a dry-run change plan; runtime execution is disabled |
 
 ### API Key Management
 

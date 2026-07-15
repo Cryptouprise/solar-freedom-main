@@ -1,6 +1,7 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
+import { sanitizeStoredHtml } from "./security/html";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -196,9 +197,9 @@ export async function getDbBlogPosts(limit = 50, offset = 0) {
 /**
  * Get a single published blog post by slug (includes full content).
  */
-export async function getDbBlogPost(slug: string) {
+export async function getDbBlogPostStatus(slug: string) {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) return { available: false as const, post: null };
 
   const [post] = await db
     .select()
@@ -206,14 +207,19 @@ export async function getDbBlogPost(slug: string) {
     .where(eq(blogPosts.slug, slug))
     .limit(1);
 
-  if (!post || !post.published) return null;
+  if (!post || !post.published) return { available: true as const, post: null };
 
-  return {
+  return { available: true as const, post: {
     ...post,
+    content: sanitizeStoredHtml(post.content),
     tags: safeJson(post.tags, []),
     relatedSlugs: safeJson(post.relatedSlugs, []),
     faqItems: safeJson(post.faqItems, []),
-  };
+  } };
+}
+
+export async function getDbBlogPost(slug: string) {
+  return (await getDbBlogPostStatus(slug)).post;
 }
 
 // ─── Company helpers (DB-backed content) ──────────────────────────────────────
@@ -300,15 +306,16 @@ export async function getSiteConfigValues(keys?: string[]) {
 /**
  * Insert an exit intent email capture.
  */
-export async function insertExitIntentCapture(data: InsertExitIntentCapture): Promise<void> {
+export async function insertExitIntentCapture(data: InsertExitIntentCapture): Promise<number | null> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot insert exit intent capture: database not available");
-    return;
+    return null;
   }
 
   try {
-    await db.insert(exitIntentCaptures).values(data);
+    const result = await db.insert(exitIntentCaptures).values(data);
+    return (result as unknown as { insertId: number }[])[0]?.insertId ?? null;
   } catch (error) {
     console.error("[Database] Failed to insert exit intent capture:", error);
     throw error;
@@ -354,7 +361,7 @@ export async function getAdminBlogPost(slug: string) {
     .where(eq(blogPosts.slug, slug))
     .limit(1);
 
-  return post ?? null;
+  return post ? { ...post, content: sanitizeStoredHtml(post.content) } : null;
 }
 
 /**
@@ -381,9 +388,13 @@ export async function updateBlogPost(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  const safeData = data.content === undefined
+    ? data
+    : { ...data, content: sanitizeStoredHtml(data.content) };
+
   await db
     .update(blogPosts)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...safeData, updatedAt: new Date() })
     .where(eq(blogPosts.slug, slug));
 
   return { success: true };
@@ -410,6 +421,9 @@ export async function upsertBlogDraft(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const { blogDrafts } = await import("../drizzle/schema");
+  const safeData = data.content === undefined
+    ? data
+    : { ...data, content: sanitizeStoredHtml(data.content) };
   const existing = await db
     .select({ id: blogDrafts.id })
     .from(blogDrafts)
@@ -423,12 +437,12 @@ export async function upsertBlogDraft(data: {
   if (existing.length > 0) {
     await db
       .update(blogDrafts)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...safeData, updatedAt: new Date() })
       .where(eq(blogDrafts.id, existing[0].id));
     return { id: existing[0].id };
   } else {
     const result = await db.insert(blogDrafts).values({
-      ...data,
+      ...safeData,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

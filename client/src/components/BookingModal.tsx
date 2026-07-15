@@ -23,7 +23,7 @@ const GHL_BASE_URL = `https://link.myinfinite.ai/widget/booking/${CALENDAR_ID}`;
 export default function BookingModal({ isOpen, onClose, firstName }: BookingModalProps) {
   const { contactInfo } = useContactInfo();
 
-  // Build the calendar URL with pre-filled contact info from localStorage.
+  // Build the calendar URL with contact info held in ephemeral memory.
   // GHL supports: first_name, last_name, email, phone query params.
   const calendarUrl = useMemo(() => {
     const params = new URLSearchParams();
@@ -179,7 +179,7 @@ export default function BookingModal({ isOpen, onClose, firstName }: BookingModa
               ))}
             </div>
             <div>
-              <div className="text-white text-xs font-semibold">3,000+ homeowners helped</div>
+              <div className="text-white text-xs font-semibold">Individual document review</div>
               <div className="text-zinc-500 text-[10px]">Average case resolved in 60–90 days</div>
             </div>
           </div>

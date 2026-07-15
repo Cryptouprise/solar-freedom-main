@@ -49,7 +49,7 @@ export default function Blog() {
         heroImage: p.heroImage ?? 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80',
         heroAlt: p.title,
         ctaText: 'Get a Free Solar Contract Review',
-        ctaSubtext: 'Our attorneys review your agreement at no cost.',
+        ctaSubtext: 'Request an individual review. Options depend on your agreement, facts, and jurisdiction.',
         content: [],
         faq: [],
         relatedSlugs: (p.relatedSlugs as string[]) ?? [],
@@ -313,7 +313,7 @@ export default function Blog() {
               Ready to Find Out If You Can Cancel?
             </h2>
             <p className="text-black/70 text-lg mb-8 max-w-xl mx-auto relative">
-              Our attorneys review your contract for free. No obligation. Results in 48 hours.
+              Request an individual review. No result, timeline, or representation is guaranteed.
             </p>
             <Link href="/#form">
               <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">

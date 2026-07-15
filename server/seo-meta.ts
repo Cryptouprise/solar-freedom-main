@@ -20,11 +20,13 @@
  */
 
 import * as cheerio from "cheerio";
+import { suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from "@shared/contentGovernance";
 import { cities } from "../client/src/data/cities";
 import { companies } from "../client/src/data/companies";
 import { stateLaws } from "../client/src/data/state-laws";
 import { blogPosts } from "../client/src/data/blog";
 import { INDEXED_CITY_SLUGS } from "../client/src/data/indexed-cities";
+import { sanitizeStoredHtml } from "./security/html";  // server/security/html.ts
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -47,7 +49,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
     "/": {
       title: "Solar Freedom — Get Out of Your Solar Contract Today",
       description:
-        "Trapped in a solar contract? Our attorneys cancel solar agreements for 3,000+ homeowners. Free case review. Results in 30–90 days.",
+        "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.",
     },
     "/blog": {
       title: "Solar Contract Help Blog | Solar Freedom",
@@ -62,7 +64,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
     "/solar-contract-help": {
       title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",
       description:
-        "Need solar contract help? Compare rescission, fraud claims, lender disputes, lien removal, and other legal options. Free case review.",
+        "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review.",
     },
     "/solar-panel-scam": {
       title: "Solar Panel Scam Warning Signs | Solar Freedom",
@@ -71,39 +73,34 @@ export function buildMetaMap(): Record<string, MetaEntry> {
     },
     "/sunrun": {
       title:
-        "Sunrun Solar Contract Cancellation — Free Legal Review | Solar Freedom",
+        "Sunrun Solar Contract Review | Solar Freedom",
       description:
-        "Sunrun locked you into a 20-year contract with a 2.9% annual escalator. Our attorneys have cancelled hundreds of Sunrun agreements. Free case review — no obligation.",
+        "Review Sunrun contract terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
     },
     "/solar-exit-options": {
       title: "Solar Exit Options | How to Get Out of a Solar Contract",
       description:
-        "Explore every legal path to exit your solar contract — rescission, fraud claims, lender disputes, and more. Free case review.",
+        "Compare possible solar-contract paths and the documents, limits, and risks to review before deciding what to do next.",
     },
     "/solar-lien-removal": {
       title: "Solar Lien Removal | Remove a UCC-1 Solar Lien From Your Home",
       description:
-        "A solar lien (UCC-1 fixture filing) on your home can block a sale or refinance. Our attorneys remove solar liens. Free review.",
+        "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
     },
     "/solar-loan-help": {
       title: "Solar Loan Help | Fight Back Against Predatory Solar Loans",
       description:
-        "Trapped in a high-interest solar loan with hidden dealer fees? Our attorneys challenge solar loans under TILA and consumer protection law.",
+        "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law.",
     },
     "/selling-house-with-solar": {
       title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
       description:
-        "Solar loan blocking your home sale? We help homeowners pay off, negotiate, or legally challenge solar loans and liens so you can close. Free case review.",
+        "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment.",
     },
     "/solar-contract-laws": {
       title: "Solar Contract Laws by State | Your Legal Rights",
       description:
         "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
-    },
-    "/solar-fraud-report": {
-      title: "Report Solar Fraud | File a Solar Complaint",
-      description:
-        "Were you misled by a solar salesperson? Report solar fraud to the right agencies and explore your legal options. Free case review.",
     },
     "/solar-companies": {
       title:
@@ -121,6 +118,11 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       description:
         "Explainer videos and podcast episodes on solar contract cancellation, loan reduction, and credit restoration. Learn your rights and get a free case audit.",
     },
+    "/sitemap": {
+      title: "Site Map — All Pages | Solar Freedom",
+      description:
+        "Browse the Solar Freedom website directory, including service, company, city, state-law, and blog pages.",
+    },
   };
 
   for (const [path, meta] of Object.entries(staticPages)) {
@@ -130,11 +132,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   // ─── Company cancel pages ─────────────────────────────────────────────────
   for (const company of companies) {
     const path = `/cancel-${company.slug}-solar-contract`;
-    const desc =
-      company.summary.length > 155
-        ? company.summary.slice(0, 152) + "..."
-        : company.summary ||
-          `Trapped in a ${company.name} solar contract? Our attorneys have helped thousands cancel. Free case review — no obligation.`;
+    const desc = `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`;
     map[path] = {
       title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
       description: desc,
@@ -143,223 +141,11 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   }
 
   // ─── City pages ───────────────────────────────────────────────────────────
-  // City-specific overrides for high-opportunity pages
-  const cityOverrides: Record<string, { title: string; description: string }> =
-    {
-      "phoenix-az": {
-        title:
-          "Cancel Solar Contract in Phoenix, AZ | Get Out of Your Solar Lease",
-        description:
-          "Phoenix homeowners: APS net metering changes may have voided your solar contract's savings promises. Our attorneys cancel solar leases and loans. Free case review.",
-      },
-      "los-angeles-ca": {
-        title: "Cancel Solar Contract in Los Angeles, CA | NEM 3.0 Rights",
-        description:
-          "Los Angeles homeowners: NEM 3.0 cut solar export credits by 75%. If your savings projections were based on NEM 2.0, you may have grounds to cancel. Free legal review.",
-      },
-      "north-las-vegas-nv": {
-        title:
-          "Cancel Solar Contract in North Las Vegas, NV | NV Energy Rights",
-        description:
-          "North Las Vegas homeowners: NV Energy net metering changes may have invalidated your solar contract. Nevada law requires specific disclosures. Free case review.",
-      },
-      "denver-co": {
-        title: "Cancel Solar Contract in Denver, CO | Colorado Solar Rights",
-        description:
-          "Denver homeowners trapped in solar contracts: Colorado consumer protection laws give you real options. Our attorneys cancel solar leases and loans. Free case review.",
-      },
-      "las-vegas-nv": {
-        title: "Cancel Solar Contract in Las Vegas, NV — Free Case Review 2026",
-        description:
-          "Las Vegas homeowners: trapped in a solar contract you didn't fully understand? Nevada SB 440 and NRS 598 protect you. Our attorneys have helped NV homeowners cancel solar contracts. Free review.",
-      },
-      "hartford-ct": {
-        title:
-          "Cancel Solar Contract in Hartford, CT | Connecticut CUTPA Rights",
-        description:
-          "Hartford homeowners: Connecticut CUTPA gives you strong grounds to cancel a predatory solar contract. Our attorneys have helped 200+ CT homeowners get out of solar agreements. Free case review.",
-      },
-      "dallas-tx": {
-        title:
-          "Cancel Solar Contract in Dallas, TX | Texas DTPA Triple Damages",
-        description:
-          "Dallas homeowners, escape predatory solar contracts now! Texas DTPA offers triple damages for deceptive sales. Don't wait, get your free case review today.",
-      },
-      "san-francisco-ca": {
-        title: "Cancel Solar Contract in San Francisco, CA | NEM 3.0 Impact",
-        description:
-          "San Francisco homeowners, NEM 3.0 voided solar savings. Fight back under California CLRA & UCL. Get triple damages & free case review.",
-      },
-      "houston-tx": {
-        title: "Cancel Solar Contract in Houston, TX | Texas DTPA Rights",
-        description:
-          "Houston homeowners, trapped by solar contracts? Fight back with Texas DTPA! Seek triple damages for deceptive sales. Get help now. Free case review.",
-      },
-      "san-antonio-tx": {
-        title: "Cancel Solar Contract in San Antonio, TX | Texas DTPA Rights",
-        description:
-          "San Antonio homeowners, escape deceptive solar contracts now! Texas DTPA protects you, offering triple damages for unfair sales. Get help today. Free case review.",
-      },
-      "miami-fl": {
-        title:
-          "Cancel Solar Contract in Miami, FL | FDUTPA Rights & Attorney Fees",
-        description:
-          "Miami homeowners trapped by solar contracts? Florida FDUTPA protects you! Get attorney fees awarded & cancel your solar contract now. Free case review.",
-      },
-      "cincinnati-oh": {
-        title:
-          "Cancel Solar Contract in Cincinnati, OH | Ohio Rescission Rights",
-        description:
-          "Cincinnati homeowners trapped by solar contracts? The Ohio Consumer Sales Practices Act grants rescission rights. Act now to explore your options. Free case review.",
-      },
-      "greenville-sc": {
-        title: "Cancel Solar Contract in Greenville, SC | Triple Damages",
-        description:
-          "Greenville, SC homeowners trapped by solar contracts from Freedom Forever or Sunrun, act now! Fight back under the SC Unfair Trade Practices Act for triple damages. Free case review.",
-      },
-      "west-valley-city-ut": {
-        title:
-          "Cancel Solar Contract in West Valley City, UT | Consumer Rights",
-        description:
-          "Trapped by a Vivint Solar contract in West Valley City, UT? The Utah Consumer Sales Practices Act protects you. Get triple damages & a free case review.",
-      },
-      "santa-ana-ca": {
-        title: "Cancel Solar Contract in Santa Ana, CA | Consumer Rights",
-        description:
-          "Trapped by a solar contract in Santa Ana, CA? NEM 3.0 cut credits 75%! Fight back with California CLRA & UCL. You could recover triple damages. Free case review.",
-      },
-      "new-haven-ct": {
-        title: "Cancel Solar Contract in New Haven, CT | Free Case Review",
-        description:
-          "New Haven homeowners, escape costly 20-year solar leases now! Connecticut CUTPA protects you with attorney fees & punitive damages. Don't wait, get a free case review today.",
-      },
-      "savannah-ga": {
-        title:
-          "Cancel Solar Contract in Savannah, GA | Georgia Fair Business Act",
-        description:
-          "Savannah, GA homeowners trapped by solar contracts? The Georgia Fair Business Practices Act protects you. Get out of your Sunrun/Freedom Forever contract now. Free case review.",
-      },
-      "san-diego-ca": {
-        title: "Cancel Solar Contract in San Diego, CA | Fight NEM 3.0",
-        description:
-          "San Diego homeowners, trapped by solar contracts? Fight back with California CLRA & UCL! Recover triple damages. Act now to protect your investment. Free case review.",
-      },
-      "san-jose-ca": {
-        title:
-          "Cancel Solar Contract in San Jose, CA | NEM 3.0 Relief & Rights",
-        description:
-          "San Jose homeowners, trapped by NEM 3.0 & predatory solar contracts? Fight back with California CLRA & UCL for triple damages. Free case review.",
-      },
-      "austin-tx": {
-        title: "Cancel Solar Contract in Austin, TX | DTPA Rights",
-        description:
-          "Trapped by a solar contract in Austin, TX? Texas DTPA protects you with triple damages for deceptive sales. GoodLeap/Mosaic loan issues? Get help now. Free case review.",
-      },
-      "peoria-az": {
-        title:
-          "Cancel Solar Contract in Peoria, AZ | Triple Damages & Free Review",
-        description:
-          "Peoria, AZ homeowners, trapped by solar contracts? The Arizona Consumer Fraud Act offers relief! Discover if you qualify for triple damages. Act now! Free case review.",
-      },
-      "topeka-ks": {
-        title:
-          "Cancel Solar Contract in Topeka, KS | Kansas Consumer Protection",
-        description:
-          "Topeka, KS homeowners trapped by solar contracts can fight back under the Kansas Consumer Protection Act. Seek triple damages & escape your solar burden now. Free case review.",
-      },
-      "little-rock-ar": {
-        title: "Cancel Solar Contract in Little Rock, AR | AR Consumer Rights",
-        description:
-          "Trapped by a solar contract in Little Rock, AR? The Arkansas Deceptive Trade Practices Act protects you. Recover triple damages & cancel NOW. Free case review.",
-      },
-      "nampa-id": {
-        title:
-          "Cancel Solar Contract in Nampa, ID | Idaho Consumer Protection Act",
-        description:
-          "Trapped by a Vivint Solar contract in Nampa, ID? The Idaho Consumer Protection Act protects you. Fight back for triple damages. Don't wait! Free case review.",
-      },
-      "nashville-tn": {
-        title:
-          "Cancel Solar Contract in Nashville, TN | TN Consumer Protection",
-        description:
-          "Nashville, TN homeowners, fight back! The Tennessee Consumer Protection Act protects you. Seek triple damages & escape bad solar contracts now. Free case review.",
-      },
-      "columbus-ga": {
-        title:
-          "Cancel Solar Contract in Columbus, GA | Fight for Triple Damages",
-        description:
-          "Trapped by a solar contract in Columbus, GA? The Georgia Fair Business Practices Act protects you. Get help now and claim triple damages. Free case review.",
-      },
-      "costa-mesa-ca": {
-        title:
-          "Cancel Solar Contract in Costa Mesa, CA | Fight NEM 3.0 & Get Triple Damages",
-        description:
-          "Costa Mesa homeowners, NEM 3.0 cut solar credits 75%! Fight back with CA CLRA & UCL. Get triple damages & escape your solar trap NOW. Free case review.",
-      },
-      "erie-pa": {
-        title: "Cancel Solar Contract in Erie, PA | PA Consumer Law Help",
-        description:
-          "Erie, PA homeowners trapped by solar contracts? Fight back under Pennsylvania Unfair Trade Practices and Consumer Protection Law. Get a free case review and seek triple damages now!",
-      },
-      "fishers-in": {
-        title:
-          "Cancel Solar Contract in Fishers, IN | Indiana Consumer Protection",
-        description:
-          "Fishers, IN homeowners, trapped by solar? The Indiana Deceptive Consumer Sales Act protects you. Get triple damages. Don't wait, act now! Free case review.",
-      },
-      "athens-ga": {
-        title:
-          "Cancel Solar Contract in Athens, GA | Georgia Fair Business Act Rights",
-        description:
-          "Athens, GA homeowners, trapped by solar contracts? The Georgia Fair Business Practices Act protects you! Act now for a free case review and potential triple damages.",
-      },
-      "macon-ga": {
-        title: "Cancel Solar Contract in Macon, GA | Georgia Fair Business Act",
-        description:
-          "Trapped by a solar contract in Macon, GA? The Georgia Fair Business Practices Act protects you. Get triple damages & cancel your solar contract now. Free case review.",
-      },
-      "montgomery-al": {
-        title: "Cancel Solar Contract in Montgomery, AL | Alabama DTPA Rights",
-        description:
-          "Montgomery, AL homeowners trapped by solar contracts need help now! Fight back under the Alabama Deceptive Trade Practices Act. Secure triple damages. Free case review.",
-      },
-      "roseville-ca": {
-        title: "Cancel Solar Contract in Roseville, CA | CLRA & UCL Rights",
-        description:
-          "Roseville, CA homeowners, trapped by solar? California CLRA & UCL can help reclaim lost solar credits, potentially triple damages. NEM 3.0 cuts hit hard. Free case review.",
-      },
-      "santa-clara-ca": {
-        title: "Cancel Solar Contract in Santa Clara, CA | Fight NEM 3.0",
-        description:
-          "Trapped by a solar contract in Santa Clara, CA? NEM 3.0 cuts credits. Know your California CLRA & UCL rights. Fight back against SunPower/Tesla Solar. Free case review.",
-      },
-      "escondido-ca": {
-        title: "Cancel Solar Contract in Escondido, CA | CLRA & UCL Rights",
-        description:
-          "Escondido homeowners trapped by solar contracts? Act now! California CLRA & UCL laws protect you. Fight for triple damages & escape NEM 3.0 impact. Free case review.",
-      },
-      "fort-collins-co": {
-        title: "Cancel Solar Contract in Fort Collins, CO | Get Triple Damages",
-        description:
-          "Fort Collins homeowners, escape bad solar contracts now! The Colorado Consumer Protection Act may secure triple damages. Free case review.",
-      },
-      "murfreesboro-tn": {
-        title: "Cancel Solar Contract in Murfreesboro, TN | TN Consumer Rights",
-        description:
-          "Murfreesboro, TN homeowners, escape bad solar contracts now! The Tennessee Consumer Protection Act protects your rights. Seek triple damages. Free case review.",
-      },
-    };
-
   for (const city of cities) {
     const path = `/cancel-solar-contract/${city.slug}`;
-    const override = cityOverrides[city.slug];
     map[path] = {
-      title:
-        override?.title ??
-        `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
-      description:
-        override?.description ??
-        `Trapped in a solar contract in ${city.name}, ${city.state}? Our attorneys have helped 3,000+ homeowners cancel solar agreements. Free case review — results in 30–90 days.`,
+      title: `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
+      description: `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`,
       canonical: BASE_URL + path,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
     };
@@ -372,9 +158,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
     const title = law.metaTitle
       ? `${law.metaTitle} | Solar Freedom`
       : `${law.state} Solar Contract Laws | Your Rights | Solar Freedom`;
-    const description = law.metaDescription
-      ? law.metaDescription
-      : `Learn your legal rights under ${law.state} solar contract law — cooling-off periods, consumer protection statutes, and how to cancel. Free case review.`;
+    const description = `Review solar-contract consumer information for ${law.state}, including records to gather and official sources to verify. Options depend on facts and current law.`;
     map[path] = { title, description, canonical: BASE_URL + path };
   }
 
@@ -383,7 +167,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
     const path = `/blog/${post.slug}`;
     map[path] = {
       title: `${post.metaTitle} | Solar Freedom`,
-      description: post.metaDescription,
+      description: suppressUnverifiedFirstPartyClaims(post.metaDescription),
       canonical: BASE_URL + path,
     };
   }
@@ -451,8 +235,136 @@ function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
     .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+type DynamicBlogPost = {
+  slug: string;
+  title: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  excerpt?: string | null;
+  content: string;
+  category?: string | null;
+  canonicalUrl?: string | null;
+  publishedAt?: Date | string | null;
+  updatedAt?: Date | string | null;
+  faqItems?: unknown;
+};
+
+function safeIsoDate(value: unknown): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value as string | number | Date);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function renderDbPostContent(rawContent: string): string {
+  const content = rawContent.trim();
+  if (!content) return "<p>This article is being prepared for publication.</p>";
+
+  if (content.startsWith("<")) {
+    return suppressUnverifiedFirstPartyClaims(suppressUnverifiedQuoteMarkup(sanitizeStoredHtml(content)));
+  }
+
+  // Preserve useful source-visible structure for the occasional Markdown/plain
+  // post without introducing a second Markdown runtime into the request path.
+  return content
+    .split(/\n{2,}/)
+    .map(block => {
+      const normalized = block.trim();
+      if (!normalized) return "";
+      const heading = normalized.match(/^(#{2,3})\s+([\s\S]+)$/);
+      if (heading) {
+        const level = heading[1].length;
+        return `<h${level}>${escapeHtml(heading[2].trim())}</h${level}>`;
+      }
+       return `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(normalized)).replace(/\n/g, "<br>")}</p>`;
+    })
+    .join("\n");
+}
+
+function normalizeFaqItems(value: unknown): Array<{ q: string; a: string }> {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(item => {
+      const candidate = item as Record<string, unknown>;
+      return {
+        q: String(candidate.q ?? candidate.question ?? "").trim(),
+        a: suppressUnverifiedFirstPartyClaims(String(candidate.a ?? candidate.answer ?? "").trim()),
+      };
+    })
+    .filter(item => item.q && item.a);
+}
+
+/**
+ * Render a database-published article into the initial response. The React app
+ * still takes over for interaction, but crawlers and no-JS readers receive the
+ * same title, article body, FAQs, and Article schema immediately.
+ */
+export function renderDbBlogPost(
+  html: string,
+  pagePath: string,
+  post: DynamicBlogPost
+): string {
+  const title = post.metaTitle || post.title;
+  const description = suppressUnverifiedFirstPartyClaims(
+    post.metaDescription ||
+    post.excerpt ||
+    "Solar contract information from Solar Freedom."
+  );
+  const canonical =
+    post.canonicalUrl?.startsWith(`${BASE_URL}/`)
+      ? post.canonicalUrl
+      : `${BASE_URL}${pagePath}`;
+  const faq = normalizeFaqItems(post.faqItems);
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description,
+    mainEntityOfPage: canonical,
+    datePublished: safeIsoDate(post.publishedAt),
+    dateModified: safeIsoDate(post.updatedAt ?? post.publishedAt),
+    publisher: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
+  };
+  const schemas: object[] = [articleSchema];
+  if (faq.length) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faq.map(item => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    });
+  }
+
+  const body = renderDbPostContent(post.content);
+  const faqHtml = faq.length
+    ? `<section aria-labelledby="dynamic-faq"><h2 id="dynamic-faq">Frequently asked questions</h2>${faq
+        .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+        .join("")}</section>`
+    : "";
+  const semanticArticle = `<div id="root"><main class="seo-server-rendered" data-content-source="database"><nav><a href="/">Home</a> / <a href="/blog">Blog</a></nav><article><p>${escapeHtml(post.category || "Solar contract guide")}</p><h1>${escapeHtml(post.title)}</h1>${post.excerpt ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(post.excerpt))}</p>` : ""}<div class="article-body">${body}</div>${faqHtml}</article></main></div>`;
+
+  const $ = cheerio.load(html);
+  $("title").text(`${title} | Solar Freedom`);
+  $('meta[name="description"]').attr("content", description);
+  $('link[rel="canonical"]').remove();
+  $("head").append(`<link rel="canonical" href="${escapeHtml(canonical)}">`);
+  $('meta[property="og:url"]').attr("content", canonical);
+  $('meta[property="og:title"]').attr("content", title);
+  $('meta[property="og:description"]').attr("content", description);
+  $('meta[name="twitter:title"]').attr("content", title);
+  $('meta[name="twitter:description"]').attr("content", description);
+  $("head").append(
+    `<script type="application/ld+json">${JSON.stringify(schemas).replace(/</g, "\\u003c")}</script>`
+  );
+  $("#root").replaceWith(semanticArticle);
+  return $.html();
 }
 
 /**
@@ -481,15 +393,7 @@ export async function injectMetaDynamic(
       const { getDbBlogPost } = await import("./db");
       const slug = normalizedPath.replace("/blog/", "");
       const post = await getDbBlogPost(slug);
-      if (post && post.metaTitle) {
-        meta = {
-          title: `${post.metaTitle} | Solar Freedom`,
-          description:
-            post.metaDescription ||
-            `Learn how to cancel your solar contract. Free case review from Solar Freedom attorneys.`,
-          canonical: `${BASE_URL}${normalizedPath}`,
-        };
-      }
+      if (post) return renderDbBlogPost(html, normalizedPath, post);
     } catch (err) {
       console.warn(`[SEO] DB lookup failed for ${normalizedPath}:`, err);
     }

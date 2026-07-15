@@ -148,21 +148,6 @@ export default function StateLawPage() {
   const stateLawSchemas = law ? [
     {
       '@context': 'https://schema.org',
-      '@type': 'LegalService',
-      name: `Solar Contract Help — ${law.state}`,
-      description: law.metaDescription,
-      url: `https://breakyoursolarcontract.com/solar-contract-laws/${law.slug}`,
-      areaServed: { '@type': 'State', name: law.state },
-      serviceType: 'Solar Contract Cancellation Assistance',
-      provider: {
-        '@type': 'Organization',
-        name: 'Solar Freedom',
-        url: 'https://breakyoursolarcontract.com',
-        telephone: '+1-904-664-0877',
-      },
-    },
-    {
-      '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: law.faq.map((f) => ({
         '@type': 'Question',
@@ -382,7 +367,7 @@ export default function StateLawPage() {
                 Need Help Now?
               </h4>
               <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                Our team reviews {law.state} solar contracts and can tell you within 24 hours if you have grounds to cancel.
+                Request an individual review of your {law.state} agreement and supporting records. No result or response time is guaranteed.
               </p>
               <Link href="/#contact">
                 <Button variant="outline" className="w-full border-amber-400/50 text-amber-400 hover:bg-amber-400/10">

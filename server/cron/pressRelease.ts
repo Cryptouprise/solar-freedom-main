@@ -498,14 +498,15 @@ export async function runPressReleaseCycle(options?: {
   }
 
   // 5. Submit to distribution sites
-  const prlogKey = await getSetting("prlog_api_key", "");
-  const prlogEmail = await getSetting("prlog_email", "");
-  const prlogPassword = await getSetting("prlog_password", "");
-  const newsbywireKey = await getSetting("newsbywire_api_key", "");
-  const newsbywireEmail = await getSetting("newsbywire_email", "");
-  const newsbywirePassword = await getSetting("newsbywire_password", "");
-  const openprEmail = await getSetting("openpr_email", "");
-  const openprPassword = await getSetting("openpr_password", "");
+  // Credentials are deployment secrets, never database-backed settings.
+  const prlogKey = process.env.PRLOG_API_KEY ?? "";
+  const prlogEmail = process.env.PRLOG_EMAIL ?? "";
+  const prlogPassword = process.env.PRLOG_PASSWORD ?? "";
+  const newsbywireKey = process.env.NEWSBYWIRE_API_KEY ?? "";
+  const newsbywireEmail = process.env.NEWSBYWIRE_EMAIL ?? "";
+  const newsbywirePassword = process.env.NEWSBYWIRE_PASSWORD ?? "";
+  const openprEmail = process.env.OPENPR_EMAIL ?? "";
+  const openprPassword = process.env.OPENPR_PASSWORD ?? "";
   const substackUrl = await getSetting("substack_url", "");
   const playwrightEnabled = await getSetting("playwright_enabled", "true");
   const mediumEnabled = await getSetting("medium_enabled", "true");

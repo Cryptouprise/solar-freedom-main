@@ -11,6 +11,8 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import BookingModal from "@/components/BookingModal";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { trpc } from "@/lib/trpc";
+import { recordLeadSubmission, trackPhoneClick } from "@/lib/analytics";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 // ─── Scroll Reveal ─────────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -57,70 +59,44 @@ const SUNRUN_CLAUSES = [
   },
 ];
 
-// ─── Attorney Testimonials ─────────────────────────────────────────────────────
-const TESTIMONIALS = [
-  {
-    name: "Marcus T.",
-    state: "Arizona",
-    quote: "I was paying $218/month for a system that barely covered 40% of my bill. Solar Freedom's attorneys found a TILA violation in my Sunrun paperwork. Contract cancelled in 67 days.",
-    result: "Contract Cancelled",
-    days: 67,
-  },
-  {
-    name: "Jennifer R.",
-    state: "California",
-    quote: "My Sunrun rep told me I'd save $200/month. My bill went up. When I tried to sell my house, Sunrun wanted $28,000 to release the lien. Solar Freedom got the whole thing unwound.",
-    result: "Lien Released",
-    days: 91,
-  },
-  {
-    name: "David & Susan K.",
-    state: "Florida",
-    quote: "We were told the 2.9% escalator was 'standard and barely noticeable.' By year 8, our payment had gone up $60/month. Our attorney found misrepresentation grounds and we got out.",
-    result: "Contract Cancelled",
-    days: 54,
-  },
-  {
-    name: "Robert M.",
-    state: "Nevada",
-    quote: "Sunrun's buyout quote to sell my home was $31,000. Solar Freedom negotiated it down to zero — they found performance violations that gave us full leverage.",
-    result: "Buyout Waived",
-    days: 78,
-  },
-];
-
 // ─── Mini Contact Form ─────────────────────────────────────────────────────────
 function SunrunContactForm() {
   const { updateContactInfo } = useContactInfo();
   const [showBooking, setShowBooking] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
   const [form, setForm] = useState({
     firstName: "", lastName: "", phone: "", email: "", issue: "", agree: false,
   });
 
-  const submitLead = trpc.leads.submit.useMutation({
-    onSuccess: () => {
+  const submitLead = trpc.leads.submit.useMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmissionError("");
+    try {
+      const result = await submitLead.mutateAsync({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phone: form.phone,
+        email: form.email,
+        solarCompany: "Sunrun",
+        problemType: form.issue,
+        sourcePage: window.location.pathname,
+        sourceUrl: window.location.href,
+        formName: "Sunrun Dedicated Page Form",
+      });
+      if (!recordLeadSubmission(result, "sunrun_dedicated_form", window.location.pathname)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
       updateContactInfo({ firstName: form.firstName, lastName: form.lastName, phone: form.phone, email: form.email });
       setSubmitted(true);
       setTimeout(() => setShowBooking(true), 1200);
-    },
-    onError: () => {
-      alert("Submission error. Please try again or call us directly.");
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitLead.mutate({
-      firstName: form.firstName,
-      lastName: form.lastName,
-      phone: form.phone,
-      email: form.email,
-      solarCompany: "Sunrun",
-      problemType: form.issue,
-      sourcePage: "sunrun-landing-page",
-      formName: "Sunrun Dedicated Page Form",
-    });
+    } catch {
+      recordLeadSubmission(null, "sunrun_dedicated_form", window.location.pathname);
+      setSubmissionError("We couldn't save your request. Please try again.");
+    }
   };
 
   const update = (key: string, val: string | boolean) => setForm(f => ({ ...f, [key]: val }));
@@ -211,15 +187,17 @@ function SunrunContactForm() {
       >
         {submitLead.isPending ? "SUBMITTING..." : "GET MY FREE SUNRUN CASE REVIEW →"}
       </button>
+      {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
     </form>
   );
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SunrunPage() {
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   useSeoMeta({
     title: "Sunrun Solar Contract Cancellation — Free Legal Review | Solar Freedom",
-    description: "Sunrun locked you into a 20-year contract with a 2.9% annual escalator. Our attorneys have cancelled hundreds of Sunrun agreements. Free case review — no obligation.",
+    description: "Review Sunrun agreement terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
     canonical: "https://breakyoursolarcontract.com/sunrun",
   });
 
@@ -236,9 +214,9 @@ export default function SunrunPage() {
             <span className="font-black text-white text-lg tracking-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>SOLAR FREEDOM</span>
           </a>
           <div className="flex items-center gap-4">
-            <a href="tel:+19049012790" className="hidden md:flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <a href={phoneHref} onClick={() => trackPhoneClick("sunrun_nav_phone", phoneDigits)} className="hidden md:flex items-center gap-2 text-amber-400 font-bold text-sm">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-              (904) 901-2790
+              {phoneDisplay}
             </a>
             <a href="#case-review" className="px-4 py-2 rounded font-black text-sm uppercase tracking-wider transition-all" style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))", color: "#000" }}>
               Free Review
@@ -271,7 +249,7 @@ export default function SunrunPage() {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
               className="text-xl text-gray-300 leading-relaxed mb-8 max-w-2xl"
             >
-              Sunrun's 20-year leases with 2.9% annual escalators have trapped hundreds of thousands of homeowners. Our attorneys have cancelled hundreds of Sunrun agreements — and found legal grounds in the vast majority of cases.
+              Review the term, escalator, transfer, performance, financing, and dispute provisions in the Sunrun documents you actually signed. Options depend on the agreement, facts, parties, and jurisdiction.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.35 }}
@@ -369,7 +347,7 @@ export default function SunrunPage() {
                   HOW WE CANCEL<br />SUNRUN CONTRACTS
                 </h2>
                 <p className="text-gray-400 leading-relaxed mb-8">
-                  Sunrun contracts aren't bulletproof. Our attorneys have identified consistent patterns of legal violations across thousands of Sunrun agreements. Here are the grounds we most commonly use:
+                  No general page can determine whether a Sunrun agreement is enforceable or whether a remedy is available. These are questions to investigate using your documents and current law:
                 </p>
                 <div className="space-y-4">
                   {[
@@ -399,7 +377,7 @@ export default function SunrunPage() {
                 <div className="space-y-5">
                   {[
                     { step: "01", title: "Free Case Review", desc: "A Sunrun specialist reviews your contract within 2 business hours and identifies potential violations." },
-                    { step: "02", title: "Contract Analysis", desc: "Our attorneys analyze your specific Sunrun agreement for TILA violations, escalator disclosures, and performance guarantees." },
+                    { step: "02", title: "Contract Analysis", desc: "Review the agreement, financing disclosures, escalator provisions, performance terms, and related records." },
                     { step: "03", title: "Legal Strategy", desc: "We present your options: cancellation, renegotiation, or lien removal — with realistic timelines and outcomes." },
                     { step: "04", title: "Resolution", desc: "Most Sunrun cancellations resolve in 30–90 days. We handle all communication with Sunrun directly." },
                   ].map(item => (
@@ -414,44 +392,6 @@ export default function SunrunPage() {
                 </div>
               </div>
             </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ── */}
-      <section className="py-20">
-        <div className="container">
-          <Reveal>
-            <div className="text-center mb-14">
-              <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-3">— Real Results</div>
-              <h2 className="font-black text-white uppercase leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                SUNRUN CUSTOMERS WE'VE HELPED
-              </h2>
-            </div>
-          </Reveal>
-          <div className="grid md:grid-cols-2 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <Reveal key={t.name} delay={i * 0.1}>
-                <div className="rounded-xl border border-white/10 bg-zinc-900/50 p-6 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-black text-sm" style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.60 0.21 40))" }}>
-                        {t.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="text-white font-bold text-sm">{t.name}</div>
-                        <div className="text-gray-500 text-xs">{t.state}</div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-amber-400 font-black text-sm">{t.result}</div>
-                      <div className="text-gray-500 text-xs">{t.days} days</div>
-                    </div>
-                  </div>
-                  <p className="text-gray-300 text-sm leading-relaxed flex-1 italic">"{t.quote}"</p>
-                </div>
-              </Reveal>
-            ))}
           </div>
         </div>
       </section>

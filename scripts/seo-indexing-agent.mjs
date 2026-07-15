@@ -11,6 +11,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGscMeasurementGate } from "./lib/gsc-core.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -29,6 +30,8 @@ function parseArgs(argv) {
     sitemap: process.env.SEO_INDEXING_SITEMAP || DEFAULT_SITEMAP,
     gscJson: process.env.SEO_INDEXING_GSC_JSON || DEFAULT_GSC_JSON,
     gscCsv: process.env.SEO_INDEXING_GSC_CSV || DEFAULT_GSC_CSV,
+    gscStatus: path.resolve(ROOT, process.env.SEO_GSC_STATUS_JSON || "reports/seo-agent/gsc-status.json"),
+    requireFreshGsc: process.env.SEO_GSC_REQUIRE_FRESH === "true",
     indexingResults: process.env.SEO_INDEXING_RESULTS || DEFAULT_INDEXING_RESULTS,
     indexingStatus: process.env.SEO_INDEXING_STATUS || DEFAULT_INDEXING_STATUS,
     outJson: process.env.SEO_INDEXING_OUT_JSON || DEFAULT_OUT_JSON,
@@ -43,6 +46,7 @@ function parseArgs(argv) {
     if (arg === "--sitemap" && next) args.sitemap = path.resolve(ROOT, next);
     if (arg === "--gsc-json" && next) args.gscJson = path.resolve(ROOT, next);
     if (arg === "--gsc-csv" && next) args.gscCsv = path.resolve(ROOT, next);
+    if (arg === "--gsc-status" && next) args.gscStatus = path.resolve(ROOT, next);
     if (arg === "--indexing-results" && next) args.indexingResults = path.resolve(ROOT, next);
     if (arg === "--indexing-status" && next) args.indexingStatus = path.resolve(ROOT, next);
     if (arg === "--out-json" && next) args.outJson = path.resolve(ROOT, next);
@@ -112,6 +116,11 @@ function parseCsv(text) {
 
 async function readGscPerformance(args) {
   const rows = new Map();
+  const gate = await readGscMeasurementGate({
+    statusPath: args.gscStatus,
+    requireFresh: args.requireFreshGsc,
+  });
+  if (!gate.usable) return { rows, gate };
   const jsonRows = await readJson(args.gscJson, null);
 
   if (Array.isArray(jsonRows)) {
@@ -142,7 +151,7 @@ async function readGscPerformance(args) {
     }
   }
 
-  return rows;
+  return { rows, gate };
 }
 
 async function readSubmittedUrls(args) {
@@ -190,9 +199,8 @@ function scorePage({ url, type, performance, submitted, coverage }) {
   const actionTags = [];
 
   if (!performance) {
-    score += 45;
-    reasons.push("In sitemap but absent from available GSC performance export.");
-    actionTags.push("request_indexing");
+    reasons.push("No page-performance row is available. This is not evidence that the URL is unindexed.");
+    actionTags.push("verify_index_status");
   } else {
     if (performance.impressions >= 500) {
       score += 40;
@@ -226,10 +234,14 @@ function scorePage({ url, type, performance, submitted, coverage }) {
   }
 
   if (coverage) {
-    if (/not indexed|unknown|discovered/i.test(coverage)) {
+    if (/not indexed|discovered|crawled\s*-\s*currently not indexed/i.test(coverage)) {
       score += 50;
       reasons.push(`Coverage hint: ${coverage}.`);
       actionTags.push("request_indexing");
+    } else if (/unknown/i.test(coverage)) {
+      score += 10;
+      reasons.push(`Coverage is unknown and requires URL Inspection: ${coverage}.`);
+      actionTags.push("verify_index_status");
     } else if (/indexed/i.test(coverage)) {
       score -= 20;
       reasons.push(`Coverage hint: ${coverage}.`);
@@ -267,7 +279,7 @@ function buildQueues({ sitemapUrls, performance, submittedUrls, coverageHints, l
   }).sort((a, b) => b.score - a.score);
 
   const requestIndexing = pages
-    .filter((page) => page.actionTags.includes("request_indexing") || !page.performance)
+    .filter((page) => page.actionTags.includes("request_indexing"))
     .slice(0, limit);
 
   const refresh = pages
@@ -294,7 +306,7 @@ function buildQueues({ sitemapUrls, performance, submittedUrls, coverageHints, l
 }
 
 function formatPerformance(performance) {
-  if (!performance) return "no GSC performance row";
+  if (!performance) return "performance unknown (no row; not an index-status signal)";
   return `${performance.clicks} clicks, ${performance.impressions} impressions, ${(performance.ctr * 100).toFixed(2)}% CTR, avg pos ${performance.position.toFixed(1)}`;
 }
 
@@ -309,7 +321,7 @@ ${reasons}`;
   }).join("\n\n");
 }
 
-function formatMarkdown({ generatedAt, args, sitemapUrls, performance, submittedUrls, queues }) {
+function formatMarkdown({ generatedAt, args, sitemapUrls, performance, submittedUrls, queues, measurementGate }) {
   const performanceUrlCount = [...performance.keys()].filter((url) => sitemapUrls.includes(url)).length;
   const submittedInSitemap = [...submittedUrls].filter((url) => sitemapUrls.includes(url)).length;
 
@@ -322,6 +334,7 @@ Base URL: ${args.base}
 
 - Sitemap URLs: ${sitemapUrls.length}
 - URLs with available GSC performance rows: ${performanceUrlCount}
+- GSC measurement state: ${measurementGate.state}${measurementGate.usable ? "" : " (blocked; refresh required)"}
 - URLs found in prior indexing submissions: ${submittedInSitemap}
 - Priority GSC request queue: ${queues.requestIndexing.length}
 - SERP/content refresh queue: ${queues.refresh.length}
@@ -333,7 +346,7 @@ ${Object.entries(queues.byType).map(([type, stats]) => `- \`${type}\`: ${stats.c
 
 ## GSC Request Indexing Queue
 
-Use this for Google Search Console URL Inspection requests or the equivalent authenticated Manus workflow. Do not spam every URL; start from the top and stop at the daily limit.
+Every item in this queue has an explicit non-indexed coverage hint. A missing Search Analytics row alone never enters this queue. Confirm with URL Inspection before requesting indexing.
 
 ${formatQueue(queues.requestIndexing)}
 
@@ -355,7 +368,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const generatedAt = new Date().toISOString();
   const sitemapUrls = await readSitemapUrls(args.sitemap, args.base);
-  const performance = await readGscPerformance(args);
+  const { rows: performance, gate: measurementGate } = await readGscPerformance(args);
   const submittedUrls = await readSubmittedUrls(args);
   const coverageHints = await readCoverageHints(args);
   const queues = buildQueues({
@@ -373,6 +386,7 @@ async function main() {
       sitemap: path.relative(ROOT, args.sitemap),
       gscJson: path.relative(ROOT, args.gscJson),
       gscCsv: path.relative(ROOT, args.gscCsv),
+      gscStatus: path.relative(ROOT, args.gscStatus),
       indexingResults: path.relative(ROOT, args.indexingResults),
       indexingStatus: path.relative(ROOT, args.indexingStatus),
     },
@@ -384,7 +398,9 @@ async function main() {
       refresh: queues.refresh.length,
       indexNow: queues.indexNow.length,
       byType: queues.byType,
+      performanceUnknown: sitemapUrls.length - [...performance.keys()].filter((url) => sitemapUrls.includes(url)).length,
     },
+    measurement: measurementGate,
     requestIndexing: queues.requestIndexing,
     refresh: queues.refresh,
     indexNow: queues.indexNow,
@@ -392,12 +408,13 @@ async function main() {
 
   await fs.mkdir(path.dirname(args.outJson), { recursive: true });
   await fs.writeFile(args.outJson, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
-  await fs.writeFile(args.outMd, formatMarkdown({ generatedAt, args, sitemapUrls, performance, submittedUrls, queues }), "utf-8");
+  await fs.writeFile(args.outMd, formatMarkdown({ generatedAt, args, sitemapUrls, performance, submittedUrls, queues, measurementGate }), "utf-8");
 
   console.log("\nSEO Indexing Agent");
   console.log("==================");
   console.log(`Sitemap URLs: ${sitemapUrls.length}`);
   console.log(`GSC performance rows: ${performance.size}`);
+  console.log(`GSC measurement state: ${measurementGate.state}${measurementGate.usable ? "" : " (blocked)"}`);
   console.log(`Prior submitted URLs: ${submittedUrls.size}`);
   console.log(`GSC request queue: ${queues.requestIndexing.length}`);
   console.log(`Refresh queue: ${queues.refresh.length}`);

@@ -30,6 +30,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGscMeasurementGate } from "./lib/gsc-core.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -50,6 +51,8 @@ function parseArgs(argv) {
     base: (process.env.SEO_CTR_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, ""),
     gscJson: process.env.SEO_CTR_GSC_JSON || DEFAULT_GSC_JSON,
     gscCsv: process.env.SEO_CTR_GSC_CSV || DEFAULT_GSC_CSV,
+    gscStatus: path.resolve(ROOT, process.env.SEO_GSC_STATUS_JSON || "reports/seo-agent/gsc-status.json"),
+    requireFreshGsc: process.env.SEO_GSC_REQUIRE_FRESH === "true",
     outJson: process.env.SEO_CTR_OUT_JSON || DEFAULT_OUT_JSON,
     outMd: process.env.SEO_CTR_OUT_MD || DEFAULT_OUT_MD,
     limit: Number(process.env.SEO_CTR_LIMIT || 25),
@@ -65,6 +68,7 @@ function parseArgs(argv) {
     if (arg === "--base" && next) args.base = next.replace(/\/$/, "");
     if (arg === "--gsc-json" && next) args.gscJson = path.resolve(ROOT, next);
     if (arg === "--gsc-csv" && next) args.gscCsv = path.resolve(ROOT, next);
+    if (arg === "--gsc-status" && next) args.gscStatus = path.resolve(ROOT, next);
     if (arg === "--out-json" && next) args.outJson = path.resolve(ROOT, next);
     if (arg === "--out-md" && next) args.outMd = path.resolve(ROOT, next);
     if (arg === "--limit" && next) args.limit = Number(next);
@@ -98,6 +102,11 @@ async function readText(filePath) {
 // Normalize GSC rows from either the JSON export or the CSV export.
 async function loadPerformance(args) {
   const rows = [];
+  const gate = await readGscMeasurementGate({
+    statusPath: args.gscStatus,
+    requireFresh: args.requireFreshGsc,
+  });
+  if (!gate.usable) return { rows, gate };
 
   const json = await readJson(args.gscJson);
   if (Array.isArray(json)) {
@@ -137,7 +146,7 @@ async function loadPerformance(args) {
     }
   }
 
-  return rows;
+  return { rows, gate };
 }
 
 function topicFromUrl(url) {
@@ -225,11 +234,12 @@ Constraints: factual, no guarantees of outcome, no hype that violates legal-adve
   return null;
 }
 
-function buildMarkdown(candidates, args, aiUsed) {
+function buildMarkdown(candidates, args, aiUsed, measurementGate) {
   const lines = [
     "# CTR Rescue Queue",
     "",
     `Generated: ${new Date().toISOString()}`,
+    `Measurement state: ${measurementGate.state}${measurementGate.usable ? "" : " (blocked; refresh required)"}`,
     "",
     `Filters: impressions >= ${args.minImpressions}, CTR <= ${args.maxCtr}%, position <= ${args.maxPosition}.`,
     aiUsed
@@ -266,11 +276,9 @@ function buildMarkdown(candidates, args, aiUsed) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const rows = await loadPerformance(args);
+  const { rows, gate: measurementGate } = await loadPerformance(args);
   if (rows.length === 0) {
-    console.error(
-      "[CTR Rescue] No GSC performance data found. Provide gsc_all_pages.json or gsc_report.csv."
-    );
+    console.warn("[CTR Rescue] No usable GSC performance data. The queue will remain blocked until a fresh snapshot exists.");
   }
 
   const candidates = selectCandidates(rows, args);
@@ -292,13 +300,15 @@ async function main() {
       limit: args.limit,
     },
     aiUsed: aiRequested,
+    measurement: measurementGate,
+    blocked: !measurementGate.usable,
     candidateCount: candidates.length,
     candidates,
   };
 
   await fs.mkdir(path.dirname(args.outJson), { recursive: true });
   await fs.writeFile(args.outJson, JSON.stringify(payload, null, 2), "utf-8");
-  await fs.writeFile(args.outMd, buildMarkdown(candidates, args, aiRequested), "utf-8");
+  await fs.writeFile(args.outMd, buildMarkdown(candidates, args, aiRequested, measurementGate), "utf-8");
 
   console.log(`🎯 CTR Rescue: ${candidates.length} candidates`);
   console.log(`   ${args.outMd}`);

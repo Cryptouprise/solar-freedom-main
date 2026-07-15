@@ -26,7 +26,7 @@
  *   POST   /api/admin/keys               - Generate new API key
  *   DELETE /api/admin/keys/:id           - Revoke API key
  *
- *   POST   /api/admin/automation/apply   - Allowlisted file edits + schema migrations
+ *   POST   /api/admin/automation/apply   - Validate and hash a dry-run change plan
  * 
  *   GET    /api/admin/status             - Health check + site stats
  */
@@ -35,13 +35,29 @@ import { Router, Response } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import path from "path";
-import { mkdir, readFile, writeFile } from "fs/promises";
-import { eq, desc, like, and, sql } from "drizzle-orm";
+import { readFile } from "fs/promises";
+import { eq, desc, like, and } from "drizzle-orm";
 import { getDb } from "./db";
 import { blogPosts, companies, siteConfig, apiKeys } from "../drizzle/schema";
 import { adminAuthMiddleware, requirePermission, AdminRequest } from "./adminAuth";
+import { sanitizeStoredHtml } from "./security/html";
+import { isAllowedPublicConfigKey, PUBLIC_SITE_CONFIG_KEYS } from "./security/configPolicy";
+import {
+  decodeBase64Image,
+  ImageValidationError,
+  safeImageStem,
+} from "./security/imageUpload";
+import { evaluateAdminAutomationRequest } from "./automationPolicy";
+import { rateLimit } from "express-rate-limit";
 
 const router = Router();
+
+function sendInternalError(res: Response, error: unknown, publicMessage = "Internal server error") {
+  const errorId = crypto.randomUUID();
+  console.error(`[AdminAPI:${errorId}]`, error);
+  return res.status(500).json({ error: publicMessage, errorId });
+}
+
 const REPO_ROOT = process.cwd();
 const MAX_AUTOMATION_OPERATIONS = 20;
 const MAX_AUTOMATION_FILE_BYTES = 300_000;
@@ -52,9 +68,15 @@ const SQL_MIGRATION_ALLOWED_PREFIXES = ["CREATE TABLE", "ALTER TABLE", "CREATE I
 const SQL_MIGRATION_BLOCKLIST = /(^|;)\s*(DROP\s+TABLE|TRUNCATE|DELETE\s+FROM|UPDATE\s+\w+|INSERT\s+INTO|REPLACE\s+INTO)\b/i;
 const SQL_COMMENT_PATTERN = /(--|\/\*|\*\/)/;
 const SQL_CREATE_AS_SELECT_PATTERN = /\bCREATE\s+TABLE\b[\s\S]*\bAS\s+SELECT\b/i;
+const COMPANY_MUTABLE_FIELDS = [
+  "name", "legalName", "status", "bbbRating", "complaintCount", "avgMonthlyPayment",
+  "avgContractLength", "founded", "headquarters", "contractTypes", "heroHeadline",
+  "heroSubheadline", "problemSummary", "customerComplaints", "documentedIssues",
+  "legalGrounds", "lawsuits", "statesCovered", "relatedSlugs",
+] as const;
 
 // ─── Apply auth to all admin routes ────────────────────────────────────────
-router.use(adminAuthMiddleware);
+router.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }), adminAuthMiddleware);
 
 // ─── STATUS / HEALTH CHECK ──────────────────────────────────────────────────
 router.get("/status", async (req: AdminRequest, res) => {
@@ -111,7 +133,7 @@ router.get("/posts", requirePermission("posts:read"), async (req: AdminRequest, 
 
     res.json({ posts: rows, count: rows.length, limit, offset });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -177,7 +199,7 @@ router.get("/posts/all", requirePermission("posts:read"), async (req: AdminReque
       posts: merged,
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -203,7 +225,7 @@ router.get("/posts/slugs", requirePermission("posts:read"), async (req: AdminReq
 
     res.json({ total: all.length, slugs: all });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -219,12 +241,13 @@ router.get("/posts/:slug", requirePermission("posts:read"), async (req: AdminReq
     // Parse JSON fields
     res.json({
       ...post,
+      content: sanitizeStoredHtml(post.content),
       tags: safeParseJson(post.tags, []),
       relatedSlugs: safeParseJson(post.relatedSlugs, []),
       faqItems: safeParseJson(post.faqItems, []),
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -240,15 +263,24 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
     if (!slug || !title || !content) {
       return res.status(400).json({ error: "slug, title, and content are required" });
     }
+    if (published !== undefined && typeof published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
 
     // Check for duplicate slug
     const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, slug));
     if (existing) return res.status(409).json({ error: `Post with slug '${slug}' already exists` });
 
+    const publishRequested = published === true;
+    if (publishRequested && !hasPermission(req, "posts:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'posts:publish'; content was not created" });
+    }
+    const safeContent = sanitizeStoredHtml(content);
+
     await db.insert(blogPosts).values({
       slug,
       title,
-      content,
+      content: safeContent,
       metaTitle: metaTitle || title,
       metaDescription,
       heroImage,
@@ -259,14 +291,14 @@ router.post("/posts", requirePermission("posts:write"), async (req: AdminRequest
       relatedSlugs: Array.isArray(relatedSlugs) ? JSON.stringify(relatedSlugs) : relatedSlugs,
       faqItems: Array.isArray(faqItems) ? JSON.stringify(faqItems) : faqItems,
       canonicalUrl,
-      published: published !== undefined ? (published ? 1 : 0) : 1,
-      publishedAt: new Date(),
+      published: publishRequested ? 1 : 0,
+      publishedAt: publishRequested ? new Date() : null,
     });
 
     const [created] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
     res.status(201).json({ success: true, post: created });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -280,22 +312,32 @@ router.put("/posts/:slug", requirePermission("posts:write"), async (req: AdminRe
     if (!existing) return res.status(404).json({ error: "Post not found" });
 
     const updates: Record<string, unknown> = {};
-    const fields = ["title", "content", "metaTitle", "metaDescription", "heroImage",
-                    "category", "excerpt", "readTime", "canonicalUrl", "published"];
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
+    if (req.body.published === true && !hasPermission(req, "posts:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'posts:publish'" });
+    }
+    const fields = ["title", "metaTitle", "metaDescription", "heroImage",
+                    "category", "excerpt", "readTime", "canonicalUrl"];
     for (const f of fields) {
       if (req.body[f] !== undefined) updates[f] = req.body[f];
     }
+    if (req.body.content !== undefined) updates.content = sanitizeStoredHtml(req.body.content);
     // JSON fields
     if (req.body.tags !== undefined) updates.tags = JSON.stringify(req.body.tags);
     if (req.body.relatedSlugs !== undefined) updates.relatedSlugs = JSON.stringify(req.body.relatedSlugs);
     if (req.body.faqItems !== undefined) updates.faqItems = JSON.stringify(req.body.faqItems);
-    if (req.body.published !== undefined) updates.published = req.body.published ? 1 : 0;
+    if (req.body.published !== undefined) {
+      updates.published = req.body.published ? 1 : 0;
+      if (req.body.published) updates.publishedAt = new Date();
+    }
 
     await db.update(blogPosts).set(updates).where(eq(blogPosts.slug, req.params.slug));
     const [updated] = await db.select().from(blogPosts).where(eq(blogPosts.slug, req.params.slug));
     res.json({ success: true, post: updated });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -311,7 +353,7 @@ router.delete("/posts/:slug", requirePermission("posts:delete"), async (req: Adm
     await db.delete(blogPosts).where(eq(blogPosts.slug, req.params.slug));
     res.json({ success: true, message: `Post '${req.params.slug}' deleted` });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -326,7 +368,7 @@ router.get("/companies", requirePermission("companies:read"), async (req: AdminR
     const rows = await db.select().from(companies).orderBy(companies.name);
     res.json({ companies: rows.map(c => ({ ...c, contractTypes: safeParseJson(c.contractTypes, []), customerComplaints: safeParseJson(c.customerComplaints, []), documentedIssues: safeParseJson(c.documentedIssues, []), legalGrounds: safeParseJson(c.legalGrounds, []), lawsuits: safeParseJson(c.lawsuits, []), statesCovered: safeParseJson(c.statesCovered, []), relatedSlugs: safeParseJson(c.relatedSlugs, []) })), count: rows.length });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -350,7 +392,7 @@ router.get("/companies/:slug", requirePermission("companies:read"), async (req: 
       relatedSlugs: safeParseJson(company.relatedSlugs, []),
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -362,12 +404,22 @@ router.post("/companies", requirePermission("companies:write"), async (req: Admi
 
     const { slug, name } = req.body;
     if (!slug || !name) return res.status(400).json({ error: "slug and name are required" });
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
 
     const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, slug));
     if (existing) return res.status(409).json({ error: `Company with slug '${slug}' already exists` });
 
+    const publishRequested = req.body.published === true;
+    if (publishRequested && !hasPermission(req, "companies:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'companies:publish'; company was not created" });
+    }
     const jsonFields = ["contractTypes", "customerComplaints", "documentedIssues", "legalGrounds", "lawsuits", "statesCovered", "relatedSlugs"];
-    const values: Record<string, unknown> = { ...req.body };
+    const values: Record<string, unknown> = { slug, published: publishRequested ? 1 : 0 };
+    for (const field of COMPANY_MUTABLE_FIELDS) {
+      if (req.body[field] !== undefined) values[field] = req.body[field];
+    }
     for (const f of jsonFields) {
       if (Array.isArray(values[f])) values[f] = JSON.stringify(values[f]);
     }
@@ -376,7 +428,7 @@ router.post("/companies", requirePermission("companies:write"), async (req: Admi
     const [created] = await db.select().from(companies).where(eq(companies.slug, slug));
     res.status(201).json({ success: true, company: created });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -389,18 +441,26 @@ router.put("/companies/:slug", requirePermission("companies:write"), async (req:
     const [existing] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, req.params.slug));
     if (!existing) return res.status(404).json({ error: "Company not found" });
 
-    const updates: Record<string, unknown> = { ...req.body };
+    if (req.body.published !== undefined && typeof req.body.published !== "boolean") {
+      return res.status(400).json({ error: "published must be a boolean" });
+    }
+    if (req.body.published === true && !hasPermission(req, "companies:publish")) {
+      return res.status(403).json({ error: "Publishing requires 'companies:publish'" });
+    }
+    const updates: Record<string, unknown> = {};
+    for (const field of COMPANY_MUTABLE_FIELDS) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+    if (req.body.published !== undefined) updates.published = req.body.published ? 1 : 0;
     const jsonFields = ["contractTypes", "customerComplaints", "documentedIssues", "legalGrounds", "lawsuits", "statesCovered", "relatedSlugs"];
     for (const f of jsonFields) {
       if (Array.isArray(updates[f])) updates[f] = JSON.stringify(updates[f]);
     }
-    delete updates.id; delete updates.slug; delete updates.createdAt;
-
     await db.update(companies).set(updates).where(eq(companies.slug, req.params.slug));
     const [updated] = await db.select().from(companies).where(eq(companies.slug, req.params.slug));
     res.json({ success: true, company: updated });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -413,11 +473,12 @@ router.get("/config", requirePermission("config:read"), async (req: AdminRequest
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
     const rows = await db.select().from(siteConfig).orderBy(siteConfig.key);
+    const visibleRows = rows.filter((row) => PUBLIC_SITE_CONFIG_KEYS.has(row.key));
     const config: Record<string, string> = {};
-    for (const row of rows) config[row.key] = row.value;
-    res.json({ config, raw: rows });
+    for (const row of visibleRows) config[row.key] = row.value;
+    res.json({ config, raw: visibleRows });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -429,6 +490,12 @@ router.put("/config/:key", requirePermission("config:write"), async (req: AdminR
 
     const { value, description } = req.body;
     if (value === undefined) return res.status(400).json({ error: "value is required" });
+    if (!isAllowedPublicConfigKey(req.params.key)) {
+      return res.status(400).json({ error: "Config key is not in the public runtime allowlist" });
+    }
+    if (String(value).length > 500 || (description !== undefined && String(description).length > 500)) {
+      return res.status(400).json({ error: "Config value or description is too long" });
+    }
 
     const [existing] = await db.select({ id: siteConfig.id }).from(siteConfig).where(eq(siteConfig.key, req.params.key));
 
@@ -441,7 +508,7 @@ router.put("/config/:key", requirePermission("config:write"), async (req: AdminR
     const [updated] = await db.select().from(siteConfig).where(eq(siteConfig.key, req.params.key));
     res.json({ success: true, config: updated });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -466,6 +533,14 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
     if (!db) return res.status(503).json({ error: "Database unavailable" });
 
     const { operations, dryRun } = req.body ?? {};
+    const executionPolicy = evaluateAdminAutomationRequest(dryRun);
+    if (!executionPolicy.planningAllowed) {
+      return res.status(409).json({
+        error: "Direct runtime automation is disabled",
+        ...executionPolicy,
+        requiredFlow: "Submit dryRun:true, review the hashed plan, then use Git or an approved typed adapter with verification and rollback.",
+      });
+    }
     if (!Array.isArray(operations) || operations.length === 0) {
       return res.status(400).json({ error: "operations array is required" });
     }
@@ -473,7 +548,7 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
       return res.status(400).json({ error: `Maximum ${MAX_AUTOMATION_OPERATIONS} operations per request` });
     }
 
-    const applyDryRun = Boolean(dryRun);
+    const applyDryRun = true;
     const results: Array<Record<string, unknown>> = [];
     const auditOperations: Array<Record<string, unknown>> = [];
 
@@ -489,7 +564,8 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
         try {
           targetPath = resolveAllowlistedAutomationPath(op.path);
         } catch (pathErr) {
-          return res.status(400).json({ error: `write_file operation ${i} has invalid path`, details: String(pathErr) });
+          console.warn(`[AdminAPI] Rejected automation path at operation ${i}:`, pathErr);
+          return res.status(400).json({ error: `write_file operation ${i} has invalid path` });
         }
         const contentBytes = Buffer.byteLength(op.content, "utf8");
         if (contentBytes > MAX_AUTOMATION_FILE_BYTES) {
@@ -505,11 +581,6 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
             expectedSha256: op.expectedSha256,
             actualSha256: beforeSha256,
           });
-        }
-
-        if (!applyDryRun) {
-          await mkdir(path.dirname(targetPath), { recursive: true });
-          await writeFile(targetPath, op.content, "utf8");
         }
 
         results.push({
@@ -557,10 +628,6 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
           return res.status(400).json({ error: `sql_migration operation ${i} contains a blocked SQL command` });
         }
 
-        if (!applyDryRun) {
-          await db.execute(sql.raw(statement));
-        }
-
         results.push({
           index: i,
           type: op.type,
@@ -591,9 +658,18 @@ router.post("/automation/apply", requirePermission("automation:execute"), async 
     };
 
     const auditKey = await writeAutomationAuditLog(db, auditPayload);
-    res.status(200).json({ success: true, dryRun: applyDryRun, applied: results.length, results, auditKey });
+    res.status(200).json({
+      success: true,
+      dryRun: true,
+      executionEnabled: false,
+      applied: 0,
+      planned: results.length,
+      results,
+      auditKey,
+      policy: executionPolicy,
+    });
   } catch (err) {
-    res.status(500).json({ error: "Automation apply failed", details: String(err) });
+    sendInternalError(res, err, "Automation planning failed");
   }
 });
 
@@ -620,7 +696,7 @@ router.get("/keys", requirePermission("keys:manage"), async (req: AdminRequest, 
 
     res.json({ keys: rows.map(k => ({ ...k, permissions: safeParseJson(k.permissions, []) })) });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -657,7 +733,7 @@ router.post("/keys", requirePermission("keys:manage"), async (req: AdminRequest,
       permissions: perms,
     });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
@@ -673,74 +749,52 @@ router.delete("/keys/:id", requirePermission("keys:manage"), async (req: AdminRe
     await db.update(apiKeys).set({ active: 0 }).where(eq(apiKeys.id, id));
     res.json({ success: true, message: `API key ${id} revoked` });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: String(err) });
+    sendInternalError(res, err);
   }
 });
 
 /// ─── IMAGE UPLOAD ───────────────────────────────────────────────────────────
 // POST /api/admin/upload
-// Accepts: base64 image data OR a URL to fetch
+// Accepts base64 image data only. Remote URL imports are disabled to prevent
+// DNS-rebinding/server-side request-forgery paths.
 // Returns: { url: "https://cdn.../image.png", key: "images/..." }
 router.post("/upload", requirePermission("posts:write"), async (req: AdminRequest, res) => {
   try {
     const { storagePut } = await import("./storage");
     const { data, url: sourceUrl, filename, contentType: ct } = req.body;
 
-    let buffer: Buffer;
-    let mimeType = ct || "image/png";
-    let name = filename || `image-${Date.now()}`;
-
-    if (data) {
-      // Base64 encoded image data
-      const base64 = data.replace(/^data:[^;]+;base64,/, "");
-      buffer = Buffer.from(base64, "base64");
-      // Detect mime from data URI prefix if present
-      const mimeMatch = data.match(/^data:([^;]+);base64,/);
-      if (mimeMatch) mimeType = mimeMatch[1];
-    } else if (sourceUrl) {
-      // Fetch image from URL
-      const response = await fetch(sourceUrl);
-      if (!response.ok) {
-        return res.status(400).json({ error: `Failed to fetch image from URL: ${response.status}` });
-      }
-      const arrayBuf = await response.arrayBuffer();
-      buffer = Buffer.from(arrayBuf);
-      mimeType = response.headers.get("content-type") || mimeType;
-      // Extract filename from URL if not provided
-      if (!filename) {
-        const urlPath = new URL(sourceUrl).pathname;
-        name = urlPath.split("/").pop()?.split("?")[0] || name;
-      }
-    } else {
+    if (sourceUrl) {
+      return res.status(400).json({ error: "Remote URL imports are disabled; upload image bytes as base64 data" });
+    }
+    if (!data) {
       return res.status(400).json({ 
-        error: "Provide either 'data' (base64) or 'url' (image URL to fetch)",
+        error: "Provide 'data' with base64-encoded image bytes",
         example: {
-          option1: { data: "base64-encoded-image-data", filename: "hero.png", contentType: "image/png" },
-          option2: { url: "https://example.com/image.png", filename: "hero.png" }
+          data: "base64-encoded-image-data", filename: "hero.png", contentType: "image/png"
         }
       });
     }
 
-    // Ensure filename has extension
-    const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
-    if (!name.includes(".")) name = `${name}.${ext}`;
+    const image = decodeBase64Image(data, ct);
+    const name = `${safeImageStem(filename)}.${image.extension}`;
 
     // Generate unique path to prevent enumeration
     const randomSuffix = crypto.randomBytes(8).toString("hex");
-    const fileKey = `blog-images/${name.replace(/\.[^.]+$/, "")}-${randomSuffix}.${ext}`;
+    const fileKey = `blog-images/${safeImageStem(name)}-${randomSuffix}.${image.extension}`;
 
-    const result = await storagePut(fileKey, buffer, mimeType);
+    const result = await storagePut(fileKey, image.buffer, image.mimeType);
 
     res.status(201).json({
       success: true,
       url: result.url,
       key: result.key,
-      mimeType,
-      size: buffer.length,
+      mimeType: image.mimeType,
+      size: image.buffer.length,
       filename: name
     });
   } catch (err) {
-    res.status(500).json({ error: "Upload failed", details: String(err) });
+    if (err instanceof ImageValidationError) return res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Upload failed" });
   }
 });
 
@@ -753,8 +807,8 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
 
     if (!images || !Array.isArray(images) || images.length === 0) {
       return res.status(400).json({ 
-        error: "Provide 'images' array with objects containing 'data' or 'url'",
-        example: { images: [{ url: "https://...", filename: "hero.png" }] }
+        error: "Provide 'images' array with base64 data objects",
+        example: { images: [{ data: "base64-encoded-image-data", filename: "hero.png", contentType: "image/png" }] }
       });
     }
 
@@ -765,43 +819,29 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
     const results = [];
     for (const img of images) {
       try {
-        let buffer: Buffer;
-        let mimeType = img.contentType || "image/png";
-        let name = img.filename || `image-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-
-        if (img.data) {
-          const base64 = img.data.replace(/^data:[^;]+;base64,/, "");
-          buffer = Buffer.from(base64, "base64");
-          const mimeMatch = img.data.match(/^data:([^;]+);base64,/);
-          if (mimeMatch) mimeType = mimeMatch[1];
-        } else if (img.url) {
-          const response = await fetch(img.url);
-          if (!response.ok) {
-            results.push({ error: `Failed to fetch: ${img.url}`, status: response.status });
-            continue;
-          }
-          buffer = Buffer.from(await response.arrayBuffer());
-          mimeType = response.headers.get("content-type") || mimeType;
-        } else {
-          results.push({ error: "Each image needs 'data' or 'url'" });
+        if (img.url) {
+          results.push({ error: "Remote URL imports are disabled" });
           continue;
         }
-
-        const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
-        if (!name.includes(".")) name = `${name}.${ext}`;
+        if (!img.data) {
+          results.push({ error: "Each image needs base64 'data'" });
+          continue;
+        }
+        const image = decodeBase64Image(img.data, img.contentType);
+        const name = `${safeImageStem(img.filename)}.${image.extension}`;
         const randomSuffix = crypto.randomBytes(8).toString("hex");
-        const fileKey = `blog-images/${name.replace(/\.[^.]+$/, "")}-${randomSuffix}.${ext}`;
+        const fileKey = `blog-images/${safeImageStem(name)}-${randomSuffix}.${image.extension}`;
 
-        const result = await storagePut(fileKey, buffer, mimeType);
+        const result = await storagePut(fileKey, image.buffer, image.mimeType);
         results.push({ success: true, url: result.url, key: result.key, filename: name });
       } catch (imgErr) {
-        results.push({ error: String(imgErr) });
+        results.push({ error: imgErr instanceof ImageValidationError ? imgErr.message : "Upload failed" });
       }
     }
 
     res.status(201).json({ success: true, uploaded: results.filter(r => r.success).length, results });
   } catch (err) {
-    res.status(500).json({ error: "Batch upload failed", details: String(err) });
+    sendInternalError(res, err, "Batch upload failed");
   }
 });
 
@@ -809,6 +849,10 @@ router.post("/upload/batch", requirePermission("posts:write"), async (req: Admin
 function safeParseJson(val: string | null | undefined, fallback: unknown) {
   if (!val) return fallback;
   try { return JSON.parse(val); } catch { return fallback; }
+}
+
+function hasPermission(req: AdminRequest, permission: string): boolean {
+  return Boolean(req.apiKey?.permissions.includes("*") || req.apiKey?.permissions.includes(permission));
 }
 
 function resolveAllowlistedAutomationPath(relativePath: string) {

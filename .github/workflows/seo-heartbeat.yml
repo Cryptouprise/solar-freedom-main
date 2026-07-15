@@ -15,22 +15,68 @@ jobs:
     name: Run SEO heartbeat
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      GSC_PROPERTY_URL: ${{ vars.GSC_PROPERTY_URL || 'sc-domain:breakyoursolarcontract.com' }}
+      GSC_DATE_RANGE_DAYS: ${{ vars.GSC_DATE_RANGE_DAYS || '28' }}
+      GSC_DATA_LAG_DAYS: ${{ vars.GSC_DATA_LAG_DAYS || '3' }}
+      GSC_MAX_AGE_HOURS: ${{ vars.GSC_MAX_AGE_HOURS || '36' }}
+      SEO_GSC_REQUIRE_FRESH: "true"
+      SEO_GSC_STATUS_JSON: reports/seo-agent/gsc-status.json
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          run_install: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Restore prior heartbeat state
+        if: github.event.repository.private == true
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: reports/seo-agent/state.json
+          key: seo-heartbeat-state-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            seo-heartbeat-state-${{ runner.os }}-${{ github.ref_name }}-
+
+      - name: Detect live GSC connection
+        id: gsc_connection
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Refresh live GSC Search Analytics
+        if: steps.gsc_connection.outputs.configured == 'true'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: pnpm seo:gsc:refresh
+
+      - name: Verify GSC measurement freshness
+        id: gsc_status
+        run: |
+          pnpm seo:gsc:status -- --max-age-hours "$GSC_MAX_AGE_HOURS"
+          USABLE="$(node -e "console.log(require('./reports/seo-agent/gsc-status.json').usable ? 'true' : 'false')")"
+          echo "usable=$USABLE" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.gsc_connection.outputs.configured }}" = "true" ] && [ "$USABLE" != "true" ]; then
+            echo "A configured GSC refresh did not produce a fresh, complete measurement snapshot." >&2
+            exit 1
+          fi
 
       - name: Run SEO agent
         run: pnpm seo:agent -- --base https://breakyoursolarcontract.com
@@ -53,6 +99,7 @@ jobs:
         run: pnpm seo:alert-summary
 
       - name: Open or update SEO heartbeat issue
+        if: github.event.repository.private == true
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -87,3 +134,22 @@ jobs:
             gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --body-file "$BODY_FILE"
             gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Daily SEO heartbeat completed. The issue body has been refreshed with the latest audit and indexing queue."
           fi
+
+      - name: Upload SEO evidence
+        if: always() && github.event.repository.private == true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: seo-heartbeat-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            reports/seo-agent/
+            gsc_all_pages.json
+            gsc_report.csv
+            gsc_data_metadata.json
+
+      - name: Protect operational evidence in public repositories
+        if: always() && github.event.repository.private != true
+        run: |
+          echo "Raw SEO measurements, queues, and alert bodies are intentionally not published from a public repository."
+          echo "Move this workflow to a private operations repository or approved private evidence store before enabling external measurements."

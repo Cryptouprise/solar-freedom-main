@@ -15,6 +15,7 @@
 import { chromium, type Browser, type BrowserContext } from "playwright";
 import { join } from "path";
 import { mkdirSync, existsSync, writeFileSync, readFileSync } from "fs";
+import { hasExpectedCookieDomain } from "../../shared/urlSafety";
 
 const PROFILE_DIR = join(process.cwd(), ".playwright-profile");
 const STORAGE_STATE_FILE = join(PROFILE_DIR, "storage-state.json");
@@ -85,13 +86,13 @@ export async function checkLoginStatus(): Promise<LoginStatus> {
     const cookies: Array<{ domain: string; name: string }> = storageState.cookies ?? [];
 
     const hasMedium = cookies.some(
-      (c) => c.domain?.includes("medium.com") && (c.name === "uid" || c.name === "sid")
+      (c) => hasExpectedCookieDomain(c.domain, "medium.com") && (c.name === "uid" || c.name === "sid")
     );
     const hasLinkedIn = cookies.some(
-      (c) => c.domain?.includes("linkedin.com") && (c.name === "li_at" || c.name === "JSESSIONID")
+      (c) => hasExpectedCookieDomain(c.domain, "linkedin.com") && (c.name === "li_at" || c.name === "JSESSIONID")
     );
     const hasSubstack = cookies.some(
-      (c) => c.domain?.includes("substack.com") && (c.name === "substack.sid" || c.name === "connect.sid")
+      (c) => hasExpectedCookieDomain(c.domain, "substack.com") && (c.name === "substack.sid" || c.name === "connect.sid")
     );
 
     const updated = {

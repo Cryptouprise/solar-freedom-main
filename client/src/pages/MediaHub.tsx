@@ -323,7 +323,7 @@ export default function MediaHub() {
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             {[
-              { val: "3,000+", label: "Homeowners Helped" },
+              { val: "4", label: "Core Record Types" },
               { val: "All 50", label: "States We Fight In" },
               { val: "15 Min", label: "Free Case Audit" },
               { val: "30–90", label: "Days to Resolution" },
@@ -533,7 +533,7 @@ export default function MediaHub() {
                   <li>
                     <Link href="/solar-contract-laws"
                       className="text-amber-400 hover:text-amber-300 text-sm font-semibold transition-colors flex items-center gap-1.5">
-                      <span>›</span> All 50 States →
+                      <span>›</span> State Information →
                     </Link>
                   </li>
                 </ul>

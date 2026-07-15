@@ -31,6 +31,7 @@ const CRON_PRESETS = [
 function StatusBadge({ status }: { status: string | null }) {
   if (!status) return <Badge variant="outline" className="text-gray-400 border-gray-600">Never run</Badge>;
   if (status === "success") return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Success</Badge>;
+  if (status === "blocked") return <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/30">Blocked safely</Badge>;
   if (status === "error") return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Error</Badge>;
   if (status === "running") return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 animate-pulse">Running</Badge>;
   return <Badge variant="outline">{status}</Badge>;
@@ -118,9 +119,9 @@ function AutomationForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-gray-300">Automation Spec / Prompt *</Label>
+        <Label className="text-gray-300">Scheduled request / prompt *</Label>
         <p className="text-gray-500 text-xs">
-          Write exactly what the automation agent should do each time it runs. Be specific — include repo names, branch names, URLs, and decision rules.
+          Prompt-only schedules create a blocked evidence receipt. They cannot touch GitHub, GSC, Manus, or production until a typed, allowlisted tool runner is connected.
         </p>
         <Textarea
           value={spec}
@@ -380,24 +381,14 @@ export default function AutomationBuilder() {
     onError: (e) => toast.error("Failed to create", { description: e.message }),
   });
 
-  const SEO_HEARTBEAT_SPEC = `Once per day, sync the GitHub repo Cryptouprise/solar-freedom-main from the main branch.
+  const SEO_HEARTBEAT_SPEC = `Planning request only. Do not claim that any external action ran.
 
-Check for the GitHub issue titled "SEO Agent Daily Heartbeat".
-
-If the issue is open:
-1. Read the latest issue body and newest comment.
-2. Summarize the required SEO actions.
-3. If it mentions indexing opportunities, use Google Search Console to inspect the listed URLs and request indexing where appropriate.
-4. If it mentions technical SEO issues, create a new GitHub issue or PR plan with the exact files/URLs affected.
-5. Tell me what was completed, what still needs approval, and whether the website needs to be republished.
-
-If the issue is closed or does not exist:
-Tell me the daily SEO heartbeat is clean and no action is needed.
-
-Do not make destructive changes. Do not merge PRs without my approval.
-
+The typed GitHub Actions workflow owns the real daily heartbeat for:
 Repo: Cryptouprise/solar-freedom-main
-Branch: main`;
+Branch: main
+Issue: SEO Agent Daily Heartbeat
+
+When typed GitHub and GSC tools are added to this scheduler, it may read the latest evidence and propose an approval-gated plan. Until then, record a blocked receipt with zero tool calls and zero state changes.`;
 
   return (
     <AdminLayout>
@@ -410,7 +401,7 @@ Branch: main`;
               Automation Builder
             </h1>
             <p className="text-gray-400 text-sm mt-1">
-              Define automation specs and schedules. Each automation runs as an AI agent on your chosen schedule.
+              Schedule requests and inspect their evidence receipts. Prompt text alone is never treated as executed work.
             </p>
           </div>
           <Button
@@ -424,9 +415,9 @@ Branch: main`;
 
         {/* Info banner */}
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 text-sm text-amber-200">
-          <p className="font-semibold mb-1">How it works</p>
+          <p className="font-semibold mb-1">Safety mode</p>
           <p className="text-amber-300/80 leading-relaxed">
-            Write a spec describing exactly what the agent should do. Set a schedule. After saving, click <strong>Deploy</strong> in the Management UI, then come back and click the <strong>Play</strong> button to activate the schedule. The agent runs automatically on your chosen schedule — no manual intervention needed.
+            A schedule authenticates the trigger and records an evidence receipt. Because this builder does not yet have typed tool adapters, every prompt-only run is marked <strong>Blocked safely</strong> with zero tool calls and zero state changes. The GitHub SEO heartbeat uses a separate, typed workflow.
           </p>
         </div>
 
@@ -462,7 +453,7 @@ Branch: main`;
                 variant="outline"
                 onClick={() => createMut.mutate({
                   name: "SEO GitHub Heartbeat",
-                  description: "Daily check of the SEO Agent GitHub issue — summarizes actions, requests indexing, creates PR plans.",
+                  description: "Planning request only. The typed GitHub Actions heartbeat performs the real read-only measurement work.",
                   spec: SEO_HEARTBEAT_SPEC,
                   cronExpression: "0 0 9 * * *",
                   cronLabel: "Every day at 9 AM UTC",
@@ -497,13 +488,13 @@ Branch: main`;
             <CardContent className="py-4 flex items-center justify-between">
               <div>
                 <p className="text-gray-300 text-sm font-medium">SEO GitHub Heartbeat template</p>
-                <p className="text-gray-500 text-xs">Daily check of the SEO Agent GitHub issue with auto-indexing.</p>
+                <p className="text-gray-500 text-xs">Planning-only schedule; no GitHub or indexing action is implied.</p>
               </div>
               <Button
                 size="sm" variant="outline"
                 onClick={() => createMut.mutate({
                   name: "SEO GitHub Heartbeat",
-                  description: "Daily check of the SEO Agent GitHub issue — summarizes actions, requests indexing, creates PR plans.",
+                  description: "Planning request only. The typed GitHub Actions heartbeat performs the real read-only measurement work.",
                   spec: SEO_HEARTBEAT_SPEC,
                   cronExpression: "0 0 9 * * *",
                   cronLabel: "Every day at 9 AM UTC",

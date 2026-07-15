@@ -22,22 +22,50 @@ import {
 } from "./db";
 import { storagePut } from "./storage";
 import { getGA4Report } from "./ga4";
+import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
+import { enforcePublicMutationLimit } from "./security/rateLimit";
+import { isAllowedPressReleaseSetting, PRESS_RELEASE_OPERATIONAL_KEYS } from "./security/configPolicy";
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
-const GHL_WEBHOOK_URL =
-  "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
-
 async function sendToGHL(payload: Record<string, string | undefined>) {
+  const webhookUrl = process.env.GHL_WEBHOOK_URL;
+  if (!webhookUrl) return false;
   try {
-    await fetch(GHL_WEBHOOK_URL, {
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(5_000),
     });
+    if (!response.ok) {
+      console.error(`[GHL] Webhook returned HTTP ${response.status}`);
+      return false;
+    }
     return true;
   } catch (err) {
     console.error("[GHL] Webhook failed:", err);
     return false;
+  }
+}
+
+async function recordGhlDelivery(leadId: number, crmSent: boolean) {
+  if (!crmSent) {
+    // The initial database value already truthfully records an unsent webhook.
+    return { crmMarkerPending: false, syncWarning: null } as const;
+  }
+
+  try {
+    await markLeadGhlSent(leadId);
+    return { crmMarkerPending: false, syncWarning: null } as const;
+  } catch (error) {
+    console.error("[GHL] Delivery marker update failed after a successful webhook", {
+      leadId,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+    return {
+      crmMarkerPending: true,
+      syncWarning: "crm_delivery_marker_pending",
+    } as const;
   }
 }
 
@@ -67,21 +95,22 @@ export const appRouter = router({
     submit: publicProcedure
       .input(
         z.object({
-          firstName: z.string().min(1),
-          lastName: z.string().min(1),
-          email: z.string().email(),
-          phone: z.string().min(7),
-          solarCompany: z.string().optional(),
-          problemType: z.string().optional(),
-          contractType: z.string().optional(),
-          monthlyPayment: z.string().optional(),
-          intent: z.string().optional(),
-          formName: z.string().optional(),
-          sourcePage: z.string().optional(),
-          sourceUrl: z.string().optional(),
+          firstName: z.string().trim().min(1).max(100),
+          lastName: z.string().trim().min(1).max(100),
+          email: z.string().email().max(320),
+          phone: z.string().min(7).max(40),
+          solarCompany: z.string().max(200).optional(),
+          problemType: z.string().max(200).optional(),
+          contractType: z.string().max(200).optional(),
+          monthlyPayment: z.string().max(100).optional(),
+          intent: z.string().max(200).optional(),
+          formName: z.string().max(200).optional(),
+          sourcePage: z.string().max(500).optional(),
+          sourceUrl: z.string().max(2_000).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        enforcePublicMutationLimit(ctx.req, "lead-submit");
         // 1. Persist to database
         const leadId = await insertLead({
           ...input,
@@ -89,6 +118,19 @@ export const appRouter = router({
           status: "new",
           ghlWebhookSent: 0,
         });
+
+        const persisted = typeof leadId === "number" && leadId > 0;
+        if (!persisted) {
+          return {
+            success: false,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            crmMarkerPending: false,
+            syncWarning: null,
+            leadId: null,
+          } as const;
+        }
 
         // 2. Forward to GHL webhook
         const ghlSuccess = await sendToGHL({
@@ -109,12 +151,17 @@ export const appRouter = router({
           sms_confirmation_message: buildSmsConfirmation(input.firstName),
         });
 
-        // 3. Mark GHL sent status in DB
-        if (leadId && ghlSuccess) {
-          await markLeadGhlSent(leadId);
-        }
+        // 3. Record delivery without turning bookkeeping failure into lead failure.
+        const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
 
-        return { success: true, leadId };
+        return {
+          success: true,
+          persisted: true,
+          crmSent: ghlSuccess,
+          crmPending: !ghlSuccess,
+          ...crmMarker,
+          leadId,
+        } as const;
       }),
 
     /**
@@ -124,15 +171,16 @@ export const appRouter = router({
     quickCallback: publicProcedure
       .input(
         z.object({
-          phone: z.string().min(7),
-          name: z.string().optional(),
-          intent: z.string().optional(),
-          sourcePage: z.string().optional(),
-          sourceUrl: z.string().optional(),
-          formName: z.string().optional(),
+          phone: z.string().min(7).max(40),
+          name: z.string().max(200).optional(),
+          intent: z.string().max(200).optional(),
+          sourcePage: z.string().max(500).optional(),
+          sourceUrl: z.string().max(2_000).optional(),
+          formName: z.string().max(200).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        enforcePublicMutationLimit(ctx.req, "lead-callback");
         const firstName = (input.name?.trim().split(" ")[0] || "").trim();
         const lastName = input.name?.trim().split(" ").slice(1).join(" ") || "";
 
@@ -148,6 +196,19 @@ export const appRouter = router({
           status: "new",
           ghlWebhookSent: 0,
         });
+
+        const persisted = typeof leadId === "number" && leadId > 0;
+        if (!persisted) {
+          return {
+            success: false,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            crmMarkerPending: false,
+            syncWarning: null,
+            leadId: null,
+          } as const;
+        }
 
         const ghlSuccess = await sendToGHL({
           phone: input.phone,
@@ -168,11 +229,16 @@ export const appRouter = router({
           sms_confirmation_message: buildSmsConfirmation(firstName),
         });
 
-        if (leadId && ghlSuccess) {
-          await markLeadGhlSent(leadId);
-        }
+        const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
 
-        return { success: true, leadId };
+        return {
+          success: true,
+          persisted: true,
+          crmSent: ghlSuccess,
+          crmPending: !ghlSuccess,
+          ...crmMarker,
+          leadId,
+        } as const;
       }),
 
     /**
@@ -342,10 +408,9 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        const buffer = Buffer.from(input.base64, "base64");
-        const ext = input.filename.split(".").pop() ?? "jpg";
-        const key = `blog-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { url } = await storagePut(key, buffer, input.contentType);
+        const image = decodeBase64Image(input.base64, input.contentType);
+        const key = `blog-images/${Date.now()}-${safeImageStem(input.filename)}.${image.extension}`;
+        const { url } = await storagePut(key, image.buffer, image.mimeType);
         return { url, key };
       }),
   }),
@@ -355,13 +420,39 @@ export const appRouter = router({
     capture: publicProcedure
       .input(
         z.object({
-          email: z.string().email(),
-          sourcePage: z.string().optional(),
+          email: z.string().email().max(320),
+          sourcePage: z.string().max(500).optional(),
+          wantsGuide: z.boolean().optional(),
         })
       )
-      .mutation(async ({ input }) => {
-        await insertExitIntentCapture(input);
-        return { success: true };
+      .mutation(async ({ ctx, input }) => {
+        enforcePublicMutationLimit(ctx.req, "exit-intent");
+        const captureId = await insertExitIntentCapture({ email: input.email, sourcePage: input.sourcePage });
+        const persisted = typeof captureId === "number" && captureId > 0;
+        if (!persisted) {
+          return {
+            success: false,
+            persisted: false,
+            crmSent: false,
+            crmPending: false,
+            captureId: null,
+          } as const;
+        }
+        const crmSent = await sendToGHL({
+          email: input.email,
+          source: "exit_intent_popup",
+          form_name: "Exit Intent — Solar Freedom",
+          intent: "exit_intent",
+          lead_magnet: input.wantsGuide ? "solar_contract_escape_guide" : "none",
+          workflow: input.wantsGuide ? "escape_guide_day1_day3_day7" : "standard_exit_intent",
+        });
+        return {
+          success: true,
+          persisted: true,
+          crmSent,
+          crmPending: !crmSent,
+          captureId,
+        } as const;
       }),
   }),
 
@@ -468,7 +559,7 @@ export const appRouter = router({
       const db = await getDb();
       if (!db) return {};
       const rows = await db.select().from(pressReleaseSettings);
-      return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+      return Object.fromEntries(rows.filter((r) => PRESS_RELEASE_OPERATIONAL_KEYS.has(r.key)).map((r) => [r.key, r.value]));
     }),
 
     /**
@@ -478,6 +569,7 @@ export const appRouter = router({
       .input(z.object({ key: z.string(), value: z.string() }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        if (!isAllowedPressReleaseSetting(input.key)) throw new Error("Setting key is not allowlisted; secrets must be supplied through server environment variables");
         const { getDb } = await import("./db");
         const { pressReleaseSettings } = await import("../drizzle/schema");
         const db = await getDb();

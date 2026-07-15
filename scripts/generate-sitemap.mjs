@@ -17,7 +17,6 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const BASE_URL = "https://breakyoursolarcontract.com";
-const TODAY = new Date().toISOString().split("T")[0];
 
 // ─── Indexed city whitelist (must match client/src/data/indexed-cities.ts) ────
 const INDEXED_CITY_SLUGS = new Set([
@@ -90,7 +89,7 @@ function loadData() {
       "utf-8"
     );
     // Match slug values written with single quotes, double quotes, or backticks.
-    const slugRegex = /\bslug:\s*(['"`])((?:\\[\s\S]|(?!\1)[\s\S])*?)\1/g;
+    const slugRegex = /(?:["'`]slug["'`]|\bslug)\s*:\s*(['"`])((?:\\[\s\S]|(?!\1)[\s\S])*?)\1/g;
     while ((m = slugRegex.exec(content)) !== null) {
       const slug = decodeStringLiteralValue(m[2]).trim();
       if (slug && !slug.includes("${") && slug.length > 5) {
@@ -120,7 +119,6 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     { path: "/how-it-works", priority: "0.9", changefreq: "monthly" },
     { path: "/solar-contract-help", priority: "0.9", changefreq: "monthly" },
     { path: "/solar-panel-scam", priority: "0.9", changefreq: "monthly" },
-    { path: "/solar-fraud-report", priority: "0.8", changefreq: "monthly" },
     { path: "/solar-exit-options", priority: "0.8", changefreq: "monthly" },
     { path: "/solar-lien-removal", priority: "0.8", changefreq: "monthly" },
     { path: "/solar-loan-help", priority: "0.8", changefreq: "monthly" },
@@ -191,7 +189,6 @@ function generateXml(entries) {
     .map(
       e => `  <url>
     <loc>${e.url}</loc>
-    <lastmod>${TODAY}</lastmod>
     <changefreq>${e.changefreq}</changefreq>
     <priority>${e.priority}</priority>
   </url>`

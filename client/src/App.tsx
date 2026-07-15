@@ -10,6 +10,7 @@ import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
 import CallbackWidget from "./components/CallbackWidget";
 import DesktopCallButton from "./components/DesktopCallButton";
+import { trackPageView } from "./lib/analytics";
 
 const CityPage = lazy(() => import("./pages/CityPage"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -17,7 +18,6 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const CompanyPage = lazy(() => import("./pages/CompanyPage"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const SeoCommandCenter = lazy(() => import("./pages/SeoCommandCenter"));
-const SolarFraudReport = lazy(() => import("./pages/SolarFraudReport"));
 const SolarContractHelp = lazy(() => import("./pages/SolarContractHelp"));
 const SolarPanelScam = lazy(() => import("./pages/SolarPanelScam"));
 const SolarExitOptions = lazy(() => import("./pages/SolarExitOptions"));
@@ -65,11 +65,27 @@ function LegacyCityRedirect() {
   return null;
 }
 
+function AnalyticsPageViews() {
+  const [location] = useLocation();
+  useEffect(() => {
+    if (
+      (location !== "/" && location.endsWith("/")) ||
+      /^\/cancel-solar-contract-[a-z0-9-]+$/.test(location)
+    ) {
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => trackPageView(location));
+    return () => window.cancelAnimationFrame(frame);
+  }, [location]);
+  return null;
+}
+
 function Router() {
   return (
     <>
       <TrailingSlashRedirect />
       <LegacyCityRedirect />
+      <AnalyticsPageViews />
       <Suspense fallback={<div className="min-h-screen bg-background" />}>
         <Switch>
           <Route path={"/"} component={Home} />
@@ -84,7 +100,6 @@ function Router() {
           </Route>
           <Route path={"/how-it-works"} component={HowItWorks} />
           <Route path={"/seo-command-center"} component={SeoCommandCenter} />
-          <Route path={"/solar-fraud-report"} component={SolarFraudReport} />
           <Route path={"/solar-panel-scam"} component={SolarPanelScam} />
           <Route path={"/solar-contract-help"} component={SolarContractHelp} />
           <Route path={"/solar-exit-options"} component={SolarExitOptions} />

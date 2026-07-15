@@ -7,12 +7,15 @@ import { trpc } from '@/lib/trpc';
 import TopicClusterWidget from '@/components/TopicClusterWidget';
 import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import QuickCallbackForm from '@/components/QuickCallbackForm';
-import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2, Shield, Scale } from 'lucide-react';
+import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2 } from 'lucide-react';
 import StickyMobileBar from '@/components/StickyMobileBar';
 import { motion } from 'framer-motion';
 import { useEffect, ReactElement, ReactNode } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
+import { useSiteConfig } from '@/hooks/useSiteConfig';
+import { trackPhoneClick } from '@/lib/analytics';
+import { hasVerifiedQuoteEvidence, suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from '@shared/contentGovernance';
 
 function renderInlineContent(content?: string): ReactNode {
   if (!content) return null;
@@ -61,39 +64,45 @@ function renderInlineContent(content?: string): ReactNode {
 }
 
 function renderSection(section: BlogSection, index: number) {
+  const governedContent = suppressUnverifiedFirstPartyClaims(section.content ?? '');
+  const governedStats = section.stats?.filter(stat =>
+    suppressUnverifiedFirstPartyClaims(stat.value) === stat.value &&
+    suppressUnverifiedFirstPartyClaims(stat.label) === stat.label
+  );
   switch (section.type) {
     case 'h2':
       return (
         <h2 key={index} className="font-black text-white mt-12 mb-4 leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.6rem, 3vw, 2.2rem)' }}>
-          {section.content}
+          {governedContent}
         </h2>
       );
     case 'h3':
       return (
         <h3 key={index} className="font-black text-amber-400 mt-8 mb-3 text-xl leading-tight">
-          {section.content}
+          {governedContent}
         </h3>
       );
     case 'p':
       return (
         <p key={index} className="text-zinc-300 leading-relaxed text-[1.05rem] mb-5">
-          {renderInlineContent(section.content)}
+          {renderInlineContent(governedContent)}
         </p>
       );
     case 'callout':
       return (
         <div key={index} className="my-8 rounded-xl bg-amber-500/10 border border-amber-500/30 p-6">
-          <p className="text-amber-200 leading-relaxed font-medium">{renderInlineContent(section.content)}</p>
+          <p className="text-amber-200 leading-relaxed font-medium">{renderInlineContent(governedContent)}</p>
         </div>
       );
     case 'warning':
       return (
         <div key={index} className="my-8 rounded-xl bg-red-500/10 border border-red-500/30 p-6 flex gap-4">
           <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-          <p className="text-red-200 leading-relaxed font-medium">{renderInlineContent(section.content)}</p>
+          <p className="text-red-200 leading-relaxed font-medium">{renderInlineContent(governedContent)}</p>
         </div>
       );
     case 'quote':
+      if (!hasVerifiedQuoteEvidence(section.verification)) return null;
       return (
         <div key={index} className="my-10 rounded-xl bg-zinc-800/60 border-l-4 border-amber-500 p-6 md:p-8">
           <Quote className="w-8 h-8 text-amber-500/40 mb-4" />
@@ -112,7 +121,7 @@ function renderSection(section: BlogSection, index: number) {
           {section.items?.map((item, i) => (
             <li key={i} className="flex gap-3 text-zinc-300 leading-relaxed">
               <span className="text-amber-500 font-black mt-0.5 shrink-0">&#8594;</span>
-              <span>{renderInlineContent(item)}</span>
+              <span>{renderInlineContent(suppressUnverifiedFirstPartyClaims(item))}</span>
             </li>
           ))}
         </ul>
@@ -120,7 +129,7 @@ function renderSection(section: BlogSection, index: number) {
     case 'stat-block':
       return (
         <div key={index} className="my-10 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {section.stats?.map((stat, i) => (
+          {governedStats?.map((stat, i) => (
             <div key={i} className="rounded-xl bg-zinc-900 border border-white/10 p-5 text-center">
               <div className="font-black text-amber-500 text-2xl md:text-3xl mb-1" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                 {stat.value}
@@ -162,11 +171,10 @@ function renderSection(section: BlogSection, index: number) {
 
 // Inline CTA component — appears at midpoint of article
 function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
-  const phoneNumber = "(904) 906-5844";
-  const phoneHref = "tel:+19049065844";
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   return (
     <div className="my-12 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800/80 border border-amber-500/40 p-8">
-      <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">-- No Obligation. No BS.</div>
+      <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
       <h3 className="font-black text-white text-2xl mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
         {text}
       </h3>
@@ -174,23 +182,24 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
       <div className="flex flex-col sm:flex-row gap-3">
         <Link href="/#form" className="flex-1">
           <span className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest px-6 py-3.5 rounded-lg text-sm transition-colors cursor-pointer w-full">
-            Get Free Case Review →
+            Request Case Review →
           </span>
         </Link>
         <a
           href={phoneHref}
           className="flex items-center justify-center gap-2 border border-white/20 hover:border-amber-500/60 text-white hover:text-amber-400 font-bold px-6 py-3.5 rounded-lg text-sm transition-colors"
-          onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_inline_cta' })}
+          onClick={() => trackPhoneClick('blog_inline_cta', phoneDigits)}
         >
-          📞 Call {phoneNumber}
+          📞 Call {phoneDisplay}
         </a>
       </div>
-      <p className="text-zinc-600 text-xs mt-3 font-mono">Free review. No cost. We've cancelled 3,000+ contracts.</p>
+      <p className="text-zinc-600 text-xs mt-3 font-mono">Request a review. Options depend on your agreement, facts, and jurisdiction.</p>
     </div>
   );
 }
 
 function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
+  content = suppressUnverifiedFirstPartyClaims(suppressUnverifiedQuoteMarkup(content));
   const sections: ReactElement[] = [];
   const paragraphRegex = /<p\b[\s\S]*?<\/p>/gi;
   let paragraphCount = 0;
@@ -240,46 +249,6 @@ function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubt
   return sections;
 }
 
-// Author/Attorney Bio Section — E-E-A-T signal for Google
-function AuthorBio() {
-  return (
-    <div className="my-10 rounded-xl bg-zinc-900/80 border border-white/10 p-6 md:p-8">
-      <div className="flex items-start gap-4 md:gap-6">
-        <div className="shrink-0">
-          <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center">
-            <Scale className="w-7 h-7 text-amber-400" />
-          </div>
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-white font-bold text-sm">Solar Freedom Legal Team</span>
-            <Shield className="w-4 h-4 text-green-400" />
-          </div>
-          <div className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-3">
-            Reviewed by Licensed Consumer Protection Attorneys
-          </div>
-          <p className="text-zinc-400 text-sm leading-relaxed">
-            This article was researched and reviewed by our legal team specializing in solar contract disputes, 
-            consumer fraud, and UDAP violations. Our attorneys have handled 3,000+ solar contract cancellations 
-            across all 50 states. All legal information is current as of 2026 and based on actual case outcomes.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full">
-              Licensed in 50 States
-            </span>
-            <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full">
-              3,000+ Cases Handled
-            </span>
-            <span className="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full">
-              Updated May 2026
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Converts a DB post (with HTML content string) into a BlogPost-compatible shape
 function dbPostToBlogPost(dbPost: Record<string, unknown>) {
   const content = typeof dbPost.content === 'string' && dbPost.content.trim().startsWith('<')
@@ -289,8 +258,8 @@ function dbPostToBlogPost(dbPost: Record<string, unknown>) {
     slug: String(dbPost.slug || ''),
     title: String(dbPost.title || ''),
     metaTitle: dbPost.metaTitle ? String(dbPost.metaTitle) : undefined,
-    metaDescription: dbPost.metaDescription ? String(dbPost.metaDescription) : undefined,
-    excerpt: String(dbPost.excerpt || ''),
+    metaDescription: dbPost.metaDescription ? suppressUnverifiedFirstPartyClaims(String(dbPost.metaDescription)) : undefined,
+    excerpt: suppressUnverifiedFirstPartyClaims(String(dbPost.excerpt || '')),
     heroImage: dbPost.heroImage ? String(dbPost.heroImage) : undefined,
     category: String(dbPost.category || 'LEGAL GUIDE'),
     readTime: String(dbPost.readTime || '8 min read'),
@@ -303,7 +272,7 @@ function dbPostToBlogPost(dbPost: Record<string, unknown>) {
     isDbPost: true,
     // Optional fields that static posts may have but DB posts don't
     faq: Array.isArray(dbPost.faqItems) && (dbPost.faqItems as Array<{question:string;answer:string}>).length > 0
-      ? (dbPost.faqItems as Array<{question:string;answer:string}>).map(f => ({ q: f.question, a: f.answer }))
+      ? (dbPost.faqItems as Array<{question:string;answer:string}>).map(f => ({ q: f.question, a: suppressUnverifiedFirstPartyClaims(f.answer) }))
       : undefined,
     ctaText: undefined as string | undefined,
     ctaSubtext: undefined as string | undefined,
@@ -312,6 +281,7 @@ function dbPostToBlogPost(dbPost: Record<string, unknown>) {
 }
 
 export default function BlogPost() {
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   const params = useParams<{ slug: string }>();
   const slug = params.slug || '';
   const staticPost = getBlogPost(slug);
@@ -328,7 +298,7 @@ export default function BlogPost() {
 
   useSeoMeta({
     title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
-    description: post?.metaDescription ?? post?.excerpt ?? 'Expert legal help to cancel your solar contract.',
+    description: suppressUnverifiedFirstPartyClaims(post?.metaDescription ?? post?.excerpt ?? 'Review solar-contract documents and consumer information.'),
     canonical: (post as { canonicalUrl?: string | null } | undefined)?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${slug}`,
     ogType: 'article',
     ogImage: post?.heroImage ?? undefined,
@@ -370,7 +340,7 @@ export default function BlogPost() {
     const faq: { q: string; a: string }[] = Array.isArray(rawFaqItems)
       ? (rawFaqItems as Array<{question?: string; answer?: string; q?: string; a?: string}>).map(f => ({
           q: f.q ?? f.question ?? '',
-          a: f.a ?? f.answer ?? ''
+          a: suppressUnverifiedFirstPartyClaims(f.a ?? f.answer ?? '')
         }))
       : [];
     const rawPublishedAt = (dbPostRaw as Record<string,unknown>)?.publishedAt;
@@ -383,15 +353,9 @@ export default function BlogPost() {
         '@context': 'https://schema.org',
         '@type': 'Article',
         headline: dbPost.title,
-        description: dbPost.metaDescription ?? dbPost.excerpt,
+        description: suppressUnverifiedFirstPartyClaims(dbPost.metaDescription ?? dbPost.excerpt),
         datePublished: (dbPostRaw as Record<string,unknown>)?.publishedAt ? String((dbPostRaw as Record<string,unknown>).publishedAt) : '2026-01-01',
         dateModified: (dbPostRaw as Record<string,unknown>)?.updatedAt ? String((dbPostRaw as Record<string,unknown>).updatedAt) : '2026-01-01',
-        author: {
-          '@type': 'Organization',
-          name: 'Solar Freedom Legal Team',
-          url: 'https://breakyoursolarcontract.com',
-          description: 'Licensed consumer protection attorneys specializing in solar contract disputes and cancellations.',
-        },
         publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${slug}` },
         image: dbPost.heroImage ?? '',
@@ -414,7 +378,7 @@ export default function BlogPost() {
         mainEntity: faq.map(item => ({
           '@type': 'Question',
           name: item.q,
-          acceptedAnswer: { '@type': 'Answer', text: item.a },
+          acceptedAnswer: { '@type': 'Answer', text: suppressUnverifiedFirstPartyClaims(item.a) },
         })),
       });
     }
@@ -436,7 +400,7 @@ export default function BlogPost() {
             </Link>
             <Link href="/#form">
               <span className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded cursor-pointer transition-colors">
-                Free Review
+                Case Review
               </span>
             </Link>
           </div>
@@ -502,19 +466,18 @@ export default function BlogPost() {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-zinc-200 text-xl leading-relaxed mb-8 border-l-4 border-amber-500 pl-6 italic"
                 >
-                  {dbPost.excerpt}
+                  {suppressUnverifiedFirstPartyClaims(dbPost.excerpt)}
                 </motion.p>
               )}
 
               <DoIQualifyQuiz />
-              <AuthorBio />
 
               {/* HTML content from database with inline CTA cadence */}
               <div className="space-y-0">
                 {renderDbContentWithInlineCtas(
                   Array.isArray(dbPost.content) ? (dbPost.content[0]?.content ?? '') : String(dbPost.content ?? ''),
                   "Still Paying on a Solar Contract?",
-                  "Get a free legal review and find out if you can cancel."
+                  "Request an individual review. Options depend on your agreement, facts, and jurisdiction."
                 )}
               </div>
 
@@ -522,26 +485,26 @@ export default function BlogPost() {
               <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
                 <div className="relative">
-                  <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- No BS. No Obligation.</div>
+                  <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
                   <h2 className="font-black text-black uppercase mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-                    You've Been Lied To Enough.
+                    Review the Documents That Matter.
                   </h2>
-                  <p className="text-black/70 mb-6 max-w-lg text-sm">If you're on this page, you already know something is wrong. Let us look at your contract for free and tell you straight — do you have a case or not. Takes 5 minutes.</p>
+                  <p className="text-black/70 mb-6 max-w-lg text-sm">Submit the agreement and supporting records for a fact-specific review. No representation, result, or timeline is guaranteed.</p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Link href="/#form">
                       <span className="inline-flex items-center justify-center gap-2 bg-black text-white font-black uppercase tracking-widest px-8 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer">
-                        Get My Free Case Review →
+                        Request My Case Review →
                       </span>
                     </Link>
                     <a
-                      href="tel:+19049065844"
+                      href={phoneHref}
                       className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
-                      onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_final_cta' })}
+                      onClick={() => trackPhoneClick('blog_final_cta', phoneDigits)}
                     >
-                      📞 Call (904) 906-5844
+                      📞 Call {phoneDisplay}
                     </a>
                   </div>
-                  <p className="text-black/50 text-xs mt-4 font-mono">3,000+ contracts cancelled. Free review. No obligation.</p>
+                  <p className="text-black/50 text-xs mt-4 font-mono">Request a review. No result or timeline is guaranteed.</p>
                 </div>
               </div>
 
@@ -563,7 +526,7 @@ export default function BlogPost() {
             <aside className="hidden lg:block lg:sticky lg:top-24">
               <QuickCallbackForm
                 formName="sticky_blog_sidebar"
-                title="Free Case Review"
+                title="Case Review"
                 subtitle="Skip the long form — leave your name and phone and we’ll call you back."
                 buttonLabel="Request Callback"
                 showSchedule
@@ -617,7 +580,7 @@ export default function BlogPost() {
             <div className="flex gap-6">
               <Link href="/"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Home</span></Link>
               <Link href="/blog"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Blog</span></Link>
-              <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Free Review</span></Link>
+              <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Case Review</span></Link>
             </div>
           </div>
         </footer>
@@ -633,15 +596,9 @@ export default function BlogPost() {
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: post.title,
-      description: post.metaDescription ?? post.excerpt,
+      description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
       datePublished: post.publishDate ?? '2026-01-01',
       dateModified: post.publishDate ?? '2026-01-01',
-      author: {
-        '@type': 'Organization',
-        name: 'Solar Freedom Legal Team',
-        url: 'https://breakyoursolarcontract.com',
-        description: 'Licensed consumer protection attorneys specializing in solar contract disputes and cancellations.',
-      },
       publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
       mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${params.slug}` },
       image: post.heroImage ?? '',
@@ -665,7 +622,7 @@ export default function BlogPost() {
       mainEntity: post.faq.map(item => ({
         '@type': 'Question',
         name: item.q,
-        acceptedAnswer: { '@type': 'Answer', text: item.a },
+        acceptedAnswer: { '@type': 'Answer', text: suppressUnverifiedFirstPartyClaims(item.a) },
       })),
     });
 
@@ -690,7 +647,7 @@ export default function BlogPost() {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
     name: `${post.title} — Solar Freedom Video`,
-    description: post.metaDescription ?? post.excerpt,
+    description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
     thumbnailUrl: post.heroImage ?? 'https://breakyoursolarcontract.com/favicon.ico',
     uploadDate: post.publishDate ?? '2026-01-01',
     publisher: {
@@ -715,7 +672,7 @@ export default function BlogPost() {
     // Insert ONE CTA at midpoint only
     if (!midpointCtaInserted && paragraphCount >= midpoint && midpoint > 2) {
       sectionsWithCTAs.push(
-        <InlineCTA key="cta-mid" text={post.ctaText ?? 'Trapped in a Solar Contract? Get Out.'} subtext={post.ctaSubtext ?? 'Our attorneys have helped 3,000+ homeowners cancel. Free case review.'} />
+        <InlineCTA key="cta-mid" text="Review Your Solar Contract" subtext="Request a review. Options depend on your agreement, facts, and jurisdiction." />
       );
       midpointCtaInserted = true;
     }
@@ -738,7 +695,7 @@ export default function BlogPost() {
           </Link>
           <Link href="/#form">
             <span className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded cursor-pointer transition-colors">
-              Free Review
+              Case Review
             </span>
           </Link>
         </div>
@@ -792,14 +749,11 @@ export default function BlogPost() {
             animate={{ opacity: 1, y: 0 }}
             className="text-zinc-200 text-xl leading-relaxed mb-8 border-l-4 border-amber-500 pl-6 italic"
           >
-            {post.excerpt}
+            {suppressUnverifiedFirstPartyClaims(post.excerpt)}
           </motion.p>
 
           {/* QUIZ — placed immediately after lead paragraph for maximum conversion */}
           <DoIQualifyQuiz />
-
-          {/* Author Bio — E-E-A-T signal */}
-          <AuthorBio />
 
           {/* Article content */}
           <div className="prose-invert max-w-none">
@@ -810,26 +764,26 @@ export default function BlogPost() {
           <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
             <div className="relative">
-              <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- No BS. No Obligation.</div>
+              <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
               <h2 className="font-black text-black uppercase mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-                You've Been Lied To Enough.
+                Review the Documents That Matter.
               </h2>
-              <p className="text-black/70 mb-6 max-w-lg text-sm">If you're on this page, you already know something is wrong. Let us look at your contract for free and tell you straight — do you have a case or not. Takes 5 minutes.</p>
+              <p className="text-black/70 mb-6 max-w-lg text-sm">Submit the agreement and supporting records for a fact-specific review. No representation, result, or timeline is guaranteed.</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/#form">
                   <span className="inline-flex items-center justify-center gap-2 bg-black text-white font-black uppercase tracking-widest px-8 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer">
-                    Get My Free Case Review →
+                    Request My Case Review →
                   </span>
                 </Link>
                 <a
-                  href="tel:+19049065844"
+                  href={phoneHref}
                   className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
-                  onClick={() => typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'phone_click', { event_category: 'blog_final_cta' })}
+                  onClick={() => trackPhoneClick('blog_final_cta', phoneDigits)}
                 >
-                  📞 Call (904) 906-5844
+                  📞 Call {phoneDisplay}
                 </a>
               </div>
-              <p className="text-black/50 text-xs mt-4 font-mono">3,000+ contracts cancelled. Free review. No obligation.</p>
+              <p className="text-black/50 text-xs mt-4 font-mono">Request a review. No result or timeline is guaranteed.</p>
             </div>
           </div>
 
@@ -852,7 +806,7 @@ export default function BlogPost() {
           <aside className="hidden lg:block lg:sticky lg:top-24">
             <QuickCallbackForm
               formName="sticky_blog_sidebar"
-              title="Free Case Review"
+              title="Case Review"
               subtitle="Skip the long form — leave your name and phone and we’ll call you back."
               buttonLabel="Request Callback"
               showSchedule
@@ -907,7 +861,7 @@ export default function BlogPost() {
           <div className="flex gap-6">
             <Link href="/"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Home</span></Link>
             <Link href="/blog"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Blog</span></Link>
-            <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Free Review</span></Link>
+            <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Case Review</span></Link>
           </div>
         </div>
       </footer>

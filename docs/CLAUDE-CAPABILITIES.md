@@ -2,7 +2,7 @@
 
 **Site:** breakyoursolarcontract.com  
 **API Base:** `https://breakyoursolarcontract.com/api/admin`  
-**Auth:** `Authorization: Bearer sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726`
+**Auth:** `Authorization: Bearer <scoped-api-key-from-your-secret-manager>`
 
 This document is a quick-reference for what is and is not possible through the Admin Content API without Manus access.
 
@@ -57,15 +57,17 @@ This document is a quick-reference for what is and is not possible through the A
 | **List existing keys** | `GET /api/admin/keys` | No secrets exposed |
 | **Revoke a key** | `DELETE /api/admin/keys/:id` | Immediate effect |
 
-### Automation (Advanced — Use with Care)
+### Automation planning (review required)
 
-The `/api/admin/automation/apply` endpoint allows **allowlisted file writes** and **schema migrations**. This is powerful but has strict safety constraints:
+The `/api/admin/automation/apply` endpoint validates and hashes **proposed** allowlisted file writes and schema migrations. It is plan-only and never mutates runtime state:
 
 - File writes are restricted to specific directories (`client/src`, `server`, `shared`, `drizzle`, `docs`)
 - Only safe file extensions: `.ts`, `.tsx`, `.js`, `.mjs`, `.json`, `.md`, `.sql`, `.css`
 - SQL is restricted to `CREATE TABLE`, `ALTER TABLE`, `CREATE INDEX`, `DROP INDEX` only
 - Max 20 operations per request
 - Every request is audit-logged
+- `dryRun` must be exactly `true`; execution requests are blocked
+- Approved changes must go through Git or a typed adapter with verification and rollback evidence
 
 **Practical uses for this endpoint:**
 - Adding a new static data file (e.g., a new batch of city data)
@@ -183,13 +185,13 @@ Every article published via the API should include:
 
 ## API Key Permissions
 
-The current key (`sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726`) has `*` (all permissions).
+Do not use a broad `*` key for routine automation. Grant only the permissions required for the task.
 
 To create a restricted key for a specific use case:
 
 ```bash
 curl -X POST \
-  -H "Authorization: Bearer sf_c95d0b522cf9d0f593e8dd9983fbcb217f13215a8e831cd434e3c69c771c6726" \
+  -H "Authorization: Bearer <scoped-api-key-from-your-secret-manager>" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Content Writer (read + write only)",
@@ -207,7 +209,7 @@ curl -X POST \
 | `companies:write` | Create and update companies |
 | `config:read` | Read site config |
 | `config:write` | Update site config |
-| `automation:execute` | Allowlisted file writes and schema migrations |
+| `automation:execute` | Validate/hash dry-run plans; direct execution is disabled |
 | `keys:manage` | Create, list, revoke API keys |
 | `*` | All of the above |
 

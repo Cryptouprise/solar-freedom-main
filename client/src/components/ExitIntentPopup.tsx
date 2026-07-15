@@ -6,9 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { trackFormSubmit } from "@/lib/analytics";
-
-const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/WBEbDUNxKL5GyxIUjjdZ/webhook-trigger/ef73980f-0111-46a0-8bb9-1cbed104028b";
+import { recordLeadSubmission } from "@/lib/analytics";
 
 export default function ExitIntentPopup() {
   const [show, setShow] = useState(false);
@@ -16,6 +14,7 @@ export default function ExitIntentPopup() {
   const [email, setEmail] = useState("");
   const [wantsGuide, setWantsGuide] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
 
   const handleMouseLeave = useCallback((e: MouseEvent) => {
     if (e.clientY <= 10 && !dismissed && !show) {
@@ -49,27 +48,23 @@ export default function ExitIntentPopup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    setSubmissionError("");
     try {
       // Persist to DB via tRPC
-      await captureExitIntent.mutateAsync({
+      const result = await captureExitIntent.mutateAsync({
         email,
         sourcePage: window.location.pathname,
+        wantsGuide,
       });
-      // Also forward to GHL webhook
-      await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          source: "exit_intent_popup",
-          form_name: "Exit Intent — Solar Freedom",
-          intent: "exit_intent",
-          lead_magnet: wantsGuide ? "solar_contract_escape_guide" : "none",
-          workflow: wantsGuide ? "escape_guide_day1_day3_day7" : "standard_exit_intent",
-        }),
-      });
-    } catch (_) { /* silent */ }
-    trackFormSubmit("exit_intent_popup", window.location.pathname);
+      if (!recordLeadSubmission(result, "exit_intent_popup", window.location.pathname)) {
+        setSubmissionError("We couldn't save your request. Please try again.");
+        return;
+      }
+    } catch {
+      recordLeadSubmission(null, "exit_intent_popup", window.location.pathname);
+      setSubmissionError("We couldn't save your request. Please try again.");
+      return;
+    }
     setSubmitted(true);
   };
 
@@ -144,11 +139,15 @@ export default function ExitIntentPopup() {
                       />
                       <button
                         type="submit"
+                        disabled={captureExitIntent.isPending}
                         className="w-full py-3.5 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
                         style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
                       >
                         GET MY FREE CASE REVIEW + GUIDE →
                       </button>
+                      {submissionError && (
+                        <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
+                      )}
                       <label className="flex items-start gap-2 text-zinc-500 text-xs">
                         <input
                           type="checkbox"
@@ -181,8 +180,8 @@ export default function ExitIntentPopup() {
                     >
                       YOU'RE IN.
                     </div>
-                    <p className="text-white font-semibold mb-2">Check your inbox within 24 hours.</p>
-                    <p className="text-zinc-400 text-sm">Our attorneys will review your situation and reach out with your options. You’ll also receive immediate SMS confirmation and, if selected, your Solar Contract Escape Guide email sequence.</p>
+                    <p className="text-white font-semibold mb-2">Your information was submitted for review.</p>
+                    <p className="text-zinc-400 text-sm">Response time, availability, and next steps vary. You may also receive an SMS confirmation and, if selected, an educational email sequence.</p>
                     <button
                       onClick={handleDismiss}
                       className="mt-6 text-amber-500 text-sm font-bold hover:text-amber-400 transition-colors"
