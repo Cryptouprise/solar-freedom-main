@@ -115,7 +115,7 @@ export const blogArticlesBatch2: BlogPost[] = [
     slug: 'austin-solar-loan-too-high',
     title: 'Austin Solar Loan Too High? What Homeowners Can Do Next',
     metaTitle: 'Austin Solar Loan Too High? What Texas Homeowners Can Do (2026)',
-    metaDescription: 'Austin solar loan payments exceed utility bills? Texas DTPA legal options can help. Stop overpaying! Get a free attorney review.',
+    metaDescription: 'Austin solar loan payments exceed utility bills? Texas DTPA legal options can help. Stop overpaying! Get a free case review.',
     category: 'City Guide',
     readTime: '6 min read',
     publishDate: 'March 22, 2026',

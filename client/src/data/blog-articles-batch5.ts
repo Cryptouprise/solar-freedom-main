@@ -527,7 +527,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     slug: 'cancel-solar-contract-atlanta-ga',
     title: 'Atlanta Solar Contract Cancellation: Georgia\'s Fair Business Practices Act Is Your Tool',
     metaTitle: 'Cancel Your Solar Contract in Atlanta, GA | Georgia Legal Rights 2026',
-    metaDescription: `Atlanta homeowners: Use Georgia's Fair Business Practices Act to cancel deceptive solar contracts. Our attorneys saved 50+ GA homeowners thousands. Free case review.`,
+    metaDescription: `Atlanta homeowners: Use Georgia's Fair Business Practices Act to cancel deceptive solar contracts. We've helped 50+ GA homeowners save thousands. Free case review.`,
     category: 'City Guides',
     readTime: '9 min read',
     publishDate: '2026-03-22',

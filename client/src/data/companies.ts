@@ -578,7 +578,7 @@ export const companies: CompanyData[] = [
     avgMonthlyPayment: "$120–$190",
     status: "Active",
     tagline: "Palmetto Solar Subscription Trap — Cancel It Now",
-    summary: "Palmetto Solar markets itself as a tech-forward solar company with a subscription model. However, customers report confusion about the subscription terms, unexpected rate increases, and difficulty understanding what they actually own vs. what they're renting. The subscription model creates unique legal cancellation grounds that our attorneys specialize in, particularly around FTC Subscription Cancellation Rule compliance.",
+    summary: "Palmetto Solar markets itself as a tech-forward solar company with a subscription model. However, customers report confusion about the subscription terms, unexpected rate increases, and difficulty understanding what they actually own vs. what they're renting. The subscription model creates unique legal cancellation grounds that our team specializes in, particularly around FTC Subscription Cancellation Rule compliance.",
     topComplaints: [
       "Subscription model terms were not clearly explained at point of sale",
       "Annual rate increases were not disclosed or minimized during sales pitch",
@@ -626,7 +626,7 @@ export const companies: CompanyData[] = [
     avgMonthlyPayment: "$100–$180",
     status: "Bankrupt",
     tagline: "Sungevity Went Bankrupt — But Your Contract Didn't Die With Them",
-    summary: "Sungevity filed for bankruptcy in 2017 and its assets were acquired, eventually becoming Complete Solaria. Thousands of customers were left with orphaned contracts, no service support, and no clear path to cancellation. This is one of the strongest legal cancellation scenarios — company bankruptcy is a recognized ground for contract termination under consumer protection law, and our attorneys have successfully used it to cancel hundreds of Sungevity agreements.",
+    summary: "Sungevity filed for bankruptcy in 2017 and its assets were acquired, eventually becoming Complete Solaria. Thousands of customers were left with orphaned contracts, no service support, and no clear path to cancellation. This is one of the strongest legal cancellation scenarios — company bankruptcy is a recognized ground for contract termination under consumer protection law, and our team has successfully used it to cancel hundreds of Sungevity agreements.",
     topComplaints: [
       "Company went bankrupt but lenders are still collecting monthly payments",
       "No one to call for service, repairs, or warranty claims",

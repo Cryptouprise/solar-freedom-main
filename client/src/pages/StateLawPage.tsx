@@ -295,7 +295,7 @@ export default function StateLawPage() {
                     <BookOpen size={18} className="text-amber-400" />
                     Cancel Your Solar Contract in {law.state} — City Resources
                   </h3>
-                  <p className="text-slate-400 text-sm mb-4">We serve homeowners across all of {law.state}. Select your city for local attorney resources and case reviews.</p>
+                  <p className="text-slate-400 text-sm mb-4">We serve homeowners across all of {law.state}. Select your city for local resources and case reviews.</p>
                   <div className="flex flex-wrap gap-2">
                     {stateCities.map((city) => (
                       <Link key={city.slug} href={`/cancel-solar-contract/${city.slug}`}>

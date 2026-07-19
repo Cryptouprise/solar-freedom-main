@@ -70,7 +70,7 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
     heroImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80',
     heroAlt: 'homeowner stressed about solar contract reviewing paperwork',
     ctaText: 'Get a Free Solar Contract Review',
-    ctaSubtext: 'Our attorneys review your agreement at no cost. Find out your options in 48 hours.',
+    ctaSubtext: 'We review your agreement at no cost. Find out your options in 48 hours.',
     faq: [
       { q: 'Can I legally get out of a solar contract?', a: 'In some cases, yes — depending on your contract terms and situation. TILA violations, misrepresentation during the sales process, and state consumer protection laws can all provide legal grounds for cancellation or renegotiation.' },
       { q: 'What happens if I stop paying my solar loan?', a: 'It may impact your credit and lead to collections, but options may exist before that point. A legal review of your agreement can identify leverage points before you take any action that could harm your credit.' },

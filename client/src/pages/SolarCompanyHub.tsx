@@ -207,7 +207,7 @@ export default function SolarCompanyHub() {
             DON'T SEE YOUR COMPANY? WE STILL HELP.
           </h2>
           <p className="text-black/70 mb-6 relative max-w-lg mx-auto">
-            Our legal team has handled cancellations for over 50 solar companies. Get your free case review today.
+            We've helped homeowners cancel contracts with over 50 solar companies. Get your free case review today.
           </p>
           <Link href="/#form">
             <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">

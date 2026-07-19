@@ -777,7 +777,7 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
-          <img src={HERO_BG} alt="Solar contract cancellation attorneys helping homeowners get out of solar agreements" className="w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
+          <img src={HERO_BG} alt="Solar contract cancellation help for homeowners trapped in predatory agreements" className="w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, oklch(0.08 0.015 265 / 65%) 0%, oklch(0.1 0.015 265 / 50%) 50%, oklch(0.08 0.015 265 / 60%) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 50%, oklch(0.72 0.19 50 / 8%) 0%, transparent 60%)" }} />
           {/* Looping ambient glow — slow-breathing amber radial light */}
@@ -1452,7 +1452,7 @@ export default function Home() {
               {
                 slug: 'how-to-get-out-of-a-solar-contract',
                 title: 'How to Get Out of a Solar Contract (Step-by-Step Guide)',
-                excerpt: 'The exact legal strategies attorneys use — TILA violations, FTC Cooling-Off Rule, state DTPA claims, and more.',
+                excerpt: 'The exact legal strategies used to cancel solar contracts — TILA violations, FTC Cooling-Off Rule, state DTPA claims, and more.',
                 category: 'Legal Guide',
                 readTime: '9 min read',
                 img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80',
@@ -1563,7 +1563,7 @@ export default function Home() {
                 </div>
                 <span className="font-display text-lg text-white">SOLAR FREEDOM</span>
               </div>
-              <p className="text-gray-500 text-sm leading-relaxed">Consumer protection attorneys specializing in solar contract cancellation. Fighting for homeowners since 2019.</p>
+              <p className="text-gray-500 text-sm leading-relaxed">Consumer protection advocates helping homeowners cancel predatory solar contracts. Connecting you with legal resources since 2019.</p>
             </div>
             <div>
               <div className="font-display text-white text-lg mb-4">CONTACT</div>

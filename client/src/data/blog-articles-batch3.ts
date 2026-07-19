@@ -166,7 +166,7 @@ export const blogArticlesBatch3: BlogPost[] = [
     slug: 'bakersfield-solar-not-worth-it',
     title: 'Is Solar Not Worth It in Bakersfield? What People Are Realizing',
     metaTitle: 'Bakersfield Solar Not Worth It? What California Homeowners Can Do',
-    metaDescription: 'Bakersfield solar not delivering? NEM 3.0 impacting your bill? Discover powerful legal strategies to cancel your contract and save thousands. Free attorney review.',
+    metaDescription: 'Bakersfield solar not delivering? NEM 3.0 impacting your bill? Discover powerful legal strategies to cancel your contract and save thousands. Free case review.',
     category: 'City Guide',
     readTime: '6 min read',
     publishDate: 'March 22, 2026',

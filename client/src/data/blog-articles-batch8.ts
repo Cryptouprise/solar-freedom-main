@@ -22,7 +22,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       { type: "h2", content: "The Reality of GoodLeap Solar Loans" },
       {
@@ -91,7 +91,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -140,7 +140,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       { type: "h2", content: "The Reality of Service Finance Solar Loans" },
       {
@@ -231,7 +231,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -285,7 +285,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -324,7 +324,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Sunlight Financial Solar Loan Complaints: How to Fight Back and Protect Your Home",
     metaTitle:
       "Sunlight Financial Solar Loan Complaints 2026 — How to Fight Back",
-    metaDescription: `Sunlight Financial loan inflated by $10,000+? Expose hidden fees, TILA violations & tax credit traps. Cancel your solar contract now. Free attorney review.`,
+    metaDescription: `Sunlight Financial loan inflated by $10,000+? Expose hidden fees, TILA violations & tax credit traps. Cancel your solar contract now. Free case review.`,
     category: "Loan Problems",
     readTime: "12 min read",
     publishDate: "March 2026",
@@ -335,7 +335,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -392,7 +392,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -437,7 +437,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -483,7 +483,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       { type: "h2", content: "The Sudden Collapse of Titan Solar Power" },
       {
@@ -527,7 +527,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -568,7 +568,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -634,7 +634,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -669,7 +669,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Complete Solaria Complaints: What Homeowners Need to Know Before Signing",
     metaTitle:
       "Complete Solaria Complaints: What Homeowners Need to Know Before Signing",
-    metaDescription: `Complete Solaria complaints piling up? Fight back against predatory sales & delays. Learn 3 legal ways to cancel your contract. Free attorney review.`,
+    metaDescription: `Complete Solaria complaints piling up? Fight back against predatory sales & delays. Learn 3 legal ways to cancel your contract. Free case review.`,
     category: "Company Complaints",
     readTime: "18 min read",
     publishDate: "March 2026",
@@ -680,7 +680,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -736,7 +736,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -816,7 +816,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       { type: "h2", content: "The Rise and Fall of a California Solar Giant" },
       {
@@ -859,7 +859,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -931,7 +931,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -979,7 +979,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -1017,7 +1017,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -1068,7 +1068,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -1125,7 +1125,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -1184,7 +1184,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       { type: "h2", content: "The Reality of Momentum Solar Complaints" },
       {
@@ -1228,7 +1228,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       { type: "h2", content: 'The Hidden Cost of "Zero Down" Solar' },
       {
@@ -1289,7 +1289,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -1338,7 +1338,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -1391,7 +1391,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -1443,7 +1443,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "h2",
@@ -1500,7 +1500,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       { type: "h2", content: "The Reality of Modern Solar Financing" },
       {
@@ -1538,7 +1538,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",
@@ -1604,7 +1604,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     heroAlt: "solar panels on residential home",
     ctaText: "Get a Free Solar Contract Review",
     ctaSubtext:
-      "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+      "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
         type: "p",

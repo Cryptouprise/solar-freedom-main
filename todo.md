@@ -425,8 +425,28 @@
 - [x] Update scripts/generate-sitemap.mjs to exclude noindexed cities (276 removed, 25 remain)
 - [x] Regenerate sitemap.xml — now 262 URLs (was 483+)
 - [x] Verify noindex works: orlando-fl shows "noindex, follow", dallas-tx shows "index, follow"
-- [ ] PUBLISH — deploy so Google sees the noindex signals
-- [ ] Submit updated sitemap.xml to GSC
-- [ ] Request re-crawl on top 25 indexed city pages via GSC URL Inspection
+- [x] PUBLISH — deployed, verified live: orlando-fl shows noindex, dallas-tx shows index
+- [x] Submit updated sitemap.xml to GSC (submitted July 15)
+- [x] Request re-crawl on top 20 priority URLs via Indexing API (15 city + homepage + 4 blog posts)
 - [ ] Monitor: expect "Excluded by noindex" to appear for 276 city pages within 1-2 weeks
 - [ ] Monitor: spam penalty should lift within 2-4 weeks after Google processes noindex signals
+
+## Phase 42 — Attorney Language Compliance Cleanup (July 18, 2026)
+
+- [x] Audit all pages/data files for claims of being attorneys/law firm
+- [x] Fix Home.tsx footer: "Consumer protection attorneys" → "Consumer protection advocates"
+- [x] Fix Home.tsx hero alt text: remove "attorneys" claim
+- [x] Fix blog-articles-batch6.ts: 51 instances of "Our attorneys review your contract"
+- [x] Fix blog-articles-batch7.ts: multiple "our attorneys" and "our legal team" claims
+- [x] Fix blog-articles-batch8.ts: 30+ instances of "Our attorneys review your agreement"
+- [x] Fix blog-articles-batch10.ts: 6 instances of "Our attorneys" claims
+- [x] Fix blog-extra.ts: "our attorneys' experience" and "our attorneys evaluate"
+- [x] Fix blog.ts: CTA subtext attorney claim
+- [x] Fix companies.ts: "our attorneys specialize" and "our attorneys have successfully"
+- [x] Fix blog-articles-batch5.ts: meta description "Our attorneys saved 50+"
+- [x] Fix SolarCompanyHub.tsx: "Our legal team has handled cancellations"
+- [x] Fix StateLawPage.tsx: "local attorney resources"
+- [x] Fix state-laws.ts: "Free attorney review" → "Free case review"
+- [x] Fix topicClusters.ts: "solar attorney free review"
+- [x] Verify TypeScript compiles cleanly after all changes
+- [x] Verify dev server runs correctly

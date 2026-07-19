@@ -294,7 +294,7 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
         url: "/",
         type: "home",
         description: "Talk to a solar attorney today — free",
-        targetKeyword: "solar attorney free review",
+        targetKeyword: "solar contract free review",
       },
     ],
   },

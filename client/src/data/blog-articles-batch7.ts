@@ -17,7 +17,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     { type: 'p', content: "The news of the sunpower bankruptcy solar contract crisis has sent shockwaves through the residential solar industry, leaving nearly 600,000 homeowners in a state of deep uncertainty. If you are one of the many families who invested in a SunPower system, you might be waking up at 11 PM, staring at your monitoring app, and wondering if the thousands of dollars you committed to are now tied to a sinking ship. The reality of a Chapter 11 filing is complex, but you are not alone, and you are not without options. Many homeowners feel like they are shouting into a void, but there are legal pathways to protect your home and your financial future. The collapse of a giant like SunPower is a symptom of a larger, more systemic issue in the residential solar market, where aggressive sales tactics and unsustainable financial models have left consumers holding the bag. Understanding the nuances of your specific agreement is the first step toward regaining control." },
     { type: 'callout', content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review" },
@@ -54,9 +54,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: 'callout', content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review" }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -72,7 +72,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     { type: 'p', content: "The recent news surrounding the sunnova bankruptcy has sent shockwaves through the residential solar industry, leaving thousands of homeowners in a state of deep uncertainty. If you are one of the many customers who woke up to find your solar provider in financial turmoil, you are likely grappling with urgent questions about your system's performance, your long-term warranty, and the monthly payments that continue to leave your bank account. At Solar Freedom, we understand the stress of feeling trapped in a predatory contract with a company that may no longer be able to fulfill its promises. Our mission is to provide a clear path forward for homeowners who have been misled by solar giants." },
     { type: 'p', content: "The filing of Chapter 11 by Sunnova Energy International Inc. in June 2025 marked a significant turning point for the company, which once stood as a titan in the renewable energy sector. While the company has undergone a restructuring process and seen its assets acquired by Solaris Assets, the transition has been anything but smooth for the end consumer. Many homeowners report that their systems are underperforming or entirely offline, yet they are still being hounded for payments by lenders like GoodLeap and Mosaic. This article will break down exactly what the sunnova bankruptcy means for your contract and how you can take action to protect your home and your finances." },
@@ -81,8 +81,8 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: 'p', content: "Reports from across the country indicate that Sunnova customers are being 'left in the dark' as the company's servicing platform, ServiceCo, was sold off to third parties like Omnidian. This fragmentation of services often leads to a 'blame game' where the financier, the new asset owner, and the service provider all point fingers at each other while your solar panels sit idle on your roof. This is a common outcome of the sunnova bankruptcy process, where corporate restructuring takes priority over consumer satisfaction." },
     { type: 'h2', content: "Are You Still Obligated to Pay Your Solar Loan or Lease?" },
     { type: 'p', content: "One of the most common questions we hear is: 'If Sunnova is bankrupt, do I still have to pay?' The short answer is that your financial obligation is often separate from the company that installed the panels. Most Sunnova customers signed agreements with third-party lenders such as GoodLeap, Mosaic, Sunlight Financial, or Dividend Finance. These lenders typically claim that their right to collect payment remains intact regardless of Sunnova's operational status." },
-    { type: 'p', content: "However, there are legal avenues to challenge these payments, especially if the system was sold under fraudulent pretenses or if the promised energy savings have failed to materialize. If your system is broken and the warranty is not being honored due to the sunnova bankruptcy, you may have grounds to stop payments or even rescind the contract entirely. Our legal team specializes in identifying these breaches of contract to help you find a way out." },
-    { type: 'callout', content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. Our attorneys work on contingency, meaning you pay nothing unless we win." },
+    { type: 'p', content: "However, there are legal avenues to challenge these payments, especially if the system was sold under fraudulent pretenses or if the promised energy savings have failed to materialize. If your system is broken and the warranty is not being honored due to the sunnova bankruptcy, you may have grounds to stop payments or even rescind the contract entirely. Our team specializes in identifying these breaches of contract to help you find a way out." },
+    { type: 'callout', content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. Our team works on contingency, meaning you pay nothing unless we win." },
     { type: 'h2', content: "The 'Zombie' Solar Company Trend" },
     { type: 'p', content: "Sunnova is not alone in its financial collapse. The residential solar industry has seen a wave of failures that have left consumers stranded. Companies like SunPower, Pink Energy, ADT Solar, Lumio, Titan Solar, and Vision Solar have all faced similar fates, either filing for bankruptcy or exiting the solar market entirely. This trend highlights a systemic issue within the industry where aggressive sales tactics and unsustainable debt loads lead to corporate failure, leaving the homeowner to pick up the pieces." },
     { type: 'p', content: "When these companies fail, they often leave behind 'zombie' contracts--agreements that are technically still in effect but offer no actual benefit to the homeowner. The sunnova bankruptcy is a prime example of how a company can restructure its debt while leaving its customers with malfunctioning equipment and mounting financial stress. These contracts are often bundled and sold to debt collectors or other solar firms, further complicating the homeowner's ability to get service." },
@@ -112,9 +112,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: 'quote', content: "The solar industry's rapid expansion was built on a foundation of debt that is now crumbling, leaving the American homeowner to pay the price for corporate greed.", author: "Solar Consumer Advocate" }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -130,7 +130,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   "heroImage": "https://images.unsplash.com/photo-1508514177221-188b1c7d1a17?w=1200&q=80",
   "heroAlt": "homeowner reviewing solar contract paperwork",
   "ctaText": "Get a Free Solar Contract Review",
-  "ctaSubtext": "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  "ctaSubtext": "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     {
       "type": "p",
@@ -138,7 +138,7 @@ export const blogArticlesBatch7: BlogPost[] = [
     },
     {
       "type": "p",
-      "content": "At Solar Freedom, we understand the stress of feeling stuck. Whether you were lied to about tax credits, promised \"free\" panels, or left with a broken system from a bankrupt company like SunPower or Titan Solar, there is a way out. Our attorneys work on contingency to help you break these predatory contracts and regain your financial freedom."
+      "content": "At Solar Freedom, we understand the stress of feeling stuck. Whether you were lied to about tax credits, promised \"free\" panels, or left with a broken system from a bankrupt company like SunPower or Titan Solar, there is a way out. Our team works on contingency to help you break these predatory contracts and regain your financial freedom."
     },
     {
       "type": "h2",
@@ -326,7 +326,7 @@ export const blogArticlesBatch7: BlogPost[] = [
     },
     {
       "type": "p",
-      "content": "At Solar Freedom, our attorneys work on a contingency basis. This means you pay nothing upfront. We only get paid if we successfully help you resolve your solar contract issues. Our goal is to provide accessible legal help to homeowners who are already financially strained by these predatory contracts."
+      "content": "At Solar Freedom, our team works on a contingency basis. This means you pay nothing upfront. We only get paid if we successfully help you resolve your solar contract issues. Our goal is to provide accessible legal help to homeowners who are already financially strained by these predatory contracts."
     },
     {
       "type": "h2",
@@ -346,9 +346,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -364,7 +364,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     { type: "p", content: "Selling a home is already one of life's most stressful events, but when you add a predatory solar contract into the mix, it can feel like you are trapped in an endless nightmare. If you are searching for answers at 11 PM because your home sale is stalling due to a solar lease or loan, you are not alone. Many homeowners find that the \"green energy investment\" they were promised has become a massive liability that threatens their financial freedom and peace of mind." },
     { type: "p", content: "The harsh reality of selling house with solar lease agreements is that many buyers are hesitant to take on a 20- or 25-year debt they didn't sign up for. Whether you are dealing with a bankrupt provider like SunPower or a lender like GoodLeap, understanding your legal rights is the first step toward escaping a bad contract and successfully closing your sale. You shouldn't have to sacrifice your hard-earned home equity just to appease a solar company that lied to you." },
@@ -375,7 +375,7 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: "h2", content: "Why Selling House with Solar Lease is Difficult" },
     { type: "p", content: "The primary challenge when selling house with solar lease contracts is the \"transfer of liability.\" Unlike a new roof or a kitchen remodel, a leased solar system is not part of the real property; it is personal property owned by a third-party corporation. This fundamental difference creates three major roadblocks that can derail your home sale at the worst possible moment:" },
     { type: "list", items: ["Buyer Qualification: The buyer must meet the strict credit requirements of the solar company (like Sunnova or Sunlight Financial) in addition to their mortgage lender's requirements. If their debt-to-income ratio is too high, the solar lease could disqualify them from the home purchase entirely.", "The UCC-1 Lien: Most solar lenders, including Mosaic Solar and Dividend Finance, file a UCC-1 financing statement. This \"fixture filing\" acts as a lien on the equipment, but it often shows up on a title report, potentially blocking the sale until it is formally addressed and cleared.", "Appraisal Issues: Appraisers often assign $0 value to leased equipment because the homeowner does not actually own it. This can lead to an \"appraisal gap\" where the buyer's loan doesn't cover the perceived value of the home, forcing the seller to drop the price."] },
-    { type: "callout", content: "If you feel trapped by a predatory solar contract that is blocking your home sale, you don't have to fight alone. Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. Our attorneys work on contingency to help you get the justice you deserve." },
+    { type: "callout", content: "If you feel trapped by a predatory solar contract that is blocking your home sale, you don't have to fight alone. Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. Our team works on contingency to help you get the justice you deserve." },
     { type: "h2", content: "Selling House with Solar Lease from Bankrupt Companies" },
     { type: "p", content: "The situation becomes even more complex and stressful if your solar provider has gone out of business. The solar industry has seen a massive wave of bankruptcies recently. Companies like Pink Energy, ADT Solar, Lumio, Titan Solar, and Vision Solar have left thousands of homeowners stranded with broken systems, roof leaks, and iron-clad payment obligations to third-party financiers." },
     { type: "p", content: "If you are selling house with solar lease terms from a bankrupt company, you may find it nearly impossible to get the necessary \"transfer of ownership\" documents in time for closing. Buyers are rightfully terrified of taking over a contract for a system that has no warranty, no customer service, and no maintenance provider. This is where legal intervention becomes absolutely necessary to break the contract based on the company's failure to perform." },
@@ -403,10 +403,10 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: "h2", content: "Get the Help You Need to Break Your Solar Contract" },
     { type: "p", content: "You shouldn't have to pay tens of thousands of dollars to escape a contract that was sold to you through lies, omissions, and high-pressure tactics. At Solar Freedom, we specialize in helping homeowners break free from predatory solar agreements so they can sell their homes and move on with their lives." },
     { type: "p", content: "We understand the stress and anxiety that comes with a stalled home sale. Our team is dedicated to fighting back against deceptive solar companies and lenders who prioritize their profits over your financial well-being. Let us handle the legal battle so you can focus on your family and your future." },
-    { type: "callout", content: "Don't let a solar company steal your home equity. Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. Our attorneys work on contingency--we don't get paid unless you win." },
+    { type: "callout", content: "Don't let a solar company steal your home equity. Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. Our team works on contingency--we don't get paid unless you win." },
   ],
   faq: [
-    { q: "Can I cancel my solar contract to sell my house?", a: "Yes. If the contract was obtained through misrepresentation or contains TILA violations, our attorneys can pursue cancellation. The review is completely free." },
+    { q: "Can I cancel my solar contract to sell my house?", a: "Yes. If the contract was obtained through misrepresentation or contains TILA violations, our team can pursue cancellation. The review is completely free." },
     { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months. We handle everything." },
     { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win." }
   ],
@@ -424,7 +424,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   "heroImage": "https://images.unsplash.com/photo-1504814532849-cff240bbc503?w=1200&q=80",
   "heroAlt": "homeowner reviewing solar contract paperwork",
   "ctaText": "Get a Free Solar Contract Review",
-  "ctaSubtext": "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  "ctaSubtext": "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     { "type": "p", "content": "If you are sitting at your kitchen table at 11 PM, staring at a mounting pile of bills and wondering how your \"green energy investment\" turned into a financial nightmare, you are not alone. Many homeowners across the country are currently facing significant goodleap solar loan problems that threaten their financial stability and peace of mind. What was promised as a path to energy independence has, for many, become a 25-year trap of escalating payments and underperforming equipment. The stress of dealing with these predatory contracts can be overwhelming, especially when you feel like you have nowhere to turn." },
     { "type": "p", "content": "At Solar Freedom, we specialize in helping homeowners navigate these complex legal waters. We understand the stress of being misled by aggressive sales tactics and the frustration of paying for a system that doesn't deliver the promised savings. If you're struggling with your GoodLeap payments or feel you were deceived during the sales process, there are legal pathways to find relief. Our team of consumer protection attorneys has seen every trick in the book, and we know exactly how to fight back against these deceptive practices." },
@@ -446,10 +446,10 @@ export const blogArticlesBatch7: BlogPost[] = [
     { "type": "callout", "content": "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review to see if your contract contains the violations necessary for a legal exit." },
     { "type": "h2", "content": "The Impact of Bankrupt Solar Companies" },
     { "type": "p", "content": "A significant portion of goodleap solar loan problems stems from the lender's association with installers that have since collapsed. When companies like SunPower, Sunnova, Pink Energy, ADT Solar, Lumio, Titan Solar, or Vision Solar face financial trouble or go bankrupt, the homeowner is often left holding the bag. These bankruptcies expose the fundamental flaw in the solar financing model: the homeowner assumes all the risk while the lender and the installer reap the profits." },
-    { "type": "p", "content": "You may still be expected to make monthly payments to GoodLeap even if your system is broken, your roof is leaking, or the company that promised to maintain the panels no longer exists. This is a fundamentally unfair position, and in many cases, it is legally indefensible. Our attorneys look for \"holder rule\" violations and other consumer protection breaches that can sever the link between your obligation to pay and a non-functioning system. The FTC's Holder in Due Course Rule is designed to protect consumers in exactly these types of situations, ensuring that lenders cannot wash their hands of the fraudulent or deceptive practices of the sellers they finance." },
+    { "type": "p", "content": "You may still be expected to make monthly payments to GoodLeap even if your system is broken, your roof is leaking, or the company that promised to maintain the panels no longer exists. This is a fundamentally unfair position, and in many cases, it is legally indefensible. Our team looks for \"holder rule\" violations and other consumer protection breaches that can sever the link between your obligation to pay and a non-functioning system. The FTC's Holder in Due Course Rule is designed to protect consumers in exactly these types of situations, ensuring that lenders cannot wash their hands of the fraudulent or deceptive practices of the sellers they finance." },
     { "type": "h2", "content": "Legal Rights and Consumer Protection" },
     { "type": "p", "content": "Many homeowners don't realize that they have significant protections under federal and state laws. The Truth in Lending Act (TILA) requires lenders like GoodLeap, Mosaic Solar, Sunlight Financial, and Dividend Finance to provide clear and accurate disclosures about the cost of credit. If these disclosures were missing, inaccurate, or buried in fine print, the entire loan agreement may be voidable. TILA violations are a powerful tool in our legal arsenal, allowing us to challenge the validity of the contract and demand cancellation." },
-    { "type": "p", "content": "Furthermore, the FTC's \"Cooling-Off Rule\" provides a three-day right of rescission for many door-to-door sales. If the salesperson failed to properly notify you of this right or made it difficult to exercise, you may have a strong case for cancellation. Our legal team at Solar Freedom has helped over 3,000 homeowners identify these violations and break free from predatory contracts. We know how to hold these companies accountable and force them to the negotiating table." },
+    { "type": "p", "content": "Furthermore, the FTC's \"Cooling-Off Rule\" provides a three-day right of rescission for many door-to-door sales. If the salesperson failed to properly notify you of this right or made it difficult to exercise, you may have a strong case for cancellation. Our team at Solar Freedom has helped over 3,000 homeowners identify these violations and break free from predatory contracts. We know how to hold these companies accountable and force them to the negotiating table." },
     { "type": "warning", "content": "Do not simply stop making payments without legal representation. This can lead to severe credit damage and potential foreclosure on your home." },
     { "type": "h2", "content": "What to Do If You Can't Afford Your Payments" },
     { "type": "p", "content": "If you've reached the point where you can no longer afford your GoodLeap payments, do not wait for the situation to escalate to foreclosure or severe credit damage. Taking proactive legal steps is much more effective than simply stopping payments. Ignoring the problem will only make it worse, as late fees and interest continue to accrue, and the lender may eventually take legal action against you." },
@@ -466,7 +466,7 @@ export const blogArticlesBatch7: BlogPost[] = [
     ]},
     { "type": "h2", "content": "Frequently Asked Questions" },
     { "type": "h3", "content": "Can I actually cancel my GoodLeap solar loan?" },
-    { "type": "p", "content": "Yes, it is possible to cancel a solar loan if there were legal violations during the sales or signing process. Common grounds include misrepresentation of savings, failure to disclose the right of rescission, and TILA violations. Our attorneys have successfully used these arguments to cancel hundreds of contracts and save our clients millions of dollars." },
+    { "type": "p", "content": "Yes, it is possible to cancel a solar loan if there were legal violations during the sales or signing process. Common grounds include misrepresentation of savings, failure to disclose the right of rescission, and TILA violations. Our team has successfully used these arguments to cancel hundreds of contracts and save our clients millions of dollars." },
     { "type": "h3", "content": "What happens if my solar installer went bankrupt?" },
     { "type": "p", "content": "If your installer, such as Titan Solar or Pink Energy, is bankrupt, you may still be able to cancel your loan. Lenders are often held responsible for the conduct of the installers they partner with, especially if the system is not performing as promised. We have extensive experience dealing with the fallout from solar company bankruptcies and know how to protect your rights in these complex situations." },
     { "type": "h3", "content": "Will cancelling my contract hurt my credit score?" },
@@ -478,9 +478,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     { "type": "callout", "content": "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. We will analyze your contract within 24 hours and tell you exactly what your options are. Don't let another night go by feeling trapped -- let us help you break free." }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -496,7 +496,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1546156929-a4c0ac411f47?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     { type: 'p', content: "Are you staring at a set of solar panels that don't work, while a monthly bill from Mosaic or Solar Servicing LLC drains your bank account? You aren't alone. Thousands of homeowners are currently trapped in mosaic solar loan problems following the company's 2025 Chapter 11 bankruptcy filing. If you feel like you've been scammed by a solar installer and left holding the bag by a lender that doesn't care, there is a way out." },
     { type: 'callout', content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review" },
@@ -546,9 +546,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: 'callout', content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review today." }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -564,7 +564,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     {
       type: 'p',
@@ -576,11 +576,11 @@ export const blogArticlesBatch7: BlogPost[] = [
     },
     {
       type: 'p',
-      content: "At Solar Freedom, we understand the desperation you might be feeling. We've seen the high-pressure tactics used by sales representatives who promise the world and deliver a nightmare. We know the frustration of calling a customer service line only to find that the company has filed for bankruptcy or simply stopped answering the phone. Our mission is to provide a lifeline to homeowners who have been misled, using the power of the law to level the playing field. We believe that no one should be forced to pay for a product that doesn't work or a contract that was signed under false pretenses. That's why our attorneys work on contingency--we don't get paid unless we help you break your solar contract."
+      content: "At Solar Freedom, we understand the desperation you might be feeling. We've seen the high-pressure tactics used by sales representatives who promise the world and deliver a nightmare. We know the frustration of calling a customer service line only to find that the company has filed for bankruptcy or simply stopped answering the phone. Our mission is to provide a lifeline to homeowners who have been misled, using the power of the law to level the playing field. We believe that no one should be forced to pay for a product that doesn't work or a contract that was signed under false pretenses. That's why our team works on contingency--we don't get paid unless we help you break your solar contract."
     },
     {
       type: 'p',
-      content: "The most powerful tool in your arsenal is the legal right to cancel solar contract rescission. Most homeowners believe they only have three days to change their minds. While the '3-day rule' is a critical starting point, federal and state laws often provide 'extended rescission rights' that can last for years if the solar company failed to follow the law. At Solar Freedom, our attorneys work on contingency to help you break these contracts for free."
+      content: "The most powerful tool in your arsenal is the legal right to cancel solar contract rescission. Most homeowners believe they only have three days to change their minds. While the '3-day rule' is a critical starting point, federal and state laws often provide 'extended rescission rights' that can last for years if the solar company failed to follow the law. At Solar Freedom, our team works on contingency to help you break these contracts for free."
     },
     {
       type: 'h2',
@@ -635,7 +635,7 @@ export const blogArticlesBatch7: BlogPost[] = [
     },
     {
       type: 'p',
-      content: "These violations are more common than you might think. Solar companies often prioritize speed and sales volume over legal compliance, leading to widespread errors in their documentation. Our legal team meticulously reviews every page of your contract and every communication you had with the company to find these 'technical' violations. Often, a single missing signature or an incorrectly calculated APR is all it takes to build a winning case for cancel solar contract rescission."
+      content: "These violations are more common than you might think. Solar companies often prioritize speed and sales volume over legal compliance, leading to widespread errors in their documentation. Our team meticulously reviews every page of your contract and every communication you had with the company to find these 'technical' violations. Often, a single missing signature or an incorrectly calculated APR is all it takes to build a winning case for cancel solar contract rescission."
     },
     {
       type: 'h2',
@@ -679,7 +679,7 @@ export const blogArticlesBatch7: BlogPost[] = [
     },
     {
       type: 'p',
-      content: "Our attorneys specialize in cancel solar contract rescission cases. We look for the technicalities and 'gotchas' that the solar companies missed, allowing us to legally void the contract and remove the debt."
+      content: "Our team specializes in cancel solar contract rescission cases. We look for the technicalities and 'gotchas' that the solar companies missed, allowing us to legally void the contract and remove the debt."
     },
     {
       type: 'h2',
@@ -727,9 +727,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -745,7 +745,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     {
       type: "p",
@@ -964,9 +964,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -982,11 +982,11 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     { type: "p", content: "Imagine you've finally found the perfect buyer for your home. The inspection is done, the boxes are packed, and you're just days away from closing. Then, you get a frantic call from your title agent: 'We found a solar lien on house records. We can't close until this is cleared.'" },
     { type: "p", content: "For thousands of homeowners, this is the moment the 'solar dream' turns into a legal nightmare. That solar panel system you were told would 'add value' to your home is now the very thing holding your sale hostage. This isn't a traditional mortgage lien; it's a UCC-1 financing statement, and if you don't handle it correctly, it can kill your deal, destroy your credit, and leave you trapped in a predatory contract." },
-    { type: "callout", content: "At Solar Freedom, we help homeowners escape these traps. Our attorneys work on contingency, meaning you don't pay unless we win. If you're facing a solar lien, call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review." },
+    { type: "callout", content: "At Solar Freedom, we help homeowners escape these traps. Our team works on contingency, meaning you don't pay unless we win. If you're facing a solar lien, call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review." },
     { type: "h2", content: "What is a Solar UCC Lien?" },
     { type: "p", content: "A UCC-1 financing statement (often called a 'solar lien') is a legal notice filed under the Uniform Commercial Code. It's not technically a lien on your entire house, but rather a 'fixture filing' on the solar equipment itself. However, because the panels are bolted to your roof, title companies treat it as a cloud on the title." },
     { type: "p", content: "Lenders like GoodLeap, Mosaic Solar, Sunlight Financial, and Dividend Finance use these filings to protect their collateral. If you stop paying, the UCC filing gives them the legal right to repossess the panels--or, more commonly, to prevent you from selling the property until they get paid." },
@@ -1032,9 +1032,9 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: "p", content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review. Let us fight the solar companies so you don't have to." }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },
@@ -1050,7 +1050,7 @@ export const blogArticlesBatch7: BlogPost[] = [
   heroImage: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80",
   heroAlt: "homeowner reviewing solar contract paperwork",
   ctaText: "Get a Free Solar Contract Review",
-  ctaSubtext: "Our attorneys review your agreement at no cost. Find out your options in 48 hours.",
+  ctaSubtext: "We review your agreement at no cost. Find out your options in 48 hours.",
   content: [
     { type: 'p', content: "The recent lumio solar bankruptcy has left thousands of homeowners in a state of financial and operational uncertainty. As one of the largest residential solar installers in the United States, Lumio's filing for Chapter 11 bankruptcy protection on September 3, 2024, sent shockwaves through the industry. For many customers, the promise of clean energy and lower utility bills has been replaced by the reality of non-functioning systems, voided warranties, and persistent loan payments to lenders like GoodLeap and Mosaic Solar." },
     { type: 'p', content: "If you are currently trapped in a contract with Lumio, you are not alone. The solar industry has seen a wave of similar collapses, including SunPower, Titan Solar, and ADT Solar. Understanding your legal rights is the first step toward escaping a predatory contract and protecting your home's value. This guide will walk you through the complexities of the lumio solar bankruptcy and provide actionable steps for homeowners seeking relief." },
@@ -1090,16 +1090,16 @@ export const blogArticlesBatch7: BlogPost[] = [
     { type: 'h3', content: "Can I sell my house with a Lumio solar lien?" },
     { type: 'p', content: "Selling a home with a solar lien from a bankrupt company is extremely difficult. Most buyers and lenders will require the lien to be paid off or the contract to be cleared before closing. This is why resolving your contract issues now is essential for protecting your home's equity." },
     { type: 'h3', content: "How can Solar Freedom help me?" },
-    { type: 'p', content: "Solar Freedom works with experienced attorneys who specialize in solar contract litigation. We review your specific situation to identify legal leverage points that can be used to cancel or modify your predatory contract. Our attorneys work on a contingency basis, meaning you pay nothing unless we win. We have helped homeowners across the country deal with the fallout from SunPower, Titan Solar, and Lumio." },
+    { type: 'p', content: "Solar Freedom works with experienced attorneys who specialize in solar contract litigation. We review your specific situation to identify legal leverage points that can be used to cancel or modify your predatory contract. Our team works on a contingency basis, meaning you pay nothing unless we win. We have helped homeowners across the country deal with the fallout from SunPower, Titan Solar, and Lumio." },
     { type: 'h2', content: "Taking Action Against Predatory Solar Contracts" },
     { type: 'p', content: "The lumio solar bankruptcy is a stressful event, but it does not have to be a financial life sentence. By understanding the intersection of bankruptcy law and consumer protection, you can take steps to regain control of your finances. Many homeowners feel trapped, but the law provides protections for consumers who have been misled or abandoned by their service providers." },
     { type: 'callout', content: "Call (904) 921-4971 or visit breakyoursolarcontract.com for a free case review" },
     { type: 'p', content: "Don't wait for your credit to suffer or for your roof to leak. The longer you wait, the harder it may be to assert your rights, especially as bankruptcy proceedings finalize. Our team is dedicated to helping homeowners escape the trap of predatory solar contracts and ensuring that the 'solar dream' doesn't become a financial nightmare." }
   ],
     faq: [
-      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our attorneys review your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
+      { q: "Can I get out of my solar contract?", a: "Yes, in many cases. Our team reviews your specific agreement to identify legal grounds including misrepresentation, TILA violations, and state consumer protection laws. The review is completely free." },
       { q: "How long does the process take?", a: "Most cases are resolved within 3-12 months depending on the company and contract type. We handle everything -- you just need to take the first step and get a free review." },
-      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our attorneys only get paid when you do." }
+      { q: "Does it cost anything?", a: "No. Solar Freedom works on contingency -- you pay nothing unless we win. Our team only gets paid when you do." }
     ],
     relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-company-went-bankrupt", "solar-panel-scam-signs-what-to-do"]
 },

@@ -807,7 +807,7 @@ export const stateLaws: StateLaw[] = [
     state: 'Virginia',
     stateAbbr: 'VA',
     metaTitle: 'Virginia Solar Contract Rights: Consumer Protection Act & Your Legal Options (2026)',
-    metaDescription: `Virginia's Consumer Protection Act and Dominion Energy net metering changes give you tools to cancel a predatory solar contract. Free attorney review.`,
+    metaDescription: `Virginia's Consumer Protection Act and Dominion Energy net metering changes give you tools to cancel a predatory solar contract. Free case review.`,
     heroHook: 'Dominion Energy Changed Its Net Metering Rules. If Your Solar Rep Used the Old Numbers, Virginia Law May Give You a Way Out.',
     heroSubhook: 'Virginia\'s Consumer Protection Act covers omissions as well as misrepresentations. Not telling you about Dominion\'s export credit changes is a violation.',
     primaryStatute: 'Va. Code § 59.1-200',
