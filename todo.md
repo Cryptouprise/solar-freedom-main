@@ -450,3 +450,21 @@
 - [x] Fix topicClusters.ts: "solar attorney free review"
 - [x] Verify TypeScript compiles cleanly after all changes
 - [x] Verify dev server runs correctly
+
+## Phase 43 — FAQ Schema on All Blog Posts (SEO Recovery Sprint)
+
+- [x] Audit BlogPost.tsx FAQ schema implementation — already reads from article data
+- [x] Injected FAQs into 79 blog posts with empty faq arrays (batch6: 49, batch8: 30)
+- [x] Added FAQPage schema to SunrunPage.tsx (5 Q&As via useEffect JSON-LD injection)
+- [x] Added FAQPage schema to CompanyPage.tsx (4 dynamic Q&As per company via SchemaInjector)
+- [x] Fixed trust proxy warning in server/_core/index.ts (always enabled now)
+- [x] TypeScript compiles clean (0 errors)
+
+## Phase 44 — Strengthen 25 Indexed City Pages
+
+- [x] Identified 7 of 25 indexed cities missing depth data (no topComplaints, localStats, etc.)
+- [x] Generated unique local depth content for 7 cities via LLM (state AG info, utility companies, local complaint stats, local attorneys)
+- [x] Created client/src/data/city-content-depth-batch-f.ts with all 7 cities
+- [x] Registered batch-f in city-content-depth-all.ts aggregator
+- [x] All 25 indexed city pages now have full depth data
+- [x] TypeScript compiles clean (0 errors)

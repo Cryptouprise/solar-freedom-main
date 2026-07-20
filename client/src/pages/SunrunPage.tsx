@@ -201,6 +201,62 @@ export default function SunrunPage() {
     canonical: "https://breakyoursolarcontract.com/sunrun",
   });
 
+  // Inject FAQ schema for rich results
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I cancel my Sunrun solar contract?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — several legal avenues may apply. Common grounds include TILA violations (undisclosed escalator clauses or dealer fees), FTC Cooling-Off Rule violations (door-to-door sales without proper 3-day rescission notice), state Deceptive Trade Practices Act claims, and performance breach if your system produces significantly less than the contractual guarantee. A case review can identify which grounds apply to your specific contract."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the Sunrun escalator clause and how does it affect my payments?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sunrun's escalator clause increases your monthly payment by 2.9% annually for the life of the contract (typically 20–25 years). On a $150/month starting payment, this means you'll be paying over $290/month by year 25. Many homeowners report this clause was never verbally disclosed during the sales process, which may constitute a material misrepresentation under state consumer protection law."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I sell my house if I have a Sunrun solar lease?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sunrun's lease requires either transferring the contract to the buyer (who must qualify and agree to the terms) or buying out the remaining lease value. Many home sales fall through because buyers refuse to assume the Sunrun lease. Buyout quotes often run $15,000\u2013$40,000. If Sunrun's transfer requirements are preventing your home sale, this may constitute an unlawful restriction on your property rights under state law."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does it take to cancel a Sunrun solar contract?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most Sunrun cancellations resolve in 30\u201390 days depending on the grounds for cancellation and Sunrun's responsiveness. Cases involving clear TILA violations or FTC Cooling-Off Rule violations typically resolve faster. Cases requiring litigation or arbitration may take 6\u201312 months. The process begins with a free case review to identify the strongest grounds for your specific situation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What records should I gather before requesting a Sunrun case review?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Gather: (1) your original Sunrun contract and all addenda, (2) the original sales proposal showing projected savings, (3) 12 months of utility bills before and after installation, (4) 12 months of Sunrun production monitoring data, (5) any written communications with Sunrun sales reps or customer service, and (6) your financing agreement if you used Sunrun's lending partner."
+          }
+        }
+      ]
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'sunrun-faq-schema';
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { document.getElementById('sunrun-faq-schema')?.remove(); };
+  }, []);
+
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.08 0.01 265)", color: "#F8FAFC" }}>
 

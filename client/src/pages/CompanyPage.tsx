@@ -215,6 +215,44 @@ export default function CompanyPage() {
         { '@type': 'ListItem', position: 2, name: `Cancel ${company.name} Contract`, item: `https://breakyoursolarcontract.com/cancel-${slug}-solar-contract` },
       ],
     },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: `Can I cancel my ${company.name} solar contract?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `Yes — potential grounds include: ${company.cancellationGrounds.slice(0, 3).join('; ')}. A free case review can identify which grounds apply to your specific ${company.name} contract.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: `What are the most common complaints about ${company.name}?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: company.topComplaints.slice(0, 4).join(' | '),
+          },
+        },
+        {
+          '@type': 'Question',
+          name: `How long does it take to cancel a ${company.name} solar contract?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `Most ${company.name} contract cancellations resolve in 30–90 days depending on the specific grounds and the company's responsiveness. Cases involving clear statutory violations typically resolve faster. The process begins with a free case review to identify the strongest grounds for your situation.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: `What records should I gather before requesting a ${company.name} case review?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `Gather: (1) your original ${company.name} contract and all addenda, (2) the original sales proposal showing projected savings, (3) 12 months of utility bills before and after installation, (4) production monitoring data, and (5) any written communications with ${company.name} sales reps or customer service.`,
+          },
+        },
+      ],
+    },
   ];
 
   return (
