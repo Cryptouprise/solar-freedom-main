@@ -25,6 +25,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.resolve(ROOT, "client", "public");
 const BASE_URL = "https://breakyoursolarcontract.com";
+const SEO_POLICY = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/seo-policy.json"), "utf-8")
+);
+const retained = {
+  blog: new Set(SEO_POLICY.retainedBlogSlugs),
+  companies: new Set(SEO_POLICY.retainedCompanySlugs),
+  cities: new Set(SEO_POLICY.retainedCitySlugs),
+  states: new Set(SEO_POLICY.retainedStateSlugs),
+};
 
 function decodeStringLiteralValue(value) {
   return value
@@ -115,7 +124,12 @@ function loadInventory() {
     states.push({ slug: stM[1], state: stM[2] });
   }
 
-  return { blog, companies, cities, states };
+  return {
+    blog: blog.filter(item => retained.blog.has(item.slug)),
+    companies: companies.filter(item => retained.companies.has(item.slug)),
+    cities: cities.filter(item => retained.cities.has(item.slug)),
+    states: states.filter(item => retained.states.has(item.slug)),
+  };
 }
 
 // ─── Curated, evergreen sections ─────────────────────────────────────────────
@@ -148,31 +162,12 @@ Solar Freedom publishes information intended to help homeowners organize and eva
 - [Blog — Solar Contract Guides](${BASE_URL}/blog)
 `;
 
-const FAQ_AND_PERMISSIONS = `## Frequently Asked Questions
+const FAQ_AND_PERMISSIONS = `## Important limitations
 
-**Q: Can I cancel my solar contract?**
-A: It depends on the agreement and facts. Review the signed contract and applicable primary legal sources before deciding what options may be available.
-
-**Q: How long does a solar contract dispute take?**
-A: There is no universal timeline. The process depends on the agreement, parties, facts, and any professional engagement.
-
-**Q: What does a review cost?**
-A: This file does not make a pricing or fee claim. Confirm any cost and scope in writing before proceeding.
-
-**Q: What is a solar PPA?**
-A: A Power Purchase Agreement (PPA) is a contract where a solar company installs panels on your roof and you agree to purchase the electricity they generate at a fixed rate, typically for 20–25 years. PPAs can be canceled under certain legal conditions.
-
-**Q: What is the 3-day right of rescission for solar contracts?**
-A: Under the Federal Truth in Lending Act (TILA) and many state laws, homeowners have a 3-business-day right to cancel any contract signed in their home. If this right was not properly disclosed, the rescission period may be extended up to 3 years.
-
-**Q: Which solar companies have the most complaints?**
-A: Based on BBB complaints, FTC reports, and state attorney general actions, the companies with the highest complaint volumes are: Sunrun, SunPower (bankrupt 2024), Pink Energy (bankrupt 2022), Vivint Solar, Freedom Forever, and ADT Solar (formerly Sunpro).
-
-**Q: What happened to Pink Energy?**
-A: Pink Energy (formerly Power Home Solar) filed for bankruptcy in October 2022 after widespread complaints about non-performing systems, deceptive sales practices, and failure to honor warranties. Homeowners with Pink Energy contracts may have legal claims against the company's principals and installation partners.
-
-**Q: What happened to SunPower?**
-A: SunPower Corporation filed for Chapter 11 bankruptcy in August 2024. Homeowners with SunPower leases, PPAs, or loans have specific legal options depending on their contract type and state.
+- This inventory includes only pages provisionally retained during penalty recovery.
+- Inclusion is not an endorsement of every statement on a page.
+- Verify legal and factual claims against current primary sources.
+- Rights, deadlines, and options depend on the agreement, facts, jurisdiction, and current law.
 
 ## Contact
 

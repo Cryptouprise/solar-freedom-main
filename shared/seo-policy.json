@@ -1,0 +1,60 @@
+{
+  "recoveryMode": true,
+  "indexableStaticPaths": [
+    "/",
+    "/about",
+    "/blog",
+    "/contact",
+    "/corrections",
+    "/disclaimer",
+    "/editorial-policy",
+    "/how-it-works",
+    "/privacy",
+    "/selling-house-with-solar",
+    "/sitemap",
+    "/solar-contract-help",
+    "/solar-exit-options",
+    "/solar-lien-removal",
+    "/solar-loan-help",
+    "/terms"
+  ],
+  "retainedCitySlugs": [
+    "hartford-ct",
+    "phoenix-az",
+    "cincinnati-oh",
+    "north-las-vegas-nv",
+    "houston-tx",
+    "greenville-sc",
+    "denver-co",
+    "san-antonio-tx",
+    "little-rock-ar",
+    "las-vegas-nv",
+    "youngstown-oh",
+    "west-valley-city-ut",
+    "shreveport-la",
+    "santa-ana-ca",
+    "new-haven-ct",
+    "los-angeles-ca",
+    "dallas-tx",
+    "san-diego-ca",
+    "austin-tx",
+    "murfreesboro-tn"
+  ],
+  "retainedStateSlugs": [
+    "florida",
+    "massachusetts",
+    "nevada",
+    "ohio"
+  ],
+  "retainedCompanySlugs": [],
+  "retainedBlogSlugs": [
+    "adt-solar-complaints",
+    "cancel-solar-contract-boston-ma",
+    "cancel-vivint-solar-contract",
+    "goodleap-solar-loan-hidden-dealer-fees-2026",
+    "how-to-file-a-complaint-against-solar-company-attorney-general",
+    "selling-home-with-solar-ppa-panels-transfer-or-cancel",
+    "sunlight-financial-solar-loan-complaints",
+    "sunrun-solar-contract-cancellation-2026"
+  ]
+}

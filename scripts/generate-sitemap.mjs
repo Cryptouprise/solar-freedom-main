@@ -17,16 +17,14 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const BASE_URL = "https://breakyoursolarcontract.com";
-
-// ─── Indexed city whitelist (must match client/src/data/indexed-cities.ts) ────
-const INDEXED_CITY_SLUGS = new Set([
-  "hartford-ct", "phoenix-az", "cincinnati-oh", "north-las-vegas-nv",
-  "houston-tx", "greenville-sc", "denver-co", "san-antonio-tx",
-  "little-rock-ar", "las-vegas-nv", "youngstown-oh", "west-valley-city-ut",
-  "shreveport-la", "santa-ana-ca", "new-haven-ct", "los-angeles-ca",
-  "dallas-tx", "san-diego-ca", "austin-tx", "murfreesboro-tn",
-  "miami-fl", "nashville-tn", "san-francisco-ca", "san-jose-ca", "savannah-ga",
-]);
+const SEO_POLICY = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/seo-policy.json"), "utf-8")
+);
+const INDEXABLE_STATIC_PATHS = new Set(SEO_POLICY.indexableStaticPaths);
+const INDEXED_CITY_SLUGS = new Set(SEO_POLICY.retainedCitySlugs);
+const INDEXED_COMPANY_SLUGS = new Set(SEO_POLICY.retainedCompanySlugs);
+const INDEXED_STATE_SLUGS = new Set(SEO_POLICY.retainedStateSlugs);
+const INDEXED_BLOG_SLUGS = new Set(SEO_POLICY.retainedBlogSlugs);
 
 function decodeStringLiteralValue(value) {
   return value
@@ -132,8 +130,16 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     { path: "/sunrun", priority: "0.9", changefreq: "monthly" },
     { path: "/media", priority: "0.9", changefreq: "weekly" },
     { path: "/sitemap", priority: "0.8", changefreq: "weekly" },
+    { path: "/about", priority: "0.5", changefreq: "yearly" },
+    { path: "/contact", priority: "0.5", changefreq: "yearly" },
+    { path: "/editorial-policy", priority: "0.5", changefreq: "yearly" },
+    { path: "/corrections", priority: "0.4", changefreq: "yearly" },
+    { path: "/privacy", priority: "0.3", changefreq: "yearly" },
+    { path: "/terms", priority: "0.3", changefreq: "yearly" },
+    { path: "/disclaimer", priority: "0.4", changefreq: "yearly" },
   ];
   for (const p of staticPages) {
+    if (!INDEXABLE_STATIC_PATHS.has(p.path)) continue;
     entries.push({
       url: `${BASE_URL}${p.path}`,
       priority: p.priority,
@@ -143,6 +149,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
 
   // Company pages (highest priority after homepage)
   for (const company of companyEntries) {
+    if (!INDEXED_COMPANY_SLUGS.has(company.slug)) continue;
     entries.push({
       url: `${BASE_URL}/cancel-${company.slug}-solar-contract`,
       priority: "0.9",
@@ -164,6 +171,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
 
   // State law pages
   for (const state of stateEntries) {
+    if (!INDEXED_STATE_SLUGS.has(state.slug)) continue;
     entries.push({
       url: `${BASE_URL}/solar-contract-laws/${state.slug}`,
       priority: "0.7",
@@ -173,6 +181,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
 
   // Blog articles
   for (const slug of blogSlugs) {
+    if (!INDEXED_BLOG_SLUGS.has(slug)) continue;
     entries.push({
       url: `${BASE_URL}/blog/${slug}`,
       priority: "0.7",
@@ -215,12 +224,15 @@ const outPath = path.resolve(ROOT, "client/public/sitemap.xml");
 fs.writeFileSync(outPath, xml, "utf-8");
 
 const indexedCityCount = cityEntries.filter(c => INDEXED_CITY_SLUGS.has(c.slug)).length;
+const indexedCompanyCount = companyEntries.filter(company => INDEXED_COMPANY_SLUGS.has(company.slug)).length;
+const indexedStateCount = stateEntries.filter(state => INDEXED_STATE_SLUGS.has(state.slug)).length;
+const indexedBlogCount = blogSlugs.filter(slug => INDEXED_BLOG_SLUGS.has(slug)).length;
 console.log(`\u2705 Generated sitemap.xml with ${entries.length} URLs`);
 console.log(
-  `   Homepage + static: ${entries.length - companyEntries.length - indexedCityCount - stateEntries.length - blogSlugs.length} pages`
+  `   Homepage + static: ${entries.length - indexedCompanyCount - indexedCityCount - indexedStateCount - indexedBlogCount} pages`
 );
-console.log(`   Company pages: ${companyEntries.length}`);
+console.log(`   Company pages: ${indexedCompanyCount}`);
 console.log(`   City pages: ${indexedCityCount} (of ${cityEntries.length} total, ${cityEntries.length - indexedCityCount} noindexed)`);
-console.log(`   State law pages: ${stateEntries.length}`);
-console.log(`   Blog articles: ${blogSlugs.length}`);
+console.log(`   State law pages: ${indexedStateCount}`);
+console.log(`   Blog articles: ${indexedBlogCount}`);
 console.log(`   Output: ${outPath}`);

@@ -3,6 +3,7 @@
 // Also updates og:title, og:description, og:url, og:type, canonical URL, and robots directive.
 
 import { useEffect } from "react";
+import { isPathIndexable } from "@shared/seoPolicy";
 
 interface SeoMeta {
   title: string;
@@ -44,7 +45,8 @@ export function useSeoMeta({ title, description, canonical, ogImage, ogType, noi
 
     // Robots directive — noindex for thin/duplicate pages
     let robotsEl = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
-    if (noindex) {
+    const shouldNoindex = noindex || !isPathIndexable(window.location.pathname);
+    if (shouldNoindex) {
       if (!robotsEl) {
         robotsEl = document.createElement("meta");
         robotsEl.name = "robots";

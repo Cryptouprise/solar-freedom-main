@@ -35,6 +35,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DIST = path.resolve(ROOT, "dist", "public");
 const BASE_URL = "https://breakyoursolarcontract.com";
+const SEO_POLICY = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/seo-policy.json"), "utf-8")
+);
+const INDEXABLE_STATIC_PATHS = new Set(SEO_POLICY.indexableStaticPaths);
+const INDEXED_CITY_SLUGS = new Set(SEO_POLICY.retainedCitySlugs);
+const INDEXED_COMPANY_SLUGS = new Set(SEO_POLICY.retainedCompanySlugs);
+const INDEXED_STATE_SLUGS = new Set(SEO_POLICY.retainedStateSlugs);
+const INDEXED_BLOG_SLUGS = new Set(SEO_POLICY.retainedBlogSlugs);
 
 // ─── Load city/company/state data ────────────────────────────────────────────
 async function loadData() {
@@ -503,16 +511,6 @@ function loadBlogData() {
   return blogEntries;
 }
 
-// ─── Indexed city whitelist (must match client/src/data/indexed-cities.ts) ────
-const INDEXED_CITY_SLUGS = new Set([
-  "hartford-ct", "phoenix-az", "cincinnati-oh", "north-las-vegas-nv",
-  "houston-tx", "greenville-sc", "denver-co", "san-antonio-tx",
-  "little-rock-ar", "las-vegas-nv", "youngstown-oh", "west-valley-city-ut",
-  "shreveport-la", "santa-ana-ca", "new-haven-ct", "los-angeles-ca",
-  "dallas-tx", "san-diego-ca", "austin-tx", "murfreesboro-tn",
-  "miami-fl", "nashville-tn", "san-francisco-ca", "san-jose-ca", "savannah-ga",
-]);
-
 // ─── City-specific meta overrides for high-opportunity pages ─────────────────
 // ─── Build meta map ───────────────────────────────────────────────────────────
 function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
@@ -559,6 +557,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
       description: `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`,
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_COMPANY_SLUGS.has(company.slug),
       // Rich fields for unique prerender content
       companyData: {
         status: company.status,
@@ -584,6 +583,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title,
       description,
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_STATE_SLUGS.has(state.slug),
       geo: { region: state.state },
       stateData: {
         state: state.state,
@@ -606,6 +606,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: data.title,
       description: suppressUnverifiedFirstPartyClaims(data.description),
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_BLOG_SLUGS.has(slug),
       faq: data.faq?.map(item => ({ ...item, a: suppressUnverifiedFirstPartyClaims(item.a) })),
       datePublished: data.datePublished,
       dateModified: data.dateModified,
@@ -682,12 +683,20 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: "Site Map — All Pages | Break Your Solar Contract",
       desc: "Complete directory of all pages on breakyoursolarcontract.com — 300 city pages, 13 company pages, 51 state law pages, and 95+ blog articles about solar contract cancellation.",
     },
+    { path: "/about", title: "About Solar Freedom", desc: "Learn what Solar Freedom publishes, how its consumer information is limited, and how to contact the website." },
+    { path: "/contact", title: "Contact Solar Freedom", desc: "Contact Solar Freedom about website questions, corrections, privacy requests, or a solar-contract document review." },
+    { path: "/editorial-policy", title: "Editorial Policy | Solar Freedom", desc: "Read the standards for originality, sourcing, review, updates, and responsible publication on Solar Freedom." },
+    { path: "/corrections", title: "Corrections Policy | Solar Freedom", desc: "Learn how to report inaccurate or outdated Solar Freedom content and how material corrections are reviewed." },
+    { path: "/privacy", title: "Privacy Notice | Solar Freedom", desc: "Read a summary of Solar Freedom website data practices and how to submit a privacy question or request." },
+    { path: "/terms", title: "Website Terms | Solar Freedom", desc: "Read the terms that apply to informational use of the Solar Freedom website and its external resources." },
+    { path: "/disclaimer", title: "Legal Information Disclaimer | Solar Freedom", desc: "Solar Freedom provides general information, not legal advice, professional representation, or guaranteed outcomes." },
   ];
   for (const p of staticPages) {
     map[p.path] = {
       title: p.title,
       description: p.desc,
       canonical: `${BASE_URL}${p.path}`,
+      noindex: !INDEXABLE_STATIC_PATHS.has(p.path),
     };
   }
 
@@ -892,41 +901,6 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
       ],
     },
   ];
-
-  if (pageType === "blog_post") {
-    const article = {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: pageName,
-      description: meta.description,
-      mainEntityOfPage: meta.canonical,
-      publisher: {
-        "@type": "Organization",
-        name: "Solar Freedom",
-        url: BASE_URL,
-      },
-    };
-    if (meta.datePublished) article.datePublished = meta.datePublished;
-    if (meta.dateModified) article.dateModified = meta.dateModified;
-    blocks.push(article);
-  }
-
-  // FAQPage — strong answer-engine (AEO) signal. Only emitted when the page
-  // ships real question/answer pairs from the blog data.
-  if (Array.isArray(meta.faq) && meta.faq.length > 0) {
-    blocks.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: meta.faq.slice(0, 10).map((item) => ({
-        "@type": "Question",
-        name: item.q,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.a,
-        },
-      })),
-    });
-  }
 
   return JSON.stringify(blocks).replace(/</g, "\\u003c");
 }

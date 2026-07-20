@@ -27,6 +27,7 @@ import { stateLaws } from "../client/src/data/state-laws";
 import { blogPosts } from "../client/src/data/blog";
 import { INDEXED_CITY_SLUGS } from "../client/src/data/indexed-cities";
 import { sanitizeStoredHtml } from "./security/html";  // server/security/html.ts
+import { isPathIndexable } from "@shared/seoPolicy";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -123,6 +124,34 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       description:
         "Browse the Solar Freedom website directory, including service, company, city, state-law, and blog pages.",
     },
+    "/about": {
+      title: "About Solar Freedom",
+      description: "Learn what Solar Freedom publishes, how its consumer information is limited, and how to contact the website.",
+    },
+    "/contact": {
+      title: "Contact Solar Freedom",
+      description: "Contact Solar Freedom about website questions, corrections, privacy requests, or a solar-contract document review.",
+    },
+    "/editorial-policy": {
+      title: "Editorial Policy | Solar Freedom",
+      description: "Read the standards for originality, sourcing, review, updates, and responsible publication on Solar Freedom.",
+    },
+    "/corrections": {
+      title: "Corrections Policy | Solar Freedom",
+      description: "Learn how to report inaccurate or outdated Solar Freedom content and how material corrections are reviewed.",
+    },
+    "/privacy": {
+      title: "Privacy Notice | Solar Freedom",
+      description: "Read a summary of Solar Freedom website data practices and how to submit a privacy question or request.",
+    },
+    "/terms": {
+      title: "Website Terms | Solar Freedom",
+      description: "Read the terms that apply to informational use of the Solar Freedom website and its external resources.",
+    },
+    "/disclaimer": {
+      title: "Legal Information Disclaimer | Solar Freedom",
+      description: "Solar Freedom provides general information, not legal advice, professional representation, or guaranteed outcomes.",
+    },
   };
 
   for (const [path, meta] of Object.entries(staticPages)) {
@@ -170,6 +199,10 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       description: suppressUnverifiedFirstPartyClaims(post.metaDescription),
       canonical: BASE_URL + path,
     };
+  }
+
+  for (const [path, meta] of Object.entries(map)) {
+    meta.noindex = !isPathIndexable(path);
   }
 
   _metaMap = map;
@@ -254,12 +287,6 @@ type DynamicBlogPost = {
   faqItems?: unknown;
 };
 
-function safeIsoDate(value: unknown): string | undefined {
-  if (!value) return undefined;
-  const date = new Date(value as string | number | Date);
-  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
-}
-
 function renderDbPostContent(rawContent: string): string {
   const content = rawContent.trim();
   if (!content) return "<p>This article is being prepared for publication.</p>";
@@ -319,29 +346,6 @@ export function renderDbBlogPost(
       ? post.canonicalUrl
       : `${BASE_URL}${pagePath}`;
   const faq = normalizeFaqItems(post.faqItems);
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description,
-    mainEntityOfPage: canonical,
-    datePublished: safeIsoDate(post.publishedAt),
-    dateModified: safeIsoDate(post.updatedAt ?? post.publishedAt),
-    publisher: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
-  };
-  const schemas: object[] = [articleSchema];
-  if (faq.length) {
-    schemas.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faq.map(item => ({
-        "@type": "Question",
-        name: item.q,
-        acceptedAnswer: { "@type": "Answer", text: item.a },
-      })),
-    });
-  }
-
   const body = renderDbPostContent(post.content);
   const faqHtml = faq.length
     ? `<section aria-labelledby="dynamic-faq"><h2 id="dynamic-faq">Frequently asked questions</h2>${faq
@@ -360,9 +364,8 @@ export function renderDbBlogPost(
   $('meta[property="og:description"]').attr("content", description);
   $('meta[name="twitter:title"]').attr("content", title);
   $('meta[name="twitter:description"]').attr("content", description);
-  $("head").append(
-    `<script type="application/ld+json">${JSON.stringify(schemas).replace(/</g, "\\u003c")}</script>`
-  );
+  $('meta[name="robots"]').remove();
+  $("head").append('<meta name="robots" content="noindex, follow">');
   $("#root").replaceWith(semanticArticle);
   return $.html();
 }

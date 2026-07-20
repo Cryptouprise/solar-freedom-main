@@ -2,7 +2,7 @@ import type { Express } from "express";
 import fs from "fs";
 import path from "path";
 import * as cheerio from "cheerio";
-import { getDbBlogPostStatus, getDbBlogPosts } from "./db";
+import { getDbBlogPostStatus } from "./db";
 import { renderDbBlogPost } from "./seo-meta";
 import { rateLimit } from "express-rate-limit";
 
@@ -190,36 +190,24 @@ export function registerDynamicSeoInventory(app: Express, publicDir: string) {
       return;
     }
     const base = fs.readFileSync(sitemapPath, "utf8");
-    try {
-      const posts = await getDbBlogPosts(5000, 0);
-      response
-        .type("application/xml")
-        .set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=600")
-        .send(mergeDynamicPostsIntoSitemap(base, posts));
-    } catch (error) {
-      console.warn("[SEO] Dynamic sitemap fell back to static inventory:", error);
-      response.type("application/xml").send(base);
-    }
+    response
+      .type("application/xml")
+      .set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=600")
+      .send(base);
   });
 
   for (const filename of ["llms.txt", "llms-full.txt"]) {
-    app.get(`/${filename}`, inventoryRateLimit, async (_request, response) => {
+    app.get(`/${filename}`, inventoryRateLimit, (_request, response) => {
       const inventoryPath = path.resolve(publicDir, filename);
       if (!fs.existsSync(inventoryPath)) {
         response.status(404).type("text").send("Inventory not found");
         return;
       }
       const base = fs.readFileSync(inventoryPath, "utf8");
-      try {
-        const posts = await getDbBlogPosts(5000, 0);
-        response
-          .type("text/plain")
-          .set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=600")
-          .send(appendDynamicPostsToLlms(base, posts));
-      } catch (error) {
-        console.warn(`[SEO] Dynamic ${filename} fell back to static inventory:`, error);
-        response.type("text/plain").send(base);
-      }
+      response
+        .type("text/plain")
+        .set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=600")
+        .send(base);
     });
   }
 }

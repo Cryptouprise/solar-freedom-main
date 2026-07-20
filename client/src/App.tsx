@@ -10,6 +10,7 @@ import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
 import CallbackWidget from "./components/CallbackWidget";
 import DesktopCallButton from "./components/DesktopCallButton";
+import TrustLinks from "./components/TrustLinks";
 import { trackPageView } from "./lib/analytics";
 
 const CityPage = lazy(() => import("./pages/CityPage"));
@@ -41,6 +42,7 @@ const MediaHub = lazy(() => import("@/pages/MediaHub"));
 const SitemapPage = lazy(() => import("@/pages/SitemapPage"));
 const SolarCompanyHub = lazy(() => import("@/pages/SolarCompanyHub"));
 const SunrunPage = lazy(() => import("@/pages/SunrunPage"));
+const TrustPage = lazy(() => import("@/pages/TrustPage"));
 
 // Normalize trailing slashes: redirect /foo/ to /foo so wouter routes always match.
 function TrailingSlashRedirect() {
@@ -127,6 +129,13 @@ function Router() {
           <Route path={"/media"} component={MediaHub} />
           <Route path={"/watch"} component={MediaHub} />
           <Route path={"/sitemap"} component={SitemapPage} />
+          <Route path={"/about"} component={TrustPage} />
+          <Route path={"/contact"} component={TrustPage} />
+          <Route path={"/editorial-policy"} component={TrustPage} />
+          <Route path={"/corrections"} component={TrustPage} />
+          <Route path={"/privacy"} component={TrustPage} />
+          <Route path={"/terms"} component={TrustPage} />
+          <Route path={"/disclaimer"} component={TrustPage} />
           <Route path={"/login"} component={Login} />
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />
@@ -143,6 +152,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <TrustLinks />
           <ExitIntentPopup />
           <StickyMobileBar />
           <DesktopCallButton />

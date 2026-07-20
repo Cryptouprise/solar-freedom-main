@@ -14,15 +14,15 @@
 
 ### SEO — Every Deploy
 - [ ] Any new page has `useSeoMeta({ title, description, canonical })` set
-- [ ] Any new page has a `<SchemaInjector schemas={[...]} />` with appropriate schema type
-- [ ] Any new page is added to `client/public/sitemap.xml` with correct `<loc>`, `<lastmod>`, `<changefreq>`, `<priority>`
-- [ ] Any new page is added to `client/public/image-sitemap.xml` if it has a hero image
+- [ ] New pages remain `noindex` until the editorial gate in `docs/SEO-PENALTY-RECOVERY.md` is complete
+- [ ] Approved pages are added to `shared/seo-policy.json`; generated inventories are never edited by hand
+- [ ] Structured data contains only visible, verified facts supported by the content model
 - [ ] Canonical URL format is always `https://breakyoursolarcontract.com/path` (no www, no trailing slash variation)
 
 ### After Publishing
 - [ ] Verify live site with: `curl -sL https://breakyoursolarcontract.com/ | grep -i "msvalidate\|canonical\|description"`
-- [ ] Resubmit sitemap in Google Search Console: https://search.google.com/search-console/sitemaps?resource_id=sc-domain:breakyoursolarcontract.com
-- [ ] Resubmit sitemap in Bing Webmaster Tools: https://www.bing.com/webmasters/sitemaps?siteUrl=https://www.breakyoursolarcontract.com/
+- [ ] Confirm the generated sitemap contains only policy-retained URLs
+- [ ] Do not submit URLs or sitemaps automatically while recovery mode is enabled
 
 ---
 
@@ -44,18 +44,9 @@
 
 | File | Location | URLs | Purpose |
 |---|---|---|---|
-| `sitemap.xml` | `/client/public/sitemap.xml` | 487 | All pages |
-| `image-sitemap.xml` | `/client/public/image-sitemap.xml` | 68 | Blog hero images + homepage CDN images |
+| `sitemap.xml` | `/client/public/sitemap.xml` | Generated | Policy-retained pages only |
 
-Both sitemaps are referenced in `robots.txt` and submitted to Google and Bing.
-
-**Sitemap URL breakdown:**
-- Homepage + core service pages: ~10
-- City pages (`/cancel-solar-contract/{slug}`): 301
-- Company pages (`/solar-companies/{slug}`): 15
-- State law pages (`/solar-contract-laws/{slug}`): 53
-- Blog posts (`/blog/{slug}`): ~118
-- Solar Fraud Report + other standalone pages: ~5
+The sitemap is generated from `shared/seo-policy.json`. No image or news sitemap is advertised during recovery.
 
 ---
 
@@ -63,13 +54,10 @@ Both sitemaps are referenced in `robots.txt` and submitted to Google and Bing.
 
 | Page Type | Schema Types Applied |
 |---|---|
-| Homepage | `Organization`, `FAQPage`, `HowTo` |
-| City pages | `LegalService`, `FAQPage`, `BreadcrumbList` |
-| Company pages | `LegalService`, `FAQPage`, `BreadcrumbList` |
-| Blog posts | `Article`, `BreadcrumbList` |
-| State law pages | Self-canonical only (no schema — add `LegalService` next) |
-| Solar Fraud Report | `Report`, `BreadcrumbList` |
-| Service pages (SolarContractHelp, etc.) | Self-canonical only |
+| Homepage | Conservative `Organization` identity only |
+| Prerendered public pages | `WebPage`, `BreadcrumbList` |
+| Blog posts | `BreadcrumbList` only until authorship and review evidence are modeled |
+| Noindexed pages | No rich-result eligibility claims |
 
 ---
 
@@ -93,12 +81,9 @@ Both sitemaps are referenced in `robots.txt` and submitted to Google and Bing.
 
 ---
 
-## Known Issues / Future Work
+## Recovery constraint
 
-- **State law pages** lack structured schema (`LegalService` or `Article`). Adding schema to all 53 would improve rich result eligibility.
-- **Bing verification** was completed via GSC import. If Bing ever shows "unauthorized," go to Bing Webmaster Tools → Configuration → Ownership Verification → HTML Meta Tag and click Verify (meta tag is already in `client/index.html`).
-- **Company-targeted blog posts** (30–50 more) are the highest-ROI content expansion. Each post should target `[Company Name] solar contract cancel` and link to the corresponding company page.
-- **Image sitemap** only covers blog hero images. If new CDN images are added to city or company pages, update `client/public/image-sitemap.xml`.
+Do not expand city, state, company, or blog templates while recovery mode is enabled. See `docs/SEO-PENALTY-RECOVERY.md` for evidence, editorial, link-remediation, and reconsideration requirements.
 
 ---
 
@@ -112,4 +97,4 @@ If a publish breaks the site:
 
 ---
 
-*Last updated: 2026-03-28 by Manus*
+*Last updated: 2026-07-20*

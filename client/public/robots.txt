@@ -1,69 +1,8 @@
-# Solar Freedom — robots.txt
-# https://breakyoursolarcontract.com
-
-# Standard search engines
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: DuckDuckBot
-Allow: /
-
-# AI Crawlers — explicitly allowed for AEO (Answer Engine Optimization)
-# ChatGPT / OpenAI
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-# Perplexity AI
-User-agent: PerplexityBot
-Allow: /
-
-# Anthropic / Claude
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-# Google AI (Gemini)
-User-agent: Google-Extended
-Allow: /
-
-# Meta AI
-User-agent: meta-externalagent
-Allow: /
-
-# Apple
-User-agent: Applebot
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
-# Cohere
-User-agent: cohere-ai
-Allow: /
-
-# You.com
-User-agent: YouBot
-Allow: /
-
-# All other bots — allow everything except the private SEO command center
+# Public content is crawlable unless disallowed below. A single group ensures
+# named crawlers do not bypass private-route rules.
 User-agent: *
+Disallow: /admin/
+Disallow: /login
 Disallow: /seo-command-center
-Allow: /
 
-# Sitemaps
 Sitemap: https://breakyoursolarcontract.com/sitemap.xml
-Sitemap: https://breakyoursolarcontract.com/image-sitemap.xml
-
-# AI-readable content index
-# https://breakyoursolarcontract.com/llms.txt

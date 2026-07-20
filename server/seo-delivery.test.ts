@@ -6,6 +6,7 @@ import path from "path";
 import { createServer, type Server } from "http";
 import * as cheerio from "cheerio";
 import { blogPosts as clientBlogPosts } from "../client/src/data/blog";
+import { isPathIndexable } from "../shared/seoPolicy";
 
 const { getDbBlogPostStatus, getDbBlogPosts } = vi.hoisted(() => ({
   getDbBlogPostStatus: vi.fn(),
@@ -107,17 +108,16 @@ describe("truthful SEO page delivery", () => {
     expect(html).not.toContain("home</div>");
   });
 
-  it("renders a published DB article into source HTML with body and schema", async () => {
+  it("renders a published DB article as noindex without unreviewed rich-result schema", async () => {
     const response = await fetch(`${baseUrl}/blog/database-article`);
     expect(response.status).toBe(200);
     const html = await response.text();
     expect(html).toContain("<h1>Database Article</h1>");
     expect(html).toContain("Actual database heading");
     expect(html).toContain("Actual database body");
-    expect(html).toContain('"@type":"Article"');
-    expect(html).toContain('"@type":"FAQPage"');
-    expect(html).not.toContain('"author":');
-    expect(html).toContain('"publisher":{"@type":"Organization","name":"Solar Freedom","url":"https://breakyoursolarcontract.com"}');
+    expect(html).toContain('<meta name="robots" content="noindex, follow">');
+    expect(html).not.toContain('"@type":"Article"');
+    expect(html).not.toContain('"@type":"FAQPage"');
     expect(html).not.toContain("Solar Freedom Legal Team");
     expect(html).not.toContain("Unverified testimonial");
     expect(html).not.toContain("<script>bad()</script>");
@@ -237,7 +237,7 @@ describe("pre-render source parity", () => {
     expect(cityText).not.toContain("Most cases resolve in 30 to 90 days");
   });
 
-  it("keeps every client blog route in the static pre-render inventory", async () => {
+  it("keeps every client blog route prerendered but only retained routes discoverable", async () => {
     // @ts-expect-error The build-time module intentionally remains plain ESM.
     const prerender = await import("../scripts/prerender.mjs");
     const parsedSlugs = Object.keys(prerender.loadBlogData()).sort();
@@ -256,8 +256,13 @@ describe("pre-render source parity", () => {
     );
     for (const slug of clientSlugs) {
       const url = `https://breakyoursolarcontract.com/blog/${slug}`;
-      expect(sitemap, `${url} is missing from sitemap.xml`).toContain(url);
-      expect(llmsFull, `${url} is missing from llms-full.txt`).toContain(url);
+      if (isPathIndexable(`/blog/${slug}`)) {
+        expect(sitemap, `${url} is missing from sitemap.xml`).toContain(url);
+        expect(llmsFull, `${url} is missing from llms-full.txt`).toContain(url);
+      } else {
+        expect(sitemap, `${url} should be excluded from sitemap.xml`).not.toContain(url);
+        expect(llmsFull, `${url} should be excluded from llms-full.txt`).not.toContain(url);
+      }
     }
   });
 

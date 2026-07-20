@@ -5,6 +5,7 @@ import { stateLaws } from "@/data/state-laws";
 import { blogPosts } from "@/data/blog";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { trackPhoneClick } from "@/lib/analytics";
+import { isPathIndexable } from "@shared/seoPolicy";
 
 // Group cities by state
 function groupByState(cityList: typeof cities) {
@@ -32,7 +33,11 @@ const STATIC_PAGES = [
 
 export default function SitemapPage() {
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
-  const byState = groupByState(cities);
+  const retainedCities = cities.filter(city => isPathIndexable(`/cancel-solar-contract/${city.slug}`));
+  const retainedCompanies = companies.filter(company => isPathIndexable(`/cancel-${company.slug}-solar-contract`));
+  const retainedStateLaws = stateLaws.filter(state => isPathIndexable(`/solar-contract-laws/${state.slug}`));
+  const retainedBlogPosts = blogPosts.filter(post => isPathIndexable(`/blog/${post.slug}`));
+  const byState = groupByState(retainedCities);
   const sortedStates = Object.keys(byState).sort();
 
   return (
@@ -49,7 +54,7 @@ export default function SitemapPage() {
             <a href="https://breakyoursolarcontract.com" className="text-amber-400 hover:underline">
               breakyoursolarcontract.com
             </a>{" "}
-            — {cities.length} city pages, {companies.length} company pages, {stateLaws.length} state law pages, {blogPosts.length}+ blog articles.
+            — a recovery-reviewed directory of currently retained resources.
           </p>
         </div>
       </div>
@@ -81,7 +86,7 @@ export default function SitemapPage() {
             Dedicated legal resources for homeowners with contracts from these companies.
           </p>
           <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            {companies.map((c) => (
+            {retainedCompanies.map((c) => (
               <li key={c.slug}>
                 <Link
                   href={`/cancel-${c.slug}-solar-contract`}
@@ -103,7 +108,7 @@ export default function SitemapPage() {
             State-specific rescission rights, consumer protection statutes, and lien laws.
           </p>
           <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-            {stateLaws.map((s) => (
+            {retainedStateLaws.map((s) => (
               <li key={s.slug}>
                 <Link
                   href={`/solar-contract-laws/${s.slug}`}
@@ -122,7 +127,7 @@ export default function SitemapPage() {
             CITY PAGES — CANCEL SOLAR CONTRACT NEAR YOU
           </h2>
           <p className="text-gray-500 text-sm mb-8">
-            Local solar contract cancellation resources for homeowners in {cities.length} cities across all 50 states.
+            Retained local resources with demonstrated search demand. Other city templates remain excluded while under editorial review.
           </p>
           <div className="space-y-8">
             {sortedStates.map((state) => (
@@ -156,7 +161,7 @@ export default function SitemapPage() {
             In-depth guides, legal explainers, and company-specific resources for homeowners fighting bad solar contracts.
           </p>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {blogPosts.slice(0, 100).map((a) => (
+            {retainedBlogPosts.map((a) => (
               <li key={a.slug}>
                 <Link
                   href={`/blog/${a.slug}`}

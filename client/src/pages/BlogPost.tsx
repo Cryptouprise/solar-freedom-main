@@ -351,17 +351,6 @@ export default function BlogPost() {
     const dbSchemas: object[] = [
       {
         '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: dbPost.title,
-        description: suppressUnverifiedFirstPartyClaims(dbPost.metaDescription ?? dbPost.excerpt),
-        datePublished: (dbPostRaw as Record<string,unknown>)?.publishedAt ? String((dbPostRaw as Record<string,unknown>).publishedAt) : '2026-01-01',
-        dateModified: (dbPostRaw as Record<string,unknown>)?.updatedAt ? String((dbPostRaw as Record<string,unknown>).updatedAt) : '2026-01-01',
-        publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
-        mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${slug}` },
-        image: dbPost.heroImage ?? '',
-      },
-      {
-        '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
@@ -370,18 +359,6 @@ export default function BlogPost() {
         ],
       },
     ];
-
-    if (faq.length > 0) {
-      dbSchemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: faq.map(item => ({
-          '@type': 'Question',
-          name: item.q,
-          acceptedAnswer: { '@type': 'Answer', text: suppressUnverifiedFirstPartyClaims(item.a) },
-        })),
-      });
-    }
 
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
@@ -590,19 +567,9 @@ export default function BlogPost() {
 
   // ─── Static post render path (existing logic) ────────────────────────────────
 
-  // Build Article + BreadcrumbList + FAQPage schemas for schema stacking
+  // Publish navigation schema only until editorial identity and review evidence
+  // exist in the content model.
   const schemas: object[] = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: post.title,
-      description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
-      datePublished: post.publishDate ?? '2026-01-01',
-      dateModified: post.publishDate ?? '2026-01-01',
-      publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
-      mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${params.slug}` },
-      image: post.heroImage ?? '',
-    },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
@@ -613,50 +580,6 @@ export default function BlogPost() {
       ],
     },
   ];
-
-  // Add FAQPage schema if post has FAQ items
-  if (post.faq && post.faq.length > 0) {
-    schemas.push({
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: post.faq.map(item => ({
-        '@type': 'Question',
-        name: item.q,
-        acceptedAnswer: { '@type': 'Answer', text: suppressUnverifiedFirstPartyClaims(item.a) },
-      })),
-    });
-
-    // Add Speakable schema for AEO — point to FAQ Q&A for voice/AI answer engines
-    schemas.push({
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      speakable: {
-        '@type': 'SpeakableSpecification',
-        cssSelector: ['article h2', 'article h3', '.faq-section'],
-        xpath: [
-          "/html/head/title",
-          "/html/head/meta[@name='description']/@content",
-        ],
-      },
-      url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
-    });
-  }
-
-  // Add VideoObject schema placeholder — future YouTube embeds will populate this
-  schemas.push({
-    '@context': 'https://schema.org',
-    '@type': 'VideoObject',
-    name: `${post.title} — Solar Freedom Video`,
-    description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
-    thumbnailUrl: post.heroImage ?? 'https://breakyoursolarcontract.com/favicon.ico',
-    uploadDate: post.publishDate ?? '2026-01-01',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Solar Freedom',
-      logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' },
-    },
-    url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
-  });
 
   // Insert exactly ONE inline CTA at the midpoint of the article
   const sectionsWithCTAs: ReactElement[] = [];

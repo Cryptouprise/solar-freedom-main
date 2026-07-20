@@ -1,9 +1,7 @@
 name: SEO Agent Heartbeat
 
 on:
-  schedule:
-    # Daily at 9:15 AM UTC. Adjust later if Manus/GSC timing needs a different window.
-    - cron: "15 9 * * *"
+  # Recovery mode: read-only measurement must be started deliberately.
   workflow_dispatch:
 
 permissions:
@@ -80,20 +78,6 @@ jobs:
 
       - name: Run SEO agent
         run: pnpm seo:agent -- --base https://breakyoursolarcontract.com
-
-      - name: Build indexing queue
-        run: pnpm seo:indexing
-
-      - name: Build CTR rescue queue
-        run: pnpm seo:ctr
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-
-      - name: Build internal-link opportunities
-        run: pnpm seo:internal-links
-
-      - name: Verify backlinks
-        run: pnpm seo:backlinks
 
       - name: Build alert summary
         run: pnpm seo:alert-summary
