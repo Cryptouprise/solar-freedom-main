@@ -435,6 +435,7 @@ function loadBlogData() {
     "blog-articles-batch8.ts",
     "blog-articles-batch9.ts",
     "blog-articles-batch10.ts",
+    "blog-articles-batch11.ts",
     // ADD NEW BATCH FILES HERE when created
   ];
 
@@ -520,9 +521,9 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
 
   // Homepage
   map["/"] = {
-    title: "Solar Freedom — Get Out of Your Solar Contract Today",
+    title: "Cancel Your Solar Contract | Solar Freedom",
     description:
-      "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.",
+      "Trapped in a solar contract? Solar Freedom helps homeowners review their options, understand their rights, and connect with consumer protection attorneys. Free case review.",
     canonical: `${BASE_URL}/`,
   };
 

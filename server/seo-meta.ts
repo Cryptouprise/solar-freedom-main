@@ -47,19 +47,19 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   // ─── Static pages ────────────────────────────────────────────────────────────
   const staticPages: Record<string, { title: string; description: string }> = {
     "/": {
-      title: "Solar Freedom — Get Out of Your Solar Contract Today",
+      title: "Cancel Your Solar Contract | Solar Freedom",
       description:
-        "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.",
+        "Trapped in a solar contract? Solar Freedom helps homeowners review their options, understand their rights, and connect with consumer protection attorneys. Free case review.",
     },
     "/blog": {
-      title: "Solar Contract Help Blog | Solar Freedom",
+      title: "Solar Contract Cancellation Blog | Guides & Legal Tips | Solar Freedom",
       description:
-        "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner.",
+        "In-depth guides on canceling solar contracts with Sunrun, GoodLeap, SunPower, Tesla Solar & more. Learn your rights, cancellation grounds, and next steps.",
     },
     "/how-it-works": {
-      title: "How Solar Contract Cancellation Works | Solar Freedom",
+      title: "How to Cancel a Solar Contract | Step-by-Step Process | Solar Freedom",
       description:
-        "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
+        "Learn how Solar Freedom reviews solar contracts, identifies legal grounds for cancellation, and connects homeowners with consumer protection attorneys. Free case review.",
     },
     "/solar-contract-help": {
       title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",
@@ -103,10 +103,9 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
     },
     "/solar-companies": {
-      title:
-        "Solar Company Complaints & Cancellation Guide 2026 | Solar Freedom",
+      title: "Solar Company Cancellation Guides 2026 | Sunrun, GoodLeap, SunPower & More",
       description:
-        "Complete guide to canceling contracts with Sunrun, SunPower, Vivint Solar, Freedom Forever, GoodLeap, Sunnova, Tesla Solar & more. BBB ratings, complaint data, and legal grounds.",
+        "How to cancel contracts with Sunrun, SunPower, Vivint Solar, Freedom Forever, GoodLeap, Sunnova, Tesla Solar & more. BBB ratings, complaint data, and legal grounds explained.",
     },
     "/media": {
       title: "Solar Contract Truth Hub — Watch & Listen | Solar Freedom",

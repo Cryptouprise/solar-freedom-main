@@ -499,11 +499,21 @@
 - [x] Week 3 Article 2: Pink Energy bankruptcy — what customers can do (~1,915 words)
 - [x] Week 4 Article 1: Solar contract cancellation letter template (~2,245 words)
 - [x] Week 4 Article 2: Solar panel removal — who pays when you cancel (~2,009 words)
-- [ ] Add all 8 articles to sitemap.xml and prerender.mjs (pending blog studio import)
-- [ ] Submit all 8 URLs to Google Indexing API (pending Indexing API enable)
+- [x] Add all 8 articles to sitemap.xml (271 URLs) and prerender.mjs
+- [x] Submit all 8 URLs to Google Indexing API (8/8 success)
 
 ## Phase 48 — SEO Quick Wins & LinkedIn Templates
 
 - [x] Write 5 LinkedIn post templates (story, list, controversy, data, personal narrative formats) — saved to /home/ubuntu/linkedin-post-templates.md
 - [x] Internal linking audit — injected relatedSlugs into all 46 empty batch6 articles (0 remaining empty)
 - [ ] Add cancelyoursolar.co 5-page landing site linking back to main domain (future task)
+
+## Phase 49 — Schema Improvements & GSC Submissions (July 20, 2026)
+
+- [x] Updated Phase 47 items: all 8 batch11 articles added to sitemap.xml (271 URLs) and prerender.mjs
+- [x] Submitted all 8 batch11 article URLs to Google Indexing API (8/8 success)
+- [x] Added Organization schema (with sameAs Medium) to homepage homeSchemas array
+- [x] Added Service schema (Free Case Review) to homepage homeSchemas array
+- [x] Added WebSite with SearchAction to homepage homeSchemas array
+- [x] Updated meta title/description for homepage, /blog, /how-it-works, /solar-companies in seo-meta.ts
+- [x] TypeScript compiles clean (0 errors)

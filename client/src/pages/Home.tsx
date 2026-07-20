@@ -741,6 +741,54 @@ export default function Home() {
       '@type': 'WebSite',
       name: 'Solar Freedom',
       url: 'https://breakyoursolarcontract.com',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: 'https://breakyoursolarcontract.com/blog?q={search_term_string}',
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Solar Freedom',
+      url: 'https://breakyoursolarcontract.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://breakyoursolarcontract.com/favicon.ico',
+      },
+      description: 'Solar Freedom helps homeowners review their solar contracts, understand their legal rights, and connect with consumer protection attorneys to pursue cancellation, loan reduction, or lien release.',
+      sameAs: [
+        'https://medium.com/@solarfreedom',
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        availableLanguage: 'English',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: 'Solar Contract Case Review',
+      provider: {
+        '@type': 'Organization',
+        name: 'Solar Freedom',
+      },
+      description: 'Free solar contract review connecting homeowners with consumer protection attorneys who specialize in solar contract cancellation, loan disputes, and lien removal.',
+      serviceType: 'Consumer Advocacy',
+      areaServed: {
+        '@type': 'Country',
+        name: 'United States',
+      },
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+        description: 'Free initial case review',
+      },
     },
   ];
 
