@@ -517,3 +517,10 @@
 - [x] Added WebSite with SearchAction to homepage homeSchemas array
 - [x] Updated meta title/description for homepage, /blog, /how-it-works, /solar-companies in seo-meta.ts
 - [x] TypeScript compiles clean (0 errors)
+
+## Phase 50 — City Page CTR Optimization & GSC Submissions (July 20, 2026)
+
+- [x] Added CTR-optimized meta title/description overrides for all 25 indexed cities in seo-meta.ts (utility-specific, state-law-specific copy)
+- [x] Submitted all 25 indexed city pages to Google Indexing API (25/25 success)
+- [x] Submitted 6 key static pages to Google Indexing API (homepage, blog, how-it-works, solar-companies, solar-contract-laws, sunrun)
+- [x] TypeScript compiles clean (0 errors)

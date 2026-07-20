@@ -140,11 +140,116 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   }
 
   // ─── City pages ───────────────────────────────────────────────────────────
+  // CTR-optimized meta descriptions for the 25 indexed cities
+  const cityMetaOverrides: Record<string, { title: string; description: string }> = {
+    'hartford-ct': {
+      title: 'Cancel Solar Contract in Hartford, CT | Solar Freedom',
+      description: 'Trapped in a Hartford solar contract? Review your cancellation rights under Connecticut law. Free case review — no upfront cost.',
+    },
+    'phoenix-az': {
+      title: 'Cancel Solar Contract in Phoenix, AZ | Solar Freedom',
+      description: 'Phoenix homeowners: review your Sunrun, SunPower, or Tesla Solar contract rights. Arizona consumer law may give you an exit. Free case review.',
+    },
+    'cincinnati-oh': {
+      title: 'Cancel Solar Contract in Cincinnati, OH | Solar Freedom',
+      description: 'Ohio\'s Consumer Sales Practices Act protects Cincinnati homeowners from deceptive solar sales. Review your cancellation options — free case review.',
+    },
+    'north-las-vegas-nv': {
+      title: 'Cancel Solar Contract in North Las Vegas, NV | Solar Freedom',
+      description: 'North Las Vegas homeowners: review your solar contract rights under Nevada law. Rocky Mountain Power rate changes may affect your case. Free review.',
+    },
+    'houston-tx': {
+      title: 'Cancel Solar Contract in Houston, TX | Solar Freedom',
+      description: 'Houston has 1,400+ solar complaints. Texas DTPA gives you strong cancellation rights. Review your Sunrun, Freedom Forever, or Sunnova contract — free.',
+    },
+    'greenville-sc': {
+      title: 'Cancel Solar Contract in Greenville, SC | Solar Freedom',
+      description: 'Duke Energy\'s Solar Choice tariff changes affect Greenville solar savings. Review your contract rights under SC Unfair Trade Practices Act — free.',
+    },
+    'denver-co': {
+      title: 'Cancel Solar Contract in Denver, CO | Solar Freedom',
+      description: 'Denver homeowners: Xcel Energy rate changes may have made your solar contract a bad deal. Review your Colorado cancellation rights — free case review.',
+    },
+    'san-antonio-tx': {
+      title: 'Cancel Solar Contract in San Antonio, TX | Solar Freedom',
+      description: 'San Antonio solar homeowners: CPS Energy\'s net metering rules affect your savings. Review your Texas DTPA rights — free case review.',
+    },
+    'little-rock-ar': {
+      title: 'Cancel Solar Contract in Little Rock, AR | Solar Freedom',
+      description: 'Little Rock homeowners: review your solar contract rights under Arkansas consumer law. Entergy rate changes may affect your case. Free review.',
+    },
+    'las-vegas-nv': {
+      title: 'Cancel Solar Contract in Las Vegas, NV | Solar Freedom',
+      description: 'Las Vegas solar homeowners: NV Energy\'s net metering changes may have cut your savings. Review your Nevada cancellation rights — free case review.',
+    },
+    'youngstown-oh': {
+      title: 'Cancel Solar Contract in Youngstown, OH | Solar Freedom',
+      description: 'Youngstown\'s lower solar irradiance means inflated projections are common. Review your Ohio CSPA rights and cancellation options — free.',
+    },
+    'west-valley-city-ut': {
+      title: 'Cancel Solar Contract in West Valley City, UT | Solar Freedom',
+      description: 'Rocky Mountain Power\'s reduced net metering hit Utah homeowners hard. Review your West Valley City solar contract rights — free case review.',
+    },
+    'shreveport-la': {
+      title: 'Cancel Solar Contract in Shreveport, LA | Solar Freedom',
+      description: 'Shreveport homeowners: SWEPCO and Cleco net metering terms affect solar savings. Review your Louisiana consumer rights — free case review.',
+    },
+    'santa-ana-ca': {
+      title: 'Cancel Solar Contract in Santa Ana, CA | Solar Freedom',
+      description: 'Santa Ana solar homeowners: California\'s NEM 3.0 changes may have impacted your savings. Review your cancellation rights — free case review.',
+    },
+    'new-haven-ct': {
+      title: 'Cancel Solar Contract in New Haven, CT | Solar Freedom',
+      description: 'New Haven homeowners: review your solar contract rights under Connecticut consumer law. Eversource rate changes may affect your case. Free review.',
+    },
+    'los-angeles-ca': {
+      title: 'Cancel Solar Contract in Los Angeles, CA | Solar Freedom',
+      description: 'LA homeowners: NEM 3.0 slashed solar export credits by 75%. Review your Sunrun, Tesla, or SunPower contract rights — free case review.',
+    },
+    'dallas-tx': {
+      title: 'Cancel Solar Contract in Dallas, TX | Solar Freedom',
+      description: 'Dallas homeowners: Texas DTPA gives you strong rights against deceptive solar sales. Review your Sunrun or Freedom Forever contract — free.',
+    },
+    'san-diego-ca': {
+      title: 'Cancel Solar Contract in San Diego, CA | Solar Freedom',
+      description: 'San Diego solar homeowners: SDG&E\'s NEM 3.0 changes may have made your contract a bad deal. Review your California rights — free case review.',
+    },
+    'austin-tx': {
+      title: 'Cancel Solar Contract in Austin, TX | Solar Freedom',
+      description: 'Austin Energy\'s solar program changes affect homeowners. Review your Texas DTPA cancellation rights against Sunrun, Tesla, or SunPower — free.',
+    },
+    'murfreesboro-tn': {
+      title: 'Cancel Solar Contract in Murfreesboro, TN | Solar Freedom',
+      description: 'Murfreesboro homeowners: review your solar contract rights under Tennessee consumer law. Middle Tennessee Electric rates affect your case. Free review.',
+    },
+    'miami-fl': {
+      title: 'Cancel Solar Contract in Miami, FL | Solar Freedom',
+      description: 'Miami solar homeowners: FPL net metering changes may affect your savings. Review your Florida solar contract cancellation rights — free case review.',
+    },
+    'nashville-tn': {
+      title: 'Cancel Solar Contract in Nashville, TN | Solar Freedom',
+      description: 'Nashville homeowners: NES rate changes and aggressive solar sales tactics have left many overpaying. Review your Tennessee rights — free case review.',
+    },
+    'san-francisco-ca': {
+      title: 'Cancel Solar Contract in San Francisco, CA | Solar Freedom',
+      description: 'SF homeowners: PG&E\'s NEM 3.0 cut solar export credits dramatically. Review your Sunrun, Tesla, or SunPower contract rights — free.',
+    },
+    'san-jose-ca': {
+      title: 'Cancel Solar Contract in San Jose, CA | Solar Freedom',
+      description: 'San Jose solar homeowners: PG&E\'s NEM 3.0 changes may have made your contract a bad deal. Review your California cancellation rights — free.',
+    },
+    'savannah-ga': {
+      title: 'Cancel Solar Contract in Savannah, GA | Solar Freedom',
+      description: 'Savannah homeowners: Georgia Power rate changes affect solar savings. Review your solar contract rights under Georgia consumer law — free case review.',
+    },
+  };
+
   for (const city of cities) {
     const path = `/cancel-solar-contract/${city.slug}`;
+    const override = cityMetaOverrides[city.slug];
     map[path] = {
-      title: `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
-      description: `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`,
+      title: override?.title ?? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
+      description: override?.description ?? `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`,
       canonical: BASE_URL + path,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
     };
