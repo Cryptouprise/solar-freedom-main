@@ -468,3 +468,42 @@
 - [x] Registered batch-f in city-content-depth-all.ts aggregator
 - [x] All 25 indexed city pages now have full depth data
 - [x] TypeScript compiles clean (0 errors)
+
+## Phase 45 — Press Releases (Battle Plan Execution)
+
+- [x] Write Press Release #1: Brand launch angle for EIN Presswire ($149) — saved to /home/ubuntu/press-release-1-ein-presswire.md
+- [x] Write Press Release #2: Data story angle for Press Ranger ($299) — saved to /home/ubuntu/press-release-2-press-ranger.md
+- [x] Both formatted per wire service requirements (600 words, boilerplate, contact info)
+
+## Phase 46 — Lead Distribution Dashboard (Law Firm Partnerships)
+
+- [x] Add lawFirms and leadDeliveries tables to drizzle/schema.ts
+- [x] Run pnpm db:push to apply new tables
+- [x] Build server/leadDistribution.ts with scoring, routing, and webhook delivery logic
+- [x] Build firm management UI at /admin/lead-distribution (add/edit/delete firms, geographic coverage, pricing, status)
+- [x] Lead quality scoring logic (payment amount, company, issue type, intent → score 1-10)
+- [x] Geographic routing engine (state match + exclusive state priority → firm assignment)
+- [x] Real-time webhook delivery to firm endpoints with HMAC signing
+- [x] Billing dashboard (leads delivered, accepted, rejected, revenue per firm, mark-as-charged)
+- [x] Admin-only access control (role check in UI + adminProcedure on all tRPC routes)
+- [x] Auto-distribution wired into lead submission flow (fire-and-forget after GHL delivery)
+- [x] TypeScript compiles clean (0 errors)
+
+## Phase 47 — Content Calendar (8 Articles, 4 Weeks)
+
+- [x] Week 1 Article 1: Sunnova Solar Contract cancellation after bankruptcy (~1,852 words)
+- [x] Week 1 Article 2: ADT Solar complaints 2026 (~1,844 words)
+- [x] Week 2 Article 1: Tesla Solar Roof cancellation guide 2026 (~2,122 words)
+- [x] Week 2 Article 2: Freedom Forever solar contract problems (~2,328 words)
+- [x] Week 3 Article 1: Solar loan vs solar lease — which is harder to cancel (~2,162 words)
+- [x] Week 3 Article 2: Pink Energy bankruptcy — what customers can do (~1,915 words)
+- [x] Week 4 Article 1: Solar contract cancellation letter template (~2,245 words)
+- [x] Week 4 Article 2: Solar panel removal — who pays when you cancel (~2,009 words)
+- [ ] Add all 8 articles to sitemap.xml and prerender.mjs (pending blog studio import)
+- [ ] Submit all 8 URLs to Google Indexing API (pending Indexing API enable)
+
+## Phase 48 — SEO Quick Wins & LinkedIn Templates
+
+- [x] Write 5 LinkedIn post templates (story, list, controversy, data, personal narrative formats) — saved to /home/ubuntu/linkedin-post-templates.md
+- [x] Internal linking audit — injected relatedSlugs into all 46 empty batch6 articles (0 remaining empty)
+- [ ] Add cancelyoursolar.co 5-page landing site linking back to main domain (future task)

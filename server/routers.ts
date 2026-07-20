@@ -154,6 +154,11 @@ export const appRouter = router({
         // 3. Record delivery without turning bookkeeping failure into lead failure.
         const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
 
+        // 4. Distribute to law firm partners (fire-and-forget — never block the response).
+        import("./leadDistribution")
+          .then(({ distributeLeadToFirms }) => distributeLeadToFirms(leadId))
+          .catch((err) => console.error("[LeadDistribution] Failed to distribute lead:", err));
+
         return {
           success: true,
           persisted: true,
@@ -1076,6 +1081,255 @@ export const appRouter = router({
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
         const { listAutomationRuns } = await import("./db");
         return listAutomationRuns(input.id, input.limit ?? 20);
+      }),
+  }),
+
+  /**
+   * Lead Distribution — law firm management, lead routing, and billing dashboard.
+   * All procedures are admin-only.
+   */
+  leadDistribution: router({
+    // ─── Firm Management ────────────────────────────────────────────────────────
+    listFirms: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) return [];
+      const { lawFirms } = await import("../drizzle/schema");
+      return db.select().from(lawFirms).orderBy(lawFirms.name);
+    }),
+
+    getFirm: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return null;
+        const { lawFirms } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const [firm] = await db.select().from(lawFirms).where(eq(lawFirms.id, input.id));
+        return firm ?? null;
+      }),
+
+    createFirm: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        contactName: z.string().optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        website: z.string().optional(),
+        coveredStates: z.string().optional(),   // JSON array string
+        exclusiveStates: z.string().optional(),
+        pricePerLead: z.string().default("0"),
+        billingCycle: z.enum(["per_lead", "weekly", "monthly"]).default("per_lead"),
+        webhookUrl: z.string().optional(),
+        webhookSecret: z.string().optional(),
+        emailDelivery: z.number().default(1),
+        minLeadScore: z.number().default(0),
+        filterCompanies: z.string().optional(),
+        filterProblemTypes: z.string().optional(),
+        maxLeadsPerDay: z.number().optional(),
+        maxLeadsPerMonth: z.number().optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+        const { lawFirms } = await import("../drizzle/schema");
+        const [result] = await db.insert(lawFirms).values(input).$returningId();
+        return result;
+      }),
+
+    updateFirm: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        contactName: z.string().optional(),
+        email: z.string().optional(),
+        phone: z.string().optional(),
+        website: z.string().optional(),
+        coveredStates: z.string().optional(),
+        exclusiveStates: z.string().optional(),
+        pricePerLead: z.string().optional(),
+        billingCycle: z.enum(["per_lead", "weekly", "monthly"]).optional(),
+        webhookUrl: z.string().optional(),
+        webhookSecret: z.string().optional(),
+        emailDelivery: z.number().optional(),
+        minLeadScore: z.number().optional(),
+        filterCompanies: z.string().optional(),
+        filterProblemTypes: z.string().optional(),
+        maxLeadsPerDay: z.number().optional(),
+        maxLeadsPerMonth: z.number().optional(),
+        status: z.enum(["active", "paused", "inactive"]).optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+        const { lawFirms } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const { id, ...data } = input;
+        await db.update(lawFirms).set(data).where(eq(lawFirms.id, id));
+        return { success: true };
+      }),
+
+    deleteFirm: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+        const { lawFirms } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        await db.delete(lawFirms).where(eq(lawFirms.id, input.id));
+        return { success: true };
+      }),
+
+    // ─── Lead Deliveries ────────────────────────────────────────────────────────
+    listDeliveries: protectedProcedure
+      .input(z.object({
+        firmId: z.number().optional(),
+        leadId: z.number().optional(),
+        status: z.enum(["pending", "delivered", "failed", "retrying"]).optional(),
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+      }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return [];
+        const { leadDeliveries, lawFirms, leads } = await import("../drizzle/schema");
+        const { eq, and, desc } = await import("drizzle-orm");
+        const conditions = [];
+        if (input.firmId) conditions.push(eq(leadDeliveries.firmId, input.firmId));
+        if (input.leadId) conditions.push(eq(leadDeliveries.leadId, input.leadId));
+        if (input.status) conditions.push(eq(leadDeliveries.status, input.status));
+        return db.select({
+          delivery: leadDeliveries,
+          firmName: lawFirms.name,
+          leadFirstName: leads.firstName,
+          leadLastName: leads.lastName,
+          leadPhone: leads.phone,
+        })
+          .from(leadDeliveries)
+          .leftJoin(lawFirms, eq(leadDeliveries.firmId, lawFirms.id))
+          .leftJoin(leads, eq(leadDeliveries.leadId, leads.id))
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(leadDeliveries.createdAt))
+          .limit(input.limit)
+          .offset(input.offset);
+      }),
+
+    updateDeliveryAcceptance: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        accepted: z.enum(["accepted", "rejected", "duplicate"]),
+        rejectionReason: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+        const { leadDeliveries, lawFirms } = await import("../drizzle/schema");
+        const { eq, sql } = await import("drizzle-orm");
+        const [delivery] = await db.select().from(leadDeliveries).where(eq(leadDeliveries.id, input.id));
+        if (!delivery) throw new Error("Delivery not found");
+        await db.update(leadDeliveries).set({
+          accepted: input.accepted,
+          rejectionReason: input.rejectionReason,
+          acceptedAt: input.accepted === "accepted" ? new Date() : undefined,
+        }).where(eq(leadDeliveries.id, input.id));
+        if (input.accepted === "accepted") {
+          await db.update(lawFirms)
+            .set({ totalLeadsAccepted: sql`${lawFirms.totalLeadsAccepted} + 1` })
+            .where(eq(lawFirms.id, delivery.firmId));
+        } else if (input.accepted === "rejected") {
+          await db.update(lawFirms)
+            .set({ totalLeadsRejected: sql`${lawFirms.totalLeadsRejected} + 1` })
+            .where(eq(lawFirms.id, delivery.firmId));
+        }
+        return { success: true };
+      }),
+
+    // ─── Billing ────────────────────────────────────────────────────────────────
+    markCharged: protectedProcedure
+      .input(z.object({
+        deliveryId: z.number(),
+        chargeAmount: z.string(),
+        invoiceRef: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+        const { leadDeliveries, lawFirms } = await import("../drizzle/schema");
+        const { eq, sql } = await import("drizzle-orm");
+        const [delivery] = await db.select().from(leadDeliveries).where(eq(leadDeliveries.id, input.deliveryId));
+        if (!delivery) throw new Error("Delivery not found");
+        await db.update(leadDeliveries).set({
+          charged: 1,
+          chargeAmount: input.chargeAmount,
+          chargedAt: new Date(),
+          invoiceRef: input.invoiceRef,
+        }).where(eq(leadDeliveries.id, input.deliveryId));
+        await db.update(lawFirms)
+          .set({ totalRevenue: sql`${lawFirms.totalRevenue} + ${input.chargeAmount}` })
+          .where(eq(lawFirms.id, delivery.firmId));
+        return { success: true };
+      }),
+
+    // ─── Dashboard Stats ────────────────────────────────────────────────────────
+    getDashboardStats: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) return null;
+      const { lawFirms, leadDeliveries } = await import("../drizzle/schema");
+      const { sql } = await import("drizzle-orm");
+      const [totals] = await db.select({
+        totalFirms: sql<number>`count(distinct ${lawFirms.id})`,
+        activeFirms: sql<number>`sum(case when ${lawFirms.status} = 'active' then 1 else 0 end)`,
+        totalDelivered: sql<number>`sum(${lawFirms.totalLeadsDelivered})`,
+        totalAccepted: sql<number>`sum(${lawFirms.totalLeadsAccepted})`,
+        totalRevenue: sql<number>`sum(${lawFirms.totalRevenue})`,
+      }).from(lawFirms);
+      const [recentDeliveries] = await db.select({
+        count: sql<number>`count(*)`,
+      }).from(leadDeliveries)
+        .where(sql`${leadDeliveries.createdAt} >= date_sub(now(), interval 7 day)`);
+      return {
+        ...totals,
+        deliveriesLast7Days: recentDeliveries?.count ?? 0,
+      };
+    }),
+
+    // ─── Manual Distribution ─────────────────────────────────────────────────────
+    distributeNow: protectedProcedure
+      .input(z.object({ leadId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const { distributeLeadToFirms } = await import("./leadDistribution");
+        await distributeLeadToFirms(input.leadId);
+        return { success: true };
+      }),
+
+    scoreLead: protectedProcedure
+      .input(z.object({ leadId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return null;
+        const { leads } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const [lead] = await db.select().from(leads).where(eq(leads.id, input.leadId));
+        if (!lead) return null;
+        const { scoreLead } = await import("./leadDistribution");
+        return scoreLead({
+          monthlyPayment: lead.monthlyPayment,
+          solarCompany: lead.solarCompany,
+          problemType: lead.problemType,
+          intent: lead.intent,
+        });
       }),
   }),
 

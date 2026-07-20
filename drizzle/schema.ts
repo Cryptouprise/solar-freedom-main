@@ -574,3 +574,112 @@ export const automationRuns = mysqlTable("automationRuns", {
 });
 export type AutomationRun = typeof automationRuns.$inferSelect;
 export type InsertAutomationRun = typeof automationRuns.$inferInsert;
+
+/**
+ * Law Firms table — partner firms that purchase leads from this platform.
+ * Each firm has a geographic coverage, pricing tier, and webhook endpoint
+ * for real-time lead delivery.
+ */
+export const lawFirms = mysqlTable("lawFirms", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Firm identity
+  name: varchar("name", { length: 200 }).notNull(),
+  contactName: varchar("contactName", { length: 200 }),
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 30 }),
+  website: varchar("website", { length: 500 }),
+
+  // Geographic coverage
+  // JSON array of 2-letter state codes, e.g. ["CA","TX","FL"]. Empty = all states.
+  coveredStates: text("coveredStates"),
+  // JSON array of city slugs for city-level exclusivity, e.g. ["dallas-tx","houston-tx"]
+  coveredCities: text("coveredCities"),
+  exclusiveStates: text("exclusiveStates"),  // States where this firm has exclusivity
+
+  // Pricing
+  pricePerLead: decimal("pricePerLead", { precision: 8, scale: 2 }).notNull().default("0"),
+  billingCycle: mysqlEnum("billingCycle", ["per_lead", "weekly", "monthly"]).default("per_lead").notNull(),
+
+  // Lead delivery
+  webhookUrl: varchar("webhookUrl", { length: 1000 }),  // POST endpoint for real-time delivery
+  webhookSecret: varchar("webhookSecret", { length: 255 }), // HMAC signing secret
+  emailDelivery: int("emailDelivery").default(1).notNull(), // 1=also email leads
+
+  // Quality filters — only send leads matching these criteria
+  minLeadScore: int("minLeadScore").default(0),          // 0-10 minimum quality score
+  // JSON array of solar companies to include, empty = all
+  filterCompanies: text("filterCompanies"),
+  // JSON array of problem types to include, empty = all
+  filterProblemTypes: text("filterProblemTypes"),
+
+  // Capacity
+  maxLeadsPerDay: int("maxLeadsPerDay"),   // null = unlimited
+  maxLeadsPerMonth: int("maxLeadsPerMonth"),
+
+  // Status
+  status: mysqlEnum("status", ["active", "paused", "inactive"]).default("active").notNull(),
+  notes: text("notes"),
+
+  // Stats (denormalized for fast dashboard queries)
+  totalLeadsDelivered: int("totalLeadsDelivered").default(0).notNull(),
+  totalLeadsAccepted: int("totalLeadsAccepted").default(0).notNull(),
+  totalLeadsRejected: int("totalLeadsRejected").default(0).notNull(),
+  totalRevenue: decimal("totalRevenue", { precision: 10, scale: 2 }).default("0").notNull(),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LawFirm = typeof lawFirms.$inferSelect;
+export type InsertLawFirm = typeof lawFirms.$inferInsert;
+
+/**
+ * Lead Deliveries — one row per lead-to-firm delivery attempt.
+ * Tracks whether the webhook succeeded, whether the firm accepted the lead,
+ * and billing status.
+ */
+export const leadDeliveries = mysqlTable("leadDeliveries", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Relations
+  leadId: int("leadId").notNull(),         // FK → leads.id
+  firmId: int("firmId").notNull(),          // FK → lawFirms.id
+
+  // Lead quality at time of delivery
+  leadScore: int("leadScore").default(0).notNull(),  // 0-10 computed quality score
+  scoreBreakdown: text("scoreBreakdown"),             // JSON: {payment: 3, company: 2, issue: 3, intent: 2}
+
+  // Delivery
+  deliveryMethod: mysqlEnum("deliveryMethod", ["webhook", "email", "manual"]).default("webhook").notNull(),
+  webhookStatusCode: int("webhookStatusCode"),        // HTTP response code from firm's endpoint
+  webhookResponse: text("webhookResponse"),           // Raw response body
+  deliveredAt: timestamp("deliveredAt"),
+
+  // Acceptance
+  accepted: mysqlEnum("accepted", ["pending", "accepted", "rejected", "duplicate"])
+    .default("pending")
+    .notNull(),
+  rejectionReason: varchar("rejectionReason", { length: 500 }),
+  acceptedAt: timestamp("acceptedAt"),
+
+  // Billing
+  charged: int("charged").default(0).notNull(),       // 1 = billed to firm
+  chargeAmount: decimal("chargeAmount", { precision: 8, scale: 2 }),
+  chargedAt: timestamp("chargedAt"),
+  invoiceRef: varchar("invoiceRef", { length: 200 }),  // External invoice/Stripe ID
+
+  // Status
+  status: mysqlEnum("status", ["pending", "delivered", "failed", "retrying"])
+    .default("pending")
+    .notNull(),
+  retryCount: int("retryCount").default(0).notNull(),
+  lastError: text("lastError"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LeadDelivery = typeof leadDeliveries.$inferSelect;
+export type InsertLeadDelivery = typeof leadDeliveries.$inferInsert;
+
