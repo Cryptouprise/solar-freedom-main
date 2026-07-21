@@ -547,10 +547,19 @@
 - [ ] Build "Solar Contract Cancellation Calculator" interactive tool — viral/linkable asset — future task
 - [ ] Submit to free PR aggregators (PRLog, OpenPR, PRFree) — future task
 
-## Phase 53 — Ranking Push: Calculator, Company Pages, Internal Linking (July 21, 2026)
+## Phase 53 — Ranking Push: Calculator, Company Pages, Content Depth (July 20, 2026)
 
-- [ ] Build Solar Contract Cancellation Calculator interactive tool at /calculator
-- [ ] Add Mosaic Solar Loan, Sunlight Financial, Dividend Finance, Loanpal company pages
-- [ ] Improve internal linking between GoodLeap/Sunrun articles and new company pages
-- [ ] Build Solar Contract Red Flags Quiz at /quiz
-- [ ] Submit all new URLs to GSC Indexing API once API is enabled in project 810047935902
+- [x] Build Solar Contract Cancellation Calculator interactive tool at /calculator (10-step, 0-100 score, legal grounds, savings estimate)
+- [x] Add EverBright Solar and Blue Raven Solar company pages (everbright-solar, blue-raven-solar)
+- [x] Add Mosaic Solar Loan, Sunlight Financial, Dividend Finance, Loanpal company pages (4 new pages)
+- [x] Deepen Sunrun cancellation article (pos 10.7 → targeting page 1) — state-by-state, hidden clauses, expanded FAQ
+- [x] Deepen GoodLeap article (pos 9.0 → targeting page 1) — TILA violations, dealer fee scandal, expanded FAQ
+- [x] Deepen how-to-get-out article (pos 19 → targeting page 1) — 7-step action plan, state comparison table
+- [x] Sitemap updated to 287 URLs
+- [x] 6 new URLs submitted via Yandex IndexNow (202 success)
+- [x] Enabled Web Search Indexing API in Google Cloud project 810047935902 via browser
+- [x] Attempted analytics-reader Owner upgrade in GSC — blocked (service accounts can't be Owners via UI)
+- [ ] Submit all 287 URLs to Google Indexing API using solarcomplaints-indexing key (pending key access)
+- [x] Build batch13 articles (5 articles): Sunnova bankruptcy, Mosaic cancellation, solar lease vs loan, solar company went out of business, statute of limitations
+- [ ] Build /compare Solar Company Comparison page
+- [ ] Add FAQ JSON-LD schema to top 5 impression pages
