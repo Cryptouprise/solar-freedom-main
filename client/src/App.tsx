@@ -41,7 +41,8 @@ const LeadDistribution = lazy(() => import("@/pages/admin/LeadDistribution"));
 const MediaHub = lazy(() => import("@/pages/MediaHub"));
 const SitemapPage = lazy(() => import("@/pages/SitemapPage"));
 const SolarCompanyHub = lazy(() => import("@/pages/SolarCompanyHub"));
-const SunrunPage = lazy(() => import("@/pages/SunrunPage"));
+const SunrunPage = lazy(() => import('@/pages/SunrunPage'));
+const LeadMagnet = lazy(() => import('@/pages/LeadMagnet'));
 
 // Normalize trailing slashes: redirect /foo/ to /foo so wouter routes always match.
 function TrailingSlashRedirect() {
@@ -129,6 +130,7 @@ function Router() {
           <Route path={"/media"} component={MediaHub} />
           <Route path={"/watch"} component={MediaHub} />
           <Route path={"/sitemap"} component={SitemapPage} />
+          <Route path={"/free-cancellation-letter"} component={LeadMagnet} />
           <Route path={"/login"} component={Login} />
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />

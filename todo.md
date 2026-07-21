@@ -524,3 +524,25 @@
 - [x] Submitted all 25 indexed city pages to Google Indexing API (25/25 success)
 - [x] Submitted 6 key static pages to Google Indexing API (homepage, blog, how-it-works, solar-companies, solar-contract-laws, sunrun)
 - [x] TypeScript compiles clean (0 errors)
+
+## Phase 51 — Test Law Firm + GSC Ranking Analysis (July 20, 2026)
+
+- [x] Add placeholder test law firm to lead distribution dashboard via DB seed (status: paused)
+- [x] Pull fresh GSC data: top pages by clicks, impressions, CTR, position
+- [x] Identify pages in positions 4-20 (close to page 1) for quick ranking wins
+- [x] Execute highest-impact on-page SEO improvements for near-ranking pages (city meta overrides, batch12 articles)
+- [x] Submit improved pages to Google Indexing API (31/31 success)
+
+## Phase 52 — Bulk Freemium Authority Push (July 20, 2026)
+
+- [x] Add placeholder test law firm to lead distribution DB (name: "Test Partner Law Firm", status: paused)
+- [x] Build batch12 articles (8 articles) targeting high-volume zero-click queries
+- [x] Add batch12 to sitemap.xml (279 URLs) and prerender.mjs
+- [x] Create /free-cancellation-letter lead magnet page with PDF download gate
+- [x] Build Reddit/Quora/Facebook answer playbook (6 answer sets, 5 platforms) — saved to /home/ubuntu/reddit-quora-answer-playbook.md
+- [x] Upgrade llms.txt/llms-full.txt for AI citation optimization (176 blog, 13 companies, 51 states, 301 cities)
+- [x] Submit 9 new URLs via Yandex IndexNow (202 success)
+- [x] TypeScript: 0 errors
+- [ ] Create Medium article(s) linking back to site (DA 95, free) — future task
+- [ ] Build "Solar Contract Cancellation Calculator" interactive tool — viral/linkable asset — future task
+- [ ] Submit to free PR aggregators (PRLog, OpenPR, PRFree) — future task
