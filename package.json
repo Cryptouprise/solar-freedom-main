@@ -125,6 +125,7 @@
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.4",
     "esbuild": "^0.28.1",
+    "googleapis": "^173.0.0",
     "pnpm": "^10.34.5",
     "postcss": "^8.5.18",
     "prettier": "^3.6.2",

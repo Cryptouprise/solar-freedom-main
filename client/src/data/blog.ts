@@ -220,6 +220,65 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
       },
       {
         type: 'h2',
+        content: 'How to Get Out of a Solar Contract: Step-by-Step Action Plan',
+      },
+      {
+        type: 'p',
+        content: 'Here is the exact sequence of steps that gives you the best chance of a successful solar contract cancellation:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Step 1 — Gather Your Documents: Collect your original contract, all addendums, the sales proposal, any emails or texts from the sales rep, and 12 months of utility bills. These are your evidence.',
+          'Step 2 — Identify Your Contract Type: Loan, lease, or PPA. Each has different exit strategies. Loans can be challenged on TILA grounds. Leases and PPAs can be challenged on misrepresentation and escalator clause disclosure.',
+          'Step 3 — Check Your State Rescission Period: Most states give you 3-5 business days to cancel any home improvement contract. If you are within that window, send a certified letter immediately.',
+          'Step 4 — Document the Misrepresentation: Write down everything the sales rep said that turned out to be false or misleading. Compare the verbal promises to what is actually in the contract.',
+          'Step 5 — Do NOT Contact the Solar Company Yet: Anything you say can be used against you. Get a legal review first.',
+          'Step 6 — Get a Free Legal Review: A consumer protection attorney can identify the strongest grounds for cancellation in your specific case. Many work on contingency.',
+          'Step 7 — File Regulatory Complaints: File with your state Attorney General and the CFPB simultaneously. This creates official records and often prompts the company to negotiate.',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Getting Out of a Solar Contract by State: Where You Have the Strongest Rights',
+      },
+      {
+        type: 'p',
+        content: 'State law dramatically affects your ability to cancel a solar contract. Here are the states where homeowners have the strongest legal protections in 2026:',
+      },
+      {
+        type: 'list',
+        items: [
+          'California: The California Consumers Legal Remedies Act (CLRA) and NEM 3.0 misrepresentation claims give California homeowners some of the strongest cancellation rights in the country. If you signed after April 2023 and were promised bill elimination, you likely have a fraud claim.',
+          'Florida: FDUTPA (Florida Deceptive and Unfair Trade Practices Act) covers solar contracts broadly. Florida courts have been favorable to homeowners challenging escalator clauses and misrepresented savings.',
+          'Texas: The Texas DTPA (Deceptive Trade Practices Act) allows homeowners to recover up to 3x damages for deceptive solar sales tactics. Texas has no state income tax, making the federal tax credit pitch especially prone to misrepresentation.',
+          'New Jersey: The New Jersey Consumer Fraud Act is one of the strongest in the country. NJ homeowners can recover attorney fees and treble damages for solar fraud.',
+          'Arizona: ARS § 44-1522 covers deceptive practices in solar sales. Arizona has seen significant AG enforcement action against solar companies.',
+          'Nevada: Net metering policy changes by Rocky Mountain Power and NV Energy have invalidated many savings projections. Misrepresentation of net metering credits is a strong claim.',
+          'Connecticut: Strong home improvement contractor laws require specific disclosures. Failure to provide the required Notice of Cancellation form is itself a violation.',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Solar Contract Exit Options Compared: Which One Is Right for You?',
+      },
+      {
+        type: 'p',
+        content: 'There is not one single way to get out of a solar contract. The right approach depends on your contract type, how long ago you signed, your state, and the specific problems you are experiencing:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Rescission (Cooling-Off): Free, immediate, and clean — but only available within 3-5 business days of signing. If you are in this window, this is always the first choice.',
+          'Legal Cancellation Based on Misrepresentation: No buyout required if successful. Takes 3-12 months. Strongest when you have documented evidence of false promises.',
+          'TILA Rescission (Loans Only): Available up to 3 years from signing if the lender failed to disclose material terms. Requires a consumer protection attorney.',
+          'Negotiated Buyout: You pay to exit. Typically $5,000-$50,000 depending on company and contract. This is the company preferred option — not yours.',
+          'Lease Transfer to Home Buyer: If selling your home, the buyer assumes the lease. Requires buyer qualification and company approval. Not a cancellation, but removes your obligation.',
+          'System Purchase/Buyout: For leases and PPAs, you can buy the system outright. Quotes are often inflated — negotiate or challenge them.',
+        ],
+      },
+      {
+        type: 'h2',
         content: 'Get a Free Solar Contract Review',
       },
       {
