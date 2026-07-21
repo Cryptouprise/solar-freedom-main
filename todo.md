@@ -587,3 +587,6 @@
 - [ ] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal)
 - [ ] Regenerate llms.txt with batch13+14 articles
 - [ ] Save checkpoint and submit all new URLs
+- [x] Batch 14 articles written (6 articles): GoodLeap TILA violations, solar contract red flags checklist, Vivint/NRG transition problems, solar loan balloon payment trap, how to get out of solar lease 2026, solar company went out of business complete guide
+- [x] Zero-CTR article meta improvements: cancel-sunrun-before-installation, AG complaint, Sunnova transfer
+- [x] Zero-CTR article content expansion: cancellation letter template, state-by-state AG links, evidence checklist, Sunnova step-by-step timeline
