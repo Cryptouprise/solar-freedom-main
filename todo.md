@@ -561,5 +561,5 @@
 - [x] Attempted analytics-reader Owner upgrade in GSC — blocked (service accounts can't be Owners via UI)
 - [ ] Submit all 287 URLs to Google Indexing API using solarcomplaints-indexing key (pending key access)
 - [x] Build batch13 articles (5 articles): Sunnova bankruptcy, Mosaic cancellation, solar lease vs loan, solar company went out of business, statute of limitations
-- [ ] Build /compare Solar Company Comparison page
-- [ ] Add FAQ JSON-LD schema to top 5 impression pages
+- [x] Build /compare Solar Company Comparison page (19 companies, sortable table, difficulty scores, key findings)
+- [x] Add FAQPage JSON-LD schema to homepage (6 Q&As, stacked with WebSite + Organization + Service schemas)

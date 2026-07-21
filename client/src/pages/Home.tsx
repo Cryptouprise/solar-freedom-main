@@ -790,6 +790,42 @@ export default function Home() {
         description: 'Free initial case review',
       },
     },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Can I actually cancel my solar contract?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Cancellation or another remedy may be possible, but it depends on the agreement, disclosures, sales representations, performance records, applicable law, and parties involved. An individual review is required.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'What does a solar contract review cost?',
+          acceptedAnswer: { '@type': 'Answer', text: 'The initial case review is free. Any fees, scope, and engagement terms must be disclosed and agreed before paid services begin.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'How long does solar contract cancellation take?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Timing varies with the agreement, facts, parties, process, and jurisdiction. No result or timeline can be determined from general information alone.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'What if my solar company went bankrupt?',
+          acceptedAnswer: { '@type': 'Answer', text: "A company's bankruptcy does not automatically cancel every related agreement. However, company bankruptcy is often strong grounds for cancellation. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually." },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I cancel a solar loan, not just a lease?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Solar loans may be cancelable under TILA rescission rights, FTC Holder Rule, or state consumer protection laws. Loans, leases, and power purchase agreements create different rights and obligations. The signed documents and applicable law determine which options are relevant.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'I was told I could not cancel my solar contract. Can Solar Freedom still help?',
+          acceptedAnswer: { '@type': 'Answer', text: 'A prior denial does not answer every legal or contractual question. Many homeowners are told cancellation is impossible by the solar company itself. An independent legal review often reveals options the company did not disclose.' },
+        },
+      ],
+    },
   ];
 
   return (
