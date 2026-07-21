@@ -546,3 +546,11 @@
 - [ ] Create Medium article(s) linking back to site (DA 95, free) — future task
 - [ ] Build "Solar Contract Cancellation Calculator" interactive tool — viral/linkable asset — future task
 - [ ] Submit to free PR aggregators (PRLog, OpenPR, PRFree) — future task
+
+## Phase 53 — Ranking Push: Calculator, Company Pages, Internal Linking (July 21, 2026)
+
+- [ ] Build Solar Contract Cancellation Calculator interactive tool at /calculator
+- [ ] Add Mosaic Solar Loan, Sunlight Financial, Dividend Finance, Loanpal company pages
+- [ ] Improve internal linking between GoodLeap/Sunrun articles and new company pages
+- [ ] Build Solar Contract Red Flags Quiz at /quiz
+- [ ] Submit all new URLs to GSC Indexing API once API is enabled in project 810047935902

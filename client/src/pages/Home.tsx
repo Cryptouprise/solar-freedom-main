@@ -808,6 +808,7 @@ export default function Home() {
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">
             <a href="/how-it-works" className="hover:text-white transition-colors">How It Works</a>
+            <a href="/calculator" className="hover:text-amber-400 text-amber-500/80 transition-colors font-semibold">Calculator</a>
             <a href="/selling-house-with-solar" className="hover:text-white transition-colors">Selling With Solar</a>
             <a href="/solar-lien-removal" className="hover:text-white transition-colors">Lien Removal</a>
             <a href="/solar-loan-help" className="hover:text-white transition-colors">Loan Help</a>
