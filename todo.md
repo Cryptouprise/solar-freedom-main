@@ -563,3 +563,27 @@
 - [x] Build batch13 articles (5 articles): Sunnova bankruptcy, Mosaic cancellation, solar lease vs loan, solar company went out of business, statute of limitations
 - [x] Build /compare Solar Company Comparison page (19 companies, sortable table, difficulty scores, key findings)
 - [x] Add FAQPage JSON-LD schema to homepage (6 Q&As, stacked with WebSite + Organization + Service schemas)
+
+## Phase 54 — Highest-Leverage SEO Push (July 21, 2026)
+
+### GSC Key Findings (fresh pull)
+- GoodLeap: 379 imp, pos 9.4, 2 clicks — one spot from page 1
+- Sunrun: 304 imp, pos 10.7, 2 clicks — borderline page 1
+- How-to-get-out: 279 imp, pos 21.8, 1 click
+- ADT Solar complaints: 59 imp, pos 11.5, 0 clicks — CTR problem
+- Solar rescission rights: 81 imp, pos 43.7, 1 click — needs depth
+- Houston cancel: 45 imp, pos 54.6, 0 clicks — needs depth
+- Homepage: 91 imp, pos 27.6, 0 clicks
+- Blue Raven: 66 imp, pos 10.4, 3 clicks
+- EverBright Solar: pos 3.0, 3 imp, 0 clicks — just added company page
+
+### Actions
+- [x] Google Indexing API quota reset — submitting all 293 URLs (running in background)
+- [ ] Fix ADT Solar complaints article (59 imp, pos 11.5, 0 clicks) — deepen content + CTR meta fix
+- [ ] Fix solar-contract-rescission-rights (81 imp, pos 43.7) — major content expansion
+- [ ] Fix cancel-solar-contract-houston-tx (45 imp, pos 54.6) — add local depth
+- [ ] Build batch14 articles: "cancel solar panel contract", "can i cancel my solar contract before installation", "cancel sunrun contract", "get out of solar lease", "can you cancel solar panel contract after installation"
+- [ ] Deepen CA/FL/TX/AZ/NV state law pages with more statute-specific content and FAQ schema
+- [ ] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal)
+- [ ] Regenerate llms.txt with batch13+14 articles
+- [ ] Save checkpoint and submit all new URLs
