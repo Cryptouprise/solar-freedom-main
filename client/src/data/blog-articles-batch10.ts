@@ -337,7 +337,7 @@ export const batch10BlogPosts: BlogPost[] = [
       { q: 'Can I get my GoodLeap dealer fee refunded?', a: 'Through legal action, homeowners may be able to recover dealer fees, reduce their loan balance, or cancel the loan entirely. TILA violations can result in recovery of all finance charges. Consult a consumer protection attorney for a free case review.' },
       { q: 'Is GoodLeap being investigated for dealer fees?', a: 'Yes. The CFPB has been investigating solar lending practices, and multiple class action lawsuits have been filed against GoodLeap alleging that hidden dealer fees violate federal and state lending laws.' },
     ],
-    relatedSlugs: ['goodleap-solar-loan-problems', 'solar-loan-prepayment-penalty', 'solar-contract-cancellation-cost'],
+    relatedSlugs: ['goodleap-solar-loan-problems', 'solar-loan-prepayment-penalty', 'solar-contract-cancellation-cost', 'mosaic-solar-loan-cancellation-guide-2026', 'sunlight-financial-solar-loan-complaints', 'dividend-finance-solar-loan-problems', 'loanpal-solar-loan-complaints'],
     canonicalUrl: undefined,
   },
 ];

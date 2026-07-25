@@ -17,7 +17,7 @@ export const batch9BlogPosts: BlogPost[] = [
     heroAlt: 'Attorney reviewing solar contract documents with magnifying glass and scales of justice',
     ctaText: 'Get a Free Sunrun Contract Review',
     ctaSubtext: 'Discover your legal pathways to cancel your Sunrun solar agreement.',
-    relatedSlugs: ['cancel-sunrun-solar-contract-before-installation', 'sunrun-complaints-california', 'solar-contract-rescission-rights', 'how-to-file-a-complaint-against-solar-company-attorney-general', 'how-to-get-out-of-a-solar-contract'],
+    relatedSlugs: ['cancel-sunrun-solar-contract-before-installation', 'sunrun-complaints-california', 'solar-contract-rescission-rights', 'how-to-file-a-complaint-against-solar-company-attorney-general', 'how-to-get-out-of-a-solar-contract', 'mosaic-solar-loan-cancellation-guide-2026', 'goodleap-solar-loan-hidden-dealer-fees-2026', 'sunlight-financial-solar-loan-complaints'],
     faq: [
       { q: 'Can I cancel my Sunrun solar contract in 2026?', a: 'Yes, depending on the terms of your specific contract and applicable state laws, cancellation may be possible. Factors like misrepresentation, unfulfilled promises, or hidden fees can provide grounds for termination.' },
       { q: 'What are the typical penalties for Sunrun solar contract cancellation?', a: 'Sunrun contracts often include substantial cancellation fees, sometimes reaching tens of thousands of dollars. These fees are designed to deter homeowners from terminating their agreements early.' },
