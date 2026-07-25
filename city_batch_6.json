@@ -1,0 +1,420 @@
+[
+  {
+    "name": "Springfield",
+    "state": "Illinois",
+    "stateCode": "IL",
+    "slug": "springfield-il",
+    "population": "114K",
+    "solarActivity": "High Activity",
+    "stateLaw": "Illinois Consumer Fraud and Deceptive Business Practices Act (815 ILCS 505/1)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Springfield",
+    "state": "Missouri",
+    "stateCode": "MO",
+    "slug": "springfield-mo",
+    "population": "167K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Missouri Merchandising Practices Act (Mo. Rev. Stat. § 407.010)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "St. Petersburg",
+    "state": "Florida",
+    "stateCode": "FL",
+    "slug": "st-petersburg-fl",
+    "population": "258K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Florida Deceptive and Unfair Trade Practices Act (Fla. Stat. § 501.201)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Sterling Heights",
+    "state": "Michigan",
+    "stateCode": "MI",
+    "slug": "sterling-heights-mi",
+    "population": "134K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Michigan Consumer Protection Act (MCL § 445.901)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Stockton",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "stockton-ca",
+    "population": "320K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Sunnyvale",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "sunnyvale-ca",
+    "population": "155K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Sunrise Manor",
+    "state": "Nevada",
+    "stateCode": "NV",
+    "slug": "sunrise-manor-nv",
+    "population": "198K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Nevada Deceptive Trade Practices Act (NRS Chapter 598)",
+    "companies": [
+      "Sunrun",
+      "Tesla Solar",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Syracuse",
+    "state": "New York",
+    "stateCode": "NY",
+    "slug": "syracuse-ny",
+    "population": "148K",
+    "solarActivity": "High Activity",
+    "stateLaw": "New York General Business Law § 349 — Deceptive Acts and Practices",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Tallahassee",
+    "state": "Florida",
+    "stateCode": "FL",
+    "slug": "tallahassee-fl",
+    "population": "196K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Florida Deceptive and Unfair Trade Practices Act (Fla. Stat. § 501.201)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Tempe",
+    "state": "Arizona",
+    "stateCode": "AZ",
+    "slug": "tempe-az",
+    "population": "192K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Arizona Consumer Fraud Act (A.R.S. § 44-1521)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Thousand Oaks",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "thousand-oaks-ca",
+    "population": "128K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Toledo",
+    "state": "Ohio",
+    "stateCode": "OH",
+    "slug": "toledo-oh",
+    "population": "270K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Ohio Consumer Sales Practices Act (Ohio Rev. Code § 1345.01)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Topeka",
+    "state": "Kansas",
+    "stateCode": "KS",
+    "slug": "topeka-ks",
+    "population": "126K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Kansas Consumer Protection Act (K.S.A. § 50-623)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Torrance",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "torrance-ca",
+    "population": "147K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Tuscaloosa",
+    "state": "Alabama",
+    "stateCode": "AL",
+    "slug": "tuscaloosa-al",
+    "population": "100K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Alabama Deceptive Trade Practices Act (Ala. Code § 8-19-1)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Vallejo",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "vallejo-ca",
+    "population": "122K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Ventura",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "ventura-ca",
+    "population": "110K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Visalia",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "visalia-ca",
+    "population": "141K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Warren",
+    "state": "Michigan",
+    "stateCode": "MI",
+    "slug": "warren-mi",
+    "population": "139K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Michigan Consumer Protection Act (MCL § 445.901)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Waterloo",
+    "state": "Iowa",
+    "stateCode": "IA",
+    "slug": "waterloo-ia",
+    "population": "68K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Iowa Consumer Fraud Act (Iowa Code § 714H.1)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Waukesha",
+    "state": "Wisconsin",
+    "stateCode": "WI",
+    "slug": "waukesha-wi",
+    "population": "72K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Wisconsin Consumer Act (Wis. Stat. § 421.101)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "West Covina",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "west-covina-ca",
+    "population": "107K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "West Jordan",
+    "state": "Utah",
+    "stateCode": "UT",
+    "slug": "west-jordan-ut",
+    "population": "116K",
+    "solarActivity": "High Activity",
+    "stateLaw": "Utah Consumer Sales Practices Act (Utah Code § 13-11-1)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Winston-Salem",
+    "state": "North Carolina",
+    "stateCode": "NC",
+    "slug": "winston-salem-nc",
+    "population": "247K",
+    "solarActivity": "High Activity",
+    "stateLaw": "North Carolina Consumer Protection Act (N.C.G.S. § 75-1.1)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Yonkers",
+    "state": "New York",
+    "stateCode": "NY",
+    "slug": "yonkers-ny",
+    "population": "211K",
+    "solarActivity": "High Activity",
+    "stateLaw": "New York General Business Law § 349 — Deceptive Acts and Practices",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Yuma",
+    "state": "Arizona",
+    "stateCode": "AZ",
+    "slug": "yuma-az",
+    "population": "95K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Arizona Consumer Fraud Act (A.R.S. § 44-1521)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  }
+]

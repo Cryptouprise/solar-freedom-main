@@ -1,0 +1,160 @@
+[
+  {
+    "name": "Clarksville",
+    "state": "Tennessee",
+    "stateCode": "TN",
+    "slug": "clarksville-tn",
+    "population": "166K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Tennessee Consumer Protection Act (Tenn. Code Ann. § 47-18-101)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Columbia",
+    "state": "Missouri",
+    "stateCode": "MO",
+    "slug": "columbia-mo",
+    "population": "126K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Missouri Merchandising Practices Act (Mo. Rev. Stat. § 407.010)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Columbus",
+    "state": "Georgia",
+    "stateCode": "GA",
+    "slug": "columbus-ga",
+    "population": "206K",
+    "solarActivity": "High Activity",
+    "stateLaw": "Georgia Fair Business Practices Act (O.C.G.A. § 10-1-390)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Concord",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "concord-ca",
+    "population": "129K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Concord",
+    "state": "New Hampshire",
+    "stateCode": "NH",
+    "slug": "concord-nh",
+    "population": "44K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "New Hampshire Consumer Protection Act (RSA 358-A)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Corona",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "corona-ca",
+    "population": "165K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Corpus Christi",
+    "state": "Texas",
+    "stateCode": "TX",
+    "slug": "corpus-christi-tx",
+    "population": "317K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Texas Business & Commerce Code § 17.46 — Deceptive Trade Practices Act",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "Tesla Solar",
+      "Sunnova",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Costa Mesa",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "costa-mesa-ca",
+    "population": "114K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Davenport",
+    "state": "Iowa",
+    "stateCode": "IA",
+    "slug": "davenport-ia",
+    "population": "101K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Iowa Consumer Fraud Act (Iowa Code § 714H.1)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Dayton",
+    "state": "Ohio",
+    "stateCode": "OH",
+    "slug": "dayton-oh",
+    "population": "137K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Ohio Consumer Sales Practices Act (Ohio Rev. Code § 1345.01)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  }
+]

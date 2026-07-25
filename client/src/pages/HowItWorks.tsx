@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "wouter";
+import StickyMobileBar from "@/components/StickyMobileBar";
 
 const processSteps = [
   {
@@ -119,6 +120,7 @@ export default function HowItWorks() {
         color: "oklch(0.95 0.01 265)",
       }}
     >
+      <StickyMobileBar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}

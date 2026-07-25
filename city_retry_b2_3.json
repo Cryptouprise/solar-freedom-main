@@ -1,0 +1,144 @@
+[
+  {
+    "name": "Fairfield",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "fairfield-ca",
+    "population": "119K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Fayetteville",
+    "state": "Arkansas",
+    "stateCode": "AR",
+    "slug": "fayetteville-ar",
+    "population": "93K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Arkansas Deceptive Trade Practices Act (Ark. Code Ann. § 4-88-101)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Fayetteville",
+    "state": "North Carolina",
+    "stateCode": "NC",
+    "slug": "fayetteville-nc",
+    "population": "211K",
+    "solarActivity": "High Activity",
+    "stateLaw": "North Carolina Consumer Protection Act (N.C.G.S. § 75-1.1)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Fishers",
+    "state": "Indiana",
+    "stateCode": "IN",
+    "slug": "fishers-in",
+    "population": "99K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Indiana Deceptive Consumer Sales Act (Ind. Code § 24-5-0.5-1)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Flagstaff",
+    "state": "Arizona",
+    "stateCode": "AZ",
+    "slug": "flagstaff-az",
+    "population": "76K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Arizona Consumer Fraud Act (A.R.S. § 44-1521)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Flint",
+    "state": "Michigan",
+    "stateCode": "MI",
+    "slug": "flint-mi",
+    "population": "81K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Michigan Consumer Protection Act (MCL § 445.901)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Fontana",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "fontana-ca",
+    "population": "213K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Fort Smith",
+    "state": "Arkansas",
+    "stateCode": "AR",
+    "slug": "fort-smith-ar",
+    "population": "89K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Arkansas Deceptive Trade Practices Act (Ark. Code Ann. § 4-88-101)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Fremont",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "fremont-ca",
+    "population": "230K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  }
+]

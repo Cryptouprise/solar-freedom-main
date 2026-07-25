@@ -6,6 +6,7 @@
 import { Link } from "wouter";
 import { ArrowRight, CheckCircle, Shield, Scale, FileText, DollarSign, Home, AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
+import StickyMobileBar from "@/components/StickyMobileBar";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 const steps = [
@@ -89,6 +90,7 @@ export default function SolarExitOptions() {
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.10 0.01 265)", color: "oklch(0.95 0.01 265)" }}>
+      <StickyMobileBar />
       {/* NAV */}
       <nav className="border-b border-white/8 px-6 py-4 flex items-center justify-between sticky top-0 z-50" style={{ background: "oklch(0.10 0.01 265 / 95%)", backdropFilter: "blur(12px)" }}>
         <Link href="/">

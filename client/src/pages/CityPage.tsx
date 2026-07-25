@@ -19,6 +19,7 @@ import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
+import StickyMobileBar from "@/components/StickyMobileBar";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -288,6 +289,7 @@ export default function CityPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.09 0.01 265)", fontFamily: "'DM Sans', sans-serif" }}>
+      <StickyMobileBar />
       <SchemaInjector schemas={citySchemas} />
 
       {/* NAV */}

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Richmond",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "richmond-ca",
+    "population": "116K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Rio Rancho",
+    "state": "New Mexico",
+    "stateCode": "NM",
+    "slug": "rio-rancho-nm",
+    "population": "104K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "New Mexico Unfair Practices Act (N.M.S.A. § 57-12-1)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Rochester",
+    "state": "Minnesota",
+    "stateCode": "MN",
+    "slug": "rochester-mn",
+    "population": "121K",
+    "solarActivity": "High Activity",
+    "stateLaw": "Minnesota Consumer Fraud Act (Minn. Stat. § 325F.68)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Rochester",
+    "state": "New York",
+    "stateCode": "NY",
+    "slug": "rochester-ny",
+    "population": "211K",
+    "solarActivity": "High Activity",
+    "stateLaw": "New York General Business Law § 349 — Deceptive Acts and Practices",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  }
+]

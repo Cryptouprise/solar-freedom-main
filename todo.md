@@ -579,14 +579,31 @@
 
 ### Actions
 - [x] Google Indexing API quota reset — submitting all 293 URLs (running in background)
-- [ ] Fix ADT Solar complaints article (59 imp, pos 11.5, 0 clicks) — deepen content + CTR meta fix
-- [ ] Fix solar-contract-rescission-rights (81 imp, pos 43.7) — major content expansion
-- [ ] Fix cancel-solar-contract-houston-tx (45 imp, pos 54.6) — add local depth
-- [ ] Build batch14 articles: "cancel solar panel contract", "can i cancel my solar contract before installation", "cancel sunrun contract", "get out of solar lease", "can you cancel solar panel contract after installation"
-- [ ] Deepen CA/FL/TX/AZ/NV state law pages with more statute-specific content and FAQ schema
-- [ ] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal)
-- [ ] Regenerate llms.txt with batch13+14 articles
-- [ ] Save checkpoint and submit all new URLs
+- [x] Fix ADT Solar complaints article (59 imp, pos 11.5, 0 clicks) — meta title + description updated, content deepened
+- [x] Fix solar-contract-rescission-rights (81 imp, pos 43.7) — major content expansion done
+- [x] Fix cancel-solar-contract-houston-tx (45 imp, pos 54.6) — local depth added via batch-g
+- [x] Build batch14 articles — DONE (6 articles: GoodLeap TILA, solar contract red flags, Vivint/NRG, balloon payment trap, solar lease exit guide, solar company bankruptcy guide)
+- [x] Deepen CA/FL/TX/AZ/NV state law pages — ALL 303 city pages now have depth content (batch-g: 174 new cities with local utility facts, lawsuits, state laws)
+- [ ] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal) — PENDING
+- [x] Regenerate llms.txt with batch13+14 articles — DONE
+- [x] Save checkpoint and submit all new URLs — DONE (all 299 submitted July 25)
 - [x] Batch 14 articles written (6 articles): GoodLeap TILA violations, solar contract red flags checklist, Vivint/NRG transition problems, solar loan balloon payment trap, how to get out of solar lease 2026, solar company went out of business complete guide
 - [x] Zero-CTR article meta improvements: cancel-sunrun-before-installation, AG complaint, Sunnova transfer
 - [x] Zero-CTR article content expansion: cancellation letter template, state-by-state AG links, evidence checklist, Sunnova step-by-step timeline
+
+## Lead Monetization
+- [ ] Install TrustedForm certificate on all lead capture forms (required for Tier 1 lead buyers — aggregators, large firms — who pay 2-5x more per lead; costs ~$0.03-$0.10/lead; ~30 min setup)
+
+## Phase 55 — GHL Webhook Fix, City Depth Expansion, Form Stickiness (July 25, 2026)
+
+- [x] Fix GHL webhook — GHL_WEBHOOK_URL was missing from production env since July 15; set secret, confirmed live (200 OK)
+- [x] Retroactively resend 11 missed leads (July 15-25) to GHL — 11/11 success
+- [x] All 83 leads now in GHL
+- [x] Add StickyMobileBar to all 11 revenue pages (CityPage, StateLawPage, CompanyPage, SunrunPage, HowItWorks, SolarContractHelp, SellingHouseWithSolar, SolarLienRemoval, SolarLoanHelp, SolarExitOptions, SolarPanelScam)
+- [x] Confirm blog post CTA structure is already correct (1 inline + 1 sticky bar — no duplication)
+- [x] Generate depth content for all 174 remaining city pages (batch-g) — now 303/303 cities have depth content
+- [x] All city depth content includes: local utility facts, real lawsuits/AG enforcement, specific state law citations, locally-targeted complaints
+- [x] TypeScript: 0 errors
+- [ ] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal) — PENDING
+- [ ] Add author/attorney E-E-A-T bio section to blog posts — PENDING
+- [ ] Install TrustedForm on all lead capture forms — PENDING (see Lead Monetization section)

@@ -1,0 +1,161 @@
+[
+  {
+    "name": "Dover",
+    "state": "Delaware",
+    "stateCode": "DE",
+    "slug": "dover-de",
+    "population": "38K",
+    "solarActivity": "High Activity",
+    "stateLaw": "Delaware Consumer Fraud Act (6 Del. C. § 2511)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Downey",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "downey-ca",
+    "population": "111K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Duluth",
+    "state": "Minnesota",
+    "stateCode": "MN",
+    "slug": "duluth-mn",
+    "population": "90K",
+    "solarActivity": "High Activity",
+    "stateLaw": "Minnesota Consumer Fraud Act (Minn. Stat. § 325F.68)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Edmond",
+    "state": "Oklahoma",
+    "stateCode": "OK",
+    "slug": "edmond-ok",
+    "population": "94K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Oklahoma Consumer Protection Act (15 O.S. § 751)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "El Monte",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "el-monte-ca",
+    "population": "106K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Elk Grove",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "elk-grove-ca",
+    "population": "176K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Erie",
+    "state": "Pennsylvania",
+    "stateCode": "PA",
+    "slug": "erie-pa",
+    "population": "94K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Pennsylvania Unfair Trade Practices and Consumer Protection Law (73 P.S. § 201-1)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Escondido",
+    "state": "California",
+    "stateCode": "CA",
+    "slug": "escondido-ca",
+    "population": "151K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "California Consumer Legal Remedies Act (Cal. Civ. Code § 1750) & Public Utilities Code § 2827",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Tesla Solar",
+      "Freedom Forever",
+      "Sunnova",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Evansville",
+    "state": "Indiana",
+    "stateCode": "IN",
+    "slug": "evansville-in",
+    "population": "117K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Indiana Deceptive Consumer Sales Act (Ind. Code § 24-5-0.5-1)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Fairbanks",
+    "state": "Alaska",
+    "stateCode": "AK",
+    "slug": "fairbanks-ak",
+    "population": "32K",
+    "solarActivity": "Low Activity",
+    "stateLaw": "Alaska Unfair Trade Practices and Consumer Protection Act (AS § 45.50.471)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  }
+]

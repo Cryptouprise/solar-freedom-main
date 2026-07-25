@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Lakewood",
+    "state": "Colorado",
+    "stateCode": "CO",
+    "slug": "lakewood-co",
+    "population": "157K",
+    "solarActivity": "High Activity",
+    "stateLaw": "Colorado Solar Consumer Protection Act & Consumer Protection Act (C.R.S. § 6-1-105)",
+    "companies": [
+      "Sunrun",
+      "SunPower",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Lansing",
+    "state": "Michigan",
+    "stateCode": "MI",
+    "slug": "lansing-mi",
+    "population": "112K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Michigan Consumer Protection Act (MCL § 445.901)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Lawton",
+    "state": "Oklahoma",
+    "stateCode": "OK",
+    "slug": "lawton-ok",
+    "population": "94K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Oklahoma Consumer Protection Act (15 O.S. § 751)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Lee's Summit",
+    "state": "Missouri",
+    "stateCode": "MO",
+    "slug": "lee-summit-mo",
+    "population": "101K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Missouri Merchandising Practices Act (Mo. Rev. Stat. § 407.010)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Lubbock",
+    "state": "Texas",
+    "stateCode": "TX",
+    "slug": "lubbock-tx",
+    "population": "258K",
+    "solarActivity": "Very High Activity",
+    "stateLaw": "Texas Business & Commerce Code § 17.46 — Deceptive Trade Practices Act",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "Tesla Solar",
+      "Sunnova",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Manhattan",
+    "state": "Kansas",
+    "stateCode": "KS",
+    "slug": "manhattan-ks",
+    "population": "55K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Kansas Consumer Protection Act (K.S.A. § 50-623)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Meridian",
+    "state": "Idaho",
+    "stateCode": "ID",
+    "slug": "meridian-id",
+    "population": "117K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Idaho Consumer Protection Act (Idaho Code § 48-601)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Minot",
+    "state": "North Dakota",
+    "stateCode": "ND",
+    "slug": "minot-nd",
+    "population": "48K",
+    "solarActivity": "Low Activity",
+    "stateLaw": "North Dakota Consumer Fraud Act (N.D.C.C. § 51-15-01)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Missoula",
+    "state": "Montana",
+    "stateCode": "MT",
+    "slug": "missoula-mt",
+    "population": "73K",
+    "solarActivity": "Low Activity",
+    "stateLaw": "Montana Consumer Protection Act (Mont. Code Ann. § 30-14-101)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "GoodLeap"
+    ]
+  },
+  {
+    "name": "Mobile",
+    "state": "Alabama",
+    "stateCode": "AL",
+    "slug": "mobile-al",
+    "population": "187K",
+    "solarActivity": "Moderate Activity",
+    "stateLaw": "Alabama Deceptive Trade Practices Act (Ala. Code § 8-19-1)",
+    "companies": [
+      "Sunrun",
+      "Freedom Forever",
+      "ADT Solar",
+      "GoodLeap"
+    ]
+  }
+]

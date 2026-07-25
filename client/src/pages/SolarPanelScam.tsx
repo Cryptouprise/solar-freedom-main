@@ -9,6 +9,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { AlertTriangle, CheckCircle, XCircle, Phone, ArrowRight, Shield, FileText, DollarSign, Home, Zap } from "lucide-react";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import StickyMobileBar from "@/components/StickyMobileBar";
 
 const SCAM_TACTICS = [
   {
@@ -86,6 +87,7 @@ export default function SolarPanelScam() {
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.10 0.01 265)", color: "oklch(0.92 0.01 265)" }}>
+      <StickyMobileBar />
       {/* Nav */}
       <nav className="border-b border-white/8 sticky top-0 z-50 backdrop-blur-md" style={{ background: "oklch(0.10 0.01 265 / 0.95)" }}>
         <div className="container flex items-center justify-between h-16">

@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
 import { getStateLaw, StateLawSection } from '@/data/state-laws';
+import StickyMobileBar from '@/components/StickyMobileBar';
 import { cities as ALL_CITIES } from '@/data/cities';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -177,6 +178,7 @@ export default function StateLawPage() {
   if (!law) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <StickyMobileBar />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">State Not Found</h1>
           <Link href="/solar-contract-help">

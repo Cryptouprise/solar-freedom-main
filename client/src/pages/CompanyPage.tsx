@@ -11,6 +11,7 @@ import { motion, useInView } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { getCompanyBySlug, companies as COMPANIES, getRelatedCompanies } from "@/data/companies";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
+import StickyMobileBar from "@/components/StickyMobileBar";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
@@ -196,6 +197,7 @@ export default function CompanyPage() {
   if (!company) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "oklch(0.09 0.01 265)" }}>
+      <StickyMobileBar />
         <div className="text-center">
           <h1 className="font-display text-4xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>COMPANY NOT FOUND</h1>
           <Link href="/" className="text-amber-400 hover:underline">← Back to Solar Freedom</Link>

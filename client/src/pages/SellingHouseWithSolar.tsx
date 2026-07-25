@@ -13,6 +13,7 @@ import { Link } from "wouter";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
+import StickyMobileBar from "@/components/StickyMobileBar";
 import BookingModal from "@/components/BookingModal";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import {
@@ -256,6 +257,7 @@ export default function SellingHouseWithSolar() {
 
   return (
     <div style={{ background: "#0D0F14", color: "#F8FAFC", fontFamily: "'DM Sans', sans-serif" }}>
+      <StickyMobileBar />
       <SchemaInjector schemas={PAGE_SCHEMAS} />
 
       {/* ── Nav ── */}

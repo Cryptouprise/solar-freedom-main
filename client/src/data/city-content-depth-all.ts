@@ -8,6 +8,7 @@ import { cityContentDepthBatchC } from "./city-content-depth-batch-c";
 import { cityContentDepthBatchD } from "./city-content-depth-batch-d";
 import { CITY_DEPTH_BATCH_E } from "./city-content-depth-batch-e";
 import { CITY_DEPTH_BATCH_F } from "./city-content-depth-batch-f";
+import { CITY_DEPTH_BATCH_G } from "./city-content-depth-batch-g";
 
 export type { CityContentDepth };
 
@@ -19,6 +20,7 @@ const allCityContentDepth: CityContentDepth[] = [
   ...cityContentDepthBatchD,
   ...(CITY_DEPTH_BATCH_E as unknown as CityContentDepth[]),
   ...(CITY_DEPTH_BATCH_F as unknown as CityContentDepth[]),
+  ...(CITY_DEPTH_BATCH_G as unknown as CityContentDepth[]),
 ];
 
 export function getCityContentDepthAll(slug: string): CityContentDepth | undefined {

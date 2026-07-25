@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import BookingModal from "@/components/BookingModal";
+import StickyMobileBar from "@/components/StickyMobileBar";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission, trackPhoneClick } from "@/lib/analytics";
@@ -259,6 +260,7 @@ export default function SunrunPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.08 0.01 265)", color: "#F8FAFC" }}>
+      <StickyMobileBar />
 
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/8" style={{ background: "oklch(0.09 0.01 265 / 0.95)", backdropFilter: "blur(12px)" }}>

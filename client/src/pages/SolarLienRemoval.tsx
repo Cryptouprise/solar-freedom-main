@@ -13,6 +13,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
+import StickyMobileBar from "@/components/StickyMobileBar";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import {
   AlertTriangle, CheckCircle, FileText, ArrowRight,
@@ -239,6 +240,7 @@ export default function SolarLienRemoval() {
 
   return (
     <div style={{ background: "#0D0F14", color: "#F8FAFC", fontFamily: "'DM Sans', sans-serif" }}>
+      <StickyMobileBar />
       <SchemaInjector schemas={PAGE_SCHEMAS} />
 
       {/* ── Nav ── */}
