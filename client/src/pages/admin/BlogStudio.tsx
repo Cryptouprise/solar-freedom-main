@@ -25,13 +25,22 @@ import {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const AI_MODELS = [
+  // Free tier
   { id: "openrouter/owl-alpha", label: "⭐ Owl Alpha (Free)", group: "Free" },
   { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash Preview", group: "Free" },
+  // Fast tier
   { id: "deepseek/deepseek-v4-flash", label: "DeepSeek V4 Flash", group: "Fast" },
   { id: "tencent/hunyuan-t1-preview", label: "Tencent HunyuanT1", group: "Fast" },
+  { id: "tencent/hy3-preview", label: "Tencent HY3 Preview", group: "Fast" },
+  // Premium tier
   { id: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash", group: "Premium" },
+  { id: "google/gemini-3.2-pro", label: "Gemini 3.2 Pro", group: "Premium" },
   { id: "anthropic/claude-3-haiku", label: "Claude 3 Haiku", group: "Premium" },
   { id: "openai/gpt-4o-mini", label: "GPT-4o Mini", group: "Premium" },
+  // Elite tier
+  { id: "anthropic/claude-opus-5", label: "🔥 Claude Opus 5", group: "Elite" },
+  { id: "deepseek/deepseek-v4-5", label: "🔥 DeepSeek V4.5", group: "Elite" },
+  { id: "alibaba/qwen3-235b", label: "Qwen3 235B", group: "Elite" },
 ];
 
 const IMAGE_MODELS = [

@@ -786,8 +786,8 @@
 - [x] Infrastructure Agent (server/agents/infraAgent.ts) — system self-improvement, change logging, error detection, agent health monitoring
 - [x] systemChangeLog table in schema — every change ever made: timestamp, agent, description, category, impact score
 - [x] agentHealthLog table in schema — per-agent performance metrics, error rates, model costs, run durations
-- [ ] Update AGENT_MODELS — all 6 agents to elite config (Opus 5 for all except Money Maker = DeepSeek V4.5)
-- [ ] Update BlogStudio AI_MODELS list — add Claude Opus 5, DeepSeek V4.5, Gemini 3.2 Pro, Qwen3 235B
+- [x] Update AGENT_MODELS — all 6 agents to elite config (Opus 5 for all except Money Maker = DeepSeek V4.5)
+- [x] Update BlogStudio AI_MODELS list — add Claude Opus 5, DeepSeek V4.5, Gemini 3.2 Pro, Qwen3 235B
 - [x] Wire Content Agent → BlogStudio (agent pushes drafts directly into blog draft queue)
 - [ ] Wire SEO Intel Agent → BlogStudio (agent injects keyword targets into new post form)
 - [ ] Wire Content Agent → Press Release (agent can trigger press release generation from content directives)
