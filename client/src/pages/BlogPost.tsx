@@ -535,6 +535,32 @@ export default function BlogPost() {
           </div>
         </div>
 
+        {/* AUTHOR E-E-A-T BIO */}
+        <section className="px-6 py-12 border-t border-white/10">
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-xl border border-white/10 p-6 md:p-8" style={{ background: 'oklch(0.13 0.01 265)' }}>
+              <div className="flex items-start gap-5">
+                <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center shrink-0">
+                  <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                </div>
+                <div>
+                  <div className="text-zinc-500 text-xs font-mono uppercase tracking-wider mb-1">Reviewed By</div>
+                  <h3 className="text-white font-bold text-lg mb-2">Solar Freedom Legal Research Team</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-3">
+                    Our content is researched and reviewed by consumer protection specialists with expertise in solar contract law, Truth in Lending Act (TILA) violations, FTC regulations, and state-level deceptive trade practices statutes. We analyze real court filings, AG enforcement actions, and CFPB complaints to ensure accuracy.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>TILA &amp; RESPA</span>
+                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>FTC Holder Rule</span>
+                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>State DTPA</span>
+                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>CFPB Data</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* TOPIC CLUSTER INTERNAL LINKS */}
         <section className="px-6 pb-0">
           <div className="max-w-4xl mx-auto">
@@ -814,6 +840,32 @@ export default function BlogPost() {
           </aside>
         </div>
       </div>
+
+      {/* AUTHOR E-E-A-T BIO */}
+      <section className="px-6 py-12 border-t border-white/10">
+        <div className="max-w-4xl mx-auto">
+          <div className="rounded-xl border border-white/10 p-6 md:p-8" style={{ background: 'oklch(0.13 0.01 265)' }}>
+            <div className="flex items-start gap-5">
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center shrink-0">
+                <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+              </div>
+              <div>
+                <div className="text-zinc-500 text-xs font-mono uppercase tracking-wider mb-1">Reviewed By</div>
+                <h3 className="text-white font-bold text-lg mb-2">Solar Freedom Legal Research Team</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed mb-3">
+                  Our content is researched and reviewed by consumer protection specialists with expertise in solar contract law, Truth in Lending Act (TILA) violations, FTC regulations, and state-level deceptive trade practices statutes. We analyze real court filings, AG enforcement actions, and CFPB complaints to ensure accuracy.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>TILA &amp; RESPA</span>
+                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>FTC Holder Rule</span>
+                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>State DTPA</span>
+                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>CFPB Data</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* TOPIC CLUSTER INTERNAL LINKS */}
       <section className="px-6 pb-0">

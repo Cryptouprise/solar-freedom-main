@@ -584,7 +584,7 @@
 - [x] Fix cancel-solar-contract-houston-tx (45 imp, pos 54.6) — local depth added via batch-g
 - [x] Build batch14 articles — DONE (6 articles: GoodLeap TILA, solar contract red flags, Vivint/NRG, balloon payment trap, solar lease exit guide, solar company bankruptcy guide)
 - [x] Deepen CA/FL/TX/AZ/NV state law pages — ALL 303 city pages now have depth content (batch-g: 174 new cities with local utility facts, lawsuits, state laws)
-- [ ] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal) — PENDING
+- [x] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal) — DONE (relatedSlugs updated in batch9 and batch10)
 - [x] Regenerate llms.txt with batch13+14 articles — DONE
 - [x] Save checkpoint and submit all new URLs — DONE (all 299 submitted July 25)
 - [x] Batch 14 articles written (6 articles): GoodLeap TILA violations, solar contract red flags checklist, Vivint/NRG transition problems, solar loan balloon payment trap, how to get out of solar lease 2026, solar company went out of business complete guide
@@ -604,6 +604,6 @@
 - [x] Generate depth content for all 174 remaining city pages (batch-g) — now 303/303 cities have depth content
 - [x] All city depth content includes: local utility facts, real lawsuits/AG enforcement, specific state law citations, locally-targeted complaints
 - [x] TypeScript: 0 errors
-- [ ] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal) — PENDING
-- [ ] Add author/attorney E-E-A-T bio section to blog posts — PENDING
+- [x] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal) — DONE (relatedSlugs updated in batch9 and batch10)
+- [x] Add author/attorney E-E-A-T bio section to blog posts — DONE ("Solar Freedom Legal Research Team" bio with expertise tags on all blog posts)
 - [ ] Install TrustedForm on all lead capture forms — PENDING (see Lead Monetization section)
