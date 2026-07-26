@@ -20,7 +20,7 @@ import {
   type AgentThinkResult,
 } from "./engine";
 import { getDb } from "../db";
-import { contentPipeline, blogPosts } from "../../drizzle/schema";
+import { contentPipeline, blogPosts, blogDrafts } from "../../drizzle/schema";
 import { desc, eq, and, ne } from "drizzle-orm";
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
@@ -153,12 +153,12 @@ export async function runContentAgent(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `CURRENT CONTENT STATE:\n${state}${inboxSummary}\n\nExecute your directives. For any P1 item, write the FULL article draft. For P2/P3, write the detailed outline. Every piece of content must be tied to a revenue outcome. What article, if published today, would generate the most leads in the next 30 days?`,
+          content: `CURRENT CONTENT STATE:\n${state}${inboxSummary}\n\nIdentify the single highest-value article to write right now. Write a COMPLETE draft (1,800-2,200 words) — full article body, not just an outline. Include all sections: hook, problem, legal rights, step-by-step, FAQ, CTAs. Keep it tight and punchy. Every piece of content must be tied to a revenue outcome.\n\nRespond with JSON only.`,
         },
       ],
       context,
       temperature: 0.5,
-      maxTokens: 8000,
+      maxTokens: 4000,
     });
 
     // 4. Parse
@@ -185,8 +185,25 @@ export async function runContentAgent(
     } = {};
 
     try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+      // Find the outermost JSON object by tracking brace depth
+      const firstBrace = response.indexOf('{');
+      if (firstBrace !== -1) {
+        let depth = 0;
+        let end = -1;
+        for (let i = firstBrace; i < response.length; i++) {
+          if (response[i] === '{') depth++;
+          else if (response[i] === '}') {
+            depth--;
+            if (depth === 0) { end = i; break; }
+          }
+        }
+        if (end !== -1) {
+          parsed = JSON.parse(response.substring(firstBrace, end + 1));
+        }
+      }
+      if (!parsed || Object.keys(parsed).length === 0) {
+        parsed = { analysis: response };
+      }
     } catch {
       parsed = { analysis: response };
     }
@@ -236,6 +253,31 @@ export async function runContentAgent(
         }
         context.actionsCreated++;
 
+        // Save to BlogStudio drafts if we have a full draft
+        if (item.draft && db) {
+          const [existingDraft] = await db.select({ id: blogDrafts.id })
+            .from(blogDrafts)
+            .where(eq(blogDrafts.postSlug, item.slug))
+            .limit(1);
+          if (existingDraft) {
+            await db.update(blogDrafts).set({
+              title: item.title,
+              content: item.draft,
+              targetKeyword: item.targetKeyword,
+              name: `Agent Draft — ${item.title}`,
+              updatedAt: new Date(),
+            }).where(eq(blogDrafts.id, existingDraft.id));
+          } else {
+            await db.insert(blogDrafts).values({
+              postSlug: item.slug,
+              name: `Agent Draft — ${item.title}`,
+              title: item.title,
+              content: item.draft,
+              targetKeyword: item.targetKeyword,
+            });
+          }
+        }
+
         // Notify editor if draft is complete
         if (item.draft) {
           await sendMessage({
@@ -244,7 +286,7 @@ export async function runContentAgent(
             type: "report",
             priority: (item.priority as any) || "p2",
             subject: `[DRAFT READY] "${item.title}"`,
-            body: `Draft complete for: "${item.title}"\nKeyword: ${item.targetKeyword}\nEstimated traffic: ${item.estimatedMonthlyTraffic || "?"}/mo\nEstimated leads: ${item.estimatedLeadsPerMonth || "?"}/mo\nRevenue justification: ${item.revenueJustification || "N/A"}\n\nPlease review and score.`,
+            body: `Draft complete for: "${item.title}"\nKeyword: ${item.targetKeyword}\nEstimated traffic: ${item.estimatedMonthlyTraffic || "?"}/mo\nEstimated leads: ${item.estimatedLeadsPerMonth || "?"}/mo\nRevenue justification: ${item.revenueJustification || "N/A"}\n\nPlease review and score. The draft is now in BlogStudio Drafts.`,
           });
           context.messagesCreated++;
         }
