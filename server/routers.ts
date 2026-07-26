@@ -479,6 +479,181 @@ export const appRouter = router({
       }),
 
     /**
+     * Audit a blog post for SEO, copy quality, spacing, interlinking, and image placement.
+     * Returns actionable issues with severity and fix suggestions.
+     */
+    seoAudit: protectedProcedure
+      .input(z.object({ slug: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        const { blogPosts } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const posts = await db.select().from(blogPosts).where(eq(blogPosts.slug, input.slug)).limit(1);
+        const post = posts[0];
+        if (!post) throw new Error("Post not found");
+
+        const { callLLM } = await import("./cron/aiCostTracker");
+
+        const auditPrompt = `You are an elite SEO and content quality auditor. Analyze this blog post and return a JSON audit report.
+
+Post Title: ${post.title}
+Post Slug: ${post.slug}
+Meta Description: ${post.metaDescription || "MISSING"}
+Content (first 8000 chars):
+${(post.content || "").slice(0, 8000)}
+
+Return ONLY valid JSON in this exact structure:
+{
+  "overallScore": <0-100 integer>,
+  "seoScore": <0-25>,
+  "readabilityScore": <0-25>,
+  "conversionScore": <0-25>,
+  "complianceScore": <0-25>,
+  "issues": [
+    {
+      "id": "unique_snake_case_id",
+      "severity": "critical" | "warning" | "info",
+      "category": "seo" | "readability" | "conversion" | "images" | "interlinking" | "structure",
+      "title": "Short issue title",
+      "description": "Specific description of the problem",
+      "fix": "Exact actionable fix instruction",
+      "autoFixable": true | false
+    }
+  ],
+  "targetKeyword": "best guess at primary keyword",
+  "wordCount": <integer>,
+  "h2Count": <integer>,
+  "h3Count": <integer>,
+  "imageCount": <integer>,
+  "internalLinkCount": <integer>,
+  "externalLinkCount": <integer>,
+  "hasMetaDescription": <boolean>,
+  "hasFocusKeywordInTitle": <boolean>,
+  "hasFocusKeywordInMeta": <boolean>,
+  "hasFocusKeywordInFirstParagraph": <boolean>,
+  "recommendations": ["Top 3-5 highest-impact improvements as plain strings"]
+}`;
+
+        const result = await callLLM({
+          model: "anthropic/claude-opus-5",
+          messages: [{ role: "user", content: auditPrompt }],
+          feature: "seo_audit",
+          referenceId: post.id,
+          referenceType: "blog_post",
+          maxTokens: 3000,
+        });
+
+        try {
+          // Extract JSON from response
+          const jsonMatch = result.match(/\{[\s\S]*\}/);
+          if (!jsonMatch) throw new Error("No JSON in response");
+          return JSON.parse(jsonMatch[0]);
+        } catch {
+          throw new Error("Failed to parse audit response");
+        }
+      }),
+
+    /**
+     * Rewrite and optimize a blog post to achieve maximum SEO score.
+     * Fixes spacing, structure, CTAs, interlinking, and copy quality in one shot.
+     */
+    optimizeTo100: protectedProcedure
+      .input(z.object({
+        slug: z.string(),
+        issues: z.array(z.object({
+          id: z.string(),
+          title: z.string(),
+          fix: z.string(),
+          autoFixable: z.boolean(),
+        })).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        const { blogPosts } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const posts = await db.select().from(blogPosts).where(eq(blogPosts.slug, input.slug)).limit(1);
+        const post = posts[0];
+        if (!post) throw new Error("Post not found");
+
+        const { callLLM } = await import("./cron/aiCostTracker");
+
+        const issueList = (input.issues || [])
+          .filter(i => i.autoFixable)
+          .map(i => `- ${i.title}: ${i.fix}`)
+          .join("\n");
+
+        const optimizePrompt = `You are an elite SEO content optimizer. Rewrite and improve this blog post to achieve the highest possible SEO score.
+
+Current Title: ${post.title}
+Current Meta Description: ${post.metaDescription || "MISSING"}
+
+Issues to fix:
+${issueList || "General optimization: improve spacing, add H2/H3 structure, strengthen CTAs, add internal links to /blog/ and /cities/ pages, ensure keyword density, improve paragraph flow, make it viral and engaging."}
+
+Current Content:
+${(post.content || "").slice(0, 6000)}
+
+Rules:
+- Keep all factual claims, legal citations, and phone number (904) 921-4971
+- Add proper spacing between paragraphs (blank lines between each paragraph)
+- Break up walls of text into 2-3 sentence paragraphs
+- Add H2 headings every 300-400 words
+- Add H3 subheadings within sections
+- Bold key terms and company names
+- Add 2-3 internal links to related pages using [anchor text](/path) format
+- Strengthen CTAs — make them urgent and specific
+- Add a FAQ section at the end with 3-5 questions
+- Make the opening hook more compelling
+- Never claim to be attorneys — use "consumer protection advocates" or "case specialists"
+
+Return ONLY valid JSON:
+{
+  "title": "optimized title (keep if already good)",
+  "metaDescription": "optimized meta description (150-160 chars, includes keyword)",
+  "content": "full optimized HTML/markdown content",
+  "improvements": ["list of what was changed"]
+}`;
+
+        const result = await callLLM({
+          model: "anthropic/claude-opus-5",
+          messages: [{ role: "user", content: optimizePrompt }],
+          feature: "optimize_to_100",
+          referenceId: post.id,
+          referenceType: "blog_post",
+          maxTokens: 4000,
+        });
+
+        try {
+          const jsonMatch = result.match(/\{[\s\S]*\}/);
+          if (!jsonMatch) throw new Error("No JSON in response");
+          const optimized = JSON.parse(jsonMatch[0]);
+
+          // Save the optimized content back to the post
+          await db.update(blogPosts)
+            .set({
+              title: optimized.title || post.title,
+              metaDescription: optimized.metaDescription || post.metaDescription,
+              content: optimized.content || post.content,
+              updatedAt: new Date(),
+            })
+            .where(eq(blogPosts.id, post.id));
+
+          return {
+            success: true,
+            title: optimized.title,
+            metaDescription: optimized.metaDescription,
+            improvements: optimized.improvements || [],
+          };
+        } catch {
+          throw new Error("Failed to parse optimization response");
+        }
+      }),
+
+    /**
      * Upload an image to S3 and return the CDN URL.
      * Accepts base64-encoded file content.
      */

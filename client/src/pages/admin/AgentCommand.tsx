@@ -6,6 +6,7 @@
 
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
+import { AIChatBox, type Message } from "@/components/AIChatBox";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -211,11 +212,68 @@ function OwnerView() {
 
 // ─── Agent Detail View ────────────────────────────────────────────────────────
 
+const AGENT_SUGGESTED_PROMPTS: Record<string, string[]> = {
+  content: [
+    "Write an article about Sunrun complaints in California",
+    "What's the best topic to write about this week?",
+    "Write a blog post targeting 'solar contract cancellation Texas'",
+    "What keywords are our competitors ranking for that we're missing?",
+  ],
+  seo_intel: [
+    "What are the top 5 keywords we should target next?",
+    "Which solar companies are getting the most complaints right now?",
+    "Analyze our competitor solarcomplaints.co — what are they ranking for?",
+    "What states have the most solar contract disputes?",
+  ],
+  money_maker: [
+    "Which leads from this week have the highest case value?",
+    "What's our estimated revenue if we convert 10% of this month's leads?",
+    "Which solar companies should we target for maximum attorney referral fees?",
+    "What's the average case value by state?",
+  ],
+  editor: [
+    "Review our latest blog post and give it a score",
+    "What's the weakest part of our content strategy right now?",
+    "Score this article on SEO, readability, conversion, and compliance",
+    "What CTAs are we missing from our top articles?",
+  ],
+  manager: [
+    "What should the agents focus on this week?",
+    "Give me a status report on all 6 agents",
+    "What's the biggest bottleneck in our content pipeline?",
+    "What actions need my approval right now?",
+  ],
+  infra: [
+    "Are all agents healthy? Any errors?",
+    "What's our AI cost this week?",
+    "Which agent has the highest error rate?",
+    "What system improvements should we make?",
+  ],
+};
+
 function AgentDetailView({ slug }: { slug: string }) {
   const { data: agent } = trpc.agents.get.useQuery({ slug: slug as any });
   const { data: runs } = trpc.agents.runs.useQuery({ agentSlug: slug as any, limit: 10 });
   const { data: actions } = trpc.agents.actions.useQuery({ agentSlug: slug as any, limit: 20 });
   const trigger = trpc.agents.trigger.useMutation();
+  const chatMutation = trpc.agents.chat.useMutation();
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
+
+  const handleSendMessage = (content: string) => {
+    const newMessages: Message[] = [...chatMessages, { role: "user", content }];
+    setChatMessages(newMessages);
+    chatMutation.mutate(
+      { slug: slug as any, messages: newMessages },
+      {
+        onSuccess: (data) => {
+          setChatMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
+        },
+        onError: () => {
+          setChatMessages(prev => [...prev, { role: "assistant", content: "Sorry, I ran into an error. Please try again." }]);
+        },
+      }
+    );
+  };
 
   const meta = AGENT_META[slug] || AGENT_META.manager;
   const Icon = meta.icon;
@@ -307,6 +365,27 @@ function AgentDetailView({ slug }: { slug: string }) {
           {(!actions || actions.length === 0) && (
             <p className="text-gray-500 text-sm">No actions yet.</p>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Live Chat */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-amber-400" />
+            TALK TO {meta.name.toUpperCase()}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <AIChatBox
+            messages={chatMessages}
+            onSendMessage={handleSendMessage}
+            isLoading={chatMutation.isPending}
+            height={420}
+            placeholder={`Ask ${meta.name} anything...`}
+            emptyStateMessage={`${meta.name} is ready. Ask a question or give a directive.`}
+            suggestedPrompts={AGENT_SUGGESTED_PROMPTS[slug] || []}
+          />
         </CardContent>
       </Card>
     </div>

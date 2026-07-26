@@ -292,6 +292,8 @@ export default function PostEditor() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [briefOpen, setBriefOpen] = useState(true);
+  const [auditOpen, setAuditOpen] = useState(false);
+  const [auditData, setAuditData] = useState<any>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -319,6 +321,21 @@ export default function PostEditor() {
   );
   const updateMutation = trpc.content.updatePost.useMutation();
   const uploadMutation = trpc.content.uploadImage.useMutation();
+  const seoAuditMutation = trpc.content.seoAudit.useMutation({
+    onSuccess: (data) => {
+      setAuditData(data);
+      setAuditOpen(true);
+    },
+    onError: (err) => toast.error(`Audit failed: ${err.message}`),
+  });
+  const optimizeMutation = trpc.content.optimizeTo100.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Optimized! ${data.improvements?.length || 0} improvements applied.`);
+      // Reload the post data
+      setAuditData(null);
+    },
+    onError: (err) => toast.error(`Optimization failed: ${err.message}`),
+  });
 
   // TipTap editor
   const editor = useEditor({
@@ -851,6 +868,167 @@ export default function PostEditor() {
                             </div>
                           );
                         })()}
+                      </CardContent>
+                    )}
+                  </Card>
+                )}
+
+                {/* SEO Optimizer */}
+                {selectedSlug && (
+                  <Card className="border border-white/5 bg-[#111318]">
+                    <CardHeader className="pb-0">
+                      <button
+                        type="button"
+                        onClick={() => setAuditOpen(o => !o)}
+                        className="flex items-center justify-between w-full text-left"
+                      >
+                        <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-green-400" />
+                          SEO Optimizer
+                          {auditData && (
+                            <span className={cn(
+                              "text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded ml-1",
+                              auditData.overallScore >= 80 ? "bg-green-500/15 text-green-400" :
+                              auditData.overallScore >= 60 ? "bg-amber-500/15 text-amber-400" :
+                              "bg-red-500/15 text-red-400"
+                            )}>
+                              Score: {auditData.overallScore}/100
+                            </span>
+                          )}
+                        </CardTitle>
+                        <div className="flex items-center gap-2">
+                          {!auditData && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => { e.stopPropagation(); seoAuditMutation.mutate({ slug: selectedSlug }); }}
+                              disabled={seoAuditMutation.isPending}
+                              className="h-7 text-xs border-white/10 text-gray-300 hover:text-white hover:border-white/30"
+                            >
+                              {seoAuditMutation.isPending ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Analyzing...</> : <><Search className="w-3 h-3 mr-1" />Run Audit</>}
+                            </Button>
+                          )}
+                          {auditData && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => { e.stopPropagation(); optimizeMutation.mutate({ slug: selectedSlug, issues: auditData.issues }); }}
+                              disabled={optimizeMutation.isPending}
+                              className="h-7 text-xs bg-green-600 hover:bg-green-500 text-white border-0"
+                            >
+                              {optimizeMutation.isPending ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Optimizing...</> : <><Sparkles className="w-3 h-3 mr-1" />Optimize to 100</>}
+                            </Button>
+                          )}
+                          {auditOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                        </div>
+                      </button>
+                    </CardHeader>
+                    {auditOpen && (
+                      <CardContent className="pt-4 space-y-4">
+                        {!auditData && !seoAuditMutation.isPending && (
+                          <div className="text-center py-6">
+                            <Zap className="w-8 h-8 mx-auto mb-2 text-gray-600" />
+                            <p className="text-gray-500 text-sm">Run an audit to see SEO issues, copy quality score, and get an AI-powered optimization.</p>
+                            <Button
+                              size="sm"
+                              onClick={() => seoAuditMutation.mutate({ slug: selectedSlug })}
+                              disabled={seoAuditMutation.isPending}
+                              className="mt-3 bg-green-600 hover:bg-green-500 text-white border-0"
+                            >
+                              <Search className="w-3.5 h-3.5 mr-1.5" />Run SEO Audit
+                            </Button>
+                          </div>
+                        )}
+                        {seoAuditMutation.isPending && (
+                          <div className="text-center py-6">
+                            <Loader2 className="w-8 h-8 mx-auto mb-2 text-gray-500 animate-spin" />
+                            <p className="text-gray-500 text-sm">Claude Opus 5 is analyzing your article...</p>
+                          </div>
+                        )}
+                        {auditData && (
+                          <div className="space-y-4">
+                            {/* Score breakdown */}
+                            <div className="grid grid-cols-4 gap-2">
+                              {[
+                                { label: "SEO", score: auditData.seoScore, max: 25 },
+                                { label: "Readability", score: auditData.readabilityScore, max: 25 },
+                                { label: "Conversion", score: auditData.conversionScore, max: 25 },
+                                { label: "Compliance", score: auditData.complianceScore, max: 25 },
+                              ].map(({ label, score, max }) => (
+                                <div key={label} className="bg-white/5 rounded-lg p-2.5 text-center border border-white/5">
+                                  <div className={cn(
+                                    "text-lg font-bold font-mono",
+                                    score >= max * 0.8 ? "text-green-400" : score >= max * 0.6 ? "text-amber-400" : "text-red-400"
+                                  )}>{score}/{max}</div>
+                                  <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Stats row */}
+                            <div className="flex flex-wrap gap-3 text-xs text-gray-400">
+                              <span><span className="text-white font-mono">{auditData.wordCount}</span> words</span>
+                              <span><span className="text-white font-mono">{auditData.h2Count}</span> H2s</span>
+                              <span><span className="text-white font-mono">{auditData.h3Count}</span> H3s</span>
+                              <span><span className="text-white font-mono">{auditData.imageCount}</span> images</span>
+                              <span><span className="text-white font-mono">{auditData.internalLinkCount}</span> internal links</span>
+                              {auditData.targetKeyword && <span>Keyword: <span className="text-amber-400">{auditData.targetKeyword}</span></span>}
+                            </div>
+
+                            {/* Issues list */}
+                            {auditData.issues?.length > 0 && (
+                              <div className="space-y-2">
+                                <div className="text-xs font-mono text-gray-400 uppercase tracking-wider">Issues ({auditData.issues.length})</div>
+                                {auditData.issues.map((issue: any) => (
+                                  <div key={issue.id} className={cn(
+                                    "rounded-lg p-3 border text-xs",
+                                    issue.severity === "critical" ? "bg-red-500/5 border-red-500/20" :
+                                    issue.severity === "warning" ? "bg-amber-500/5 border-amber-500/20" :
+                                    "bg-white/3 border-white/5"
+                                  )}>
+                                    <div className="flex items-start gap-2">
+                                      <span className={cn(
+                                        "shrink-0 text-[10px] font-mono uppercase px-1.5 py-0.5 rounded mt-0.5",
+                                        issue.severity === "critical" ? "bg-red-500/20 text-red-400" :
+                                        issue.severity === "warning" ? "bg-amber-500/20 text-amber-400" :
+                                        "bg-white/10 text-gray-400"
+                                      )}>{issue.severity}</span>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-semibold text-white">{issue.title}</div>
+                                        <div className="text-gray-400 mt-0.5">{issue.description}</div>
+                                        <div className="text-green-400 mt-1">Fix: {issue.fix}</div>
+                                        {issue.autoFixable && <span className="text-[10px] text-green-500 font-mono">AUTO-FIXABLE</span>}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Recommendations */}
+                            {auditData.recommendations?.length > 0 && (
+                              <div className="space-y-1.5">
+                                <div className="text-xs font-mono text-gray-400 uppercase tracking-wider">Top Recommendations</div>
+                                {auditData.recommendations.map((rec: string, i: number) => (
+                                  <div key={i} className="flex items-start gap-2 text-xs">
+                                    <span className="text-amber-400 shrink-0 font-mono">{i + 1}.</span>
+                                    <span className="text-gray-300">{rec}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Optimize button */}
+                            <Button
+                              onClick={() => optimizeMutation.mutate({ slug: selectedSlug, issues: auditData.issues })}
+                              disabled={optimizeMutation.isPending}
+                              className="w-full bg-green-600 hover:bg-green-500 text-white border-0"
+                            >
+                              {optimizeMutation.isPending
+                                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Claude Opus 5 is rewriting your article...</>
+                                : <><Sparkles className="w-4 h-4 mr-2" />Optimize to 100 — Fix All Issues Automatically</>}
+                            </Button>
+                          </div>
+                        )}
                       </CardContent>
                     )}
                   </Card>

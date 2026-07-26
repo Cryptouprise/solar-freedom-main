@@ -204,7 +204,7 @@ export async function getUnreadMessages(toAgent: AgentSlug): Promise<AgentMessag
       eq(agentMessages.toAgent, toAgent),
       eq(agentMessages.status, "pending")
     ))
-    .orderBy(agentMessages.priority, agentMessages.createdAt);
+    .orderBy(agentMessages.createdAt);
 }
 
 export async function markMessageRead(id: number): Promise<void> {
@@ -243,11 +243,11 @@ export async function getActionQueue(filters?: {
   const query = db.select().from(agentActions);
   if (conditions.length > 0) {
     return query.where(and(...conditions))
-      .orderBy(agentActions.priority, desc(agentActions.createdAt))
+      .orderBy(desc(agentActions.createdAt))
       .limit(filters?.limit ?? 50);
   }
   return query
-    .orderBy(agentActions.priority, desc(agentActions.createdAt))
+    .orderBy(desc(agentActions.createdAt))
     .limit(filters?.limit ?? 50);
 }
 

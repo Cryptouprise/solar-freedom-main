@@ -850,3 +850,23 @@
 - [x] Empty state when no brief exists (prompt to run Content Agent)
 - [x] Collapsible panel (open by default, toggle with chevron)
 - [x] All 82 tests passing, zero TypeScript errors
+
+## Phase 39 — SEO Optimizer + Agent Fix
+- [x] Fix agent detail page errors (priority enum ordering in getUnreadMessages and getActionQueue)
+- [x] Add seoAudit tRPC procedure — Claude Opus 5 analyzes post for word count, H2/H3, paragraph length, images, internal links, meta, CTA, keyword density, copy quality, interlinking
+- [x] Add optimizeTo100 tRPC procedure — AI rewrites post fixing all issues, saves to DB
+- [x] SEO Optimizer panel in Post Editor: Run Audit button, 4-score breakdown (SEO/Readability/Conversion/Compliance), stats row, issues list with severity badges
+- [x] "Optimize to 100" master button — Claude Opus 5 rewrites article in one shot
+- [x] All 82 tests passing, zero TypeScript errors
+
+## Phase 40 — Real Agent Chat + Working Agents
+- [x] Fix agent detail page errors (priority enum ordering fixed in engine.ts)
+- [x] Add agents.chat tRPC mutation — takes message + agentSlug, calls each agent's model (Opus 5 / DeepSeek V4.5) with full persona + context, returns AI response
+- [x] Agent chat UI: AIChatBox component in AgentDetailView, suggested prompts per agent, send message button
+- [x] Content Agent chat: can write article on demand, push to BlogStudio
+- [x] SEO Intel Agent chat: can pull keyword opportunities, competitor gaps
+- [x] Money Maker Agent chat: can pull lead stats, score leads
+- [x] Manager Agent chat: can give status on all agents
+- [x] Editor Agent chat: can score any article on demand
+- [x] Infrastructure Agent chat: can report system health, costs, errors
+- [x] All 82 tests passing, zero TypeScript errors
