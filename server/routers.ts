@@ -404,6 +404,81 @@ export const appRouter = router({
       }),
 
     /**
+     * Get the Strategy & SEO brief for a post by slug.
+     * Checks blogDrafts (agent-written) first, then contentPipeline, returns null if none found.
+     */
+    getPostBrief: protectedProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const db = await getDb();
+        if (!db) return null;
+        const { blogDrafts, contentPipeline } = await import("../drizzle/schema");
+        const { eq, desc } = await import("drizzle-orm");
+
+        // 1. Check blogDrafts for agent-written brief (most recent with contentBrief)
+        const drafts = await db
+          .select()
+          .from(blogDrafts)
+          .where(eq(blogDrafts.postSlug, input.slug))
+          .orderBy(desc(blogDrafts.updatedAt))
+          .limit(10);
+        const draftWithBrief = drafts.find(d => d.contentBrief);
+        if (draftWithBrief?.contentBrief) {
+          try {
+            const brief = JSON.parse(draftWithBrief.contentBrief);
+            return {
+              source: "draft" as const,
+              targetKeyword: draftWithBrief.targetKeyword ?? null,
+              brief,
+            };
+          } catch { /* fall through */ }
+        }
+
+        // 2. Check contentPipeline by slug
+        const pipeline = await db
+          .select()
+          .from(contentPipeline)
+          .where(eq(contentPipeline.slug, input.slug))
+          .orderBy(desc(contentPipeline.updatedAt))
+          .limit(1);
+        const pipeItem = pipeline[0];
+        if (pipeItem?.contentBrief) {
+          try {
+            const brief = JSON.parse(pipeItem.contentBrief);
+            return {
+              source: "pipeline" as const,
+              targetKeyword: pipeItem.targetKeyword ?? null,
+              brief,
+            };
+          } catch { /* fall through */ }
+        }
+
+        // 3. Return structured fields from pipeline even without a full brief
+        if (pipeItem) {
+          return {
+            source: "pipeline" as const,
+            targetKeyword: pipeItem.targetKeyword ?? null,
+            brief: {
+              keywordStrategy: pipeItem.targetKeyword
+                ? `Primary keyword: ${pipeItem.targetKeyword}${pipeItem.secondaryKeywords ? `. Secondary: ${pipeItem.secondaryKeywords}` : ""}`
+                : null,
+              whyNow: null,
+              trendingSignals: null,
+              competitorGap: null,
+              serpAnalysis: null,
+              leadPlan: null,
+              revenueCase: null,
+              hotCompanies: [],
+              hotKeywords: pipeItem.targetKeyword ? [pipeItem.targetKeyword] : [],
+            },
+          };
+        }
+
+        return null;
+      }),
+
+    /**
      * Upload an image to S3 and return the CDN URL.
      * Accepts base64-encoded file content.
      */

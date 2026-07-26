@@ -838,3 +838,15 @@
 - [x] Register /admin route in App.tsx
 - [x] Add /admin to CLIENT_ONLY_ROUTES in seo-delivery.ts
 - [x] All 82 tests passing, zero TypeScript errors
+
+## Phase 38 — Strategy & SEO Panel in Post Editor
+- [x] Add getPostBrief tRPC procedure to content router in routers.ts — checks blogDrafts first, then contentPipeline, by slug
+- [x] Add briefOpen state + briefData query to PostEditor.tsx
+- [x] Add new lucide icons: Target, TrendingUp, Users, DollarSign, ChevronDown, ChevronUp, Sparkles, BarChart2, Zap
+- [x] Insert Strategy & SEO collapsible card between SEO Metadata and Content editor
+- [x] Card shows: source badge (AI Agent / Pipeline), target keyword, hot companies chips, hot keywords chips
+- [x] 2-column grid: Why Now, Trending Signals, Competitor Gap, SERP Analysis, Keyword Strategy, Lead Plan
+- [x] Full-width green Revenue Case highlight box
+- [x] Empty state when no brief exists (prompt to run Content Agent)
+- [x] Collapsible panel (open by default, toggle with chevron)
+- [x] All 82 tests passing, zero TypeScript errors

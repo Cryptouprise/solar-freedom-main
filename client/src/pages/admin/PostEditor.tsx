@@ -66,6 +66,15 @@ import {
   Loader2,
   Plus,
   Trash2,
+  Target,
+  TrendingUp,
+  Users,
+  DollarSign,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  BarChart2,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -282,6 +291,7 @@ export default function PostEditor() {
   const [imageDialog, setImageDialog] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [briefOpen, setBriefOpen] = useState(true);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -300,6 +310,10 @@ export default function PostEditor() {
   // tRPC
   const { data: postsData } = trpc.content.listAllPosts.useQuery({ limit: 200, offset: 0 });
   const { data: postData, isLoading: postLoading } = trpc.content.getAdminPost.useQuery(
+    { slug: selectedSlug! },
+    { enabled: !!selectedSlug }
+  );
+  const { data: briefData, isLoading: briefLoading } = trpc.content.getPostBrief.useQuery(
     { slug: selectedSlug! },
     { enabled: !!selectedSlug }
   );
@@ -695,6 +709,152 @@ export default function PostEditor() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Strategy & SEO Brief */}
+                {selectedSlug && (
+                  <Card className={cn(
+                    "border transition-colors",
+                    briefData ? "border-amber-500/30 bg-amber-500/5" : "border-white/5 bg-[#111318]"
+                  )}>
+                    <CardHeader className="pb-0">
+                      <button
+                        type="button"
+                        onClick={() => setBriefOpen(o => !o)}
+                        className="flex items-center justify-between w-full text-left"
+                      >
+                        <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                          Strategy & SEO Brief
+                          {briefData && (
+                            <span className="text-amber-400 text-[10px] font-mono uppercase tracking-wider bg-amber-500/15 px-1.5 py-0.5 rounded ml-1">
+                              {briefData.source === "draft" ? "AI Agent" : "Pipeline"}
+                            </span>
+                          )}
+                          {briefLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-500" />}
+                        </CardTitle>
+                        {briefOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                      </button>
+                    </CardHeader>
+                    {briefOpen && (
+                      <CardContent className="pt-4 space-y-4">
+                        {!briefData && !briefLoading && (
+                          <div className="text-center py-6">
+                            <BarChart2 className="w-8 h-8 mx-auto mb-2 text-gray-600" />
+                            <p className="text-gray-500 text-sm">No strategy brief yet for this post.</p>
+                            <p className="text-gray-600 text-xs mt-1">Run the Content Agent to generate a full intelligence brief with keyword targets, competitor analysis, and lead plan.</p>
+                          </div>
+                        )}
+                        {briefData && (() => {
+                          const b = briefData.brief;
+                          return (
+                            <div className="space-y-4">
+                              {/* Target keyword + source badge */}
+                              {briefData.targetKeyword && (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <Target className="w-4 h-4 text-amber-400 shrink-0" />
+                                  <span className="text-white text-sm font-semibold">{briefData.targetKeyword}</span>
+                                  <span className="text-gray-500 text-xs">Primary keyword target</span>
+                                </div>
+                              )}
+
+                              {/* Hot Companies + Hot Keywords */}
+                              {(b.hotCompanies?.length > 0 || b.hotKeywords?.length > 0) && (
+                                <div className="flex flex-wrap gap-3">
+                                  {b.hotCompanies?.length > 0 && (
+                                    <div>
+                                      <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                        <Zap className="w-3 h-3" /> Hot Companies
+                                      </p>
+                                      <div className="flex flex-wrap gap-1">
+                                        {b.hotCompanies.map((c: string) => (
+                                          <span key={c} className="text-[11px] bg-red-500/15 text-red-400 px-2 py-0.5 rounded-full font-mono border border-red-500/20">{c}</span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {b.hotKeywords?.length > 0 && (
+                                    <div>
+                                      <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                        <TrendingUp className="w-3 h-3" /> Hot Keywords
+                                      </p>
+                                      <div className="flex flex-wrap gap-1">
+                                        {b.hotKeywords.map((k: string) => (
+                                          <span key={k} className="text-[11px] bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-full font-mono border border-amber-500/20">{k}</span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* 2-column grid for the main brief sections */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {b.whyNow && (
+                                  <div className="bg-white/3 rounded-lg p-3 border border-white/5">
+                                    <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                                      <Zap className="w-3 h-3 text-amber-400" /> Why Now
+                                    </p>
+                                    <p className="text-gray-300 text-xs leading-relaxed">{b.whyNow}</p>
+                                  </div>
+                                )}
+                                {b.trendingSignals && (
+                                  <div className="bg-white/3 rounded-lg p-3 border border-white/5">
+                                    <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                                      <TrendingUp className="w-3 h-3 text-blue-400" /> Trending Signals
+                                    </p>
+                                    <p className="text-gray-300 text-xs leading-relaxed">{b.trendingSignals}</p>
+                                  </div>
+                                )}
+                                {b.competitorGap && (
+                                  <div className="bg-white/3 rounded-lg p-3 border border-white/5">
+                                    <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                                      <BarChart2 className="w-3 h-3 text-purple-400" /> Competitor Gap
+                                    </p>
+                                    <p className="text-gray-300 text-xs leading-relaxed">{b.competitorGap}</p>
+                                  </div>
+                                )}
+                                {b.serpAnalysis && (
+                                  <div className="bg-white/3 rounded-lg p-3 border border-white/5">
+                                    <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                                      <Search className="w-3 h-3 text-green-400" /> SERP Analysis
+                                    </p>
+                                    <p className="text-gray-300 text-xs leading-relaxed">{b.serpAnalysis}</p>
+                                  </div>
+                                )}
+                                {b.keywordStrategy && (
+                                  <div className="bg-white/3 rounded-lg p-3 border border-white/5">
+                                    <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                                      <Target className="w-3 h-3 text-amber-400" /> Keyword Strategy
+                                    </p>
+                                    <p className="text-gray-300 text-xs leading-relaxed">{b.keywordStrategy}</p>
+                                  </div>
+                                )}
+                                {b.leadPlan && (
+                                  <div className="bg-white/3 rounded-lg p-3 border border-white/5">
+                                    <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                                      <Users className="w-3 h-3 text-cyan-400" /> Lead Plan
+                                    </p>
+                                    <p className="text-gray-300 text-xs leading-relaxed">{b.leadPlan}</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Revenue Case — full width, highlighted */}
+                              {b.revenueCase && (
+                                <div className="bg-green-500/10 border border-green-500/25 rounded-lg p-4">
+                                  <p className="text-green-400 text-[10px] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <DollarSign className="w-3.5 h-3.5" /> Revenue Case
+                                  </p>
+                                  <p className="text-green-300 text-sm leading-relaxed font-medium">{b.revenueCase}</p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </CardContent>
+                    )}
+                  </Card>
+                )}
 
                 {/* Rich text editor */}
                 <Card className="bg-[#111318] border-white/5">
