@@ -713,9 +713,7 @@ router.post("/keys", requirePermission("keys:manage"), async (req: AdminRequest,
 
     // A key may never mint a key more powerful than itself. Admin sessions hold "*"
     // and retain full grant ability; scoped API keys are capped at their own grants.
-    const callerPerms: string[] = (req as AdminRequest).apiKey?.permissions
-      ? JSON.parse((req as AdminRequest).apiKey!.permissions as unknown as string)
-      : [];
+    const callerPerms: string[] = (req as AdminRequest).apiKey?.permissions ?? [];
     if (!callerPerms.includes("*")) {
       const escalated = requested.filter((p: string) => p === "*" || !callerPerms.includes(p));
       if (escalated.length > 0) {

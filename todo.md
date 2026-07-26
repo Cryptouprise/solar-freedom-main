@@ -812,3 +812,9 @@
 - [x] Infrastructure tab in Agent Command Center — Medium articles, backlinks, health log, change log
 - [x] infra agent wired into index.ts, agentRouter.ts, agentRun.ts
 - [x] 82 tests passing after all changes
+
+## Phase 35c — Infra Tab Filtering & Sorting
+- [x] Add agent filter dropdown to System Change Log table (filter by actor: all agents + system)
+- [x] Add date sort toggle to Discovered Backlinks table (newest/oldest first)
+- [x] Add category filter to System Change Log table
+- [x] Add crawl status filter to Medium Articles table

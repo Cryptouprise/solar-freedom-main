@@ -4,7 +4,7 @@
  * Dark theme, gold accents, Owner/Team mode toggle.
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ import {
   Link,
   TrendingUp,
   History,
+  ArrowUpDown,
+  Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -399,6 +401,12 @@ function InfrastructureView() {
   const { data: infra, isLoading, refetch } = trpc.agents.infraStatus.useQuery();
   const trigger = trpc.agents.trigger.useMutation({ onSuccess: () => refetch() });
 
+  // Filter & sort state
+  const [changeLogActorFilter, setChangeLogActorFilter] = useState<string>("all");
+  const [changeLogCategoryFilter, setChangeLogCategoryFilter] = useState<string>("all");
+  const [backlinkSortOrder, setBacklinkSortOrder] = useState<"newest" | "oldest">("newest");
+  const [mediumStatusFilter, setMediumStatusFilter] = useState<string>("all");
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -417,6 +425,30 @@ function InfrastructureView() {
   const errorCount = mediumArticleList.filter((a: any) => a.crawlStatus === "error").length;
   const totalBacklinks = backlinks.length;
   const activeBacklinks = backlinks.filter((b: any) => b.isActive).length;
+
+  // Derive unique actors and categories from change logs
+  const uniqueActors = Array.from(new Set(changeLogs.map((l: any) => l.actor)));
+  const uniqueCategories = Array.from(new Set(changeLogs.map((l: any) => l.category)));
+
+  // Filtered change logs
+  const filteredChangeLogs = changeLogs.filter((log: any) => {
+    if (changeLogActorFilter !== "all" && log.actor !== changeLogActorFilter) return false;
+    if (changeLogCategoryFilter !== "all" && log.category !== changeLogCategoryFilter) return false;
+    return true;
+  });
+
+  // Sorted backlinks
+  const sortedBacklinks = [...backlinks].sort((a: any, b: any) => {
+    const dateA = new Date(a.firstDiscoveredAt).getTime();
+    const dateB = new Date(b.firstDiscoveredAt).getTime();
+    return backlinkSortOrder === "newest" ? dateB - dateA : dateA - dateB;
+  });
+
+  // Filtered medium articles
+  const filteredMediumArticles = mediumArticleList.filter((a: any) => {
+    if (mediumStatusFilter === "all") return true;
+    return a.crawlStatus === mediumStatusFilter;
+  });
 
   return (
     <div className="space-y-4">
@@ -476,15 +508,29 @@ function InfrastructureView() {
         {/* Medium Articles */}
         <Card className="bg-white/5 border-white/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
-              <Link className="w-4 h-4 text-cyan-400" /> MEDIUM ARTICLES (DA 95 BACKLINKS)
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+                <Link className="w-4 h-4 text-cyan-400" /> MEDIUM ARTICLES (DA 95)
+              </CardTitle>
+              <select
+                value={mediumStatusFilter}
+                onChange={(e) => setMediumStatusFilter(e.target.value)}
+                className="text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-gray-300 focus:outline-none focus:border-cyan-500/50"
+              >
+                <option value="all">All Status</option>
+                <option value="crawled">Crawled</option>
+                <option value="pending">Pending</option>
+                <option value="error">Error</option>
+              </select>
+            </div>
           </CardHeader>
           <CardContent className="space-y-1.5 max-h-64 overflow-y-auto">
-            {mediumArticleList.length === 0 ? (
-              <p className="text-gray-500 text-sm">No Medium articles tracked yet. Articles will be seeded on next cron run.</p>
+            {filteredMediumArticles.length === 0 ? (
+              <p className="text-gray-500 text-sm">
+                {mediumStatusFilter === "all" ? "No Medium articles tracked yet." : `No articles with status "${mediumStatusFilter}".`}
+              </p>
             ) : (
-              mediumArticleList.map((article: any) => (
+              filteredMediumArticles.map((article: any) => (
                 <div key={article.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-300 truncate">{article.title}</p>
@@ -507,15 +553,24 @@ function InfrastructureView() {
         {/* Discovered Backlinks */}
         <Card className="bg-white/5 border-white/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-cyan-400" /> DISCOVERED BACKLINKS
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-cyan-400" /> DISCOVERED BACKLINKS
+              </CardTitle>
+              <button
+                onClick={() => setBacklinkSortOrder(prev => prev === "newest" ? "oldest" : "newest")}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-cyan-300 transition-colors bg-white/5 border border-white/10 rounded px-2 py-1"
+              >
+                <ArrowUpDown className="w-3 h-3" />
+                {backlinkSortOrder === "newest" ? "Newest" : "Oldest"}
+              </button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-1.5 max-h-64 overflow-y-auto">
-            {backlinks.length === 0 ? (
+            {sortedBacklinks.length === 0 ? (
               <p className="text-gray-500 text-sm">No backlinks discovered yet. Publish Medium articles and run the tracker.</p>
             ) : (
-              backlinks.map((bl: any) => (
+              sortedBacklinks.map((bl: any) => (
                 <div key={bl.id} className="py-1.5 border-b border-white/5 last:border-0">
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-gray-300 truncate flex-1">{bl.targetUrl}</p>
@@ -526,7 +581,10 @@ function InfrastructureView() {
                       {bl.doFollow ? "dofollow" : "nofollow"}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 truncate">{bl.anchorText || "(no anchor)"}</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="text-xs text-gray-500 truncate">{bl.anchorText || "(no anchor)"}</p>
+                    <span className="text-xs text-gray-600 shrink-0 ml-2">{new Date(bl.firstDiscoveredAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
               ))
             )}
@@ -537,19 +595,66 @@ function InfrastructureView() {
       {/* System Change Log */}
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
-            <History className="w-4 h-4 text-cyan-400" /> SYSTEM CHANGE LOG
-          </CardTitle>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+              <History className="w-4 h-4 text-cyan-400" /> SYSTEM CHANGE LOG
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <Filter className="w-3 h-3 text-gray-500" />
+                <select
+                  value={changeLogActorFilter}
+                  onChange={(e) => setChangeLogActorFilter(e.target.value)}
+                  className="text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-gray-300 focus:outline-none focus:border-cyan-500/50"
+                >
+                  <option value="all">All Agents</option>
+                  {uniqueActors.map((actor: string) => (
+                    <option key={actor} value={actor}>{actor}</option>
+                  ))}
+                </select>
+              </div>
+              <select
+                value={changeLogCategoryFilter}
+                onChange={(e) => setChangeLogCategoryFilter(e.target.value)}
+                className="text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-gray-300 focus:outline-none focus:border-cyan-500/50"
+              >
+                <option value="all">All Categories</option>
+                {uniqueCategories.map((cat: string) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              {(changeLogActorFilter !== "all" || changeLogCategoryFilter !== "all") && (
+                <button
+                  onClick={() => { setChangeLogActorFilter("all"); setChangeLogCategoryFilter("all"); }}
+                  className="text-xs text-cyan-400 hover:text-cyan-300 underline"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-1.5 max-h-48 overflow-y-auto">
-          {changeLogs.length === 0 ? (
-            <p className="text-gray-500 text-sm">No system changes logged yet.</p>
+        <CardContent className="space-y-1.5 max-h-64 overflow-y-auto">
+          {filteredChangeLogs.length === 0 ? (
+            <p className="text-gray-500 text-sm">
+              {changeLogs.length === 0 ? "No system changes logged yet." : "No changes match the current filters."}
+            </p>
           ) : (
-            changeLogs.map((log: any) => (
+            filteredChangeLogs.map((log: any) => (
               <div key={log.id} className="py-1.5 border-b border-white/5 last:border-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">{log.category}</span>
                   <span className="text-xs text-gray-400">{log.actor}</span>
+                  {log.impactScore != null && (
+                    <span className={cn(
+                      "text-xs font-mono px-1.5 py-0.5 rounded",
+                      log.impactScore > 0 ? "text-green-400 bg-green-500/10" :
+                      log.impactScore < 0 ? "text-red-400 bg-red-500/10" :
+                      "text-gray-400 bg-white/5"
+                    )}>
+                      {log.impactScore > 0 ? "+" : ""}{log.impactScore}
+                    </span>
+                  )}
                   <span className="text-xs text-gray-600 ml-auto">{new Date(log.createdAt).toLocaleDateString()}</span>
                 </div>
                 <p className="text-xs text-gray-300 mt-0.5 truncate">{log.description}</p>
