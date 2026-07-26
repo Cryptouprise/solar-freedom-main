@@ -18,6 +18,7 @@ import {
   Target,
   Wand2,
   Bot,
+  Brain,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -84,6 +85,12 @@ const NAV_ITEMS = [
     href: "/admin/automations",
     icon: Bot,
     description: "Custom schedules & AI agents",
+  },
+  {
+    label: "Agent Command",
+    href: "/admin/agents",
+    icon: Brain,
+    description: "5-agent autonomous system",
   },
 ];
 

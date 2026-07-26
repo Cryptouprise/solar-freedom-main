@@ -14,6 +14,7 @@ import adminRouter from "../adminRouter";
 import { startPressReleaseCron } from "../cron/pressRelease";
 import { startBacklinkDiscoveryCron } from "../cron/backlinkDiscovery";
 import { automationRunHandler } from "../scheduled/automationRun";
+import { agentRunHandler } from "../scheduled/agentRun";
 import { rateLimit } from "express-rate-limit";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -160,6 +161,7 @@ async function startServer() {
   // ─── Scheduled / Heartbeat handlers ─────────────────────────────────────────
   // MUST be registered before the tRPC middleware and Vite fallthrough
   app.post("/api/scheduled/automation-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), automationRunHandler);
+  app.post("/api/scheduled/agent-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), agentRunHandler);
 
   // tRPC API
   app.use(

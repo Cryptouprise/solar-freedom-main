@@ -743,32 +743,32 @@
 ## Phase 33 — 5-Agent System Build (FB Command Center Integration)
 
 ### Agent Engine Core
-- [ ] MoneyMaker agent — attorney discovery, scoring, revenue pipeline
-- [ ] SEO Intel agent — change tracking, GSC correlation, recommendations
-- [ ] Content agent — article generation from directives
-- [ ] Editor agent — quality gate, E-E-A-T, duplicate check
-- [ ] Manager agent — oversight, approval/rejection, final checkpoint
+- [x] MoneyMaker agent — attorney discovery, scoring, revenue pipeline
+- [x] SEO Intel agent — change tracking, GSC correlation, recommendations
+- [x] Content agent — article generation from directives
+- [x] Editor agent — quality gate, E-E-A-T, duplicate check
+- [x] Manager agent — oversight, approval/rejection, final checkpoint
 
 ### Agent API (tRPC)
-- [ ] agent.list — get all agents with status
-- [ ] agent.trigger — manually run an agent
-- [ ] agent.getActions — priority action queue (P1-P5)
-- [ ] agent.approveAction / rejectAction
-- [ ] agent.getMessages — inter-agent communication log
-- [ ] agent.getRunLog — execution history
-- [ ] agent.getContentPipeline — articles in progress
-- [ ] agent.getRevenue — revenue tracker data
+- [x] agent.list — get all agents with status
+- [x] agent.trigger — manually run an agent
+- [x] agent.getActions — priority action queue (P1-P5)
+- [x] agent.approveAction / rejectAction
+- [x] agent.getMessages — inter-agent communication log
+- [x] agent.getRunLog — execution history
+- [x] agent.getContentPipeline — articles in progress
+- [x] agent.getRevenue — revenue tracker data
 
 ### Agent Dashboard UI (FB Command Center design)
-- [ ] Agent Command tab — action queue with P1-P5 priority
-- [ ] Agent Messages tab — inter-agent communication bus
-- [ ] Content Pipeline tab — articles flowing through system
-- [ ] Revenue Tracker tab — leads sold, invoices, payments
-- [ ] Agent Status cards — health/last-run for each agent
+- [x] Agent Command tab — action queue with P1-P5 priority
+- [x] Agent Messages tab — inter-agent communication bus
+- [x] Content Pipeline tab — articles flowing through system
+- [x] Revenue Tracker tab — leads sold, invoices, payments
+- [x] Agent Status cards — health/last-run for each agent
 
 ### Heartbeat/Cron
-- [ ] MoneyMaker cron — daily attorney discovery scan
-- [ ] SEO Intel cron — daily GSC pull + change correlation
-- [ ] Content cron — weekly article generation batch
-- [ ] Editor cron — review queue processing
-- [ ] Manager cron — oversight sweep + approval queue
+- [x] MoneyMaker cron — daily attorney discovery scan
+- [x] SEO Intel cron — daily GSC pull + change correlation
+- [x] Content cron — weekly article generation batch
+- [x] Editor cron — review queue processing
+- [x] Manager cron — oversight sweep + approval queue

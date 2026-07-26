@@ -38,6 +38,7 @@ const Yt2Landing = lazy(() => import("@/pages/Yt2Landing"));
 const Yt3Landing = lazy(() => import("@/pages/Yt3Landing"));
 const AutomationBuilder = lazy(() => import("@/pages/admin/AutomationBuilder"));
 const LeadDistribution = lazy(() => import("@/pages/admin/LeadDistribution"));
+const AgentCommand = lazy(() => import("@/pages/admin/AgentCommand"));
 const MediaHub = lazy(() => import("@/pages/MediaHub"));
 const SitemapPage = lazy(() => import("@/pages/SitemapPage"));
 const SolarCompanyHub = lazy(() => import("@/pages/SolarCompanyHub"));
@@ -125,6 +126,7 @@ function Router() {
           <Route path={"/admin/blog-studio"} component={BlogStudio} />
           <Route path={"/admin/automations"} component={AutomationBuilder} />
           <Route path={"/admin/lead-distribution"} component={LeadDistribution} />
+          <Route path={"/admin/agents"} component={AgentCommand} />
           <Route path={"/youtube"} component={YouTubeLanding} />
           <Route path={"/yt"} component={YouTubeLanding} />
           <Route path={"/yt2"} component={Yt2Landing} />

@@ -28,6 +28,14 @@ export const CLIENT_ONLY_ROUTES = new Set([
   "/admin/posts",
   "/admin/blog-studio",
   "/admin/automations",
+  "/admin/lead-distribution",
+  "/admin/agents",
+  "/free-cancellation-letter",
+  "/media",
+  "/sunrun",
+  "/solar-companies",
+  "/calculator",
+  "/compare",
 ]);
 
 export function normalizePagePath(originalUrl: string): string | null {
