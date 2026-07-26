@@ -85,6 +85,13 @@
       "when": 1784569441626,
       "tag": "0011_cold_mad_thinker",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1785041610694,
+      "tag": "0012_regular_roughhouse",
+      "breakpoints": true
     }
   ]
 }

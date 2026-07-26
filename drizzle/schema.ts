@@ -683,3 +683,360 @@ export const leadDeliveries = mysqlTable("leadDeliveries", {
 export type LeadDelivery = typeof leadDeliveries.$inferSelect;
 export type InsertLeadDelivery = typeof leadDeliveries.$inferInsert;
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AGENT ECOSYSTEM — 5-Agent Intelligence System
+// Money-Making | SEO Intelligence | Content | Editor | Manager
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Agent Registry — defines each agent's identity, status, and configuration.
+ * The 5 agents: money_maker, seo_intel, content, editor, manager
+ */
+export const agents = mysqlTable("agents", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 50 }).notNull().unique(), // money_maker, seo_intel, content, editor, manager
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  role: text("role").notNull(), // System prompt / role definition
+  status: mysqlEnum("status", ["active", "paused", "error", "idle"]).default("idle").notNull(),
+  lastRunAt: timestamp("lastRunAt"),
+  lastRunDurationMs: int("lastRunDurationMs"),
+  lastRunSummary: text("lastRunSummary"),
+  totalRuns: int("totalRuns").default(0).notNull(),
+  totalCostUsd: decimal("totalCostUsd", { precision: 10, scale: 4 }).default("0").notNull(),
+  config: text("config"), // JSON: model preferences, temperature, max_tokens, etc.
+  cronExpression: varchar("cronExpression", { length: 100 }), // When this agent auto-runs
+  isEnabled: tinyint("isEnabled").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Agent = typeof agents.$inferSelect;
+export type InsertAgent = typeof agents.$inferInsert;
+
+/**
+ * Agent Messages — inter-agent communication bus.
+ * Agents send directives, reports, and approvals to each other.
+ * The Manager agent reviews and approves/rejects actions before execution.
+ */
+export const agentMessages = mysqlTable("agentMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  fromAgent: varchar("fromAgent", { length: 50 }).notNull(), // agent slug
+  toAgent: varchar("toAgent", { length: 50 }).notNull(),     // agent slug or "all"
+  type: mysqlEnum("type", [
+    "directive",       // "Write an article about X"
+    "report",          // "Here's what I found"
+    "approval_request", // "I want to do X, please approve"
+    "approved",        // Manager says go
+    "rejected",        // Manager says no
+    "alert",           // Something needs attention
+    "info",            // FYI, no action needed
+  ]).notNull(),
+  priority: mysqlEnum("priority", ["p1", "p2", "p3", "p4", "p5"]).default("p3").notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  body: text("body").notNull(), // Full message content (markdown)
+  metadata: text("metadata"),   // JSON: any structured data attached
+  status: mysqlEnum("status", ["pending", "read", "acted_on", "expired"])
+    .default("pending")
+    .notNull(),
+  parentMessageId: int("parentMessageId"), // For threading replies
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  readAt: timestamp("readAt"),
+  actedAt: timestamp("actedAt"),
+});
+
+export type AgentMessage = typeof agentMessages.$inferSelect;
+export type InsertAgentMessage = typeof agentMessages.$inferInsert;
+
+/**
+ * Agent Action Queue — prioritized actions for agents to execute.
+ * Inspired by the Omega "Jarvis Action Queue" pattern.
+ * Priority: P1 (money bleeding) → P5 (nice to have)
+ */
+export const agentActions = mysqlTable("agentActions", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 50 }).notNull(),
+  priority: mysqlEnum("priority", ["p1", "p2", "p3", "p4", "p5"]).default("p3").notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  actionType: varchar("actionType", { length: 100 }).notNull(), // e.g. "research_firm", "write_article", "check_ranking"
+  payload: text("payload"),  // JSON: input data for the action
+  status: mysqlEnum("status", ["queued", "running", "completed", "failed", "blocked", "approved", "rejected"])
+    .default("queued")
+    .notNull(),
+  result: text("result"),    // JSON: output from execution
+  requiresApproval: tinyint("requiresApproval").default(0).notNull(), // 1 = needs Manager sign-off
+  approvedBy: varchar("approvedBy", { length: 50 }), // "manager" or "human"
+  approvedAt: timestamp("approvedAt"),
+  errorMessage: text("errorMessage"),
+  retryCount: int("retryCount").default(0).notNull(),
+  scheduledFor: timestamp("scheduledFor"), // null = run immediately
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  durationMs: int("durationMs"),
+  costUsd: decimal("costUsd", { precision: 10, scale: 6 }).default("0"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AgentAction = typeof agentActions.$inferSelect;
+export type InsertAgentAction = typeof agentActions.$inferInsert;
+
+/**
+ * Attorney Prospects — firms discovered by the Money-Making Agent.
+ * Scored and ranked for outreach potential.
+ */
+export const attorneyProspects = mysqlTable("attorneyProspects", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Firm identity
+  firmName: varchar("firmName", { length: 300 }).notNull(),
+  website: varchar("website", { length: 500 }),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 320 }),
+  contactPerson: varchar("contactPerson", { length: 200 }),
+
+  // Location & coverage
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 50 }),
+  statesCovered: text("statesCovered"), // JSON array of state codes
+
+  // Practice details
+  practiceAreas: text("practiceAreas"),  // JSON array: ["solar_contracts", "consumer_protection", "DTPA"]
+  yearsInPractice: int("yearsInPractice"),
+  foundedYear: int("foundedYear"),
+  firmSize: varchar("firmSize", { length: 50 }), // "solo", "small", "mid", "large"
+
+  // Fee structure
+  feeStructure: mysqlEnum("feeStructure", ["contingency", "hourly", "flat_fee", "hybrid", "unknown"])
+    .default("unknown")
+    .notNull(),
+  contingencyPercent: varchar("contingencyPercent", { length: 20 }),
+  typicalCaseValue: varchar("typicalCaseValue", { length: 100 }),
+
+  // Performance / success metrics
+  casesHandled: int("casesHandled"),
+  successRate: varchar("successRate", { length: 20 }),
+  totalRecovered: varchar("totalRecovered", { length: 100 }), // e.g. "$1M+"
+  notableResults: text("notableResults"), // JSON array of case results
+  avgSettlement: varchar("avgSettlement", { length: 100 }),
+
+  // Competitive intel
+  advertisingChannels: text("advertisingChannels"), // JSON: ["google_ads", "avvo", "findlaw"]
+  seoKeywords: text("seoKeywords"),                // JSON: keywords they rank for
+  estimatedAdSpend: varchar("estimatedAdSpend", { length: 50 }),
+  competitorOf: text("competitorOf"),              // JSON: other firms they compete with
+
+  // Scoring (0-100)
+  overallScore: int("overallScore").default(0).notNull(),
+  scoreBreakdown: text("scoreBreakdown"), // JSON: {contingency: 30, experience: 25, coverage: 20, revenue_potential: 25}
+
+  // Outreach status
+  outreachStatus: mysqlEnum("outreachStatus", [
+    "not_contacted", "researching", "ready_to_pitch",
+    "pitched", "in_conversation", "signed", "rejected", "not_interested"
+  ]).default("not_contacted").notNull(),
+  outreachNotes: text("outreachNotes"),
+  lastContactedAt: timestamp("lastContactedAt"),
+  pitchAngle: text("pitchAngle"), // Personalized pitch recommendation
+
+  // Source
+  discoveredBy: varchar("discoveredBy", { length: 50 }).default("money_maker"), // agent slug
+  discoveredVia: varchar("discoveredVia", { length: 200 }), // "google_search", "avvo", "justia", etc.
+  verifiedAt: timestamp("verifiedAt"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AttorneyProspect = typeof attorneyProspects.$inferSelect;
+export type InsertAttorneyProspect = typeof attorneyProspects.$inferInsert;
+
+/**
+ * SEO Change Log — every change made to the site, tracked for impact analysis.
+ * The SEO Intelligence Agent correlates changes with GSC performance data.
+ */
+export const seoChangeLog = mysqlTable("seoChangeLog", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // What changed
+  changeType: mysqlEnum("changeType", [
+    "content_added", "content_updated", "content_removed",
+    "image_added", "image_updated", "image_removed",
+    "meta_updated", "schema_updated", "link_added", "link_removed",
+    "technical_fix", "page_speed", "redirect_added",
+    "backlink_acquired", "backlink_lost",
+    "design_change", "other"
+  ]).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description").notNull(),
+  pagesAffected: text("pagesAffected"), // JSON array of URLs/slugs affected
+  pageCount: int("pageCount").default(1),
+
+  // Before/after snapshot
+  beforeSnapshot: text("beforeSnapshot"), // JSON: relevant metrics before change
+  afterSnapshot: text("afterSnapshot"),   // JSON: relevant metrics after change (filled later)
+
+  // Impact measurement (filled by SEO Intel Agent after 7-14 days)
+  impactMeasured: tinyint("impactMeasured").default(0).notNull(),
+  impactScore: int("impactScore"), // -100 to +100 (negative = hurt, positive = helped)
+  impactSummary: text("impactSummary"),
+  impressionsDelta: int("impressionsDelta"),
+  clicksDelta: int("clicksDelta"),
+  positionDelta: varchar("positionDelta", { length: 20 }), // e.g. "+5.2" or "-2.1"
+  measurementDate: timestamp("measurementDate"),
+
+  // Attribution
+  madeBy: varchar("madeBy", { length: 100 }), // "content_agent", "human", "seo_intel", etc.
+  relatedActionId: int("relatedActionId"), // FK to agentActions.id if agent-initiated
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SeoChangeLog = typeof seoChangeLog.$inferSelect;
+export type InsertSeoChangeLog = typeof seoChangeLog.$inferInsert;
+
+/**
+ * Content Pipeline — articles/content pieces flowing through the agent system.
+ * Content Agent drafts → Editor Agent reviews → Manager Agent approves → Published
+ */
+export const contentPipeline = mysqlTable("contentPipeline", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Content identity
+  title: varchar("title", { length: 500 }).notNull(),
+  slug: varchar("slug", { length: 300 }),
+  contentType: mysqlEnum("contentType", ["blog_article", "city_page", "company_page", "landing_page", "medium_article", "press_release", "social_post"])
+    .default("blog_article")
+    .notNull(),
+
+  // SEO targeting
+  targetKeyword: varchar("targetKeyword", { length: 255 }),
+  secondaryKeywords: text("secondaryKeywords"), // JSON array
+  searchVolume: int("searchVolume"),
+  keywordDifficulty: int("keywordDifficulty"),
+  searchIntent: varchar("searchIntent", { length: 100 }), // informational, transactional, navigational
+
+  // Content
+  outline: text("outline"),        // Structured outline before writing
+  draft: text("draft"),            // Full draft content
+  finalContent: text("finalContent"), // Approved final version
+  wordCount: int("wordCount"),
+
+  // Pipeline status
+  stage: mysqlEnum("stage", [
+    "idea", "researching", "outlined", "drafting", "draft_complete",
+    "in_review", "revision_needed", "approved", "published", "rejected"
+  ]).default("idea").notNull(),
+
+  // Agent assignments
+  requestedBy: varchar("requestedBy", { length: 50 }), // Which agent requested this
+  assignedTo: varchar("assignedTo", { length: 50 }),   // Which agent is working on it
+  reviewedBy: varchar("reviewedBy", { length: 50 }),   // Editor agent
+  approvedBy: varchar("approvedBy", { length: 50 }),   // Manager agent
+
+  // Review feedback
+  editorFeedback: text("editorFeedback"),
+  managerFeedback: text("managerFeedback"),
+  revisionCount: int("revisionCount").default(0).notNull(),
+
+  // Quality scores (0-100)
+  seoScore: int("seoScore"),
+  readabilityScore: int("readabilityScore"),
+  eatScore: int("eatScore"),          // E-E-A-T compliance
+  duplicateRisk: int("duplicateRisk"), // 0=unique, 100=duplicate
+
+  // Revenue connection
+  revenueJustification: text("revenueJustification"), // Why this content makes money
+  estimatedMonthlyTraffic: int("estimatedMonthlyTraffic"),
+  estimatedLeadsPerMonth: int("estimatedLeadsPerMonth"),
+
+  // Publishing
+  publishedUrl: varchar("publishedUrl", { length: 500 }),
+  publishedAt: timestamp("publishedAt"),
+  blogPostId: int("blogPostId"), // FK to blogPosts.id once published
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContentPipeline = typeof contentPipeline.$inferSelect;
+export type InsertContentPipeline = typeof contentPipeline.$inferInsert;
+
+/**
+ * Agent Run Log — detailed execution history for every agent run.
+ * Tracks what the agent did, what it cost, and what it produced.
+ */
+export const agentRunLog = mysqlTable("agentRunLog", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 50 }).notNull(),
+  triggerType: mysqlEnum("triggerType", ["cron", "manual", "directive", "event"]).default("cron").notNull(),
+  triggeredBy: varchar("triggeredBy", { length: 100 }), // Who/what triggered it
+
+  // Execution
+  status: mysqlEnum("status", ["running", "completed", "failed", "timeout"]).default("running").notNull(),
+  summary: text("summary"),          // Human-readable summary of what happened
+  actionsCreated: int("actionsCreated").default(0),
+  messagesCreated: int("messagesCreated").default(0),
+
+  // LLM usage
+  model: varchar("model", { length: 200 }),
+  tokensIn: int("tokensIn").default(0),
+  tokensOut: int("tokensOut").default(0),
+  costUsd: decimal("costUsd", { precision: 10, scale: 6 }).default("0"),
+  llmCalls: int("llmCalls").default(0),
+
+  // Timing
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  durationMs: int("durationMs"),
+
+  // Error handling
+  errorMessage: text("errorMessage"),
+  errorStack: text("errorStack"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AgentRunLog = typeof agentRunLog.$inferSelect;
+export type InsertAgentRunLog = typeof agentRunLog.$inferInsert;
+
+/**
+ * Revenue Tracker — tracks all revenue-generating events.
+ * The Money-Making Agent's north star metric.
+ */
+export const revenueTracker = mysqlTable("revenueTracker", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Source
+  source: mysqlEnum("source", [
+    "lead_sale", "listing_fee", "pay_per_click", "pay_per_call",
+    "exclusive_territory", "consultation", "other"
+  ]).notNull(),
+  description: varchar("description", { length: 500 }),
+
+  // Money
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("USD").notNull(),
+  status: mysqlEnum("status", ["pending", "invoiced", "paid", "overdue", "cancelled"])
+    .default("pending")
+    .notNull(),
+
+  // Relations
+  firmId: int("firmId"),     // FK to lawFirms.id or attorneyProspects.id
+  leadId: int("leadId"),     // FK to leads.id
+  firmName: varchar("firmName", { length: 200 }),
+
+  // Dates
+  invoicedAt: timestamp("invoicedAt"),
+  paidAt: timestamp("paidAt"),
+  dueDate: timestamp("dueDate"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RevenueTracker = typeof revenueTracker.$inferSelect;
+export type InsertRevenueTracker = typeof revenueTracker.$inferInsert;

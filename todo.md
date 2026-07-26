@@ -607,3 +607,168 @@
 - [x] Add internal links from GoodLeap/Sunrun articles → new company pages (Mosaic, Sunlight, Dividend, Loanpal) — DONE (relatedSlugs updated in batch9 and batch10)
 - [x] Add author/attorney E-E-A-T bio section to blog posts — DONE ("Solar Freedom Legal Research Team" bio with expertise tags on all blog posts)
 - [ ] Install TrustedForm on all lead capture forms — PENDING (see Lead Monetization section)
+
+## 💰 Law Firm Marketplace / Directory Monetization (Revenue Model v2)
+
+**Concept:** Turn the site into a marketplace where solar contract attorneys PAY to be listed, receive calls, and get leads. Multiple revenue tiers.
+
+### Revenue Tiers
+- [ ] **Listing Fee** — Law firms pay $500/mo to appear on relevant city/state pages as a "recommended attorney"
+- [ ] **Pay-Per-Click** — Tracked clicks from our site to their site, billed per click
+- [ ] **Pay-Per-Call** — AI agent qualifies caller → warm-transfers to firm → recorded & billed ($50-$150/live transfer)
+- [ ] **Pay-Per-Lead** — Form fills routed directly to the firm, billed per qualified lead
+- [ ] **Exclusive Territory** — One firm buys out a city or state = premium pricing (no competitors shown)
+
+### Build Requirements
+- [ ] Law firm directory page (searchable by city/state)
+- [ ] Law firm profile cards on city pages (with tracking pixels for clicks)
+- [ ] Call tracking system — unique numbers per firm, AI agent pre-qualification, recorded transfers
+- [ ] Lead routing logic — round-robin or geographic assignment to paying firms
+- [ ] Billing/invoicing system for firms (Stripe recurring + usage-based)
+- [ ] Dashboard for firms to see their clicks/calls/leads in real-time
+- [ ] Outreach email templates + pitch deck for selling to firms
+
+### Money-Making Agent (Automated Research)
+- [ ] Build automated agent/cron job that researches and compiles a database of EVERY solar contract attorney and law firm in the US
+- [ ] Prioritize firms that do contingency (they're most likely to buy leads)
+- [ ] Capture: firm name, attorney names, city/state, website, phone, email, practice areas, contingency vs hourly
+- [ ] Score firms by likelihood to buy (contingency = high, solar-specific = high, consumer protection = medium)
+- [ ] Generate outreach list with personalized pitch angles per firm
+- [ ] Track outreach status (contacted, responded, signed up, paying)
+
+### Sales Strategy
+- [ ] Start with "Hey, we're already ranking in [city] and getting traffic. We want to list you for free for 30 days, then $500/mo after that."
+- [ ] Prove value with click/impression data before asking for money
+- [ ] Upsell to exclusive once multiple firms are paying in same market
+- [ ] Goal: Someone eventually buys us out or goes exclusive statewide
+
+### Priority: LATER (after traffic recovers and lead volume proves the model)
+
+## 🤖 Money-Making Agent — Attorney Intelligence Tool (BUILD NOW)
+
+### Phase 1: Research & Data Collection
+- [ ] Research all solar contract cancellation attorneys/firms in the US
+- [ ] Identify which firms work on contingency vs hourly vs hybrid
+- [ ] Find case outcomes — settlements, judgments, money recovered
+- [ ] Analyze legal strategies that win (TILA rescission, DTPA, state consumer protection)
+- [ ] Identify firms that transitioned INTO solar from other practice areas (injury, consumer, etc.)
+- [ ] Find patterns: what makes a firm successful at solar contract cases?
+
+### Phase 2: Database & Schema
+- [ ] Create lawFirms table (name, website, phone, email, city, state, practiceAreas, contingency, yearsActive, caseVolume, successRate, score)
+- [ ] Create firmAnalysis table (firmId, analysisType, findings, sources, confidence, createdAt)
+- [ ] Create firmOutreach table (firmId, status, lastContact, pitchAngle, notes)
+- [ ] Run db:push migrations
+
+### Phase 3: Research Engine (LLM-powered via OpenRouter)
+- [ ] Build attorney discovery endpoint — searches web for solar contract attorneys by state
+- [ ] Build firm analysis endpoint — deep-dives a firm using LLM to extract: fee structure, case types, outcomes, patterns
+- [ ] Build scoring algorithm — ranks firms by: contingency (weight 3x), solar-specific (2x), case volume (1.5x), geographic coverage (1x)
+- [ ] Build pattern detection — what legal theories win? what settlement ranges? what firm backgrounds predict success?
+
+### Phase 4: Admin Dashboard
+- [ ] /admin/attorney-intel page — table of all discovered firms with scores, filters, sort
+- [ ] Firm detail view — full analysis, case history, outreach status
+- [ ] Outreach tracker — contacted, responded, signed up, paying
+- [ ] One-click "Research This Firm" button that triggers LLM deep-dive
+- [ ] Export to CSV for sales team
+
+### Phase 5: Automation
+- [ ] Cron job: daily discovery of new firms (search new states, check for new entrants)
+- [ ] Cron job: re-score existing firms weekly (new cases filed, new reviews, etc.)
+- [ ] Alert system: notify when high-score contingency firm is found
+
+## 📊 SEO Intelligence Agent — Self-Learning Growth System (BUILD NOW)
+
+**Concept:** A self-learning system that tracks every change, measures impact, correlates outcomes, stays current on algorithm updates, and recommends next moves. The "strategist" agent.
+
+### Change Tracking
+- [ ] Log every site change with timestamp (content updates, image swaps, meta changes, new pages, link building, technical fixes)
+- [ ] Categorize changes: content expansion, new page, meta update, technical fix, backlink, image change, schema update
+- [ ] Store before/after snapshots of key metrics at time of change
+
+### Performance Data Pulls
+- [ ] Automated GSC data pull (impressions, clicks, position, CTR per page)
+- [ ] GA4 traffic data (sessions, bounce rate, time on page, conversions)
+- [ ] Track indexing status per URL (indexed, not indexed, crawled not indexed)
+- [ ] Rankings tracker for target keywords
+
+### Impact Correlation Engine
+- [ ] Correlate each logged change to performance delta (before vs after)
+- [ ] Calculate ROI per tactic type (e.g., "article expansion = +3x impressions avg")
+- [ ] Identify what's working vs what's not — with data proof
+- [ ] Flag negative impacts immediately (position drops, deindexing)
+
+### Algorithm & Industry Monitoring
+- [ ] Monitor Google algorithm update announcements (Search Engine Journal, Barry Schwartz, Google Search Central)
+- [ ] Track SEO best practices changes — what's working NOW in 2026
+- [ ] Black hat/white hat/gray hat awareness — know the boundaries
+- [ ] Backlink opportunity scanner (free vs paid, ROI calculation)
+
+### Recommendations Engine
+- [ ] "Based on our data, here's what to do next" — prioritized by expected ROI
+- [ ] Spend vs grind calculator — when revenue justifies paid tactics
+- [ ] Competitor monitoring — what are competing sites doing?
+- [ ] Content gap analysis — what keywords should we target next?
+
+### Admin Dashboard Panel
+- [ ] /admin/seo-intelligence page — timeline of all changes with impact scores
+- [ ] Before/after comparison views per change
+- [ ] "What's working" leaderboard — ranked tactics by ROI
+- [ ] "What to do next" recommendations panel
+- [ ] Algorithm update alerts with impact assessment
+
+## 🔗 Omega/GHL Integration — Full Funnel Connection (FUTURE)
+
+**Concept:** Solar Freedom site is the top-of-funnel lead gen engine that feeds into the existing Omega Backend Sales Ops / GHL infrastructure. Law firms become clients in the Omega system.
+
+**Flow:** Solar Freedom (traffic) → GHL (speed-to-lead + nurture) → Omega (backend sales ops) → Law Firm (pays us)
+
+### Integration Points
+- [ ] GHL inbound agent connected to website leads (already have webhook — extend)
+- [ ] Pipeline stage tracking in admin panel (Engaged → Appt Booked → Reminders → Show/No-Show → Sold)
+- [ ] Database reactivation triggers for 60/90-day old leads
+- [ ] AI voice agent for inbound calls from site (route through GHL inbound agent)
+- [ ] Law firm onboarding into Omega pipeline (webhook delivery + CRM sync)
+- [ ] Pay-per-call tracking with AI qualification before warm transfer
+- [ ] Recovery triage for stale appointments (flagged leads)
+- [ ] Multi-funnel monitor integration (Solar Freedom as one funnel in Omega)
+
+### Revenue Tracking
+- [ ] Track cost-per-lead from traffic acquisition
+- [ ] Track revenue-per-lead from law firm payments
+- [ ] ROI dashboard: traffic spend vs lead revenue vs firm payments
+- [ ] Lifetime value calculation per lead source/city/keyword
+
+## Phase 33 — 5-Agent System Build (FB Command Center Integration)
+
+### Agent Engine Core
+- [ ] MoneyMaker agent — attorney discovery, scoring, revenue pipeline
+- [ ] SEO Intel agent — change tracking, GSC correlation, recommendations
+- [ ] Content agent — article generation from directives
+- [ ] Editor agent — quality gate, E-E-A-T, duplicate check
+- [ ] Manager agent — oversight, approval/rejection, final checkpoint
+
+### Agent API (tRPC)
+- [ ] agent.list — get all agents with status
+- [ ] agent.trigger — manually run an agent
+- [ ] agent.getActions — priority action queue (P1-P5)
+- [ ] agent.approveAction / rejectAction
+- [ ] agent.getMessages — inter-agent communication log
+- [ ] agent.getRunLog — execution history
+- [ ] agent.getContentPipeline — articles in progress
+- [ ] agent.getRevenue — revenue tracker data
+
+### Agent Dashboard UI (FB Command Center design)
+- [ ] Agent Command tab — action queue with P1-P5 priority
+- [ ] Agent Messages tab — inter-agent communication bus
+- [ ] Content Pipeline tab — articles flowing through system
+- [ ] Revenue Tracker tab — leads sold, invoices, payments
+- [ ] Agent Status cards — health/last-run for each agent
+
+### Heartbeat/Cron
+- [ ] MoneyMaker cron — daily attorney discovery scan
+- [ ] SEO Intel cron — daily GSC pull + change correlation
+- [ ] Content cron — weekly article generation batch
+- [ ] Editor cron — review queue processing
+- [ ] Manager cron — oversight sweep + approval queue
