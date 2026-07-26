@@ -437,6 +437,8 @@ function loadBlogData() {
     "blog-articles-batch10.ts",
     "blog-articles-batch11.ts",
     "blog-articles-batch12.ts",
+    "blog-articles-batch13.ts",
+    "blog-articles-batch14.ts",
     // ADD NEW BATCH FILES HERE when created
   ];
 

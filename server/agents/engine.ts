@@ -52,11 +52,11 @@ export type AgentThinkResult = {
 // ─── Default Models ───────────────────────────────────────────────────────────
 
 const AGENT_MODELS: Record<AgentSlug, string> = {
-  money_maker: "google/gemini-2.5-flash-preview",
-  seo_intel: "google/gemini-2.5-flash-preview",
-  content: "google/gemini-2.5-flash-preview",
-  editor: "google/gemini-2.5-flash-preview",
-  manager: "google/gemini-2.5-flash-preview",
+  money_maker: "google/gemini-2.5-pro",      // Revenue decisions need best model
+  seo_intel:   "google/gemini-2.5-flash-lite-preview-06-17", // High-frequency, data analysis
+  content:     "google/gemini-2.5-flash-preview",  // Writing quality
+  editor:      "google/gemini-2.5-flash-preview",  // Quality gate
+  manager:     "google/gemini-2.5-pro",      // Final approval needs best model
 };
 
 // ─── Agent LLM Call (with cost tracking) ──────────────────────────────────────

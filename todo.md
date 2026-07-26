@@ -772,3 +772,12 @@
 - [x] Content cron — weekly article generation batch
 - [x] Editor cron — review queue processing
 - [x] Manager cron — oversight sweep + approval queue
+
+## Phase 34 — Elite Agent Rebuild (Revenue-Obsessed)
+- [x] Upgrade agent models: Money Maker + Manager → gemini-2.5-pro; SEO Intel → flash-lite; Content + Editor → flash
+- [x] Rebuild Money Maker agent — full revenue state gathering, leak detection, attorney scoring rubric, pitch angles
+- [x] Rebuild SEO Intel agent — revenue-tied opportunity scoring, Sunrun/CA gap analysis, content directive format
+- [x] Rebuild Content Agent — conversion-optimized article formula, compliance rules, full draft generation for P1 items
+- [x] Rebuild Editor Agent — 4-score system (SEO/Readability/E-E-A-T/Duplicate), hard compliance checklist, fast-pass logic
+- [x] Rebuild Manager Agent — CEO oversight, publish approval workflow, revenue accountability, Chase escalation triggers
+- [x] All 82 tests passing after rebuild
