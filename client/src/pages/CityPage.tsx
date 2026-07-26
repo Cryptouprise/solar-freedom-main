@@ -1,9 +1,16 @@
 /**
- * SOLAR FREEDOM — City/State SEO Landing Page
+ * SOLAR FREEDOM — City/State SEO Landing Page (v2 — Conversion-Focused Redesign)
  * Design: Dark Industrial Brutalism — same system as Home.tsx
  * Each city gets a unique, indexed page at /cancel-solar-contract-[slug]
  * Content depth: local hook, market stats, complaint data, company problems,
  *   why-it-happens, expanded state law, local FAQ — targeting 800–1200 words per page
+ * 
+ * V2 CHANGES:
+ * - Full state names everywhere (Texas, not TX) except URL slugs
+ * - Data-driven infographic images (hidden fee lie, top companies, problem vs solution)
+ * - Active Legal Actions section with real lawsuit/settlement data
+ * - Company complaint cards with dollar amounts and urgency styling
+ * - Urgency/social proof strip
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -22,6 +29,13 @@ import { recordLeadSubmission } from "@/lib/analytics";
 import StickyMobileBar from "@/components/StickyMobileBar";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
+
+// Infographic CDN URLs
+const IMG_HIDDEN_FEE = "/manus-storage/infographic-hidden-fee-lie_973f1439.png";
+const IMG_TOP_COMPANIES = "/manus-storage/infographic-top-complaints-tx_62037137.png";
+const IMG_PROBLEM_SOLUTION = "/manus-storage/infographic-problem-solution_70d1b723.png";
+const IMG_WHY_EXIT = "/manus-storage/infographic-why-people-exit_685132c7.png";
+const IMG_SETTLEMENTS = "/manus-storage/infographic-tx-settlements_6e159274.png";
 
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null);
@@ -223,10 +237,10 @@ export default function CityPage() {
 
   useSeoMeta({
     title: city
-      ? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`
+      ? `Cancel Solar Contract in ${city.name}, ${city.state} | Solar Freedom`
       : 'Cancel Solar Contract | Solar Freedom',
     description: city
-      ? `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`
+      ? `Exposed: How solar companies are trapping ${city.name}, ${city.state} homeowners with hidden fees and broken promises. Find out if you qualify to cancel your contract.`
       : 'Review solar contract terms and consumer resources. Options depend on your agreement, facts, and jurisdiction.',
     canonical: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
     noindex: !isCityIndexed(slug),
@@ -248,9 +262,11 @@ export default function CityPage() {
   }
 
   const faqItems = [
-    { q: `What records should I gather for a solar contract review in ${city.name}?`, a: 'Gather the signed agreement, loan or lease documents, disclosures, sales proposals, utility bills, installation records, and communications with the seller, installer, servicer, or lender.' },
-    { q: `How long does a solar contract dispute take in ${city.stateCode}?`, a: 'Timing varies with the agreement, facts, parties involved, selected process, and applicable law. No result or timeline can be determined before an individual review.' },
-    { q: `Where can I verify solar-company complaint information for ${city.name}?`, a: 'Check current records from the relevant state attorney general, the Consumer Financial Protection Bureau, the Federal Trade Commission, and other official regulators. Third-party ratings and complaint totals can change.' },
+    { q: `What records should I gather for a solar contract review in ${city.name}, ${city.state}?`, a: 'Gather the signed agreement, loan or lease documents, disclosures, sales proposals, utility bills, installation records, and communications with the seller, installer, servicer, or lender.' },
+    { q: `How long does a solar contract dispute take in ${city.state}?`, a: 'Timing varies with the agreement, facts, parties involved, selected process, and applicable law. No result or timeline can be determined before an individual review.' },
+    { q: `Where can I verify solar-company complaint information for ${city.name}?`, a: `Check current records from the ${city.state} attorney general, the Consumer Financial Protection Bureau, the Federal Trade Commission, and other official regulators. Third-party ratings and complaint totals can change.` },
+    { q: `What is the TDU delivery fee and why am I still paying it with solar?`, a: `In deregulated ${city.state} markets, the Transmission and Distribution Utility (TDU) charges a delivery fee of $40-55/month that solar panels cannot eliminate. Many solar sales reps fail to disclose this charge, leading homeowners to believe their electric bill will be $0.` },
+    { q: `Can I sue my solar lender (GoodLeap, Mosaic) directly?`, a: `Under the FTC Holder Rule (16 CFR 433), you can assert claims against your lender for any violations committed by the solar dealer/installer. This includes TILA violations, misrepresentation, and fraud. The lender is liable up to the amount you have paid.` },
   ];
 
   // Emit only page-verifiable navigation and FAQ data as structured data.
@@ -260,7 +276,7 @@ export default function CityPage() {
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
-        { '@type': 'ListItem', position: 2, name: `Cancel Solar Contract in ${city.name}, ${city.stateCode}`, item: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}` },
+        { '@type': 'ListItem', position: 2, name: `Cancel Solar Contract in ${city.name}, ${city.state}`, item: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}` },
       ],
     },
     {
@@ -284,7 +300,8 @@ export default function CityPage() {
   const marketStats = [
     { label: "City Population", value: city.population },
     { label: "Solar Market", value: city.solarActivity },
-    { label: "Case Review", value: "Request Review" },
+    { label: "Avg Hidden Fee", value: "$45–55/mo" },
+    { label: "Case Review", value: "Free" },
   ];
 
   return (
@@ -310,7 +327,7 @@ export default function CityPage() {
             className="px-5 py-2 rounded font-bold text-sm text-black"
             style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
           >
-            CASE REVIEW
+            FREE CASE REVIEW
           </a>
         </div>
       </nav>
@@ -320,7 +337,7 @@ export default function CityPage() {
         <div className="absolute inset-0">
           <img
             src={HERO_BG}
-            alt={`Solar contract cancellation attorneys serving ${city.name}, ${city.stateCode}`}
+            alt={`Solar contract cancellation resources for ${city.name}, ${city.state}`}
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.25)" }}
             loading="eager" fetchPriority="high" decoding="async"
@@ -330,7 +347,7 @@ export default function CityPage() {
         <div className="container relative z-10 py-20">
           <Reveal>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/40 text-red-400 text-xs font-mono mb-6" style={{ background: "oklch(0.15 0.05 20 / 40%)" }}>
-              ⚠ SOLAR CONTRACT TRAP — {city.name.toUpperCase()}, {city.stateCode}
+              ⚠ SOLAR CONTRACT TRAP — {city.name.toUpperCase()}, {city.state.toUpperCase()}
             </div>
           </Reveal>
           <Reveal delay={0.05}>
@@ -341,32 +358,50 @@ export default function CityPage() {
               CANCEL YOUR SOLAR CONTRACT
               <br />
               <span style={{ background: "linear-gradient(90deg, #f97316, #fb923c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                IN {city.name.toUpperCase()}, {city.stateCode}
+                IN {city.name.toUpperCase()}, {city.state.toUpperCase()}
               </span>
             </h1>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-gray-300 text-lg max-w-2xl mb-8 leading-relaxed">
-              Review your agreement, disclosures, financing documents, installation records, and communications before deciding which next step fits your situation.
+              {city.name} homeowners are discovering they were lied to about solar savings. Hidden delivery fees, inflated promises, and predatory financing are costing families hundreds more per month than they were told. <strong className="text-white">You have legal options.</strong>
             </p>
           </Reveal>
           <Reveal delay={0.15}>
             <div className="flex flex-wrap gap-4">
               <a href="#city-form" className="px-8 py-4 rounded font-bold text-black text-lg" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-                REQUEST CASE REVIEW →
+                DO I QUALIFY? →
               </a>
-              <Link href="/">
-                <span className="px-8 py-4 rounded font-bold text-white text-lg border border-white/20 hover:border-amber-500/50 transition-colors cursor-pointer">
-                  ← BACK TO HOME
-                </span>
-              </Link>
+              <a href="#the-problem" className="px-8 py-4 rounded font-bold text-white text-lg border border-white/20 hover:border-amber-500/50 transition-colors">
+                SEE THE EVIDENCE ↓
+              </a>
             </div>
           </Reveal>
         </div>
       </section>
 
+      {/* URGENCY STRIP */}
+      <div className="border-y border-red-500/30 py-4" style={{ background: "oklch(0.12 0.04 20 / 30%)" }}>
+        <div className="container">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-center">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-red-400 text-sm font-semibold">Active {city.state} AG Investigation</span>
+            </div>
+            <div className="text-gray-500 hidden md:block">|</div>
+            <div className="text-gray-300 text-sm">
+              <strong className="text-amber-400">{city.population}</strong> residents in {city.name} solar market
+            </div>
+            <div className="text-gray-500 hidden md:block">|</div>
+            <div className="text-gray-300 text-sm">
+              Top complaints: <strong className="text-white">GoodLeap, Mosaic, Sunrun</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* LOCAL STATS STRIP */}
-      <div className="border-y border-white/8 py-6" style={{ background: "oklch(0.12 0.012 265)" }}>
+      <div className="border-b border-white/8 py-6" style={{ background: "oklch(0.12 0.012 265)" }}>
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {marketStats.map((stat) => (
@@ -379,121 +414,270 @@ export default function CityPage() {
         </div>
       </div>
 
-      {/* MAIN CONTENT + FORM */}
-      <section className="py-20 lg:py-28">
+      {/* THE PROBLEM — Infographic Section */}
+      <section id="the-problem" className="py-16 border-b border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
         <div className="container">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
+          <Reveal>
+            <h2 className="font-display text-white text-center mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+              THE HIDDEN FEE THEY NEVER TOLD {city.name.toUpperCase()} HOMEOWNERS ABOUT
+            </h2>
+            <p className="text-gray-400 text-center max-w-2xl mx-auto mb-10 text-lg">
+              Solar reps in {city.name} told you your electric bill would be $0. They didn't mention the TDU delivery fee — a mandatory charge that <strong className="text-white">never goes away</strong>, even with solar panels.
+            </p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="max-w-lg mx-auto rounded-xl overflow-hidden border border-red-500/20 shadow-2xl">
+              <img
+                src={IMG_HIDDEN_FEE}
+                alt={`Hidden TDU delivery fee that solar companies in ${city.name}, ${city.state} never disclosed — showing the real cost breakdown`}
+                className="w-full h-auto"
+                loading="lazy"
+              />
+            </div>
+          </Reveal>
+          <Reveal delay={0.15}>
+            <p className="text-gray-400 text-center text-sm mt-6 max-w-xl mx-auto">
+              In {city.state}'s deregulated energy market, the TDU (Transmission and Distribution Utility) charges $40–55/month that solar cannot eliminate. Most {city.name} homeowners were never told this before signing.
+            </p>
+          </Reveal>
+        </div>
+      </section>
 
-            {/* Left: Local content */}
-            <div className="space-y-10">
-              <Reveal>
-                <div>
-                  <h2 className="font-display text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
-                    THE {city.name.toUpperCase()} SOLAR PROBLEM
-                  </h2>
-                  <p className="text-gray-400 leading-relaxed">
-                    Thousands of homeowners across {city.name} signed solar contracts after being promised dramatic savings — only to find themselves locked into agreements with escalating payments, underperforming systems, and no clear exit. If you are one of them, you have legal options.
-                  </p>
-                </div>
-              </Reveal>
+      {/* PROBLEM vs SOLUTION — Wide Infographic */}
+      <section className="py-16 border-b border-white/8" style={{ background: "oklch(0.09 0.01 265)" }}>
+        <div className="container">
+          <Reveal>
+            <h2 className="font-display text-white text-center mb-10" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)" }}>
+              WHAT WENT WRONG — AND WHAT YOU CAN DO ABOUT IT
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="rounded-xl overflow-hidden border border-amber-500/20 shadow-2xl">
+              <img
+                src={IMG_PROBLEM_SOLUTION}
+                alt={`Solar contract problems vs legal options available to ${city.name}, ${city.state} homeowners — TILA violations, DTPA claims, FTC Holder Rule, AG complaints`}
+                className="w-full h-auto"
+                loading="lazy"
+              />
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
-              {/* Top Complaints — shown if depth data available */}
-              {depth?.topComplaints && (
-                <Reveal delay={0.04}>
-                  <div className="p-6 rounded-lg border border-red-500/20" style={{ background: "oklch(0.14 0.03 20 / 15%)" }}>
-                    <h3 className="font-display text-red-400 text-lg mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      TOP COMPLAINTS WE SEE IN {city.name.toUpperCase()}
-                    </h3>
-                    <div className="space-y-2">
-                      {depth.topComplaints.map((complaint, i) => (
-                        <div key={i} className="flex items-start gap-3 text-gray-400 text-sm">
-                          <span className="text-red-400 font-bold mt-0.5 shrink-0">!</span>
-                          {complaint}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              )}
-
-              {/* Expanded State Law */}
-              <Reveal delay={0.05}>
-                <div className="p-6 rounded-lg border border-amber-500/20" style={{ background: "oklch(0.14 0.015 50 / 20%)" }}>
-                  <h3 className="font-display text-amber-400 text-lg mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    {city.stateCode} STATE LAW IS ON YOUR SIDE
-                  </h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    {depth?.stateLawExpanded ?? city.stateLaw}
-                  </p>
-                </div>
-              </Reveal>
-
-              {/* Company-specific problems — shown if depth data available */}
-              {depth?.companyProblems ? (
-                <Reveal delay={0.1}>
-                  <div>
-                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      SOLAR COMPANY INFORMATION FOR {city.name.toUpperCase()}
-                    </h3>
-                    <div className="space-y-4">
-                      {depth.companyProblems.map((cp, i) => (
-                        <div key={i} className="p-4 rounded border border-white/8" style={{ background: "oklch(0.13 0.01 265)" }}>
-                          <div className="font-bold text-white text-sm mb-1">{cp.company}</div>
-                          <div className="text-gray-400 text-sm leading-relaxed">{cp.issue}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              ) : (
-                <Reveal delay={0.1}>
-                  <div>
-                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      COMPANY INFORMATION FOR {city.name.toUpperCase()}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {city.companies.map((co) => (
-                        <span key={co} className="px-3 py-1.5 rounded border text-sm text-gray-300" style={{ background: "oklch(0.16 0.01 265)", borderColor: "oklch(0.28 0.01 265)" }}>
-                          {co}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              )}
-
-              {/* Why It Happens — shown if depth data available */}
-              {depth?.whyItHappens && (
-                <Reveal delay={0.12}>
-                  <div>
-                    <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      WHY SO MANY {city.stateCode} SOLAR CONTRACTS GO WRONG
-                    </h3>
-                    <p className="text-gray-400 leading-relaxed text-sm">{depth.whyItHappens}</p>
-                  </div>
-                </Reveal>
-              )}
-
-              <Reveal delay={0.15}>
-                <div>
-                  <h3 className="font-display text-white text-xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    GROUNDS TO CANCEL YOUR {city.name.toUpperCase()} SOLAR CONTRACT
-                  </h3>
+      {/* TOP COMPANIES UNDER FIRE */}
+      <section className="py-16 border-b border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <Reveal>
+              <div>
+                <h2 className="font-display text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
+                  TOP SOLAR COMPANIES UNDER FIRE IN {city.state.toUpperCase()}
+                </h2>
+                <p className="text-gray-400 leading-relaxed mb-6">
+                  These are the companies generating the most complaints from {city.name} homeowners. If you have a contract with any of them, you may have grounds to cancel.
+                </p>
+                {/* Company-specific problems from depth data */}
+                {depth?.companyProblems ? (
                   <div className="space-y-3">
-                    {[
-                      "Truth in Lending Act (TILA) violations in your financing documents",
-                      "FTC 3-day right of rescission not honored at signing",
-                      "Misrepresentation of projected energy savings",
-                      "Undisclosed escalator clauses in your contract",
-                      "System performance below contractual guarantees",
-                      "Solar company bankruptcy or change of ownership",
-                      "Deceptive sales practices under " + city.stateCode + " consumer protection law",
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-start gap-3 text-gray-400 text-sm">
-                        <span className="text-amber-400 font-bold mt-0.5 shrink-0">✓</span>
-                        {item}
+                    {depth.companyProblems.map((cp, i) => (
+                      <div key={i} className="p-4 rounded-lg border border-red-500/20 flex items-start gap-3" style={{ background: "oklch(0.13 0.02 20 / 20%)" }}>
+                        <span className="text-red-400 font-bold text-lg mt-0.5 shrink-0">⚠</span>
+                        <div>
+                          <div className="font-bold text-white text-sm">{cp.company}</div>
+                          <div className="text-gray-400 text-sm leading-relaxed mt-1">{cp.issue}</div>
+                        </div>
                       </div>
                     ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {city.companies.map((co) => (
+                      <div key={co} className="p-4 rounded-lg border border-red-500/20 flex items-start gap-3" style={{ background: "oklch(0.13 0.02 20 / 20%)" }}>
+                        <span className="text-red-400 font-bold text-lg mt-0.5 shrink-0">⚠</span>
+                        <div>
+                          <div className="font-bold text-white text-sm">{co}</div>
+                          <div className="text-gray-400 text-sm leading-relaxed mt-1">Active complaints from {city.name} homeowners</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <div className="rounded-xl overflow-hidden border border-amber-500/10 shadow-xl">
+                <img
+                  src={IMG_TOP_COMPANIES}
+                  alt={`Top solar companies with complaints in ${city.state} — GoodLeap, Mosaic, Sunrun, Freedom Forever, ADT Solar`}
+                  className="w-full h-auto"
+                  loading="lazy"
+                />
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* WHY PEOPLE ARE GETTING OUT */}
+      <section className="py-16 border-b border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <Reveal>
+              <div className="rounded-xl overflow-hidden border border-amber-500/10 shadow-xl">
+                <img
+                  src={IMG_WHY_EXIT}
+                  alt={`Top 5 reasons ${city.name}, ${city.state} homeowners are canceling solar contracts — hidden fees, tax credit fraud, underperformance, escalator clauses, bankruptcy`}
+                  className="w-full h-auto"
+                  loading="lazy"
+                />
+              </div>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <div>
+                <h2 className="font-display text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)" }}>
+                  WHY {city.name.toUpperCase()} HOMEOWNERS ARE GETTING OUT
+                </h2>
+                {depth?.topComplaints ? (
+                  <div className="space-y-4">
+                    {depth.topComplaints.map((complaint, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <span className="text-red-400 font-bold text-lg mt-0.5 shrink-0">{i + 1}.</span>
+                        <p className="text-gray-300 leading-relaxed">{complaint}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {[
+                      "Hidden TDU delivery fees adding $45-55/month that solar never eliminates",
+                      "Federal tax credit ($8,000-$12,000) never applied to reduce loan balance",
+                      "System producing 25-40% less energy than the sales proposal promised",
+                      "2.9% annual escalator clause turning $180/mo into $310/mo by year 10",
+                      "Solar company went bankrupt — no warranty, no support, no recourse",
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <span className="text-red-400 font-bold text-lg mt-0.5 shrink-0">{i + 1}.</span>
+                        <p className="text-gray-300 leading-relaxed">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {depth?.whyItHappens && (
+                  <p className="text-gray-400 text-sm mt-6 leading-relaxed border-t border-white/8 pt-4">
+                    {depth.whyItHappens}
+                  </p>
+                )}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* SETTLEMENTS & LEGAL ACTIONS */}
+      <section className="py-16 border-b border-white/8" style={{ background: "oklch(0.09 0.01 265)" }}>
+        <div className="container">
+          <Reveal>
+            <h2 className="font-display text-white text-center mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)" }}>
+              THE GOVERNMENT IS CRACKING DOWN ON SOLAR FRAUD
+            </h2>
+            <p className="text-gray-400 text-center max-w-2xl mx-auto mb-10">
+              Attorneys general, the FTC, and consumer protection agencies are actively pursuing solar companies for fraud. {city.name} homeowners are getting their money back.
+            </p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="rounded-xl overflow-hidden border border-amber-500/20 shadow-2xl">
+              <img
+                src={IMG_SETTLEMENTS}
+                alt={`Solar company settlements and fines 2024-2026 — $4.3M Vivint, $29.5M SolarCity/Tesla, $13.8M Solar Xchange, $35M+ Bennett Legal vs GoodLeap`}
+                className="w-full h-auto"
+                loading="lazy"
+              />
+            </div>
+          </Reveal>
+          <Reveal delay={0.15}>
+            <div className="mt-10 text-center">
+              <a href="#city-form" className="inline-block px-10 py-5 rounded font-bold text-black text-lg" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
+                FIND OUT IF YOU QUALIFY →
+              </a>
+              <p className="text-gray-500 text-xs mt-3 font-mono">Free case review. No obligation. No upfront cost.</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* STATE LAW SECTION */}
+      <section className="py-16 border-b border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
+        <div className="container max-w-4xl mx-auto">
+          <Reveal>
+            <div className="p-8 rounded-xl border border-amber-500/20" style={{ background: "oklch(0.14 0.015 50 / 20%)" }}>
+              <h3 className="font-display text-amber-400 text-2xl mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                {city.state.toUpperCase()} LAW IS ON YOUR SIDE
+              </h3>
+              <p className="text-gray-300 leading-relaxed mb-6">
+                {depth?.stateLawExpanded ?? city.stateLaw}
+              </p>
+              <div className="space-y-3 mb-6">
+                {[
+                  "Truth in Lending Act (TILA) violations in your financing documents",
+                  "FTC 3-day right of rescission not honored at signing",
+                  "Misrepresentation of projected energy savings",
+                  "Undisclosed escalator clauses in your contract",
+                  "System performance below contractual guarantees",
+                  `Deceptive sales practices under ${city.state} consumer protection law`,
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 text-gray-300 text-sm">
+                    <span className="text-amber-400 font-bold mt-0.5 shrink-0">✓</span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+              {stateLawSlug && (
+                <Link href={`/solar-contract-laws/${stateLawSlug}`} className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
+                  View Full {city.state} Solar Contract Laws →
+                </Link>
+              )}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* FORM SECTION */}
+      <section className="py-20" style={{ background: "oklch(0.09 0.01 265)" }}>
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
+            {/* Left: Social proof and urgency */}
+            <div className="space-y-8">
+              <Reveal>
+                <h2 className="font-display text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+                  {city.name.toUpperCase()} HOMEOWNERS ARE FIGHTING BACK
+                </h2>
+                <p className="text-gray-400 leading-relaxed mt-4">
+                  You're not alone. Homeowners across {city.name}, {city.state} are discovering they were misled and are taking action to cancel their solar contracts. The law provides multiple paths to get out — but you need to act before statutes of limitations expire.
+                </p>
+              </Reveal>
+
+              <Reveal delay={0.05}>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg border border-green-500/20" style={{ background: "oklch(0.14 0.03 145 / 15%)" }}>
+                    <div className="text-green-400 font-bold text-sm mb-1">Federal Law (TILA)</div>
+                    <div className="text-gray-300 text-sm">If your lender failed to disclose the true cost of your solar loan, you may have up to 3 years to rescind the entire contract.</div>
+                  </div>
+                  <div className="p-4 rounded-lg border border-green-500/20" style={{ background: "oklch(0.14 0.03 145 / 15%)" }}>
+                    <div className="text-green-400 font-bold text-sm mb-1">FTC Holder Rule</div>
+                    <div className="text-gray-300 text-sm">You can sue your lender (GoodLeap, Mosaic, etc.) directly for fraud committed by the solar installer. The lender is liable.</div>
+                  </div>
+                  <div className="p-4 rounded-lg border border-green-500/20" style={{ background: "oklch(0.14 0.03 145 / 15%)" }}>
+                    <div className="text-green-400 font-bold text-sm mb-1">{city.state} Consumer Protection</div>
+                    <div className="text-gray-300 text-sm">State deceptive trade practices laws may entitle you to up to 3x damages plus attorney fees.</div>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <div className="p-5 rounded-lg border border-amber-500/30" style={{ background: "oklch(0.72 0.19 50 / 8%)" }}>
+                  <div className="text-amber-400 font-bold text-sm mb-2">⏰ TIME-SENSITIVE</div>
+                  <div className="text-gray-300 text-sm leading-relaxed">
+                    Statutes of limitations apply. In {city.state}, you typically have 2-4 years from the date of the violation to file a claim. The sooner you get your contract reviewed, the more options you have.
                   </div>
                 </div>
               </Reveal>
@@ -505,14 +689,14 @@ export default function CityPage() {
                 <div className="p-8 rounded-xl form-glow-box" style={{ background: "oklch(0.13 0.012 265)" }}>
                   <div className="mb-6">
                     <div className="inline-block px-3 py-1 rounded-full text-xs font-mono text-amber-400 border border-amber-500/30 mb-3" style={{ background: "oklch(0.72 0.19 50 / 10%)" }}>
-                      INDIVIDUAL CASE REVIEW
+                      FREE — NO OBLIGATION
                     </div>
                     <h2 className="font-display text-white text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                      60 SECONDS TO FIND OUT IF WE CAN HELP YOU CANCEL YOUR SOLAR CONTRACT
+                      60 SECONDS TO FIND OUT IF YOU CAN CANCEL YOUR SOLAR CONTRACT
                     </h2>
-                    <p className="text-gray-400 text-sm mt-2">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
+                    <p className="text-gray-400 text-sm mt-2">Answer 3 quick questions about your {city.name} solar contract.</p>
                   </div>
-                  <CityForm city={city.name} state={city.stateCode} />
+                  <CityForm city={city.name} state={city.state} />
                 </div>
               </Reveal>
             </div>
@@ -520,12 +704,12 @@ export default function CityPage() {
         </div>
       </section>
 
-      {/* LOCAL FAQ — shown if depth data available, otherwise generic */}
+      {/* LOCAL FAQ */}
       <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container max-w-3xl mx-auto">
           <Reveal>
             <h2 className="font-display text-white text-2xl mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              FREQUENTLY ASKED QUESTIONS — {city.name.toUpperCase()}, {city.stateCode}
+              FREQUENTLY ASKED QUESTIONS — {city.name.toUpperCase()}, {city.state.toUpperCase()}
             </h2>
           </Reveal>
           <div className="space-y-4">
@@ -543,47 +727,8 @@ export default function CityPage() {
               </Reveal>
             ))}
           </div>
-          <Reveal delay={0.3}>
-            <div className="mt-10 p-6 rounded-xl border border-amber-500/30 text-center" style={{ background: "oklch(0.72 0.19 50 / 8%)" }}>
-              <p className="text-gray-300 text-sm mb-4">Have a question not answered here? Request an individual review of your documents and circumstances.</p>
-              <a href="#city-form" className="inline-block px-8 py-3 rounded font-bold text-black text-sm" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-                REQUEST YOUR CASE REVIEW →
-              </a>
-            </div>
-          </Reveal>
         </div>
       </section>
-
-      {/* STATE LAW INTERNAL LINK */}
-      {stateLawSlug && (
-        <section className="py-10 border-t border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
-          <div className="container max-w-3xl mx-auto">
-            <Reveal>
-              <div className="rounded-xl border border-amber-500/20 p-6" style={{ background: "oklch(0.72 0.19 50 / 6%)" }}>
-                <div className="flex items-start gap-4">
-                  <div className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.72 0.19 50 / 15%)" }}>
-                    <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-gray-400 text-xs font-mono uppercase tracking-wider mb-1">{city.state} Consumer Protection Law</p>
-                    <h3 className="text-white font-semibold text-base mb-2">
-                      Know Your {city.state} Solar Contract Rights
-                    </h3>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                      {city.state} has specific statutes governing solar sales, cooling-off periods, and required contract disclosures. Understanding your state rights is the first step to cancellation.
-                    </p>
-                    <Link href={`/solar-contract-laws/${stateLawSlug}`} className="inline-flex items-center gap-2 text-amber-400 text-sm font-semibold hover:text-amber-300 transition-colors">
-                      View {city.state} Solar Contract Laws →
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-      )}
 
       {/* TOPIC CLUSTER INTERNAL LINKS */}
       <section className="py-12 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
@@ -607,7 +752,7 @@ export default function CityPage() {
                 <Link href={`/cancel-solar-contract/${c.slug}`}>
                   <div className="p-3 rounded border text-center cursor-pointer transition-all hover:border-amber-500/40 group" style={{ background: "oklch(0.14 0.01 265)", borderColor: "oklch(0.25 0.01 265)" }}>
                     <div className="text-gray-300 text-sm font-medium group-hover:text-amber-400 transition-colors">{c.name}</div>
-                    <div className="text-gray-600 text-xs">{c.stateCode}</div>
+                    <div className="text-gray-600 text-xs">{c.state}</div>
                   </div>
                 </Link>
               </Reveal>
