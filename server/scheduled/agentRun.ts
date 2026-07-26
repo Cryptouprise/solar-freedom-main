@@ -10,7 +10,7 @@ import type { Request, Response } from "express";
 import { sdk } from "../_core/sdk";
 import { runAgent, type AgentSlug } from "../agents";
 
-const VALID_SLUGS: AgentSlug[] = ["money_maker", "seo_intel", "content", "editor", "manager"];
+const VALID_SLUGS: AgentSlug[] = ["money_maker", "seo_intel", "content", "editor", "manager", "infra"];
 
 export async function agentRunHandler(req: Request, res: Response) {
   try {

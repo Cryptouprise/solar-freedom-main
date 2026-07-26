@@ -8,6 +8,7 @@ export { runSeoIntel } from "./seoIntel";
 export { runContentAgent } from "./contentAgent";
 export { runEditorAgent } from "./editorAgent";
 export { runManagerAgent } from "./managerAgent";
+export { runInfraAgent } from "./infraAgent";
 export {
   seedAgents,
   listAgents,
@@ -28,6 +29,7 @@ import { runSeoIntel } from "./seoIntel";
 import { runContentAgent } from "./contentAgent";
 import { runEditorAgent } from "./editorAgent";
 import { runManagerAgent } from "./managerAgent";
+import { runInfraAgent } from "./infraAgent";
 import type { AgentSlug, AgentThinkResult } from "./engine";
 
 /**
@@ -49,6 +51,10 @@ export async function runAgent(
       return runEditorAgent(triggerType, triggeredBy);
     case "manager":
       return runManagerAgent(triggerType, triggeredBy);
+    case "infra": {
+      const infraTrigger = triggerType === "directive" || triggerType === "event" ? "manual" : triggerType;
+      return runInfraAgent(infraTrigger, triggeredBy);
+    }
     default:
       throw new Error(`Unknown agent: ${slug}`);
   }
@@ -78,6 +84,9 @@ export async function runAllAgents(
 
   // 5. Manager last (reviews everything)
   results.manager = await runManagerAgent("cron", triggeredBy);
+
+  // 6. Infrastructure Agent runs after all others (monitors the full cycle)
+  results.infra = await runInfraAgent("cron", triggeredBy);
 
   return results as Record<AgentSlug, AgentThinkResult>;
 }

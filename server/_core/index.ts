@@ -13,6 +13,7 @@ import { serveStatic, setupVite } from "./vite";
 import adminRouter from "../adminRouter";
 import { startPressReleaseCron } from "../cron/pressRelease";
 import { startBacklinkDiscoveryCron } from "../cron/backlinkDiscovery";
+import { startMediumBacklinkTrackerCron } from "../cron/mediumBacklinkTracker";
 import { automationRunHandler } from "../scheduled/automationRun";
 import { agentRunHandler } from "../scheduled/agentRun";
 import { rateLimit } from "express-rate-limit";
@@ -190,6 +191,7 @@ async function startServer() {
     // Start background cron jobs
     startPressReleaseCron();
     startBacklinkDiscoveryCron();
+    startMediumBacklinkTrackerCron();
   });
 }
 

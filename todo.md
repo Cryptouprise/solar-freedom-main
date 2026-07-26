@@ -783,20 +783,32 @@
 - [x] All 82 tests passing after rebuild
 
 ## Phase 35 — Infrastructure Agent + Full System Integration
-- [ ] Infrastructure Agent (server/agents/infraAgent.ts) — system self-improvement, change logging, error detection, agent health monitoring
-- [ ] systemChangeLog table in schema — every change ever made: timestamp, agent, description, category, impact score
-- [ ] agentHealthLog table in schema — per-agent performance metrics, error rates, model costs, run durations
+- [x] Infrastructure Agent (server/agents/infraAgent.ts) — system self-improvement, change logging, error detection, agent health monitoring
+- [x] systemChangeLog table in schema — every change ever made: timestamp, agent, description, category, impact score
+- [x] agentHealthLog table in schema — per-agent performance metrics, error rates, model costs, run durations
 - [ ] Update AGENT_MODELS — all 6 agents to elite config (Opus 5 for all except Money Maker = DeepSeek V4.5)
 - [ ] Update BlogStudio AI_MODELS list — add Claude Opus 5, DeepSeek V4.5, Gemini 3.2 Pro, Qwen3 235B
-- [ ] Wire Content Agent → BlogStudio (agent pushes drafts directly into blog draft queue)
+- [x] Wire Content Agent → BlogStudio (agent pushes drafts directly into blog draft queue)
 - [ ] Wire SEO Intel Agent → BlogStudio (agent injects keyword targets into new post form)
 - [ ] Wire Content Agent → Press Release (agent can trigger press release generation from content directives)
 - [ ] Wire Money Maker Agent → Lead Distribution (agent flags high-value leads, suggests law firm routing)
 - [ ] Wire Manager Agent → Automations (agent can create/modify automation rules)
-- [ ] Wire Infrastructure Agent → all admin tools (health checks, error detection, improvement queue)
-- [ ] Agent Command Center — add Infrastructure tab with system health, change log, improvement queue
+- [x] Wire Infrastructure Agent → all admin tools (health checks, error detection, improvement queue)
+- [x] Agent Command Center — add Infrastructure tab with system health, change log, improvement queue
 - [ ] Agent Command Center — add live Activity Feed showing cross-agent actions in real time
 - [ ] Agent Command Center — add model cost breakdown per agent per day
 - [ ] Agent Command Center — add "Sync All" button that shows what each agent knows about the other tools
-- [ ] Run pnpm db:push for new tables
-- [ ] All tests passing after integration
+- [x] Run pnpm db:push for new tables
+- [x] All tests passing after integration
+
+## Phase 35b — Medium Backlink Tracker
+- [x] mediumArticles table in schema — tracks all Medium syndicated articles
+- [x] discoveredBacklinks table in schema — inbound links from Medium and other sources
+- [x] Medium Backlink Tracker cron (server/cron/mediumBacklinkTracker.ts) — daily crawl of 20 Medium articles
+- [x] Seed 20 known Medium article URLs from import strategy
+- [x] Store discovered backlinks in discoveredBacklinks table
+- [x] Register cron in server/_core/index.ts
+- [x] Add infraStatus tRPC procedure to agentRouter.ts
+- [x] Infrastructure tab in Agent Command Center — Medium articles, backlinks, health log, change log
+- [x] infra agent wired into index.ts, agentRouter.ts, agentRun.ts
+- [x] 82 tests passing after all changes

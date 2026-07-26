@@ -1,6 +1,6 @@
 /**
  * Agent Command Center
- * FB Command Center-style dashboard for the 5-agent autonomous system.
+ * FB Command Center-style dashboard for the 6-agent autonomous system.
  * Dark theme, gold accents, Owner/Team mode toggle.
  */
 
@@ -29,6 +29,10 @@ import {
   Activity,
   RefreshCw,
   Loader2,
+  Server,
+  Link,
+  TrendingUp,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +44,7 @@ const AGENT_META: Record<string, { name: string; icon: typeof Brain; color: stri
   content: { name: "Content", icon: FileText, color: "text-purple-400", role: "Article Generation & Pipeline" },
   editor: { name: "Editor", icon: Shield, color: "text-orange-400", role: "Quality Gate & Compliance" },
   manager: { name: "Manager", icon: Crown, color: "text-amber-400", role: "Oversight & Final Approval" },
+  infra: { name: "Infrastructure", icon: Server, color: "text-cyan-400", role: "System Health, Costs & Backlinks" },
 };
 
 // ─── Priority Badge ───────────────────────────────────────────────────────────
@@ -388,6 +393,207 @@ function PipelineView() {
   );
 }
 
+// ─── Infrastructure View ─────────────────────────────────────────────────────
+
+function InfrastructureView() {
+  const { data: infra, isLoading, refetch } = trpc.agents.infraStatus.useQuery();
+  const trigger = trpc.agents.trigger.useMutation({ onSuccess: () => refetch() });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+      </div>
+    );
+  }
+
+  const healthLogs = infra?.healthLogs || [];
+  const changeLogs = infra?.changeLogs || [];
+  const mediumArticleList = infra?.mediumArticles || [];
+  const backlinks = infra?.backlinks || [];
+
+  const crawledCount = mediumArticleList.filter((a: any) => a.crawlStatus === "crawled").length;
+  const pendingCount = mediumArticleList.filter((a: any) => a.crawlStatus === "pending").length;
+  const errorCount = mediumArticleList.filter((a: any) => a.crawlStatus === "error").length;
+  const totalBacklinks = backlinks.length;
+  const activeBacklinks = backlinks.filter((b: any) => b.isActive).length;
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+            <Server className="w-5 h-5 text-cyan-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white">Infrastructure Agent</h3>
+            <p className="text-xs text-gray-400">System Health, Costs & Backlink Tracking</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="border-white/10 text-gray-400">
+            <RefreshCw className="w-3 h-3 mr-1" /> Refresh
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => trigger.mutate({ slug: "infra" })}
+            disabled={trigger.isPending}
+            className="bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/30"
+          >
+            {trigger.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3 mr-1" />}
+            Run Now
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+          <div className="text-xs text-gray-400 font-mono mb-1">MEDIUM ARTICLES</div>
+          <div className="text-2xl font-bold text-white">{mediumArticleList.length}</div>
+          <div className="text-xs text-gray-500">{crawledCount} crawled, {pendingCount} pending</div>
+        </div>
+        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+          <div className="text-xs text-gray-400 font-mono mb-1">BACKLINKS FOUND</div>
+          <div className="text-2xl font-bold text-cyan-400">{totalBacklinks}</div>
+          <div className="text-xs text-gray-500">{activeBacklinks} active, DA 95</div>
+        </div>
+        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+          <div className="text-xs text-gray-400 font-mono mb-1">HEALTH LOGS</div>
+          <div className="text-2xl font-bold text-white">{healthLogs.length}</div>
+          <div className="text-xs text-gray-500">Last 7 days</div>
+        </div>
+        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+          <div className="text-xs text-gray-400 font-mono mb-1">CHANGE LOG</div>
+          <div className="text-2xl font-bold text-white">{changeLogs.length}</div>
+          <div className="text-xs text-gray-500">System events</div>
+        </div>
+      </div>
+
+      {/* Medium Articles + Backlinks */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Medium Articles */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+              <Link className="w-4 h-4 text-cyan-400" /> MEDIUM ARTICLES (DA 95 BACKLINKS)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1.5 max-h-64 overflow-y-auto">
+            {mediumArticleList.length === 0 ? (
+              <p className="text-gray-500 text-sm">No Medium articles tracked yet. Articles will be seeded on next cron run.</p>
+            ) : (
+              mediumArticleList.map((article: any) => (
+                <div key={article.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-gray-300 truncate">{article.title}</p>
+                    <p className="text-xs text-gray-500">{article.outboundLinkCount || 0} backlinks</p>
+                  </div>
+                  <span className={cn(
+                    "text-xs font-mono px-2 py-0.5 rounded border",
+                    article.crawlStatus === "crawled" ? "text-green-400 bg-green-500/10 border-green-500/20" :
+                    article.crawlStatus === "error" ? "text-red-400 bg-red-500/10 border-red-500/20" :
+                    "text-amber-400 bg-amber-500/10 border-amber-500/20"
+                  )}>
+                    {article.crawlStatus}
+                  </span>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Discovered Backlinks */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-cyan-400" /> DISCOVERED BACKLINKS
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1.5 max-h-64 overflow-y-auto">
+            {backlinks.length === 0 ? (
+              <p className="text-gray-500 text-sm">No backlinks discovered yet. Publish Medium articles and run the tracker.</p>
+            ) : (
+              backlinks.map((bl: any) => (
+                <div key={bl.id} className="py-1.5 border-b border-white/5 last:border-0">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-300 truncate flex-1">{bl.targetUrl}</p>
+                    <span className={cn(
+                      "text-xs font-mono px-1.5 py-0.5 rounded ml-2",
+                      bl.doFollow ? "text-green-400 bg-green-500/10" : "text-gray-400 bg-white/5"
+                    )}>
+                      {bl.doFollow ? "dofollow" : "nofollow"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 truncate">{bl.anchorText || "(no anchor)"}</p>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* System Change Log */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <History className="w-4 h-4 text-cyan-400" /> SYSTEM CHANGE LOG
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1.5 max-h-48 overflow-y-auto">
+          {changeLogs.length === 0 ? (
+            <p className="text-gray-500 text-sm">No system changes logged yet.</p>
+          ) : (
+            changeLogs.map((log: any) => (
+              <div key={log.id} className="py-1.5 border-b border-white/5 last:border-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">{log.category}</span>
+                  <span className="text-xs text-gray-400">{log.actor}</span>
+                  <span className="text-xs text-gray-600 ml-auto">{new Date(log.createdAt).toLocaleDateString()}</span>
+                </div>
+                <p className="text-xs text-gray-300 mt-0.5 truncate">{log.description}</p>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Agent Health Log */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-cyan-400" /> AGENT HEALTH LOG
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1.5 max-h-48 overflow-y-auto">
+          {healthLogs.length === 0 ? (
+            <p className="text-gray-500 text-sm">No health logs yet. Infrastructure Agent will populate this after its first run.</p>
+          ) : (
+            healthLogs.map((log: any) => (
+              <div key={log.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className={cn(
+                    "text-xs font-mono px-1.5 py-0.5 rounded",
+                    log.status === "success" ? "text-green-400 bg-green-500/10" :
+                    log.status === "failed" ? "text-red-400 bg-red-500/10" :
+                    "text-amber-400 bg-amber-500/10"
+                  )}>{log.status}</span>
+                  <span className="text-xs text-gray-300">{AGENT_META[log.agentSlug]?.name || log.agentSlug}</span>
+                  {log.qualityScore && (
+                    <span className="text-xs text-gray-500">Q:{log.qualityScore}</span>
+                  )}
+                </div>
+                <span className="text-xs text-gray-600">{new Date(log.createdAt).toLocaleDateString()}</span>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function AgentCommand() {
@@ -395,12 +601,12 @@ export default function AgentCommand() {
   const seed = trpc.agents.seed.useMutation();
 
   return (
-    <AdminLayout title="Agent Command Center" subtitle="5-Agent Autonomous System">
+    <AdminLayout title="Agent Command Center" subtitle="6-Agent Autonomous System">
       <div className="space-y-4">
         {/* Seed button (only needed once) */}
         <div className="flex items-center justify-between">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-white/5 border border-white/10">
+            <TabsList className="bg-white/5 border border-white/10 flex-wrap">
               <TabsTrigger value="overview" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300">
                 Overview
               </TabsTrigger>
@@ -419,6 +625,9 @@ export default function AgentCommand() {
               <TabsTrigger value="manager" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300">
                 Manager
               </TabsTrigger>
+              <TabsTrigger value="infra" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300">
+                Infra
+              </TabsTrigger>
               <TabsTrigger value="messages" className="data-[state=active]:bg-white/20 data-[state=active]:text-white">
                 Messages
               </TabsTrigger>
@@ -434,6 +643,7 @@ export default function AgentCommand() {
               <TabsContent value="content"><AgentDetailView slug="content" /></TabsContent>
               <TabsContent value="editor"><AgentDetailView slug="editor" /></TabsContent>
               <TabsContent value="manager"><AgentDetailView slug="manager" /></TabsContent>
+              <TabsContent value="infra"><InfrastructureView /></TabsContent>
               <TabsContent value="messages"><MessagesView /></TabsContent>
               <TabsContent value="pipeline"><PipelineView /></TabsContent>
             </div>

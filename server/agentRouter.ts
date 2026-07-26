@@ -22,10 +22,10 @@ import {
 } from "./agents";
 import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons } from "./agents/registerCrons";
 import { getDb } from "./db";
-import { agentMessages, contentPipeline } from "../drizzle/schema";
-import { desc, eq, and } from "drizzle-orm";
+import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks } from "../drizzle/schema";
+import { desc, eq, and, gte } from "drizzle-orm";
 
-const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager"]);
+const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra"]);
 
 export const agentRouter = router({
   /**
@@ -207,6 +207,54 @@ export const agentRouter = router({
       recentRuns,
       recentActions: actions,
       pipelinePreview: pipeline,
+    };
+  }),
+
+  /**
+   * Get Infrastructure Agent data: health logs, change log, Medium backlinks.
+   */
+  infraStatus: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const db = await getDb();
+    if (!db) return { healthLogs: [], changeLogs: [], mediumArticles: [], backlinks: [], costSummary: null };
+
+    // Recent health logs (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const healthLogs = await db
+      .select()
+      .from(agentHealthLog)
+      .orderBy(desc(agentHealthLog.createdAt))
+      .limit(50);
+
+    // Recent system changes
+    const changeLogs = await db
+      .select()
+      .from(systemChangeLog)
+      .orderBy(desc(systemChangeLog.createdAt))
+      .limit(30);
+
+    // Medium articles with crawl status
+    const mediumArticleList = await db
+      .select()
+      .from(mediumArticles)
+      .orderBy(desc(mediumArticles.updatedAt))
+      .limit(30);
+
+    // Recent discovered backlinks from Medium
+    const backlinkList = await db
+      .select()
+      .from(discoveredBacklinks)
+      .where(eq(discoveredBacklinks.sourceType, "medium"))
+      .orderBy(desc(discoveredBacklinks.firstDiscoveredAt))
+      .limit(50);
+
+    return {
+      healthLogs,
+      changeLogs,
+      mediumArticles: mediumArticleList,
+      backlinks: backlinkList,
     };
   }),
 });
