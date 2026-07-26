@@ -709,7 +709,23 @@ router.post("/keys", requirePermission("keys:manage"), async (req: AdminRequest,
     const { name, permissions } = req.body;
     if (!name) return res.status(400).json({ error: "name is required" });
 
-    const perms = Array.isArray(permissions) ? permissions : ["posts:read", "posts:write", "companies:read", "companies:write", "config:read", "config:write"];
+    const requested = Array.isArray(permissions) ? permissions : ["posts:read", "posts:write", "companies:read", "companies:write", "config:read", "config:write"];
+
+    // A key may never mint a key more powerful than itself. Admin sessions hold "*"
+    // and retain full grant ability; scoped API keys are capped at their own grants.
+    const callerPerms: string[] = (req as AdminRequest).apiKey?.permissions
+      ? JSON.parse((req as AdminRequest).apiKey!.permissions as unknown as string)
+      : [];
+    if (!callerPerms.includes("*")) {
+      const escalated = requested.filter((p: string) => p === "*" || !callerPerms.includes(p));
+      if (escalated.length > 0) {
+        return res.status(403).json({
+          error: "Cannot grant permissions the requesting key does not hold",
+          escalated,
+        });
+      }
+    }
+    const perms = requested;
 
     // Generate a secure random key
     const rawKey = `sf_${crypto.randomBytes(32).toString("hex")}`;

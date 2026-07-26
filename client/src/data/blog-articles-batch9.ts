@@ -145,9 +145,9 @@ export const batch9BlogPosts: BlogPost[] = [
 
   {
     slug: 'freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026',
-    title: 'Freedom Forever Solar Bankruptcy: What Homeowners Can Do in 2026',
-    metaTitle: 'Freedom Forever Bankruptcy 2026 — What Homeowners Can Do Now',
-    metaDescription: `Freedom Forever went bankrupt — but your contract didn't. Learn 3 legal options to cancel, protect your home's title, and stop paying for a dead warranty.`,
+    title: 'Freedom Forever Bankruptcy: Do You Still Have to Pay? (2026 Update)',
+    metaTitle: 'Freedom Forever Bankruptcy 2026: Do You Still Have to Pay?',
+    metaDescription: `Freedom Forever filed Chapter 11 in April 2026 — but your payments didn't stop. Who honors your warranty now, whether you still owe, and 3 legal ways out.`,
     category: 'Solar Companies',
     readTime: '7 min read',
     publishDate: 'April 19, 2026',
@@ -404,9 +404,9 @@ export const batch9BlogPosts: BlogPost[] = [
 
   {
     slug: 'how-to-file-a-complaint-against-solar-company-attorney-general',
-    title: 'How to File a Complaint Against Solar Company with the Attorney General in 2026',
-    metaTitle: 'How to File an AG Complaint Against Your Solar Company (2026 Guide)',
-    metaDescription: `Solar company lied to you? File an Attorney General complaint in 15 minutes. State-by-state links, exact evidence checklist, and what happens after you file.`,
+    title: 'How to File a Complaint Against a Solar Company (And What Happens Next)',
+    metaTitle: 'Complaint Against a Solar Company: Does It Actually Work?',
+    metaDescription: `File a solar complaint with your state Attorney General in 15 minutes — plus what actually happens after you file, and whether it can cancel your contract.`,
     category: 'Legal Rights',
     readTime: '12 min read',
     publishDate: 'April 19, 2026',

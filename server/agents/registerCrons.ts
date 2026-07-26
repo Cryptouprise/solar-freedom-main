@@ -36,6 +36,10 @@ export const AGENT_CRON_CONFIGS: Record<AgentSlug, { cron: string; description: 
     cron: "0 0 */2 * * *",
     description: "Manager Agent — oversight & final approval (every 2h)",
   },
+  infra: {
+    cron: "0 0 5 * * *",
+    description: "Infrastructure Agent — system health check, cost alert, self-improvement (daily 5 AM UTC)",
+  },
 };
 
 /**

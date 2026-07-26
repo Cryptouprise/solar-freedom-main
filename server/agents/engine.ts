@@ -27,7 +27,7 @@ import { eq, desc, and, inArray, sql } from "drizzle-orm";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type AgentSlug = "money_maker" | "seo_intel" | "content" | "editor" | "manager";
+export type AgentSlug = "money_maker" | "seo_intel" | "content" | "editor" | "manager" | "infra";
 
 export type AgentRunContext = {
   agentSlug: AgentSlug;
@@ -52,11 +52,18 @@ export type AgentThinkResult = {
 // ─── Default Models ───────────────────────────────────────────────────────────
 
 const AGENT_MODELS: Record<AgentSlug, string> = {
-  money_maker: "google/gemini-2.5-pro",      // Revenue decisions need best model
-  seo_intel:   "google/gemini-2.5-flash-lite-preview-06-17", // High-frequency, data analysis
-  content:     "google/gemini-2.5-flash-preview",  // Writing quality
-  editor:      "google/gemini-2.5-flash-preview",  // Quality gate
-  manager:     "google/gemini-2.5-pro",      // Final approval needs best model
+  // Infrastructure: Opus 5 — judges system quality, writes improvement plans, evaluates all other agents
+  infra:       "anthropic/claude-opus-5",
+  // Money Maker: DeepSeek V4.5 — elite financial reasoning at 9x lower cost than Gemini Pro
+  money_maker: "deepseek/deepseek-v4-5",
+  // SEO Intel: Opus 5 — search intent, competitive strategy, revenue connection require top-tier reasoning
+  seo_intel:   "anthropic/claude-opus-5",
+  // Content: Opus 5 — best prose quality, self-verification, human-sounding articles that rank
+  content:     "anthropic/claude-opus-5",
+  // Editor: Opus 5 — judgment on conversion quality, legal compliance, CTA effectiveness
+  editor:      "anthropic/claude-opus-5",
+  // Manager: Opus 5 — CEO-level decisions, 100% AutomationBench pass rate, revenue accountability
+  manager:     "anthropic/claude-opus-5",
 };
 
 // ─── Agent LLM Call (with cost tracking) ──────────────────────────────────────
@@ -418,6 +425,32 @@ Decision framework:
 You are the final checkpoint. Nothing goes live without your sign-off.`,
     cronExpression: "0 30 8,14,20 * * *", // 3x daily: 8:30am, 2:30pm, 8:30pm UTC
   },
+  {
+    slug: "infra" as AgentSlug,
+    name: "Infrastructure Agent",
+    description: "System self-improvement engine. Monitors all agent health, logs every change, detects errors, sends daily cost alerts, and continuously improves the entire operation.",
+    role: `You are the Infrastructure Agent for Solar Freedom (breakyoursolarcontract.com).
+Your mission: Keep the entire autonomous agent system healthy, improving, and accountable. You are the system's immune system and memory.
+
+You are responsible for:
+1. DAILY COST ALERT: Every morning, calculate yesterday's total LLM spend by agent and feature. Send a push notification to Chase with the breakdown. Flag if any agent exceeded $5/day.
+2. SYSTEM HEALTH CHECK: Review every agent's last 24h of runs. Identify failures, slow runs, low-quality outputs, and agents that haven't run when scheduled.
+3. CHANGE LOGGING: After every significant system event, write a record to systemChangeLog with actor, category, description, and expected impact.
+4. SELF-IMPROVEMENT QUEUE: After reviewing agent outputs, identify 1-3 specific improvements per agent (better prompts, model swaps, new data sources). Queue as P3/P4 actions for Chase to approve.
+5. ERROR DETECTION: Scan agentRunLog for failed runs, error messages, and partial completions. Create P1/P2 actions to fix critical issues.
+6. PERFORMANCE TRENDING: Track each agent's quality scores and cost per run over time. Alert when trends are negative.
+7. BLOG STUDIO SYNC: Check if Content Agent drafts are sitting in contentPipeline with status 'approved' but not yet pushed to blogDrafts. Move them.
+8. PRESS RELEASE SYNC: Check if Manager-approved press release topics haven't been queued in pressReleaseTopics. Queue them.
+
+You escalate to Chase (via notifyOwner) when:
+- Daily spend exceeds $10
+- Any agent has 3+ consecutive failures
+- A critical error is detected that no agent can self-fix
+- A self-improvement suggestion requires code changes
+
+You are the institutional memory. Log everything. Improve everything. Protect everything.`,
+    cronExpression: "0 0 5 * * *", // Daily 5am UTC
+  },
 ];
 
 export async function seedAgents(): Promise<void> {
@@ -441,5 +474,5 @@ export async function seedAgents(): Promise<void> {
       totalCostUsd: "0",
     });
   }
-  console.log("[AgentEngine] Seeded 5 agents into database");
+  console.log("[AgentEngine] Seeded 6 agents into database");
 }

@@ -27,7 +27,17 @@ const MODEL_PRICING: Record<string, { inputPer1M?: number; outputPer1M?: number;
   "tencent/hunyuan-a13b-instruct:free":      { inputPer1M: 0,      outputPer1M: 0 },
   "deepseek/deepseek-chat-v3-0324:free":     { inputPer1M: 0,      outputPer1M: 0 },
 
-  // Paid text models
+  // Paid text models — frontier models (July 2026)
+  "anthropic/claude-opus-5":                 { inputPer1M: 5.00,   outputPer1M: 25.00 },
+  "anthropic/claude-opus-4-5":               { inputPer1M: 5.00,   outputPer1M: 25.00 },
+  "anthropic/claude-sonnet-4-5":             { inputPer1M: 3.00,   outputPer1M: 15.00 },
+  "deepseek/deepseek-v4-5":                  { inputPer1M: 0.50,   outputPer1M: 1.10 },
+  "deepseek/deepseek-v3-2":                  { inputPer1M: 0.25,   outputPer1M: 0.38 },
+  "deepseek/deepseek-r1":                    { inputPer1M: 0.55,   outputPer1M: 2.19 },
+  "qwen/qwen3-235b-a22b":                    { inputPer1M: 0.20,   outputPer1M: 0.60 },
+  "google/gemini-3.2-pro":                   { inputPer1M: 1.25,   outputPer1M: 5.00 },
+  "google/gemini-3.2-flash":                 { inputPer1M: 0.10,   outputPer1M: 0.40 },
+  "openai/gpt-4o":                           { inputPer1M: 2.50,   outputPer1M: 10.00 },
   "google/gemini-2.5-flash-preview":         { inputPer1M: 0.15,   outputPer1M: 0.60 },
   "google/gemini-flash-2.0":                 { inputPer1M: 0.10,   outputPer1M: 0.40 },
   "qwen/qwen3-14b":                          { inputPer1M: 0.14,   outputPer1M: 0.14 },

@@ -1040,3 +1040,152 @@ export const revenueTracker = mysqlTable("revenueTracker", {
 
 export type RevenueTracker = typeof revenueTracker.$inferSelect;
 export type InsertRevenueTracker = typeof revenueTracker.$inferInsert;
+
+/**
+ * System Change Log — every change ever made to the system.
+ * Logged by agents, admin users, and cron jobs.
+ * This is the institutional memory of the entire operation.
+ */
+export const systemChangeLog = mysqlTable("systemChangeLog", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Who made the change
+  actor: varchar("actor", { length: 100 }).notNull(), // agent slug, admin email, or "system"
+  actorType: mysqlEnum("actorType", ["agent", "admin", "cron", "system"]).notNull(),
+
+  // What changed
+  category: mysqlEnum("category", [
+    "agent_prompt",
+    "agent_model",
+    "content_published",
+    "content_updated",
+    "seo_change",
+    "lead_routing",
+    "automation_change",
+    "schema_change",
+    "config_change",
+    "press_release",
+    "backlink",
+    "error_fix",
+    "improvement",
+    "other"
+  ]).notNull(),
+  description: text("description").notNull(),
+  details: text("details"),           // JSON blob with full change details
+  referenceType: varchar("referenceType", { length: 50 }), // "blog_post", "agent_action", etc.
+  referenceId: int("referenceId"),
+
+  // Impact measurement
+  impactScore: int("impactScore"),     // -10 to +10 (negative = bad, positive = good)
+  impactNotes: text("impactNotes"),    // What we observed after the change
+  measuredAt: timestamp("measuredAt"), // When impact was measured
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SystemChangeLog = typeof systemChangeLog.$inferSelect;
+export type InsertSystemChangeLog = typeof systemChangeLog.$inferInsert;
+
+/**
+ * Agent Health Log — per-agent performance metrics over time.
+ * Infrastructure Agent writes to this after every agent run.
+ * Used for trend analysis, cost optimization, and anomaly detection.
+ */
+export const agentHealthLog = mysqlTable("agentHealthLog", {
+  id: int("id").autoincrement().primaryKey(),
+
+  agentSlug: varchar("agentSlug", { length: 50 }).notNull(),
+  runId: int("runId"),                 // FK to agentRunLog.id
+
+  // Performance metrics
+  durationMs: int("durationMs"),
+  llmCalls: int("llmCalls").default(0).notNull(),
+  tokensIn: int("tokensIn").default(0).notNull(),
+  tokensOut: int("tokensOut").default(0).notNull(),
+  costUsd: decimal("costUsd", { precision: 10, scale: 6 }).default("0").notNull(),
+
+  // Output quality
+  actionsCreated: int("actionsCreated").default(0).notNull(),
+  actionsApproved: int("actionsApproved").default(0).notNull(),
+  actionsRejected: int("actionsRejected").default(0).notNull(),
+  messagesCreated: int("messagesCreated").default(0).notNull(),
+
+  // Status
+  status: mysqlEnum("status", ["success", "partial", "failed", "skipped"]).notNull(),
+  errorMessage: text("errorMessage"),
+
+  // Infrastructure Agent assessment
+  qualityScore: int("qualityScore"),   // 0-100 score assigned by Infra Agent
+  improvementNotes: text("improvementNotes"), // What Infra Agent recommends
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AgentHealthLog = typeof agentHealthLog.$inferSelect;
+export type InsertAgentHealthLog = typeof agentHealthLog.$inferInsert;
+
+/**
+ * Medium Articles — tracks all Medium syndicated articles and their backlinks.
+ * Populated by the backlink tracker cron. Maps each Medium article to the
+ * site pages it links back to, and tracks discovery of unknown backlinks.
+ */
+export const mediumArticles = mysqlTable("mediumArticles", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Article identity
+  mediumUrl: varchar("mediumUrl", { length: 1000 }).notNull().unique(),
+  title: varchar("title", { length: 500 }).notNull(),
+  publishedAt: timestamp("publishedAt"),
+  canonicalUrl: varchar("canonicalUrl", { length: 1000 }), // the site URL it canonicals back to
+
+  // Backlink map — JSON array of { url, anchorText, doFollow }
+  outboundLinks: text("outboundLinks"),  // links from this Medium article → our site
+  outboundLinkCount: int("outboundLinkCount").default(0).notNull(),
+
+  // Discovery metadata
+  lastCrawledAt: timestamp("lastCrawledAt"),
+  crawlStatus: mysqlEnum("crawlStatus", ["pending", "crawled", "error"]).default("pending").notNull(),
+  crawlError: text("crawlError"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type MediumArticle = typeof mediumArticles.$inferSelect;
+export type InsertMediumArticle = typeof mediumArticles.$inferInsert;
+
+/**
+ * Discovered Backlinks — inbound links to our site from any source (not just Medium).
+ * Populated by the backlink discovery cron using free APIs (DataForSEO, etc.)
+ * Tracks both known and newly discovered backlinks.
+ */
+export const discoveredBacklinks = mysqlTable("discoveredBacklinks", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Source
+  sourceUrl: varchar("sourceUrl", { length: 1000 }).notNull(),
+  sourceDomain: varchar("sourceDomain", { length: 300 }).notNull(),
+  sourceType: mysqlEnum("sourceType", ["medium", "press_release", "directory", "blog", "forum", "social", "news", "other"]).default("other").notNull(),
+
+  // Target
+  targetUrl: varchar("targetUrl", { length: 1000 }).notNull(),
+  targetSlug: varchar("targetSlug", { length: 500 }),
+
+  // Link quality
+  anchorText: varchar("anchorText", { length: 500 }),
+  doFollow: int("doFollow").default(1).notNull(),
+  domainAuthority: int("domainAuthority"),
+  domainRating: int("domainRating"),
+
+  // Discovery
+  firstDiscoveredAt: timestamp("firstDiscoveredAt").defaultNow().notNull(),
+  lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
+  isActive: int("isActive").default(1).notNull(),
+
+  // Status
+  status: mysqlEnum("status", ["new", "verified", "lost"]).default("new").notNull(),
+  notes: text("notes"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type DiscoveredBacklink = typeof discoveredBacklinks.$inferSelect;
+export type InsertDiscoveredBacklink = typeof discoveredBacklinks.$inferInsert;
