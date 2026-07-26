@@ -69,6 +69,18 @@ async function startServer() {
     '/blog/solar-panel-scam-signs-what-to-do': '/blog/solar-panel-scam-signs-and-solutions',
     '/blog/solar-contract-red-flags-and-scams': '/blog/solar-contract-red-flags',
     '/blog/solar-lease-vs-loan-vs-ppa': '/blog/solar-loan-vs-lease-problems',
+    // GSC-ranked slugs that 404 after content renames (verified live 2026-07-26).
+    // #1 traffic page goodleap-solar-loan-cancellation-guide had 54 clicks / 4,618 impr / pos 8.2.
+    '/blog/goodleap-solar-loan-cancellation-guide': '/blog/goodleap-cancel-solar-loan-2026',
+    '/blog/new-jersey-solar-contract-cancellation': '/blog/new-jersey-solar-contract-rights',
+    '/blog/cancel-solar-contract-houston': '/blog/cancel-solar-contract-houston-tx',
+    '/blog/goodleap-solar-loan-hidden-dealer-fees-2024': '/blog/goodleap-solar-loan-hidden-dealer-fees-2026',
+    '/blog/freedom-forever-solar-bankruptcy-problems': '/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026',
+    '/blog/how-to-file-a-complaint-against-solar-company': '/blog/how-to-file-a-complaint-against-solar-company-attorney-general',
+    '/blog/tesla-solar-solarcity-complaints': '/blog/tesla-solar-solarcity-complaints-cancel-2026',
+    '/blog/solar-contract-escalator-clause': '/blog/solar-contract-escalator-clause-explained-how-to-fight-it',
+    '/blog/selling-home-with-solar-ppa': '/blog/selling-home-with-solar-ppa-panels-transfer-or-cancel',
+    '/blog/sunnova-contract-transfer-problems': '/blog/sunnova-solar-contract-transfer-problems',
   };
   for (const [from, to] of Object.entries(BLOG_SLUG_REDIRECTS)) {
     app.get(from, (_req, res) => res.redirect(301, to));
