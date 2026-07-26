@@ -5,8 +5,8 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
+import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -354,7 +354,6 @@ function FirmForm({
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function LeadDistribution() {
-  const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("firms");
   const [showFirmDialog, setShowFirmDialog] = useState(false);
@@ -409,12 +408,7 @@ export default function LeadDistribution() {
     onError: (e) => toast.error(e.message),
   });
 
-  // Auth guard
-  if (authLoading) return <div className="min-h-screen bg-[#0D0F14]" />;
-  if (!user || user.role !== "admin") {
-    navigate("/login");
-    return null;
-  }
+  // Auth handled by AdminLayout
 
   const handleSaveFirm = (data: Partial<Firm>) => {
     if (editingFirm) {
@@ -448,7 +442,8 @@ export default function LeadDistribution() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0F14] text-white">
+    <AdminLayout title="Lead Distribution" subtitle="Manage law firm partners & lead routing">
+    <div className="text-white">
       {/* Header */}
       <div className="border-b border-white/10 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -791,5 +786,6 @@ export default function LeadDistribution() {
         </DialogContent>
       </Dialog>
     </div>
+    </AdminLayout>
   );
 }

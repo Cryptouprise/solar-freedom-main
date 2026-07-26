@@ -19,78 +19,51 @@ import {
   Wand2,
   Bot,
   Brain,
+  Building2,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { trpc } from "@/lib/trpc";
 
-const NAV_ITEMS = [
+const NAV_SECTIONS = [
   {
-    label: "Dashboard",
-    href: "/admin/analytics",
-    icon: LayoutDashboard,
-    description: "Traffic & conversions",
+    section: "Overview",
+    items: [
+      { label: "Dashboard", href: "/admin/analytics", icon: LayoutDashboard, description: "Traffic & conversions" },
+      { label: "Leads", href: "/admin/leads", icon: Users, description: "Form submissions & CRM" },
+    ],
   },
   {
-    label: "Leads",
-    href: "/admin/leads",
-    icon: Users,
-    description: "Form submissions & CRM",
+    section: "Content",
+    items: [
+      { label: "Blog Studio", href: "/admin/blog-studio", icon: Wand2, description: "AI writing, drafts & SEO" },
+      { label: "Post Editor", href: "/admin/posts", icon: PenSquare, description: "Edit posts, images & links" },
+      { label: "Content Manager", href: "/admin/content", icon: FileText, description: "All posts & pages" },
+      { label: "Press Releases", href: "/admin/press-releases", icon: Newspaper, description: "Auto-distribution engine" },
+    ],
   },
   {
-    label: "Content",
-    href: "/admin/content",
-    icon: FileText,
-    description: "Blog posts & pages",
+    section: "Revenue",
+    items: [
+      { label: "Lead Distribution", href: "/admin/lead-distribution", icon: Building2, description: "Law firm partners & routing" },
+      { label: "AI Costs", href: "/admin/press-releases#costs", icon: DollarSign, description: "Model spend tracking" },
+    ],
   },
   {
-    label: "Post Editor",
-    href: "/admin/posts",
-    icon: PenSquare,
-    description: "Edit posts, images & links",
+    section: "Agents & Automation",
+    items: [
+      { label: "Agent Command", href: "/admin/agents", icon: Brain, description: "6-agent autonomous system" },
+      { label: "Automations", href: "/admin/automations", icon: Bot, description: "Custom schedules & triggers" },
+    ],
   },
   {
-    label: "Blog Studio",
-    href: "/admin/blog-studio",
-    icon: Wand2,
-    description: "AI writing, SEO, media",
-  },
-  {
-    label: "Press Releases",
-    href: "/admin/press-releases",
-    icon: Newspaper,
-    description: "Auto-distribution engine",
-  },
-  {
-    label: "Backlinks",
-    href: "/admin/press-releases#backlinks",
-    icon: Link2,
-    description: "Link acquisition tracker",
-  },
-  {
-    label: "AI Costs",
-    href: "/admin/press-releases#costs",
-    icon: DollarSign,
-    description: "Model spend tracking",
-  },
-  {
-    label: "SEO Command Center",
-    href: "/seo-command-center",
-    icon: Target,
-    description: "SEO tasks & strategy",
-  },
-  {
-    label: "Automations",
-    href: "/admin/automations",
-    icon: Bot,
-    description: "Custom schedules & AI agents",
-  },
-  {
-    label: "Agent Command",
-    href: "/admin/agents",
-    icon: Brain,
-    description: "5-agent autonomous system",
+    section: "SEO",
+    items: [
+      { label: "SEO Command Center", href: "/seo-command-center", icon: Target, description: "SEO tasks & strategy" },
+      { label: "Backlinks", href: "/admin/press-releases#backlinks", icon: Link2, description: "Link acquisition tracker" },
+    ],
   },
 ];
 
@@ -144,30 +117,39 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.href || location.startsWith(item.href.split("#")[0] + "/");
-            return (
-              <Link key={item.href} href={item.href}>
-                <a
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group",
-                    isActive
-                      ? "bg-amber-500/15 text-amber-300 border border-amber-500/20"
-                      : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-                  )}
-                >
-                  <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-amber-400" : "text-gray-500 group-hover:text-gray-300")} />
-                  <div className="flex-1 min-w-0">
-                    <div className={cn("text-sm font-medium leading-none", isActive ? "text-amber-300" : "")}>{item.label}</div>
-                    <div className="text-xs text-gray-600 mt-0.5 truncate">{item.description}</div>
-                  </div>
-                  {isActive && <ChevronRight className="w-3 h-3 text-amber-500/60 shrink-0" />}
-                </a>
-              </Link>
-            );
-          })}
+        <nav className="flex-1 p-3 overflow-y-auto space-y-4">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.section}>
+              <div className="px-3 mb-1">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">{section.section}</span>
+              </div>
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location === item.href || location.startsWith(item.href.split("#")[0] + "/");
+                  return (
+                    <Link key={item.href} href={item.href}>
+                      <a
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group",
+                          isActive
+                            ? "bg-amber-500/15 text-amber-300 border border-amber-500/20"
+                            : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                        )}
+                      >
+                        <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-amber-400" : "text-gray-500 group-hover:text-gray-300")} />
+                        <div className="flex-1 min-w-0">
+                          <div className={cn("text-sm font-medium leading-none", isActive ? "text-amber-300" : "")}>{item.label}</div>
+                          <div className="text-xs text-gray-600 mt-0.5 truncate">{item.description}</div>
+                        </div>
+                        {isActive && <ChevronRight className="w-3 h-3 text-amber-500/60 shrink-0" />}
+                      </a>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <Separator className="bg-white/5" />

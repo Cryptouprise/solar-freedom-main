@@ -828,3 +828,13 @@
 - [x] BlogStudio Drafts: AI badge, target keyword tag, Intelligence Brief expand button (Info icon)
 - [x] Intelligence Brief expansion panel: 9 sections with color-coded Revenue Case and tag chips for hot companies/keywords
 - [x] All 82 tests passing, zero TypeScript errors
+
+## Phase 37 — Admin Navigation + Article Publishing
+- [x] Publish agent-written Sunrun Florida article to live blog
+- [x] Add AdminLayout sidebar to LeadDistribution.tsx (was the only page missing it)
+- [x] Restructure AdminLayout NAV_ITEMS into grouped sections (Overview, Content, Revenue, Agents & Automation, SEO)
+- [x] Add Lead Distribution to nav sidebar
+- [x] Create /admin home dashboard page (AdminHome.tsx) with quick-links to every tool and live stats
+- [x] Register /admin route in App.tsx
+- [x] Add /admin to CLIENT_ONLY_ROUTES in seo-delivery.ts
+- [x] All 82 tests passing, zero TypeScript errors

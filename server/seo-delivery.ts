@@ -14,6 +14,7 @@ const BASE_URL = "https://breakyoursolarcontract.com";
  * and lookalike public URLs from inheriting the homepage with a 200 response.
  */
 export const CLIENT_ONLY_ROUTES = new Set([
+  "/admin",
   "/login",
   "/youtube",
   "/yt",
