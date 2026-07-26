@@ -870,3 +870,7 @@
 - [x] Editor Agent chat: can score any article on demand
 - [x] Infrastructure Agent chat: can report system health, costs, errors
 - [x] All 82 tests passing, zero TypeScript errors
+
+## Phase 41 — Optimize to 100 Prompt Upgrade
+- [x] Update optimizeTo100 system prompt to specifically: fix paragraph spacing (max 3 sentences per paragraph, blank lines between), correct image placements (one image per 300 words, never stacked, always between sections), and auto-add relevant internal backlinks (link to city pages, company pages, state law pages, and other blog posts)
+- [x] All 82 tests passing, zero TypeScript errors

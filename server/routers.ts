@@ -586,36 +586,63 @@ Return ONLY valid JSON in this exact structure:
           .map(i => `- ${i.title}: ${i.fix}`)
           .join("\n");
 
-        const optimizePrompt = `You are an elite SEO content optimizer. Rewrite and improve this blog post to achieve the highest possible SEO score.
+        const optimizePrompt = `You are an elite SEO content optimizer and viral copywriter. Rewrite and improve this blog post to achieve a PERFECT score. You must specifically fix three critical areas: PARAGRAPH SPACING, IMAGE PLACEMENT, and INTERNAL BACKLINKS.
 
 Current Title: ${post.title}
 Current Meta Description: ${post.metaDescription || "MISSING"}
 
 Issues to fix:
-${issueList || "General optimization: improve spacing, add H2/H3 structure, strengthen CTAs, add internal links to /blog/ and /cities/ pages, ensure keyword density, improve paragraph flow, make it viral and engaging."}
+${issueList || "General optimization: fix spacing, images, interlinking, H2/H3 structure, CTAs, keyword density, paragraph flow, make it viral."}
 
 Current Content:
 ${(post.content || "").slice(0, 6000)}
 
-Rules:
+=== PARAGRAPH SPACING RULES (CRITICAL) ===
+- MAXIMUM 3 sentences per paragraph. If a paragraph has 4+ sentences, SPLIT IT.
+- Add a blank line between EVERY paragraph — no exceptions.
+- After every H2 or H3 heading, start a new short paragraph (1-2 sentences max as intro).
+- Use one-sentence "power paragraphs" for emphasis (bold the key phrase).
+- Never have more than 3 paragraphs in a row without a heading, image, blockquote, or list.
+- Lists should have no more than 5-7 items. Break longer lists into multiple sections.
+
+=== IMAGE PLACEMENT RULES (CRITICAL) ===
+- Place one image every 300 words of text. NEVER go 400+ words without an image.
+- NEVER stack two images back-to-back — always have at least one paragraph between images.
+- First image MUST appear within the first 200 words (below the opening hook).
+- Each image must have descriptive alt text with the target keyword or a variation.
+- Use this format: <img src="IMAGE_PLACEHOLDER_[description]" alt="descriptive alt text" />
+- Place images BETWEEN sections (after an H2/H3, before the next paragraph) — never mid-paragraph.
+- If the post has fewer than 3 images total, ADD image placeholders where they belong.
+
+=== INTERNAL BACKLINKS RULES (CRITICAL) ===
+- Add MINIMUM 5 internal links throughout the article. Target 7-10 for longer posts.
+- Link to relevant CITY pages: /cancel-solar-contract/[city-slug] (e.g., /cancel-solar-contract/jacksonville-fl)
+- Link to relevant COMPANY pages: /solar-company/[company-slug] (e.g., /solar-company/sunrun)
+- Link to relevant STATE LAW pages: /solar-contract-laws/[state] (e.g., /solar-contract-laws/florida)
+- Link to relevant BLOG posts: /blog/[slug] (e.g., /blog/solar-contract-rescission-rights)
+- Use natural anchor text — NOT "click here" or "read more". Use descriptive phrases like "Florida solar contract cancellation laws" or "Sunrun complaint patterns".
+- Spread links throughout the article — not all in one section.
+- At least 1 link in the first 200 words, at least 1 in the last 200 words.
+- Add a "Related Resources" or "Learn More" section before the FAQ with 3-4 internal links.
+
+=== ADDITIONAL RULES ===
 - Keep all factual claims, legal citations, and phone number (904) 921-4971
-- Add proper spacing between paragraphs (blank lines between each paragraph)
-- Break up walls of text into 2-3 sentence paragraphs
 - Add H2 headings every 300-400 words
 - Add H3 subheadings within sections
-- Bold key terms and company names
-- Add 2-3 internal links to related pages using [anchor text](/path) format
-- Strengthen CTAs — make them urgent and specific
-- Add a FAQ section at the end with 3-5 questions
-- Make the opening hook more compelling
+- Bold key terms, company names, and dollar amounts
+- Strengthen CTAs — make them urgent, specific, and emotional
+- Add a FAQ section at the end with 3-5 questions (with FAQPage schema-friendly format)
+- Make the opening hook more compelling — use a statistic, question, or bold claim
+- Use power words: "exposed," "trapped," "escape," "freedom," "fight back," "your rights"
 - Never claim to be attorneys — use "consumer protection advocates" or "case specialists"
+- Add a strong CTA after every 2-3 sections (not just at the end)
 
 Return ONLY valid JSON:
 {
   "title": "optimized title (keep if already good)",
   "metaDescription": "optimized meta description (150-160 chars, includes keyword)",
-  "content": "full optimized HTML/markdown content",
-  "improvements": ["list of what was changed"]
+  "content": "full optimized HTML/markdown content with all spacing, images, and links fixed",
+  "improvements": ["list of specific changes made — mention spacing fixes, image placements added, and internal links added"]
 }`;
 
         const result = await callLLM({
