@@ -99,6 +99,20 @@
       "when": 1785087380252,
       "tag": "0013_quiet_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1785093287246,
+      "tag": "0014_clammy_franklin_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1785093424030,
+      "tag": "0015_pink_vampiro",
+      "breakpoints": true
     }
   ]
 }

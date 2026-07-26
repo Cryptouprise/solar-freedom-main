@@ -111,7 +111,19 @@ OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
       "estimatedLeadsPerMonth": 0,
       "revenueJustification": "Why this article makes money",
       "priority": "p1|p2|p3",
-      "internalLinks": ["/blog/related", "/cancel-solar-contract/city-state"]
+      "internalLinks": ["/blog/related", "/cancel-solar-contract/city-state"],
+      "contentBrief": {
+        "whyNow": "Why this specific topic right now — trending signals, news, complaint spikes",
+        "competitorGap": "What competitors rank for this but do poorly — their weaknesses",
+        "serpAnalysis": "What currently ranks #1-3 and why we can beat them",
+        "trendingSignals": "BBB complaint trends, CFPB data, state AG actions, news events driving searches",
+        "keywordStrategy": "Primary keyword + 4-6 secondary + LSI terms + long-tail variants",
+        "leadPlan": "How this article converts: which CTA, what pain point, expected conversion rate",
+        "revenueCase": "Estimated monthly leads × avg case value = monthly revenue potential",
+        "competitorUrls": ["https://competitor.com/ranking-page"],
+        "hotCompanies": ["company names with high complaint volume right now"],
+        "hotKeywords": ["keywords trending up based on complaint patterns"]
+      }
     }
   ],
   "messages": [
@@ -124,7 +136,8 @@ OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
   ]
 }
 
-IMPORTANT: For P1 items, write the FULL DRAFT in the "draft" field. For P2/P3, write the outline only.`;
+IMPORTANT: For P1 items, write the FULL DRAFT in the "draft" field. For P2/P3, write the outline only.
+ALWAYS fill in the contentBrief for every item — this is the business case that justifies the work.`;
 
 // ─── Main Execution ───────────────────────────────────────────────────────────
 
@@ -180,6 +193,18 @@ export async function runContentAgent(
         revenueJustification?: string;
         priority: string;
         internalLinks?: string[];
+        contentBrief?: {
+          whyNow?: string;
+          competitorGap?: string;
+          serpAnalysis?: string;
+          trendingSignals?: string;
+          keywordStrategy?: string;
+          leadPlan?: string;
+          revenueCase?: string;
+          competitorUrls?: string[];
+          hotCompanies?: string[];
+          hotKeywords?: string[];
+        };
       }>;
       messages?: Array<{ toAgent: string; type: string; subject: string; body: string }>;
     } = {};
@@ -219,6 +244,7 @@ export async function runContentAgent(
           .where(eq(contentPipeline.targetKeyword, item.targetKeyword))
           .limit(1);
 
+        const briefJson = item.contentBrief ? JSON.stringify(item.contentBrief) : undefined;
         if (existing) {
           // Update with new draft if we have one
           await db.update(contentPipeline).set({
@@ -229,6 +255,7 @@ export async function runContentAgent(
             revenueJustification: item.revenueJustification,
             estimatedMonthlyTraffic: item.estimatedMonthlyTraffic,
             estimatedLeadsPerMonth: item.estimatedLeadsPerMonth,
+            contentBrief: briefJson,
             updatedAt: new Date(),
           }).where(eq(contentPipeline.id, existing.id));
         } else {
@@ -249,12 +276,14 @@ export async function runContentAgent(
             revenueJustification: item.revenueJustification,
             estimatedMonthlyTraffic: item.estimatedMonthlyTraffic,
             estimatedLeadsPerMonth: item.estimatedLeadsPerMonth,
+            contentBrief: briefJson,
           });
         }
         context.actionsCreated++;
 
         // Save to BlogStudio drafts if we have a full draft
         if (item.draft && db) {
+          const draftBriefJson = item.contentBrief ? JSON.stringify(item.contentBrief) : undefined;
           const [existingDraft] = await db.select({ id: blogDrafts.id })
             .from(blogDrafts)
             .where(eq(blogDrafts.postSlug, item.slug))
@@ -265,6 +294,7 @@ export async function runContentAgent(
               content: item.draft,
               targetKeyword: item.targetKeyword,
               name: `Agent Draft — ${item.title}`,
+              contentBrief: draftBriefJson,
               updatedAt: new Date(),
             }).where(eq(blogDrafts.id, existingDraft.id));
           } else {
@@ -274,6 +304,7 @@ export async function runContentAgent(
               title: item.title,
               content: item.draft,
               targetKeyword: item.targetKeyword,
+              contentBrief: draftBriefJson,
             });
           }
         }

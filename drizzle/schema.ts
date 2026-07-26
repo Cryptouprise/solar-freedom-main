@@ -529,6 +529,7 @@ export const blogDrafts = mysqlTable("blogDrafts", {
   excerpt: text("excerpt"),
   heroImage: varchar("heroImage", { length: 1000 }),
   targetKeyword: varchar("targetKeyword", { length: 200 }),
+  contentBrief: text("contentBrief"), // JSON: intelligence brief from Content Agent
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -947,6 +948,9 @@ export const contentPipeline = mysqlTable("contentPipeline", {
   readabilityScore: int("readabilityScore"),
   eatScore: int("eatScore"),          // E-E-A-T compliance
   duplicateRisk: int("duplicateRisk"), // 0=unique, 100=duplicate
+
+  // Intelligence Brief — full research brief explaining why this article was chosen
+  contentBrief: text("contentBrief"), // JSON: { whyNow, competitorGap, trendingSignals, serpAnalysis, leadPlan, revenueCase }
 
   // Revenue connection
   revenueJustification: text("revenueJustification"), // Why this content makes money

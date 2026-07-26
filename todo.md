@@ -818,3 +818,13 @@
 - [x] Add date sort toggle to Discovered Backlinks table (newest/oldest first)
 - [x] Add category filter to System Change Log table
 - [x] Add crawl status filter to Medium Articles table
+
+## Phase 36 — Content Intelligence Brief System
+- [x] Add contentBrief JSON column to contentPipeline schema (stores full research brief)
+- [x] Add contentBrief column to blogDrafts schema
+- [x] Run pnpm db:push for schema changes
+- [x] Upgrade Content Agent: requires contentBrief in every output (whyNow, trendingSignals, competitorGap, serpAnalysis, keywordStrategy, leadPlan, revenueCase, hotCompanies, hotKeywords)
+- [x] Content Agent saves brief to contentPipeline.contentBrief and blogDrafts.contentBrief
+- [x] BlogStudio Drafts: AI badge, target keyword tag, Intelligence Brief expand button (Info icon)
+- [x] Intelligence Brief expansion panel: 9 sections with color-coded Revenue Case and tag chips for hot companies/keywords
+- [x] All 82 tests passing, zero TypeScript errors

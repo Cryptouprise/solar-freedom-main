@@ -536,6 +536,7 @@ export default function BlogStudio() {
   // Non-autosave drafts (for display in draft panel)
   const namedDrafts = (drafts as any[]).filter((d: any) => d.name !== "autosave");
   const autosaveDraft = (drafts as any[]).find((d: any) => d.name === "autosave");
+  const [expandedBriefId, setExpandedBriefId] = useState<number | null>(null);
   const safeHeroImage = safeMediaUrl(heroImage);
   const safePodcastAudioUrl = safeMediaUrl(podcastAudioUrl);
   const safePodcastEmbedUrl = safeMediaUrl(podcastEmbedUrl);
@@ -662,33 +663,126 @@ export default function BlogStudio() {
               {namedDrafts.length > 0 && (
                 <div className="w-80 space-y-1.5">
                   <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Saved Drafts</label>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {namedDrafts.map((d: any) => (
-                      <div key={d.id} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-gray-200 text-xs font-medium truncate">{d.name}</p>
-                          <p className="text-gray-600 text-xs">{new Date(d.updatedAt).toLocaleString()}</p>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {namedDrafts.map((d: any) => {
+                      const brief = d.contentBrief ? (() => { try { return JSON.parse(d.contentBrief); } catch { return null; } })() : null;
+                      const isAgent = d.name?.startsWith("Agent Draft");
+                      const isExpanded = expandedBriefId === d.id;
+                      return (
+                        <div key={d.id} className={`rounded-lg border ${isAgent ? "border-amber-500/30 bg-amber-500/5" : "border-white/10 bg-white/5"}`}>
+                          <div className="flex items-center justify-between px-3 py-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                {isAgent && <span className="text-amber-400 text-[10px] font-mono uppercase tracking-wider bg-amber-500/15 px-1.5 py-0.5 rounded">AI</span>}
+                                <p className="text-gray-200 text-xs font-medium truncate">{d.name}</p>
+                              </div>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <p className="text-gray-600 text-xs">{new Date(d.updatedAt).toLocaleString()}</p>
+                                {d.targetKeyword && <span className="text-amber-500/70 text-[10px] font-mono truncate max-w-[120px]">{d.targetKeyword}</span>}
+                              </div>
+                            </div>
+                            <div className="flex gap-1 ml-2 flex-shrink-0">
+                              {brief && (
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedBriefId(isExpanded ? null : d.id)}
+                                  className="text-amber-400/70 hover:text-amber-300 p-1 rounded hover:bg-amber-500/10 transition-colors"
+                                  title="View Intelligence Brief"
+                                >
+                                  <Info className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleRestoreDraft(d)}
+                                className="text-amber-400 hover:text-amber-300 text-xs px-2 py-1 rounded hover:bg-amber-500/10 transition-colors"
+                                title="Restore this draft"
+                              >
+                                Restore
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteDraft(d.id, d.name)}
+                                className="text-gray-600 hover:text-red-400 p-1 rounded hover:bg-red-500/10 transition-colors"
+                                title="Delete draft"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                          {/* Intelligence Brief Expansion */}
+                          {brief && isExpanded && (
+                            <div className="border-t border-amber-500/20 px-3 py-3 space-y-2">
+                              <p className="text-amber-400 text-[10px] font-mono uppercase tracking-wider flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" /> Intelligence Brief
+                              </p>
+                              {brief.whyNow && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">Why Now</p>
+                                  <p className="text-gray-300 text-xs leading-relaxed">{brief.whyNow}</p>
+                                </div>
+                              )}
+                              {brief.trendingSignals && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">Trending Signals</p>
+                                  <p className="text-gray-300 text-xs leading-relaxed">{brief.trendingSignals}</p>
+                                </div>
+                              )}
+                              {brief.competitorGap && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">Competitor Gap</p>
+                                  <p className="text-gray-300 text-xs leading-relaxed">{brief.competitorGap}</p>
+                                </div>
+                              )}
+                              {brief.serpAnalysis && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">SERP Analysis</p>
+                                  <p className="text-gray-300 text-xs leading-relaxed">{brief.serpAnalysis}</p>
+                                </div>
+                              )}
+                              {brief.keywordStrategy && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">Keyword Strategy</p>
+                                  <p className="text-gray-300 text-xs leading-relaxed">{brief.keywordStrategy}</p>
+                                </div>
+                              )}
+                              {brief.leadPlan && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">Lead Plan</p>
+                                  <p className="text-gray-300 text-xs leading-relaxed">{brief.leadPlan}</p>
+                                </div>
+                              )}
+                              {brief.revenueCase && (
+                                <div className="bg-green-500/10 border border-green-500/20 rounded p-2">
+                                  <p className="text-green-400 text-[10px] uppercase tracking-wider mb-0.5">Revenue Case</p>
+                                  <p className="text-green-300 text-xs leading-relaxed font-medium">{brief.revenueCase}</p>
+                                </div>
+                              )}
+                              {brief.hotCompanies?.length > 0 && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Hot Companies</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {brief.hotCompanies.map((c: string) => (
+                                      <span key={c} className="text-[10px] bg-red-500/15 text-red-400 px-1.5 py-0.5 rounded font-mono">{c}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {brief.hotKeywords?.length > 0 && (
+                                <div>
+                                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Hot Keywords</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {brief.hotKeywords.map((k: string) => (
+                                      <span key={k} className="text-[10px] bg-amber-500/15 text-amber-400 px-1.5 py-0.5 rounded font-mono">{k}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        <div className="flex gap-1 ml-2">
-                          <button
-                            type="button"
-                            onClick={() => handleRestoreDraft(d)}
-                            className="text-amber-400 hover:text-amber-300 text-xs px-2 py-1 rounded hover:bg-amber-500/10 transition-colors"
-                            title="Restore this draft"
-                          >
-                            Restore
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteDraft(d.id, d.name)}
-                            className="text-gray-600 hover:text-red-400 p-1 rounded hover:bg-red-500/10 transition-colors"
-                            title="Delete draft"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

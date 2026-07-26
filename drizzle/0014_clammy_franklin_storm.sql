@@ -1,0 +1,1 @@
+ALTER TABLE `contentPipeline` ADD `contentBrief` text;

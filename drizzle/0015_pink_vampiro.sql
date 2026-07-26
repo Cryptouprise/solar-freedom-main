@@ -1,0 +1,1 @@
+ALTER TABLE `blogDrafts` ADD `contentBrief` text;
