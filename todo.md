@@ -874,3 +874,12 @@
 ## Phase 41 — Optimize to 100 Prompt Upgrade
 - [x] Update optimizeTo100 system prompt to specifically: fix paragraph spacing (max 3 sentences per paragraph, blank lines between), correct image placements (one image per 300 words, never stacked, always between sections), and auto-add relevant internal backlinks (link to city pages, company pages, state law pages, and other blog posts)
 - [x] All 82 tests passing, zero TypeScript errors
+
+## Phase 42 — GHL Dashboard in Admin Portal
+- [x] Add GHL_LOCATION_ID to env.ts (hardcoded fallback WBEbDUNxKL5GyxIUjjdZ)
+- [x] Create server/ghlClient.ts — GHL API client using ghlapi key + WBEbDUNxKL5GyxIUjjdZ location
+- [x] Add ghl tRPC router (contacts, opportunities, conversations, invoices, pipelines)
+- [x] Create client/src/pages/admin/GHLDashboard.tsx — full CRM dashboard
+- [x] Add /admin/ghl route to App.tsx and CLIENT_ONLY_ROUTES
+- [x] Add GHL Dashboard link to AdminLayout sidebar under Revenue section
+- [x] Write vitest tests for GHL router (19 tests, all passing)

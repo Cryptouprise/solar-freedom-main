@@ -22,6 +22,7 @@ import {
 } from "./db";
 import { storagePut } from "./storage";
 import { agentRouter } from "./agentRouter";
+import { ghlRouter } from "./ghlRouter";
 import { getGA4Report } from "./ga4";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
 import { enforcePublicMutationLimit } from "./security/rateLimit";
@@ -77,8 +78,8 @@ function buildSmsConfirmation(firstName?: string) {
 
 // ─── Routers ───────────────────────────────────────────────────────────────────
 export const appRouter = router({
-  system: systemRouter,
   agents: agentRouter,
+  ghl: ghlRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
