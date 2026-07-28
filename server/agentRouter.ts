@@ -229,7 +229,7 @@ export const agentRouter = router({
 
       const AGENT_MODELS: Record<string, string> = {
         infra:       "anthropic/claude-opus-5",
-        money_maker: "deepseek/deepseek-v4-5",
+        money_maker: "deepseek/deepseek-v4-pro",
         seo_intel:   "anthropic/claude-opus-5",
         content:     "anthropic/claude-opus-5",
         editor:      "anthropic/claude-opus-5",

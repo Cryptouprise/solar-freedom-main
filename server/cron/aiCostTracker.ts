@@ -31,7 +31,9 @@ const MODEL_PRICING: Record<string, { inputPer1M?: number; outputPer1M?: number;
   "anthropic/claude-opus-5":                 { inputPer1M: 5.00,   outputPer1M: 25.00 },
   "anthropic/claude-opus-4-5":               { inputPer1M: 5.00,   outputPer1M: 25.00 },
   "anthropic/claude-sonnet-4-5":             { inputPer1M: 3.00,   outputPer1M: 15.00 },
-  "deepseek/deepseek-v4-5":                  { inputPer1M: 0.50,   outputPer1M: 1.10 },
+  "deepseek/deepseek-v4-5":                  { inputPer1M: 0.50,   outputPer1M: 1.10 }, // deprecated model ID
+  "deepseek/deepseek-v4-pro":                { inputPer1M: 0.50,   outputPer1M: 1.10 },
+  "deepseek/deepseek-v4-flash":              { inputPer1M: 0.10,   outputPer1M: 0.30 },
   "deepseek/deepseek-v3-2":                  { inputPer1M: 0.25,   outputPer1M: 0.38 },
   "deepseek/deepseek-r1":                    { inputPer1M: 0.55,   outputPer1M: 2.19 },
   "qwen/qwen3-235b-a22b":                    { inputPer1M: 0.20,   outputPer1M: 0.60 },

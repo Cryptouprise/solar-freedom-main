@@ -913,3 +913,15 @@
 - [x] Show "High Intent" amber badge in lead rows meeting the criteria
 - [x] Sort high-intent leads to the top of the table by default
 - [x] Write vitest test for high-intent detection logic (covered by existing journey tests)
+
+## Phase 45 — Detailed Lead Journey Modal
+- [ ] Enhance journeyRouter.ts leadJourney procedure to return enriched GHL data (contact tags, pipeline name, assigned user, invoice status, payment date)
+- [ ] Build LeadJourneyModal component with full timeline: web events → form submit → GHL contact → pipeline stages → closed → payment
+- [ ] Add summary metrics bar: time on site, pages visited, days to close, days to payment, deal value
+- [ ] Add form submission data section: solar company, issue, monthly payment, intent, source page
+- [ ] Add session attribution section: UTM source/medium/campaign, referrer, device, first page, last page
+- [ ] Add GHL contact section: tags, pipeline stage, assigned user, last activity
+- [ ] Add invoice/payment section: invoice status, amount, paid date
+- [ ] Replace existing basic journey dialog in WebsiteLeadsJourney with the new detailed modal
+- [ ] Wire "View Journey" button on each lead row to open the modal
+- [ ] Write vitest tests for the enriched leadJourney procedure

@@ -54,8 +54,8 @@ export type AgentThinkResult = {
 const AGENT_MODELS: Record<AgentSlug, string> = {
   // Infrastructure: Opus 5 — judges system quality, writes improvement plans, evaluates all other agents
   infra:       "anthropic/claude-opus-5",
-  // Money Maker: DeepSeek V4.5 — elite financial reasoning at 9x lower cost than Gemini Pro
-  money_maker: "deepseek/deepseek-v4-5",
+  // Money Maker: DeepSeek V4 Pro — elite financial reasoning at lower cost than Gemini Pro
+  money_maker: "deepseek/deepseek-v4-pro",
   // SEO Intel: Opus 5 — search intent, competitive strategy, revenue connection require top-tier reasoning
   seo_intel:   "anthropic/claude-opus-5",
   // Content: Opus 5 — best prose quality, self-verification, human-sounding articles that rank
