@@ -1218,6 +1218,7 @@ export const leadSessions = mysqlTable("leadSessions", {
   lastPage: varchar("lastPage", { length: 500 }),
   totalPages: int("totalPages").default(0).notNull(),
   totalTimeMs: int("totalTimeMs").default(0).notNull(), // total time on site in ms
+  ctaClickCount: int("ctaClickCount").default(0).notNull(), // number of CTA clicks in session
 
   // Conversion linkage
   leadId: int("leadId"),          // set when form is submitted

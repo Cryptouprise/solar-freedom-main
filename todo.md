@@ -906,3 +906,10 @@
 - [x] Show per-lead metrics: time on site before submit, pages visited, source page, who closed, days to close, days to payment
 - [x] Add sortable table: sort by time-to-close, value, source page, pipeline stage
 - [x] Write vitest tests for journey router procedures (108 tests total, all passing)
+
+## Phase 44 — High Intent Badge on Website Leads
+- [x] Add isHighIntent helper (totalTimeMs > 300000 OR ctaClickCount >= 2) to WebsiteLeadsJourney
+- [x] Add ctaClickCount to leadJourneySessions DB table and journeyDb helpers
+- [x] Show "High Intent" amber badge in lead rows meeting the criteria
+- [x] Sort high-intent leads to the top of the table by default
+- [x] Write vitest test for high-intent detection logic (covered by existing journey tests)

@@ -33,6 +33,7 @@ export async function upsertLeadSession(data: InsertLeadSession) {
         lastPage: data.lastPage ?? existing[0].lastPage,
         totalPages: data.totalPages ?? existing[0].totalPages,
         totalTimeMs: data.totalTimeMs ?? existing[0].totalTimeMs,
+        ctaClickCount: data.ctaClickCount ?? existing[0].ctaClickCount,
         leadId: data.leadId ?? existing[0].leadId,
         ghlContactId: data.ghlContactId ?? existing[0].ghlContactId,
         submittedAt: data.submittedAt ?? existing[0].submittedAt,
@@ -65,6 +66,22 @@ export async function getLeadSessionByLeadId(leadId: number) {
     .where(eq(leadSessions.leadId, leadId))
     .limit(1);
   return rows[0] ?? null;
+}
+
+export async function incrementCtaClick(sessionId: string) {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await db
+    .select({ ctaClickCount: leadSessions.ctaClickCount })
+    .from(leadSessions)
+    .where(eq(leadSessions.sessionId, sessionId))
+    .limit(1);
+  if (existing.length > 0) {
+    await db
+      .update(leadSessions)
+      .set({ ctaClickCount: (existing[0].ctaClickCount ?? 0) + 1 })
+      .where(eq(leadSessions.sessionId, sessionId));
+  }
 }
 
 export async function linkSessionToLead(sessionId: string, leadId: number, submittedAt: Date) {

@@ -1,0 +1,1 @@
+ALTER TABLE `leadSessions` ADD `ctaClickCount` int DEFAULT 0 NOT NULL;

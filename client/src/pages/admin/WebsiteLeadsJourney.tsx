@@ -20,8 +20,29 @@ import {
   Globe, Clock, MousePointer, FileText,
   TrendingUp, CheckCircle2, DollarSign, AlertCircle,
   ChevronRight, Eye, ArrowRight, Phone, Mail,
-  BarChart3, Users, Zap,
+  BarChart3, Users, Zap, Flame,
 } from "lucide-react";
+
+// ─── High Intent Detection ───────────────────────────────────────────────────
+
+const HIGH_INTENT_TIME_MS = 5 * 60 * 1000; // 5 minutes
+const HIGH_INTENT_CTA_CLICKS = 2;           // 2+ CTA clicks
+
+function isHighIntent(session: { totalTimeMs?: number | null; ctaClickCount?: number | null }): boolean {
+  return (
+    (session.totalTimeMs ?? 0) >= HIGH_INTENT_TIME_MS ||
+    (session.ctaClickCount ?? 0) >= HIGH_INTENT_CTA_CLICKS
+  );
+}
+
+function HighIntentBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold border bg-amber-500/20 text-amber-300 border-amber-500/40">
+      <Flame className="w-3 h-3" />
+      High Intent
+    </span>
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -312,7 +333,12 @@ export default function WebsiteLeadsJourney() {
     offset: page * PAGE_SIZE,
   });
 
-  const sessions = data?.sessions ?? [];
+  // Sort high-intent leads to the top
+  const sessions = [...(data?.sessions ?? [])].sort((a, b) => {
+    const aHigh = isHighIntent(a) ? 1 : 0;
+    const bHigh = isHighIntent(b) ? 1 : 0;
+    return bHigh - aHigh;
+  });
 
   return (
     <div className="space-y-6">
@@ -395,16 +421,23 @@ export default function WebsiteLeadsJourney() {
                       ? `${lead.firstName ?? ""} ${lead.lastName ?? ""}`.trim() || "Unknown"
                       : "Unknown";
 
+                    const highIntent = isHighIntent(session);
+
                     return (
                       <tr
                         key={session.id}
-                        className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
+                        className={`border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer ${
+                          highIntent ? "bg-amber-500/5" : ""
+                        }`}
                         onClick={() => setSelectedLeadId(session.leadId ?? null)}
                       >
                         <td className="px-4 py-3">
-                          <div className="font-medium text-white">{name}</div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-white">{name}</span>
+                            {highIntent && <HighIntentBadge />}
+                          </div>
                           {lead?.phone && (
-                            <div className="text-gray-500 text-xs">{lead.phone}</div>
+                            <div className="text-gray-500 text-xs mt-0.5">{lead.phone}</div>
                           )}
                         </td>
                         <td className="px-4 py-3">

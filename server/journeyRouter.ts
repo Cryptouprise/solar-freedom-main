@@ -16,6 +16,7 @@ import {
   getLeadSession,
   linkSessionToLead,
   linkSessionToGhlContact,
+  incrementCtaClick,
 } from "./journeyDb";
 import { getDb } from "./db";
 import { leads } from "../drizzle/schema";
@@ -145,6 +146,11 @@ export function registerJourneyEndpoint(app: Express) {
           timeOnPageMs: data.timeOnPageMs,
           scrollDepthPct: data.scrollDepthPct,
         });
+
+        // Increment CTA click counter on the session for High Intent detection
+        if (data.type === "click_cta") {
+          await incrementCtaClick(data.sessionId);
+        }
       }
 
       res.status(200).json({ ok: true });

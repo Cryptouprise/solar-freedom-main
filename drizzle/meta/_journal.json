@@ -120,6 +120,13 @@
       "when": 1785213003479,
       "tag": "0016_omniscient_karma",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1785214738906,
+      "tag": "0017_sweet_iron_fist",
+      "breakpoints": true
     }
   ]
 }
