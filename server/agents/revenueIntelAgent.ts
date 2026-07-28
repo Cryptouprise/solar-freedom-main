@@ -373,7 +373,7 @@ Respond ONLY with valid JSON:
       ],
       context,
       temperature: 0.1,
-      maxTokens: 4000,
+      maxTokens: 6000,
     });
 
     let parsed: {

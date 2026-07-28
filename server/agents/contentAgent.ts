@@ -198,7 +198,7 @@ export async function runContentAgent(
       ],
       context,
       temperature: 0.5,
-      maxTokens: 4000,
+      maxTokens: 6000,
     });
 
     // 4. Parse
