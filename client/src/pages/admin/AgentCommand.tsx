@@ -380,7 +380,7 @@ function AgentDetailView({ slug }: { slug: string }) {
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500 shrink-0">
                 <span>{run.durationMs ? `${(run.durationMs / 1000).toFixed(1)}s` : "—"}</span>
-                <span>${run.costUsd ? run.costUsd.toFixed(4) : "0"}</span>
+                <span>${run.costUsd ? parseFloat(String(run.costUsd)).toFixed(4) : "0"}</span>
               </div>
             </div>
           ))}
@@ -884,7 +884,7 @@ function ModelSelectorView() {
                             model.provider === "anthropic" ? "bg-orange-400" : "bg-gray-400"
                           )} />
                           <span className="text-white">{model.label}</span>
-                          <span className="text-gray-500 ml-auto">${model.costPer1MIn?.toFixed(2)}/1M in</span>
+                          <span className="text-gray-500 ml-auto">${model.costPer1MIn != null ? parseFloat(String(model.costPer1MIn)).toFixed(2) : "?"}/1M in</span>
                         </div>
                       </SelectItem>
                     ))}
