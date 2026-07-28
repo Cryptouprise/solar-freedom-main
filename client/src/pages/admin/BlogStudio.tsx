@@ -157,6 +157,12 @@ export default function BlogStudio() {
   } | null>(null);
   const [seoLoading, setSeoLoading] = useState(false);
 
+  // Fix SEO to 100 state
+  const [fixSeoLoading, setFixSeoLoading] = useState(false);
+  const [fixSeoChanges, setFixSeoChanges] = useState<Array<{ type: string; description: string }> | null>(null);
+  const [showFixSeoModal, setShowFixSeoModal] = useState(false);
+  const [fixSeoStep, setFixSeoStep] = useState("");
+
   // Draft state
   const [showDraftPanel, setShowDraftPanel] = useState(false);
   const [draftName, setDraftName] = useState("");
@@ -176,6 +182,7 @@ export default function BlogStudio() {
   const updatePost = trpc.content.updatePost.useMutation();
   const generateContent = trpc.blogStudio.generateContent.useMutation();
   const analyzeSeo = trpc.blogStudio.analyzeSeo.useMutation();
+  const fixSeoMutation = trpc.fixSeo.fixSeoTo100.useMutation();
   const generateImageMutation = trpc.blogStudio.generateImage.useMutation();
   const uploadImageMutation = trpc.content.uploadImage.useMutation();
   const saveDraftMutation = trpc.blogDrafts.save.useMutation();

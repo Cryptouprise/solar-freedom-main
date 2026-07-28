@@ -22,10 +22,11 @@ import {
 } from "./agents";
 import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons } from "./agents/registerCrons";
 import { getDb } from "./db";
-import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks } from "../drizzle/schema";
+import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig } from "../drizzle/schema";
+import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS } from "./agents/agentLLM";
 import { desc, eq, and, gte } from "drizzle-orm";
 
-const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra"]);
+const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra", "revenue_intel"]);
 
 export const agentRouter = router({
   /**
@@ -313,5 +314,69 @@ export const agentRouter = router({
       mediumArticles: mediumArticleList,
       backlinks: backlinkList,
     };
+  }),
+
+  /**
+   * Get model configs for all agents.
+   */
+  getModelConfigs: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const db = await getDb();
+    if (!db) return [];
+    const configs = await db.select().from(agentModelConfig);
+    const slugs = ["manager", "revenue_intel", "content", "seo_intel", "editor", "money_maker", "infra"] as const;
+    return slugs.map(slug => {
+      const saved = configs.find(c => c.agentSlug === slug);
+      const modelId = saved?.modelId ?? AGENT_DEFAULT_MODELS[slug as keyof typeof AGENT_DEFAULT_MODELS] ?? "gpt-5-mini";
+      const catalog = AVAILABLE_MODELS.find((m: any) => m.id === modelId);
+      return {
+        agentSlug: slug,
+        modelId,
+        modelLabel: saved?.modelLabel ?? catalog?.label ?? modelId,
+        isDefault: !saved,
+      };
+    });
+  }),
+
+  /**
+   * Update model config for a specific agent.
+   */
+  updateModelConfig: protectedProcedure
+    .input(z.object({
+      agentSlug: z.string(),
+      modelId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const catalog = AVAILABLE_MODELS.find((m: any) => m.id === input.modelId);
+      const modelLabel = catalog?.label ?? input.modelId;
+      await db.insert(agentModelConfig).values({
+        agentSlug: input.agentSlug,
+        modelId: input.modelId,
+        modelLabel,
+        updatedAt: new Date(),
+      }).onDuplicateKeyUpdate({
+        set: { modelId: input.modelId, modelLabel, updatedAt: new Date() },
+      });
+      return { success: true, agentSlug: input.agentSlug, modelId: input.modelId, modelLabel };
+    }),
+
+  /**
+   * Seed default model configs for all agents.
+   */
+  seedModelConfigs: protectedProcedure.mutation(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    await seedDefaultModelConfigs();
+    return { success: true };
+  }),
+
+  /**
+   * Get the full model catalog.
+   */
+  getModelCatalog: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    return AVAILABLE_MODELS;
   }),
 });

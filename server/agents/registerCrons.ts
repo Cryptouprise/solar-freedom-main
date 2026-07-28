@@ -40,6 +40,10 @@ export const AGENT_CRON_CONFIGS: Record<AgentSlug, { cron: string; description: 
     cron: "0 0 5 * * *",
     description: "Infrastructure Agent — system health check, cost alert, self-improvement (daily 5 AM UTC)",
   },
+  revenue_intel: {
+    cron: "0 0 6,14 * * *",
+    description: "Revenue Intelligence Agent — GSC analysis, lead yield prediction, ranked action execution (2x daily)",
+  },
 };
 
 /**

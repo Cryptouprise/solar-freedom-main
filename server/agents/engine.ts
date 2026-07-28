@@ -27,7 +27,7 @@ import { eq, desc, and, inArray, sql } from "drizzle-orm";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type AgentSlug = "money_maker" | "seo_intel" | "content" | "editor" | "manager" | "infra";
+export type AgentSlug = "money_maker" | "seo_intel" | "content" | "editor" | "manager" | "infra" | "revenue_intel";
 
 export type AgentRunContext = {
   agentSlug: AgentSlug;
@@ -49,24 +49,9 @@ export type AgentThinkResult = {
   messagesCreated: number;
 };
 
-// ─── Default Models ───────────────────────────────────────────────────────────
-
-const AGENT_MODELS: Record<AgentSlug, string> = {
-  // Infrastructure: Opus 5 — judges system quality, writes improvement plans, evaluates all other agents
-  infra:       "anthropic/claude-opus-5",
-  // Money Maker: DeepSeek V4 Pro — elite financial reasoning at lower cost than Gemini Pro
-  money_maker: "deepseek/deepseek-v4-pro",
-  // SEO Intel: Opus 5 — search intent, competitive strategy, revenue connection require top-tier reasoning
-  seo_intel:   "anthropic/claude-opus-5",
-  // Content: Opus 5 — best prose quality, self-verification, human-sounding articles that rank
-  content:     "anthropic/claude-opus-5",
-  // Editor: Opus 5 — judgment on conversion quality, legal compliance, CTA effectiveness
-  editor:      "anthropic/claude-opus-5",
-  // Manager: Opus 5 — CEO-level decisions, 100% AutomationBench pass rate, revenue accountability
-  manager:     "anthropic/claude-opus-5",
-};
-
 // ─── Agent LLM Call (with cost tracking) ──────────────────────────────────────
+// Model selection: reads from agentModelConfig DB table (set via admin UI)
+// Falls back to AGENT_DEFAULT_MODELS in agentLLM.ts if not configured
 
 export async function agentLLM(params: {
   agentSlug: AgentSlug;
@@ -75,9 +60,28 @@ export async function agentLLM(params: {
   temperature?: number;
   maxTokens?: number;
 }): Promise<string> {
-  const model = AGENT_MODELS[params.agentSlug];
+  // Dynamically import to avoid circular deps
+  const { callAgentLLM, getAgentModel } = await import("./agentLLM");
+  const modelId = await getAgentModel(params.agentSlug);
+
+  // Check if OpenRouter model (Qwen/DeepSeek) — use callAgentLLM
+  const OPENROUTER_PREFIXES = ["qwen/", "deepseek/", "mistralai/", "meta-llama/"];
+  const isOpenRouter = OPENROUTER_PREFIXES.some(p => modelId.startsWith(p));
+
+  if (isOpenRouter) {
+    const res = await callAgentLLM({
+      agentSlug: params.agentSlug,
+      modelOverride: modelId,
+      messages: params.messages as any,
+      maxTokens: params.maxTokens ?? 4000,
+    });
+    params.context.llmCalls++;
+    return res.content;
+  }
+
+  // Built-in proxy
   const result = await callLLM({
-    model,
+    model: modelId,
     messages: params.messages,
     feature: `agent_${params.agentSlug}`,
     referenceId: params.context.runId,
@@ -132,7 +136,7 @@ export async function startRun(
     triggeredBy,
     status: "running",
     startedAt: new Date(),
-    model: AGENT_MODELS[slug],
+    model: slug, // model resolved dynamically per-call via agentLLM.ts
   }).$returningId();
 
   await updateAgentStatus(slug, "active");

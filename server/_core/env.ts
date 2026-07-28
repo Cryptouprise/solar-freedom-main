@@ -7,4 +7,7 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  openRouterApiKey: process.env.OPENROUTER_API_KEY ?? "",
+  ghlApiKey: process.env.ghlapi ?? "",
+  ghlLocationId: process.env.GHL_LOCATION_ID ?? "WBEbDUNxKL5GyxIUjjdZ",
 };

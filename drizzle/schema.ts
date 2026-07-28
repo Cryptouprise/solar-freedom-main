@@ -1298,3 +1298,151 @@ export const ghlPipelineEvents = mysqlTable("ghlPipelineEvents", {
 
 export type GhlPipelineEvent = typeof ghlPipelineEvents.$inferSelect;
 export type InsertGhlPipelineEvent = typeof ghlPipelineEvents.$inferInsert;
+
+
+// ─── Agent Goal Tracking ──────────────────────────────────────────────────────
+/**
+ * Daily goals set by the Manager agent for each worker agent.
+ * After each run, the agent records whether it hit the goal.
+ */
+export const agentGoals = mysqlTable("agentGoals", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 50 }).notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  goalType: varchar("goalType", { length: 100 }).notNull(), // e.g. "publish_article", "rank_improvement", "revenue_collected"
+  metric: varchar("metric", { length: 200 }).notNull(), // e.g. "articles_published", "keyword_position", "dollars_collected"
+  target: varchar("target", { length: 200 }).notNull(), // e.g. "1", "top_10", "500"
+  actual: varchar("actual", { length: 200 }), // filled in after run
+  hit: tinyint("hit"), // 1 = goal met, 0 = missed, null = not yet evaluated
+  directive: text("directive"), // specific instructions from Manager to the agent
+  notes: text("notes"), // agent's own notes on why it hit/missed
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AgentGoal = typeof agentGoals.$inferSelect;
+export type InsertAgentGoal = typeof agentGoals.$inferInsert;
+
+// ─── Agent Memory ─────────────────────────────────────────────────────────────
+/**
+ * Persistent key-value memory store per agent.
+ * Agents read this before acting and write to it after.
+ * Examples: last_keyword_targeted, last_outreach_firm, current_focus_area
+ */
+export const agentMemory = mysqlTable("agentMemory", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 50 }).notNull(),
+  key: varchar("key", { length: 200 }).notNull(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AgentMemory = typeof agentMemory.$inferSelect;
+export type InsertAgentMemory = typeof agentMemory.$inferInsert;
+
+// ─── Agent Learning Log ───────────────────────────────────────────────────────
+/**
+ * Self-improving lesson log. After every run, agents write what worked and what didn't.
+ * Future runs read the last N lessons before deciding what to do.
+ */
+export const agentLearning = mysqlTable("agentLearning", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 50 }).notNull(),
+  lessonType: varchar("lessonType", { length: 50 }).notNull(), // "success" | "failure" | "observation"
+  lesson: text("lesson").notNull(), // e.g. "Publishing at 9am UTC gets 3x more impressions than 3pm"
+  impact: varchar("impact", { length: 200 }), // e.g. "+12 clicks", "-$500 revenue", "no measurable impact"
+  relatedGoalId: int("relatedGoalId"), // FK to agentGoals if applicable
+  learnedAt: timestamp("learnedAt").defaultNow().notNull(),
+});
+export type AgentLearning = typeof agentLearning.$inferSelect;
+export type InsertAgentLearning = typeof agentLearning.$inferInsert;
+
+// ─── Revenue Intelligence Agent Tables ───────────────────────────────────────
+/**
+ * Revenue impact predictions per page action.
+ * Every predicted action is stored with confidence, reasoning, and execution status.
+ */
+export const revenueIntelPredictions = mysqlTable("revenueIntelPredictions", {
+  id: int("id").autoincrement().primaryKey(),
+  pageSlug: varchar("pageSlug", { length: 500 }).notNull(),
+  pageTitle: varchar("pageTitle", { length: 500 }),
+  actionType: varchar("actionType", { length: 100 }).notNull(),
+  // e.g. "cta_rewrite" | "title_optimization" | "interlink_injection" | "keyword_density" | "faq_addition" | "meta_rewrite" | "position_push"
+  actionDetail: text("actionDetail").notNull(), // specific change to make
+  // Prediction model outputs
+  currentClicks: int("currentClicks").default(0),
+  currentPosition: varchar("currentPosition", { length: 10 }),
+  currentImpressions: int("currentImpressions").default(0),
+  currentLeadsPerMonth: decimal("currentLeadsPerMonth", { precision: 6, scale: 2 }).default("0"),
+  predictedClicksGain: int("predictedClicksGain").default(0),
+  predictedLeadsGain: decimal("predictedLeadsGain", { precision: 6, scale: 2 }).default("0"),
+  predictedRevenueGain: decimal("predictedRevenueGain", { precision: 10, scale: 2 }).default("0"),
+  confidenceScore: int("confidenceScore").default(0), // 0-100
+  reasoning: text("reasoning"), // why this action will generate this revenue
+  // Execution
+  status: mysqlEnum("status", ["queued", "executing", "done", "skipped", "failed"]).default("queued").notNull(),
+  executedAt: timestamp("executedAt"),
+  executionNotes: text("executionNotes"),
+  // Outcome tracking (filled in after 30 days)
+  actualClicksGain: int("actualClicksGain"),
+  actualLeadsGain: decimal("actualLeadsGain", { precision: 6, scale: 2 }),
+  actualRevenueGain: decimal("actualRevenueGain", { precision: 10, scale: 2 }),
+  outcomeRecordedAt: timestamp("outcomeRecordedAt"),
+  runId: int("runId"), // FK to revenueIntelRuns
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type RevenueIntelPrediction = typeof revenueIntelPredictions.$inferSelect;
+export type InsertRevenueIntelPrediction = typeof revenueIntelPredictions.$inferInsert;
+
+/**
+ * Revenue Intelligence Agent run log.
+ * One row per agent run, summarizing what was analyzed and executed.
+ */
+export const revenueIntelRuns = mysqlTable("revenueIntelRuns", {
+  id: int("id").autoincrement().primaryKey(),
+  runAt: timestamp("runAt").defaultNow().notNull(),
+  postsAnalyzed: int("postsAnalyzed").default(0),
+  actionsGenerated: int("actionsGenerated").default(0),
+  actionsExecuted: int("actionsExecuted").default(0),
+  totalPredictedRevenueImpact: decimal("totalPredictedRevenueImpact", { precision: 12, scale: 2 }).default("0"),
+  topAction: varchar("topAction", { length: 500 }),
+  topActionRevenue: decimal("topActionRevenue", { precision: 10, scale: 2 }).default("0"),
+  summary: text("summary"),
+  status: mysqlEnum("status", ["running", "completed", "failed"]).default("running").notNull(),
+  errorMessage: text("errorMessage"),
+  durationMs: int("durationMs"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type RevenueIntelRun = typeof revenueIntelRuns.$inferSelect;
+export type InsertRevenueIntelRun = typeof revenueIntelRuns.$inferInsert;
+
+/**
+ * Agent Model Configuration.
+ * Stores which LLM model each agent should use.
+ * Configurable from the admin panel — one row per agent.
+ */
+export const agentModelConfig = mysqlTable("agentModelConfig", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 64 }).notNull().unique(),
+  modelId: varchar("modelId", { length: 128 }).notNull(),
+  modelLabel: varchar("modelLabel", { length: 128 }).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AgentModelConfig = typeof agentModelConfig.$inferSelect;
+export type InsertAgentModelConfig = typeof agentModelConfig.$inferInsert;
+
+/**
+ * Agent Goal Retry Configuration.
+ * Controls how many times an agent retries until its goal is hit.
+ * goalSuccessCriteria is a JSON string: { minDrafts, minActions, minScore, etc. }
+ */
+export const agentGoalRetryConfig = mysqlTable("agentGoalRetryConfig", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 64 }).notNull().unique(),
+  maxRetries: int("maxRetries").default(3).notNull(),
+  retryIntervalMinutes: int("retryIntervalMinutes").default(30).notNull(),
+  goalSuccessCriteria: text("goalSuccessCriteria"),
+  enabled: tinyint("enabled").default(1).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AgentGoalRetryConfig = typeof agentGoalRetryConfig.$inferSelect;
+export type InsertAgentGoalRetryConfig = typeof agentGoalRetryConfig.$inferInsert;

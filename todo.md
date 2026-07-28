@@ -950,3 +950,103 @@
 - [x] Register Infra agent (daily 5am UTC) — task_uid: 67XiCWv44EX4YcvUP64Wmx
 - [x] Verify all 6 heartbeat jobs confirmed active via manus-heartbeat list (total: 6)
 - [x] Save checkpoint
+
+## Phase 49 — Run All Agents Now + Manager Upgrade
+- [ ] Trigger all 6 agents via Heartbeat Run Now
+- [ ] Upgrade Manager agent to trigger other agents via internal API
+- [ ] Manager can send directives to Content/SEO Intel agents
+- [ ] Manager can check status of all agents and report summary
+- [ ] Save checkpoint
+
+## Phase 50 — Run All Agents Button + Manager Upgrade
+- [ ] Add "Run All Agents Now" button to admin Agents page header
+- [ ] Show per-agent live status (queued → running → done/error) during run
+- [ ] Add individual "Run Now" button per agent row
+- [ ] Upgrade Manager agent to trigger other agents via internal runAgent() calls
+- [ ] Manager can send priority directives to Content/SEO Intel agents
+- [ ] Manager produces a daily briefing summary after coordinating all agents
+- [ ] Write vitest tests for triggerAll and manager coordination
+- [ ] Save checkpoint
+
+## Phase 51 — Smarter Manager Agent (Daily Brain)
+- [ ] Manager runs at 6am UTC daily (before all other agents)
+- [ ] Manager analyzes yesterday: runs, errors, revenue, content published, leads
+- [ ] Manager writes a daily plan: what each agent should focus on today
+- [ ] Manager fires each agent in sequence with specific directives
+- [ ] Manager sends Chase a morning briefing notification with today's plan
+- [ ] Manager monitors agent output and re-triggers if an agent fails
+- [ ] Add live per-agent progress panel to Run All button in AgentCommand UI
+- [ ] Update heartbeat schedule: Manager at 6am, others staggered after
+- [ ] Save checkpoint
+
+## Phase 52 — Deterministic Goal-Driven Agent Rebuild
+- [ ] Add agentGoals table: agentSlug, date, goalType, metric, target, actual, hit, notes
+- [ ] Add agentMemory table: agentSlug, key, value, updatedAt (persistent KV store per agent)
+- [ ] Add agentLearning table: agentSlug, lesson, impact, learnedAt (what worked / what didn't)
+- [ ] Run pnpm db:push to apply new tables
+- [ ] Add DB helpers: setGoal, recordOutcome, getGoalHistory, setMemory, getMemory, addLesson, getLessons
+- [ ] Rebuild Manager: runs at 6am, reads yesterday's goal outcomes, sets today's SMART goals per agent, fires each agent with goal context, sends Chase morning briefing
+- [ ] Manager sets goals like: "Content: publish 1 article targeting 'cancel sunrun contract california' by EOD"
+- [ ] Manager checks goal completion at end of day run and records hit/miss
+- [ ] Upgrade Content agent: receives goal from Manager, executes it (writes + publishes), records outcome
+- [ ] Upgrade SEO Intel: receives ranking targets, checks actual positions, records delta
+- [ ] Upgrade Editor: receives quality targets (SEO score ≥ 85), auto-applies fixes, records final scores
+- [ ] Upgrade Money Maker: receives revenue targets, executes outreach/billing actions, records $ impact
+- [ ] Upgrade Infra: receives error budget targets, auto-fixes detected issues, records resolution rate
+- [ ] Each agent reads its own memory + lessons before acting (learns from past)
+- [ ] Each agent writes a lesson after every run: "X worked because Y" or "X failed because Z"
+- [ ] Add live per-agent progress panel to Run All button (shows goal → executing → outcome)
+- [ ] Update Heartbeat: Manager at 6am UTC, others staggered 7am-11am UTC
+- [ ] Write vitest tests for goal/memory/learning helpers
+- [ ] Save checkpoint
+
+## Phase 53 — Revenue Intelligence Agent
+- [ ] Add revenueIntelPredictions table: postSlug, actionType, predictedLeads, predictedRevenue, confidence, reasoning, status, executedAt
+- [ ] Add revenueIntelRuns table: runAt, postsAnalyzed, actionsGenerated, actionsExecuted, predictedRevenueImpact
+- [ ] Run pnpm db:push for new tables
+- [ ] Build server/agents/revenueIntelAgent.ts with full prediction + execution logic
+- [ ] Pull GSC data (clicks, impressions, position) per post
+- [ ] Pull lead conversion data per post from DB (form submissions linked to source page)
+- [ ] Calculate current lead yield per 1000 impressions per post
+- [ ] Model revenue impact of: title CTR improvement, position improvement, CTA rewrite, interlinking, FAQ addition
+- [ ] Rank all possible actions by predicted $ impact (highest first)
+- [ ] Auto-execute top N actions: rewrite CTA, update title tag, inject interlinks, add FAQ
+- [ ] Record predicted vs actual outcomes for model calibration
+- [ ] Add revenueIntel tRPC router: getInsights, getPredictions, getActionQueue, runAgent
+- [ ] Build /admin/revenue-intel page with ranked action table, prediction confidence bars, executed changes log
+- [ ] Register Revenue Intel agent with Heartbeat (daily 8am UTC)
+- [ ] Wire Revenue Intel into Manager agent (Manager reads its output for daily briefing)
+- [ ] Write vitest tests for prediction model and action ranking
+- [ ] Save checkpoint
+
+## Phase 54 — Goal-Persistence & LLM Model Selector
+- [ ] Read builtin-llm-models skill to identify best cheap high-performance models
+- [ ] Add agentModelConfig table to schema (agentSlug, modelId, modelLabel, updatedAt)
+- [ ] Add goalRetryConfig table (agentSlug, maxRetries, retryIntervalMinutes, goalSuccessCriteria)
+- [ ] Add retry-until-goal-hit logic to agent engine (check goal hit before marking complete, re-queue if not)
+- [ ] Wire agentModelConfig into agentLLM() so each agent uses its configured model
+- [ ] Add LLM model selector dropdown to AgentCommand admin panel per agent
+- [ ] Curated model list: Gemini Flash 2.5, DeepSeek V3, Qwen2.5-72B, Mistral Small, Claude Haiku 3.5
+- [ ] Show goal hit/miss status in AgentCommand run history panel
+- [ ] Run tests and save checkpoint
+
+## Phase 54 — Lock In Agent Models & Selector UI
+- [x] Run pnpm db:push for agentModelConfig and agentGoalRetryConfig tables
+- [x] Create server/agents/agentLLM.ts — routes to OpenRouter for Qwen/DeepSeek, built-in for others
+- [x] Seed default model configs: Manager=qwen3-235b-a22b-thinking-2507, RevenueIntel=deepseek-v4-pro, Content=qwen3-235b-a22b-2507, SEOIntel=qwen3-235b-a22b-thinking-2507, Editor=deepseek-v4-flash, MoneyMaker=deepseek-v4-pro, Infra=qwen3-235b-a22b-2507
+- [x] Add agents.getModelConfigs, updateModelConfig, seedModelConfigs, getModelCatalog tRPC procedures
+- [x] Add model selector dropdowns to AgentCommand admin panel (per-agent) with cost display
+- [x] Add Revenue Intel tab and Models tab to AgentCommand
+- [x] Add revenue_intel to AgentSlug type and AGENT_CRON_CONFIGS
+- [x] Replace hardcoded AGENT_MODELS in engine.ts with dynamic agentLLM.ts lookup
+- [x] Run all tests (108 passing) and save checkpoint
+
+## Phase 55 — Manager Super-Agent (Full API Access)
+- [x] Build server/agents/agentLLM.ts — routes to OpenRouter for Qwen/DeepSeek models
+- [x] Seed agentModelConfig defaults in DB via migration script
+- [x] Rebuilt managerAgent.ts with full tool-calling: GHL contacts/opps/conversations, trigger any agent, publish blog posts, update seoPages, fire press releases, read analytics, write siteConfig
+- [x] Manager tool list: triggerAgent, callGhlApi, publishBlogPost, updateSeoPage, firePressRelease, readAnalytics, writeSiteConfig, sendOwnerAlert, readAgentMemory, writeAgentGoal
+- [x] Manager uses qwen3-235b-a22b-thinking-2507 via OpenRouter with tool-calling
+- [x] Manager runs at 6am UTC daily as the first agent, then triggers others in sequence
+- [x] Add model selector dropdowns to AgentCommand UI with Models tab
+- [x] Run tests (108 passing) and save checkpoint

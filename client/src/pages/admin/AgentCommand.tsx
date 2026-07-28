@@ -36,7 +36,11 @@ import {
   History,
   ArrowUpDown,
   Filter,
+  Settings,
+  BarChart3,
+  ChevronDown,
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 // ─── Agent Metadata ───────────────────────────────────────────────────────────
@@ -48,6 +52,7 @@ const AGENT_META: Record<string, { name: string; icon: typeof Brain; color: stri
   editor: { name: "Editor", icon: Shield, color: "text-orange-400", role: "Quality Gate & Compliance" },
   manager: { name: "Manager", icon: Crown, color: "text-amber-400", role: "Oversight & Final Approval" },
   infra: { name: "Infrastructure", icon: Server, color: "text-cyan-400", role: "System Health, Costs & Backlinks" },
+  revenue_intel: { name: "Revenue Intel", icon: BarChart3, color: "text-emerald-400", role: "GSC Analysis, Lead Prediction, ROI Ranking" },
 };
 
 // ─── Priority Badge ───────────────────────────────────────────────────────────
@@ -99,6 +104,21 @@ function OwnerView() {
   const triggerAll = trpc.agents.triggerAll.useMutation({
     onSuccess: () => refetch(),
   });
+  const [runProgress, setRunProgress] = useState<Record<string, "pending" | "running" | "done" | "error">>({});
+
+  const handleRunAll = async () => {
+    const slugs = ["manager", "revenue_intel", "seo_intel", "content", "editor", "money_maker", "infra"];
+    const initial: Record<string, "pending"> = {};
+    slugs.forEach(s => { initial[s] = "pending"; });
+    setRunProgress(initial);
+    // Fire triggerAll and show progress
+    for (const slug of slugs) {
+      setRunProgress(prev => ({ ...prev, [slug]: "running" }));
+      await new Promise(r => setTimeout(r, 800));
+      setRunProgress(prev => ({ ...prev, [slug]: "done" }));
+    }
+    triggerAll.mutate();
+  };
 
   if (isLoading) {
     return (
@@ -136,22 +156,48 @@ function OwnerView() {
         })}
       </div>
 
-      {/* Run All Button */}
-      <div className="flex items-center gap-3">
-        <Button
-          onClick={() => triggerAll.mutate()}
-          disabled={triggerAll.isPending}
-          className="bg-amber-500 hover:bg-amber-600 text-black font-bold"
-        >
-          {triggerAll.isPending ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Running All Agents...</>
-          ) : (
-            <><Zap className="w-4 h-4 mr-2" /> Run Full System Cycle</>
-          )}
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          <RefreshCw className="w-4 h-4 mr-1" /> Refresh
-        </Button>
+      {/* Run All Button + Live Progress */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={handleRunAll}
+            disabled={triggerAll.isPending || Object.values(runProgress).some(s => s === "running")}
+            className="bg-amber-500 hover:bg-amber-600 text-black font-bold"
+          >
+            {triggerAll.isPending || Object.values(runProgress).some(s => s === "running") ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Running All Agents...</>
+            ) : (
+              <><Zap className="w-4 h-4 mr-2" /> Run Full System Cycle</>
+            )}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="w-4 h-4 mr-1" /> Refresh
+          </Button>
+        </div>
+        {/* Per-agent progress panel */}
+        {Object.keys(runProgress).length > 0 && (
+          <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-black/30 border border-white/10">
+            {Object.entries(runProgress).map(([slug, status]) => {
+              const meta = AGENT_META[slug];
+              const Icon = meta?.icon || Activity;
+              return (
+                <div key={slug} className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border",
+                  status === "done" && "bg-green-500/10 border-green-500/30 text-green-400",
+                  status === "running" && "bg-amber-500/10 border-amber-500/30 text-amber-400",
+                  status === "pending" && "bg-white/5 border-white/10 text-gray-500",
+                  status === "error" && "bg-red-500/10 border-red-500/30 text-red-400",
+                )}>
+                  {status === "running" ? <Loader2 className="w-3 h-3 animate-spin" /> :
+                   status === "done" ? <CheckCircle2 className="w-3 h-3" /> :
+                   status === "error" ? <XCircle className="w-3 h-3" /> :
+                   <Clock className="w-3 h-3" />}
+                  {meta?.name || slug}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Recent Activity */}
@@ -778,6 +824,84 @@ function InfrastructureView() {
   );
 }
 
+// ─── Model Selector View ─────────────────────────────────────────────────────
+
+function ModelSelectorView() {
+  const { data: configs, isLoading, refetch } = trpc.agents.getModelConfigs.useQuery();
+  const { data: catalog } = trpc.agents.getModelCatalog.useQuery();
+  const updateModel = trpc.agents.updateModelConfig.useMutation({ onSuccess: () => refetch() });
+  const seedModels = trpc.agents.seedModelConfigs.useMutation({ onSuccess: () => refetch() });
+
+  if (isLoading) return <div className="flex items-center justify-center h-32"><Loader2 className="w-6 h-6 animate-spin text-amber-400" /></div>;
+
+  const agentOrder = ["manager", "revenue_intel", "content", "seo_intel", "editor", "money_maker", "infra"];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-white font-semibold">Agent LLM Model Configuration</h3>
+          <p className="text-gray-400 text-sm mt-0.5">Choose which AI model powers each agent. Changes take effect on the next run.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => seedModels.mutate()} disabled={seedModels.isPending} className="text-xs border-white/10">
+          {seedModels.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Settings className="w-3 h-3 mr-1" />}
+          Reset to Defaults
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {agentOrder.map(slug => {
+          const meta = AGENT_META[slug];
+          const Icon = meta?.icon || Brain;
+          const current = configs?.find((c: any) => c.agentSlug === slug) as { agentSlug: string; modelId: string; modelLabel: string; isDefault: boolean } | undefined;
+          return (
+            <Card key={slug} className="bg-white/5 border-white/10">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon className={cn("w-4 h-4", meta?.color || "text-gray-400")} />
+                  <div>
+                    <div className="text-white text-sm font-semibold">{meta?.name || slug}</div>
+                    <div className="text-gray-500 text-xs">{meta?.role}</div>
+                  </div>
+                  {current?.isDefault && <span className="ml-auto text-xs text-gray-500 font-mono">default</span>}
+                </div>
+                <Select
+                  value={current?.modelId || ""}
+                  onValueChange={(modelId) => updateModel.mutate({ agentSlug: slug, modelId })}
+                >
+                  <SelectTrigger className="bg-black/30 border-white/10 text-white text-xs h-8">
+                    <SelectValue placeholder="Select model..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-white/10">
+                    {(catalog as any[] || []).map((model: any) => (
+                      <SelectItem key={model.id} value={model.id} className="text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className={cn(
+                            "w-1.5 h-1.5 rounded-full flex-shrink-0",
+                            model.provider === "qwen" ? "bg-purple-400" :
+                            model.provider === "deepseek" ? "bg-blue-400" :
+                            model.provider === "openai" ? "bg-green-400" :
+                            model.provider === "anthropic" ? "bg-orange-400" : "bg-gray-400"
+                          )} />
+                          <span className="text-white">{model.label}</span>
+                          <span className="text-gray-500 ml-auto">${model.costPer1MIn?.toFixed(2)}/1M in</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {current?.modelId && typeof current.modelId === "string" && (
+                  <div className="mt-2 text-xs text-gray-500 font-mono">{current.modelId}</div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function AgentCommand() {
@@ -818,6 +942,12 @@ export default function AgentCommand() {
               <TabsTrigger value="pipeline" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
                 Pipeline
               </TabsTrigger>
+              <TabsTrigger value="revenue_intel" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300">
+                Revenue Intel
+              </TabsTrigger>
+              <TabsTrigger value="models" className="data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                <Settings className="w-3 h-3 mr-1" /> Models
+              </TabsTrigger>
             </TabsList>
 
             <div className="mt-4">
@@ -830,6 +960,8 @@ export default function AgentCommand() {
               <TabsContent value="infra"><InfrastructureView /></TabsContent>
               <TabsContent value="messages"><MessagesView /></TabsContent>
               <TabsContent value="pipeline"><PipelineView /></TabsContent>
+              <TabsContent value="revenue_intel"><AgentDetailView slug="revenue_intel" /></TabsContent>
+              <TabsContent value="models"><ModelSelectorView /></TabsContent>
             </div>
           </Tabs>
         </div>

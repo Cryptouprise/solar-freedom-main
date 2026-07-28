@@ -9,6 +9,7 @@ export { runContentAgent } from "./contentAgent";
 export { runEditorAgent } from "./editorAgent";
 export { runManagerAgent } from "./managerAgent";
 export { runInfraAgent } from "./infraAgent";
+export { runRevenueIntelAgent } from "./revenueIntelAgent";
 export {
   seedAgents,
   listAgents,
@@ -30,13 +31,14 @@ import { runContentAgent } from "./contentAgent";
 import { runEditorAgent } from "./editorAgent";
 import { runManagerAgent } from "./managerAgent";
 import { runInfraAgent } from "./infraAgent";
+import { runRevenueIntelAgent } from "./revenueIntelAgent";
 import type { AgentSlug, AgentThinkResult } from "./engine";
 
 /**
  * Run a specific agent by slug.
  */
 export async function runAgent(
-  slug: AgentSlug,
+  slug: AgentSlug | "revenue_intel",
   triggerType: "cron" | "manual" | "directive" | "event" = "manual",
   triggeredBy: string = "admin"
 ): Promise<AgentThinkResult> {
@@ -51,6 +53,8 @@ export async function runAgent(
       return runEditorAgent(triggerType, triggeredBy);
     case "manager":
       return runManagerAgent(triggerType, triggeredBy);
+    case "revenue_intel":
+      return runRevenueIntelAgent(triggerType, triggeredBy);
     case "infra": {
       const infraTrigger = triggerType === "directive" || triggerType === "event" ? "manual" : triggerType;
       return runInfraAgent(infraTrigger, triggeredBy);
@@ -61,32 +65,34 @@ export async function runAgent(
 }
 
 /**
- * Run ALL agents in sequence (Manager runs last to review).
+ * Run ALL agents in sequence — Manager runs first to set goals, then workers, then infra.
  * Used for full system cycle.
  */
 export async function runAllAgents(
   triggeredBy: string = "system_cycle"
-): Promise<Record<AgentSlug, AgentThinkResult>> {
-  const results: Partial<Record<AgentSlug, AgentThinkResult>> = {};
+): Promise<Record<string, AgentThinkResult>> {
+  const results: Record<string, AgentThinkResult> = {};
 
-  // Run in dependency order:
-  // 1. SEO Intel first (provides data for others)
-  results.seo_intel = await runSeoIntel("cron", triggeredBy);
-
-  // 2. Money Maker (uses SEO data + own research)
-  results.money_maker = await runMoneyMaker("cron", triggeredBy);
-
-  // 3. Content Agent (receives directives from 1 & 2)
-  results.content = await runContentAgent("cron", triggeredBy);
-
-  // 4. Editor (reviews content output)
-  results.editor = await runEditorAgent("cron", triggeredBy);
-
-  // 5. Manager last (reviews everything)
+  // 0. Manager runs FIRST — sets goals and fires agents with directives
   results.manager = await runManagerAgent("cron", triggeredBy);
 
-  // 6. Infrastructure Agent runs after all others (monitors the full cycle)
+  // 1. Revenue Intel — identifies highest-value opportunities
+  results.revenue_intel = await runRevenueIntelAgent("cron", triggeredBy);
+
+  // 2. SEO Intel — provides ranking data
+  results.seo_intel = await runSeoIntel("cron", triggeredBy);
+
+  // 3. Money Maker — uses SEO + revenue intel data
+  results.money_maker = await runMoneyMaker("cron", triggeredBy);
+
+  // 4. Content Agent — receives directives from Manager + Revenue Intel
+  results.content = await runContentAgent("cron", triggeredBy);
+
+  // 5. Editor — reviews and improves content output
+  results.editor = await runEditorAgent("cron", triggeredBy);
+
+  // 6. Infrastructure Agent — monitors the full cycle
   results.infra = await runInfraAgent("cron", triggeredBy);
 
-  return results as Record<AgentSlug, AgentThinkResult>;
+  return results;
 }

@@ -19,6 +19,16 @@ import {
   markMessageActedOn,
   type AgentThinkResult,
 } from "./engine";
+import {
+  getTodaysGoals,
+  recordOutcome,
+  getAllMemory,
+  getLessons,
+  formatLessonsForContext,
+  formatGoalsForContext,
+  setMemory,
+  addLesson,
+} from "./agentGoalEngine";
 import { getDb } from "../db";
 import { contentPipeline, blogPosts, blogDrafts } from "../../drizzle/schema";
 import { desc, eq, and, ne } from "drizzle-orm";
@@ -148,16 +158,33 @@ export async function runContentAgent(
   const context = await startRun("content", triggerType, triggeredBy);
 
   try {
+    // 0. Load goals, memory, lessons
+    const [goals, memory, lessons] = await Promise.all([
+      getTodaysGoals("content"),
+      getAllMemory("content"),
+      getLessons("content", 8),
+    ]);
+
     // 1. Gather state
     const state = await gatherContentState();
 
-    // 2. Check inbox for directives (from SEO Intel and Money Maker)
+    // 2. Check inbox for directives (from SEO Intel, Manager, Revenue Intel)
     const inbox = await getUnreadMessages("content");
     const inboxSummary = inbox.length > 0
       ? `\n\n═══ INBOX — DIRECTIVES TO EXECUTE (${inbox.length}) ═══\n${inbox.map(m =>
           `FROM: ${m.fromAgent} | PRIORITY: ${m.priority} | SUBJECT: ${m.subject}\n${m.body?.substring(0, 600)}`
         ).join("\n---\n")}`
       : "\n\n═══ INBOX: EMPTY ═══\nNo directives received. Identify the highest-value content gap from the state data and create a P1 brief for it.";
+
+    const goalsContext = goals.length > 0
+      ? `\n\n═══ TODAY'S GOALS ═══\n${formatGoalsForContext(goals)}`
+      : "";
+    const lessonsContext = lessons.length > 0
+      ? `\n\n═══ LESSONS LEARNED ═══\n${formatLessonsForContext(lessons)}`
+      : "";
+    const memoryContext = Object.keys(memory).length > 0
+      ? `\n\n═══ MEMORY ═══\n${Object.entries(memory).map(([k, v]) => `  ${k}: ${v}`).join("\n")}`
+      : "";
 
     // 3. Think — write actual content
     const response = await agentLLM({
@@ -166,7 +193,7 @@ export async function runContentAgent(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `CURRENT CONTENT STATE:\n${state}${inboxSummary}\n\nIdentify the single highest-value article to write right now. Write a COMPLETE draft (1,800-2,200 words) — full article body, not just an outline. Include all sections: hook, problem, legal rights, step-by-step, FAQ, CTAs. Keep it tight and punchy. Every piece of content must be tied to a revenue outcome.\n\nRespond with JSON only.`,
+          content: `CURRENT CONTENT STATE:\n${state}${inboxSummary}${goalsContext}${lessonsContext}${memoryContext}\n\nIdentify the single highest-value article to write right now. Write a COMPLETE draft (1,800-2,200 words) — full article body, not just an outline. Include all sections: hook, problem, legal rights, step-by-step, FAQ, CTAs. Keep it tight and punchy. Every piece of content must be tied to a revenue outcome.\n\nRespond with JSON only.`,
         },
       ],
       context,
@@ -342,11 +369,48 @@ export async function runContentAgent(
       await markMessageActedOn(m.id);
     }
 
-    const summary = parsed.analysis || "Content creation cycle completed";
+    // 8. Record goal outcomes
+    const draftsWritten = (parsed.contentItems || []).filter(i => i.draft).length;
+    const outlinesCreated = (parsed.contentItems || []).filter(i => !i.draft).length;
+    const totalEstLeads = (parsed.contentItems || []).reduce((s, i) => s + (i.estimatedLeadsPerMonth || 0), 0);
+
+    await recordOutcome({
+      agentSlug: "content",
+      goalType: "content_creation",
+      actual: `${draftsWritten} drafts written, ${outlinesCreated} outlines created, ~${totalEstLeads.toFixed(1)} estimated leads/month`,
+      hit: draftsWritten > 0,
+      notes: parsed.analysis,
+    });
+
+    // 9. Update memory
+    await setMemory("content", "last_run_date", new Date().toISOString().slice(0, 10));
+    await setMemory("content", "drafts_written_today", String(draftsWritten));
+    if (draftsWritten > 0) {
+      const topItem = (parsed.contentItems || []).find(i => i.draft);
+      if (topItem) {
+        await setMemory("content", "last_article_written", topItem.title);
+        await setMemory("content", "last_article_keyword", topItem.targetKeyword);
+        await addLesson({
+          agentSlug: "content",
+          lessonType: "observation",
+          lesson: `Wrote article: "${topItem.title}" targeting "${topItem.targetKeyword}". Estimated ${topItem.estimatedLeadsPerMonth || 0} leads/month.`,
+          impact: `$${((topItem.estimatedLeadsPerMonth || 0) * 111).toFixed(0)}/month estimated revenue`,
+        });
+      }
+    }
+
+    const summary = parsed.analysis || `Content cycle: ${draftsWritten} drafts, ${outlinesCreated} outlines`;
     await completeRun(context, summary);
     return { summary, actionsCreated: context.actionsCreated, messagesCreated: context.messagesCreated };
 
   } catch (error: any) {
+    await recordOutcome({
+      agentSlug: "content",
+      goalType: "content_creation",
+      actual: `Failed: ${error.message}`,
+      hit: false,
+      notes: error.message,
+    });
     await completeRun(context, `Error: ${error.message}`, "failed", error.message);
     throw error;
   }
