@@ -19,7 +19,7 @@ import {
   ImageIcon, Mic, Video, Search, Wand2, RefreshCw, Save, Eye, EyeOff,
   Upload, Plus, Trash2, CheckCircle, AlertTriangle, Info, ChevronDown,
   ChevronUp, Loader2, FileText, Globe, Sparkles, AlignLeft, X, Clock,
-  BookOpen, FolderOpen
+  BookOpen, FolderOpen, Zap, GitCompare, Link as LinkIcon
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ const AI_MODELS = [
   { id: "openai/gpt-4o-mini", label: "GPT-4o Mini", group: "Premium" },
   // Elite tier
   { id: "anthropic/claude-opus-5", label: "🔥 Claude Opus 5", group: "Elite" },
-  { id: "deepseek/deepseek-v4-5", label: "🔥 DeepSeek V4.5", group: "Elite" },
+  { id: "deepseek/deepseek-v4-pro", label: "🔥 DeepSeek V4 Pro", group: "Elite" },
   { id: "alibaba/qwen3-235b", label: "Qwen3 235B", group: "Elite" },
 ];
 

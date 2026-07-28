@@ -925,3 +925,28 @@
 - [ ] Replace existing basic journey dialog in WebsiteLeadsJourney with the new detailed modal
 - [ ] Wire "View Journey" button on each lead row to open the modal
 - [ ] Write vitest tests for the enriched leadJourney procedure
+
+## Phase 47 — Blog Studio "Fix SEO to 100" Button
+- [ ] Read Blog Studio UI and editor agent scoring structure
+- [ ] Build server-side fixSeoTo100 tRPC procedure using LLM to rewrite article applying all editor suggestions
+- [ ] Add interlinking logic — scan existing published articles and inject relevant internal links
+- [ ] Add meta title/description auto-fix based on target keyword
+- [ ] Add keyword density fix — ensure primary keyword appears in title, H1, first paragraph, and at proper density
+- [ ] Add heading structure fix — ensure H2/H3 hierarchy is correct
+- [ ] Add FAQ section injection if missing
+- [ ] Add CTA injection if missing
+- [ ] Add "Fix SEO to 100" button to Blog Studio article editor UI
+- [ ] Show step-by-step progress (analyzing → fixing headings → adding links → optimizing meta → done)
+- [ ] Show diff of what changed after fix completes
+- [ ] Write vitest tests for fixSeoTo100 procedure
+
+## Phase 48 — Register Agents with Heartbeat Scheduler
+- [x] Read Heartbeat skill to understand registration pattern
+- [x] Register Money Maker agent (weekdays 9am UTC) — task_uid: NaMsnsfTtJtPbxGvNJs6rS
+- [x] Register SEO Intel agent (daily 7am UTC) — task_uid: Ccs2Doyq8XW9knTV2QFX5A
+- [x] Register Content agent (Mon/Wed/Fri 10am UTC) — task_uid: 7CxqyvJWetaq3yPAfRMqkE
+- [x] Register Editor agent (daily 2pm UTC) — task_uid: crvyPkChoyZY3zdzPewZoM
+- [x] Register Manager agent (3x daily 8:30/14:30/20:30 UTC) — task_uid: W9FgbqJSJVjMGzC4iGzSrM
+- [x] Register Infra agent (daily 5am UTC) — task_uid: 67XiCWv44EX4YcvUP64Wmx
+- [x] Verify all 6 heartbeat jobs confirmed active via manus-heartbeat list (total: 6)
+- [x] Save checkpoint

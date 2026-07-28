@@ -1243,6 +1243,174 @@ Return ONLY valid JSON:
       }),
   }),
 
+  // ─── Fix SEO to 100 ───────────────────────────────────────────────────────
+  fixSeo: router({
+    /**
+     * Auto-fix all SEO issues in a blog post:
+     * - Keyword density (title, H1, first paragraph, body)
+     * - Heading structure (H2/H3 hierarchy, keyword in headings)
+     * - Internal interlinking (inject relevant links from site)
+     * - Meta title & description optimization
+     * - FAQ section injection if missing
+     * - CTA injection if missing
+     * - Word count expansion if under 1200
+     * Returns the fixed content + updated meta fields + a change summary
+     */
+    fixSeoTo100: protectedProcedure
+      .input(z.object({
+        slug: z.string(),
+        title: z.string(),
+        content: z.string(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        targetKeyword: z.string(),
+        model: z.string().default("openrouter/owl-alpha"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const apiKey = process.env.OPENROUTER_API_KEY;
+        if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
+
+        // ── 1. Gather all published slugs for interlinking ──────────────────
+        const { getAllBlogPostsAdmin } = await import("./db");
+        const allPosts = await getAllBlogPostsAdmin(500, 0);
+        const otherSlugs = allPosts
+          .filter((p: any) => p.slug !== input.slug && p.published)
+          .map((p: any) => ({ slug: p.slug, title: p.title }))
+          .slice(0, 60); // cap to avoid huge prompts
+
+        // ── 2. Build the fix prompt ─────────────────────────────────────────
+        const interlinks = otherSlugs
+          .map((p: any) => `  /blog/${p.slug} — "${p.title}"`)
+          .join("\n");
+
+        const systemPrompt = `You are an expert SEO editor for breakyoursolarcontract.com — a legal services site helping homeowners escape predatory solar contracts.
+
+Your job is to rewrite the provided article to achieve a perfect SEO score of 100/100. Apply ALL of the following fixes:
+
+1. KEYWORD DENSITY: The target keyword is "${input.targetKeyword}". Ensure it appears:
+   - In the <h1> or title
+   - In the first <p> paragraph
+   - In at least 2 <h2> headings
+   - At a density of 0.8-1.5% throughout the body
+   - Naturally — no stuffing
+
+2. HEADING STRUCTURE:
+   - Must have 4-6 <h2> headings with keyword variations
+   - Must have 2-4 <h3> subheadings under each major section
+   - First heading must be an <h2> (not h1 — that's the title)
+
+3. INTERNAL INTERLINKING:
+   - Add 5-8 internal links to relevant pages on the site
+   - Use ONLY slugs from this list (pick the most relevant ones):
+${interlinks}
+   - Format links as: <a href="/blog/SLUG">anchor text</a> or <a href="/city/SLUG">anchor text</a>
+   - Also link to /solar-contract-laws, /solar-companies, or /solar-fraud-report where relevant
+   - Anchor text must be natural and descriptive (not "click here")
+
+4. META TITLE (return in JSON):
+   - 50-60 characters
+   - Must include "${input.targetKeyword}"
+   - Must include a power word (e.g., "How to", "Guide", "2025", "Free")
+
+5. META DESCRIPTION (return in JSON):
+   - 150-160 characters
+   - Must include "${input.targetKeyword}"
+   - Must include a clear CTA (e.g., "Get a free case review today")
+   - Must create urgency or curiosity
+
+6. FAQ SECTION:
+   - If no FAQ section exists, add one with 4-5 questions and answers
+   - Questions must be long-tail keyword variations of "${input.targetKeyword}"
+   - Wrap in <div class="faq-section"><h2>Frequently Asked Questions</h2>...
+
+7. CTA SECTION:
+   - If no CTA exists at the end, add one:
+   <div class="cta-box"><h3>Get Your Free Solar Contract Review</h3><p>Our attorneys have helped hundreds of homeowners escape predatory solar contracts. Get a free case evaluation today.</p></div>
+
+8. WORD COUNT:
+   - If under 1,200 words, expand with additional relevant sections
+   - Target 1,500-2,000 words
+
+Return your response as valid JSON with this exact structure:
+{
+  "content": "<full rewritten HTML content>",
+  "metaTitle": "optimized meta title",
+  "metaDescription": "optimized meta description",
+  "changes": [
+    { "type": "keyword", "description": "Added keyword to first paragraph" },
+    { "type": "heading", "description": "Added 3 new H2 headings" },
+    { "type": "link", "description": "Added 6 internal links" },
+    { "type": "meta", "description": "Rewrote meta title and description" },
+    { "type": "faq", "description": "Added FAQ section with 5 questions" },
+    { "type": "cta", "description": "Added CTA section at end" }
+  ]
+}`;
+
+        const userPrompt = `Title: ${input.title}
+Current Meta Title: ${input.metaTitle || "(none)"}
+Current Meta Description: ${input.metaDescription || "(none)"}
+Target Keyword: ${input.targetKeyword}
+
+Current Content:
+${input.content}
+
+Fix all SEO issues and return the improved version as JSON.`;
+
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://breakyoursolarcontract.com",
+            "X-Title": "Solar Freedom Blog Studio SEO Fixer",
+          },
+          body: JSON.stringify({
+            model: input.model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            max_tokens: 8192,
+            response_format: { type: "json_object" },
+          }),
+        });
+
+        if (!response.ok) {
+          const err = await response.text();
+          throw new Error(`OpenRouter error: ${response.status} ${err}`);
+        }
+
+        const data = await response.json() as { choices: Array<{ message: { content: string } }> };
+        const raw = data.choices[0]?.message?.content ?? "{}";
+
+        let parsed: {
+          content: string;
+          metaTitle: string;
+          metaDescription: string;
+          changes: Array<{ type: string; description: string }>;
+        };
+
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          // Fallback: try to extract JSON from the response
+          const jsonMatch = raw.match(/\{[\s\S]*\}/);
+          if (!jsonMatch) throw new Error("AI returned invalid JSON");
+          parsed = JSON.parse(jsonMatch[0]);
+        }
+
+        if (!parsed.content) throw new Error("AI returned empty content");
+
+        return {
+          content: parsed.content,
+          metaTitle: parsed.metaTitle || input.metaTitle || "",
+          metaDescription: parsed.metaDescription || input.metaDescription || "",
+          changes: parsed.changes || [],
+        };
+      }),
+  }),
+
   // ─── Blog Drafts ──────────────────────────────────────────────────────────
   automations: router({
     /**
