@@ -15,6 +15,7 @@ import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
 import { trackPhoneClick, trackCTAClick, initScrollTracking, recordLeadSubmission } from "@/lib/analytics";
+import { getSessionId } from "@/hooks/useJourneyTracker";
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
@@ -138,6 +139,7 @@ function MultiStepForm() {
         formName: "Solar Freedom Contact Form",
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
+        sessionId: getSessionId() || undefined,
       });
       if (!recordLeadSubmission(result, "main_contact_form", window.location.pathname)) {
         setSubmissionError("We couldn't save your request. Please try again.");

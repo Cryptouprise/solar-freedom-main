@@ -16,6 +16,7 @@ import { startBacklinkDiscoveryCron } from "../cron/backlinkDiscovery";
 import { startMediumBacklinkTrackerCron } from "../cron/mediumBacklinkTracker";
 import { automationRunHandler } from "../scheduled/automationRun";
 import { agentRunHandler } from "../scheduled/agentRun";
+import { registerJourneyEndpoint } from "../journeyRouter";
 import { rateLimit } from "express-rate-limit";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -161,6 +162,9 @@ async function startServer() {
 
   // ─── Scheduled / Heartbeat handlers ─────────────────────────────────────────
   // MUST be registered before the tRPC middleware and Vite fallthrough
+  // Journey tracking endpoint (public, fire-and-forget)
+  registerJourneyEndpoint(app);
+
   app.post("/api/scheduled/automation-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), automationRunHandler);
   app.post("/api/scheduled/agent-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), agentRunHandler);
 

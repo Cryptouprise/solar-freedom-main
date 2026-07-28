@@ -23,6 +23,7 @@ import {
 import { storagePut } from "./storage";
 import { agentRouter } from "./agentRouter";
 import { ghlRouter } from "./ghlRouter";
+import { journeyRouter } from "./journeyRouter";
 import { getGA4Report } from "./ga4";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
 import { enforcePublicMutationLimit } from "./security/rateLimit";
@@ -80,6 +81,7 @@ function buildSmsConfirmation(firstName?: string) {
 export const appRouter = router({
   agents: agentRouter,
   ghl: ghlRouter,
+  journey: journeyRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -110,6 +112,7 @@ export const appRouter = router({
           formName: z.string().max(200).optional(),
           sourcePage: z.string().max(500).optional(),
           sourceUrl: z.string().max(2_000).optional(),
+          sessionId: z.string().max(100).optional(), // journey tracking session
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -133,6 +136,13 @@ export const appRouter = router({
             syncWarning: null,
             leadId: null,
           } as const;
+        }
+
+        // 1b. Link journey session to this lead (fire-and-forget)
+        if (persisted && input.sessionId) {
+          import("./journeyDb")
+            .then(({ linkSessionToLead }) => linkSessionToLead(input.sessionId!, leadId, new Date()))
+            .catch((err) => console.error("[Journey] Failed to link session:", err));
         }
 
         // 2. Forward to GHL webhook

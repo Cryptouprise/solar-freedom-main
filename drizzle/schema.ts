@@ -1193,3 +1193,107 @@ export const discoveredBacklinks = mysqlTable("discoveredBacklinks", {
 });
 export type DiscoveredBacklink = typeof discoveredBacklinks.$inferSelect;
 export type InsertDiscoveredBacklink = typeof discoveredBacklinks.$inferInsert;
+
+// ─── Website Lead Journey Tracking ────────────────────────────────────────────
+
+/**
+ * leadSessions — one row per anonymous browsing session on the website.
+ * Created on first page view, updated as the visitor browses.
+ * Linked to a lead record when they submit a form.
+ */
+export const leadSessions = mysqlTable("leadSessions", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Anonymous session identifier (stored in localStorage/sessionStorage)
+  sessionId: varchar("sessionId", { length: 64 }).notNull().unique(),
+
+  // UTM / referral attribution
+  utmSource: varchar("utmSource", { length: 100 }),
+  utmMedium: varchar("utmMedium", { length: 100 }),
+  utmCampaign: varchar("utmCampaign", { length: 200 }),
+  referrer: text("referrer"),
+
+  // Session summary
+  firstPage: varchar("firstPage", { length: 500 }),
+  lastPage: varchar("lastPage", { length: 500 }),
+  totalPages: int("totalPages").default(0).notNull(),
+  totalTimeMs: int("totalTimeMs").default(0).notNull(), // total time on site in ms
+
+  // Conversion linkage
+  leadId: int("leadId"),          // set when form is submitted
+  ghlContactId: varchar("ghlContactId", { length: 64 }), // set after GHL sync
+
+  // Device / context
+  userAgent: text("userAgent"),
+  deviceType: varchar("deviceType", { length: 20 }), // "mobile" | "tablet" | "desktop"
+
+  submittedAt: timestamp("submittedAt"), // when the form was submitted
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LeadSession = typeof leadSessions.$inferSelect;
+export type InsertLeadSession = typeof leadSessions.$inferInsert;
+
+/**
+ * leadJourneyEvents — individual page-level events within a session.
+ * One row per page visit, capturing the page, time spent, and scroll depth.
+ */
+export const leadJourneyEvents = mysqlTable("leadJourneyEvents", {
+  id: int("id").autoincrement().primaryKey(),
+
+  sessionId: varchar("sessionId", { length: 64 }).notNull(),
+  leadId: int("leadId"),
+
+  // Event type: "pageview" | "scroll" | "click_cta" | "form_start" | "form_submit" | "exit_intent"
+  eventType: varchar("eventType", { length: 50 }).notNull(),
+
+  // Page context
+  page: varchar("page", { length: 500 }).notNull(),
+  pageTitle: varchar("pageTitle", { length: 300 }),
+  timeOnPageMs: int("timeOnPageMs").default(0), // ms spent on this page
+  scrollDepthPct: int("scrollDepthPct").default(0), // 0-100
+
+  // CTA / interaction detail (for click_cta, form_start, form_submit events)
+  detail: text("detail"), // JSON string with extra context
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LeadJourneyEvent = typeof leadJourneyEvents.$inferSelect;
+export type InsertLeadJourneyEvent = typeof leadJourneyEvents.$inferInsert;
+
+/**
+ * ghlPipelineEvents — records every pipeline stage change for a GHL contact.
+ * Populated by the GHL webhook or by polling the GHL API.
+ * Used to calculate time-to-close, time-in-stage, and who closed the deal.
+ */
+export const ghlPipelineEvents = mysqlTable("ghlPipelineEvents", {
+  id: int("id").autoincrement().primaryKey(),
+
+  ghlContactId: varchar("ghlContactId", { length: 64 }).notNull(),
+  ghlOpportunityId: varchar("ghlOpportunityId", { length: 64 }),
+  pipelineId: varchar("pipelineId", { length: 64 }),
+  pipelineName: varchar("pipelineName", { length: 200 }),
+  stageId: varchar("stageId", { length: 64 }),
+  stageName: varchar("stageName", { length: 200 }),
+
+  // "stage_change" | "status_change" | "assigned" | "won" | "lost" | "payment_received"
+  eventType: varchar("eventType", { length: 50 }).notNull(),
+
+  // Who performed the action (GHL user name or ID)
+  assignedTo: varchar("assignedTo", { length: 200 }),
+  performedBy: varchar("performedBy", { length: 200 }),
+
+  // Monetary value at time of event
+  monetaryValue: decimal("monetaryValue", { precision: 10, scale: 2 }),
+
+  // For payment events
+  paymentStatus: varchar("paymentStatus", { length: 50 }),
+
+  occurredAt: timestamp("occurredAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GhlPipelineEvent = typeof ghlPipelineEvents.$inferSelect;
+export type InsertGhlPipelineEvent = typeof ghlPipelineEvents.$inferInsert;

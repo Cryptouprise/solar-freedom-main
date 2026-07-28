@@ -883,3 +883,26 @@
 - [x] Add /admin/ghl route to App.tsx and CLIENT_ONLY_ROUTES
 - [x] Add GHL Dashboard link to AdminLayout sidebar under Revenue section
 - [x] Write vitest tests for GHL router (19 tests, all passing)
+
+## Phase 43 — GHL Mark as Read Quick Action
+- [ ] Add markConversationRead tRPC mutation in ghlRouter.ts (calls GHL conversations API to mark read)
+- [ ] Add markConversationRead to ghlClient.ts
+- [ ] Add "Mark as Read" button to RecentConvosPanel in GHLDashboard.tsx (visible only on unread items)
+- [ ] Optimistic update to clear unread badge immediately on click
+- [ ] Write vitest test for markConversationRead mutation
+
+## Phase 43 — Website Lead Journey Tracker
+- [x] Add leadJourneyEvents table to drizzle/schema.ts (sessionId, leadId, eventType, page, timeOnPage, referrer, timestamp)
+- [x] Add leadSessions table to drizzle/schema.ts (sessionId, fingerprint, firstPage, lastPage, totalPages, totalTimeMs, utmSource, utmMedium, utmCampaign, ghlContactId, submittedAt)
+- [x] Add ghlPipelineEvents table to drizzle/schema.ts (ghlContactId, pipelineId, stageId, stageName, assignedTo, eventType, timestamp)
+- [x] Run pnpm db:push to apply new tables
+- [x] Add journey event capture endpoint: POST /api/journey/event (page view, time on page, exit)
+- [x] Add session start/end tracking in client (useJourneyTracker hook)
+- [x] Link session to lead on form submission (attach sessionId to lead record)
+- [x] Add db helpers: insertJourneyEvent, getLeadJourney, getLeadSession, upsertLeadSession
+- [x] Add ghl.leadJourney tRPC procedure: fetch lead + session + journey events + GHL contact + pipeline history
+- [x] Add "Website Leads" tab to GHL Dashboard showing only website-sourced contacts
+- [x] Build LeadJourneyTimeline component: pages visited → form submitted → GHL contact created → pipeline stages → closed → payment
+- [x] Show per-lead metrics: time on site before submit, pages visited, source page, who closed, days to close, days to payment
+- [x] Add sortable table: sort by time-to-close, value, source page, pipeline stage
+- [x] Write vitest tests for journey router procedures (108 tests total, all passing)

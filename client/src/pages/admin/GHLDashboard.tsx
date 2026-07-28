@@ -27,7 +27,9 @@ import {
   ChevronRight,
   ExternalLink,
   Tag,
+  Globe,
 } from "lucide-react";
+import WebsiteLeadsJourney from "./WebsiteLeadsJourney";
 import { toast } from "sonner";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -638,6 +640,9 @@ export default function GHLDashboard() {
                 <TabsTrigger value="invoices" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300">
                   <DollarSign className="w-4 h-4 mr-1.5" /> Invoices
                 </TabsTrigger>
+                <TabsTrigger value="website-leads" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300">
+                  <Globe className="w-4 h-4 mr-1.5" /> Website Leads
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="contacts">
@@ -651,6 +656,9 @@ export default function GHLDashboard() {
               </TabsContent>
               <TabsContent value="invoices">
                 <InvoicesTab />
+              </TabsContent>
+              <TabsContent value="website-leads">
+                <WebsiteLeadsJourney />
               </TabsContent>
             </Tabs>
           </div>

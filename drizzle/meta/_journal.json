@@ -113,6 +113,13 @@
       "when": 1785093424030,
       "tag": "0015_pink_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1785213003479,
+      "tag": "0016_omniscient_karma",
+      "breakpoints": true
     }
   ]
 }

@@ -11,6 +11,7 @@ import StickyMobileBar from "./components/StickyMobileBar";
 import CallbackWidget from "./components/CallbackWidget";
 import DesktopCallButton from "./components/DesktopCallButton";
 import { trackPageView } from "./lib/analytics";
+import { useJourneyTracker } from "./hooks/useJourneyTracker";
 
 const CityPage = lazy(() => import("./pages/CityPage"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -72,6 +73,15 @@ function LegacyCityRedirect() {
   return null;
 }
 
+/**
+ * Mounts the journey tracker globally — captures page views, time on page,
+ * and scroll depth for all public pages. Admin pages are skipped internally.
+ */
+function JourneyPageTracker() {
+  useJourneyTracker();
+  return null;
+}
+
 function AnalyticsPageViews() {
   const [location] = useLocation();
   useEffect(() => {
@@ -93,6 +103,7 @@ function Router() {
       <TrailingSlashRedirect />
       <LegacyCityRedirect />
       <AnalyticsPageViews />
+      <JourneyPageTracker />
       <Suspense fallback={<div className="min-h-screen bg-background" />}>
         <Switch>
           <Route path={"/"} component={Home} />
