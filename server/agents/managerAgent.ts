@@ -300,7 +300,7 @@ export async function runManagerAgent(
       if (!decision.actionId) continue;
       const newStatus = decision.decision === "approve" ? "approved"
         : decision.decision === "reject" ? "rejected"
-        : "escalated";
+        : "blocked"; // 'blocked' = needs human review (escalated is not in DB enum)
       await updateAction(decision.actionId, {
         status: newStatus,
         approvedBy: "manager",

@@ -319,11 +319,21 @@ function OpportunitiesTab() {
 
 function ConversationsTab() {
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const utils = trpc.useUtils();
 
   const { data, isLoading, refetch } = trpc.ghl.conversations.useQuery(
     { limit: 25 },
     { staleTime: 2 * 60 * 1000, refetchOnWindowFocus: false }
   );
+
+  const markReadMutation = trpc.ghl.markConversationRead.useMutation({
+    onSuccess: () => {
+      refetch();
+      utils.ghl.dashboardSummary.invalidate();
+      toast.success("Marked as read");
+    },
+    onError: () => toast.error("Failed to mark as read"),
+  });
 
   const conversations = (data?.conversations ?? []).filter(
     (c) => !unreadOnly || (c.unreadCount ?? 0) > 0
@@ -380,7 +390,22 @@ function ConversationsTab() {
                 </div>
                 <div className="text-xs text-gray-400 truncate mt-0.5">{convo.lastMessageBody ?? "No messages"}</div>
               </div>
-              <div className="text-xs text-gray-500 flex-shrink-0">{formatDateTime(convo.lastMessageDate)}</div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="text-xs text-gray-500">{formatDateTime(convo.lastMessageDate)}</div>
+                {(convo.unreadCount ?? 0) > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      markReadMutation.mutate({ conversationId: convo.id });
+                    }}
+                    disabled={markReadMutation.isPending}
+                    title="Mark as read"
+                    className="text-xs px-2 py-1 rounded border border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors disabled:opacity-50"
+                  >
+                    ✓ Read
+                  </button>
+                )}
+              </div>
             </div>
           ))}
           {conversations.length === 0 && (

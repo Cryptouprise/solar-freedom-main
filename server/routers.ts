@@ -24,6 +24,7 @@ import { storagePut } from "./storage";
 import { agentRouter } from "./agentRouter";
 import { ghlRouter } from "./ghlRouter";
 import { journeyRouter } from "./journeyRouter";
+import { revenueIntelRouter } from "./revenueIntelRouter";
 import { getGA4Report } from "./ga4";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
 import { enforcePublicMutationLimit } from "./security/rateLimit";
@@ -82,6 +83,7 @@ export const appRouter = router({
   agents: agentRouter,
   ghl: ghlRouter,
   journey: journeyRouter,
+  revenueIntel: revenueIntelRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

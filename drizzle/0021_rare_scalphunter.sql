@@ -1,0 +1,1 @@
+ALTER TABLE `agentActions` MODIFY COLUMN `status` enum('queued','running','completed','failed','blocked','approved','rejected','escalated') NOT NULL DEFAULT 'queued';

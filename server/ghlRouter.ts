@@ -17,6 +17,7 @@ import {
   getInvoices,
   getAppointments,
   getLocationInfo,
+  markConversationRead,
 } from "./ghlClient";
 
 function requireAdmin(role: string) {
@@ -125,6 +126,16 @@ export const ghlRouter = router({
     requireAdmin(ctx.user.role);
     return getPipelines();
   }),
+
+  /**
+   * Mark a conversation as read.
+   */
+  markConversationRead: protectedProcedure
+    .input(z.object({ conversationId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      return markConversationRead(input.conversationId);
+    }),
 
   /**
    * Get conversations with optional filter.

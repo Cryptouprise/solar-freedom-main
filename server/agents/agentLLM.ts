@@ -3,6 +3,7 @@
  * Universal LLM helper for agents.
  * Routes to OpenRouter for Qwen/DeepSeek models, built-in proxy for others.
  * Reads per-agent model config from DB; falls back to defaults if not set.
+ * Has 3-retry logic with exponential backoff + fallback to built-in on OpenRouter failure.
  */
 
 import { getDb } from "../db";
@@ -36,6 +37,9 @@ export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel:
   money_maker:   { modelId: "deepseek/deepseek-v4-pro",           modelLabel: "DeepSeek V4 Pro" },
   infra:         { modelId: "qwen/qwen3-235b-a22b-2507",          modelLabel: "Qwen3-235B (2507)" },
 };
+
+// Fallback model when OpenRouter fails
+const FALLBACK_MODEL = "gpt-5-mini";
 
 // Full curated model list for the selector UI
 export const AVAILABLE_MODELS = [
@@ -74,7 +78,7 @@ export async function getAgentModel(agentSlug: string): Promise<string> {
       // Fall through to default
     }
   }
-  return AGENT_DEFAULT_MODELS[agentSlug]?.modelId ?? "gpt-5-mini";
+  return AGENT_DEFAULT_MODELS[agentSlug]?.modelId ?? FALLBACK_MODEL;
 }
 
 // ─── Seed default model configs ────────────────────────────────────────────────
@@ -111,14 +115,45 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
   toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
   usage?: { promptTokens: number; completionTokens: number };
 }> {
-  const modelId = opts.modelOverride ?? (opts.agentSlug ? await getAgentModel(opts.agentSlug) : "gpt-5-mini");
+  const modelId = opts.modelOverride ?? (opts.agentSlug ? await getAgentModel(opts.agentSlug) : FALLBACK_MODEL);
 
-  // Route to OpenRouter for Qwen/DeepSeek models
+  // Route to OpenRouter for Qwen/DeepSeek models — with retry + fallback
   if (OPENROUTER_MODELS.has(modelId)) {
-    return callOpenRouter(modelId, opts);
+    // Try OpenRouter up to 3 times with exponential backoff
+    const MAX_RETRIES = 3;
+    let lastError: Error | null = null;
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const result = await callOpenRouter(modelId, opts);
+        // Validate we got actual content back
+        if (!result.content && !result.toolCalls?.length) {
+          throw new Error("OpenRouter returned empty content");
+        }
+        return result;
+      } catch (err: any) {
+        lastError = err;
+        console.error(`[agentLLM] OpenRouter attempt ${attempt}/${MAX_RETRIES} failed for ${modelId}: ${err.message}`);
+        if (attempt < MAX_RETRIES) {
+          // Exponential backoff: 2s, 4s, 8s
+          await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt - 1)));
+        }
+      }
+    }
+    // All retries exhausted — fall back to built-in LLM
+    console.error(`[agentLLM] OpenRouter failed after ${MAX_RETRIES} attempts for ${modelId}. Falling back to ${FALLBACK_MODEL}. Last error: ${lastError?.message}`);
+    return callBuiltIn(opts);
   }
 
   // Use built-in proxy for everything else
+  return callBuiltIn(opts);
+}
+
+// ─── Built-in LLM call (Manus proxy) ──────────────────────────────────────────
+async function callBuiltIn(opts: AgentLLMOptions): Promise<{
+  content: string;
+  toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
+  usage?: { promptTokens: number; completionTokens: number };
+}> {
   const res = await invokeLLM({
     messages: opts.messages,
     ...(opts.tools ? { tools: opts.tools as any, tool_choice: "auto" } : {}),
@@ -176,9 +211,26 @@ async function callOpenRouter(
     throw new Error(`OpenRouter error ${res.status}: ${err}`);
   }
 
-  const data = await res.json();
+  // Guard against empty body (causes "Unexpected end of JSON input")
+  const rawText = await res.text();
+  if (!rawText || rawText.trim() === "") {
+    throw new Error("OpenRouter returned empty response body");
+  }
+
+  let data: any;
+  try {
+    data = JSON.parse(rawText);
+  } catch (e) {
+    throw new Error(`OpenRouter returned invalid JSON: ${rawText.substring(0, 200)}`);
+  }
+
+  // Check for OpenRouter error in body (some errors come as 200 with error field)
+  if (data.error) {
+    throw new Error(`OpenRouter API error: ${data.error.message || JSON.stringify(data.error)}`);
+  }
+
   const msg = data.choices?.[0]?.message;
-  if (!msg) throw new Error("No response from OpenRouter");
+  if (!msg) throw new Error(`No message in OpenRouter response: ${JSON.stringify(data).substring(0, 200)}`);
 
   const toolCalls = msg.tool_calls?.map((tc: any) => ({
     name: tc.function.name,

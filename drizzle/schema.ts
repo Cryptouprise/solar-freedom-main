@@ -763,7 +763,7 @@ export const agentActions = mysqlTable("agentActions", {
   description: text("description"),
   actionType: varchar("actionType", { length: 100 }).notNull(), // e.g. "research_firm", "write_article", "check_ranking"
   payload: text("payload"),  // JSON: input data for the action
-  status: mysqlEnum("status", ["queued", "running", "completed", "failed", "blocked", "approved", "rejected"])
+  status: mysqlEnum("status", ["queued", "running", "completed", "failed", "blocked", "approved", "rejected", "escalated"])
     .default("queued")
     .notNull(),
   result: text("result"),    // JSON: output from execution

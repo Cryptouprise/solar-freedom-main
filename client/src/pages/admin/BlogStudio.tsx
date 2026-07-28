@@ -478,6 +478,43 @@ export default function BlogStudio() {
     }
   };
 
+  // ─── Fix SEO to 100 ──────────────────────────────────────────────────────────
+  const handleFixSeoTo100 = async () => {
+    if (!editor || !selectedPostId) return;
+    if (!targetKeyword.trim()) {
+      toast.error("Set a target keyword first (in the SEO panel)");
+      return;
+    }
+    setFixSeoLoading(true);
+    setFixSeoChanges(null);
+    setFixSeoStep("Analyzing content...");
+    try {
+      setFixSeoStep("Rewriting for SEO perfection...");
+      const result = await fixSeoMutation.mutateAsync({
+        slug,
+        title,
+        content: editor.getHTML(),
+        metaTitle: metaTitle || undefined,
+        metaDescription: metaDescription || undefined,
+        targetKeyword,
+        model: "openrouter/owl-alpha",
+      });
+      // Apply fixes to editor
+      editor.commands.setContent(result.content);
+      if (result.metaTitle) setMetaTitle(result.metaTitle);
+      if (result.metaDescription) setMetaDescription(result.metaDescription);
+      setFixSeoChanges(result.changes || []);
+      setIsDirty(true);
+      setFixSeoStep("");
+      toast.success(`SEO fixed! ${result.changes?.length || 0} improvements applied.`);
+    } catch (err: any) {
+      setFixSeoStep("");
+      toast.error(err.message || "Fix SEO failed");
+    } finally {
+      setFixSeoLoading(false);
+    }
+  };
+
   // ─── Image handlers ──────────────────────────────────────────────────────────
   const handleGenerateImage = async () => {
     if (!imagePrompt.trim()) return;
@@ -1066,14 +1103,49 @@ export default function BlogStudio() {
             {/* SEO Panel */}
             {activePanel === "seo" && (
               <div className="p-4 space-y-4">
-                <Button
-                  onClick={handleAnalyzeSeo}
-                  disabled={seoLoading || !selectedPostId}
-                  className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm"
-                >
-                  {seoLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-                  Analyze SEO
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleAnalyzeSeo}
+                    disabled={seoLoading || !selectedPostId}
+                    className="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm"
+                  >
+                    {seoLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+                    Analyze
+                  </Button>
+                  <Button
+                    onClick={handleFixSeoTo100}
+                    disabled={fixSeoLoading || !selectedPostId}
+                    className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold text-sm"
+                    title="Auto-fix all SEO issues: keyword density, headings, internal links, meta, FAQ, CTA"
+                  >
+                    {fixSeoLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+                    Fix SEO to 100
+                  </Button>
+                </div>
+                {fixSeoLoading && fixSeoStep && (
+                  <div className="flex items-center gap-2 text-xs text-amber-400 font-mono">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {fixSeoStep}
+                  </div>
+                )}
+                {fixSeoChanges && fixSeoChanges.length > 0 && (
+                  <div className="space-y-1.5 border border-green-500/30 rounded-lg p-3 bg-green-500/5">
+                    <div className="text-green-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">✓ {fixSeoChanges.length} SEO Fixes Applied</div>
+                    {fixSeoChanges.slice(0, 8).map((c, i) => (
+                      <div key={i} className="flex items-start gap-1.5 text-xs text-green-300">
+                        <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                        <span>{c.description}</span>
+                      </div>
+                    ))}
+                    <Button
+                      size="sm"
+                      onClick={handleSave}
+                      className="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-bold text-xs"
+                    >
+                      <Save className="w-3.5 h-3.5 mr-1" /> Save Fixed Post
+                    </Button>
+                  </div>
+                )}
 
                 {seoData && (
                   <div className="space-y-3">

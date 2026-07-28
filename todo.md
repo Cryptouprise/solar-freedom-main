@@ -1050,3 +1050,27 @@
 - [x] Manager runs at 6am UTC daily as the first agent, then triggers others in sequence
 - [x] Add model selector dropdowns to AgentCommand UI with Models tab
 - [x] Run tests (108 passing) and save checkpoint
+
+## Phase 56 — Revenue Intel Daily Prediction Chart
+- [ ] Add recharts to project dependencies
+- [ ] Add getRevenueIntelChartData tRPC procedure — returns daily predictions with confidence, action type breakdown
+- [ ] Build RevenueIntelChart component with area chart (predicted revenue), confidence band shading, and bar chart (action impact by type)
+- [ ] Replace AgentDetailView placeholder in Revenue Intel tab with dedicated RevenueIntelView component
+- [ ] Show: 30-day prediction trend, top 5 highest-value actions, model accuracy (predicted vs actual), total predicted monthly revenue
+- [ ] Run tests and save checkpoint
+
+## Phase 57 — Fix All Agent Errors + Make Agents Actually Execute SEO Fixes
+
+- [x] Fix SEO Intel: OpenRouter returns empty body → "Unexpected end of JSON input" crash — add retry + fallback to built-in LLM
+- [x] Fix Manager: sets status="escalated" but agentActions enum only has queued/running/completed/failed/blocked/approved/rejected — add "escalated" to enum + migrate (DB migrated)
+- [x] Fix SEO Intel: agent only creates action records but never actually rewrites blog post content — add executeOptimizeExisting() that updates blogPosts title/metaDescription/content via DB
+- [x] Make SEO Intel write SEO fixes directly to BlogStudio drafts (create blogDraft with optimized content)
+- [ ] Make Content Agent publish drafts to BlogStudio automatically after writing
+- [x] Add robust error handling + retry (3x) to all OpenRouter calls
+- [x] Wire revenueIntelRouter into main routers.ts
+- [x] Build /admin/revenue-intel page with recharts area chart + action table
+- [x] Add Fix SEO to 100 button UI to BlogStudio (procedure exists, button missing)
+- [x] Add Mark as Read button to GHL Recent Conversations
+- [x] Build Detailed Lead Journey Modal (full timeline) — already complete
+- [x] Add Run All Agents Now button with live per-agent progress panel — already complete
+- [x] Run all tests and save checkpoint

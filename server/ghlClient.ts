@@ -295,3 +295,18 @@ export async function getAppointments(opts: {
 export async function getLocationInfo(): Promise<{ location: { id: string; name: string; email?: string; phone?: string; address?: string } }> {
   return ghlFetch<{ location: { id: string; name: string; email?: string; phone?: string; address?: string } }>(`/locations/${GHL_LOCATION_ID}`);
 }
+
+/**
+ * Mark a conversation as read (clear unread count).
+ */
+export async function markConversationRead(conversationId: string): Promise<{ success: boolean }> {
+  try {
+    await ghlFetch<unknown>(`/conversations/${conversationId}/read`, {
+      method: "PUT",
+      body: JSON.stringify({ markAsRead: true }),
+    });
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}

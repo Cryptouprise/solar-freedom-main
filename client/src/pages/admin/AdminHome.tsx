@@ -23,6 +23,7 @@ import {
   Zap,
   ExternalLink,
   ArrowRight,
+  TrendingUp,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -99,6 +100,13 @@ const TOOL_CARDS = [
         icon: DollarSign,
         description: "Per-agent model spend, daily cost breakdown",
         badge: null,
+      },
+      {
+        label: "Revenue Intel",
+        href: "/admin/revenue-intel",
+        icon: TrendingUp,
+        description: "AI revenue predictions, opportunity pipeline, and actual vs predicted tracking",
+        badge: "AI",
       },
     ],
   },

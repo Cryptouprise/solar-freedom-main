@@ -6,6 +6,9 @@
  * This agent monitors GSC data, tracks ranking changes, identifies
  * keyword gaps, and sends content directives to the Content Agent.
  * Every SEO recommendation must be tied to lead generation potential.
+ *
+ * NEW: Also writes SEO optimization drafts directly to BlogStudio
+ * for existing posts that need improvement (optimize_existing action).
  */
 
 import {
@@ -19,7 +22,7 @@ import {
   type AgentThinkResult,
 } from "./engine";
 import { getDb } from "../db";
-import { seoChangeLog, seoPages, blogPosts, contentPipeline } from "../../drizzle/schema";
+import { seoChangeLog, seoPages, blogPosts, contentPipeline, blogDrafts } from "../../drizzle/schema";
 import { desc, eq, sql, and, gte, lt } from "drizzle-orm";
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
@@ -126,6 +129,16 @@ OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
       "internalLinks": ["/blog/related-article", "/cancel-solar-contract/city-state"]
     }
   ],
+  "optimizeExisting": [
+    {
+      "postSlug": "exact-post-slug-no-blog-prefix",
+      "keyword": "target keyword to optimize for",
+      "metaTitle": "New SEO-optimized meta title (60 chars max)",
+      "metaDescription": "New meta description (155 chars max)",
+      "seoImprovements": "Specific improvements: add FAQ section, improve H1, add internal links to X, Y, Z",
+      "priority": "p1|p2|p3"
+    }
+  ],
   "messages": [
     {
       "toAgent": "content|money_maker|manager",
@@ -133,6 +146,37 @@ OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
       "subject": "Specific subject",
       "body": "Detailed message"
     }
+  ]
+}`;
+
+// ─── SEO Optimization Prompt ──────────────────────────────────────────────────
+
+const SEO_OPTIMIZE_PROMPT = `You are an expert SEO content optimizer for Solar Freedom (breakyoursolarcontract.com).
+
+Your task: Rewrite/improve the given blog post to rank higher for the target keyword.
+
+RULES:
+1. Keep the same general topic and intent
+2. Improve the H1 to exactly match or closely contain the target keyword
+3. Add 2-3 FAQ items at the end (Q&A format) targeting long-tail variations
+4. Add a strong CTA section: "Get Your Free Case Review" with phone number (904) 507-5590
+5. Improve meta title and meta description
+6. Add internal links to relevant city pages and related articles
+7. Keep content 2,500+ words
+8. Do NOT claim to be attorneys — use "case specialists" or "consumer protection advocates"
+9. Include specific data points (state laws, cancellation windows, company-specific info)
+
+OUTPUT FORMAT — respond ONLY with valid JSON:
+{
+  "title": "New SEO-optimized H1 title",
+  "metaTitle": "Meta title (60 chars max)",
+  "metaDescription": "Meta description (155 chars max)",
+  "content": "Full improved article in markdown format",
+  "excerpt": "2-3 sentence excerpt",
+  "faqItems": [
+    {"question": "Q1", "answer": "A1"},
+    {"question": "Q2", "answer": "A2"},
+    {"question": "Q3", "answer": "A3"}
   ]
 }`;
 
@@ -163,7 +207,7 @@ export async function runSeoIntel(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `CURRENT SEO STATE:\n${state}${inboxSummary}\n\nAnalyze the SEO data. Calculate the revenue impact of each opportunity. Prioritize by money, not by vanity metrics. Send specific content directives to the Content Agent for the top 2–3 opportunities.`,
+          content: `CURRENT SEO STATE:\n${state}${inboxSummary}\n\nAnalyze the SEO data. Calculate the revenue impact of each opportunity. Prioritize by money, not by vanity metrics. Send specific content directives to the Content Agent for the top 2–3 opportunities. Also identify 1-2 existing posts to optimize (optimizeExisting array).`,
         },
       ],
       context,
@@ -195,6 +239,14 @@ export async function runSeoIntel(
         revenueJustification: string;
         specificSections: string[];
         internalLinks: string[];
+      }>;
+      optimizeExisting?: Array<{
+        postSlug: string;
+        keyword: string;
+        metaTitle?: string;
+        metaDescription?: string;
+        seoImprovements?: string;
+        priority?: string;
       }>;
       messages?: Array<{ toAgent: string; type: string; subject: string; body: string }>;
     } = {};
@@ -252,7 +304,120 @@ export async function runSeoIntel(
       }
     }
 
-    // 7. Send general messages
+    // 7. Optimize existing posts — write SEO-improved drafts to BlogStudio
+    if (db && (parsed.optimizeExisting || []).length > 0) {
+      for (const opt of (parsed.optimizeExisting || []).slice(0, 2)) {
+        try {
+          // Fetch the existing post content
+          const [post] = await db.select({
+            id: blogPosts.id,
+            title: blogPosts.title,
+            slug: blogPosts.slug,
+            content: blogPosts.content,
+            metaTitle: blogPosts.metaTitle,
+            metaDescription: blogPosts.metaDescription,
+          }).from(blogPosts)
+            .where(eq(blogPosts.slug, opt.postSlug))
+            .limit(1);
+
+          if (!post) {
+            console.log(`[SEO Intel] Post not found: ${opt.postSlug}`);
+            continue;
+          }
+
+          // Generate optimized version
+          const optimizeResponse = await agentLLM({
+            agentSlug: "seo_intel",
+            messages: [
+              { role: "system", content: SEO_OPTIMIZE_PROMPT },
+              {
+                role: "user",
+                content: `TARGET KEYWORD: "${opt.keyword}"\n\nSEO IMPROVEMENTS NEEDED:\n${opt.seoImprovements || "Improve title, meta, add FAQ, strengthen CTAs"}\n\nCURRENT ARTICLE TITLE: ${post.title}\nCURRENT META TITLE: ${post.metaTitle || "none"}\nCURRENT META DESC: ${post.metaDescription || "none"}\n\nCURRENT CONTENT (first 3000 chars):\n${(post.content || "").substring(0, 3000)}\n\nOptimize this article for the target keyword. Keep the same topic but make it rank higher.`,
+              },
+            ],
+            context,
+            temperature: 0.3,
+            maxTokens: 8000,
+          });
+
+          let optimized: {
+            title?: string;
+            metaTitle?: string;
+            metaDescription?: string;
+            content?: string;
+            excerpt?: string;
+            faqItems?: Array<{ question: string; answer: string }>;
+          } = {};
+
+          try {
+            const jsonMatch = optimizeResponse.match(/\{[\s\S]*\}/);
+            optimized = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+          } catch {
+            console.log(`[SEO Intel] Failed to parse optimization response for ${opt.postSlug}`);
+            continue;
+          }
+
+          if (!optimized.content) {
+            console.log(`[SEO Intel] No content generated for ${opt.postSlug}`);
+            continue;
+          }
+
+          // Save to BlogStudio drafts
+          const draftName = `SEO Optimization — ${opt.keyword} — ${new Date().toLocaleDateString()}`;
+          const [existingDraft] = await db.select({ id: blogDrafts.id })
+            .from(blogDrafts)
+            .where(and(
+              eq(blogDrafts.postSlug, opt.postSlug),
+              eq(blogDrafts.name, draftName)
+            ))
+            .limit(1);
+
+          const faqJson = optimized.faqItems ? JSON.stringify(optimized.faqItems) : undefined;
+
+          if (existingDraft) {
+            await db.update(blogDrafts).set({
+              title: optimized.title || post.title,
+              content: optimized.content,
+              metaTitle: optimized.metaTitle || opt.metaTitle,
+              metaDescription: optimized.metaDescription || opt.metaDescription,
+              excerpt: optimized.excerpt,
+              targetKeyword: opt.keyword,
+              updatedAt: new Date(),
+            }).where(eq(blogDrafts.id, existingDraft.id));
+          } else {
+            await db.insert(blogDrafts).values({
+              postSlug: opt.postSlug,
+              name: draftName,
+              title: optimized.title || post.title,
+              content: optimized.content,
+              metaTitle: optimized.metaTitle || opt.metaTitle,
+              metaDescription: optimized.metaDescription || opt.metaDescription,
+              excerpt: optimized.excerpt,
+              targetKeyword: opt.keyword,
+            });
+          }
+
+          context.actionsCreated++;
+
+          // Notify editor that a SEO-optimized draft is ready
+          await sendMessage({
+            fromAgent: "seo_intel",
+            toAgent: "editor",
+            type: "directive",
+            priority: (opt.priority as any) || "p2",
+            subject: `[SEO DRAFT READY] "${post.title}" optimized for "${opt.keyword}"`,
+            body: `SEO Intel has written an optimized draft for: "${post.title}"\n\nTarget keyword: ${opt.keyword}\nPost slug: ${opt.postSlug}\nDraft name: ${draftName}\n\nChanges made:\n${opt.seoImprovements || "Improved title, meta, added FAQ, strengthened CTAs"}\n\nNew meta title: ${optimized.metaTitle || opt.metaTitle || "see draft"}\nNew meta description: ${optimized.metaDescription || opt.metaDescription || "see draft"}\n\nPlease review in BlogStudio → Drafts and approve for publishing.`,
+          });
+          context.messagesCreated++;
+
+          console.log(`[SEO Intel] ✅ SEO optimization draft saved for: ${opt.postSlug}`);
+        } catch (optErr: any) {
+          console.error(`[SEO Intel] Failed to optimize ${opt.postSlug}:`, optErr.message);
+        }
+      }
+    }
+
+    // 8. Send general messages
     for (const msg of (parsed.messages || [])) {
       await sendMessage({
         fromAgent: "seo_intel",
@@ -265,7 +430,7 @@ export async function runSeoIntel(
       context.messagesCreated++;
     }
 
-    // 8. Mark inbox read
+    // 9. Mark inbox read
     for (const m of inbox) {
       await markMessageActedOn(m.id);
     }
