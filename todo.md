@@ -1074,3 +1074,11 @@
 - [x] Build Detailed Lead Journey Modal (full timeline) — already complete
 - [x] Add Run All Agents Now button with live per-agent progress panel — already complete
 - [x] Run all tests and save checkpoint
+
+## Phase 58 — Fix All Remaining Agent Errors (Jul 28)
+
+- [x] Fix Qwen3-235B-Thinking always returning empty content — switched all agents to qwen/qwen3-32b (stable, fast)
+- [x] Clear DB agentModelConfig overrides that were pinning agents to broken model
+- [x] Fix SEO Intel hardcoded post slugs (sunrun-solar-contract-cancellation-2026, goodleap-cancel-solar-loan-2026) that don't exist in DB — agent now uses actual DB slugs from gatherSeoState
+- [x] Fix leadSessions duplicate entry crash — replaced read-then-insert with atomic ON DUPLICATE KEY UPDATE
+- [x] 108/108 tests passing

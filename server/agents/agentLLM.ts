@@ -29,13 +29,13 @@ const OPENROUTER_MODELS = new Set([
 
 // Default model per agent slug
 export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel: string }> = {
-  manager:       { modelId: "qwen/qwen3-235b-a22b-thinking-2507", modelLabel: "Qwen3-235B Thinking (2507)" },
+  manager:       { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
   revenue_intel: { modelId: "deepseek/deepseek-v4-pro",           modelLabel: "DeepSeek V4 Pro" },
-  content:       { modelId: "qwen/qwen3-235b-a22b-2507",          modelLabel: "Qwen3-235B (2507)" },
-  seo_intel:     { modelId: "qwen/qwen3-235b-a22b-thinking-2507", modelLabel: "Qwen3-235B Thinking (2507)" },
+  content:       { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
+  seo_intel:     { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
   editor:        { modelId: "deepseek/deepseek-v4-flash",         modelLabel: "DeepSeek V4 Flash" },
   money_maker:   { modelId: "deepseek/deepseek-v4-pro",           modelLabel: "DeepSeek V4 Pro" },
-  infra:         { modelId: "qwen/qwen3-235b-a22b-2507",          modelLabel: "Qwen3-235B (2507)" },
+  infra:         { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
 };
 
 // Fallback model when OpenRouter fails

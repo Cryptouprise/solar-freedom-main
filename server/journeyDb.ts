@@ -20,29 +20,40 @@ export async function upsertLeadSession(data: InsertLeadSession) {
   const db = await getDb();
   if (!db) return null;
 
-  const existing = await db
-    .select()
-    .from(leadSessions)
-    .where(eq(leadSessions.sessionId, data.sessionId))
-    .limit(1);
+  try {
+    // Use atomic INSERT ... ON DUPLICATE KEY UPDATE to avoid race conditions
+    // when multiple events arrive for the same sessionId simultaneously
+    await db.insert(leadSessions).values(data).onDuplicateKeyUpdate({
+      set: {
+        lastPage: data.lastPage,
+        totalPages: data.totalPages,
+        totalTimeMs: data.totalTimeMs,
+        ctaClickCount: data.ctaClickCount,
+        leadId: data.leadId,
+        ghlContactId: data.ghlContactId,
+        submittedAt: data.submittedAt,
+        updatedAt: new Date(),
+      },
+    });
 
-  if (existing.length > 0) {
-    await db
-      .update(leadSessions)
-      .set({
-        lastPage: data.lastPage ?? existing[0].lastPage,
-        totalPages: data.totalPages ?? existing[0].totalPages,
-        totalTimeMs: data.totalTimeMs ?? existing[0].totalTimeMs,
-        ctaClickCount: data.ctaClickCount ?? existing[0].ctaClickCount,
-        leadId: data.leadId ?? existing[0].leadId,
-        ghlContactId: data.ghlContactId ?? existing[0].ghlContactId,
-        submittedAt: data.submittedAt ?? existing[0].submittedAt,
-      })
-      .where(eq(leadSessions.sessionId, data.sessionId));
-    return existing[0].id;
-  } else {
-    const [result] = await db.insert(leadSessions).values(data);
-    return (result as any).insertId as number;
+    // Fetch the ID after upsert
+    const rows = await db
+      .select({ id: leadSessions.id })
+      .from(leadSessions)
+      .where(eq(leadSessions.sessionId, data.sessionId))
+      .limit(1);
+    return rows[0]?.id ?? null;
+  } catch (err: any) {
+    // Swallow duplicate key errors that slip through (shouldn't happen with onDuplicateKeyUpdate)
+    if (err?.code === 'ER_DUP_ENTRY') {
+      const rows = await db
+        .select({ id: leadSessions.id })
+        .from(leadSessions)
+        .where(eq(leadSessions.sessionId, data.sessionId))
+        .limit(1);
+      return rows[0]?.id ?? null;
+    }
+    throw err;
   }
 }
 
