@@ -39,6 +39,9 @@ import {
   Settings,
   BarChart3,
   ChevronDown,
+  Trash2,
+  CheckCheck,
+  Calendar,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -256,6 +259,94 @@ function OwnerView() {
   );
 }
 
+// ─── Action Queue Component ─────────────────────────────────────────────────
+
+function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[] }) {
+  const utils = trpc.useUtils();
+  const dismiss = trpc.agents.dismissAction.useMutation({
+    onSuccess: () => utils.agents.actions.invalidate(),
+  });
+  const markDone = trpc.agents.markActionDone.useMutation({
+    onSuccess: () => utils.agents.actions.invalidate(),
+  });
+
+  const ACTION_EXPLANATIONS: Record<string, string> = {
+    fix_gsc_data_parsing: "Google Search Console data had parsing errors — agent wants to fix how GSC data is read",
+    optimize_existing: "Rewrite an existing blog post to improve its SEO score",
+    write_article: "Write a new blog post targeting a specific keyword",
+    research_firm: "Research a new attorney firm to add to the referral network",
+    check_ranking: "Check where a specific page ranks on Google for its target keyword",
+    update_meta: "Update the title/meta description of a page to improve click-through rate",
+    build_backlink: "Reach out to a site to get a backlink pointing to breakyoursolarcontract.com",
+    fix_error: "Fix a technical error the agent detected in the system",
+    analyze_competitor: "Analyze a competitor site to find keyword gaps we can target",
+    track_revenue: "Update revenue tracking with new lead/conversion data",
+  };
+
+  return (
+    <Card className="bg-white/5 border-white/10">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-mono text-gray-300 flex items-center justify-between">
+          <span>ACTIONS CREATED</span>
+          <span className="text-[10px] text-gray-600 font-normal">Click ✓ to mark done, ✕ to dismiss</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {actions.length === 0 && (
+          <p className="text-gray-500 text-sm">No actions yet. Run this agent to generate actions.</p>
+        )}
+        {actions.map((action: any) => (
+          <div key={action.id} className="p-3 rounded-lg bg-black/20 border border-white/5 space-y-1.5">
+            {/* Title row */}
+            <div className="flex items-start gap-2">
+              <PriorityBadge priority={action.priority} />
+              <span className="text-xs text-gray-200 font-medium flex-1 leading-relaxed">{action.title}</span>
+              <StatusBadge status={action.status} />
+            </div>
+            {/* Plain English explanation */}
+            {(action.description || ACTION_EXPLANATIONS[action.actionType]) && (
+              <p className="text-xs text-gray-500 leading-relaxed">
+                {action.description || ACTION_EXPLANATIONS[action.actionType]}
+              </p>
+            )}
+            {/* Date + action type */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-[10px] text-gray-600">
+                <Calendar className="w-3 h-3" />
+                {action.createdAt ? new Date(action.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : ""}
+                {action.actionType && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded bg-white/5 text-gray-600 font-mono">{action.actionType}</span>
+                )}
+              </div>
+              {/* Buttons — only show on queued/blocked actions */}
+              {["queued", "blocked", "failed"].includes(action.status) && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => markDone.mutate({ actionId: action.id })}
+                    disabled={markDone.isPending}
+                    title="Mark as done"
+                    className="p-1 rounded hover:bg-green-500/20 text-gray-600 hover:text-green-400 transition-colors"
+                  >
+                    <CheckCheck className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => dismiss.mutate({ actionId: action.id })}
+                    disabled={dismiss.isPending}
+                    title="Dismiss"
+                    className="p-1 rounded hover:bg-red-500/20 text-gray-600 hover:text-red-400 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Agent Detail View ────────────────────────────────────────────────────────
 
 const AGENT_SUGGESTED_PROMPTS: Record<string, string[]> = {
@@ -373,15 +464,24 @@ function AgentDetailView({ slug }: { slug: string }) {
         </CardHeader>
         <CardContent className="space-y-1.5">
           {(runs || []).map((run: any) => (
-            <div key={run.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <StatusBadge status={run.status} />
-                <span className="text-xs text-gray-400 truncate">{run.summary || "No summary"}</span>
+            <div key={run.id} className="py-2 border-b border-white/5 last:border-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <StatusBadge status={run.status} />
+                  <span className="text-xs text-gray-400 truncate">{run.summary || "No summary"}</span>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-gray-500 shrink-0">
+                  <span>{run.durationMs ? `${(run.durationMs / 1000).toFixed(1)}s` : "—"}</span>
+                  <span>${run.costUsd ? parseFloat(String(run.costUsd)).toFixed(4) : "0"}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500 shrink-0">
-                <span>{run.durationMs ? `${(run.durationMs / 1000).toFixed(1)}s` : "—"}</span>
-                <span>${run.costUsd ? parseFloat(String(run.costUsd)).toFixed(4) : "0"}</span>
-              </div>
+              {run.startedAt && (
+                <div className="flex items-center gap-1 mt-1 text-[10px] text-gray-600">
+                  <Calendar className="w-3 h-3" />
+                  {new Date(run.startedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                  {run.triggerType && <span className="ml-1 px-1.5 py-0.5 rounded bg-white/5 text-gray-500">{run.triggerType}</span>}
+                </div>
+              )}
             </div>
           ))}
           {(!runs || runs.length === 0) && (
@@ -391,28 +491,7 @@ function AgentDetailView({ slug }: { slug: string }) {
       </Card>
 
       {/* Actions */}
-      <Card className="bg-white/5 border-white/10">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-mono text-gray-300">ACTIONS CREATED</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1.5">
-          {(actions || []).map((action: any) => (
-            <div key={action.id} className="py-1.5 border-b border-white/5 last:border-0">
-              <div className="flex items-center gap-2">
-                <PriorityBadge priority={action.priority} />
-                <span className="text-xs text-gray-300 truncate flex-1">{action.title}</span>
-                <StatusBadge status={action.status} />
-              </div>
-              {action.description && (
-                <p className="text-xs text-gray-500 mt-1 pl-12 truncate">{action.description}</p>
-              )}
-            </div>
-          ))}
-          {(!actions || actions.length === 0) && (
-            <p className="text-gray-500 text-sm">No actions yet.</p>
-          )}
-        </CardContent>
-      </Card>
+      <ActionQueue agentSlug={slug} actions={actions || []} />
 
       {/* Live Chat */}
       <Card className="bg-white/5 border-white/10">

@@ -379,4 +379,34 @@ export const agentRouter = router({
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
     return AVAILABLE_MODELS;
   }),
+
+  /**
+   * Dismiss an action (marks as rejected so it leaves the queue).
+   */
+  dismissAction: protectedProcedure
+    .input(z.object({ actionId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      await updateAction(input.actionId, {
+        status: "rejected",
+        result: `Dismissed by ${ctx.user.name || "admin"} at ${new Date().toISOString()}`,
+        completedAt: new Date(),
+      });
+      return { success: true };
+    }),
+
+  /**
+   * Mark an action as manually completed.
+   */
+  markActionDone: protectedProcedure
+    .input(z.object({ actionId: z.number(), note: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      await updateAction(input.actionId, {
+        status: "completed",
+        result: input.note || `Manually completed by ${ctx.user.name || "admin"} at ${new Date().toISOString()}`,
+        completedAt: new Date(),
+      });
+      return { success: true };
+    }),
 });
