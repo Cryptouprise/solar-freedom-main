@@ -52,6 +52,7 @@ import {
 } from "./agentGoalEngine";
 import { getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
+import { DAILY_QUALITY_MATRIX, ensureDailyChecklists, type WorkerSlug } from "./managerQuality";
 import {
   contentPipeline,
   blogPosts,
@@ -366,35 +367,29 @@ export async function runManagerAgent(
       });
     }
 
-    // 14. Queue directives for the dedicated scheduled agents.
-    // Starting worker agents in detached promises inside this HTTP callback made
-    // a single manager run fan out into concurrent, unobservable work. It also
-    // caused the callback to time out while child runs continued after the
-    // scheduler had recorded failure. Each worker now consumes its directive on
-    // its own scheduled run, which gives every outcome one accountable run log.
-    const TRIGGERABLE: string[] = ["revenue_intel", "seo_intel", "money_maker", "content", "editor"];
-    for (const trigger of (parsed.triggerAgents || [])) {
-      if (!TRIGGERABLE.includes(trigger.slug)) continue;
-      try {
-        await createAction({
-          agentSlug: "manager",
-          priority: "p1",
-          title: `[MANAGER TRIGGERED] ${trigger.slug}`,
-          description: `Manager triggered ${trigger.slug}.\nReason: ${trigger.reason}`,
-          actionType: "agent_trigger",
-          requiresApproval: 0,
-        });
-        context.actionsCreated++;
-        await sendMessage({
-          fromAgent: "manager",
-          toAgent: trigger.slug as any,
-          type: "directive",
-          priority: "p1",
-          subject: "SCHEDULED EXECUTION DIRECTIVE",
-          body: trigger.reason,
-        });
-        context.messagesCreated++;
-      } catch { /* non-fatal */ }
+    // 14. Deterministic operating cycle. Every worker receives a quality
+    // contract, but execution remains in that worker's own scheduled callback.
+    // This preserves the daily QA matrix without making one Manager callback
+    // fan out into six long LLM runs that cannot be observed or retried safely.
+    const checklistIds = await ensureDailyChecklists();
+    const WORKER_SEQUENCE: WorkerSlug[] = ["revenue_intel", "seo_intel", "money_maker", "content", "editor", "infra"];
+    const triggerReasons = new Map(
+      (parsed.triggerAgents || []).map((trigger: any) => [trigger.slug, trigger.reason])
+    );
+    const qaSummary: string[] = [];
+    for (const worker of WORKER_SEQUENCE) {
+      if (!checklistIds[worker]) continue;
+      const reason = triggerReasons.get(worker) || `Complete today’s assigned quality checklist. Success criteria: ${DAILY_QUALITY_MATRIX[worker].successCriteria}`;
+      await sendMessage({
+        fromAgent: "manager",
+        toAgent: worker,
+        type: "directive",
+        priority: "p1",
+        subject: "DAILY QUALITY CONTRACT",
+        body: `${reason}\n\nSuccess criteria: ${DAILY_QUALITY_MATRIX[worker].successCriteria}\nReturn specific evidence, execution output, and measurable impact for Manager review.`,
+      });
+      context.messagesCreated++;
+      qaSummary.push(`${worker}: scheduled for independent QA`);
     }
 
     // 15. Mark inbox read
@@ -417,7 +412,7 @@ export async function runManagerAgent(
     await setMemory("manager", "last_run_date", new Date().toISOString().slice(0, 10));
     await setMemory("manager", "last_briefing_summary", briefing?.todayPlan?.substring(0, 500) || "");
 
-    const summary = briefing?.todayPlan || "Daily management cycle completed";
+    const summary = `${briefing?.todayPlan || "Daily management cycle completed"}\nQuality matrix: ${qaSummary.join(" | ")}`;
     await completeRun(context, summary);
     return { summary, actionsCreated: context.actionsCreated, messagesCreated: context.messagesCreated };
 

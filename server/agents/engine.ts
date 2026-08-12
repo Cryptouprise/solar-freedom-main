@@ -12,6 +12,7 @@ import {
   agentMessages,
   agentActions,
   agentRunLog,
+  agentChatThreads,
   contentPipeline,
   attorneyProspects,
   seoChangeLog,
@@ -189,6 +190,31 @@ export async function completeRun(
     status === "failed" ? "error" : "idle",
     summary
   );
+
+  // Preserve a short, reviewable evidence trail for every completed agent run.
+  // These rows expire after 30 days; agentRunLog remains the permanent audit record.
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30);
+  await db.insert(agentChatThreads).values({
+    agentSlug: context.agentSlug,
+    runId: context.runId,
+    role: "agent",
+    message: status === "failed" && errorMessage ? `${summary}\n\nError: ${errorMessage}` : summary,
+    messageType: status === "failed" ? "error" : "summary",
+    metadata: JSON.stringify({
+      triggerType: context.triggerType,
+      triggeredBy: context.triggeredBy,
+      actionsCreated: context.actionsCreated,
+      messagesCreated: context.messagesCreated,
+      tokensIn: context.tokensIn,
+      tokensOut: context.tokensOut,
+      costUsd: context.costUsd,
+      durationMs,
+      status,
+    }),
+    createdAt: new Date(),
+    expiresAt,
+  });
 }
 
 // ─── Inter-Agent Messaging ────────────────────────────────────────────────────

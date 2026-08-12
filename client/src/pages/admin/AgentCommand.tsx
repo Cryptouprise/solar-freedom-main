@@ -90,6 +90,7 @@ function StatusBadge({ status }: { status: string }) {
     failed: { color: "text-red-400", icon: XCircle },
     approved: { color: "text-green-400", icon: CheckCircle2 },
     rejected: { color: "text-red-400", icon: XCircle },
+    blocked: { color: "text-amber-400", icon: AlertTriangle },
   };
   const c = config[status] || config.idle;
   const Icon = c.icon;
@@ -105,8 +106,16 @@ function StatusBadge({ status }: { status: string }) {
 
 function OwnerView() {
   const { data: overview, isLoading, refetch } = trpc.agents.overview.useQuery();
+  const { data: dailyQuality, refetch: refetchDailyQuality } = trpc.agents.dailyQuality.useQuery();
   const triggerAll = trpc.agents.triggerAll.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => { refetch(); refetchDailyQuality(); },
+  });
+  const reconcileSchedule = trpc.agents.reconcileDailySchedule.useMutation({
+    onSuccess: () => {
+      refetchDailyQuality();
+      window.alert("Daily Manager schedule reconciled. The system will start at 8:00 AM America/Denver and only the Manager has a timer.");
+    },
+    onError: error => window.alert(`Schedule update failed: ${error.message}`),
   });
   const [runError, setRunError] = useState<string | null>(null);
 
@@ -175,6 +184,9 @@ function OwnerView() {
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="w-4 h-4 mr-1" /> Refresh
           </Button>
+          <Button variant="outline" size="sm" onClick={() => reconcileSchedule.mutate()} disabled={reconcileSchedule.isPending} className="border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10">
+            {reconcileSchedule.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Clock className="w-4 h-4 mr-1" />}8 AM MT Schedule
+          </Button>
         </div>
         {runError ? <p className="text-sm text-red-400" role="alert">{runError}</p> : null}
       </div>
@@ -217,6 +229,36 @@ function OwnerView() {
           <strong>SEO measurement:</strong> {seoMeasurementHealth.state}. {seoMeasurementHealth.trackedPageCount} tracked pages with GSC data. Last checked: {seoMeasurementHealth.lastCheckedAt ? new Date(seoMeasurementHealth.lastCheckedAt).toLocaleString() : "never"}.
         </div>
       ) : null}
+
+      {/* Manager quality matrix */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <Shield className="w-4 h-4 text-cyan-400" /> MANAGER DAILY QUALITY MATRIX
+          </CardTitle>
+          <p className="text-xs text-gray-500">Every worker must produce evidence against a daily checklist. The Manager passes, requests one rework, blocks external dependencies, or records failure.</p>
+        </CardHeader>
+        <CardContent>
+          {dailyQuality?.checklists?.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {dailyQuality.checklists.map((checklist: any) => (
+                <div key={checklist.id} className="rounded-lg border border-white/8 bg-black/20 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-white">{AGENT_META[checklist.agentSlug]?.name || checklist.agentSlug}</span>
+                    <StatusBadge status={checklist.status} />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2 leading-relaxed">{checklist.objective}</p>
+                  <p className="text-[10px] text-gray-600 mt-2">Success: {checklist.successCriteria}</p>
+                  {checklist.qaScore != null && <p className="text-xs text-cyan-300 mt-2">QA score: {checklist.qaScore}/100 · {checklist.retryCount || 0} rework attempt(s)</p>}
+                  {checklist.qaFeedback && <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">{checklist.qaFeedback}</p>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No checklist has been created for {dailyQuality?.date || "today"} yet. The Manager creates the day’s matrix at the 8:00 AM Mountain cycle.</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -284,6 +326,16 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
   const markDone = trpc.agents.markActionDone.useMutation({
     onSuccess: () => utils.agents.actions.invalidate(),
   });
+  const execute = trpc.agents.executeAction.useMutation({
+    onSuccess: (response) => {
+      utils.agents.actions.invalidate();
+      utils.agents.chatThreads.invalidate();
+      if (response.blocked) {
+        window.alert("This task is blocked pending its evidence-based research integration. The action card now contains the reason; no unverified prospects were created.");
+      }
+    },
+    onError: (error) => window.alert(`Action could not run: ${error.message}`),
+  });
 
   const ACTION_EXPLANATIONS: Record<string, string> = {
     fix_gsc_data_parsing: "Google Search Console data had parsing errors — agent wants to fix how GSC data is read",
@@ -303,7 +355,7 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-mono text-gray-300 flex items-center justify-between">
           <span>ACTIONS CREATED</span>
-          <span className="text-[10px] text-gray-600 font-normal">Click ✓ to mark done, ✕ to dismiss</span>
+          <span className="text-[10px] text-gray-600 font-normal">Run supported work, then review its evidence before marking done</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -311,7 +363,7 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
           <p className="text-gray-500 text-sm">No actions yet. Run this agent to generate actions.</p>
         )}
         {actions.map((action: any) => (
-          <div key={action.id} className="p-3 rounded-lg bg-black/20 border border-white/5 space-y-1.5">
+          <div key={action.id} className="p-3 rounded-lg bg-black/20 border border-white/5 space-y-2">
             {/* Title row */}
             <div className="flex items-start gap-2">
               <PriorityBadge priority={action.priority} />
@@ -324,6 +376,12 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
                 {action.description || ACTION_EXPLANATIONS[action.actionType]}
               </p>
             )}
+            {(action.result || action.errorMessage) && (
+              <div className={`rounded-md px-2 py-1.5 text-[11px] leading-relaxed whitespace-pre-wrap ${action.errorMessage ? "bg-red-500/5 text-red-200 border border-red-500/15" : "bg-emerald-500/5 text-emerald-100 border border-emerald-500/15"}`}>
+                <span className="font-semibold">{action.errorMessage ? "Execution issue: " : "Execution evidence: "}</span>
+                {action.errorMessage || action.result}
+              </div>
+            )}
             {/* Date + action type */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 text-[10px] text-gray-600">
@@ -333,9 +391,19 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
                   <span className="ml-1 px-1.5 py-0.5 rounded bg-white/5 text-gray-600 font-mono">{action.actionType}</span>
                 )}
               </div>
-              {/* Buttons — only show on queued/blocked actions */}
+              {/* A Run control appears only for action types with a safe execution adapter. */}
               {["queued", "blocked", "failed"].includes(action.status) && (
                 <div className="flex items-center gap-1">
+                  {action.actionType === "research_firm" && !action.requiresApproval && (
+                    <button
+                      onClick={() => execute.mutate({ actionId: action.id })}
+                      disabled={execute.isPending}
+                      title="Run evidence-backed attorney research"
+                      className="flex items-center gap-1 px-1.5 py-1 rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 text-[10px] border border-blue-500/20 transition-colors"
+                    >
+                      {execute.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}Run
+                    </button>
+                  )}
                   <button
                     onClick={() => markDone.mutate({ actionId: action.id })}
                     disabled={markDone.isPending}
@@ -407,6 +475,7 @@ function AgentDetailView({ slug }: { slug: string }) {
   const { data: agent } = trpc.agents.get.useQuery({ slug: slug as any });
   const { data: runs } = trpc.agents.runs.useQuery({ agentSlug: slug as any, limit: 10 });
   const { data: actions } = trpc.agents.actions.useQuery({ agentSlug: slug as any, limit: 20 });
+  const { data: threadEntries = [] } = trpc.agents.chatThreads.useQuery({ agentSlug: slug as any, limit: 30 });
   const trigger = trpc.agents.trigger.useMutation();
   const chatMutation = trpc.agents.chat.useMutation();
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
@@ -507,6 +576,29 @@ function AgentDetailView({ slug }: { slug: string }) {
 
       {/* Actions */}
       <ActionQueue agentSlug={slug} actions={actions || []} />
+
+      {/* Persistent execution / chat evidence */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <History className="w-4 h-4 text-cyan-400" /> SAVED THREAD & EXECUTION EVIDENCE
+          </CardTitle>
+          <p className="text-xs text-gray-500">Run summaries, errors, and conversations are retained for 30 days. Permanent run history remains above.</p>
+        </CardHeader>
+        <CardContent className="space-y-2 max-h-80 overflow-y-auto">
+          {threadEntries.map((entry: any) => (
+            <div key={entry.id} className="rounded-lg border border-white/5 bg-black/10 px-3 py-2">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider mb-1">
+                <span className={entry.role === "user" ? "text-blue-300" : entry.messageType === "error" ? "text-red-300" : "text-cyan-300"}>{entry.role === "user" ? "You" : meta.name}</span>
+                <span className="text-gray-600">{entry.messageType}</span>
+                <span className="ml-auto text-gray-600 normal-case tracking-normal">{new Date(entry.createdAt).toLocaleString()}</span>
+              </div>
+              <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed">{entry.message}</p>
+            </div>
+          ))}
+          {!threadEntries.length && <p className="text-sm text-gray-500">No saved activity yet. The next run or chat will create an evidence entry here.</p>}
+        </CardContent>
+      </Card>
 
       {/* Live Chat */}
       <Card className="bg-white/5 border-white/10">

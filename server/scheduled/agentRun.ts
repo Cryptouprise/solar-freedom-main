@@ -2,13 +2,12 @@
  * /api/scheduled/agent-run
  *
  * Called by the Heartbeat platform when an agent cron fires.
- * Identifies which agent to run from the payload and executes it.
- *
  * Auth: cron-only (user.isCron === true).
  */
 import type { Request, Response } from "express";
 import { sdk } from "../_core/sdk";
-import { runAgent, seedAgents, type AgentSlug } from "../agents";
+import { runAgent, seedAgents, sendMessage, type AgentSlug, type AgentThinkResult } from "../agents";
+import { ensureDailyChecklists, reviewWorkerRun, type WorkerSlug } from "../agents/managerQuality";
 
 export const SCHEDULED_AGENT_SLUGS = [
   "money_maker",
@@ -20,24 +19,59 @@ export const SCHEDULED_AGENT_SLUGS = [
   "revenue_intel",
 ] as const satisfies readonly AgentSlug[];
 
+const WORKER_SLUGS = new Set<WorkerSlug>(["revenue_intel", "seo_intel", "money_maker", "content", "editor", "infra"]);
+
 export function resolveScheduledAgentSlug(value: unknown): AgentSlug | null {
   return typeof value === "string" && SCHEDULED_AGENT_SLUGS.includes(value as AgentSlug)
     ? value as AgentSlug
     : null;
 }
 
+function isEightAmMountain(now = new Date()): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver",
+    hour: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  return Number(parts.find(part => part.type === "hour")?.value) === 8;
+}
+
+async function recordWorkerQuality(agentSlug: AgentSlug, result?: AgentThinkResult, error?: Error) {
+  if (!WORKER_SLUGS.has(agentSlug as WorkerSlug)) return;
+  const worker = agentSlug as WorkerSlug;
+  const checklistIds = await ensureDailyChecklists();
+  const checklistId = checklistIds[worker];
+  if (!checklistId) return;
+
+  const review = await reviewWorkerRun({
+    agentSlug: worker,
+    checklistId,
+    result,
+    error,
+    retryNumber: 0,
+  });
+
+  if (review.verdict === "rework") {
+    await sendMessage({
+      fromAgent: "manager",
+      toAgent: worker,
+      type: "directive",
+      priority: "p1",
+      subject: "QUALITY REWORK REQUIRED",
+      body: `Your latest scheduled delivery needs rework. ${review.feedback}\n\nReturn specific evidence, execution output, and measurable impact on your next scheduled run.`,
+    });
+  }
+}
+
 export async function agentRunHandler(req: Request, res: Response) {
   try {
-    // 1. Authenticate — must be a cron caller
     const user = await sdk.authenticateRequest(req);
     if (!user.isCron || !user.taskUid) {
       return res.status(403).json({ error: "cron-only endpoint" });
     }
 
-    // 2. Determine which agent to run from payload
     const payload = req.body || {};
     const agentSlug = resolveScheduledAgentSlug(payload.agentSlug);
-
     if (!agentSlug) {
       return res.status(422).json({
         ok: false,
@@ -45,12 +79,22 @@ export async function agentRunHandler(req: Request, res: Response) {
       });
     }
 
-    // 3. Keep the database registry aligned with the scheduled contract.
+    if (payload.scheduleMode === "mountain_8" && !isEightAmMountain()) {
+      return res.json({ ok: true, skipped: "Outside 8:00 AM America/Denver window" });
+    }
+
     await seedAgents();
 
-    // 4. Run the agent
-    const result = await runAgent(agentSlug, "cron", `heartbeat:${user.taskUid}`);
+    let result: AgentThinkResult;
+    try {
+      result = await runAgent(agentSlug, "cron", `heartbeat:${user.taskUid}`);
+    } catch (error: any) {
+      const normalized = error instanceof Error ? error : new Error(String(error));
+      await recordWorkerQuality(agentSlug, undefined, normalized);
+      throw normalized;
+    }
 
+    await recordWorkerQuality(agentSlug, result);
     return res.json({
       ok: true,
       agent: agentSlug,
@@ -58,9 +102,8 @@ export async function agentRunHandler(req: Request, res: Response) {
       actionsCreated: result.actionsCreated,
       messagesCreated: result.messagesCreated,
     });
-
   } catch (error: any) {
-    console.error(`[AgentRun] Error:`, error);
+    console.error("[AgentRun] Error:", error);
     return res.status(500).json({
       ok: false,
       error: error.message,

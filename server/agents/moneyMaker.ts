@@ -22,6 +22,7 @@ import {
   markMessageActedOn,
   type AgentThinkResult,
 } from "./engine";
+import { executeAttorneyResearch, saveAgentChatMessage } from "./attorneyResearch";
 import { getDb } from "../db";
 import {
   attorneyProspects,
@@ -242,7 +243,35 @@ export async function runMoneyMaker(
       context.actionsCreated++;
     }
 
-    // 9. Mark inbox as processed
+    // 9. Execute research_firm actions immediately (don't just queue them)
+    const researchActions = (parsed.actions || []).filter(a => a.actionType === "research_firm");
+    if (researchActions.length > 0) {
+      // Extract states from action descriptions
+      const stateKeywords = ["California", "Texas", "Florida", "Arizona", "Nevada", "Colorado", "Georgia", "North Carolina", "South Carolina", "New York", "New Jersey", "Ohio", "Michigan", "Illinois", "Washington"];
+      const statesToResearch = stateKeywords.filter(s =>
+        researchActions.some(a => a.description?.includes(s) || a.title?.includes(s))
+      ).slice(0, 3); // Max 3 states per run to control cost
+
+      if (statesToResearch.length === 0) {
+        // Default to top solar states if no specific states mentioned
+        statesToResearch.push("California", "Texas", "Florida");
+      }
+
+      const researchResult = await executeAttorneyResearch(statesToResearch, context.runId);
+      await saveAgentChatMessage(
+        "money_maker",
+        `Attorney research complete: found ${researchResult.found} attorneys across ${researchResult.states.join(", ")}, saved ${researchResult.saved} new prospects to pipeline`,
+        "result",
+        context.runId
+      );
+    }
+
+    // 10. Save analysis as chat thread
+    if (parsed.analysis) {
+      await saveAgentChatMessage("money_maker", parsed.analysis, "analysis", context.runId);
+    }
+
+    // 11. Mark inbox as processed
     for (const m of inbox) {
       await markMessageActedOn(m.id);
     }
