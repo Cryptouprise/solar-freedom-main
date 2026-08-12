@@ -200,18 +200,21 @@ function OwnerView() {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           {scheduleHealth.map((schedule: any) => {
             const meta = AGENT_META[schedule.slug] || AGENT_META.manager;
-            const issue = schedule.state !== "scheduled";
+            const isAwaitingFirstRun = schedule.state === "awaiting_first_run";
+            const issue = ["missing", "paused", "stale"].includes(schedule.state);
             return (
               <div key={schedule.slug} className="rounded-lg bg-black/20 border border-white/10 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-mono text-gray-200">{meta.name}</span>
-                  <StatusBadge status={issue ? "error" : "completed"} />
+                  <StatusBadge status={issue ? "error" : isAwaitingFirstRun ? "queued" : "completed"} />
                 </div>
                 <p className="mt-2 text-xs text-gray-500">
-                  {issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
+                  {isAwaitingFirstRun ? "awaiting first run" : issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
                 </p>
                 <p className="mt-1 text-[11px] text-gray-600">
-                  Last scheduler event: {schedule.lastScheduledExecutionAt ? new Date(schedule.lastScheduledExecutionAt).toLocaleString() : "never"}
+                  {isAwaitingFirstRun
+                    ? `Next scheduler event: ${schedule.nextScheduledExecutionAt ? new Date(schedule.nextScheduledExecutionAt).toLocaleString() : "pending"}`
+                    : `Last scheduler event: ${schedule.lastScheduledExecutionAt ? new Date(schedule.lastScheduledExecutionAt).toLocaleString() : "never"}`}
                 </p>
               </div>
             );

@@ -38,6 +38,8 @@ describe("truthful SEO page delivery", () => {
       path.join(publicDir, "blog", "known", "index.html"),
       "<!doctype html><h1>Known static article</h1>"
     );
+    fs.mkdirSync(path.join(publicDir, "admin", "blog-studio"), { recursive: true });
+    fs.writeFileSync(path.join(publicDir, "admin", "blog-studio", "index.html"), rootTemplate);
 
     getDbBlogPostStatus.mockImplementation(async (slug: string) => ({
       available: true,
@@ -159,6 +161,16 @@ describe("dynamic published-content inventory", () => {
     expect(merged).toContain("/blog/database-article");
     expect(merged).toContain("2026-06-02");
     expect(mergeDynamicPostsIntoSitemap(merged, posts).match(/database-article/g)).toHaveLength(1);
+  });
+
+  it("excludes database rows whose blog slugs are legacy redirects", () => {
+    const base = `<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`;
+    const merged = mergeDynamicPostsIntoSitemap(base, [
+      { slug: "solar-panel-scam-signs-what-to-do", updatedAt: new Date("2026-06-02T00:00:00Z") },
+      { slug: "current-article", updatedAt: new Date("2026-06-03T00:00:00Z") },
+    ]);
+    expect(merged).not.toContain("solar-panel-scam-signs-what-to-do");
+    expect(merged).toContain("current-article");
   });
 
   it("merges DB posts into the LLM inventory without duplicates", () => {

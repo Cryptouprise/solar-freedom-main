@@ -12,5 +12,9 @@
 - [ ] Save a production checkpoint and confirm the published release.
 - [x] Compare the incoming autonomous-revenue checkpoint against the local recovery edits and preserve both intents.
 - [x] Merge the overlapping agent, dashboard, sitemap, and measurement changes without dropping either workflow.
-- [ ] Re-run the combined validation suite and production checks after integration.
-- [ ] Restore the missing project-owner worker schedules and verify their registered jobs and execution readiness.
+- [x] Re-run the combined validation suite and production checks after integration.
+- [x] Restore the missing project-owner worker schedules and verify their registered jobs and execution readiness.
+- [x] Make the admin scheduler view read the project-owner agent registry so restored jobs do not display as false missing states.
+- [x] Render newly restored schedules as an ‘awaiting first run’ state instead of a red error while preserving real failure visibility.
+- [x] Expand crawler-visible content on the focused city-page template so priority city URLs provide meaningful source-visible local context.
+- [ ] Resolve the remaining live smoke failures by preventing admin canonical leakage and filtering redirected dynamic blog URLs from the sitemap response.

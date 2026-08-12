@@ -18,6 +18,7 @@ import { automationRunHandler } from "../scheduled/automationRun";
 import { agentRunHandler } from "../scheduled/agentRun";
 import { registerJourneyEndpoint } from "../journeyRouter";
 import { rateLimit } from "express-rate-limit";
+import { BLOG_SLUG_REDIRECTS } from "../seo-redirects";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -65,26 +66,6 @@ async function startServer() {
   // ─── Blog slug redirects — short/old slugs → canonical long slugs ────────────
   // These URLs were crawled by Google but have no content, causing them to return
   // the homepage canonical (duplicate content signal). 301 redirects fix this.
-  const BLOG_SLUG_REDIRECTS: Record<string, string> = {
-    '/blog/freedom-forever-solar-bankruptcy': '/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026',
-    '/blog/how-to-cancel-sunnova-solar-contract': '/blog/how-to-cancel-sunnova-solar-contract-2026',
-    '/blog/solar-contract-escalator-clause-what-it-means': '/blog/solar-contract-escalator-clause-explained-how-to-fight-it',
-    '/blog/solar-panel-scam-signs-what-to-do': '/blog/solar-panel-scam-signs-and-solutions',
-    '/blog/solar-contract-red-flags-and-scams': '/blog/solar-contract-red-flags',
-    '/blog/solar-lease-vs-loan-vs-ppa': '/blog/solar-loan-vs-lease-problems',
-    // GSC-ranked slugs that 404 after content renames (verified live 2026-07-26).
-    // #1 traffic page goodleap-solar-loan-cancellation-guide had 54 clicks / 4,618 impr / pos 8.2.
-    '/blog/goodleap-solar-loan-cancellation-guide': '/blog/goodleap-cancel-solar-loan-2026',
-    '/blog/new-jersey-solar-contract-cancellation': '/blog/new-jersey-solar-contract-rights',
-    '/blog/cancel-solar-contract-houston': '/blog/cancel-solar-contract-houston-tx',
-    '/blog/goodleap-solar-loan-hidden-dealer-fees-2024': '/blog/goodleap-solar-loan-hidden-dealer-fees-2026',
-    '/blog/freedom-forever-solar-bankruptcy-problems': '/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026',
-    '/blog/how-to-file-a-complaint-against-solar-company': '/blog/how-to-file-a-complaint-against-solar-company-attorney-general',
-    '/blog/tesla-solar-solarcity-complaints': '/blog/tesla-solar-solarcity-complaints-cancel-2026',
-    '/blog/solar-contract-escalator-clause': '/blog/solar-contract-escalator-clause-explained-how-to-fight-it',
-    '/blog/selling-home-with-solar-ppa': '/blog/selling-home-with-solar-ppa-panels-transfer-or-cancel',
-    '/blog/sunnova-contract-transfer-problems': '/blog/sunnova-solar-contract-transfer-problems',
-  };
   for (const [from, to] of Object.entries(BLOG_SLUG_REDIRECTS)) {
     app.get(from, (_req, res) => res.redirect(301, to));
   }

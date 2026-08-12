@@ -4,9 +4,7 @@
  */
 
 import { z } from "zod";
-import { parse as parseCookie } from "cookie";
 import { protectedProcedure, router } from "./_core/trpc";
-import { COOKIE_NAME } from "@shared/const";
 import {
   runAgent,
   runAllAgents,
@@ -30,10 +28,6 @@ import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE
 import { desc, eq, and, gte } from "drizzle-orm";
 
 const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra", "revenue_intel"]);
-
-function getSessionToken(cookieHeader: string | undefined): string {
-  return parseCookie(cookieHeader ?? "")[COOKIE_NAME] ?? "";
-}
 
 export const agentRouter = router({
   /**
@@ -182,7 +176,7 @@ export const agentRouter = router({
    */
   registerCrons: protectedProcedure.mutation(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    return registerAllAgentCrons(getSessionToken(ctx.req.headers.cookie));
+    return registerAllAgentCrons();
   }),
 
   /**
@@ -190,7 +184,7 @@ export const agentRouter = router({
    */
   listCrons: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    return listAgentCrons(getSessionToken(ctx.req.headers.cookie));
+    return listAgentCrons();
   }),
 
   /**
@@ -198,7 +192,7 @@ export const agentRouter = router({
    */
   deregisterCrons: protectedProcedure.mutation(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    return deregisterAllAgentCrons(getSessionToken(ctx.req.headers.cookie));
+    return deregisterAllAgentCrons();
   }),
 
   /**
@@ -207,13 +201,12 @@ export const agentRouter = router({
   overview: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
     const db = await getDb();
-    const sessionToken = getSessionToken(ctx.req.headers.cookie);
     const [agents, recentRuns, actions, pipeline, registeredCrons, seoMeasurements] = await Promise.all([
       listAgents(),
       getRunLog(undefined, 10),
       getActionQueue({ limit: 10 }),
       getContentPipelineItems(),
-      listAgentCrons(sessionToken),
+      listAgentCrons(),
       db
         ? db.select({
           gscLastChecked: seoPages.gscLastChecked,

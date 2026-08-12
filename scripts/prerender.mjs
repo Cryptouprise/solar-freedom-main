@@ -942,17 +942,40 @@ function buildCityUniqueContent(meta, urlPath) {
   if (!cd) return '';
   const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';
   const stateName = cd.state || cd.stateCode || 'your state';
+  const population = cd.population ? `${cd.population} residents` : 'a local homeowner population';
+  const solarActivity = cd.solarActivity || 'active';
+  const stateLaw = cd.stateLaw ? escapeHtml(cd.stateLaw) : '';
   const companies = (cd.companies || [])
     .map(company => `<li>${escapeHtml(company)}</li>`)
     .join('');
 
   return `
-      <h2>Page location</h2>
+      <h2>Solar contract questions in ${escapeHtml(cityName)}</h2>
+      <p>${escapeHtml(cityName)} is a ${escapeHtml(solarActivity.toLowerCase())} solar market in ${escapeHtml(stateName)}, with an estimated ${escapeHtml(population)}. If a solar agreement, production promise, billing issue, or transfer requirement is causing concern, start with the signed documents and the facts specific to the installation rather than relying on a general online answer.</p>
+      <p>Solar Freedom’s ${escapeHtml(cityName)} resource is designed to help homeowners organize the information that may matter in a contract review. It does not determine whether a company, lender, salesperson, or agreement violated any law, and it does not replace advice from a qualified professional.</p>
+
+      <h2>What to gather before requesting help</h2>
+      <ul>
+        <li>The signed contract, financing agreement, lease, PPA, and all addenda or change orders.</li>
+        <li>Sales proposals, promised-production estimates, utility bills, monitoring records, and any relevant inspection or permit documents.</li>
+        <li>Emails, text messages, advertisements, and notes describing what was represented before the agreement was signed.</li>
+        <li>Any correspondence about cancellation, system performance, billing, repair, a lien, a home sale, or a proposed transfer.</li>
+      </ul>
+
+      <h2>${escapeHtml(stateName)} consumer-law reference</h2>
+      ${stateLaw ? `<p>The state-law reference associated with this location is <strong>${stateLaw}</strong>. Whether a statute applies, whether a deadline exists, and what options may be available depend on the actual agreement and facts. Review the official statutory text and seek appropriate professional guidance before acting.</p>` : `<p>Consumer-protection rules and contract remedies vary by state and by the facts of the transaction. Review the dedicated ${escapeHtml(stateName)} law resource for a starting point.</p>`}
+
+      <h2>Companies researched in this location</h2>
+      <p>The following names are included in Solar Freedom’s research library for ${escapeHtml(cityName)}. Their appearance here is not a statement that they currently operate in the city or that any individual has a claim against them.</p>
       <dl>
         <dt>City</dt><dd>${escapeHtml(cityName)}</dd>
         <dt>State</dt><dd>${escapeHtml(stateName)}</dd>
+        <dt>Market activity</dt><dd>${escapeHtml(solarActivity)}</dd>
       </dl>
-      ${companies ? `<h2>Companies listed for this location</h2><ul>${companies}</ul>` : ''}`;
+      ${companies ? `<ul>${companies}</ul>` : ''}
+
+      <h2>Practical next step</h2>
+      <p>Keep a written timeline of the sale, installation, billing, and service events. A fact-specific review can help identify which questions to raise, what documents are missing, and whether a local or state-level resource may be relevant.</p>`;
 }
 
 function buildCompanyUniqueContent(meta) {
