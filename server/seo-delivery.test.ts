@@ -254,9 +254,31 @@ describe("pre-render source parity", () => {
       path.resolve(process.cwd(), "client/public/llms-full.txt"),
       "utf8"
     );
+    const redirectedSitemapSlugs = new Set([
+      "freedom-forever-solar-bankruptcy",
+      "how-to-cancel-sunnova-solar-contract",
+      "solar-contract-escalator-clause-what-it-means",
+      "solar-panel-scam-signs-what-to-do",
+      "solar-contract-red-flags-and-scams",
+      "solar-lease-vs-loan-vs-ppa",
+      "goodleap-solar-loan-cancellation-guide",
+      "new-jersey-solar-contract-cancellation",
+      "cancel-solar-contract-houston",
+      "goodleap-solar-loan-hidden-dealer-fees-2024",
+      "freedom-forever-solar-bankruptcy-problems",
+      "how-to-file-a-complaint-against-solar-company",
+      "tesla-solar-solarcity-complaints",
+      "solar-contract-escalator-clause",
+      "selling-home-with-solar-ppa",
+      "sunnova-contract-transfer-problems",
+    ]);
     for (const slug of clientSlugs) {
       const url = `https://breakyoursolarcontract.com/blog/${slug}`;
-      expect(sitemap, `${url} is missing from sitemap.xml`).toContain(url);
+      if (redirectedSitemapSlugs.has(slug)) {
+        expect(sitemap, `${url} should not be in sitemap.xml`).not.toContain(url);
+      } else {
+        expect(sitemap, `${url} is missing from sitemap.xml`).toContain(url);
+      }
       expect(llmsFull, `${url} is missing from llms-full.txt`).toContain(url);
     }
   });

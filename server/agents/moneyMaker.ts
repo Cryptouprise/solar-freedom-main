@@ -150,7 +150,8 @@ export async function runMoneyMaker(
       ],
       context,
       temperature: 0.3,
-      maxTokens: 6000,
+      // Heartbeat calls need focused revenue actions, not a long-form report.
+      maxTokens: 1800,
     });
 
     // 4. Parse response

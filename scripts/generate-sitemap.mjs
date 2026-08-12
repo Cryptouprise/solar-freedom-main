@@ -28,6 +28,28 @@ const INDEXED_CITY_SLUGS = new Set([
   "miami-fl", "nashville-tn", "san-francisco-ca", "san-jose-ca", "savannah-ga",
 ]);
 
+// Redirects are useful for people and legacy links, but a sitemap must contain
+// only final, canonical 200 URLs. Keep this list aligned with the server-side
+// redirect map in server/_core/index.ts.
+const REDIRECTED_BLOG_SLUGS = new Set([
+  "freedom-forever-solar-bankruptcy",
+  "how-to-cancel-sunnova-solar-contract",
+  "solar-contract-escalator-clause-what-it-means",
+  "solar-panel-scam-signs-what-to-do",
+  "solar-contract-red-flags-and-scams",
+  "solar-lease-vs-loan-vs-ppa",
+  "goodleap-solar-loan-cancellation-guide",
+  "new-jersey-solar-contract-cancellation",
+  "cancel-solar-contract-houston",
+  "goodleap-solar-loan-hidden-dealer-fees-2024",
+  "freedom-forever-solar-bankruptcy-problems",
+  "how-to-file-a-complaint-against-solar-company",
+  "tesla-solar-solarcity-complaints",
+  "solar-contract-escalator-clause",
+  "selling-home-with-solar-ppa",
+  "sunnova-contract-transfer-problems",
+]);
+
 function decodeStringLiteralValue(value) {
   return value
     .replace(/\\n/g, "\n")
@@ -131,7 +153,6 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     { path: "/solar-companies", priority: "0.8", changefreq: "monthly" },
     { path: "/sunrun", priority: "0.9", changefreq: "monthly" },
     { path: "/media", priority: "0.9", changefreq: "weekly" },
-    { path: "/sitemap", priority: "0.8", changefreq: "weekly" },
   ];
   for (const p of staticPages) {
     entries.push({
@@ -173,6 +194,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
 
   // Blog articles
   for (const slug of blogSlugs) {
+    if (REDIRECTED_BLOG_SLUGS.has(slug)) continue;
     entries.push({
       url: `${BASE_URL}/blog/${slug}`,
       priority: "0.7",

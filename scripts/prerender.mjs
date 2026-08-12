@@ -683,8 +683,9 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     },
     {
       path: "/sitemap",
-      title: "Site Map — All Pages | Break Your Solar Contract",
-      desc: "Complete directory of all pages on breakyoursolarcontract.com — 300 city pages, 13 company pages, 51 state law pages, and 95+ blog articles about solar contract cancellation.",
+      title: "Site Directory | Solar Freedom",
+      desc: "Browse Solar Freedom resources by topic, solar company, and location.",
+      noindex: true,
     },
   ];
   for (const p of staticPages) {
@@ -692,6 +693,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: p.title,
       description: p.desc,
       canonical: `${BASE_URL}${p.path}`,
+      noindex: p.noindex,
     };
   }
 

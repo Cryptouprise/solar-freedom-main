@@ -8,9 +8,23 @@
  */
 import type { Request, Response } from "express";
 import { sdk } from "../_core/sdk";
-import { runAgent, type AgentSlug } from "../agents";
+import { runAgent, seedAgents, type AgentSlug } from "../agents";
 
-const VALID_SLUGS: AgentSlug[] = ["money_maker", "seo_intel", "content", "editor", "manager", "infra"];
+export const SCHEDULED_AGENT_SLUGS = [
+  "money_maker",
+  "seo_intel",
+  "content",
+  "editor",
+  "manager",
+  "infra",
+  "revenue_intel",
+] as const satisfies readonly AgentSlug[];
+
+export function resolveScheduledAgentSlug(value: unknown): AgentSlug | null {
+  return typeof value === "string" && SCHEDULED_AGENT_SLUGS.includes(value as AgentSlug)
+    ? value as AgentSlug
+    : null;
+}
 
 export async function agentRunHandler(req: Request, res: Response) {
   try {
@@ -22,13 +36,19 @@ export async function agentRunHandler(req: Request, res: Response) {
 
     // 2. Determine which agent to run from payload
     const payload = req.body || {};
-    const agentSlug = payload.agentSlug as AgentSlug;
+    const agentSlug = resolveScheduledAgentSlug(payload.agentSlug);
 
-    if (!agentSlug || !VALID_SLUGS.includes(agentSlug)) {
-      return res.json({ ok: true, skipped: `Invalid or missing agentSlug: ${agentSlug}` });
+    if (!agentSlug) {
+      return res.status(422).json({
+        ok: false,
+        error: `Invalid or missing agentSlug: ${String(payload.agentSlug ?? "")}`,
+      });
     }
 
-    // 3. Run the agent
+    // 3. Keep the database registry aligned with the scheduled contract.
+    await seedAgents();
+
+    // 4. Run the agent
     const result = await runAgent(agentSlug, "cron", `heartbeat:${user.taskUid}`);
 
     return res.json({
@@ -41,10 +61,11 @@ export async function agentRunHandler(req: Request, res: Response) {
 
   } catch (error: any) {
     console.error(`[AgentRun] Error:`, error);
-    // Return 200 so platform doesn't retry on app-level errors
-    return res.json({
+    return res.status(500).json({
       ok: false,
       error: error.message,
+      context: { path: req.path },
+      timestamp: new Date().toISOString(),
     });
   }
 }

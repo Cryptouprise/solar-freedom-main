@@ -164,7 +164,7 @@ async function run(args) {
 
   const knownRoutes = [
     ["known_blog", "/blog/how-to-get-out-of-a-solar-contract"],
-    ["restored_blog", "/blog/solar-panel-scam-signs-what-to-do"],
+    ["canonical_scam_blog", "/blog/solar-panel-scam-signs-and-solutions"],
     ["known_city", "/cancel-solar-contract/dallas-tx"],
   ];
   for (const [name, pathname] of knownRoutes) {
@@ -175,6 +175,12 @@ async function run(args) {
     check(checks, `${name}_canonical`, facts.canonical === `${args.baseUrl}${pathname}`, facts.canonical || "missing");
     check(checks, `${name}_h1`, Boolean(facts.h1), facts.h1 ? "present" : "missing");
     check(checks, `${name}_source_content`, facts.words >= 100, `${facts.words} source-visible words`);
+  }
+
+  const legacyBlog = await get("legacy_blog_redirect_request", "/blog/solar-panel-scam-signs-what-to-do");
+  if (legacyBlog) {
+    check(checks, "legacy_blog_redirects", legacyBlog.status === 301, `HTTP ${legacyBlog.status}`);
+    check(checks, "legacy_blog_redirect_target", legacyBlog.headers.location === "/blog/solar-panel-scam-signs-and-solutions", legacyBlog.headers.location || "missing");
   }
 
   const notFoundPath = `/__production_smoke_not_found__-${Date.now().toString(36)}`;
@@ -211,8 +217,8 @@ async function run(args) {
   if (sitemap) {
     const urlCount = (sitemap.body.match(/<url>/g) || []).length;
     check(checks, "sitemap_http_200", sitemap.status === 200, `HTTP ${sitemap.status}`);
-    check(checks, "sitemap_inventory", urlCount >= 500, `${urlCount} URLs`);
-    check(checks, "sitemap_restored_blog", sitemap.body.includes(`${args.baseUrl}/blog/solar-panel-scam-signs-what-to-do`), "restored blog URL present");
+    check(checks, "sitemap_inventory", urlCount >= 250, `${urlCount} focused URLs`);
+    check(checks, "sitemap_excludes_redirected_blog", !sitemap.body.includes(`${args.baseUrl}/blog/solar-panel-scam-signs-what-to-do`), "redirected blog URL excluded");
   }
 
   let assets = null;

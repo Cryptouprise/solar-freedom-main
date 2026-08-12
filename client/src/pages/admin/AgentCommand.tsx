@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { fullCycleRunError } from "./agentCommandState";
 
 // ─── Agent Metadata ───────────────────────────────────────────────────────────
 
@@ -107,20 +108,16 @@ function OwnerView() {
   const triggerAll = trpc.agents.triggerAll.useMutation({
     onSuccess: () => refetch(),
   });
-  const [runProgress, setRunProgress] = useState<Record<string, "pending" | "running" | "done" | "error">>({});
+  const [runError, setRunError] = useState<string | null>(null);
 
   const handleRunAll = async () => {
-    const slugs = ["manager", "revenue_intel", "seo_intel", "content", "editor", "money_maker", "infra"];
-    const initial: Record<string, "pending"> = {};
-    slugs.forEach(s => { initial[s] = "pending"; });
-    setRunProgress(initial);
-    // Fire triggerAll and show progress
-    for (const slug of slugs) {
-      setRunProgress(prev => ({ ...prev, [slug]: "running" }));
-      await new Promise(r => setTimeout(r, 800));
-      setRunProgress(prev => ({ ...prev, [slug]: "done" }));
+    setRunError(null);
+    try {
+      await triggerAll.mutateAsync();
+      await refetch();
+    } catch (error) {
+      setRunError(fullCycleRunError(error));
     }
-    triggerAll.mutate();
   };
 
   if (isLoading) {
@@ -134,6 +131,8 @@ function OwnerView() {
   const agents = overview?.agents || [];
   const recentRuns = overview?.recentRuns || [];
   const actions = overview?.recentActions || [];
+  const scheduleHealth = overview?.scheduleHealth || [];
+  const seoMeasurementHealth = overview?.seoMeasurementHealth;
 
   return (
     <div className="space-y-6">
@@ -164,10 +163,10 @@ function OwnerView() {
         <div className="flex items-center gap-3">
           <Button
             onClick={handleRunAll}
-            disabled={triggerAll.isPending || Object.values(runProgress).some(s => s === "running")}
+            disabled={triggerAll.isPending}
             className="bg-amber-500 hover:bg-amber-600 text-black font-bold"
           >
-            {triggerAll.isPending || Object.values(runProgress).some(s => s === "running") ? (
+            {triggerAll.isPending ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Running All Agents...</>
             ) : (
               <><Zap className="w-4 h-4 mr-2" /> Run Full System Cycle</>
@@ -177,31 +176,47 @@ function OwnerView() {
             <RefreshCw className="w-4 h-4 mr-1" /> Refresh
           </Button>
         </div>
-        {/* Per-agent progress panel */}
-        {Object.keys(runProgress).length > 0 && (
-          <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-black/30 border border-white/10">
-            {Object.entries(runProgress).map(([slug, status]) => {
-              const meta = AGENT_META[slug];
-              const Icon = meta?.icon || Activity;
-              return (
-                <div key={slug} className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border",
-                  status === "done" && "bg-green-500/10 border-green-500/30 text-green-400",
-                  status === "running" && "bg-amber-500/10 border-amber-500/30 text-amber-400",
-                  status === "pending" && "bg-white/5 border-white/10 text-gray-500",
-                  status === "error" && "bg-red-500/10 border-red-500/30 text-red-400",
-                )}>
-                  {status === "running" ? <Loader2 className="w-3 h-3 animate-spin" /> :
-                   status === "done" ? <CheckCircle2 className="w-3 h-3" /> :
-                   status === "error" ? <XCircle className="w-3 h-3" /> :
-                   <Clock className="w-3 h-3" />}
-                  {meta?.name || slug}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {runError ? <p className="text-sm text-red-400" role="alert">{runError}</p> : null}
       </div>
+
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-cyan-400" /> SCHEDULER TRUTH
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          {scheduleHealth.map((schedule: any) => {
+            const meta = AGENT_META[schedule.slug] || AGENT_META.manager;
+            const issue = schedule.state !== "scheduled";
+            return (
+              <div key={schedule.slug} className="rounded-lg bg-black/20 border border-white/10 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-mono text-gray-200">{meta.name}</span>
+                  <StatusBadge status={issue ? "error" : "completed"} />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  {issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
+                </p>
+                <p className="mt-1 text-[11px] text-gray-600">
+                  Last scheduler event: {schedule.lastScheduledExecutionAt ? new Date(schedule.lastScheduledExecutionAt).toLocaleString() : "never"}
+                </p>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      {seoMeasurementHealth ? (
+        <div className={cn(
+          "rounded-lg border px-4 py-3 text-sm",
+          seoMeasurementHealth.state === "current"
+            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+            : "border-red-500/30 bg-red-500/10 text-red-300",
+        )}>
+          <strong>SEO measurement:</strong> {seoMeasurementHealth.state}. {seoMeasurementHealth.trackedPageCount} tracked pages with GSC data. Last checked: {seoMeasurementHealth.lastCheckedAt ? new Date(seoMeasurementHealth.lastCheckedAt).toLocaleString() : "never"}.
+        </div>
+      ) : null}
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

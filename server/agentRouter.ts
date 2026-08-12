@@ -4,7 +4,9 @@
  */
 
 import { z } from "zod";
+import { parse as parseCookie } from "cookie";
 import { protectedProcedure, router } from "./_core/trpc";
+import { COOKIE_NAME } from "@shared/const";
 import {
   runAgent,
   runAllAgents,
@@ -21,12 +23,17 @@ import {
   type AgentSlug,
 } from "./agents";
 import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons } from "./agents/registerCrons";
+import { buildAgentScheduleHealth, buildSeoMeasurementHealth } from "./agents/scheduleHealth";
 import { getDb } from "./db";
-import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig } from "../drizzle/schema";
+import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig, seoPages } from "../drizzle/schema";
 import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS } from "./agents/agentLLM";
 import { desc, eq, and, gte } from "drizzle-orm";
 
 const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra", "revenue_intel"]);
+
+function getSessionToken(cookieHeader: string | undefined): string {
+  return parseCookie(cookieHeader ?? "")[COOKIE_NAME] ?? "";
+}
 
 export const agentRouter = router({
   /**
@@ -175,7 +182,7 @@ export const agentRouter = router({
    */
   registerCrons: protectedProcedure.mutation(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    return registerAllAgentCrons();
+    return registerAllAgentCrons(getSessionToken(ctx.req.headers.cookie));
   }),
 
   /**
@@ -183,7 +190,7 @@ export const agentRouter = router({
    */
   listCrons: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    return listAgentCrons();
+    return listAgentCrons(getSessionToken(ctx.req.headers.cookie));
   }),
 
   /**
@@ -191,7 +198,7 @@ export const agentRouter = router({
    */
   deregisterCrons: protectedProcedure.mutation(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    return deregisterAllAgentCrons();
+    return deregisterAllAgentCrons(getSessionToken(ctx.req.headers.cookie));
   }),
 
   /**
@@ -199,15 +206,29 @@ export const agentRouter = router({
    */
   overview: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    const agents = await listAgents();
-    const recentRuns = await getRunLog(undefined, 10);
-    const actions = await getActionQueue({ limit: 10 });
-    const pipeline = await getContentPipelineItems();
+    const db = await getDb();
+    const sessionToken = getSessionToken(ctx.req.headers.cookie);
+    const [agents, recentRuns, actions, pipeline, registeredCrons, seoMeasurements] = await Promise.all([
+      listAgents(),
+      getRunLog(undefined, 10),
+      getActionQueue({ limit: 10 }),
+      getContentPipelineItems(),
+      listAgentCrons(sessionToken),
+      db
+        ? db.select({
+          gscLastChecked: seoPages.gscLastChecked,
+          gscClicks: seoPages.gscClicks,
+          gscImpressions: seoPages.gscImpressions,
+        }).from(seoPages).limit(500)
+        : Promise.resolve([]),
+    ]);
     return {
       agents,
       recentRuns,
       recentActions: actions,
       pipelinePreview: pipeline,
+      scheduleHealth: buildAgentScheduleHealth(agents, registeredCrons),
+      seoMeasurementHealth: buildSeoMeasurementHealth(seoMeasurements),
     };
   }),
 

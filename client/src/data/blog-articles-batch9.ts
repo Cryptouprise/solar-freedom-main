@@ -6,9 +6,9 @@ import type { BlogPost } from './blog';
 export const batch9BlogPosts: BlogPost[] = [
   {
     slug: 'sunrun-solar-contract-cancellation-2026',
-    title: 'Sunrun Solar Contract Cancellation 2026: Your Legal Options',
-    metaTitle: 'Cancel Sunrun Solar Contract 2026 — Legal Exit Options',
-    metaDescription: `Sunrun trapping you in a lease or PPA? Thousands of homeowners have escaped. Escalator clauses, fraud claims & real exit options explained. Free case review — no obligation.`,
+    title: 'Cancel a Sunrun Solar Contract: Lease, PPA and Loan Options',
+    metaTitle: 'Cancel a Sunrun Solar Contract: Lease, PPA and Loan Options',
+    metaDescription: `Need to cancel a Sunrun solar contract? Review common lease, PPA, and loan issues, the documents to gather, and options to discuss before requesting help.`,
     category: 'Contract Help',
     readTime: '7 min read',
     publishDate: 'April 19, 2026',
@@ -203,9 +203,9 @@ export const batch9BlogPosts: BlogPost[] = [
 
   {
     slug: 'goodleap-solar-loan-cancellation-hidden-fees-2026',
-    title: 'GoodLeap Solar Loan Cancellation: Uncovering Hidden Fees in 2026',
-    metaTitle: 'GoodLeap Solar Loan Hidden Fees — Cancel Your Contract 2026',
-    metaDescription: `GoodLeap hid $7K–$10.5K in dealer fees from you. That's illegal under federal law. Attorneys are canceling these loans right now. Find out if you qualify — free review.`,
+    title: 'GoodLeap Solar Loan Hidden Fees: What to Review Before You Cancel',
+    metaTitle: 'GoodLeap Solar Loan Hidden Fees: What to Review Before You Cancel',
+    metaDescription: `Review GoodLeap solar-loan dealer fees, disclosures, and contract documents before deciding what to do next. Learn questions to ask and when a case review may help.`,
     category: 'Contract Help',
     readTime: '12 min read',
     publishDate: 'April 19, 2026',

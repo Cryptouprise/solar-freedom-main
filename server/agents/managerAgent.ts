@@ -35,7 +35,6 @@ import {
   listAgents,
   type AgentThinkResult,
 } from "./engine";
-import { runAgent } from "./index";
 import {
   setGoal,
   recordOutcome,
@@ -246,7 +245,9 @@ export async function runManagerAgent(
       ],
       context,
       temperature: 0.15,
-      maxTokens: 8000,
+      // A heartbeat callback has a tight response budget. The manager should
+      // coordinate concise, measurable work rather than generate a long essay.
+      maxTokens: 1600,
     });
 
     // 8. Parse
@@ -365,7 +366,12 @@ export async function runManagerAgent(
       });
     }
 
-    // 14. Trigger agents in sequence (non-blocking, staggered)
+    // 14. Queue directives for the dedicated scheduled agents.
+    // Starting worker agents in detached promises inside this HTTP callback made
+    // a single manager run fan out into concurrent, unobservable work. It also
+    // caused the callback to time out while child runs continued after the
+    // scheduler had recorded failure. Each worker now consumes its directive on
+    // its own scheduled run, which gives every outcome one accountable run log.
     const TRIGGERABLE: string[] = ["revenue_intel", "seo_intel", "money_maker", "content", "editor"];
     for (const trigger of (parsed.triggerAgents || [])) {
       if (!TRIGGERABLE.includes(trigger.slug)) continue;
@@ -379,8 +385,15 @@ export async function runManagerAgent(
           requiresApproval: 0,
         });
         context.actionsCreated++;
-        // Fire async — don't block Manager's completion
-        runAgent(trigger.slug as any, "directive", "manager").catch(() => {});
+        await sendMessage({
+          fromAgent: "manager",
+          toAgent: trigger.slug as any,
+          type: "directive",
+          priority: "p1",
+          subject: "SCHEDULED EXECUTION DIRECTIVE",
+          body: trigger.reason,
+        });
+        context.messagesCreated++;
       } catch { /* non-fatal */ }
     }
 

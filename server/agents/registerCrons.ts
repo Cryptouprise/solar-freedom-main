@@ -50,7 +50,7 @@ export const AGENT_CRON_CONFIGS: Record<AgentSlug, { cron: string; description: 
  * Register all 5 agent cron jobs with the Heartbeat platform.
  * Uses empty userSession to register as project owner.
  */
-export async function registerAllAgentCrons(): Promise<{ registered: string[]; errors: string[] }> {
+export async function registerAllAgentCrons(userSession = ""): Promise<{ registered: string[]; errors: string[] }> {
   const registered: string[] = [];
   const errors: string[] = [];
 
@@ -65,7 +65,7 @@ export async function registerAllAgentCrons(): Promise<{ registered: string[]; e
           payload: { agentSlug: slug },
           description: config.description,
         },
-        "" // empty = project owner
+        userSession
       );
       registered.push(`${slug}: taskUid=${result.taskUid}, next=${result.nextExecutionAt}`);
     } catch (err: any) {
@@ -84,9 +84,9 @@ export async function registerAllAgentCrons(): Promise<{ registered: string[]; e
 /**
  * List all agent cron jobs currently registered.
  */
-export async function listAgentCrons() {
+export async function listAgentCrons(userSession = "") {
   try {
-    const result = await listHeartbeatJobs("", { page: 1, pageSize: 50 });
+    const result = await listHeartbeatJobs(userSession, { page: 1, pageSize: 50 });
     return result.jobs.filter(j => j.name.startsWith("agent-"));
   } catch (err: any) {
     console.error("[AgentCrons] Failed to list:", err.message);
@@ -97,15 +97,15 @@ export async function listAgentCrons() {
 /**
  * Deregister all agent cron jobs.
  */
-export async function deregisterAllAgentCrons(): Promise<{ deleted: string[]; errors: string[] }> {
+export async function deregisterAllAgentCrons(userSession = ""): Promise<{ deleted: string[]; errors: string[] }> {
   const deleted: string[] = [];
   const errors: string[] = [];
 
   try {
-    const jobs = await listAgentCrons();
+    const jobs = await listAgentCrons(userSession);
     for (const job of jobs) {
       try {
-        await deleteHeartbeatJob(job.taskUid, "");
+        await deleteHeartbeatJob(job.taskUid, userSession);
         deleted.push(job.name);
       } catch (err: any) {
         errors.push(`${job.name}: ${err.message}`);
