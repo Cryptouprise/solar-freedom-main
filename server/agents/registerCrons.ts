@@ -1,119 +1,131 @@
 /**
  * Agent Cron Registration
- * 
- * Registers heartbeat cron jobs for each of the 5 agents.
- * Called once from the admin UI or manually to set up the scheduled runs.
- * 
- * Schedule (all UTC):
- * - Money Maker: Every 6 hours (0 0 0,6,12,18 * * *)
- * - SEO Intel: Every 4 hours (0 0 2,6,10,14,18,22 * * *)
- * - Content: Every 8 hours (0 0 1,9,17 * * *)
- * - Editor: Every 4 hours (0 0 3,7,11,15,19,23 * * *)
- * - Manager: Every 2 hours (0 0 every-2h * * *)
+ *
+ * The Manager owns daily orchestration. Worker agents do not have independent
+ * timers, which prevents unordered, duplicated, or unreviewed work.
  */
 
-import { createHeartbeatJob, listHeartbeatJobs, deleteHeartbeatJob } from "../_core/heartbeat";
+import {
+  createHeartbeatJob,
+  listHeartbeatJobs,
+  deleteHeartbeatJob,
+  updateHeartbeatJob,
+  type HeartbeatJob,
+} from "../_core/heartbeat";
 import type { AgentSlug } from "./index";
 
+/**
+ * Informational worker configuration shown in the Admin UI. Workers are run by
+ * the Manager in sequence after it creates their daily goals and checklists.
+ */
 export const AGENT_CRON_CONFIGS: Record<AgentSlug, { cron: string; description: string }> = {
-  money_maker: {
-    cron: "0 0 0,6,12,18 * * *",
-    description: "Money Maker Agent — attorney discovery, revenue opportunities (every 6h)",
-  },
-  seo_intel: {
-    cron: "0 0 2,6,10,14,18,22 * * *",
-    description: "SEO Intel Agent — search performance monitoring (every 4h)",
-  },
-  content: {
-    cron: "0 0 1,9,17 * * *",
-    description: "Content Agent — article generation pipeline (every 8h)",
-  },
-  editor: {
-    cron: "0 0 3,7,11,15,19,23 * * *",
-    description: "Editor Agent — quality review & compliance (every 4h)",
-  },
-  manager: {
-    cron: "0 0 */2 * * *",
-    description: "Manager Agent — oversight & final approval (every 2h)",
-  },
-  infra: {
-    cron: "0 0 5 * * *",
-    description: "Infrastructure Agent — system health check, cost alert, self-improvement (daily 5 AM UTC)",
-  },
-  revenue_intel: {
-    cron: "0 0 6,14 * * *",
-    description: "Revenue Intelligence Agent — GSC analysis, lead yield prediction, ranked action execution (2x daily)",
-  },
+  money_maker: { cron: "manager-led", description: "Manager-owned worker — prospecting and revenue actions" },
+  seo_intel: { cron: "manager-led", description: "Manager-owned worker — ranking and SEO execution" },
+  content: { cron: "manager-led", description: "Manager-owned worker — draft creation" },
+  editor: { cron: "manager-led", description: "Manager-owned worker — quality and compliance review" },
+  manager: { cron: "8:00 AM America/Denver", description: "Daily operating cycle, goal-setting, QA, and bounded rework" },
+  infra: { cron: "manager-led", description: "Manager-owned worker — health, costs, and audit" },
+  revenue_intel: { cron: "manager-led", description: "Manager-owned worker — predicted revenue ranking" },
 };
 
 /**
- * Register all 5 agent cron jobs with the Heartbeat platform.
- * Uses empty userSession to register as project owner.
+ * Heartbeat accepts UTC-only cron. These two triggers cover 8:00 AM in both
+ * DST and standard time. The callback checks America/Denver and skips the
+ * non-matching UTC trigger, so only one daily Manager cycle runs.
  */
-export async function registerAllAgentCrons(): Promise<{ registered: string[]; errors: string[] }> {
-  const registered: string[] = [];
-  const errors: string[] = [];
+const DAILY_MANAGER_JOBS: HeartbeatJob[] = [
+  {
+    name: "agent-manager-mountain-8-dst",
+    cron: "0 0 14 * * *",
+    path: "/api/scheduled/agent-run",
+    method: "POST",
+    payload: { agentSlug: "manager", scheduleMode: "mountain_8" },
+    description: "Solar Freedom Manager daily cycle — 8:00 AM America/Denver during daylight time; callback time-zone guard enabled",
+  },
+  {
+    name: "agent-manager-mountain-8-standard",
+    cron: "0 0 15 * * *",
+    path: "/api/scheduled/agent-run",
+    method: "POST",
+    payload: { agentSlug: "manager", scheduleMode: "mountain_8" },
+    description: "Solar Freedom Manager daily cycle — 8:00 AM America/Denver during standard time; callback time-zone guard enabled",
+  },
+];
 
-  for (const [slug, config] of Object.entries(AGENT_CRON_CONFIGS)) {
-    try {
-      const result = await createHeartbeatJob(
-        {
-          name: `agent-${slug}`,
-          cron: config.cron,
-          path: "/api/scheduled/agent-run",
-          method: "POST",
-          payload: { agentSlug: slug },
-          description: config.description,
-        },
-        "" // empty = project owner
-      );
-      registered.push(`${slug}: taskUid=${result.taskUid}, next=${result.nextExecutionAt}`);
-    } catch (err: any) {
-      // If already exists (409), that's fine
-      if (err.message?.includes("409") || err.message?.includes("CONFLICT")) {
-        registered.push(`${slug}: already registered`);
-      } else {
-        errors.push(`${slug}: ${err.message}`);
-      }
-    }
-  }
-
-  return { registered, errors };
-}
-
-/**
- * List all agent cron jobs currently registered.
- */
+/** List all project-owned agent schedules. */
 export async function listAgentCrons() {
   try {
     const result = await listHeartbeatJobs("", { page: 1, pageSize: 50 });
-    return result.jobs.filter(j => j.name.startsWith("agent-"));
-  } catch (err: any) {
-    console.error("[AgentCrons] Failed to list:", err.message);
+    return result.jobs.filter(job => job.name.startsWith("agent-"));
+  } catch (error: any) {
+    console.error("[AgentCrons] Failed to list schedules:", error.message);
     return [];
   }
 }
 
 /**
- * Deregister all agent cron jobs.
+ * Reconcile Heartbeat to the manager-led operating model. Legacy individual
+ * worker cron jobs are deleted. The two DST-safe Manager jobs are created or
+ * updated in place.
  */
+export async function reconcileDailyOperatingCycle(): Promise<{ updated: string[]; errors: string[] }> {
+  const updated: string[] = [];
+  const errors: string[] = [];
+  const existing = await listAgentCrons();
+  const desiredByName = new Map(DAILY_MANAGER_JOBS.map(job => [job.name, job]));
+
+  for (const job of existing) {
+    const desired = desiredByName.get(job.name);
+    try {
+      if (!desired) {
+        await deleteHeartbeatJob(job.taskUid, "");
+        updated.push(`${job.name}: removed legacy schedule`);
+        continue;
+      }
+      await updateHeartbeatJob(job.taskUid, {
+        cron: desired.cron,
+        path: desired.path,
+        method: desired.method,
+        payload: desired.payload,
+        description: desired.description,
+        enable: true,
+      }, "");
+      updated.push(`${job.name}: updated`);
+    } catch (error: any) {
+      errors.push(`${job.name}: ${error.message}`);
+    }
+  }
+
+  for (const desired of DAILY_MANAGER_JOBS) {
+    if (existing.some(job => job.name === desired.name)) continue;
+    try {
+      const created = await createHeartbeatJob(desired, "");
+      updated.push(`${desired.name}: created (next ${created.nextExecutionAt ?? "pending"})`);
+    } catch (error: any) {
+      errors.push(`${desired.name}: ${error.message}`);
+    }
+  }
+
+  return { updated, errors };
+}
+
+/** Legacy alias kept for admin calls from older builds. */
+export async function registerAllAgentCrons(): Promise<{ registered: string[]; errors: string[] }> {
+  const result = await reconcileDailyOperatingCycle();
+  return { registered: result.updated, errors: result.errors };
+}
+
+/** Remove all agent schedules if the owner explicitly pauses automation. */
 export async function deregisterAllAgentCrons(): Promise<{ deleted: string[]; errors: string[] }> {
   const deleted: string[] = [];
   const errors: string[] = [];
-
-  try {
-    const jobs = await listAgentCrons();
-    for (const job of jobs) {
-      try {
-        await deleteHeartbeatJob(job.taskUid, "");
-        deleted.push(job.name);
-      } catch (err: any) {
-        errors.push(`${job.name}: ${err.message}`);
-      }
+  for (const job of await listAgentCrons()) {
+    try {
+      await deleteHeartbeatJob(job.taskUid, "");
+      deleted.push(job.name);
+    } catch (error: any) {
+      errors.push(`${job.name}: ${error.message}`);
     }
-  } catch (err: any) {
-    errors.push(`list failed: ${err.message}`);
   }
-
   return { deleted, errors };
 }

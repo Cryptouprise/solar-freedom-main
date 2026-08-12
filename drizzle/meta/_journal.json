@@ -155,6 +155,20 @@
       "when": 1785240191277,
       "tag": "0021_rare_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1785342431585,
+      "tag": "0022_purple_bedlam",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1786512962516,
+      "tag": "0023_windy_black_panther",
+      "breakpoints": true
     }
   ]
 }

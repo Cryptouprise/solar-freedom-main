@@ -10,7 +10,16 @@ import type { Request, Response } from "express";
 import { sdk } from "../_core/sdk";
 import { runAgent, type AgentSlug } from "../agents";
 
-const VALID_SLUGS: AgentSlug[] = ["money_maker", "seo_intel", "content", "editor", "manager", "infra"];
+const VALID_SLUGS: AgentSlug[] = ["money_maker", "seo_intel", "content", "editor", "manager", "infra", "revenue_intel"];
+
+function isEightAmMountain(now = new Date()): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver",
+    hour: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  return Number(parts.find(part => part.type === "hour")?.value) === 8;
+}
 
 export async function agentRunHandler(req: Request, res: Response) {
   try {
@@ -26,6 +35,12 @@ export async function agentRunHandler(req: Request, res: Response) {
 
     if (!agentSlug || !VALID_SLUGS.includes(agentSlug)) {
       return res.json({ ok: true, skipped: `Invalid or missing agentSlug: ${agentSlug}` });
+    }
+
+    // Heartbeat schedules in UTC. We schedule both possible UTC hours and use
+    // this guard to retain a stable 8:00 AM America/Denver start through DST.
+    if (payload.scheduleMode === "mountain_8" && !isEightAmMountain()) {
+      return res.json({ ok: true, skipped: "Outside 8:00 AM America/Denver window" });
     }
 
     // 3. Run the agent

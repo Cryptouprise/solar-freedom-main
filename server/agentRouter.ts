@@ -20,10 +20,10 @@ import {
   getRevenueStats,
   type AgentSlug,
 } from "./agents";
-import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons } from "./agents/registerCrons";
+import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons, reconcileDailyOperatingCycle } from "./agents/registerCrons";
 import { getDb } from "./db";
-import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig } from "../drizzle/schema";
-import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS } from "./agents/agentLLM";
+import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig, agentActions, attorneyProspects, agentChatThreads, agentDailyChecklists, agentQualityReviews } from "../drizzle/schema";
+import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS, callAgentLLM } from "./agents/agentLLM";
 import { desc, eq, and, gte } from "drizzle-orm";
 
 const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra", "revenue_intel"]);
@@ -226,17 +226,6 @@ export const agentRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
 
-      const { callLLM } = await import("./cron/aiCostTracker");
-
-      const AGENT_MODELS: Record<string, string> = {
-        infra:       "anthropic/claude-opus-5",
-        money_maker: "deepseek/deepseek-v4-pro",
-        seo_intel:   "anthropic/claude-opus-5",
-        content:     "anthropic/claude-opus-5",
-        editor:      "anthropic/claude-opus-5",
-        manager:     "anthropic/claude-opus-5",
-      };
-
       const AGENT_PERSONAS: Record<string, string> = {
         content: `You are the Content Agent for Solar Freedom (breakyoursolarcontract.com). Your job is to write content that ranks #1 on Google and converts distressed solar homeowners into leads. You are an expert in solar contract law, consumer protection, and SEO. When asked to write an article, you write a full 2,500+ word article with proper structure, state-specific legal citations, and strong CTAs. You are direct, confident, and focused on revenue. Phone: (904) 921-4971. Never claim to be attorneys. Always say "consumer protection advocates" or "case specialists".`,
         seo_intel: `You are the SEO Intelligence Agent for Solar Freedom. You monitor Google rankings, analyze competitor content, identify high-value keywords, and give strategic recommendations on what content to create next. You have deep knowledge of solar company complaint trends, BBB data, CFPB complaints, and what homeowners search for when they're trapped in bad solar contracts. You think in terms of search volume, keyword difficulty, and revenue potential per article.`,
@@ -247,23 +236,46 @@ export const agentRouter = router({
       };
 
       const systemPrompt = AGENT_PERSONAS[input.slug] || AGENT_PERSONAS.manager;
-      const model = AGENT_MODELS[input.slug] || "anthropic/claude-opus-5";
 
       // Build messages with system prompt prepended
-      const fullMessages = [
+      const fullMessages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
         { role: "system", content: systemPrompt },
         ...input.messages.filter(m => m.role !== "system"),
       ];
 
-      const reply = await callLLM({
-        model,
+      const completion = await callAgentLLM({
+        agentSlug: input.slug,
         messages: fullMessages,
-        feature: `agent_chat_${input.slug}`,
-        referenceId: 0,
-        referenceType: "agent_chat",
-        temperature: 0.7,
         maxTokens: 2000,
       });
+
+      const reply = completion.content;
+      const db = await getDb();
+      if (db) {
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30);
+        const lastUserMessage = [...input.messages].reverse().find(message => message.role === "user");
+        if (lastUserMessage) {
+          await db.insert(agentChatThreads).values({
+            agentSlug: input.slug,
+            role: "user",
+            message: lastUserMessage.content,
+            messageType: "directive",
+            metadata: JSON.stringify({ source: "agent_command" }),
+            createdAt: new Date(),
+            expiresAt,
+          });
+        }
+        await db.insert(agentChatThreads).values({
+          agentSlug: input.slug,
+          role: "agent",
+          message: reply,
+          messageType: "result",
+          metadata: JSON.stringify({ source: "agent_command", model: await getAgentModel(input.slug) }),
+          createdAt: new Date(),
+          expiresAt,
+        });
+      }
 
       return { reply };
     }),
@@ -409,4 +421,152 @@ export const agentRouter = router({
       });
       return { success: true };
     }),
+
+  /**
+   * Execute an action where an execution adapter is available.  Each run stores
+   * its evidence on the action instead of leaving a permanent opaque "queued" row.
+   */
+  executeAction: protectedProcedure
+    .input(z.object({ actionId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      const action = (await db.select().from(agentActions)
+        .where(eq(agentActions.id, input.actionId)).limit(1))[0];
+      if (!action) throw new Error("Action not found");
+      if (action.requiresApproval && action.status !== "approved") {
+        throw new Error("This action needs approval before it can run");
+      }
+
+      const startedAt = new Date();
+      await db.update(agentActions).set({ status: "running", startedAt, errorMessage: null })
+        .where(eq(agentActions.id, input.actionId));
+
+      try {
+        let result: unknown;
+        if (action.actionType === "research_firm") {
+          const { executeAttorneyResearch } = await import("./agents/attorneyResearch");
+          const payload = action.payload ? JSON.parse(action.payload) : {};
+          const states = Array.isArray(payload.states) && payload.states.length
+            ? payload.states.slice(0, 5)
+            : ["California", "Texas", "Florida"];
+          result = await executeAttorneyResearch(states);
+        } else {
+          throw new Error(`No safe execution adapter is configured for ${action.actionType}. This remains a planning task until its integration is connected.`);
+        }
+
+        const researchBlocked = typeof result === "object" && result !== null && "status" in result && (result as { status?: string }).status === "blocked";
+        await db.update(agentActions).set({
+          status: researchBlocked ? "blocked" : "completed",
+          result: JSON.stringify(result),
+          completedAt: new Date(),
+          durationMs: Date.now() - startedAt.getTime(),
+        }).where(eq(agentActions.id, input.actionId));
+        return { success: !researchBlocked, blocked: researchBlocked, result };
+      } catch (error: any) {
+        await db.update(agentActions).set({
+          status: "failed",
+          errorMessage: error.message || "Execution failed",
+          retryCount: (action.retryCount || 0) + 1,
+          completedAt: new Date(),
+          durationMs: Date.now() - startedAt.getTime(),
+        }).where(eq(agentActions.id, input.actionId));
+        throw error;
+      }
+    }),
+
+  /** List scored attorney prospects for the attorney pipeline board. */
+  listAttorneys: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const db = await getDb();
+    if (!db) return [];
+    return db.select().from(attorneyProspects)
+      .orderBy(desc(attorneyProspects.overallScore))
+      .limit(250);
+  }),
+
+  /** Move a prospect through the human-controlled attorney partnership pipeline. */
+  updateAttorney: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      outreachStatus: z.enum(["not_contacted", "researching", "ready_to_pitch", "pitched", "in_conversation", "signed", "rejected", "not_interested"]),
+      outreachNotes: z.string().max(10_000).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db.update(attorneyProspects).set({
+        outreachStatus: input.outreachStatus,
+        outreachNotes: input.outreachNotes,
+        lastContactedAt: ["pitched", "in_conversation"].includes(input.outreachStatus) ? new Date() : undefined,
+        updatedAt: new Date(),
+      }).where(eq(attorneyProspects.id, input.id));
+      return { success: true };
+    }),
+
+  /** Run verified attorney prospect research manually for selected states. */
+  runAttorneyResearch: protectedProcedure
+    .input(z.object({ states: z.array(z.string()).min(1).max(5) }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { executeAttorneyResearch } = await import("./agents/attorneyResearch");
+      return executeAttorneyResearch(input.states);
+    }),
+
+  /** Return the persistent 30-day evidence trail for an agent. */
+  chatThreads: protectedProcedure
+    .input(z.object({ agentSlug: agentSlugSchema, limit: z.number().min(1).max(100).default(50) }))
+    .query(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(agentChatThreads)
+        .where(and(eq(agentChatThreads.agentSlug, input.agentSlug), gte(agentChatThreads.expiresAt, new Date())))
+        .orderBy(desc(agentChatThreads.createdAt))
+        .limit(input.limit);
+    }),
+
+  /** Reconcile Heartbeat to the single daily 8:00 AM America/Denver Manager cycle. */
+  reconcileDailySchedule: protectedProcedure.mutation(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    return reconcileDailyOperatingCycle();
+  }),
+
+  /** Return today’s manager-owned checklist and QA decisions for the operating cycle. */
+  dailyQuality: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const db = await getDb();
+    if (!db) return { date: null, checklists: [], reviews: [] };
+    const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Denver" }).format(new Date());
+    const [checklists, reviews] = await Promise.all([
+      db.select().from(agentDailyChecklists).where(eq(agentDailyChecklists.date, date)).orderBy(desc(agentDailyChecklists.createdAt)),
+      db.select().from(agentQualityReviews).where(eq(agentQualityReviews.date, date)).orderBy(desc(agentQualityReviews.createdAt)),
+    ]);
+    return { date, checklists, reviews };
+  }),
+
+  /** Preview a DND-protected owner-authorized contact payload; does not write to Assistable. */
+  assistableContactDryRun: protectedProcedure
+    .input(z.object({
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+      companyName: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const { buildAssistableContactDryRun } = await import("./assistableClient");
+      return buildAssistableContactDryRun(input);
+    }),
+
+  /** Read-only Assistable v3 health check. It does not create contacts or send anything. */
+  testAssistableConnection: protectedProcedure.mutation(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const { testAssistableConnection } = await import("./assistableClient");
+    return testAssistableConnection();
+  }),
 });

@@ -1082,3 +1082,20 @@
 - [x] Fix SEO Intel hardcoded post slugs (sunrun-solar-contract-cancellation-2026, goodleap-cancel-solar-loan-2026) that don't exist in DB — agent now uses actual DB slugs from gatherSeoState
 - [x] Fix leadSessions duplicate entry crash — replaced read-then-insert with atomic ON DUPLICATE KEY UPDATE
 - [x] 108/108 tests passing
+
+## Phase 60 — Autonomous Revenue Operations, Agent Governance & Assistable AI Preparation
+- [x] Finish the Money Maker execution loop architecture: require evidence-backed attorney research, deduplicate/score/store verified prospects, and transparently record the blocked dependency until the research connector is configured
+- [x] Build `/admin/attorneys` Kanban pipeline with prioritized prospects, visible research evidence, pipeline statuses, and owner-controlled updates
+- [x] Add attorney prospect detail history: discovery source, research evidence, score breakdown, outreach notes, dates, and outcome/revenue attribution fields
+- [x] Add persistent 30-day agent chat/run threads with summaries, actions, execution evidence, errors, and linked outputs
+- [x] Add action evidence and outcome tracking: queued, running, completed, failed, blocked; include timestamps and concrete results or blockers
+- [x] Implement a manager-led daily operating checklist for every agent with expected inputs, outputs, quality checks, and measured success criteria
+- [x] Implement manager quality matrix, acceptance/rejection explanations, and one bounded automatic rework/retry workflow for sub-agent deliverables
+- [x] Schedule the manager-led operating cycle for 8:00 AM Mountain Time with DST-safe guards and prevent automated texts/calls outside 8:00 AM–5:00 PM Mountain Time
+- [x] Preserve safe preparation outside contact hours; do not send external email, texts, or calls until explicit activation and credentials are provided
+- [x] Establish self-learning measurements through persistent manager QA lessons, lead/conversion tracking, attorney pipeline outcomes, and Revenue Intel predicted-versus-actual fields
+- [x] Research Assistable AI v3 SDK/API and create an integration plan, typed adapter, settings panel, and safe dry-run mode without messaging/calling activation
+- [ ] Request Assistable AI credentials tomorrow; validate them with a non-mutating health/read call before enabling CRM, calling, text, voicemail, or workflow features
+- [ ] Verify all agents run, record evidence, complete daily checklists, and surface manager QA outcomes in the Command Center
+- [x] Add and run Vitest coverage for manager QA and Assistable contact-hour safety controls (113 tests passing)
+- [ ] Save checkpoint and verify production deployment

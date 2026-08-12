@@ -53,6 +53,7 @@ import {
 } from "./agentGoalEngine";
 import { getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
+import { beginChecklist, DAILY_QUALITY_MATRIX, ensureDailyChecklists, reviewWorkerRun, type WorkerSlug } from "./managerQuality";
 import {
   contentPipeline,
   blogPosts,
@@ -365,23 +366,66 @@ export async function runManagerAgent(
       });
     }
 
-    // 14. Trigger agents in sequence (non-blocking, staggered)
-    const TRIGGERABLE: string[] = ["revenue_intel", "seo_intel", "money_maker", "content", "editor"];
-    for (const trigger of (parsed.triggerAgents || [])) {
-      if (!TRIGGERABLE.includes(trigger.slug)) continue;
+    // 14. Deterministic operating cycle. Every worker receives a checklist,
+    // runs in revenue order, and is accepted/reworked/blocked by the Manager.
+    const checklistIds = await ensureDailyChecklists();
+    const WORKER_SEQUENCE: WorkerSlug[] = ["revenue_intel", "seo_intel", "money_maker", "content", "editor", "infra"];
+    const qaSummary: string[] = [];
+    for (const worker of WORKER_SEQUENCE) {
+      const checklistId = checklistIds[worker];
+      await beginChecklist(checklistId);
+      let result: AgentThinkResult | undefined;
+      let failure: Error | undefined;
       try {
-        await createAction({
-          agentSlug: "manager",
+        result = await runAgent(worker, "directive", "manager_daily_cycle");
+      } catch (error: any) {
+        failure = error instanceof Error ? error : new Error(String(error));
+      }
+
+      let review = await reviewWorkerRun({
+        agentSlug: worker,
+        checklistId,
+        result,
+        error: failure,
+        retryNumber: 0,
+      });
+
+      // A single bounded retry is permitted only for a genuine quality miss.
+      // External dependencies are marked blocked, never retried blindly.
+      if (review.verdict === "rework") {
+        await sendMessage({
+          fromAgent: "manager",
+          toAgent: worker,
+          type: "directive",
           priority: "p1",
-          title: `[MANAGER TRIGGERED] ${trigger.slug}`,
-          description: `Manager triggered ${trigger.slug}.\nReason: ${trigger.reason}`,
-          actionType: "agent_trigger",
-          requiresApproval: 0,
+          subject: "QUALITY REWORK REQUIRED",
+          body: `Your first delivery failed the daily quality filter. ${review.feedback}\n\nSuccess criteria: ${DAILY_QUALITY_MATRIX[worker].successCriteria}\nReturn specific evidence, execution output, and measurable impact.`,
         });
-        context.actionsCreated++;
-        // Fire async — don't block Manager's completion
-        runAgent(trigger.slug as any, "directive", "manager").catch(() => {});
-      } catch { /* non-fatal */ }
+        context.messagesCreated++;
+        await beginChecklist(checklistId);
+        result = undefined;
+        failure = undefined;
+        try {
+          result = await runAgent(worker, "directive", "manager_quality_rework");
+        } catch (error: any) {
+          failure = error instanceof Error ? error : new Error(String(error));
+        }
+        review = await reviewWorkerRun({
+          agentSlug: worker,
+          checklistId,
+          result,
+          error: failure,
+          retryNumber: 1,
+        });
+      }
+
+      qaSummary.push(`${worker}: ${review.verdict} (${review.score}/100)`);
+      await addLesson({
+        agentSlug: "manager",
+        lessonType: review.verdict === "passed" ? "success" : review.verdict === "failed" ? "failure" : "observation",
+        lesson: `Daily quality review for ${worker}: ${review.feedback}`,
+        impact: `QA ${review.score}/100 · ${review.verdict}`,
+      });
     }
 
     // 15. Mark inbox read
@@ -404,7 +448,7 @@ export async function runManagerAgent(
     await setMemory("manager", "last_run_date", new Date().toISOString().slice(0, 10));
     await setMemory("manager", "last_briefing_summary", briefing?.todayPlan?.substring(0, 500) || "");
 
-    const summary = briefing?.todayPlan || "Daily management cycle completed";
+    const summary = `${briefing?.todayPlan || "Daily management cycle completed"}\nQuality matrix: ${qaSummary.join(" | ")}`;
     await completeRun(context, summary);
     return { summary, actionsCreated: context.actionsCreated, messagesCreated: context.messagesCreated };
 
