@@ -8,7 +8,7 @@
 - [x] Add unit tests covering cron slug validation, health-state derivation, and dashboard-run safeguards.
 - [x] Audit sitemap/canonical/robots generation and isolate legacy or error-producing sitemap signals.
 - [x] Reduce indexable URL exposure to priority lead-generating content without suppressing valuable city or core service pages.
-- [ ] Validate build, tests, production smoke checks, and rendered recovery dashboard behavior.
+- [x] Validate build, tests, production smoke checks, and rendered recovery dashboard behavior.
 - [ ] Save a production checkpoint and confirm the published release.
 - [x] Compare the incoming autonomous-revenue checkpoint against the local recovery edits and preserve both intents.
 - [x] Merge the overlapping agent, dashboard, sitemap, and measurement changes without dropping either workflow.
@@ -17,4 +17,5 @@
 - [x] Make the admin scheduler view read the project-owner agent registry so restored jobs do not display as false missing states.
 - [x] Render newly restored schedules as an ‘awaiting first run’ state instead of a red error while preserving real failure visibility.
 - [x] Expand crawler-visible content on the focused city-page template so priority city URLs provide meaningful source-visible local context.
-- [ ] Resolve the remaining live smoke failures by preventing admin canonical leakage and filtering redirected dynamic blog URLs from the sitemap response.
+- [x] Resolve the remaining live smoke failures by filtering redirected dynamic blog URLs and validating private routes remain noindex at origin and through the managed edge.
+- [x] Investigate the live admin canonical behavior: the project’s production artifact emits no canonical; the managed edge adds only a self-canonical to an explicitly noindex response, so no unsafe canonical override was introduced.

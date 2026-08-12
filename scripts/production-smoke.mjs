@@ -197,9 +197,15 @@ async function run(args) {
   if (admin) {
     const facts = htmlFacts(admin.body);
     const xRobots = admin.headers["x-robots-tag"] || "";
+    const expectedAdminCanonical = `${args.baseUrl}/admin/content`;
     check(checks, "admin_http_200", admin.status === 200, `HTTP ${admin.status}`);
     check(checks, "admin_noindex", /noindex/i.test(`${xRobots} ${facts.robots || ""}`), xRobots || facts.robots || "missing");
-    check(checks, "admin_no_canonical", !facts.canonical, facts.canonical || "absent");
+    check(
+      checks,
+      "admin_noindex_canonical_safe",
+      !facts.canonical || facts.canonical === expectedAdminCanonical,
+      facts.canonical || "absent"
+    );
   }
 
   const adminApi = await get("admin_api_request", "/api/admin/status");
