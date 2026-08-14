@@ -1,12 +1,13 @@
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
-import { count, gte, sql } from "drizzle-orm";
+import { count, desc, gte, lte, sql } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
 import { getDb } from "../db";
-import { agentActions, leadDeliveries, leads } from "../../drizzle/schema";
+import { leadDeliveries, leads, seoScorecardSnapshots } from "../../drizzle/schema";
 import { createAction, getActionQueue } from "../agents/engine";
 import { refreshGscPageMetrics } from "../gscRefresh";
+import { comparisonDelta } from "../scorecardComparisons";
 import { buildLeadScorecardAlerts } from "../scorecardLeadHealth";
 
 async function readLeadScorecard(now = new Date()) {
@@ -49,6 +50,43 @@ async function surfaceScorecardAlerts(alerts: Array<{ severity: string; metric: 
   }
 }
 
+async function saveSnapshotAndComparisons(input: {
+  now: Date;
+  scorecard: { startDate: string; endDate: string; rows: number; clicks: number; impressions: number };
+  leadScorecard: { currentLeads: number; currentDelivered: number };
+  alerts: Array<{ severity: string; metric: string; message: string }>;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable for scorecard snapshot.");
+  const values = {
+    clicks: input.scorecard.clicks,
+    impressions: input.scorecard.impressions,
+    durableLeads: input.leadScorecard.currentLeads,
+    crmDeliveries: input.leadScorecard.currentDelivered,
+    verifiedBacklinks: 0,
+  };
+  await db.insert(seoScorecardSnapshots).values({
+    capturedAt: input.now,
+    periodStart: input.scorecard.startDate,
+    periodEnd: input.scorecard.endDate,
+    pageRows: input.scorecard.rows,
+    ...values,
+    alerts: JSON.stringify(input.alerts),
+  });
+
+  const comparisonForDays = async (days: number) => {
+    const cutoff = new Date(input.now);
+    cutoff.setDate(cutoff.getDate() - days);
+    const [baseline] = await db.select().from(seoScorecardSnapshots)
+      .where(lte(seoScorecardSnapshots.capturedAt, cutoff))
+      .orderBy(desc(seoScorecardSnapshots.capturedAt))
+      .limit(1);
+    return { days, baselineCapturedAt: baseline?.capturedAt ?? null, delta: comparisonDelta(values, baseline) };
+  };
+
+  return { sevenDay: await comparisonForDays(7), fourteenDay: await comparisonForDays(14) };
+}
+
 /** Refreshes source-of-truth GSC page metrics for the existing SEO agent and dashboard. */
 export async function seoScorecardHandler(req: Request, res: Response) {
   try {
@@ -69,7 +107,9 @@ export async function seoScorecardHandler(req: Request, res: Response) {
         ].join("\n"),
       });
     }
-    return res.json({ ok: true, scorecard, leadScorecard, alerts, refreshedAt: new Date().toISOString() });
+    const now = new Date();
+    const comparisons = await saveSnapshotAndComparisons({ now, scorecard, leadScorecard, alerts });
+    return res.json({ ok: true, scorecard, leadScorecard, alerts, comparisons, refreshedAt: now.toISOString() });
   } catch (error: any) {
     const errorId = crypto.randomUUID();
     console.error(`[SeoScorecard:${errorId}]`, error);

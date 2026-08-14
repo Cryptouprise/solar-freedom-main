@@ -122,6 +122,28 @@ export type SeoStrategy = typeof seoStrategy.$inferSelect;
 export type InsertSeoStrategy = typeof seoStrategy.$inferInsert;
 
 /**
+ * SEO scorecard snapshots — immutable operating snapshots captured by the
+ * scheduled scorecard. These power 7- and 14-day comparisons without
+ * overwriting the source metrics held on individual SEO pages.
+ */
+export const seoScorecardSnapshots = mysqlTable("seoScorecardSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  capturedAt: timestamp("capturedAt").defaultNow().notNull(),
+  periodStart: varchar("periodStart", { length: 10 }).notNull(),
+  periodEnd: varchar("periodEnd", { length: 10 }).notNull(),
+  pageRows: int("pageRows").default(0).notNull(),
+  clicks: int("clicks").default(0).notNull(),
+  impressions: int("impressions").default(0).notNull(),
+  durableLeads: int("durableLeads").default(0).notNull(),
+  crmDeliveries: int("crmDeliveries").default(0).notNull(),
+  verifiedBacklinks: int("verifiedBacklinks").default(0).notNull(),
+  alerts: text("alerts"),
+});
+
+export type SeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferSelect;
+export type InsertSeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferInsert;
+
+/**
  * SEO Pages table — inventory of every page on the site with its SEO status.
  * Tracks indexing status, canonical, schema coverage, internal links, and GSC data.
  * This is the single source of truth for what's on the site and how it's performing.

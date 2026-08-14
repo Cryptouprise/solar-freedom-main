@@ -169,6 +169,13 @@
       "when": 1786512962516,
       "tag": "0023_windy_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1786675750331,
+      "tag": "0024_fat_chronomancer",
+      "breakpoints": true
     }
   ]
 }
