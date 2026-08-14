@@ -19,7 +19,7 @@
 - [x] Expand crawler-visible content on the focused city-page template so priority city URLs provide meaningful source-visible local context.
 - [x] Resolve the remaining live smoke failures by filtering redirected dynamic blog URLs and validating private routes remain noindex at origin and through the managed edge.
 - [x] Investigate the live admin canonical behavior: the project’s production artifact emits no canonical; the managed edge adds only a self-canonical to an explicitly noindex response, so no unsafe canonical override was introduced.
-- [ ] Verify the restored Heartbeat jobs’ first completed execution outcomes and surface actionable failures.
+- [x] Verify the restored Heartbeat jobs’ first completed execution outcomes and surface actionable failures.
 - [ ] Audit GA4 and lead-event instrumentation, then repair missing attribution or lead-conversion reporting.
 - [ ] Establish automated 7- and 14-day GSC comparison checkpoints with an accountable reporting destination.
 - [ ] Validate the combined operations and measurement loop, then publish the completed monitoring upgrade.
@@ -29,6 +29,11 @@
 - [x] Produce a complete SEO/GEO operating checklist covering indexability, technical delivery, content quality, entity/answer-engine readiness, authority, and conversion integrity.
 - [ ] Implement the highest-impact checklist failures that can be repaired safely in the application.
 - [ ] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
-- [ ] Publish a plain-language recovery scorecard with the exact five ranking-to-lead workstreams, evidence, owner, and success thresholds.
+- [x] Publish a plain-language recovery scorecard with the exact five ranking-to-lead workstreams, evidence, owner, and success thresholds.
 - [ ] Build and operate a verified authority-acquisition ledger focused on the small set of priority commercial pages.
-- [ ] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.
+- [x] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.
+- [ ] Replace the failing short HTTP agent callbacks with the verified expert-review cadence and retain only deterministic site jobs on the site scheduler.
+- [ ] Implement threshold-based SEO and lead deterioration alerts with a concrete dashboard delivery destination.
+- [x] Add explicit owners to each recovery workstream in the published scorecard.
+- [ ] Add recurring durable-lead, CRM-delivery, and GEO/authority regression checks to the scorecard pipeline.
+- [ ] Surface scorecard alerts in the Agent Command Center and verify the replacement expert-review cadence executes automatically.

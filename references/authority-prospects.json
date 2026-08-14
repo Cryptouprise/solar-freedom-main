@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-14T02:30:00Z",
+  "policy": {
+    "purpose": "Track legitimate editorial, consumer-resource, housing, and solar-finance authority opportunities for priority commercial pages.",
+    "prohibited": [
+      "paid links that pass ranking value",
+      "automated comment or directory spam",
+      "fabricated placements or testimonials",
+      "claims that a prospect has linked before verification"
+    ],
+    "verificationRule": "A placement becomes a backlink only after the verifier confirms that its published URL reaches the intended canonical deep page."
+  },
+  "priorityTargets": [
+    {
+      "path": "/blog/sunrun-solar-contract-cancellation-2026",
+      "intent": "Sunrun solar contract cancellation",
+      "asset": "Evidence checklist for agreement, sales materials, production records, and consumer-protection review"
+    },
+    {
+      "path": "/blog/cancel-sunrun-solar-contract-before-installation",
+      "intent": "cancel Sunrun before installation",
+      "asset": "Document-first pre-installation cancellation and evidence-preservation guide"
+    },
+    {
+      "path": "/blog/goodleap-solar-loan-hidden-dealer-fees-2026",
+      "intent": "GoodLeap solar loan review",
+      "asset": "Loan-agreement, payment, and document-review checklist"
+    },
+    {
+      "path": "/blog/how-to-get-out-of-a-solar-contract",
+      "intent": "get out of a solar contract",
+      "asset": "Decision tree separating pre-installation, loan, lease/PPA, and post-installation routes"
+    }
+  ],
+  "prospects": [],
+  "notes": "Add a prospect only after reviewing its editorial fit, audience, and published contribution rules. Outreach is a human-approved step; this registry does not send messages."
+}

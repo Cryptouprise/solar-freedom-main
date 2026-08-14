@@ -5,16 +5,7 @@
     "`url` is the public page that should contain the link. `target` is the path on breakyoursolarcontract.com it should point at (use specific blog/city/state pages, not just the homepage).",
     "Run `pnpm seo:backlinks` to fetch each url and verify the link still exists and points at the right target. Use `--no-fetch` to validate the registry offline.",
     "Set `\"status\": \"example\"` on placeholder rows so they are skipped until you fill in a real url.",
-    "Keep this file as the single source of truth for the 34 Medium articles and any other backlinks so their value is measured instead of assumed."
+    "Keep this file as the single source of truth for verified published backlinks. Do not add prospects or example URLs here; use references/authority-prospects.json for unplaced opportunities."
   ],
-  "backlinks": [
-    {
-      "source": "Medium",
-      "url": "https://medium.com/@yourhandle/example-article-slug",
-      "target": "/blog/how-to-get-out-of-a-solar-contract",
-      "anchorHint": "how to get out of a solar contract",
-      "status": "example",
-      "notes": "Replace with a real published Medium article URL. Each Medium post should link to 2-3 specific pages."
-    }
-  ]
+  "backlinks": []
 }

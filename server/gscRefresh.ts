@@ -1,4 +1,5 @@
 import { GoogleAuth } from "google-auth-library";
+import { sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { seoPages } from "../drizzle/schema";
 
@@ -12,6 +13,12 @@ export type GscPageMetric = {
   impressions: number;
   ctr: number;
   position: number;
+};
+
+export type GscScorecardAlert = {
+  severity: "warning" | "critical";
+  metric: "clicks" | "impressions" | "rows";
+  message: string;
 };
 
 function isoDate(daysAgo: number, now: Date): string {
@@ -30,6 +37,26 @@ export function normalizeGscRows(rows: Array<{ keys?: string[]; clicks?: number;
       position: Number(row.position ?? 0),
     }))
     .filter((row) => row.url.startsWith("https://breakyoursolarcontract.com/"));
+}
+
+export function buildGscScorecardAlerts(input: {
+  previousClicks: number;
+  previousImpressions: number;
+  clicks: number;
+  impressions: number;
+  rows: number;
+}): GscScorecardAlert[] {
+  const alerts: GscScorecardAlert[] = [];
+  if (input.rows === 0) {
+    alerts.push({ severity: "critical", metric: "rows", message: "Search Console returned zero canonical page rows; prior SEO metrics were preserved." });
+  }
+  if (input.previousClicks >= 20 && input.clicks < input.previousClicks * 0.7) {
+    alerts.push({ severity: "critical", metric: "clicks", message: `28-day clicks fell ${(100 * (1 - input.clicks / input.previousClicks)).toFixed(0)}% versus the prior scorecard.` });
+  }
+  if (input.previousImpressions >= 100 && input.impressions < input.previousImpressions * 0.7) {
+    alerts.push({ severity: "warning", metric: "impressions", message: `28-day impressions fell ${(100 * (1 - input.impressions / input.previousImpressions)).toFixed(0)}% versus the prior scorecard.` });
+  }
+  return alerts;
 }
 
 function pageTypeForUrl(url: string): "blog" | "company" | "city" | "state_law" | "homepage" | "other" {
@@ -72,6 +99,20 @@ export async function refreshGscPageMetrics(now = new Date()) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable for Search Console refresh.");
 
+  const [previous] = await db.select({
+    clicks: sql<number>`COALESCE(SUM(${seoPages.gscClicks}), 0)`,
+    impressions: sql<number>`COALESCE(SUM(${seoPages.gscImpressions}), 0)`,
+  }).from(seoPages);
+  const clicks = rows.reduce((sum, row) => sum + row.clicks, 0);
+  const impressions = rows.reduce((sum, row) => sum + row.impressions, 0);
+  const alerts = buildGscScorecardAlerts({
+    previousClicks: Number(previous?.clicks ?? 0),
+    previousImpressions: Number(previous?.impressions ?? 0),
+    clicks,
+    impressions,
+    rows: rows.length,
+  });
+
   for (const row of rows) {
     await db.insert(seoPages).values({
       url: row.url,
@@ -96,7 +137,8 @@ export async function refreshGscPageMetrics(now = new Date()) {
     startDate: isoDate(31, now),
     endDate: isoDate(3, now),
     rows: rows.length,
-    clicks: rows.reduce((sum, row) => sum + row.clicks, 0),
-    impressions: rows.reduce((sum, row) => sum + row.impressions, 0),
+    clicks,
+    impressions,
+    alerts,
   };
 }
