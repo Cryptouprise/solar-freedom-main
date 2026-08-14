@@ -6,6 +6,7 @@ describe("agent schedule health", () => {
     const states = buildAgentScheduleHealth(
       [{ slug: "seo_intel", lastRunAt: "2026-08-12T07:00:00Z", totalRuns: 4 }],
       [{ name: "agent-seo_intel", isEnable: true, lastExecutedAt: "2026-08-12T07:00:00Z" }],
+      Date.parse("2026-08-12T12:00:00Z"),
     );
 
     expect(states.find((state) => state.slug === "seo_intel")?.state).toBe("scheduled");

@@ -19,3 +19,13 @@
 - [x] Expand crawler-visible content on the focused city-page template so priority city URLs provide meaningful source-visible local context.
 - [x] Resolve the remaining live smoke failures by filtering redirected dynamic blog URLs and validating private routes remain noindex at origin and through the managed edge.
 - [x] Investigate the live admin canonical behavior: the project’s production artifact emits no canonical; the managed edge adds only a self-canonical to an explicitly noindex response, so no unsafe canonical override was introduced.
+- [ ] Verify the restored Heartbeat jobs’ first completed execution outcomes and surface actionable failures.
+- [ ] Audit GA4 and lead-event instrumentation, then repair missing attribution or lead-conversion reporting.
+- [ ] Establish automated 7- and 14-day GSC comparison checkpoints with an accountable reporting destination.
+- [ ] Validate the combined operations and measurement loop, then publish the completed monitoring upgrade.
+- [x] Produce a direct evidence-based accounting of completed SEO repairs, current ranking mechanism, and remaining risks without treating existing access as a blocker.
+- [x] Reprioritize remaining work to the highest-impact ranking and lead-generation actions only.
+- [x] Retrieve and reconcile Similarweb traffic, channel, engagement, rank, and geography data with first-party SEO and lead evidence.
+- [x] Produce a complete SEO/GEO operating checklist covering indexability, technical delivery, content quality, entity/answer-engine readiness, authority, and conversion integrity.
+- [ ] Implement the highest-impact checklist failures that can be repaired safely in the application.
+- [ ] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
