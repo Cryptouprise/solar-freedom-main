@@ -1,8 +1,9 @@
 /**
  * Fetch page-level Search Analytics data from Google Search Console.
  *
- * Credentials are read from GOOGLE_SERVICE_ACCOUNT_JSON (preferred) or the
- * legacy GSC_SERVICE_ACCOUNT_JSON alias. They are never written or logged.
+ * Credentials are read from GOOGLE_SERVICE_ACCOUNT_JSON (preferred), the
+ * legacy GSC_SERVICE_ACCOUNT_JSON alias, or the already configured GA4 service
+ * account. They are never written or logged.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -104,7 +105,9 @@ async function writeAtomic(filePath, contents) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const range = resolveDateRange(args);
-  const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || process.env.GSC_SERVICE_ACCOUNT_JSON;
+  const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
+    || process.env.GSC_SERVICE_ACCOUNT_JSON
+    || process.env.GA4_SERVICE_ACCOUNT_JSON;
   const credentials = parseServiceAccountJson(rawCredentials);
   const auth = new GoogleAuth({ credentials, scopes: [SCOPE] });
   const client = await auth.getClient();

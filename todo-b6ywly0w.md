@@ -29,3 +29,6 @@
 - [x] Produce a complete SEO/GEO operating checklist covering indexability, technical delivery, content quality, entity/answer-engine readiness, authority, and conversion integrity.
 - [ ] Implement the highest-impact checklist failures that can be repaired safely in the application.
 - [ ] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
+- [ ] Publish a plain-language recovery scorecard with the exact five ranking-to-lead workstreams, evidence, owner, and success thresholds.
+- [ ] Build and operate a verified authority-acquisition ledger focused on the small set of priority commercial pages.
+- [ ] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.

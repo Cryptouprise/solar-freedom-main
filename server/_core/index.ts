@@ -16,6 +16,7 @@ import { startBacklinkDiscoveryCron } from "../cron/backlinkDiscovery";
 import { startMediumBacklinkTrackerCron } from "../cron/mediumBacklinkTracker";
 import { automationRunHandler } from "../scheduled/automationRun";
 import { agentRunHandler } from "../scheduled/agentRun";
+import { seoScorecardHandler } from "../scheduled/seoScorecard";
 import { registerJourneyEndpoint } from "../journeyRouter";
 import { rateLimit } from "express-rate-limit";
 import { BLOG_SLUG_REDIRECTS } from "../seo-redirects";
@@ -148,6 +149,7 @@ async function startServer() {
 
   app.post("/api/scheduled/automation-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), automationRunHandler);
   app.post("/api/scheduled/agent-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), agentRunHandler);
+  app.post("/api/scheduled/seo-scorecard", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), seoScorecardHandler);
 
   // tRPC API
   app.use(

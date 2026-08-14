@@ -41,20 +41,10 @@ SITE CONTEXT:
 - Site was hit by Google penalty (thin/AI content) — NOW RECOVERING
 - Current domain: breakyoursolarcontract.com
 
-KNOWN PERFORMANCE DATA (from last GSC pull):
-TOP PAGES:
-  1. /blog/goodleap-cancel-solar-loan-2026 → 54 clicks, 4,618 impr, pos 8.2
-  2. /blog/sunrun-solar-contract-cancellation-2026 → 47 clicks, 8,473 impr, pos 9.0 ← BIGGEST OPPORTUNITY
-  3. /blog/how-to-get-out-of-solar-contract → 27 clicks, 3,114 impr, pos 19.7
-  4. /blog/new-jersey-solar-contract-cancellation → 19 clicks, 641 impr, pos 7.7
-  5. /blog/blue-raven-solar-complaints → 15 clicks, 857 impr, pos 8.9
-
-TOP 5 KEYWORD GAPS (high impressions, low rank, no dedicated article):
-  1. "cancel sunrun contract california" → 234 impr, pos 31.3 — NO ARTICLE EXISTS
-  2. "how to get out of sunrun contract" → 160 impr, pos 17.5
-  3. "sunrun cancellation" → 130 impr, pos 30.8
-  4. "cancel sunrun before installation" → 119 impr, pos 15.6
-  5. "solar cancellation california" → 91 impr, pos 31.5
+PERFORMANCE DATA:
+- Treat the CURRENT SEO STATE supplied with each run as the source of truth.
+- Do not quote, prioritize, or calculate against pre-written traffic figures.
+- If GSC freshness is missing or stale, create a measurement action rather than inventing a ranking conclusion.
 
 LEAD CONVERSION MATH:
 - Position 1–3: ~30% CTR → 1,000 impressions = 300 clicks
@@ -499,15 +489,6 @@ ${posts.slice(0, 20).map(p => `  /blog/${p.slug}`).join("\n")}
 ${pipeline.slice(0, 10).map(p =>
   `  [${p.stage}] "${p.title}" | kw: ${p.targetKeyword || "none"} | requested by: ${p.requestedBy || "?"}`
 ).join("\n") || "  Empty pipeline"}
-
-═══ KNOWN KEYWORD GAPS (hardcoded from last GSC analysis) ═══
-  1. "cancel sunrun contract california" → 234 impr, pos 31.3 — NO ARTICLE
-  2. "how to get out of sunrun contract" → 160 impr, pos 17.5
-  3. "sunrun cancellation" → 130 impr, pos 30.8
-  4. "cancel sunrun before installation" → 119 impr, pos 15.6
-  5. "solar cancellation california" → 91 impr, pos 31.5
-  6. "goodleap solar loan cancellation" → 4,618 impr, pos 8.2 (optimize existing)
-  7. "sunrun solar contract cancellation" → 8,473 impr, pos 9.0 (BIGGEST OPPORTUNITY)
 
 ═══ CITY PAGES AVAILABLE FOR INTERNAL LINKING ═══
   /cancel-solar-contract/phoenix-az
