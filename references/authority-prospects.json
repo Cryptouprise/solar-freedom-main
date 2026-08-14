@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T02:30:00Z",
+  "updatedAt": "2026-08-14T03:22:00Z",
   "policy": {
     "purpose": "Track legitimate editorial, consumer-resource, housing, and solar-finance authority opportunities for priority commercial pages.",
     "prohibited": [
@@ -33,6 +33,26 @@
       "asset": "Decision tree separating pre-installation, loan, lease/PPA, and post-installation routes"
     }
   ],
-  "prospects": [],
+  "prospects": [
+    {
+      "organization": "United States Renewable Energy Association",
+      "domain": "usrea.org",
+      "status": "researched_unsubmitted",
+      "editorialPath": "Contributed article",
+      "guidelinesUrl": "https://www.usrea.org/usrea-contributor-guidelines-2018/",
+      "submissionMethod": "Editorial email after owner approval",
+      "fit": "USREA publishes renewable-energy education for an enthusiast audience and explicitly permits relevant author-biographical links while discouraging self-promotion.",
+      "proposedAsset": "What homeowners should collect before relying on a solar-loan payment or sales claim",
+      "proposedTarget": "/blog/solar-loan-document-checklist",
+      "requirements": [
+        "750–1200 words",
+        "Complete unpublished article supplied as a Word document",
+        "Educational, non-promotional tone",
+        "No placement or link is claimed until the published canonical URL is verified"
+      ],
+      "risk": "Editorial acceptance is discretionary and the contributor terms require review before submission.",
+      "lastVerifiedAt": "2026-08-14"
+    }
+  ],
   "notes": "Add a prospect only after reviewing its editorial fit, audience, and published contribution rules. Outreach is a human-approved step; this registry does not send messages."
 }
