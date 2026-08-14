@@ -31,6 +31,7 @@
 - [ ] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
 - [x] Publish a plain-language recovery scorecard with the exact five ranking-to-lead workstreams, evidence, owner, and success thresholds.
 - [ ] Build and operate a verified authority-acquisition ledger focused on the small set of priority commercial pages.
+- [x] Publish a sourced, linkable solar-loan document checklist that supports priority commercial pages and legitimate resource-page outreach.
 - [x] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.
 - [ ] Replace the failing short HTTP agent callbacks with the verified expert-review cadence and retain only deterministic site jobs on the site scheduler.
 - [x] Implement threshold-based SEO and lead deterioration alerts with a concrete dashboard delivery destination.
