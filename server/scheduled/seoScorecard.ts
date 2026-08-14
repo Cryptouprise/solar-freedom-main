@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
-import { count, desc, gte, lte, sql } from "drizzle-orm";
+import { count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
 import { getDb } from "../db";
-import { leadDeliveries, leads, seoScorecardSnapshots } from "../../drizzle/schema";
+import { discoveredBacklinks, leadDeliveries, leads, seoScorecardSnapshots } from "../../drizzle/schema";
 import { createAction, getActionQueue } from "../agents/engine";
 import { refreshGscPageMetrics } from "../gscRefresh";
 import { comparisonDelta } from "../scorecardComparisons";
@@ -58,12 +58,15 @@ async function saveSnapshotAndComparisons(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable for scorecard snapshot.");
+  const [verifiedBacklinks] = await db.select({ value: count() })
+    .from(discoveredBacklinks)
+    .where(sql`${discoveredBacklinks.status} = 'verified' AND ${discoveredBacklinks.isActive} = 1`);
   const values = {
     clicks: input.scorecard.clicks,
     impressions: input.scorecard.impressions,
     durableLeads: input.leadScorecard.currentLeads,
     crmDeliveries: input.leadScorecard.currentDelivered,
-    verifiedBacklinks: 0,
+    verifiedBacklinks: Number(verifiedBacklinks?.value ?? 0),
   };
   await db.insert(seoScorecardSnapshots).values({
     capturedAt: input.now,
