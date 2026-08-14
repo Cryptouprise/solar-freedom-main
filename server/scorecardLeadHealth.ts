@@ -7,7 +7,7 @@ export type LeadScorecard = {
 
 export type LeadScorecardAlert = {
   severity: "warning" | "critical";
-  metric: "leads" | "deliveries";
+  metric: "leads" | "deliveries" | "authority";
   message: string;
 };
 
@@ -28,4 +28,13 @@ export function buildLeadScorecardAlerts(scorecard: LeadScorecard): LeadScorecar
     });
   }
   return alerts;
+}
+
+export function buildAuthorityScorecardAlerts(verifiedBacklinks: number): LeadScorecardAlert[] {
+  if (verifiedBacklinks > 0) return [];
+  return [{
+    severity: "warning",
+    metric: "authority",
+    message: "No active verified backlinks are recorded. Resource outreach should target the priority loan and contract pages; do not count a placement until the live canonical link is verified.",
+  }];
 }

@@ -137,6 +137,7 @@ export const seoScorecardSnapshots = mysqlTable("seoScorecardSnapshots", {
   durableLeads: int("durableLeads").default(0).notNull(),
   crmDeliveries: int("crmDeliveries").default(0).notNull(),
   verifiedBacklinks: int("verifiedBacklinks").default(0).notNull(),
+  geoReadiness: int("geoReadiness").default(0).notNull(),
   alerts: text("alerts"),
 });
 

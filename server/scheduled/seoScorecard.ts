@@ -4,11 +4,11 @@ import { count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
 import { getDb } from "../db";
-import { discoveredBacklinks, leadDeliveries, leads, seoScorecardSnapshots } from "../../drizzle/schema";
+import { discoveredBacklinks, leadDeliveries, leads, seoPages, seoScorecardSnapshots } from "../../drizzle/schema";
 import { createAction, getActionQueue } from "../agents/engine";
 import { refreshGscPageMetrics } from "../gscRefresh";
 import { comparisonDelta } from "../scorecardComparisons";
-import { buildLeadScorecardAlerts } from "../scorecardLeadHealth";
+import { buildAuthorityScorecardAlerts, buildLeadScorecardAlerts } from "../scorecardLeadHealth";
 
 async function readLeadScorecard(now = new Date()) {
   const db = await getDb();
@@ -54,6 +54,7 @@ async function saveSnapshotAndComparisons(input: {
   now: Date;
   scorecard: { startDate: string; endDate: string; rows: number; clicks: number; impressions: number };
   leadScorecard: { currentLeads: number; currentDelivered: number };
+  geoReadiness: number;
   alerts: Array<{ severity: string; metric: string; message: string }>;
 }) {
   const db = await getDb();
@@ -67,6 +68,7 @@ async function saveSnapshotAndComparisons(input: {
     durableLeads: input.leadScorecard.currentLeads,
     crmDeliveries: input.leadScorecard.currentDelivered,
     verifiedBacklinks: Number(verifiedBacklinks?.value ?? 0),
+    geoReadiness: input.geoReadiness,
   };
   await db.insert(seoScorecardSnapshots).values({
     capturedAt: input.now,
@@ -90,14 +92,40 @@ async function saveSnapshotAndComparisons(input: {
   return { sevenDay: await comparisonForDays(7), fourteenDay: await comparisonForDays(14) };
 }
 
+async function readVerifiedBacklinkCount() {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable for authority scorecard.");
+  const [verifiedBacklinks] = await db.select({ value: count() })
+    .from(discoveredBacklinks)
+    .where(sql`${discoveredBacklinks.status} = 'verified' AND ${discoveredBacklinks.isActive} = 1`);
+  return Number(verifiedBacklinks?.value ?? 0);
+}
+
+async function readTechnicalGeoReadiness() {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable for GEO readiness scorecard.");
+  const [coverage] = await db.select({
+    total: count(),
+    ready: sql<number>`SUM(CASE WHEN ${seoPages.hasCanonical} = 1 AND ${seoPages.hasSchema} = 1 AND ${seoPages.inSitemap} = 1 THEN 1 ELSE 0 END)`,
+  })
+    .from(seoPages)
+    .where(sql`${seoPages.pageType} IN ('blog', 'company', 'state_law') AND ${seoPages.inSitemap} = 1`);
+  const total = Number(coverage?.total ?? 0);
+  const ready = Number(coverage?.ready ?? 0);
+  return { total, score: total > 0 ? Math.round((ready / total) * 100) : 0 };
+}
+
 /** Refreshes source-of-truth GSC page metrics for the existing SEO agent and dashboard. */
 export async function seoScorecardHandler(req: Request, res: Response) {
   try {
     const user = await sdk.authenticateRequest(req);
     if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only endpoint" });
 
-    const [scorecard, leadScorecard] = await Promise.all([refreshGscPageMetrics(), readLeadScorecard()]);
-    const alerts = [...scorecard.alerts, ...leadScorecard.alerts];
+    const [scorecard, leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([refreshGscPageMetrics(), readLeadScorecard(), readVerifiedBacklinkCount(), readTechnicalGeoReadiness()]);
+    const geoAlerts = geoCoverage.total > 0 && geoCoverage.score < 95
+      ? [{ severity: "warning", metric: "geo_readiness", message: `Technical GEO readiness is ${geoCoverage.score}% across ${geoCoverage.total} indexable commercial pages. Restore canonical, schema, and sitemap coverage before expanding content.` }]
+      : [];
+    const alerts = [...scorecard.alerts, ...leadScorecard.alerts, ...buildAuthorityScorecardAlerts(verifiedBacklinks), ...geoAlerts];
     await surfaceScorecardAlerts(alerts);
     if (alerts.length > 0) {
       await notifyOwner({
@@ -111,8 +139,8 @@ export async function seoScorecardHandler(req: Request, res: Response) {
       });
     }
     const now = new Date();
-    const comparisons = await saveSnapshotAndComparisons({ now, scorecard, leadScorecard, alerts });
-    return res.json({ ok: true, scorecard, leadScorecard, alerts, comparisons, refreshedAt: now.toISOString() });
+    const comparisons = await saveSnapshotAndComparisons({ now, scorecard, leadScorecard, geoReadiness: geoCoverage.score, alerts });
+    return res.json({ ok: true, scorecard, leadScorecard, geoCoverage, alerts, comparisons, refreshedAt: now.toISOString() });
   } catch (error: any) {
     const errorId = crypto.randomUUID();
     console.error(`[SeoScorecard:${errorId}]`, error);

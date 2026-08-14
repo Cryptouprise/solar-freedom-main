@@ -176,6 +176,13 @@
       "when": 1786675750331,
       "tag": "0024_fat_chronomancer",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1786676995313,
+      "tag": "0025_supreme_forge",
+      "breakpoints": true
     }
   ]
 }

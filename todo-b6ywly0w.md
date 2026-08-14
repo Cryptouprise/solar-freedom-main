@@ -20,15 +20,15 @@
 - [x] Resolve the remaining live smoke failures by filtering redirected dynamic blog URLs and validating private routes remain noindex at origin and through the managed edge.
 - [x] Investigate the live admin canonical behavior: the project’s production artifact emits no canonical; the managed edge adds only a self-canonical to an explicitly noindex response, so no unsafe canonical override was introduced.
 - [x] Verify the restored Heartbeat jobs’ first completed execution outcomes and surface actionable failures.
-- [ ] Audit GA4 and lead-event instrumentation, then repair missing attribution or lead-conversion reporting.
+- [x] Audit GA4 and lead-event instrumentation, then repair missing attribution or lead-conversion reporting.
 - [ ] Establish automated 7- and 14-day GSC comparison checkpoints with an accountable reporting destination.
 - [ ] Validate the combined operations and measurement loop, then publish the completed monitoring upgrade.
 - [x] Produce a direct evidence-based accounting of completed SEO repairs, current ranking mechanism, and remaining risks without treating existing access as a blocker.
 - [x] Reprioritize remaining work to the highest-impact ranking and lead-generation actions only.
 - [x] Retrieve and reconcile Similarweb traffic, channel, engagement, rank, and geography data with first-party SEO and lead evidence.
 - [x] Produce a complete SEO/GEO operating checklist covering indexability, technical delivery, content quality, entity/answer-engine readiness, authority, and conversion integrity.
-- [ ] Implement the highest-impact checklist failures that can be repaired safely in the application.
-- [ ] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
+- [ ] Complete the remaining high-impact checklist failures that can be repaired safely in the application, including verified authority execution and the expert-review operating model.
+- [x] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
 - [x] Publish a plain-language recovery scorecard with the exact five ranking-to-lead workstreams, evidence, owner, and success thresholds.
 - [ ] Build and operate a verified authority-acquisition ledger focused on the small set of priority commercial pages.
 - [x] Publish a sourced, linkable solar-loan document checklist that supports priority commercial pages and legitimate resource-page outreach.
@@ -36,6 +36,7 @@
 - [ ] Replace the failing short HTTP agent callbacks with the verified expert-review cadence and retain only deterministic site jobs on the site scheduler.
 - [x] Implement threshold-based SEO and lead deterioration alerts with a concrete dashboard delivery destination.
 - [x] Add explicit owners to each recovery workstream in the published scorecard.
-- [ ] Add recurring durable-lead, CRM-delivery, and GEO/authority regression checks to the scorecard pipeline.
+- [x] Add recurring durable-lead, CRM-delivery, and verified-authority regression checks to the scorecard pipeline.
+- [x] Add a broader technical GEO regression signal beyond backlinks through canonical, schema, and sitemap coverage of indexable commercial content.
 - [ ] Surface scorecard alerts in the Agent Command Center and verify the replacement expert-review cadence executes automatically.
 - [x] Present intentionally paused short-callback agents as migrated to the expert review cadence rather than as generic scheduler errors.

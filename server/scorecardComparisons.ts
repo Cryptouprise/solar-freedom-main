@@ -4,6 +4,7 @@ export type ScorecardValues = {
   durableLeads: number;
   crmDeliveries: number;
   verifiedBacklinks: number;
+  geoReadiness: number;
 };
 
 export function comparisonDelta(current: ScorecardValues, baseline?: Partial<ScorecardValues> | null) {
@@ -19,5 +20,6 @@ export function comparisonDelta(current: ScorecardValues, baseline?: Partial<Sco
     durableLeads: metric("durableLeads"),
     crmDeliveries: metric("crmDeliveries"),
     verifiedBacklinks: metric("verifiedBacklinks"),
+    geoReadiness: metric("geoReadiness"),
   };
 }
