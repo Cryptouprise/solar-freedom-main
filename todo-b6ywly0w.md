@@ -33,7 +33,8 @@
 - [ ] Build and operate a verified authority-acquisition ledger focused on the small set of priority commercial pages.
 - [x] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.
 - [ ] Replace the failing short HTTP agent callbacks with the verified expert-review cadence and retain only deterministic site jobs on the site scheduler.
-- [ ] Implement threshold-based SEO and lead deterioration alerts with a concrete dashboard delivery destination.
+- [x] Implement threshold-based SEO and lead deterioration alerts with a concrete dashboard delivery destination.
 - [x] Add explicit owners to each recovery workstream in the published scorecard.
 - [ ] Add recurring durable-lead, CRM-delivery, and GEO/authority regression checks to the scorecard pipeline.
 - [ ] Surface scorecard alerts in the Agent Command Center and verify the replacement expert-review cadence executes automatically.
+- [x] Present intentionally paused short-callback agents as migrated to the expert review cadence rather than as generic scheduler errors.

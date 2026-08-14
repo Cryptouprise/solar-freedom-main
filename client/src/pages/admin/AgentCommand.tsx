@@ -142,6 +142,7 @@ function OwnerView() {
   const actions = overview?.recentActions || [];
   const scheduleHealth = overview?.scheduleHealth || [];
   const seoMeasurementHealth = overview?.seoMeasurementHealth;
+  const scorecardAlerts = actions.filter((action: any) => String(action.title || "").startsWith("[SCORECARD"));
 
   return (
     <div className="space-y-6">
@@ -201,15 +202,16 @@ function OwnerView() {
           {scheduleHealth.map((schedule: any) => {
             const meta = AGENT_META[schedule.slug] || AGENT_META.manager;
             const isAwaitingFirstRun = schedule.state === "awaiting_first_run";
-            const issue = ["missing", "paused", "stale"].includes(schedule.state);
+            const isMigrated = schedule.state === "paused";
+            const issue = ["missing", "stale"].includes(schedule.state);
             return (
               <div key={schedule.slug} className="rounded-lg bg-black/20 border border-white/10 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-mono text-gray-200">{meta.name}</span>
-                  <StatusBadge status={issue ? "error" : isAwaitingFirstRun ? "queued" : "completed"} />
+                  <StatusBadge status={issue ? "error" : isMigrated ? "paused" : isAwaitingFirstRun ? "queued" : "completed"} />
                 </div>
                 <p className="mt-2 text-xs text-gray-500">
-                  {isAwaitingFirstRun ? "awaiting first run" : issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
+                  {isMigrated ? "short callback paused; expert review replacement pending" : isAwaitingFirstRun ? "awaiting first run" : issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
                 </p>
                 <p className="mt-1 text-[11px] text-gray-600">
                   {isAwaitingFirstRun
@@ -231,6 +233,25 @@ function OwnerView() {
         )}>
           <strong>SEO measurement:</strong> {seoMeasurementHealth.state}. {seoMeasurementHealth.trackedPageCount} tracked pages with GSC data. Last checked: {seoMeasurementHealth.lastCheckedAt ? new Date(seoMeasurementHealth.lastCheckedAt).toLocaleString() : "never"}.
         </div>
+      ) : null}
+
+      {scorecardAlerts.length > 0 ? (
+        <Card className="border-red-500/40 bg-red-500/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-mono text-red-200 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-400" /> SCORECARD ALERTS
+            </CardTitle>
+            <p className="text-xs text-red-200/80">Material GSC, durable-lead, or CRM-delivery changes from the scheduled scorecard. Each alert also remains in the action queue for accountable follow-up.</p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {scorecardAlerts.map((alert: any) => (
+              <div key={alert.id} className="rounded-md border border-red-400/20 bg-black/20 px-3 py-2">
+                <p className="text-xs font-mono text-red-100">{alert.title}</p>
+                <p className="mt-1 text-xs text-red-100/80">{alert.description}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       ) : null}
 
       {/* Manager quality matrix */}
