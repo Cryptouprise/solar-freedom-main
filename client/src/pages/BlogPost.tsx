@@ -287,14 +287,16 @@ export default function BlogPost() {
   const staticPost = getBlogPost(slug);
   const related = getRelatedPosts(slug, 3);
 
-  // Only fetch from DB if static post not found
+  // A published database post deliberately overrides its static predecessor.
+  // This lets an approved Blog Studio edit replace a static indexed article
+  // without changing the public URL or publishing agent work automatically.
   const { data: dbPostRaw, isLoading: dbLoading } = trpc.content.getPost.useQuery(
     { slug },
-    { enabled: !staticPost && !!slug }
+    { enabled: !!slug }
   );
 
   const dbPost = dbPostRaw ? dbPostToBlogPost(dbPostRaw as Record<string, unknown>) : null;
-  const post = staticPost || dbPost;
+  const post = dbPost || staticPost;
 
   useSeoMeta({
     title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
@@ -335,7 +337,7 @@ export default function BlogPost() {
   }
 
   // ─── DB post render path (content stored as HTML) ────────────────────────────
-  if (!staticPost && dbPost) {
+  if (dbPost) {
     const rawFaqItems = (dbPostRaw as Record<string,unknown>)?.faqItems;
     const faq: { q: string; a: string }[] = Array.isArray(rawFaqItems)
       ? (rawFaqItems as Array<{question?: string; answer?: string; q?: string; a?: string}>).map(f => ({
