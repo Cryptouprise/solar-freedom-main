@@ -33,7 +33,7 @@ export type AgentScheduleHealth = {
   nextScheduledExecutionAt: string | null;
   lastRecordedAgentRunAt: Date | string | null;
   totalRuns: number;
-  state: "missing" | "paused" | "awaiting_first_run" | "scheduled" | "stale";
+  state: "missing" | "paused" | "migrated" | "awaiting_first_run" | "scheduled" | "stale";
 };
 
 export type SeoMeasurementHealth = {
@@ -50,9 +50,12 @@ export function buildAgentScheduleHealth(
   return EXPECTED_AGENT_SLUGS.map((slug) => {
     const job = jobs.find((candidate) => candidate.name === `agent-${slug}`);
     const agent = agents.find((candidate) => candidate.slug === slug);
+    const migrated = slug === "manager" && !job;
     const enabled = Boolean(job?.isEnable);
     const latestExecutionMs = job?.lastExecutedAt ? new Date(job.lastExecutedAt).getTime() : null;
-    const state = !job
+    const state = migrated
+      ? "migrated"
+      : !job
       ? "missing"
       : !enabled
         ? "paused"
@@ -64,7 +67,7 @@ export function buildAgentScheduleHealth(
 
     return {
       slug,
-      configured: Boolean(job),
+      configured: Boolean(job) || migrated,
       enabled,
       taskUid: job?.taskUid ?? null,
       lastScheduledExecutionAt: job?.lastExecutedAt ?? null,

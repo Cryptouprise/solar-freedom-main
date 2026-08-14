@@ -26,6 +26,15 @@ describe("agent schedule health", () => {
     expect(states.find((state) => state.slug === "infra")?.state).toBe("awaiting_first_run");
   });
 
+  it("marks the legacy Manager callback as migrated when automatic expert review replaces it", () => {
+    const states = buildAgentScheduleHealth([], []);
+    expect(states.find((state) => state.slug === "manager")).toMatchObject({
+      configured: true,
+      state: "migrated",
+    });
+    expect(states.find((state) => state.slug === "seo_intel")?.state).toBe("missing");
+  });
+
   it("flags stale scheduler and Search Console measurement evidence", () => {
     const now = Date.parse("2026-08-12T12:00:00Z");
     const schedules = buildAgentScheduleHealth(

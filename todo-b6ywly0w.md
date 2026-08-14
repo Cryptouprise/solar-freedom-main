@@ -39,4 +39,5 @@
 - [x] Add recurring durable-lead, CRM-delivery, and verified-authority regression checks to the scorecard pipeline.
 - [x] Add a broader technical GEO regression signal beyond backlinks through canonical, schema, and sitemap coverage of indexable commercial content.
 - [ ] Surface scorecard alerts in the Agent Command Center and verify the replacement expert-review cadence executes automatically.
+- [x] Present the legacy Manager slot as migrated to the automatic expert-review cadence rather than as a missing scheduler error.
 - [x] Present intentionally paused short-callback agents as migrated to the expert review cadence rather than as generic scheduler errors.

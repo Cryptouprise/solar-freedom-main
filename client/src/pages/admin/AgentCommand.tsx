@@ -202,7 +202,7 @@ function OwnerView() {
           {scheduleHealth.map((schedule: any) => {
             const meta = AGENT_META[schedule.slug] || AGENT_META.manager;
             const isAwaitingFirstRun = schedule.state === "awaiting_first_run";
-            const isMigrated = schedule.state === "paused";
+            const isMigrated = ["paused", "migrated"].includes(schedule.state);
             const issue = ["missing", "stale"].includes(schedule.state);
             return (
               <div key={schedule.slug} className="rounded-lg bg-black/20 border border-white/10 p-3">
@@ -211,7 +211,7 @@ function OwnerView() {
                   <StatusBadge status={issue ? "error" : isMigrated ? "paused" : isAwaitingFirstRun ? "queued" : "completed"} />
                 </div>
                 <p className="mt-2 text-xs text-gray-500">
-                  {isMigrated ? "short callback paused; expert review replacement pending" : isAwaitingFirstRun ? "awaiting first run" : issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
+                  {schedule.state === "migrated" ? "migrated to automatic expert review" : isMigrated ? "short callback paused; expert review replacement pending" : isAwaitingFirstRun ? "awaiting first run" : issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
                 </p>
                 <p className="mt-1 text-[11px] text-gray-600">
                   {isAwaitingFirstRun
