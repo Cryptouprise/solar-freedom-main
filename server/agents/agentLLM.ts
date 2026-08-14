@@ -40,6 +40,22 @@ export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel:
 
 // Fallback model when OpenRouter fails
 const FALLBACK_MODEL = "gpt-5-mini";
+const OPENROUTER_ATTEMPT_TIMEOUT_MS = 45_000;
+const BUILTIN_ATTEMPT_TIMEOUT_MS = 60_000;
+
+export async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 // Full curated model list for the selector UI
 export const AVAILABLE_MODELS = [
@@ -154,12 +170,12 @@ async function callBuiltIn(opts: AgentLLMOptions): Promise<{
   toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
   usage?: { promptTokens: number; completionTokens: number };
 }> {
-  const res = await invokeLLM({
+  const res = await withTimeout(invokeLLM({
     messages: opts.messages,
     ...(opts.tools ? { tools: opts.tools as any, tool_choice: "auto" } : {}),
     ...(opts.responseFormat ? { response_format: opts.responseFormat as any } : {}),
     ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
-  });
+  }), BUILTIN_ATTEMPT_TIMEOUT_MS, "Built-in agent model");
 
   const msg = res.choices[0].message;
   const toolCalls = msg.tool_calls?.map((tc: any) => ({
@@ -195,16 +211,29 @@ async function callOpenRouter(
   if (opts.responseFormat) body.response_format = opts.responseFormat;
   if (opts.maxTokens) body.max_tokens = opts.maxTokens;
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://breakyoursolarcontract.com",
-      "X-Title": "Solar Freedom Agent System",
-    },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), OPENROUTER_ATTEMPT_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://breakyoursolarcontract.com",
+        "X-Title": "Solar Freedom Agent System",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (error: any) {
+    if (error?.name === "AbortError") {
+      throw new Error(`OpenRouter attempt timed out after ${Math.round(OPENROUTER_ATTEMPT_TIMEOUT_MS / 1000)}s`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!res.ok) {
     const err = await res.text();

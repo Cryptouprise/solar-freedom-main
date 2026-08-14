@@ -60,6 +60,23 @@ async function recordWorkerQuality(agentSlug: AgentSlug, result?: AgentThinkResu
       subject: "QUALITY REWORK REQUIRED",
       body: `Your latest scheduled delivery needs rework. ${review.feedback}\n\nReturn specific evidence, execution output, and measurable impact on your next scheduled run.`,
     });
+    try {
+      const retry = await runAgent(agentSlug, "directive", "manager_quality_rework");
+      await reviewWorkerRun({
+        agentSlug: worker,
+        checklistId,
+        result: retry,
+        retryNumber: 1,
+      });
+    } catch (retryError: any) {
+      const normalized = retryError instanceof Error ? retryError : new Error(String(retryError));
+      await reviewWorkerRun({
+        agentSlug: worker,
+        checklistId,
+        error: normalized,
+        retryNumber: 1,
+      });
+    }
   }
 }
 

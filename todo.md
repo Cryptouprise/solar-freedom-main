@@ -1116,3 +1116,7 @@
 - [x] Replace false “auto-executing” counts with real execution for supported revenue actions and explicit queued/blocked status for unsupported actions (two reviewable Blog Studio drafts created)
 - [ ] Run a new full Manager-led worker cycle after fresh GSC persistence and record per-worker Manager QA evidence
 - [ ] Validate the daily 8:00 AM Mountain schedule, worker outputs, action evidence, and visible Command Center statuses
+
+## Phase 65 — Bounded Agent LLM Calls
+- [x] Add an abortable per-attempt timeout and bounded fallback path to shared agent LLM calls so one provider hang cannot stall the Manager cycle
+- [ ] Record the interrupted SEO worker as a transparent failed/blocked run and rerun the Manager-led sequence after the timeout safeguard
