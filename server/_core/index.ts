@@ -18,8 +18,9 @@ import { automationRunHandler } from "../scheduled/automationRun";
 import { agentRunHandler } from "../scheduled/agentRun";
 import { seoScorecardHandler } from "../scheduled/seoScorecard";
 import { registerJourneyEndpoint } from "../journeyRouter";
+import { registerGhlLifecycleWebhook } from "../ghlLifecycleWebhook";
 import { rateLimit } from "express-rate-limit";
-import { BLOG_SLUG_REDIRECTS } from "../seo-redirects";
+import { BLOG_SLUG_REDIRECTS, PUBLIC_PATH_REDIRECTS } from "../seo-redirects";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -64,9 +65,12 @@ async function startServer() {
     res.redirect(301, '/selling-house-with-solar');
   });
 
-  // ─── Blog slug redirects — short/old slugs → canonical long slugs ────────────
-  // These URLs were crawled by Google but have no content, causing them to return
-  // the homepage canonical (duplicate content signal). 301 redirects fix this.
+  // ─── Public and blog redirects — retired/duplicate URLs → canonical winners ─
+  // Register these before static delivery so every old URL transfers signals in
+  // one permanent hop and never returns a generic noindex placeholder.
+  for (const [from, to] of Object.entries(PUBLIC_PATH_REDIRECTS)) {
+    app.get(from, (_req, res) => res.redirect(301, to));
+  }
   for (const [from, to] of Object.entries(BLOG_SLUG_REDIRECTS)) {
     app.get(from, (_req, res) => res.redirect(301, to));
   }
@@ -146,6 +150,8 @@ async function startServer() {
   // MUST be registered before the tRPC middleware and Vite fallthrough
   // Journey tracking endpoint (public, fire-and-forget)
   registerJourneyEndpoint(app);
+  // GoHighLevel appointment and pipeline lifecycle events (HMAC-style shared secret).
+  registerGhlLifecycleWebhook(app);
 
   app.post("/api/scheduled/automation-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), automationRunHandler);
   app.post("/api/scheduled/agent-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), agentRunHandler);

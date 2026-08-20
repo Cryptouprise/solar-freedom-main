@@ -136,6 +136,7 @@ export const seoScorecardSnapshots = mysqlTable("seoScorecardSnapshots", {
   impressions: int("impressions").default(0).notNull(),
   durableLeads: int("durableLeads").default(0).notNull(),
   crmDeliveries: int("crmDeliveries").default(0).notNull(),
+  bookedAppointments: int("bookedAppointments").default(0).notNull(),
   verifiedBacklinks: int("verifiedBacklinks").default(0).notNull(),
   geoReadiness: int("geoReadiness").default(0).notNull(),
   alerts: text("alerts"),
@@ -1295,6 +1296,9 @@ export type InsertLeadJourneyEvent = typeof leadJourneyEvents.$inferInsert;
 export const ghlPipelineEvents = mysqlTable("ghlPipelineEvents", {
   id: int("id").autoincrement().primaryKey(),
 
+  // GoHighLevel event or appointment identifier. Unique when supplied so webhook
+  // retries cannot inflate appointment, qualification, or won counts.
+  externalEventId: varchar("externalEventId", { length: 128 }).unique(),
   ghlContactId: varchar("ghlContactId", { length: 64 }).notNull(),
   ghlOpportunityId: varchar("ghlOpportunityId", { length: 64 }),
   pipelineId: varchar("pipelineId", { length: 64 }),

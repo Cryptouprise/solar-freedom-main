@@ -546,7 +546,7 @@ ${measurementGuidance}
 
 ═══ CITY PAGES AVAILABLE FOR INTERNAL LINKING ═══
   /cancel-solar-contract/phoenix-az
-  /cancel-solar-contract/houston-tx
+  /blog/cancel-solar-contract-houston-tx
   /cancel-solar-contract/dallas-tx
   /cancel-solar-contract/los-angeles-ca
   /cancel-solar-contract/las-vegas-nv

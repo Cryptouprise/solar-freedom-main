@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { useSeoMeta } from '@/hooks/useSeoMeta';
 import { SchemaInjector } from '@/components/SchemaInjector';
 import { getStateLaw, StateLawSection } from '@/data/state-laws';
+import { isStateIndexed } from '@/data/indexEligibility';
 import StickyMobileBar from '@/components/StickyMobileBar';
 import { cities as ALL_CITIES } from '@/data/cities';
 import { Button } from '@/components/ui/button';
@@ -144,6 +145,7 @@ export default function StateLawPage() {
     title: law ? law.metaTitle : 'Solar Contract Laws by State | Solar Freedom',
     description: law ? law.metaDescription : 'Understand your state\'s solar contract laws and consumer protections.',
     canonical: `https://breakyoursolarcontract.com/solar-contract-laws/${stateSlug ?? ''}`,
+    noindex: !stateSlug || !isStateIndexed(stateSlug),
   });
 
   const stateLawSchemas = law ? [

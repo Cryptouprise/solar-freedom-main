@@ -1,7 +1,6 @@
 /**
- * SUNRUN DEDICATED LANDING PAGE — /sunrun
- * Conversion-focused page targeting "sunrun solar contract cancel" intent.
- * Distinct from /cancel-sunrun-solar-contract (complaint/data page).
+ * SUNRUN LEGACY COMPONENT — retained only for client compatibility.
+ * The canonical search experience is the consolidated Sunrun cancellation article.
  * Design: Dark Industrial Brutalism — matches site-wide design system.
  */
 

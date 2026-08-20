@@ -32,6 +32,7 @@ const NAV_SECTIONS = [
     section: "Overview",
     items: [
       { label: "Dashboard", href: "/admin/analytics", icon: LayoutDashboard, description: "Traffic & conversions" },
+      { label: "Outcomes", href: "/admin/outcomes", icon: BarChart3, description: "Clicks, leads & appointments" },
       { label: "Leads", href: "/admin/leads", icon: Users, description: "Form submissions & CRM" },
     ],
   },
