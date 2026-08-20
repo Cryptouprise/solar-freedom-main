@@ -36,7 +36,16 @@ function isEightAmMountain(now = new Date()): boolean {
   return Number(parts.find(part => part.type === "hour")?.value) === 8;
 }
 
-async function recordWorkerQuality(agentSlug: AgentSlug, result?: AgentThinkResult, error?: Error) {
+export function shouldRunImmediateQualityRetry(isScheduledCallback: boolean): boolean {
+  return !isScheduledCallback;
+}
+
+async function recordWorkerQuality(
+  agentSlug: AgentSlug,
+  result?: AgentThinkResult,
+  error?: Error,
+  options: { isScheduledCallback?: boolean } = {},
+) {
   if (!WORKER_SLUGS.has(agentSlug as WorkerSlug)) return;
   const worker = agentSlug as WorkerSlug;
   const checklistIds = await ensureDailyChecklists();
@@ -60,6 +69,7 @@ async function recordWorkerQuality(agentSlug: AgentSlug, result?: AgentThinkResu
       subject: "QUALITY REWORK REQUIRED",
       body: `Your latest scheduled delivery needs rework. ${review.feedback}\n\nReturn specific evidence, execution output, and measurable impact on your next scheduled run.`,
     });
+    if (!shouldRunImmediateQualityRetry(options.isScheduledCallback ?? true)) return;
     try {
       const retry = await runAgent(agentSlug, "directive", "manager_quality_rework");
       await reviewWorkerRun({
@@ -107,11 +117,11 @@ export async function agentRunHandler(req: Request, res: Response) {
       result = await runAgent(agentSlug, "cron", `heartbeat:${user.taskUid}`);
     } catch (error: any) {
       const normalized = error instanceof Error ? error : new Error(String(error));
-      await recordWorkerQuality(agentSlug, undefined, normalized);
+      await recordWorkerQuality(agentSlug, undefined, normalized, { isScheduledCallback: true });
       throw normalized;
     }
 
-    await recordWorkerQuality(agentSlug, result);
+    await recordWorkerQuality(agentSlug, result, undefined, { isScheduledCallback: true });
     return res.json({
       ok: true,
       agent: agentSlug,

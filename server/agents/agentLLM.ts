@@ -42,6 +42,24 @@ export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel:
 const FALLBACK_MODEL = "gpt-5-mini";
 const OPENROUTER_ATTEMPT_TIMEOUT_MS = 45_000;
 const BUILTIN_ATTEMPT_TIMEOUT_MS = 60_000;
+const SCHEDULED_OPENROUTER_ATTEMPT_TIMEOUT_MS = 18_000;
+const SCHEDULED_BUILTIN_ATTEMPT_TIMEOUT_MS = 24_000;
+
+export type AgentExecutionMode = "standard" | "scheduled";
+
+export function resolveAgentTimeoutProfile(mode: AgentExecutionMode = "standard") {
+  return mode === "scheduled"
+    ? {
+        openRouterAttemptTimeoutMs: SCHEDULED_OPENROUTER_ATTEMPT_TIMEOUT_MS,
+        builtInAttemptTimeoutMs: SCHEDULED_BUILTIN_ATTEMPT_TIMEOUT_MS,
+        maxOpenRouterAttempts: 1,
+      }
+    : {
+        openRouterAttemptTimeoutMs: OPENROUTER_ATTEMPT_TIMEOUT_MS,
+        builtInAttemptTimeoutMs: BUILTIN_ATTEMPT_TIMEOUT_MS,
+        maxOpenRouterAttempts: 3,
+      };
+}
 
 export async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -120,6 +138,7 @@ export interface AgentLLMMessage {
 export interface AgentLLMOptions {
   agentSlug?: string;
   modelOverride?: string;
+  executionMode?: AgentExecutionMode;
   messages: AgentLLMMessage[];
   tools?: object[];
   responseFormat?: object;
@@ -132,15 +151,16 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
   usage?: { promptTokens: number; completionTokens: number };
 }> {
   const modelId = opts.modelOverride ?? (opts.agentSlug ? await getAgentModel(opts.agentSlug) : FALLBACK_MODEL);
+  const timeoutProfile = resolveAgentTimeoutProfile(opts.executionMode);
 
   // Route to OpenRouter for Qwen/DeepSeek models — with retry + fallback
   if (OPENROUTER_MODELS.has(modelId)) {
     // Try OpenRouter up to 3 times with exponential backoff
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = timeoutProfile.maxOpenRouterAttempts;
     let lastError: Error | null = null;
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const result = await callOpenRouter(modelId, opts);
+        const result = await callOpenRouter(modelId, opts, timeoutProfile.openRouterAttemptTimeoutMs);
         // Validate we got actual content back
         if (!result.content && !result.toolCalls?.length) {
           throw new Error("OpenRouter returned empty content");
@@ -157,15 +177,15 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
     }
     // All retries exhausted — fall back to built-in LLM
     console.error(`[agentLLM] OpenRouter failed after ${MAX_RETRIES} attempts for ${modelId}. Falling back to ${FALLBACK_MODEL}. Last error: ${lastError?.message}`);
-    return callBuiltIn(opts);
+    return callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs);
   }
 
   // Use built-in proxy for everything else
-  return callBuiltIn(opts);
+  return callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs);
 }
 
 // ─── Built-in LLM call (Manus proxy) ──────────────────────────────────────────
-async function callBuiltIn(opts: AgentLLMOptions): Promise<{
+async function callBuiltIn(opts: AgentLLMOptions, timeoutMs: number): Promise<{
   content: string;
   toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
   usage?: { promptTokens: number; completionTokens: number };
@@ -175,7 +195,7 @@ async function callBuiltIn(opts: AgentLLMOptions): Promise<{
     ...(opts.tools ? { tools: opts.tools as any, tool_choice: "auto" } : {}),
     ...(opts.responseFormat ? { response_format: opts.responseFormat as any } : {}),
     ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
-  }), BUILTIN_ATTEMPT_TIMEOUT_MS, "Built-in agent model");
+  }), timeoutMs, "Built-in agent model");
 
   const msg = res.choices[0].message;
   const toolCalls = msg.tool_calls?.map((tc: any) => ({
@@ -195,7 +215,8 @@ async function callBuiltIn(opts: AgentLLMOptions): Promise<{
 // ─── OpenRouter call ───────────────────────────────────────────────────────────
 async function callOpenRouter(
   modelId: string,
-  opts: AgentLLMOptions
+  opts: AgentLLMOptions,
+  timeoutMs: number,
 ): Promise<{ content: string; toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>; usage?: { promptTokens: number; completionTokens: number } }> {
   const apiKey = ENV.openRouterApiKey;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY not set");
@@ -212,7 +233,7 @@ async function callOpenRouter(
   if (opts.maxTokens) body.max_tokens = opts.maxTokens;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), OPENROUTER_ATTEMPT_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let res: Response;
   try {
     res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -228,7 +249,7 @@ async function callOpenRouter(
     });
   } catch (error: any) {
     if (error?.name === "AbortError") {
-      throw new Error(`OpenRouter attempt timed out after ${Math.round(OPENROUTER_ATTEMPT_TIMEOUT_MS / 1000)}s`);
+      throw new Error(`OpenRouter attempt timed out after ${Math.round(timeoutMs / 1000)}s`);
     }
     throw error;
   } finally {

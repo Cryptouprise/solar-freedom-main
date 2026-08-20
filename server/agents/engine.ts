@@ -68,13 +68,16 @@ export async function agentLLM(params: {
   // Check if OpenRouter model (Qwen/DeepSeek) — use callAgentLLM
   const OPENROUTER_PREFIXES = ["qwen/", "deepseek/", "mistralai/", "meta-llama/"];
   const isOpenRouter = OPENROUTER_PREFIXES.some(p => modelId.startsWith(p));
+  const isScheduledCallback = params.context.triggerType === "cron";
+  const maxTokens = isScheduledCallback ? Math.min(params.maxTokens ?? 4000, 900) : (params.maxTokens ?? 4000);
 
   if (isOpenRouter) {
     const res = await callAgentLLM({
       agentSlug: params.agentSlug,
       modelOverride: modelId,
       messages: params.messages as any,
-      maxTokens: params.maxTokens ?? 4000,
+      maxTokens,
+      executionMode: isScheduledCallback ? "scheduled" : "standard",
     });
     params.context.llmCalls++;
     return res.content;
@@ -88,7 +91,7 @@ export async function agentLLM(params: {
     referenceId: params.context.runId,
     referenceType: "agent_run",
     temperature: params.temperature ?? 0.4,
-    maxTokens: params.maxTokens ?? 4000,
+    maxTokens,
   });
   params.context.llmCalls++;
   return result;
