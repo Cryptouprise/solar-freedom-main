@@ -18,37 +18,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const BASE_URL = "https://breakyoursolarcontract.com";
 
-// ─── Indexed city whitelist (must match client/src/data/indexed-cities.ts) ────
-const INDEXED_CITY_SLUGS = new Set([
-  "hartford-ct", "phoenix-az", "cincinnati-oh", "north-las-vegas-nv",
-  "houston-tx", "greenville-sc", "denver-co", "san-antonio-tx",
-  "little-rock-ar", "las-vegas-nv", "youngstown-oh", "west-valley-city-ut",
-  "shreveport-la", "santa-ana-ca", "new-haven-ct", "los-angeles-ca",
-  "dallas-tx", "san-diego-ca", "austin-tx", "murfreesboro-tn",
-  "miami-fl", "nashville-tn", "san-francisco-ca", "san-jose-ca", "savannah-ga",
-]);
-
-// Redirects are useful for people and legacy links, but a sitemap must contain
-// only final, canonical 200 URLs. Keep this list aligned with the server-side
-// redirect map in server/_core/index.ts.
-const REDIRECTED_BLOG_SLUGS = new Set([
-  "freedom-forever-solar-bankruptcy",
-  "how-to-cancel-sunnova-solar-contract",
-  "solar-contract-escalator-clause-what-it-means",
-  "solar-panel-scam-signs-what-to-do",
-  "solar-contract-red-flags-and-scams",
-  "solar-lease-vs-loan-vs-ppa",
-  "goodleap-solar-loan-cancellation-guide",
-  "new-jersey-solar-contract-cancellation",
-  "cancel-solar-contract-houston",
-  "goodleap-solar-loan-hidden-dealer-fees-2024",
-  "freedom-forever-solar-bankruptcy-problems",
-  "how-to-file-a-complaint-against-solar-company",
-  "tesla-solar-solarcity-complaints",
-  "solar-contract-escalator-clause",
-  "selling-home-with-solar-ppa",
-  "sunnova-contract-transfer-problems",
-]);
+// ─── Shared evidence-backed index eligibility ────────────────────────────────
+const indexEligibility = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/index-eligibility.json"), "utf-8")
+);
+const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
+const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
+const INDEXED_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
+const INDEXED_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
+const RETIRED_PUBLIC_PATHS = new Set(indexEligibility.retiredPublicPaths);
+const redirectLedger = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/seo-redirects.json"), "utf-8")
+);
+const PUBLIC_REDIRECT_PATHS = new Set(Object.keys(redirectLedger.public));
+const REDIRECTED_BLOG_SLUGS = new Set(
+  Object.keys(redirectLedger.blog).map(pagePath => pagePath.replace(/^\/blog\//, ""))
+);
 
 function decodeStringLiteralValue(value) {
   return value
@@ -155,6 +140,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     { path: "/media", priority: "0.9", changefreq: "weekly" },
   ];
   for (const p of staticPages) {
+    if (RETIRED_PUBLIC_PATHS.has(p.path) || PUBLIC_REDIRECT_PATHS.has(p.path)) continue;
     entries.push({
       url: `${BASE_URL}${p.path}`,
       priority: p.priority,
@@ -164,8 +150,10 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
 
   // Company pages (highest priority after homepage)
   for (const company of companyEntries) {
+    const pagePath = `/cancel-${company.slug}-solar-contract`;
+    if (!INDEXED_COMPANY_SLUGS.has(company.slug) || PUBLIC_REDIRECT_PATHS.has(pagePath)) continue;
     entries.push({
-      url: `${BASE_URL}/cancel-${company.slug}-solar-contract`,
+      url: `${BASE_URL}${pagePath}`,
       priority: "0.9",
       changefreq: "monthly",
     });
@@ -174,17 +162,19 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
   // City pages — ONLY indexed cities (spam penalty recovery)
   let cityCount = 0;
   for (const city of cityEntries) {
-    if (!INDEXED_CITY_SLUGS.has(city.slug)) continue; // skip noindexed cities
+    const pagePath = `/cancel-solar-contract/${city.slug}`;
+    if (!INDEXED_CITY_SLUGS.has(city.slug) || PUBLIC_REDIRECT_PATHS.has(pagePath)) continue; // skip noindexed or redirected cities
     entries.push({
-      url: `${BASE_URL}/cancel-solar-contract/${city.slug}`,
+      url: `${BASE_URL}${pagePath}`,
       priority: "0.8",
       changefreq: "monthly",
     });
     cityCount++;
   }
 
-  // State law pages
+  // State law pages — only states with verified demand and review eligibility
   for (const state of stateEntries) {
+    if (!INDEXED_STATE_SLUGS.has(state.slug)) continue;
     entries.push({
       url: `${BASE_URL}/solar-contract-laws/${state.slug}`,
       priority: "0.7",
@@ -194,7 +184,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
 
   // Blog articles
   for (const slug of blogSlugs) {
-    if (REDIRECTED_BLOG_SLUGS.has(slug)) continue;
+    if (REDIRECTED_BLOG_SLUGS.has(slug) || !INDEXED_BLOG_SLUGS.has(slug)) continue;
     entries.push({
       url: `${BASE_URL}/blog/${slug}`,
       priority: "0.7",
@@ -236,13 +226,20 @@ const xml = generateXml(entries);
 const outPath = path.resolve(ROOT, "client/public/sitemap.xml");
 fs.writeFileSync(outPath, xml, "utf-8");
 
-const indexedCityCount = cityEntries.filter(c => INDEXED_CITY_SLUGS.has(c.slug)).length;
+const indexedCityCount = cityEntries.filter(
+  c => INDEXED_CITY_SLUGS.has(c.slug) && !PUBLIC_REDIRECT_PATHS.has(`/cancel-solar-contract/${c.slug}`)
+).length;
+const indexedCompanyCount = companyEntries.filter(
+  c => INDEXED_COMPANY_SLUGS.has(c.slug) && !PUBLIC_REDIRECT_PATHS.has(`/cancel-${c.slug}-solar-contract`)
+).length;
+const indexedStateCount = stateEntries.filter(s => INDEXED_STATE_SLUGS.has(s.slug)).length;
+const indexedBlogCount = blogSlugs.filter(slug => INDEXED_BLOG_SLUGS.has(slug) && !REDIRECTED_BLOG_SLUGS.has(slug)).length;
+const staticCount = entries.length - indexedCityCount - indexedCompanyCount - indexedStateCount - indexedBlogCount;
 console.log(`\u2705 Generated sitemap.xml with ${entries.length} URLs`);
-console.log(
-  `   Homepage + static: ${entries.length - companyEntries.length - indexedCityCount - stateEntries.length - blogSlugs.length} pages`
-);
-console.log(`   Company pages: ${companyEntries.length}`);
-console.log(`   City pages: ${indexedCityCount} (of ${cityEntries.length} total, ${cityEntries.length - indexedCityCount} noindexed)`);
-console.log(`   State law pages: ${stateEntries.length}`);
-console.log(`   Blog articles: ${blogSlugs.length}`);
+console.log(`   Homepage + static: ${staticCount} pages`);
+console.log(`   Company pages: ${indexedCompanyCount} (of ${companyEntries.length} total)`);
+console.log(`   City pages: ${indexedCityCount} (of ${cityEntries.length} total)`);
+console.log(`   State law pages: ${indexedStateCount} (of ${stateEntries.length} total)`);
+console.log(`   Blog articles: ${indexedBlogCount} (of ${blogSlugs.length} total)`);
+console.log(`   Eligibility as of: ${indexEligibility.asOf}`);
 console.log(`   Output: ${outPath}`);

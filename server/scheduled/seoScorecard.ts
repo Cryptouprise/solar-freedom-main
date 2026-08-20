@@ -4,7 +4,7 @@ import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
 import { getDb } from "../db";
-import { discoveredBacklinks, lawFirms, leadDeliveries, leads, seoPages, seoScorecardSnapshots } from "../../drizzle/schema";
+import { discoveredBacklinks, ghlPipelineEvents, lawFirms, leadDeliveries, leads, seoPages, seoScorecardSnapshots } from "../../drizzle/schema";
 import { createAction, getActionQueue } from "../agents/engine";
 import { refreshGscPageMetrics } from "../gscRefresh";
 import { comparisonDelta } from "../scorecardComparisons";
@@ -18,7 +18,17 @@ async function readLeadScorecard(now = new Date()) {
   const priorStart = new Date(currentStart);
   priorStart.setDate(priorStart.getDate() - 28);
 
-  const [currentLeads, priorLeads, currentCrmSynced, priorCrmSynced, currentPartnerDelivered, priorPartnerDelivered, activePartners] = await Promise.all([
+  const [
+    currentLeads,
+    priorLeads,
+    currentCrmSynced,
+    priorCrmSynced,
+    currentPartnerDelivered,
+    priorPartnerDelivered,
+    activePartners,
+    currentAppointments,
+    priorAppointments,
+  ] = await Promise.all([
     db.select({ value: count() }).from(leads).where(gte(leads.createdAt, currentStart)),
     db.select({ value: count() }).from(leads).where(sql`${leads.createdAt} >= ${priorStart} AND ${leads.createdAt} < ${currentStart}`),
     db.select({ value: count() }).from(leads).where(and(gte(leads.createdAt, currentStart), eq(leads.ghlWebhookSent, 1))),
@@ -26,7 +36,10 @@ async function readLeadScorecard(now = new Date()) {
     db.select({ value: count() }).from(leadDeliveries).where(gte(leadDeliveries.deliveredAt, currentStart)),
     db.select({ value: count() }).from(leadDeliveries).where(sql`${leadDeliveries.deliveredAt} >= ${priorStart} AND ${leadDeliveries.deliveredAt} < ${currentStart}`),
     db.select({ value: count() }).from(lawFirms).where(eq(lawFirms.status, "active")),
+    db.select({ value: count() }).from(ghlPipelineEvents).where(sql`${ghlPipelineEvents.eventType} = 'appointment_booked' AND ${ghlPipelineEvents.occurredAt} >= ${currentStart}`),
+    db.select({ value: count() }).from(ghlPipelineEvents).where(sql`${ghlPipelineEvents.eventType} = 'appointment_booked' AND ${ghlPipelineEvents.occurredAt} >= ${priorStart} AND ${ghlPipelineEvents.occurredAt} < ${currentStart}`),
   ]);
+
   const scorecard = {
     priorLeads: Number(priorLeads[0]?.value ?? 0),
     currentLeads: Number(currentLeads[0]?.value ?? 0),
@@ -35,6 +48,8 @@ async function readLeadScorecard(now = new Date()) {
     priorPartnerDelivered: Number(priorPartnerDelivered[0]?.value ?? 0),
     currentPartnerDelivered: Number(currentPartnerDelivered[0]?.value ?? 0),
     activePartnerCount: Number(activePartners[0]?.value ?? 0),
+    priorAppointments: Number(priorAppointments[0]?.value ?? 0),
+    currentAppointments: Number(currentAppointments[0]?.value ?? 0),
   };
   return { ...scorecard, alerts: buildLeadScorecardAlerts(scorecard) };
 }
@@ -59,7 +74,7 @@ async function surfaceScorecardAlerts(alerts: Array<{ severity: string; metric: 
 async function saveSnapshotAndComparisons(input: {
   now: Date;
   scorecard: { startDate: string; endDate: string; rows: number; clicks: number; impressions: number };
-  leadScorecard: { currentLeads: number; currentCrmSynced: number };
+  leadScorecard: { currentLeads: number; currentCrmSynced: number; currentAppointments: number };
   geoReadiness: number;
   alerts: Array<{ severity: string; metric: string; message: string }>;
 }) {
@@ -73,6 +88,7 @@ async function saveSnapshotAndComparisons(input: {
     impressions: input.scorecard.impressions,
     durableLeads: input.leadScorecard.currentLeads,
     crmDeliveries: input.leadScorecard.currentCrmSynced,
+    bookedAppointments: input.leadScorecard.currentAppointments,
     verifiedBacklinks: Number(verifiedBacklinks?.value ?? 0),
     geoReadiness: input.geoReadiness,
   };
@@ -127,7 +143,12 @@ export async function seoScorecardHandler(req: Request, res: Response) {
     const user = await sdk.authenticateRequest(req);
     if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only endpoint" });
 
-    const [scorecard, leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([refreshGscPageMetrics(), readLeadScorecard(), readVerifiedBacklinkCount(), readTechnicalGeoReadiness()]);
+    const [scorecard, leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([
+      refreshGscPageMetrics(),
+      readLeadScorecard(),
+      readVerifiedBacklinkCount(),
+      readTechnicalGeoReadiness(),
+    ]);
     const geoAlerts = geoCoverage.total > 0 && geoCoverage.score < 95
       ? [{ severity: "warning", metric: "geo_readiness", message: `Technical GEO readiness is ${geoCoverage.score}% across ${geoCoverage.total} indexable commercial pages. Restore canonical, schema, and sitemap coverage before expanding content.` }]
       : [];
@@ -139,7 +160,7 @@ export async function seoScorecardHandler(req: Request, res: Response) {
         content: [
           `28-day window: ${scorecard.startDate} through ${scorecard.endDate}`,
           `Clicks: ${scorecard.clicks} | Impressions: ${scorecard.impressions} | Pages: ${scorecard.rows}`,
-          `Durable leads: ${leadScorecard.currentLeads} | HighLevel syncs: ${leadScorecard.currentCrmSynced} | Partner deliveries: ${leadScorecard.currentPartnerDelivered}`,
+          `Durable leads: ${leadScorecard.currentLeads} | HighLevel syncs: ${leadScorecard.currentCrmSynced} | Partner deliveries: ${leadScorecard.currentPartnerDelivered} | Booked appointments: ${leadScorecard.currentAppointments}`,
           ...alerts.map((alert) => `${alert.severity.toUpperCase()}: ${alert.message}`),
         ].join("\n"),
       });

@@ -4,10 +4,24 @@
 
 import { Link } from 'wouter';
 import { blogPosts as staticBlogPosts } from '@/data/blog';
+import { isCanonicalBlogIndexed } from '@/data/indexEligibility';
 import { trpc } from '@/lib/trpc';
 import { Clock, ArrowRight, BookOpen, TrendingUp, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useMemo } from 'react';
+
+const PRIORITY_SLUGS = [
+  'sunrun-solar-contract-cancellation-2026',
+  'goodleap-solar-loan-cancellation-hidden-fees-2026',
+  'how-to-get-out-of-a-solar-contract',
+  'blue-raven-solar-complaints',
+  'adt-solar-complaints',
+  'new-jersey-solar-contract-rights',
+] as const;
+
+const PRIORITY_ORDER: ReadonlyMap<string, number> = new Map(
+  PRIORITY_SLUGS.map((slug, index) => [slug, index])
+);
 
 const categoryColors: Record<string, string> = {
   'Legal Guide': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
@@ -34,7 +48,7 @@ export default function Blog() {
   const dbOnlyPosts = useMemo(() => {
     if (!dbPosts.length) return [];
     return dbPosts
-      .filter(p => !staticSlugs.has(p.slug))
+      .filter(p => !staticSlugs.has(p.slug) && isCanonicalBlogIndexed(p.slug))
       .map(p => ({
         slug: p.slug,
         title: p.title,
@@ -56,11 +70,26 @@ export default function Blog() {
       }));
   }, [dbPosts]);
 
-  // Combined list: DB-only posts first (newest), then all static posts
-  const allPosts = useMemo(
-    () => [...dbOnlyPosts, ...staticBlogPosts],
-    [dbOnlyPosts]
-  );
+  // Canonical, index-eligible inventory only. Priority winners are deliberately
+  // surfaced first; the remaining articles preserve their source order.
+  const allPosts = useMemo(() => {
+    const combined = [
+      ...dbOnlyPosts,
+      ...staticBlogPosts.filter((post) => isCanonicalBlogIndexed(post.slug)),
+    ];
+
+    return combined
+      .map((post, sourceIndex) => ({ post, sourceIndex }))
+      .sort((a, b) => {
+        const aPriority = PRIORITY_ORDER.get(a.post.slug);
+        const bPriority = PRIORITY_ORDER.get(b.post.slug);
+        if (aPriority !== undefined || bPriority !== undefined) {
+          return (aPriority ?? Number.MAX_SAFE_INTEGER) - (bPriority ?? Number.MAX_SAFE_INTEGER);
+        }
+        return a.sourceIndex - b.sourceIndex;
+      })
+      .map(({ post }) => post);
+  }, [dbOnlyPosts]);
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(allPosts.map(p => p.category)));
@@ -96,7 +125,7 @@ export default function Blog() {
           </Link>
           <Link href="/#form">
             <span className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded cursor-pointer transition-colors">
-              Free Review
+              Contract Review
             </span>
           </Link>
         </div>
@@ -108,22 +137,22 @@ export default function Blog() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <BookOpen className="w-5 h-5 text-amber-500" />
-            <span className="text-amber-500 font-mono text-sm uppercase tracking-widest">Solar Freedom Legal Blog</span>
+            <span className="text-amber-500 font-mono text-sm uppercase tracking-widest">Solar Contract Evidence Library</span>
           </div>
           <h1 className="font-black uppercase text-white leading-none mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2.5rem, 6vw, 5rem)' }}>
-            KNOW YOUR RIGHTS.<br />
-            <span className="text-amber-500">ESCAPE YOUR CONTRACT.</span>
+            START WITH THE DOCUMENTS.<br />
+            <span className="text-amber-500">FOLLOW VERIFIED SOURCES.</span>
           </h1>
           <p className="text-zinc-400 text-lg max-w-2xl leading-relaxed">
-            Real legal intelligence for homeowners trapped in solar contracts. Written by attorneys. Optimized for action. No fluff.
+            Canonical guides organized around agreements, financing, company status, home sales, official complaint channels, and records to preserve before taking action.
           </p>
 
           {/* Stats bar */}
           <div className="flex flex-wrap gap-8 mt-10 pt-10 border-t border-white/10">
             {[
-              { icon: <TrendingUp className="w-4 h-4" />, value: `${allPosts.length} Articles`, label: 'Published' },
-              { icon: <BookOpen className="w-4 h-4" />, value: '118+ Cities', label: 'Covered' },
-              { icon: <Clock className="w-4 h-4" />, value: '7–11 min', label: 'Average Read' },
+              { icon: <TrendingUp className="w-4 h-4" />, value: `${allPosts.length} Guides`, label: 'Canonical' },
+              { icon: <BookOpen className="w-4 h-4" />, value: '6 Clusters', label: 'Evidence Organized' },
+              { icon: <Clock className="w-4 h-4" />, value: 'Source Links', label: 'Where Available' },
             ].map((s, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="text-amber-500">{s.icon}</div>
@@ -189,7 +218,7 @@ export default function Blog() {
       {featured && (
         <section className="px-6 pb-12">
           <div className="max-w-7xl mx-auto">
-            <div className="text-zinc-500 text-xs uppercase tracking-widest mb-6 font-mono">— Featured Article</div>
+            <div className="text-zinc-500 text-xs uppercase tracking-widest mb-6 font-mono">— Priority Guide</div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -245,7 +274,7 @@ export default function Blog() {
           )}
           {filteredPosts.length === 0 ? (
             <div className="text-center py-20">
-              <div className="text-zinc-600 text-6xl mb-4">🔍</div>
+              <Search className="w-14 h-14 text-zinc-600 mb-4 mx-auto" aria-hidden="true" />
               <p className="text-zinc-400 text-lg mb-2">No articles found</p>
               <p className="text-zinc-600 text-sm">Try a different search term or category</p>
               <button onClick={() => { setSearchQuery(''); setActiveCategory('All'); }} className="mt-6 text-amber-500 font-bold text-sm uppercase tracking-wider hover:text-amber-400 transition-colors">
@@ -310,14 +339,14 @@ export default function Blog() {
           <div className="rounded-2xl bg-amber-500 p-10 md:p-14 text-center relative overflow-hidden">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
             <h2 className="font-black text-black uppercase mb-4 relative" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-              Ready to Find Out If You Can Cancel?
+              Need Help Organizing the Facts?
             </h2>
             <p className="text-black/70 text-lg mb-8 max-w-xl mx-auto relative">
               Request an individual review. No result, timeline, or representation is guaranteed.
             </p>
             <Link href="/#form">
               <span className="inline-block bg-black text-white font-black uppercase tracking-widest px-10 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer relative">
-                Get Your Free Case Review →
+                Request a Contract Review →
               </span>
             </Link>
           </div>
@@ -331,7 +360,7 @@ export default function Blog() {
           <div className="flex gap-6">
             <Link href="/"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Home</span></Link>
             <Link href="/blog"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Blog</span></Link>
-            <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Free Review</span></Link>
+            <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Contract Review</span></Link>
           </div>
         </div>
       </footer>

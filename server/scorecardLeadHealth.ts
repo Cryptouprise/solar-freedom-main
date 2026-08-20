@@ -6,11 +6,13 @@ export type LeadScorecard = {
   priorPartnerDelivered: number;
   currentPartnerDelivered: number;
   activePartnerCount: number;
+  priorAppointments: number;
+  currentAppointments: number;
 };
 
 export type LeadScorecardAlert = {
   severity: "warning" | "critical";
-  metric: "leads" | "crm_sync" | "partner_delivery" | "partner_availability" | "authority";
+  metric: "leads" | "crm_sync" | "partner_delivery" | "partner_availability" | "appointments" | "authority";
   message: string;
 };
 
@@ -42,6 +44,20 @@ export function buildLeadScorecardAlerts(scorecard: LeadScorecard): LeadScorecar
       severity: "warning",
       metric: "partner_availability",
       message: `No active law-firm partner is configured for routing. ${scorecard.currentCrmSynced}/${scorecard.currentLeads} durable leads reached HighLevel; partner delivery remains intentionally inactive until a verified partner endpoint is onboarded.`,
+    });
+  }
+  if (scorecard.priorAppointments >= 3 && scorecard.currentAppointments < scorecard.priorAppointments * 0.5) {
+    alerts.push({
+      severity: "critical",
+      metric: "appointments",
+      message: `Booked appointments fell ${(100 * (1 - scorecard.currentAppointments / scorecard.priorAppointments)).toFixed(0)}% versus the preceding 28-day period.`,
+    });
+  }
+  if (scorecard.currentLeads >= 5 && scorecard.currentAppointments === 0) {
+    alerts.push({
+      severity: "critical",
+      metric: "appointments",
+      message: "Website leads were recorded but no booked appointments were received in the current 28-day window. Verify the GoHighLevel lifecycle webhook and booking workflow.",
     });
   }
   return alerts;

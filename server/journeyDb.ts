@@ -151,6 +151,17 @@ export async function insertGhlPipelineEvent(data: InsertGhlPipelineEvent) {
   return (result as any).insertId as number;
 }
 
+export async function getGhlPipelineEventByExternalId(externalEventId: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(ghlPipelineEvents)
+    .where(eq(ghlPipelineEvents.externalEventId, externalEventId))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function getGhlPipelineEvents(ghlContactId: string) {
   const db = await getDb();
   if (!db) return [];

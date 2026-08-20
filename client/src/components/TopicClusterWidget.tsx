@@ -7,18 +7,11 @@ import { Link } from "wouter";
 import { getRelatedSpokes, getClusterForPage, TOPIC_CLUSTERS } from "@/data/topicClusters";
 import type { ClusterSpoke } from "@/data/topicClusters";
 
-const TYPE_ICONS: Record<ClusterSpoke["type"], string> = {
-  blog: "📝",
-  city: "📍",
-  company: "⚠️",
-  home: "🔓",
-};
-
 const TYPE_LABELS: Record<ClusterSpoke["type"], string> = {
   blog: "GUIDE",
-  city: "STATE LAW",
+  city: "LOCATION",
   company: "COMPANY",
-  home: "FREE REVIEW",
+  home: "SERVICE",
 };
 
 const COLOR_MAP: Record<string, { border: string; badge: string; glow: string }> = {
@@ -68,7 +61,7 @@ export default function TopicClusterWidget({ currentUrl, showAllClusters = false
   const colors = COLOR_MAP[cluster?.color || "amber"] || COLOR_MAP.amber;
 
   if (showAllClusters) {
-    // Show all 5 clusters (used on homepage / blog index)
+    // Show every curated cluster (used on homepage / blog index)
     return (
       <div className="mt-16 border-t border-white/10 pt-12">
         <div className="mb-8">
@@ -76,7 +69,7 @@ export default function TopicClusterWidget({ currentUrl, showAllClusters = false
           <h3 className="text-2xl font-black tracking-tight text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
             EVERYTHING YOU NEED TO KNOW
           </h3>
-          <p className="text-gray-400 text-sm mt-1">Five topic clusters covering every angle of solar contract cancellation.</p>
+          <p className="text-gray-400 text-sm mt-1">{TOPIC_CLUSTERS.length} evidence-based clusters organized by contract problem and next step.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {TOPIC_CLUSTERS.map((tc) => {
@@ -123,7 +116,7 @@ export default function TopicClusterWidget({ currentUrl, showAllClusters = false
         {spokes.map((spoke) => (
           <Link key={spoke.url} href={spoke.url}>
             <div className={`group p-4 rounded-lg bg-white/3 border ${colors.border} ${colors.glow} hover:shadow-lg transition-all duration-200 cursor-pointer flex gap-3 items-start`}>
-              <span className="text-lg mt-0.5 flex-shrink-0">{TYPE_ICONS[spoke.type]}</span>
+              <div className="w-1 self-stretch rounded-full bg-current opacity-30 flex-shrink-0" aria-hidden="true" />
               <div className="min-w-0">
                 <div className={`text-xs font-mono px-1.5 py-0.5 rounded inline-block mb-1 ${colors.badge}`}>
                   {TYPE_LABELS[spoke.type]}
@@ -151,7 +144,7 @@ export default function TopicClusterWidget({ currentUrl, showAllClusters = false
                   {cluster.pillarTitle} →
                 </div>
               </div>
-              <div className="text-amber-500/40 text-2xl">⚡</div>
+              <div className="text-amber-500/60 text-2xl" aria-hidden="true">→</div>
             </div>
           </Link>
         </div>

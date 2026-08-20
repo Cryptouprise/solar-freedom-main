@@ -6,8 +6,10 @@ import { getDbBlogPostStatus, getDbBlogPosts } from "./db";
 import { renderDbBlogPost } from "./seo-meta";
 import { rateLimit } from "express-rate-limit";
 import { isLegacyBlogSlug } from "./seo-redirects";
+import indexEligibility from "../shared/index-eligibility.json";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
+const INDEXABLE_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
 
 /**
  * Routes that are intentionally client-rendered and therefore do not have a
@@ -33,12 +35,10 @@ export const CLIENT_ONLY_ROUTES = new Set([
   "/admin/lead-distribution",
   "/admin/agents",
   "/admin/ghl",
+  "/admin/outcomes",
   "/admin/revenue-intel",
   "/admin/attorneys",
   "/free-cancellation-letter",
-  "/media",
-  "/sunrun",
-  "/solar-companies",
   "/calculator",
   "/compare",
 ]);
@@ -147,7 +147,7 @@ export function mergeDynamicPostsIntoSitemap(
 
   for (const post of posts) {
     const location = `${BASE_URL}/blog/${encodeURIComponent(post.slug)}`;
-    if (!post.slug || isLegacyBlogSlug(post.slug) || existing.has(location)) continue;
+    if (!post.slug || !INDEXABLE_BLOG_SLUGS.has(post.slug) || isLegacyBlogSlug(post.slug) || existing.has(location)) continue;
     const lastmod = publishedDate(post.updatedAt ?? post.publishedAt);
     urlset.append(
       `<url><loc>${xmlEscape(location)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}<changefreq>monthly</changefreq><priority>0.7</priority></url>`
@@ -171,7 +171,9 @@ export function appendDynamicPostsToLlms(
       match => decodeURIComponent(match[1])
     )
   );
-  const additions = posts.filter(post => post.slug && !existing.has(post.slug));
+  const additions = posts.filter(
+    post => post.slug && INDEXABLE_BLOG_SLUGS.has(post.slug) && !existing.has(post.slug)
+  );
   if (!additions.length) return staticInventory;
 
   const lines = additions.map(post => {
@@ -286,6 +288,9 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
           if (lookup.post) {
             const html = fs.readFileSync(rootIndex, "utf8");
             seoHeaders(response);
+            if (!INDEXABLE_BLOG_SLUGS.has(slug)) {
+              response.set("X-Robots-Tag", "noindex, follow");
+            }
             response.status(200).send(renderDbBlogPost(html, pagePath, lookup.post));
             return;
           }

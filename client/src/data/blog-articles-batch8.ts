@@ -663,54 +663,54 @@ export const blogArticlesBatch8: BlogPost[] = [
   },
   {
     slug: "blue-raven-solar-complaints",
-    title:
-      "Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition",
-    metaTitle:
-      "Blue Raven Solar Complaints: How to Handle Contract Issues After the SunPower Acquisition",
-    metaDescription: `Blue Raven Solar (now SunPower) collapsed — leaving homeowners with broken promises & no warranty. Learn how to cancel your contract. Free case review.`,
-    category: "Company Complaints",
-    readTime: "12 min read",
-    publishDate: "March 2026",
-    excerpt:
-      "Dealing with Blue Raven Solar complaints or stuck in a predatory contract? Learn how the SunPower acquisition affects your rights and how to get help today.",
-    heroImage:
-      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
-    heroAlt: "solar panels on residential home",
-    ctaText: "Get a Free Solar Contract Review",
-    ctaSubtext:
-      "We review your agreement at no cost. Find out your options in 48 hours.",
+    title: "Blue Raven Solar Complaints: Status, Support and Contract Help",
+    metaTitle: "Blue Raven Solar Complaints: Status & Support",
+    metaDescription: "Is Blue Raven Solar still in business? Check the SunPower acquisition timeline, project date, warranty route, lender, support number, records, and complaint options.",
+    category: "Company Guide",
+    readTime: "8 min read",
+    publishDate: "August 16, 2026",
+    excerpt: "Blue Raven's current support path depends heavily on when a project was completed and which company owns the loan, lease, PPA, equipment warranty, and service obligation.",
+    heroImage: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&auto=format&fit=crop",
+    heroAlt: "Homeowner reviewing Blue Raven Solar project and warranty records",
+    ctaText: "Review Your Blue Raven Records",
+    ctaSubtext: "Organize the agreement, project date, lender, warranty, production data, and service history for a fact-specific review.",
     content: [
-      {
-        type: "p",
-        content:
-          "The solar industry has been rocked by the recent Chapter 11 bankruptcy filing of SunPower, leaving thousands of homeowners who signed with their subsidiary, Blue Raven Solar, in a state of legal and financial limbo. Many customers report being promised '18 months of free solar' or significant rebates that suddenly stopped arriving after September 2024. If you are currently facing unfulfilled promises, mechanical failures, or a system that was never even turned on, you are not alone in this struggle. The acquisition of Blue Raven by Complete Solaria has only added more layers of confusion to an already complex situation for homeowners trying to find accountability. This transition period is often when predatory practices are most prevalent, as companies try to offload liabilities while keeping customers locked into high-interest, long-term debt.",
-      },
-      {
-        type: "h2",
-        content: "Common Blue Raven Solar Complaints and Red Flags",
-      },
-      {
-        type: "p",
-        content:
-          "Homeowners across the country have voiced consistent grievances regarding Blue Raven Solar's sales tactics and post-installation support. One of the most frequent complaints involves the 'Blue Power Plus+' program, which promised to cover the first 18 months of solar loan payments. Since the SunPower bankruptcy proceedings began, many customers have seen these checks stop without warning, leaving them with unexpected monthly bills ranging from $150 to over $300. This bait-and-switch tactic is a primary reason why so many are now seeking ways to terminate their agreements and hold the company responsible for these financial discrepancies. Many families were sold on the idea that their solar system would be 'self-funding' for the first year and a half, only to find themselves paying both a utility bill and a solar loan simultaneously.",
-      },
-      {
-        type: "p",
-        content:
-          "Beyond the financial incentives, many Blue Raven customers have reported significant issues with the physical installation of their systems. Reports of roof leaks, improperly mounted panels, and damage to structural components are common in consumer reviews. When these issues arise, homeowners often find themselves caught in a loop of automated customer service responses or 'ghosted' entirely by their original sales representatives. The frustration is compounded when the promised energy production levels are never met, leading to a situation where the homeowner is paying for a premium system that provides only a fraction of the expected savings. These red flags are not just minor inconveniences; they are often indicators of a systemic failure to provide the quality of service that was promised during the high-pressure sales pitch.",
-      },
+      { type: "p", content: "Direct answer: the Blue Raven name remains in use, but the correct support and responsibility path depends on the project date. SunPower's current acquisition FAQ says Complete Solar purchased certain Blue Raven assets from the former SunPower Corporation bankruptcy estate and obtained the right to operate under the Blue Raven name." },
+      { type: "callout", content: "SunPower's FAQ says the asset purchaser did not assume ownership, benefits, or liabilities for Blue Raven or other SunPower projects completed on or before September 30, 2024. That statement makes the completion date and legal names in your documents essential." },
+      { type: "h2", content: "Is Blue Raven Solar still in business?" },
+      { type: "p", content: "The current [SunPower acquisition FAQ](https://us.sunpower.com/acquisition-announcement) says Complete Solar purchased selected Blue Raven assets and the right to continue operating a solar sales and installation business under the Blue Raven name. This is different from saying that the buyer assumed every historic project, warranty, debt, or customer obligation." },
+      { type: "h2", content: "Which records determine who should handle your problem?" },
+      { type: "list", items: [
+        "The project completion and permission-to-operate dates, especially whether completion occurred on or before September 30, 2024.",
+        "The legal names on the sales contract, installation contract, loan, lease, or PPA.",
+        "The equipment manufacturers and separate manufacturer warranty documents.",
+        "The workmanship, roof, production, and service warranty providers.",
+        "The lender or financier that sends statements and accepts payments.",
+        "Every service ticket, inspection, permit, monitoring record, photo, and written response."
+      ] },
+      { type: "h2", content: "Where should a Blue Raven customer start?" },
+      { type: "p", content: "The current SunPower FAQ lists **800-377-4480** for Blue Raven Solar. It directs customers with pre-acquisition cash or loan purchases to their lender, and customers with leases or PPAs to their financier or SunStrong Management. Verify the current routing on the official page and keep the case number and written response." },
+      { type: "h2", content: "What if the system, roof, rebate, or service was not delivered as expected?" },
+      { type: "p", content: "Build a factual record before assigning legal conclusions. Match each disputed promise to a contract, proposal, email, text, advertisement, or witness. Preserve system-production data, utility bills, photos, inspection findings, warranty requests, rebate terms, payment history, and responses from Blue Raven, SunPower, the lender, and equipment manufacturer." },
+      { type: "h2", content: "Does the SunPower bankruptcy cancel a Blue Raven contract or loan?" },
+      { type: "p", content: "Not automatically. An asset sale, company bankruptcy, installation agreement, equipment warranty, and financing obligation are separate issues. Review the contract parties and any bankruptcy or acquisition notice, and obtain qualified advice before treating one event as termination of another party's agreement." },
+      { type: "warning", content: "Do not stop loan, lease, or PPA payments solely because the original parent company entered bankruptcy. A missed payment can create collection or credit consequences even while a service or warranty dispute is pending." },
+      { type: "h2", content: "How can you escalate a documented complaint?" },
+      { type: "p", content: "Send a concise written timeline and requested resolution to the party identified in the agreement or official support route. For an eligible financing issue, use the [CFPB complaint portal](https://www.consumerfinance.gov/complaint/). Suspected fraud can be reported at [ReportFraud.ftc.gov](https://reportfraud.ftc.gov/), and state attorneys general accept consumer complaints. A complaint creates a record but does not itself cancel a contract." },
+      { type: "h2", content: "Bottom line" },
+      { type: "p", content: "The fastest useful path is to identify the completion date, contract parties, financing owner, warranty provider, and exact unresolved obligation. Then contact the correct party in writing and preserve the complete response before choosing a financial or legal next step." },
     ],
     faq: [
-          { q: `How can I cancel my Blue Raven Solar contract in California if installations are delayed or workmanship is poor?`, a: `First, review your contract for cancellation, termination, and any statutory rescission periods, then document missed deadlines, photos of defects, and all communications. Send a written cancellation or cure notice by certified mail and notify the financing company if you have a loan or lease. If the company refuses to resolve the issue, a legal review can determine whether you may have grounds for rescission or other remedies based on breach or misrepresentation.` },
-          { q: `What specific complaints are California homeowners reporting about Blue Raven Solar installations?`, a: `California homeowners commonly report installation delays, incomplete or poor-quality workmanship, inaccurate savings or production promises, permitting issues, and billing or financing disputes. Keep detailed records of promises, contracts, permits and system performance data to support any claim. You can also file complaints with the Contractors State License Board, the California Public Utilities Commission for interconnection or performance issues, and consumer agencies; a legal review can determine if you may have grounds for further action.` },
-          { q: `How do I file a complaint and pursue a refund from Blue Raven Solar in Texas for misrepresented energy savings or equipment failures?`, a: `Collect your contract, performance data, photos of defects, and records of all communications, then first contact Blue Raven’s customer service and escalation team in writing requesting repair or refund. If the company does not resolve the issue, file complaints with the Texas Attorney General’s Consumer Protection Division and the Better Business Bureau, and notify your financing company if payments are involved. A legal review can determine whether you may have grounds to seek a refund, cancellation, or other relief based on breach, fraud, or faulty installation.` },
-        ],
-    relatedSlugs: [
-      "how-to-get-out-of-a-solar-contract",
-      "solar-contract-red-flags-and-scams",
-      "solar-company-went-bankrupt",
+      { q: "Is Blue Raven Solar still in business?", a: "The current SunPower FAQ says Complete Solar purchased selected Blue Raven assets and the right to operate under the Blue Raven name. It also says the purchaser did not assume the liabilities of projects completed on or before September 30, 2024." },
+      { q: "Did Blue Raven Solar go out of business or file bankruptcy?", a: "Blue Raven's former parent, SunPower Corporation, filed bankruptcy in August 2024. Complete Solar later purchased selected assets, including certain Blue Raven assets. The project date and legal parties determine which entity may be responsible for a particular issue." },
+      { q: "What is the Blue Raven Solar support number?", a: "SunPower's current acquisition FAQ lists 800-377-4480 for Blue Raven Solar. Verify the number on the official page and retain the case number and written response." },
+      { q: "What happened to my Blue Raven warranty?", a: "Do not assume every warranty disappeared or transferred. Identify the workmanship, roof, production, equipment, and financing documents separately, then use the project date and provider name to route each request." },
+      { q: "Can I cancel a Blue Raven Solar contract?", a: "The acquisition or bankruptcy history does not create a universal cancellation right. Review the signed cancellation, termination, funding, warranty, default, and dispute terms and obtain qualified review of any documented breach or misrepresentation." },
+      { q: "Should I stop paying my Blue Raven solar loan during a dispute?", a: "Do not assume a service or warranty dispute pauses a separate financing obligation. Check the loan and dispute terms and obtain qualified advice before missing a payment." },
     ],
+    relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-installer-out-of-business", "solar-contract-rescission-rights", "how-to-file-a-complaint-against-solar-company-attorney-general"],
   },
+
   {
     slug: "complete-solaria-complaints",
     title:

@@ -89,7 +89,7 @@ INTERNAL LINKING REQUIREMENTS:
 - Link to homepage with anchor text "solar contract help"
 
 CITY PAGES FOR INTERNAL LINKING:
-/cancel-solar-contract/phoenix-az | /cancel-solar-contract/houston-tx
+/cancel-solar-contract/phoenix-az | /blog/cancel-solar-contract-houston-tx
 /cancel-solar-contract/dallas-tx | /cancel-solar-contract/los-angeles-ca
 /cancel-solar-contract/las-vegas-nv | /cancel-solar-contract/denver-co
 /cancel-solar-contract/san-antonio-tx | /cancel-solar-contract/jacksonville-fl

@@ -63,236 +63,74 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
   // ARTICLE 1 — How to Get Out of a Solar Contract
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    slug: 'how-to-get-out-of-a-solar-contract',
-    title: 'How to Get Out of a Solar Contract: Options and First Steps',
-    metaTitle: 'How to Get Out of a Solar Contract: Options and First Steps',
-    metaDescription: `Looking for a way out of a solar contract? Review practical first steps, documents to gather, and questions to consider for a lease, loan, or PPA.`,
-    category: 'Legal Guide',
-    readTime: '9 min read',
-    publishDate: 'March 2026',
-    excerpt: 'Thousands of homeowners across the U.S. are actively searching for ways to get out of a solar contract, cancel a solar agreement, or reduce their solar payments. If you\'re stuck, this is the guide you need.',
-    heroImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80',
-    heroAlt: 'homeowner stressed about solar contract reviewing paperwork',
-    ctaText: 'Get a Free Solar Contract Review',
-    ctaSubtext: 'We review your agreement at no cost. Find out your options in 48 hours.',
+    slug: "how-to-get-out-of-a-solar-contract",
+    title: "How to Get Out of a Solar Contract: 7 Steps to Review",
+    metaTitle: "How to Get Out of a Solar Contract: 7 Steps",
+    metaDescription: "Want to cancel a solar loan, lease, or PPA? Identify the parties, check written cancellation terms, preserve records, compare exit paths, and report problems safely.",
+    category: "Contract Guide",
+    readTime: "10 min read",
+    publishDate: "August 16, 2026",
+    excerpt: "There is no universal solar-contract exit. The right process depends on the transaction, contract type, timing, parties, installation status, written terms, and applicable law.",
+    heroImage: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80",
+    heroAlt: "Homeowner organizing a solar contract, proposal, bills, and service records",
+    ctaText: "Review Your Solar Contract",
+    ctaSubtext: "Organize the agreement, financing documents, proposal, bills, and communications for a fact-specific review.",
     faq: [
-      { q: 'Can I legally get out of a solar contract?', a: 'In some cases, yes — depending on your contract terms and situation. TILA violations, misrepresentation during the sales process, and state consumer protection laws can all provide legal grounds for cancellation or renegotiation.' },
-      { q: 'What happens if I stop paying my solar loan?', a: 'It may impact your credit and lead to collections, but options may exist before that point. A legal review of your agreement can identify leverage points before you take any action that could harm your credit.' },
-      { q: 'Can I cancel a solar lease early?', a: 'Possibly, but it depends on the agreement and provider. Many leases have early termination clauses with buyout options, and some have been successfully challenged based on misrepresentation.' },
-      { q: 'Is solar contract cancellation expensive?', a: 'It depends on your contract and the path taken. A free case review is always the first step — many homeowners discover options they didn\'t know existed before spending any money.' },
+      { q: "Can you get out of a solar contract?", a: "Sometimes, but no universal rule applies. The answer depends on the signed documents, transaction channel, timing, contract type, installation status, facts, and law. Start with the written cancellation, termination, payoff, purchase, transfer, default, and dispute provisions." },
+      { q: "Can you cancel a solar contract before installation?", a: "Act quickly and follow any written Notice of Cancellation or contract procedure exactly. The FTC Cooling-Off Rule covers certain sales made at a home or temporary location, but it excludes other transactions, including some completed entirely online, by mail, or by telephone." },
+      { q: "Can you cancel a solar contract after installation?", a: "Installation usually makes the issue more complex. Possible paths may include a contractual buyout or prepayment, transfer, documented service or performance dispute, negotiated resolution, or legal claim. The available path is agreement- and fact-specific." },
+      { q: "What happens if I stop paying a solar loan?", a: "Missed payments can create default, collection, credit, and other consequences. A complaint or dispute does not necessarily pause the payment obligation. Review the documents and obtain qualified advice before withholding payment." },
+      { q: "Can a solar lease or PPA be transferred when I sell my home?", a: "Some agreements provide a transfer or prepayment process, often with company approval and buyer requirements. Start early, request the current procedure and amounts in writing, and coordinate with the buyer, lender, title company, and escrow professional." },
+      { q: "Where can I report a solar loan or sales problem?", a: "Depending on the issue, consumers can contact the company, submit an eligible financial-product complaint to the CFPB, report suspected fraud to the FTC, and use a state attorney general or local consumer-protection channel. A complaint does not itself cancel an agreement." },
     ],
-    relatedSlugs: ['solar-company-went-bankrupt', 'cancel-solar-contract-after-installation', 'solar-contract-red-flags-and-scams'],
+    relatedSlugs: ["solar-contract-rescission-rights", "cancel-solar-contract-after-installation", "sunrun-solar-contract-cancellation-2026", "goodleap-solar-loan-cancellation-hidden-fees-2026", "solar-payments-too-high-help"],
     content: [
-      {
-        type: 'stat-block',
-        stats: [
-          { value: '3M+', label: 'U.S. homeowners with solar contracts' },
-          { value: '68%', label: 'Report higher-than-expected costs' },
-          { value: '30–90', label: 'Days to resolution with legal help' },
-          { value: 'Free', label: 'Initial case review' },
-        ],
-      },
-      {
-        type: 'p',
-        content: 'If you\'re stuck in a solar contract, you\'re not alone. Thousands of homeowners across the U.S. are actively searching for ways to get out of a solar contract, cancel a solar agreement, or reduce their solar payments. The solar industry\'s explosive growth over the past decade has been accompanied by a wave of aggressive sales tactics, misleading promises, and contracts that homeowners didn\'t fully understand when they signed.',
-      },
-      {
-        type: 'warning',
-        content: 'If you are dealing with high monthly payments, a system that isn\'t performing as promised, misleading sales representations, or trouble selling your home because of a solar lien — there may be legal options available to you. Do not assume you are permanently trapped.',
-      },
-      {
-        type: 'h2',
-        content: 'Step 1: Understand Your Solar Contract Type (Loan, Lease, or PPA)',
-      },
-      {
-        type: 'p',
-        content: 'Before you can cancel a solar contract, you need to know exactly what you\'re dealing with. The exit strategy varies dramatically depending on your contract type, and confusing them is one of the most common mistakes homeowners make when trying to get out.',
-      },
-      {
-        type: 'list',
-        items: [
-          'Solar Loan — You own the system but owe a lender. The loan is often secured against your home via a UCC-1 lien. Exit strategies include dispute, payoff negotiation, or lender-level TILA violations.',
-          'Solar Lease — You pay a monthly fee to use the panels owned by the solar company. Leases typically run 20–25 years with 2–3% annual escalators. Exit options include early termination clauses, buyout, or transfer.',
-          'PPA (Power Purchase Agreement) — You pay per kilowatt-hour for electricity the panels produce. PPAs are often the most complex to exit but are also frequently challenged based on production misrepresentation.',
-        ],
-      },
-      {
-        type: 'callout',
-        content: 'Each contract type has different cancellation and exit strategies. Knowing yours is step one. If you\'re unsure which type you have, look for the words "loan," "lease," or "power purchase agreement" in the first two pages of your agreement.',
-      },
-      {
-        type: 'h2',
-        content: 'Step 2: Check Your Solar Contract Cancellation Window',
-      },
-      {
-        type: 'p',
-        content: 'Most solar agreements include a short cancellation period — typically 3 to 10 business days — during which you can cancel without penalty. Under the FTC\'s Cooling-Off Rule, contracts signed at your home for $25 or more give you 3 business days to cancel. Some states extend this window significantly: California gives you 3 days, but Texas and Florida have their own consumer protection provisions that can apply.',
-      },
-      {
-        type: 'p',
-        content: 'If you are past that initial cancellation window, your situation is not necessarily final. The existence of a cancellation window that has passed does not eliminate your other legal options — it simply means you need to pursue a different path.',
-      },
-      {
-        type: 'image',
-        src: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=900&q=80',
-        alt: 'solar agreement paperwork close up with pen',
-        caption: 'Understanding what you signed is the critical first step.',
-      },
-      {
-        type: 'h2',
-        content: 'Step 3: Identify Misrepresentation or Sales Issues',
-      },
-      {
-        type: 'p',
-        content: 'This is where many homeowners find their strongest leverage. Solar contract cancellation is frequently pursued on the basis of misrepresentation during the sales process. Under the Federal Trade Commission Act and most state Deceptive Trade Practices Acts, a contract obtained through material misrepresentation can be voided or renegotiated.',
-      },
-      {
-        type: 'list',
-        items: [
-          'Promised "no electric bill" or "zero out your utility bill" — a claim almost never reflected in the actual contract',
-          'Misleading federal tax credit claims (the 30% ITC requires tax liability; many homeowners were told they\'d receive a cash refund)',
-          'Savings projections that never materialized — often based on inflated utility rate escalation assumptions',
-          'Verbal promises about system performance, monitoring, or maintenance that were never put in writing',
-          'Misrepresentation of the contract type (e.g., told it was a "program" or "grant" rather than a loan)',
-        ],
-      },
-      {
-        type: 'callout',
-        content: 'These details can significantly impact your ability to dispute or renegotiate your agreement. Document everything you remember about the sales conversation — dates, names, specific claims made. This becomes evidence.',
-      },
-      {
-        type: 'h2',
-        content: 'Step 4: Determine Who Holds Your Solar Agreement',
-      },
-      {
-        type: 'p',
-        content: 'One of the most confusing aspects of solar contracts is that the company that sold you the system is often not the company that holds your financial agreement. Solar contracts frequently involve multiple parties, and understanding who controls your agreement is critical to knowing who you need to negotiate with.',
-      },
-      {
-        type: 'list',
-        items: [
-          'Sales company — the company whose rep knocked on your door or showed up at a home show',
-          'Installer — may be the same as the sales company, or a separate subcontractor',
-          'Financing provider — the lender (Mosaic, GoodLeap, Sunlight Financial, Dividend Finance, etc.) or the lessor (Sunrun, SunPower, Tesla, etc.)',
-          'Servicing company — may handle ongoing monitoring, maintenance, and billing separately from the original installer',
-        ],
-      },
-      {
-        type: 'h2',
-        content: 'Step 5: Explore Your Solar Contract Exit Options',
-      },
-      {
-        type: 'p',
-        content: 'Depending on your specific situation, contract type, and the facts of your sales experience, you may have several paths available. There is no one-size-fits-all solution, which is why a case-specific legal review is always the recommended starting point.',
-      },
-      {
-        type: 'list',
-        items: [
-          'Contract dispute — challenging the agreement based on misrepresentation, TILA violations, or state consumer protection law',
-          'Renegotiation — using identified leverage points to negotiate lower payments, a buyout reduction, or modified terms',
-          'Transfer of agreement — transferring the lease or PPA to a home buyer when selling your property',
-          'Legal review and demand letter — a formal attorney demand letter often produces results before litigation is necessary',
-          'Financial restructuring — in some cases, refinancing a solar loan at better terms is the most practical path',
-        ],
-      },
-      {
-        type: 'h2',
-        content: 'Can You Cancel a Solar Contract After Installation?',
-      },
-      {
-        type: 'p',
-        content: 'Yes — in some cases. Even after installation, homeowners may still have viable options. Post-installation cancellation is more complex than pre-installation, but it is not impossible. Performance-related claims (the system isn\'t producing what was promised), contract inconsistencies (what you were told versus what you signed), and ongoing misrepresentation can all provide grounds for action even years after installation.',
-      },
-      {
-        type: 'quote',
-        content: 'I was told my electric bill would essentially disappear. Three years later I\'m paying $180 a month for solar AND still getting utility bills. When the attorney reviewed my contract, they found the production guarantee in the contract was completely different from what the salesperson promised.',
-        author: 'Verified Client — Texas',
-      },
-      {
-        type: 'h2',
-        content: 'What Most Solar Companies Won\'t Tell You',
-      },
-      {
-        type: 'p',
-        content: 'Many homeowners believe that because they signed the contract, they are permanently stuck. That is not always true. The details of your agreement matter enormously — and so does how that agreement was sold to you. Consumer protection law exists precisely because contracts obtained through deception or high-pressure tactics are not always enforceable as written.',
-      },
-      {
-        type: 'warning',
-        content: 'Do not contact your solar company or lender directly before speaking with an attorney. Anything you say can be used to limit your options. Get a legal review first — it\'s free and it protects your position.',
-      },
-      {
-        type: 'h2',
-        content: 'How to Get Out of a Solar Contract: Step-by-Step Action Plan',
-      },
-      {
-        type: 'p',
-        content: 'Here is the exact sequence of steps that gives you the best chance of a successful solar contract cancellation:',
-      },
-      {
-        type: 'list',
-        items: [
-          'Step 1 — Gather Your Documents: Collect your original contract, all addendums, the sales proposal, any emails or texts from the sales rep, and 12 months of utility bills. These are your evidence.',
-          'Step 2 — Identify Your Contract Type: Loan, lease, or PPA. Each has different exit strategies. Loans can be challenged on TILA grounds. Leases and PPAs can be challenged on misrepresentation and escalator clause disclosure.',
-          'Step 3 — Check Your State Rescission Period: Most states give you 3-5 business days to cancel any home improvement contract. If you are within that window, send a certified letter immediately.',
-          'Step 4 — Document the Misrepresentation: Write down everything the sales rep said that turned out to be false or misleading. Compare the verbal promises to what is actually in the contract.',
-          'Step 5 — Do NOT Contact the Solar Company Yet: Anything you say can be used against you. Get a legal review first.',
-          'Step 6 — Get a Free Legal Review: A consumer protection attorney can identify the strongest grounds for cancellation in your specific case. Many work on contingency.',
-          'Step 7 — File Regulatory Complaints: File with your state Attorney General and the CFPB simultaneously. This creates official records and often prompts the company to negotiate.',
-        ],
-      },
-      {
-        type: 'h2',
-        content: 'Getting Out of a Solar Contract by State: Where You Have the Strongest Rights',
-      },
-      {
-        type: 'p',
-        content: 'State law dramatically affects your ability to cancel a solar contract. Here are the states where homeowners have the strongest legal protections in 2026:',
-      },
-      {
-        type: 'list',
-        items: [
-          'California: The California Consumers Legal Remedies Act (CLRA) and NEM 3.0 misrepresentation claims give California homeowners some of the strongest cancellation rights in the country. If you signed after April 2023 and were promised bill elimination, you likely have a fraud claim.',
-          'Florida: FDUTPA (Florida Deceptive and Unfair Trade Practices Act) covers solar contracts broadly. Florida courts have been favorable to homeowners challenging escalator clauses and misrepresented savings.',
-          'Texas: The Texas DTPA (Deceptive Trade Practices Act) allows homeowners to recover up to 3x damages for deceptive solar sales tactics. Texas has no state income tax, making the federal tax credit pitch especially prone to misrepresentation.',
-          'New Jersey: The New Jersey Consumer Fraud Act is one of the strongest in the country. NJ homeowners can recover attorney fees and treble damages for solar fraud.',
-          'Arizona: ARS § 44-1522 covers deceptive practices in solar sales. Arizona has seen significant AG enforcement action against solar companies.',
-          'Nevada: Net metering policy changes by Rocky Mountain Power and NV Energy have invalidated many savings projections. Misrepresentation of net metering credits is a strong claim.',
-          'Connecticut: Strong home improvement contractor laws require specific disclosures. Failure to provide the required Notice of Cancellation form is itself a violation.',
-        ],
-      },
-      {
-        type: 'h2',
-        content: 'Solar Contract Exit Options Compared: Which One Is Right for You?',
-      },
-      {
-        type: 'p',
-        content: 'There is not one single way to get out of a solar contract. The right approach depends on your contract type, how long ago you signed, your state, and the specific problems you are experiencing:',
-      },
-      {
-        type: 'list',
-        items: [
-          'Rescission (Cooling-Off): Free, immediate, and clean — but only available within 3-5 business days of signing. If you are in this window, this is always the first choice.',
-          'Legal Cancellation Based on Misrepresentation: No buyout required if successful. Takes 3-12 months. Strongest when you have documented evidence of false promises.',
-          'TILA Rescission (Loans Only): Available up to 3 years from signing if the lender failed to disclose material terms. Requires a consumer protection attorney.',
-          'Negotiated Buyout: You pay to exit. Typically $5,000-$50,000 depending on company and contract. This is the company preferred option — not yours.',
-          'Lease Transfer to Home Buyer: If selling your home, the buyer assumes the lease. Requires buyer qualification and company approval. Not a cancellation, but removes your obligation.',
-          'System Purchase/Buyout: For leases and PPAs, you can buy the system outright. Quotes are often inflated — negotiate or challenge them.',
-        ],
-      },
-      {
-        type: 'h2',
-        content: 'Get a Free Solar Contract Review',
-      },
-      {
-        type: 'p',
-        content: 'If you\'re trying to cancel a solar contract or understand your options, the first step is a free review of your specific agreement. Our team reviews solar agreements, identifies potential leverage points, and gives you an honest assessment of your realistic next steps — at no cost and with no obligation.',
-      },
+      { type: "p", content: "Direct answer: you may have an exit, cancellation, payoff, transfer, purchase, or dispute option, but the correct path depends on the written agreement and facts. The most efficient approach is to identify the contract type and parties, check every notice and deadline, preserve evidence, and avoid actions that could create a default." },
+      { type: "callout", content: "This guide is a document-review framework, not a determination that a contract is cancelable or that a legal violation occurred. A qualified attorney should review any consequential legal step." },
+      { type: "h2", content: "Step 1: What type of solar agreement do you have?" },
+      { type: "list", items: [
+        "Loan: you generally own the equipment and owe a lender under separate financing documents.",
+        "Lease: another party generally owns the equipment and you pay for use under a term agreement.",
+        "Power purchase agreement: another party generally owns the system and bills for generated electricity under the contract rate.",
+        "Cash purchase or installation contract: the payment, installation, warranty, and cancellation terms may sit in one or more documents."
+      ] },
+      { type: "p", content: "Do not identify the contract type from the salesperson's label alone. Read the legal names, ownership language, payment schedule, security terms, and signature pages." },
+      { type: "h2", content: "Step 2: Who sold, installed, financed, owns, and services the system?" },
+      { type: "p", content: "A solar transaction can involve a sales company, installer, lender, system owner, account servicer, warranty provider, and monitoring provider. List each legal name, address, account number, and role. A complaint against one party may not automatically change a separate agreement with another." },
+      { type: "h2", content: "Step 3: Is there a written cancellation notice or deadline?" },
+      { type: "p", content: "Search every document for Notice of Cancellation, cancellation, rescission, termination, change order, project approval, funding, purchase option, prepayment, transfer, default, dispute resolution, and arbitration. Follow the exact address and delivery method, keep a signed copy, and preserve proof of delivery." },
+      { type: "p", content: "The [FTC Cooling-Off Rule](https://consumer.ftc.gov/articles/buyers-remorse-ftcs-cooling-rule-may-help) gives three business days to cancel certain sales made at a home, workplace, dormitory, or seller's temporary location. It does not cover every transaction. The FTC lists exclusions, including some sales completed entirely online, by mail, or by telephone. State law or the agreement may provide different rights, so do not assume coverage from the three-day phrase alone." },
+      { type: "h2", content: "Step 4: Which records should you preserve?" },
+      { type: "list", items: [
+        "Every contract, addendum, disclosure, cancellation form, proposal, design, permit, and inspection record.",
+        "Texts, emails, advertisements, recordings where lawful, and notes identifying who said what and when.",
+        "Utility bills before and after solar, solar invoices, payment history, payoff quotes, and tax-credit representations.",
+        "System-production data, monitoring screenshots, warranty claims, repair requests, and company responses.",
+        "Home-sale, title, escrow, UCC-1, lease-transfer, or buyer-assumption records when a property transaction is involved."
+      ] },
+      { type: "h2", content: "Step 5: Does the financed amount match the sales presentation?" },
+      { type: "p", content: "Compare the cash price, amount financed, APR, finance charge, total of payments, expected-prepayment schedule, and any displayed tax-credit estimate. The CFPB's [solar-financing report](https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/) identifies industry risks involving dealer-fee markups, uncertain tax-credit assumptions, payment increases after an expected prepayment, and savings claims. The report does not prove a violation in any individual account." },
+      { type: "h2", content: "Step 6: Which practical exit path fits the documents?" },
+      { type: "list", items: [
+        "Timely written cancellation under an agreement or a law that actually covers the transaction.",
+        "Loan payoff using a current written payoff quote.",
+        "Lease or PPA purchase, service prepayment, or early-termination option stated in the agreement.",
+        "Company-approved transfer or buyer assumption during a home sale.",
+        "Documented warranty, service, production, billing, disclosure, or sales-practice dispute.",
+        "Negotiated modification or resolution documented in a signed writing.",
+        "Qualified legal review where the facts and documents support a possible claim or defense."
+      ] },
+      { type: "h2", content: "Step 7: How should you contact the company or a regulator?" },
+      { type: "p", content: "Send a concise factual timeline, identify the account and requested response, attach only relevant documents, and keep the complete submission and confirmation. Ask the company to state its position, procedure, amount, and contract basis in writing." },
+      { type: "p", content: "For an eligible financial-product issue, use the [CFPB complaint portal](https://www.consumerfinance.gov/complaint/). The FTC accepts suspected fraud reports at [ReportFraud.ftc.gov](https://reportfraud.ftc.gov/). State attorneys general and local consumer-protection offices also accept complaints. These channels create records and may prompt responses, but filing alone does not cancel a contract or suspend payments." },
+      { type: "warning", content: "Do not stop payments, remove or disable equipment, sign a release, transfer property, or accept new terms based only on general online advice. Check the agreement and obtain qualified advice because those actions can affect credit, collections, title, warranties, and legal rights." },
+      { type: "h2", content: "When is professional review most useful?" },
+      { type: "p", content: "Seek qualified review when a deadline is close, installation or funding status is unclear, the contract and sales presentation conflict, a payoff or transfer blocks a home sale, a creditor threatens collection, a lien or fixture filing affects closing, or you are considering withholding payment or asserting a legal claim." },
+      { type: "h2", content: "Bottom line" },
+      { type: "p", content: "The fastest reliable path is document-first: identify the agreement and parties, preserve the timeline and evidence, obtain current written procedures or quotes, and choose only the option supported by the specific documents and applicable law." },
     ],
   },
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // ARTICLE 2 — Solar Company Went Bankrupt
-  // ─────────────────────────────────────────────────────────────────────────────
   {
     slug: 'solar-company-went-bankrupt',
     title: 'Solar Company Went Bankrupt – What Are Your Options?',
