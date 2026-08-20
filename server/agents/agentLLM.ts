@@ -234,9 +234,8 @@ async function callOpenRouter(
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  let res: Response;
   try {
-    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -247,6 +246,42 @@ async function callOpenRouter(
       body: JSON.stringify(body),
       signal: controller.signal,
     });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`OpenRouter error ${res.status}: ${err}`);
+    }
+
+    // Keep the abort timer alive while the response body streams. A response can
+    // return headers quickly yet spend far longer streaming the body otherwise.
+    const rawText = await res.text();
+    if (!rawText || rawText.trim() === "") {
+      throw new Error("OpenRouter returned empty response body");
+    }
+
+    let data: any;
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      throw new Error(`OpenRouter returned invalid JSON: ${rawText.substring(0, 200)}`);
+    }
+
+    if (data.error) {
+      throw new Error(`OpenRouter API error: ${data.error.message || JSON.stringify(data.error)}`);
+    }
+
+    const msg = data.choices?.[0]?.message;
+    if (!msg) throw new Error(`No message in OpenRouter response: ${JSON.stringify(data).substring(0, 200)}`);
+
+    const toolCalls = msg.tool_calls?.map((tc: any) => ({
+      name: tc.function.name,
+      arguments: JSON.parse(tc.function.arguments || "{}"),
+    }));
+
+    return {
+      content: msg.content ?? "",
+      toolCalls,
+      usage: data.usage ? { promptTokens: data.usage.prompt_tokens, completionTokens: data.usage.completion_tokens } : undefined,
+    };
   } catch (error: any) {
     if (error?.name === "AbortError") {
       throw new Error(`OpenRouter attempt timed out after ${Math.round(timeoutMs / 1000)}s`);
@@ -255,41 +290,4 @@ async function callOpenRouter(
   } finally {
     clearTimeout(timeout);
   }
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter error ${res.status}: ${err}`);
-  }
-
-  // Guard against empty body (causes "Unexpected end of JSON input")
-  const rawText = await res.text();
-  if (!rawText || rawText.trim() === "") {
-    throw new Error("OpenRouter returned empty response body");
-  }
-
-  let data: any;
-  try {
-    data = JSON.parse(rawText);
-  } catch (e) {
-    throw new Error(`OpenRouter returned invalid JSON: ${rawText.substring(0, 200)}`);
-  }
-
-  // Check for OpenRouter error in body (some errors come as 200 with error field)
-  if (data.error) {
-    throw new Error(`OpenRouter API error: ${data.error.message || JSON.stringify(data.error)}`);
-  }
-
-  const msg = data.choices?.[0]?.message;
-  if (!msg) throw new Error(`No message in OpenRouter response: ${JSON.stringify(data).substring(0, 200)}`);
-
-  const toolCalls = msg.tool_calls?.map((tc: any) => ({
-    name: tc.function.name,
-    arguments: JSON.parse(tc.function.arguments || "{}"),
-  }));
-
-  return {
-    content: msg.content ?? "",
-    toolCalls,
-    usage: data.usage ? { promptTokens: data.usage.prompt_tokens, completionTokens: data.usage.completion_tokens } : undefined,
-  };
 }

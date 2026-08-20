@@ -37,7 +37,8 @@
 - [x] Correct the scorecard so HighLevel CRM sync and optional law-firm partner delivery are reported as distinct conversion health signals.
 - [x] Add an explicit partner-routing availability alert when no real active law-firm partner is configured, while preserving the healthy HighLevel CRM-sync signal.
 - [x] Document that partner delivery remains intentionally disabled until a verified law-firm partner and delivery endpoint are onboarded.
-- [x] Bound worker-agent LLM retries and fallback runtime to fit the scheduler callback window before re-enabling any paused worker schedule.
+- [ ] Bound worker-agent LLM retries and fallback runtime to fit the scheduler callback window before re-enabling any paused worker schedule.
+- [ ] Keep the scheduled OpenRouter abort budget active through response-body parsing so a slow streamed response cannot exceed the callback window.
 - [x] Publish a sourced, linkable solar-loan document checklist that supports priority commercial pages and legitimate resource-page outreach.
 - [x] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.
 - [ ] Replace the failing short HTTP agent callbacks with the verified expert-review cadence and retain only deterministic site jobs on the site scheduler.
