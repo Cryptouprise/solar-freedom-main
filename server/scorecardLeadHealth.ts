@@ -1,13 +1,16 @@
 export type LeadScorecard = {
   priorLeads: number;
   currentLeads: number;
-  priorDelivered: number;
-  currentDelivered: number;
+  priorCrmSynced: number;
+  currentCrmSynced: number;
+  priorPartnerDelivered: number;
+  currentPartnerDelivered: number;
+  activePartnerCount: number;
 };
 
 export type LeadScorecardAlert = {
   severity: "warning" | "critical";
-  metric: "leads" | "deliveries" | "authority";
+  metric: "leads" | "crm_sync" | "partner_delivery" | "partner_availability" | "authority";
   message: string;
 };
 
@@ -20,11 +23,25 @@ export function buildLeadScorecardAlerts(scorecard: LeadScorecard): LeadScorecar
       message: `28-day durable leads fell ${(100 * (1 - scorecard.currentLeads / scorecard.priorLeads)).toFixed(0)}% versus the preceding 28-day period.`,
     });
   }
-  if (scorecard.currentLeads >= 3 && scorecard.currentDelivered / scorecard.currentLeads < 0.8) {
+  if (scorecard.currentLeads >= 3 && scorecard.currentCrmSynced / scorecard.currentLeads < 0.8) {
     alerts.push({
       severity: "warning",
-      metric: "deliveries",
-      message: `Only ${scorecard.currentDelivered}/${scorecard.currentLeads} durable leads were delivered to CRM or a partner in the current 28-day period.`,
+      metric: "crm_sync",
+      message: `Only ${scorecard.currentCrmSynced}/${scorecard.currentLeads} durable leads reached HighLevel in the current 28-day period.`,
+    });
+  }
+  if (scorecard.activePartnerCount > 0 && scorecard.currentLeads >= 3 && scorecard.currentPartnerDelivered / scorecard.currentLeads < 0.8) {
+    alerts.push({
+      severity: "warning",
+      metric: "partner_delivery",
+      message: `Only ${scorecard.currentPartnerDelivered}/${scorecard.currentLeads} durable leads reached an active law-firm partner in the current 28-day period.`,
+    });
+  }
+  if (scorecard.activePartnerCount === 0 && scorecard.currentLeads >= 1) {
+    alerts.push({
+      severity: "warning",
+      metric: "partner_availability",
+      message: `No active law-firm partner is configured for routing. ${scorecard.currentCrmSynced}/${scorecard.currentLeads} durable leads reached HighLevel; partner delivery remains intentionally inactive until a verified partner endpoint is onboarded.`,
     });
   }
   return alerts;

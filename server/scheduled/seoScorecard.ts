@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
-import { count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
 import { getDb } from "../db";
-import { discoveredBacklinks, leadDeliveries, leads, seoPages, seoScorecardSnapshots } from "../../drizzle/schema";
+import { discoveredBacklinks, lawFirms, leadDeliveries, leads, seoPages, seoScorecardSnapshots } from "../../drizzle/schema";
 import { createAction, getActionQueue } from "../agents/engine";
 import { refreshGscPageMetrics } from "../gscRefresh";
 import { comparisonDelta } from "../scorecardComparisons";
@@ -18,17 +18,23 @@ async function readLeadScorecard(now = new Date()) {
   const priorStart = new Date(currentStart);
   priorStart.setDate(priorStart.getDate() - 28);
 
-  const [currentLeads, priorLeads, currentDeliveries, priorDeliveries] = await Promise.all([
+  const [currentLeads, priorLeads, currentCrmSynced, priorCrmSynced, currentPartnerDelivered, priorPartnerDelivered, activePartners] = await Promise.all([
     db.select({ value: count() }).from(leads).where(gte(leads.createdAt, currentStart)),
     db.select({ value: count() }).from(leads).where(sql`${leads.createdAt} >= ${priorStart} AND ${leads.createdAt} < ${currentStart}`),
+    db.select({ value: count() }).from(leads).where(and(gte(leads.createdAt, currentStart), eq(leads.ghlWebhookSent, 1))),
+    db.select({ value: count() }).from(leads).where(sql`${leads.createdAt} >= ${priorStart} AND ${leads.createdAt} < ${currentStart} AND ${leads.ghlWebhookSent} = 1`),
     db.select({ value: count() }).from(leadDeliveries).where(gte(leadDeliveries.deliveredAt, currentStart)),
     db.select({ value: count() }).from(leadDeliveries).where(sql`${leadDeliveries.deliveredAt} >= ${priorStart} AND ${leadDeliveries.deliveredAt} < ${currentStart}`),
+    db.select({ value: count() }).from(lawFirms).where(eq(lawFirms.status, "active")),
   ]);
   const scorecard = {
     priorLeads: Number(priorLeads[0]?.value ?? 0),
     currentLeads: Number(currentLeads[0]?.value ?? 0),
-    priorDelivered: Number(priorDeliveries[0]?.value ?? 0),
-    currentDelivered: Number(currentDeliveries[0]?.value ?? 0),
+    priorCrmSynced: Number(priorCrmSynced[0]?.value ?? 0),
+    currentCrmSynced: Number(currentCrmSynced[0]?.value ?? 0),
+    priorPartnerDelivered: Number(priorPartnerDelivered[0]?.value ?? 0),
+    currentPartnerDelivered: Number(currentPartnerDelivered[0]?.value ?? 0),
+    activePartnerCount: Number(activePartners[0]?.value ?? 0),
   };
   return { ...scorecard, alerts: buildLeadScorecardAlerts(scorecard) };
 }
@@ -53,7 +59,7 @@ async function surfaceScorecardAlerts(alerts: Array<{ severity: string; metric: 
 async function saveSnapshotAndComparisons(input: {
   now: Date;
   scorecard: { startDate: string; endDate: string; rows: number; clicks: number; impressions: number };
-  leadScorecard: { currentLeads: number; currentDelivered: number };
+  leadScorecard: { currentLeads: number; currentCrmSynced: number };
   geoReadiness: number;
   alerts: Array<{ severity: string; metric: string; message: string }>;
 }) {
@@ -66,7 +72,7 @@ async function saveSnapshotAndComparisons(input: {
     clicks: input.scorecard.clicks,
     impressions: input.scorecard.impressions,
     durableLeads: input.leadScorecard.currentLeads,
-    crmDeliveries: input.leadScorecard.currentDelivered,
+    crmDeliveries: input.leadScorecard.currentCrmSynced,
     verifiedBacklinks: Number(verifiedBacklinks?.value ?? 0),
     geoReadiness: input.geoReadiness,
   };
@@ -133,7 +139,7 @@ export async function seoScorecardHandler(req: Request, res: Response) {
         content: [
           `28-day window: ${scorecard.startDate} through ${scorecard.endDate}`,
           `Clicks: ${scorecard.clicks} | Impressions: ${scorecard.impressions} | Pages: ${scorecard.rows}`,
-          `Durable leads: ${leadScorecard.currentLeads} | CRM/partner deliveries: ${leadScorecard.currentDelivered}`,
+          `Durable leads: ${leadScorecard.currentLeads} | HighLevel syncs: ${leadScorecard.currentCrmSynced} | Partner deliveries: ${leadScorecard.currentPartnerDelivered}`,
           ...alerts.map((alert) => `${alert.severity.toUpperCase()}: ${alert.message}`),
         ].join("\n"),
       });

@@ -26,6 +26,8 @@ The admin dashboard at **`/admin/ghl`** was built with contacts, opportunities, 
 
 The website lead journey system was also built. It tracks page views, time on page/site, scroll depth, CTA clicks, form events, UTM/referrer information, and later pipeline/payment milestones. Leads are marked **High Intent** when they spend more than five minutes on site or click at least two CTAs. The GHL dashboard includes the Website Leads view and detailed per-lead journey information.
 
+The current 28-day lead audit confirms that **19 of 19 durable website leads were forwarded to HighLevel**. The scorecard now reports that CRM-sync result separately from law-firm partner routing. No active verified law-firm partner or delivery endpoint is currently configured, so partner delivery is intentionally inactive rather than a failed CRM sync.
+
 ### B. Agent Command Center transparency
 
 The Agent Command Center was expanded so that the user can see dated run history, persistent agent/chat evidence, action status, plain-English action explanations, and action controls. Actions can be represented as queued, running, completed, failed, blocked, dismissed, or manually marked done.
@@ -111,6 +113,7 @@ This section is deliberately blunt.
 | Item | Status | Why it matters |
 |---|---|---|
 | Worker Heartbeat jobs | **Not active** | The Manager runs, but the individual worker jobs are disabled. This explains why Manager checklists exist without fresh worker execution after August 14. |
+| Law-firm partner routing | **Not configured** | HighLevel receives website leads, but no active verified law-firm partner endpoint is configured for a separate buyer/partner delivery flow. |
 | Complete recent Manager QA evidence | **Not verified** | There is historical worker QA, but no current post-August-14 worker run evidence because the worker timers are disabled. |
 | Attorney discovery / outreach | **Blocked** | The board is built, but there is no activated research connector or Assistable credential. No prospects should be fabricated. |
 | Calls, texts, email, voicemail automation | **Not activated** | Assistable credentials and explicit activation are still required. |

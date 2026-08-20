@@ -31,6 +31,13 @@
 - [x] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
 - [x] Publish a plain-language recovery scorecard with the exact five ranking-to-lead workstreams, evidence, owner, and success thresholds.
 - [ ] Build and operate a verified authority-acquisition ledger focused on the small set of priority commercial pages.
+- [ ] Send the approved USREA contributor submission and record the exact submission evidence as unearned outreach.
+- [ ] Reconcile and report the current live SEO/GEO, lead-measurement, authority, agent, and scheduling status in plain language.
+- [x] Diagnose why durable leads are not reaching the CRM or partner-delivery system and repair the delivery path with verified evidence.
+- [x] Correct the scorecard so HighLevel CRM sync and optional law-firm partner delivery are reported as distinct conversion health signals.
+- [x] Add an explicit partner-routing availability alert when no real active law-firm partner is configured, while preserving the healthy HighLevel CRM-sync signal.
+- [x] Document that partner delivery remains intentionally disabled until a verified law-firm partner and delivery endpoint are onboarded.
+- [ ] Bound worker-agent LLM retries and fallback runtime to fit the scheduler callback window before re-enabling any paused worker schedule.
 - [x] Publish a sourced, linkable solar-loan document checklist that supports priority commercial pages and legitimate resource-page outreach.
 - [x] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.
 - [ ] Replace the failing short HTTP agent callbacks with the verified expert-review cadence and retain only deterministic site jobs on the site scheduler.
