@@ -15,6 +15,18 @@ type ReportRow = {
   retryCount: number | null;
 };
 
+function isEightThirtyMountain(now = new Date()): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver",
+    hour: "numeric",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const hour = Number(parts.find(part => part.type === "hour")?.value);
+  const minute = Number(parts.find(part => part.type === "minute")?.value);
+  return hour === 8 && minute === 30;
+}
+
 function summarize(rows: ReportRow[], date: string): string {
   const passed = rows.filter(row => row.status === "passed").length;
   const needsAttention = rows.filter(row => !["passed", "planned"].includes(row.status)).length;
@@ -38,6 +50,9 @@ export async function managerQaReportHandler(req: Request, res: Response) {
   try {
     const user = await sdk.authenticateRequest(req);
     if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only endpoint" });
+    if (req.body?.scheduleMode === "mountain_830" && !isEightThirtyMountain()) {
+      return res.json({ ok: true, skipped: "Outside 8:30 AM America/Denver window" });
+    }
 
     const db = await getDb();
     if (!db) return res.status(503).json({ error: "Database unavailable" });
