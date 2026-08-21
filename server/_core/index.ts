@@ -17,6 +17,7 @@ import { startMediumBacklinkTrackerCron } from "../cron/mediumBacklinkTracker";
 import { automationRunHandler } from "../scheduled/automationRun";
 import { agentRunHandler } from "../scheduled/agentRun";
 import { seoScorecardHandler } from "../scheduled/seoScorecard";
+import { managerQaReportHandler } from "../scheduled/managerQaReport";
 import { registerJourneyEndpoint } from "../journeyRouter";
 import { registerGhlLifecycleWebhook } from "../ghlLifecycleWebhook";
 import { rateLimit } from "express-rate-limit";
@@ -156,6 +157,7 @@ async function startServer() {
   app.post("/api/scheduled/automation-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), automationRunHandler);
   app.post("/api/scheduled/agent-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), agentRunHandler);
   app.post("/api/scheduled/seo-scorecard", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), seoScorecardHandler);
+  app.post("/api/scheduled/manager-qa-report", rateLimit({ windowMs: 60_000, limit: 5, standardHeaders: true, legacyHeaders: false }), managerQaReportHandler);
 
   // tRPC API
   app.use(

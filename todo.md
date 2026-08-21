@@ -1123,3 +1123,12 @@
 
 ## Phase 66 — Thread-Wide Status Reconciliation
 - [x] Deliver a plain-English summary of all requested work, implemented work, verified results, pending items, blockers, and required owner input
+
+## Phase 67 — Restore Worker Schedules
+- [x] Resume the disabled Revenue Intel, SEO Intel, Money Maker, Content, Editor, and Infrastructure worker schedules
+- [x] Verify each worker schedule is enabled with a future execution time and record the restored daily operating sequence
+
+## Phase 68 — Daily Manager QA Report Delivery
+- [x] Add an idempotent scheduled report endpoint that summarizes the Manager’s current worker checklists and QA verdicts
+- [ ] Deliver the report as a project-owner notification at 8:30 AM Mountain Time without sending any end-user outreach
+- [ ] Publish, schedule DST-safe report triggers, and verify the next delivery time
