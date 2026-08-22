@@ -1135,4 +1135,9 @@
 
 ## Phase 69 — Daily SEO Report Section
 - [x] Add verified current SEO rankings, index coverage, recent SEO changes, and review-required drafts to the 8:30 AM Manager QA report
-- [ ] Validate and publish the expanded report before its next scheduled delivery
+- [x] Validate and publish the expanded report before its next scheduled delivery
+
+## Phase 70 — Preview SEO Ranking Change Banner
+- [x] Detect significant verified SEO ranking changes from persisted Search Console snapshots
+- [x] Display a clear preview/admin notification banner with the direction, magnitude, freshness, and SEO review link
+- [x] Validate the banner in preview without showing alerts for missing or stale measurements

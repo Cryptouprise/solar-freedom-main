@@ -21,6 +21,9 @@ import {
   Brain,
   Building2,
   Zap,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -82,6 +85,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => { window.location.href = "/"; },
   });
+  const seoAlert = trpc.agents.seoRankingAlert.useQuery(undefined, { staleTime: 5 * 60 * 1000, retry: false });
 
   if (loading) {
     return (
@@ -202,6 +206,25 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
             {title && <h1 className="text-white text-xl font-semibold">{title}</h1>}
             {subtitle && <p className="text-gray-400 text-sm mt-0.5">{subtitle}</p>}
           </header>
+        )}
+
+        {seoAlert.data?.significant && seoAlert.data.clicks && seoAlert.data.impressions && (
+          <a href="/seo-command-center" className={cn(
+            "mx-6 mt-4 flex items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors",
+            seoAlert.data.direction === "up"
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/15"
+              : seoAlert.data.direction === "down"
+                ? "border-amber-500/35 bg-amber-500/10 text-amber-100 hover:bg-amber-500/15"
+                : "border-sky-500/30 bg-sky-500/10 text-sky-100 hover:bg-sky-500/15"
+          )}>
+            {seoAlert.data.direction === "up" ? <TrendingUp className="h-5 w-5 shrink-0 text-emerald-400" /> : seoAlert.data.direction === "down" ? <TrendingDown className="h-5 w-5 shrink-0 text-amber-400" /> : <AlertTriangle className="h-5 w-5 shrink-0 text-sky-400" />}
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Significant verified SEO change detected</p>
+              <p className="mt-0.5 text-xs opacity-85">
+                Clicks {seoAlert.data.clicks.delta >= 0 ? "+" : ""}{seoAlert.data.clicks.delta} ({seoAlert.data.clicks.percent}%) · Impressions {seoAlert.data.impressions.delta >= 0 ? "+" : ""}{seoAlert.data.impressions.delta} ({seoAlert.data.impressions.percent}%) across {seoAlert.data.measuredPages} measured pages. Review SEO evidence →
+              </p>
+            </div>
+          </a>
         )}
 
         {/* Page content */}

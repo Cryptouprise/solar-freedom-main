@@ -23,7 +23,7 @@ import {
 import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons, reconcileDailyOperatingCycle } from "./agents/registerCrons";
 import { buildAgentScheduleHealth, buildSeoMeasurementHealth } from "./agents/scheduleHealth";
 import { getDb } from "./db";
-import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig, agentActions, attorneyProspects, agentChatThreads, agentDailyChecklists, agentQualityReviews, seoPages } from "../drizzle/schema";
+import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig, agentActions, attorneyProspects, agentChatThreads, agentDailyChecklists, agentQualityReviews, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
 import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS, callAgentLLM } from "./agents/agentLLM";
 import { desc, eq, and, gte } from "drizzle-orm";
 
@@ -222,6 +222,37 @@ export const agentRouter = router({
       pipelinePreview: pipeline,
       scheduleHealth: buildAgentScheduleHealth(agents, registeredCrons),
       seoMeasurementHealth: buildSeoMeasurementHealth(seoMeasurements),
+    };
+  }),
+
+  /** Returns an alert only when two verified SEO scorecards show material movement. */
+  seoRankingAlert: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const db = await getDb();
+    if (!db) return { significant: false, reason: "Database unavailable" };
+    const snapshots = await db.select({
+      capturedAt: seoScorecardSnapshots.capturedAt,
+      clicks: seoScorecardSnapshots.clicks,
+      impressions: seoScorecardSnapshots.impressions,
+      pageRows: seoScorecardSnapshots.pageRows,
+    }).from(seoScorecardSnapshots).orderBy(desc(seoScorecardSnapshots.capturedAt)).limit(2);
+    if (snapshots.length < 2) return { significant: false, reason: "Awaiting a second verified SEO snapshot" };
+    const [latest, previous] = snapshots;
+    const clickDelta = latest.clicks - previous.clicks;
+    const impressionDelta = latest.impressions - previous.impressions;
+    const clickPct = previous.clicks > 0 ? (clickDelta / previous.clicks) * 100 : 0;
+    const impressionPct = previous.impressions > 0 ? (impressionDelta / previous.impressions) * 100 : 0;
+    const significant = (Math.abs(clickDelta) >= 3 && Math.abs(clickPct) >= 15)
+      || (Math.abs(impressionDelta) >= 50 && Math.abs(impressionPct) >= 15);
+    const direction = (clickDelta >= 0 && impressionDelta >= 0) ? "up" : (clickDelta <= 0 && impressionDelta <= 0) ? "down" : "mixed";
+    return {
+      significant,
+      direction,
+      latestCapturedAt: latest.capturedAt,
+      comparedToCapturedAt: previous.capturedAt,
+      clicks: { current: latest.clicks, previous: previous.clicks, delta: clickDelta, percent: Number(clickPct.toFixed(1)) },
+      impressions: { current: latest.impressions, previous: previous.impressions, delta: impressionDelta, percent: Number(impressionPct.toFixed(1)) },
+      measuredPages: latest.pageRows,
     };
   }),
 
