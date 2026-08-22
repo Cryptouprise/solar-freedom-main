@@ -1130,5 +1130,9 @@
 
 ## Phase 68 — Daily Manager QA Report Delivery
 - [x] Add an idempotent scheduled report endpoint that summarizes the Manager’s current worker checklists and QA verdicts
-- [ ] Deliver the report as a project-owner notification at 8:30 AM Mountain Time without sending any end-user outreach
-- [ ] Publish, schedule DST-safe report triggers, and verify the next delivery time
+- [x] Deliver the report as a project-owner notification at 8:30 AM Mountain Time without sending any end-user outreach
+- [x] Publish and schedule DST-safe report triggers (daylight task `5N8EL37svNc3tnMShcaYZC`; standard task `WBivms5tuqznvMhCxbmGPi`) and verify both are enabled
+
+## Phase 69 — Daily SEO Report Section
+- [x] Add verified current SEO rankings, index coverage, recent SEO changes, and review-required drafts to the 8:30 AM Manager QA report
+- [ ] Validate and publish the expanded report before its next scheduled delivery
