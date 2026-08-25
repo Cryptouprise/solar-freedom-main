@@ -1162,7 +1162,9 @@
 - [x] Update the deployed Money Maker schedule and verify its callback execution history — now runs every four hours at 00:00, 04:00, 08:00, 12:00, 16:00, and 20:00 UTC
 - [x] Run and validate an initial discovery pass; saved four source-backed prospects (two California, one Texas, one Florida) and recorded the Maps-quota constraint
 - [x] Add a safe, paced overnight source-refresh worker that improves public contact evidence for existing prospects without outreach
-- [ ] Register the deployed source-refresh worker and verify its first execution receipt
+- [x] Register the deployed source-refresh worker — task `EqUMiFhjdNPxuraRpWWQx6`, every four hours at 02:00, 06:00, 10:00, 14:00, 18:00, and 22:00 UTC
+- [x] Validate the same deployed enrichment logic immediately: 8 official sites checked, 2 records enriched, and no outreach sent
+- [ ] Confirm the first automatic source-refresh callback receipt after the next scheduled trigger
 
 ## Phase 74 — 100 Attorney Partner Acquisition Run
 - [ ] Select a sustainable, approved public-data source and overnight execution route for a 100-prospect target

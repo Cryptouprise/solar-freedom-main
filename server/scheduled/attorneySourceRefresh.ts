@@ -50,55 +50,58 @@ async function fetchPublicContacts(website: string) {
   return { ...extractPublicBusinessContacts(html), sourceUrl: response.url || website };
 }
 
+export async function refreshPublicAttorneyContacts(taskUid: string = "manual_validation") {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const candidates = await db.select().from(attorneyProspects)
+    .where(and(isNotNull(attorneyProspects.website), or(isNull(attorneyProspects.email), isNull(attorneyProspects.phone))))
+    .orderBy(asc(attorneyProspects.qualityTier), asc(attorneyProspects.createdAt))
+    .limit(MAX_PROSPECTS_PER_RUN);
+
+  let visited = 0;
+  let enriched = 0;
+  let skipped = 0;
+  let failures = 0;
+  for (const prospect of candidates) {
+    if (!isSafePublicWebsite(prospect.website)) { skipped++; continue; }
+    visited++;
+    try {
+      const found = await fetchPublicContacts(prospect.website!);
+      const fields = {
+        email: prospect.email || found.email,
+        phone: prospect.phone || found.phone,
+        verifiedAt: new Date(),
+        updatedAt: new Date(),
+        outreachNotes: `${prospect.outreachNotes || ""}\n[Public source refresh ${new Date().toISOString()}] Checked ${found.sourceUrl}; ${prospect.email || !found.email ? "email unchanged" : "public email added"}; ${prospect.phone || !found.phone ? "phone unchanged" : "public phone added"}.`.trim(),
+      };
+      if (fields.email !== prospect.email || fields.phone !== prospect.phone) enriched++;
+      await db.update(attorneyProspects).set(fields).where(eq(attorneyProspects.id, prospect.id));
+    } catch (error) {
+      failures++;
+      console.warn("[AttorneySourceRefresh] Public website check failed", { prospectId: prospect.id, error: String(error) });
+    }
+  }
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30);
+  await db.insert(agentChatThreads).values({
+    agentSlug: "money_maker",
+    runId: null,
+    role: "agent",
+    message: `Public-source refresh completed: ${visited} official firm website${visited === 1 ? "" : "s"} checked; ${enriched} prospect${enriched === 1 ? "" : "s"} enriched with a previously missing public phone or email; ${skipped} unsafe or missing website${skipped === 1 ? "" : "s"} skipped; ${failures} website check${failures === 1 ? "" : "s"} failed. No outreach was sent.`,
+    messageType: "result",
+    metadata: JSON.stringify({ taskUid, visited, enriched, skipped, failures }),
+    createdAt: new Date(),
+    expiresAt,
+  });
+  return { visited, enriched, skipped, failures };
+}
+
 export async function attorneySourceRefreshHandler(req: Request, res: Response) {
   try {
     const user = await sdk.authenticateRequest(req);
     if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only endpoint" });
-    const db = await getDb();
-    if (!db) throw new Error("Database unavailable");
-
-    const candidates = await db.select().from(attorneyProspects)
-      .where(and(isNotNull(attorneyProspects.website), or(isNull(attorneyProspects.email), isNull(attorneyProspects.phone))))
-      .orderBy(asc(attorneyProspects.qualityTier), asc(attorneyProspects.createdAt))
-      .limit(MAX_PROSPECTS_PER_RUN);
-
-    let visited = 0;
-    let enriched = 0;
-    let skipped = 0;
-    let failures = 0;
-    for (const prospect of candidates) {
-      if (!isSafePublicWebsite(prospect.website)) { skipped++; continue; }
-      visited++;
-      try {
-        const found = await fetchPublicContacts(prospect.website!);
-        const fields = {
-          email: prospect.email || found.email,
-          phone: prospect.phone || found.phone,
-          verifiedAt: new Date(),
-          updatedAt: new Date(),
-          outreachNotes: `${prospect.outreachNotes || ""}\n[Public source refresh ${new Date().toISOString()}] Checked ${found.sourceUrl}; ${prospect.email || !found.email ? "email unchanged" : "public email added"}; ${prospect.phone || !found.phone ? "phone unchanged" : "public phone added"}.`.trim(),
-        };
-        if (fields.email !== prospect.email || fields.phone !== prospect.phone) enriched++;
-        await db.update(attorneyProspects).set(fields).where(eq(attorneyProspects.id, prospect.id));
-      } catch (error) {
-        failures++;
-        console.warn("[AttorneySourceRefresh] Public website check failed", { prospectId: prospect.id, error: String(error) });
-      }
-    }
-
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
-    await db.insert(agentChatThreads).values({
-      agentSlug: "money_maker",
-      runId: null,
-      role: "agent",
-      message: `Overnight public-source refresh completed: ${visited} official firm website${visited === 1 ? "" : "s"} checked; ${enriched} prospect${enriched === 1 ? "" : "s"} enriched with a previously missing public phone or email; ${skipped} unsafe or missing website${skipped === 1 ? "" : "s"} skipped; ${failures} website check${failures === 1 ? "" : "s"} failed. No outreach was sent.`,
-      messageType: "result",
-      metadata: JSON.stringify({ taskUid: user.taskUid, visited, enriched, skipped, failures }),
-      createdAt: new Date(),
-      expiresAt,
-    });
-    res.json({ ok: true, visited, enriched, skipped, failures, taskUid: user.taskUid });
+    const result = await refreshPublicAttorneyContacts(user.taskUid);
+    res.json({ ok: true, ...result, taskUid: user.taskUid });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[AttorneySourceRefresh] Error:", error);
