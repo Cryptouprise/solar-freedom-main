@@ -1161,6 +1161,7 @@
 - [x] Build a paced overnight attorney-discovery worker that saves direct evidence links and a durable run receipt
 - [ ] Register or update the deployed overnight schedule and verify its callback execution history — blocked in this collaboration session because the scheduler service rejects schedule changes
 - [x] Run and validate an initial discovery pass; saved four source-backed prospects (two California, one Texas, one Florida) and recorded the Maps-quota constraint
+- [ ] Add and register an overnight source-refresh worker that improves public contact evidence for existing prospects without outreach
 
 ## Phase 74 — 100 Attorney Partner Acquisition Run
 - [ ] Select a sustainable, approved public-data source and overnight execution route for a 100-prospect target
@@ -1169,3 +1170,8 @@
 - [x] Apply the partner quality matrix, tier every record, and explain exactly why each firm ranks where it does
 - [x] Display a ranked outreach-ready queue with named decision-maker research, while keeping all messages in draft/approval-only state
 - [x] Validate the current process and publish a factual 100-prospect acquisition status report
+
+## Phase 75 — Scheduled Money Maker Execution Receipts
+- [x] Make every Money Maker cycle materialize missing review-only priority outreach drafts and record the exact asset count
+- [x] Ensure the revenue-state prompt reports the full scored pipeline, direct-solar priority count, and actual ready-to-pitch count
+- [x] Add focused tests; publish the scheduled-execution improvement

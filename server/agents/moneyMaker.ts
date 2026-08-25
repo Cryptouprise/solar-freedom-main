@@ -266,12 +266,26 @@ export async function runMoneyMaker(
       );
     }
 
-    // 10. Save analysis as chat thread
+    // 10. Materialize review-only drafts for the direct-solar priority queue.
+    // This is an execution receipt: drafts are visible in the pipeline but cannot send any message.
+    if (db) {
+      const draftResult = await materializePriorityDrafts(db);
+      if (draftResult.created > 0) {
+        await saveAgentChatMessage(
+          "money_maker",
+          `Execution receipt: created ${draftResult.created} review-only LinkedIn introduction draft${draftResult.created === 1 ? "" : "s"} for priority solar prospects. ${draftResult.skipped} already had a draft. No outreach was sent.`,
+          "result",
+          context.runId,
+        );
+      }
+    }
+
+    // 11. Save analysis as chat thread
     if (parsed.analysis) {
       await saveAgentChatMessage("money_maker", parsed.analysis, "analysis", context.runId);
     }
 
-    // 11. Mark inbox as processed
+    // 12. Mark inbox as processed
     for (const m of inbox) {
       await markMessageActedOn(m.id);
     }
@@ -286,6 +300,40 @@ export async function runMoneyMaker(
   }
 }
 
+async function materializePriorityDrafts(db: NonNullable<Awaited<ReturnType<typeof getDb>>>) {
+  const priorities = await db.select().from(attorneyProspects)
+    .where(and(eq(attorneyProspects.qualityTier, "priority"), isNull(attorneyProspects.linkedInDraft)))
+    .orderBy(desc(attorneyProspects.overallScore))
+    .limit(10);
+  let created = 0;
+  for (const prospect of priorities) {
+    const draft = buildPriorityDraft({
+      contactPerson: prospect.contactPerson,
+      firmName: prospect.firmName,
+      practiceAreas: prospect.practiceAreas,
+      state: prospect.state,
+    });
+    await db.update(attorneyProspects).set({
+      linkedInDraft: draft,
+      linkedInOutreachStatus: "drafted",
+      outreachStatus: "ready_to_pitch",
+      updatedAt: new Date(),
+    }).where(eq(attorneyProspects.id, prospect.id));
+    created++;
+  }
+  const [existing] = await db.select({ count: sql<number>`COUNT(*)` }).from(attorneyProspects)
+    .where(and(eq(attorneyProspects.qualityTier, "priority"), ne(attorneyProspects.linkedInDraft, "")));
+  return { created, skipped: Math.max(0, Number(existing?.count || 0) - created) };
+}
+
+export function buildPriorityDraft(input: { contactPerson?: string | null; firmName: string; practiceAreas?: string | null; state?: string | null }) {
+  const firstName = (input.contactPerson || "there").replace(/^(Mr\.?|Ms\.?|Mrs\.?|Dr\.?)\s+/i, "").split(/\s+/)[0];
+  let practiceAreas: string[] = [];
+  try { practiceAreas = JSON.parse(input.practiceAreas || "[]"); } catch { /* source evidence is still available in the prospect card */ }
+  const evidence = practiceAreas[0] || "consumer-protection work";
+  return `Hi ${firstName},\n\nI’m with Solar Freedom. I came across ${input.firmName} because your public materials reference ${evidence.toLowerCase()}. We speak with homeowners facing solar-contract, financing, and deceptive-sales issues in ${input.state || "your market"}.\n\nI’m not assuming this is a fit, but would you be open to a brief conversation about whether your team reviews matters in this area and, if so, what a compliant qualified-appointment partnership could look like?\n\nBest,\nChase\nSolar Freedom`;
+}
+
 // ─── Revenue State Gathering ──────────────────────────────────────────────────
 
 async function gatherRevenueState(): Promise<string> {
@@ -295,7 +343,7 @@ async function gatherRevenueState(): Promise<string> {
   // Attorney prospects — sorted by score
   const prospects = await db.select().from(attorneyProspects)
     .orderBy(desc(attorneyProspects.overallScore))
-    .limit(20);
+    .limit(150);
 
   // Active law firms with revenue stats
   const firms = await db.select().from(lawFirms)
@@ -335,6 +383,7 @@ async function gatherRevenueState(): Promise<string> {
     in_conversation: prospects.filter(p => p.outreachStatus === "in_conversation").length,
     signed: prospects.filter(p => p.outreachStatus === "signed").length,
   };
+  const directSolarPriorityCount = prospects.filter(p => p.qualityTier === "priority").length;
 
   // Firm revenue per firm
   const firmRevenue = firms.map(f => ({
@@ -377,6 +426,7 @@ Status breakdown:
   Pitched: ${prospectsByStatus.pitched}
   In conversation: ${prospectsByStatus.in_conversation}
   SIGNED: ${prospectsByStatus.signed}
+  Direct-solar priority queue: ${directSolarPriorityCount}
 
 Top 10 prospects by score:
 ${prospects.slice(0, 10).map(p =>
