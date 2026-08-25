@@ -155,6 +155,10 @@ export default function AttorneyPipeline() {
   const research = trpc.agents.runAttorneyResearch.useMutation({
     onSuccess: (result) => {
       utils.agents.listAttorneys.invalidate();
+      if (result.status === "blocked") {
+        toast.error(result.blockedReason || "Attorney research is currently blocked. No prospects were created.");
+        return;
+      }
       toast.success(`Research complete: ${result.saved} verified prospects added from ${result.states.join(", ") || "selected states"}; ${result.duplicates} duplicates skipped.`);
     },
     onError: (error) => toast.error(error.message),

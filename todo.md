@@ -1150,3 +1150,8 @@
 - [x] Add a human-reviewed LinkedIn outreach draft queue; do not send messages automatically
 - [x] Inspect available LinkedIn integrations and document the approved connection path for sending messages from the system
 - [x] Add tests and visual verification; publish the completed workflow
+
+## Phase 72 — Attorney Research Quota Handling
+- [x] Detect Google Maps usage exhaustion and record a durable, plain-English blocked Money Maker result instead of a silent failure
+- [x] Keep the research board usable when a provider quota is exhausted; show that no prospects were created and provide an explicit retry/provider path
+- [ ] Restore an approved research-provider quota or connect an alternate provider before the first live attorney discovery pass

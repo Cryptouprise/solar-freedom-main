@@ -31,7 +31,8 @@ export async function executeAttorneyResearch(states: string[], runId?: number):
   saved: number;
   duplicates: number;
   states: string[];
-  status: "completed";
+  status: "completed" | "blocked";
+  blockedReason?: string;
   sourceUrls: string[];
 }> {
   const db = await getDb();
@@ -41,13 +42,24 @@ export async function executeAttorneyResearch(states: string[], runId?: number):
   let saved = 0;
   let duplicates = 0;
   const sourceUrls: string[] = [];
+  let blockedReason: string | undefined;
   const safeStates = states.map(state => state.trim()).filter(Boolean).slice(0, 5);
 
   for (const state of safeStates) {
     const seenPlaceIds = new Set<string>();
     for (const queryPrefix of QUERY_PREFIXES) {
       const query = `${queryPrefix} in ${state}`;
-      const search = await makeRequest<PlacesSearchResult>("/maps/api/place/textsearch/json", { query });
+      let search: PlacesSearchResult;
+      try {
+        search = await makeRequest<PlacesSearchResult>("/maps/api/place/textsearch/json", { query });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Google Maps research was unavailable";
+        if (/usage exhausted|precondition failed/i.test(message)) {
+          blockedReason = "Google Maps research quota is exhausted. No attorney records were created; retry after quota availability is restored or connect an alternate approved research provider.";
+          break;
+        }
+        throw error;
+      }
       for (const place of (search.results || []).slice(0, 8)) {
         if (!place.place_id || seenPlaceIds.has(place.place_id)) continue;
         seenPlaceIds.add(place.place_id);
@@ -88,11 +100,16 @@ export async function executeAttorneyResearch(states: string[], runId?: number):
         saved++;
         sourceUrls.push(evidenceUrl);
       }
+      if (blockedReason) break;
     }
+    if (blockedReason) break;
   }
 
-  const result = { found, saved, duplicates, states: safeStates, status: "completed" as const, sourceUrls };
-  await saveAgentChatMessage("money_maker", `Attorney research complete: searched ${found} source-backed listings; saved ${saved} new prospects; skipped ${duplicates} duplicates. No outreach was sent.`, "result", runId, result);
+  const result = { found, saved, duplicates, states: safeStates, status: blockedReason ? "blocked" as const : "completed" as const, ...(blockedReason ? { blockedReason } : {}), sourceUrls };
+  const summary = blockedReason
+    ? `Attorney research blocked: ${blockedReason}`
+    : `Attorney research complete: searched ${found} source-backed listings; saved ${saved} new prospects; skipped ${duplicates} duplicates. No outreach was sent.`;
+  await saveAgentChatMessage("money_maker", summary, blockedReason ? "error" : "result", runId, result);
   return result;
 }
 
