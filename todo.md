@@ -1159,5 +1159,13 @@
 ## Phase 73 — Overnight Attorney Discovery Launch
 - [x] Audit the currently enabled Money Maker schedule, external research-source capacity, and approved fallbacks
 - [x] Build a paced overnight attorney-discovery worker that saves direct evidence links and a durable run receipt
-- [ ] Register or update the deployed overnight schedule and verify its callback execution history
-- [ ] Run and validate an initial discovery pass; record exact saved prospects or a concrete provider blocker
+- [ ] Register or update the deployed overnight schedule and verify its callback execution history — blocked in this collaboration session because the scheduler service rejects schedule changes
+- [x] Run and validate an initial discovery pass; saved four source-backed prospects (two California, one Texas, one Florida) and recorded the Maps-quota constraint
+
+## Phase 74 — 100 Attorney Partner Acquisition Run
+- [ ] Select a sustainable, approved public-data source and overnight execution route for a 100-prospect target
+- [x] Discover and verify 100 prospective attorney partners from public business sources without inventing contact details
+- [x] Capture public firm phone, email when displayed, official website, direct source evidence, and LinkedIn research link for each qualified record
+- [x] Apply the partner quality matrix, tier every record, and explain exactly why each firm ranks where it does
+- [x] Display a ranked outreach-ready queue with named decision-maker research, while keeping all messages in draft/approval-only state
+- [x] Validate the current process and publish a factual 100-prospect acquisition status report

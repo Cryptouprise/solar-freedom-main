@@ -175,6 +175,9 @@ export default function AttorneyPipeline() {
   const prospects = attorneys as Prospect[];
   const grouped = useMemo(() => Object.fromEntries(COLUMNS.map(c => [c.key, prospects.filter(p => p.outreachStatus === c.key)])), [prospects]);
   const scoreAverage = prospects.length ? Math.round(prospects.reduce((sum, p) => sum + Number(p.overallScore || 0), 0) / prospects.length) : 0;
+  const priorityQueue = useMemo(() => prospects
+    .filter(prospect => prospect.qualityTier === "priority")
+    .sort((a, b) => Number(b.overallScore || 0) - Number(a.overallScore || 0) || Number(b.qualityConfidence || 0) - Number(a.qualityConfidence || 0)), [prospects]);
 
   function toggleState(state: string) {
     setSelectedStates(current => current.includes(state) ? current.filter(s => s !== state) : [...current, state]);
@@ -196,6 +199,23 @@ export default function AttorneyPipeline() {
               <div className="rounded-xl bg-black/20 border border-white/5 px-4 py-3"><div className="text-gray-500 text-[10px] uppercase tracking-wider">Avg. score</div><div className="text-amber-300 font-mono text-xl mt-1">{scoreAverage}</div></div>
             </div>
           </div>
+        </section>
+
+        <section className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-white font-semibold flex items-center gap-2"><Star className="w-4 h-4 text-emerald-300" />Start here tomorrow — direct-solar priority queue</h2>
+              <p className="text-gray-400 text-xs mt-1">These firms passed the direct-solar evidence gate: public source, a solar-practice signal, and a public route to reach the firm. This is a research ranking—not proof they buy leads or accept referrals.</p>
+            </div>
+            <Badge className="w-fit border-emerald-500/30 bg-emerald-500/10 text-emerald-200">{priorityQueue.length} priority prospects</Badge>
+          </div>
+          {priorityQueue.length ? <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {priorityQueue.map((prospect, index) => <article key={prospect.id} className="rounded-lg border border-emerald-500/15 bg-black/20 p-3">
+              <div className="flex items-start justify-between gap-2"><div><p className="text-[11px] font-mono text-emerald-300">#{index + 1} · {Number(prospect.overallScore || 0)}/100</p><h3 className="mt-1 text-sm font-semibold text-white">{prospect.firmName}</h3><p className="mt-0.5 text-xs text-gray-500">{prospect.contactPerson || "Decision-maker research needed"} · {[prospect.city, prospect.state].filter(Boolean).join(", ")}</p></div><ShieldCheck className="h-4 w-4 shrink-0 text-emerald-300" /></div>
+              <div className="mt-3 space-y-1 text-xs text-gray-300">{prospect.phone && <p><Phone className="mr-1 inline h-3 w-3 text-gray-500" />{prospect.phone}</p>}{prospect.email && <p className="truncate"><Mail className="mr-1 inline h-3 w-3 text-gray-500" />{prospect.email}</p>}</div>
+              <div className="mt-3 flex flex-wrap gap-2">{safeUrl(prospect.sourceUrl) && <a href={safeUrl(prospect.sourceUrl)!} target="_blank" rel="noreferrer" className="text-xs text-sky-300 hover:text-sky-200">Evidence ↗</a>}{safeUrl(prospect.linkedInSearchUrl) && <a href={safeUrl(prospect.linkedInSearchUrl)!} target="_blank" rel="noreferrer" className="text-xs text-violet-300 hover:text-violet-200">LinkedIn lookup ↗</a>}<button className="text-xs text-amber-200 hover:text-amber-100" onClick={() => draftLinkedIn.mutate({ id: prospect.id })}>Draft intro</button></div>
+            </article>)}
+          </div> : <p className="mt-3 text-xs text-gray-500">No prospect has passed the direct-solar priority gate yet.</p>}
         </section>
 
         <section className="rounded-xl border border-white/8 bg-[#151820] p-4">

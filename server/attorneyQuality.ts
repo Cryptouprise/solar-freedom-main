@@ -1,4 +1,4 @@
-import { invokeLLM } from "./_core/llm";
+import { callAgentLLM } from "./agents/agentLLM";
 
 export type AttorneyQualityInput = {
   firmName: string;
@@ -56,10 +56,12 @@ function deterministicFallback(input: AttorneyQualityInput): AttorneyQualityRevi
 
 export async function reviewAttorneyQuality(input: AttorneyQualityInput): Promise<AttorneyQualityReview> {
   if (!input.sourceUrl) return deterministicFallback(input);
-  const response = await invokeLLM({
-    model: "claude-opus-4-7",
-    maxTokens: 2200,
-    messages: [
+  try {
+    const response = await callAgentLLM({
+      agentSlug: "money_maker",
+      modelOverride: "deepseek/deepseek-v4-pro",
+      maxTokens: 2200,
+      messages: [
       {
         role: "system",
         content: "You are a cautious B2B partnership qualification reviewer. Evaluate only the supplied public evidence. Do not claim that a law firm handles solar matters, accepts referrals, has a decision-maker, has capacity, or wants leads unless the supplied evidence proves it. Your output prioritizes whether a human should investigate, not legal qualifications or consumer eligibility.",
@@ -69,7 +71,7 @@ export async function reviewAttorneyQuality(input: AttorneyQualityInput): Promis
         content: `Review this public-source attorney prospect:\n${JSON.stringify(input, null, 2)}\n\nUse a 100-point matrix: evidence integrity (30), lead-market fit (20), public reachability (20), capacity proxy (15), partnership readiness (15). Unknown evidence must score 0 and be placed behind a manual-review gate.`,
       },
     ],
-    responseFormat: {
+      responseFormat: {
       type: "json_schema",
       json_schema: {
         name: "attorney_partner_quality_review",
@@ -109,13 +111,31 @@ export async function reviewAttorneyQuality(input: AttorneyQualityInput): Promis
           additionalProperties: false,
         },
       },
-    },
-  });
-  const content = response.choices[0]?.message.content;
-  if (typeof content !== "string") return deterministicFallback(input);
-  try {
-    return JSON.parse(content) as AttorneyQualityReview;
-  } catch {
+      },
+    });
+    const review = JSON.parse(response.content) as AttorneyQualityReview;
+    const practice = input.practiceAreas?.toLowerCase() || "";
+    const directSolarSignal = /solar/.test(practice);
+    // The model may describe an attractive firm but must not elevate it without
+    // direct solar evidence, a strong evidence score, and a recorded route to reach it.
+    const tier = directSolarSignal && review.score >= 65 && Boolean(input.phone || input.website)
+      ? "priority"
+      : review.score >= 50 && Boolean(input.sourceUrl)
+        ? "review"
+        : "defer";
+    const gateReason = tier === "priority"
+      ? "Direct solar-practice evidence, a strong evidence score, and a public contact route meet the priority gate."
+      : directSolarSignal
+        ? "Solar relevance is present, but the evidence score or public reachability did not meet the priority gate."
+        : "No direct solar-practice evidence is recorded, so the record cannot be prioritized before manual verification.";
+    return {
+      ...review,
+      tier,
+      explanation: `${review.explanation}\n\nRanking gate: ${gateReason}`,
+      gates: [...review.gates, { label: "Priority ranking gate", status: tier === "priority" ? "pass" : "needs_review", reason: gateReason }],
+    };
+  } catch (error) {
+    console.warn("[attorneyQuality] Premium review unavailable; using evidence-only fallback", error);
     return deterministicFallback(input);
   }
 }
