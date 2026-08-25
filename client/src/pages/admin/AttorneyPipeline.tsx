@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Building2, CheckCircle2, ExternalLink, FilePenLine, Linkedin, Loader2, Mail, MapPin, Phone, Play, RefreshCw, Search, ShieldCheck, Star, Users } from "lucide-react";
+import { Building2, CheckCircle2, Clock3, ExternalLink, FilePenLine, Linkedin, Loader2, Mail, MapPin, Phone, Play, RefreshCw, Search, ShieldCheck, Star, Users } from "lucide-react";
 
 const COLUMNS = [
   { key: "not_contacted", label: "Prospects", hint: "Verified firms awaiting review", color: "border-slate-500/30" },
@@ -126,8 +126,10 @@ function ProspectCard({ prospect, onMove, onReview, onDraft, onApprove, onVerify
 export default function AttorneyPipeline() {
   const utils = trpc.useUtils();
   const { data: attorneys = [], isLoading } = trpc.agents.listAttorneys.useQuery();
+  const { data: moneyMakerHistory = [] } = trpc.agents.chatThreads.useQuery({ agentSlug: "money_maker", limit: 10 });
   const [selectedStates, setSelectedStates] = useState<string[]>(["California", "Texas", "Florida"]);
   const [crmPreview, setCrmPreview] = useState<any>(null);
+  const latestRefresh = moneyMakerHistory.find(entry => entry.message.startsWith("Public-source refresh completed:"));
 
   const update = trpc.agents.updateAttorney.useMutation({
     onSuccess: () => {
@@ -197,6 +199,19 @@ export default function AttorneyPipeline() {
               <div className="rounded-xl bg-black/20 border border-white/5 px-4 py-3"><div className="text-gray-500 text-[10px] uppercase tracking-wider">Prospects</div><div className="text-white font-mono text-xl mt-1">{prospects.length}</div></div>
               <div className="rounded-xl bg-black/20 border border-white/5 px-4 py-3"><div className="text-gray-500 text-[10px] uppercase tracking-wider">Signed</div><div className="text-emerald-300 font-mono text-xl mt-1">{grouped.signed?.length || 0}</div></div>
               <div className="rounded-xl bg-black/20 border border-white/5 px-4 py-3"><div className="text-gray-500 text-[10px] uppercase tracking-wider">Avg. score</div><div className="text-amber-300 font-mono text-xl mt-1">{scoreAverage}</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-sky-500/20 bg-sky-500/[0.04] p-4">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 rounded-lg bg-sky-500/10 p-2 text-sky-300"><RefreshCw className="h-4 w-4" /></div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-sky-100">Latest public contact refresh</p>
+              {latestRefresh ? <>
+                <p className="mt-1 text-sm leading-relaxed text-slate-300">{latestRefresh.message}</p>
+                <p className="mt-2 flex items-center gap-1 text-xs text-slate-500"><Clock3 className="h-3 w-3" />{new Date(latestRefresh.createdAt).toLocaleString()}</p>
+              </> : <p className="mt-1 text-sm text-slate-400">No contact-refresh receipt has been recorded yet. Scheduled refreshes never send outreach.</p>}
             </div>
           </div>
         </section>
