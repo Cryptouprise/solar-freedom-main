@@ -32,6 +32,7 @@ import {
   leads,
 } from "../../drizzle/schema";
 import { desc, eq, sql, and, gte, lt, isNull, ne } from "drizzle-orm";
+import { refreshPublicAttorneyContacts } from "../scheduled/attorneySourceRefresh";
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
 
@@ -280,12 +281,32 @@ export async function runMoneyMaker(
       }
     }
 
-    // 11. Save analysis as chat thread
+    // 11. Use the existing, proven Money Maker heartbeat as the durable enrichment path.
+    // This is a bounded public-website lookup only; it never sends outreach and a failure
+    // here must not prevent the primary revenue analysis from completing.
+    try {
+      const refreshResult = await refreshPublicAttorneyContacts(`money_maker:${context.runId}`);
+      await saveAgentChatMessage(
+        "money_maker",
+        `Money Maker public-contact receipt: ${refreshResult.visited} official firm websites checked; ${refreshResult.enriched} public contact detail${refreshResult.enriched === 1 ? "" : "s"} added; ${refreshResult.failures} website check${refreshResult.failures === 1 ? "" : "s"} failed. No outreach was sent.`,
+        "result",
+        context.runId,
+      );
+    } catch (refreshError) {
+      await saveAgentChatMessage(
+        "money_maker",
+        `Money Maker public-contact receipt: enrichment did not complete this cycle (${refreshError instanceof Error ? refreshError.message : String(refreshError)}). Revenue analysis still completed; no outreach was sent.`,
+        "result",
+        context.runId,
+      );
+    }
+
+    // 12. Save analysis as chat thread
     if (parsed.analysis) {
       await saveAgentChatMessage("money_maker", parsed.analysis, "analysis", context.runId);
     }
 
-    // 12. Mark inbox as processed
+    // 13. Mark inbox as processed
     for (const m of inbox) {
       await markMessageActedOn(m.id);
     }

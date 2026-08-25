@@ -1183,3 +1183,4 @@
 - [x] Ensure each public-source enrichment cycle advances to prospects that have not already received a source-refresh attempt
 - [x] Record redirect-only websites as a reviewable skipped condition instead of repeatedly consuming the batch
 - [x] Show the latest public-contact enrichment receipt directly in the Attorney Pipeline
+- [x] Run the public-contact enrichment batch inside the already verified Money Maker schedule as the durable fallback for the stalled duplicate callback
