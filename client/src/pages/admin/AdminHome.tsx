@@ -88,6 +88,13 @@ const TOOL_CARDS = [
     color: "green",
     tools: [
       {
+        label: "Attorney Pipeline",
+        href: "/admin/attorneys",
+        icon: Building2,
+        description: "Source-backed attorney research, outreach progress, and signed-partner readiness",
+        badge: "Money Maker",
+      },
+      {
         label: "Lead Distribution",
         href: "/admin/lead-distribution",
         icon: Building2,

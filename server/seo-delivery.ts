@@ -33,6 +33,7 @@ export const CLIENT_ONLY_ROUTES = new Set([
   "/admin/agents",
   "/admin/ghl",
   "/admin/revenue-intel",
+  "/admin/attorneys",
   "/free-cancellation-letter",
   "/media",
   "/sunrun",

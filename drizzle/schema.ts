@@ -845,6 +845,7 @@ export const attorneyProspects = mysqlTable("attorneyProspects", {
   // Source
   discoveredBy: varchar("discoveredBy", { length: 50 }).default("money_maker"), // agent slug
   discoveredVia: varchar("discoveredVia", { length: 200 }), // "google_search", "avvo", "justia", etc.
+  sourceUrl: varchar("sourceUrl", { length: 1000 }), // direct source used to verify this prospect
   verifiedAt: timestamp("verifiedAt"),
 
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1446,3 +1447,23 @@ export const agentGoalRetryConfig = mysqlTable("agentGoalRetryConfig", {
 });
 export type AgentGoalRetryConfig = typeof agentGoalRetryConfig.$inferSelect;
 export type InsertAgentGoalRetryConfig = typeof agentGoalRetryConfig.$inferInsert;
+
+/**
+ * Durable Agent Chat Thread entries.
+ * Keeps agent conversations, analyses, and execution receipts for 30 days.
+ */
+export const agentChatThreads = mysqlTable("agentChatThreads", {
+  id: int("id").autoincrement().primaryKey(),
+  agentSlug: varchar("agentSlug", { length: 64 }).notNull(),
+  runId: int("runId"),
+  role: mysqlEnum("role", ["agent", "system", "user"]).default("agent").notNull(),
+  message: text("message").notNull(),
+  messageType: mysqlEnum("messageType", ["analysis", "action", "result", "error", "directive", "summary"])
+    .default("analysis")
+    .notNull(),
+  metadata: text("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+});
+export type AgentChatThread = typeof agentChatThreads.$inferSelect;
+export type InsertAgentChatThread = typeof agentChatThreads.$inferInsert;

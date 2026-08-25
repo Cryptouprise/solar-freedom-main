@@ -1076,9 +1076,18 @@
 - [x] Run all tests and save checkpoint
 
 ## Phase 58 — Fix All Remaining Agent Errors (Jul 28)
-
 - [x] Fix Qwen3-235B-Thinking always returning empty content — switched all agents to qwen/qwen3-32b (stable, fast)
 - [x] Clear DB agentModelConfig overrides that were pinning agents to broken model
 - [x] Fix SEO Intel hardcoded post slugs (sunrun-solar-contract-cancellation-2026, goodleap-cancel-solar-loan-2026) that don't exist in DB — agent now uses actual DB slugs from gatherSeoState
 - [x] Fix leadSessions duplicate entry crash — replaced read-then-insert with atomic ON DUPLICATE KEY UPDATE
 - [x] 108/108 tests passing
+
+## Phase 60 — Money Maker Execution, Attorney Pipeline, and Retained Agent History
+- [x] Add a 30-day-retention agent chat-thread table and migration
+- [x] Make Money Maker record a durable, human-readable run result with links to every created prospect and created task
+- [x] Implement verified attorney research that stores source URLs and never invents attorney contact details
+- [x] Add an admin-controlled attorney research run for selected states with an explicit result summary
+- [x] Build `/admin/attorneys` Kanban board for Prospect → Contacted → Responded → Negotiating → Signed → Active
+- [x] Add evidence, owner notes, timestamps, and a clear done/not-done outcome to each attorney card
+- [x] Persist and reload agent-chat threads for 30 days in Agent Command Center
+- [x] Add focused tests, visual verification, and a published checkpoint

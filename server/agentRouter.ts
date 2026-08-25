@@ -22,8 +22,9 @@ import {
 } from "./agents";
 import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons } from "./agents/registerCrons";
 import { getDb } from "./db";
-import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig } from "../drizzle/schema";
+import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig, agentChatThreads, attorneyProspects } from "../drizzle/schema";
 import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS } from "./agents/agentLLM";
+import { formatResearchReceipt, researchAttorneyProspects } from "./attorneyResearch";
 import { desc, eq, and, gte } from "drizzle-orm";
 
 const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra", "revenue_intel"]);
@@ -255,6 +256,21 @@ export const agentRouter = router({
         ...input.messages.filter(m => m.role !== "system"),
       ];
 
+      const db = await getDb();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      const latestUserMessage = [...input.messages].reverse().find(message => message.role === "user");
+
+      if (db && latestUserMessage) {
+        await db.insert(agentChatThreads).values({
+          agentSlug: input.slug,
+          role: "user",
+          message: latestUserMessage.content,
+          messageType: "directive",
+          expiresAt,
+        });
+      }
+
       const reply = await callLLM({
         model,
         messages: fullMessages,
@@ -264,6 +280,16 @@ export const agentRouter = router({
         temperature: 0.7,
         maxTokens: 2000,
       });
+
+      if (db) {
+        await db.insert(agentChatThreads).values({
+          agentSlug: input.slug,
+          role: "agent",
+          message: reply,
+          messageType: "summary",
+          expiresAt,
+        });
+      }
 
       return { reply };
     }),
@@ -407,6 +433,94 @@ export const agentRouter = router({
         result: input.note || `Manually completed by ${ctx.user.name || "admin"} at ${new Date().toISOString()}`,
         completedAt: new Date(),
       });
+      return { success: true };
+    }),
+
+  /** Retained agent chats, analyses, and execution receipts (30-day window). */
+  getChatThreads: protectedProcedure
+    .input(z.object({ agentSlug: agentSlugSchema, limit: z.number().min(1).max(100).default(50) }))
+    .query(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(agentChatThreads)
+        .where(and(eq(agentChatThreads.agentSlug, input.agentSlug), gte(agentChatThreads.expiresAt, new Date())))
+        .orderBy(desc(agentChatThreads.createdAt))
+        .limit(input.limit);
+    }),
+
+  /** Save a durable agent-run receipt, analysis, or result for the admin history. */
+  addChatThread: protectedProcedure
+    .input(z.object({
+      agentSlug: agentSlugSchema,
+      runId: z.number().optional(),
+      role: z.enum(["agent", "system", "user"]).default("agent"),
+      message: z.string().min(1),
+      messageType: z.enum(["analysis", "action", "result", "error", "directive", "summary"]).default("summary"),
+      metadata: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      await db.insert(agentChatThreads).values({ ...input, expiresAt });
+      return { success: true };
+    }),
+
+  /** List every source-backed attorney prospect for the revenue Kanban. */
+  listAttorneyProspects: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const db = await getDb();
+    if (!db) return [];
+    return db.select().from(attorneyProspects)
+      .orderBy(desc(attorneyProspects.overallScore), desc(attorneyProspects.updatedAt))
+      .limit(250);
+  }),
+
+  /** Run controlled, source-backed attorney research for up to three selected states. */
+  researchAttorneyProspects: protectedProcedure
+    .input(z.object({ states: z.array(z.string().min(2).max(60)).min(1).max(3) }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const receipts = await researchAttorneyProspects(input.states);
+      const db = await getDb();
+      if (db) {
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30);
+        await db.insert(agentChatThreads).values({
+          agentSlug: "money_maker",
+          role: "system",
+          message: `Manual attorney research complete. ${formatResearchReceipt(receipts)} No outreach was sent.`,
+          messageType: "result",
+          metadata: JSON.stringify({ receipts, initiatedBy: ctx.user.name || "admin" }),
+          expiresAt,
+        });
+      }
+      return { receipts, summary: formatResearchReceipt(receipts) };
+    }),
+
+  /** Move a prospect through the outreach Kanban and keep an auditable note. */
+  updateAttorneyProspect: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      outreachStatus: z.enum(["not_contacted", "researching", "ready_to_pitch", "pitched", "in_conversation", "signed", "rejected", "not_interested"]),
+      outreachNotes: z.string().max(5000).optional(),
+      pitchAngle: z.string().max(5000).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const timestamp = new Date();
+      await db.update(attorneyProspects).set({
+        outreachStatus: input.outreachStatus,
+        outreachNotes: input.outreachNotes,
+        pitchAngle: input.pitchAngle,
+        lastContactedAt: ["pitched", "in_conversation"].includes(input.outreachStatus) ? timestamp : undefined,
+        updatedAt: timestamp,
+      }).where(eq(attorneyProspects.id, input.id));
       return { success: true };
     }),
 });

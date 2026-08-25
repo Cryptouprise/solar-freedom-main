@@ -4,7 +4,7 @@
  * Dark theme, gold accents, Owner/Team mode toggle.
  */
 
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
 import AdminLayout from "@/components/AdminLayout";
@@ -389,12 +389,32 @@ const AGENT_SUGGESTED_PROMPTS: Record<string, string[]> = {
 };
 
 function AgentDetailView({ slug }: { slug: string }) {
+  const utils = trpc.useUtils();
   const { data: agent } = trpc.agents.get.useQuery({ slug: slug as any });
   const { data: runs } = trpc.agents.runs.useQuery({ agentSlug: slug as any, limit: 10 });
   const { data: actions } = trpc.agents.actions.useQuery({ agentSlug: slug as any, limit: 20 });
-  const trigger = trpc.agents.trigger.useMutation();
+  const { data: savedThreads } = trpc.agents.getChatThreads.useQuery({ agentSlug: slug as any, limit: 50 });
+  const trigger = trpc.agents.trigger.useMutation({
+    onSuccess: () => {
+      void utils.agents.get.invalidate({ slug: slug as any });
+      void utils.agents.runs.invalidate({ agentSlug: slug as any, limit: 10 });
+      void utils.agents.actions.invalidate({ agentSlug: slug as any, limit: 20 });
+      void utils.agents.getChatThreads.invalidate({ agentSlug: slug as any, limit: 50 });
+      setChatMessages([]);
+    },
+  });
   const chatMutation = trpc.agents.chat.useMutation();
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (!savedThreads || chatMessages.length > 0) return;
+    setChatMessages([...savedThreads]
+      .reverse()
+      .map((thread: any) => ({
+        role: thread.role === "user" ? "user" : "assistant",
+        content: thread.message,
+      })));
+  }, [savedThreads, chatMessages.length]);
 
   const handleSendMessage = (content: string) => {
     const newMessages: Message[] = [...chatMessages, { role: "user", content }];
