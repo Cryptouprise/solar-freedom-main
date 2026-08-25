@@ -1159,7 +1159,7 @@
 ## Phase 73 — Overnight Attorney Discovery Launch
 - [x] Audit the currently enabled Money Maker schedule, external research-source capacity, and approved fallbacks
 - [x] Build a paced overnight attorney-discovery worker that saves direct evidence links and a durable run receipt
-- [ ] Register or update the deployed overnight schedule and verify its callback execution history — blocked in this collaboration session because the scheduler service rejects schedule changes
+- [x] Update the deployed Money Maker schedule and verify its callback execution history — now runs every four hours at 00:00, 04:00, 08:00, 12:00, 16:00, and 20:00 UTC
 - [x] Run and validate an initial discovery pass; saved four source-backed prospects (two California, one Texas, one Florida) and recorded the Maps-quota constraint
 - [ ] Add and register an overnight source-refresh worker that improves public contact evidence for existing prospects without outreach
 
