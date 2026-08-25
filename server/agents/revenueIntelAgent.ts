@@ -31,6 +31,7 @@ import {
   completeRun,
   sendMessage,
   createAction,
+  updateAction,
   type AgentThinkResult,
 } from "./engine";
 import {
@@ -47,17 +48,152 @@ import { getDb } from "../db";
 import {
   seoPages,
   blogPosts,
+  blogDrafts,
   leads,
   revenueIntelPredictions,
   revenueIntelRuns,
 } from "../../drizzle/schema";
 import { desc, eq, sql, and, gte, isNotNull } from "drizzle-orm";
 import { getGA4Report } from "../ga4";
+import { blogPosts as staticBlogPosts } from "../../client/src/data/blog";
+import { sanitizeStoredHtml } from "../security/html";
 
 // ─── Business Constants ───────────────────────────────────────────────────────
 const LEAD_VALUE = 275;
 const BOOKING_RATE = 0.405;
 const REVENUE_PER_LEAD = LEAD_VALUE * BOOKING_RATE; // ~$111
+const MAX_AUTO_DRAFTS_PER_RUN = 2;
+
+export function getMysqlInsertId(result: unknown): number {
+  const row = Array.isArray(result) ? result[0] : result;
+  const value = (row as { insertId?: number | string } | undefined)?.insertId;
+  const numeric = Number(value ?? 0);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+}
+
+type RevenueExecutionPlan = {
+  pageSlug: string;
+  actionType: string;
+  specificChange: string;
+  predictedRevenueGain: number;
+  reasoning: string;
+};
+
+function getBlogSlug(pageSlug: string) {
+  const path = pageSlug.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/+/, "");
+  return path.startsWith("blog/") ? path.slice("blog/".length) : null;
+}
+
+function parseDraft(value: string) {
+  const match = value.match(/\{[\s\S]*\}/);
+  if (!match) return null;
+  try { return JSON.parse(match[0]) as Record<string, unknown>; } catch { return null; }
+}
+
+async function createRevenueDraft(params: {
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>;
+  context: Awaited<ReturnType<typeof startRun>>;
+  actionId: number;
+  runId: number;
+  plan: RevenueExecutionPlan;
+}) {
+  const slug = getBlogSlug(params.plan.pageSlug);
+  if (!slug) {
+    await updateAction(params.actionId, {
+      status: "blocked",
+      completedAt: new Date(),
+      result: JSON.stringify({ reason: "Only /blog/ pages have a safe automatic draft executor.", pageSlug: params.plan.pageSlug }),
+    });
+    return false;
+  }
+
+  const [dbPost] = await params.db.select({
+    title: blogPosts.title,
+    content: blogPosts.content,
+    metaTitle: blogPosts.metaTitle,
+    metaDescription: blogPosts.metaDescription,
+  }).from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+  const staticPost = staticBlogPosts.find((post) => post.slug === slug);
+  if (!dbPost && !staticPost) {
+    await updateAction(params.actionId, {
+      status: "blocked",
+      completedAt: new Date(),
+      result: JSON.stringify({ reason: "No matching blog source was found.", slug }),
+    });
+    return false;
+  }
+
+  const title = dbPost?.title ?? staticPost!.title;
+  const metaTitle = dbPost?.metaTitle ?? staticPost!.metaTitle;
+  const metaDescription = dbPost?.metaDescription ?? staticPost!.metaDescription;
+  const sourceContent = dbPost?.content ?? JSON.stringify(staticPost!.content);
+  await updateAction(params.actionId, { status: "running", startedAt: new Date() });
+
+  const response = await agentLLM({
+    agentSlug: "revenue_intel" as any,
+    context: params.context,
+    temperature: 0.2,
+    maxTokens: 6000,
+    messages: [
+      {
+        role: "system",
+        content: "Create a reviewable SEO draft for a consumer-information website. Return only JSON with title, metaTitle, metaDescription, excerpt, content. content must be safe semantic HTML. Do not claim legal representation, guaranteed outcomes, or rankings. Preserve factual restraint and use 'free case review' rather than 'free legal review'.",
+      },
+      {
+        role: "user",
+        content: `ACTION: ${params.plan.actionType}\nCHANGE: ${params.plan.specificChange}\nPREDICTED MONTHLY IMPACT: $${params.plan.predictedRevenueGain.toFixed(2)} (model estimate only)\nREASONING: ${params.plan.reasoning}\n\nCURRENT TITLE: ${title}\nCURRENT META TITLE: ${metaTitle ?? ""}\nCURRENT META DESCRIPTION: ${metaDescription ?? ""}\nCURRENT CONTENT: ${sourceContent.slice(0, 7000)}`,
+      },
+    ],
+  });
+  const draft = parseDraft(response);
+  const content = typeof draft?.content === "string" ? sanitizeStoredHtml(draft.content) : "";
+  if (!content) {
+    await updateAction(params.actionId, {
+      status: "failed",
+      completedAt: new Date(),
+      errorMessage: "The draft model returned no usable HTML content.",
+    });
+    return false;
+  }
+
+  const name = `Revenue Execution — ${params.plan.actionType} — ${new Date().toLocaleDateString("en-US")}`;
+  const [existing] = await params.db.select({ id: blogDrafts.id })
+    .from(blogDrafts)
+    .where(and(eq(blogDrafts.postSlug, slug), eq(blogDrafts.name, name)))
+    .limit(1);
+  const values = {
+    title: typeof draft?.title === "string" ? draft.title : title,
+    content,
+    metaTitle: typeof draft?.metaTitle === "string" ? draft.metaTitle : metaTitle,
+    metaDescription: typeof draft?.metaDescription === "string" ? draft.metaDescription : metaDescription,
+    excerpt: typeof draft?.excerpt === "string" ? draft.excerpt : null,
+    targetKeyword: params.plan.actionType,
+    updatedAt: new Date(),
+  };
+  let draftId = existing?.id ?? 0;
+  if (existing) {
+    await params.db.update(blogDrafts).set(values).where(eq(blogDrafts.id, existing.id));
+  } else {
+    const insertResult = await params.db.insert(blogDrafts).values({ postSlug: slug, name, ...values });
+    draftId = getMysqlInsertId(insertResult);
+  }
+
+  await updateAction(params.actionId, {
+    status: "completed",
+    completedAt: new Date(),
+    result: JSON.stringify({ draftId, postSlug: slug, draftName: name, publication: "review_required" }),
+  });
+  await params.db.update(revenueIntelPredictions).set({
+    status: "done",
+    executedAt: new Date(),
+    executionNotes: `Reviewable Blog Studio draft ${draftId || name} created; not auto-published.`,
+  }).where(and(
+    eq(revenueIntelPredictions.runId, params.runId),
+    eq(revenueIntelPredictions.pageSlug, params.plan.pageSlug),
+    eq(revenueIntelPredictions.actionType, params.plan.actionType),
+  ));
+  return true;
+}
 
 // CTR curve by position (Google industry average)
 const CTR_BY_POSITION: Record<number, number> = {
@@ -119,12 +255,13 @@ interface PredictedAction {
   reasoning: string;
 }
 
-function modelPageMetrics(page: typeof seoPages.$inferSelect): PageMetrics {
+export function modelPageMetrics(page: typeof seoPages.$inferSelect): PageMetrics {
   const clicks = page.gscClicks || 0;
   const impressions = page.gscImpressions || 0;
   const position = parseFloat(page.gscAvgPosition || "50");
   const convRate = CONVERSION_RATE[page.pageType] || 2.0;
-  const leadsPerMonth = (clicks / 100) * (convRate / 100) * 30; // daily clicks * conversion
+  // The refresh stores a 28-day aggregate, not daily click counts.
+  const leadsPerMonth = clicks * (convRate / 100);
   const revenuePerMonth = leadsPerMonth * REVENUE_PER_LEAD;
 
   return {
@@ -139,79 +276,73 @@ function modelPageMetrics(page: typeof seoPages.$inferSelect): PageMetrics {
   };
 }
 
-function predictActions(metrics: PageMetrics): PredictedAction[] {
+export function predictActions(metrics: PageMetrics): PredictedAction[] {
   const actions: PredictedAction[] = [];
   const { slug, title, pageType, clicks, impressions, position, currentLeadsPerMonth } = metrics;
   const convRate = CONVERSION_RATE[pageType] || 2.0;
 
   // 1. CTA Rewrite — improves on-page conversion rate by 15-40%
-  if (clicks > 5) {
+  if (clicks >= 1) {
     const ctaImprovementRate = 0.25; // conservative 25% improvement
     const newLeads = currentLeadsPerMonth * (1 + ctaImprovementRate);
     const leadsGain = newLeads - currentLeadsPerMonth;
-    const revenueGain = leadsGain * REVENUE_PER_LEAD * 30; // monthly
-    if (revenueGain > 50) {
-      actions.push({
-        pageSlug: slug,
-        pageTitle: title,
-        actionType: "cta_rewrite",
+    const revenueGain = leadsGain * REVENUE_PER_LEAD;
+    actions.push({
+      pageSlug: slug,
+      pageTitle: title,
+      actionType: "cta_rewrite",
         actionDetail: `Rewrite primary CTA on "${title}" to increase conversion rate by ~25%. Current: generic button. New: urgency-driven, benefit-specific CTA matching search intent.`,
         predictedClicksGain: 0,
-        predictedLeadsGain: Math.round(leadsGain * 100) / 100,
-        predictedRevenueGain: Math.round(revenueGain * 100) / 100,
-        confidenceScore: 72,
-        reasoning: `Page gets ${clicks} clicks/day. A 25% CTA improvement = ${leadsGain.toFixed(2)} more leads/month × $${REVENUE_PER_LEAD.toFixed(0)} = $${revenueGain.toFixed(0)}/month`,
-      });
-    }
+      predictedLeadsGain: Math.round(leadsGain * 100) / 100,
+      predictedRevenueGain: Math.round(revenueGain * 100) / 100,
+      confidenceScore: 72,
+      reasoning: `Page received ${clicks} clicks in the current 28-day GSC window. A 25% CTA improvement estimates ${leadsGain.toFixed(2)} more leads/month × $${REVENUE_PER_LEAD.toFixed(0)} = $${revenueGain.toFixed(0)}/month.`,
+    });
   }
 
-  // 2. Title Optimization — improves CTR by 10-30% for pages with high impressions
-  if (impressions > 100 && position <= 20) {
+  // 2. Title Optimization — improves CTR on measured pages.
+  if (impressions >= 5 && position <= 30) {
     const currentCTR = getCTR(position);
     const improvedCTR = currentCTR * 1.20; // 20% CTR improvement
-    const currentDailyClicks = impressions * currentCTR;
-    const newDailyClicks = impressions * improvedCTR;
-    const clicksGain = newDailyClicks - currentDailyClicks;
-    const leadsGain = (clicksGain / 100) * (convRate / 100) * 30;
+    const currentMonthlyClicks = impressions * currentCTR;
+    const newMonthlyClicks = impressions * improvedCTR;
+    const clicksGain = newMonthlyClicks - currentMonthlyClicks;
+    const leadsGain = clicksGain * (convRate / 100);
     const revenueGain = leadsGain * REVENUE_PER_LEAD;
-    if (revenueGain > 30) {
-      actions.push({
-        pageSlug: slug,
-        pageTitle: title,
-        actionType: "title_optimization",
-        actionDetail: `Optimize title tag of "${title}" to improve CTR from ${(currentCTR * 100).toFixed(1)}% to ${(improvedCTR * 100).toFixed(1)}%. Add power words: "Free", "Cancel", "Get Out", "Now". Include year if applicable.`,
-        predictedClicksGain: Math.round(clicksGain * 30),
-        predictedLeadsGain: Math.round(leadsGain * 100) / 100,
-        predictedRevenueGain: Math.round(revenueGain * 100) / 100,
-        confidenceScore: 68,
-        reasoning: `${impressions} impressions/day at pos ${position.toFixed(1)}. 20% CTR improvement = +${clicksGain.toFixed(1)} clicks/day = +${leadsGain.toFixed(2)} leads/month = $${revenueGain.toFixed(0)}/month`,
-      });
-    }
+    actions.push({
+      pageSlug: slug,
+      pageTitle: title,
+      actionType: "title_optimization",
+      actionDetail: `Optimize title tag of "${title}" to improve CTR from ${(currentCTR * 100).toFixed(1)}% to ${(improvedCTR * 100).toFixed(1)}%. Add power words: "Free", "Cancel", "Get Out", "Now". Include year if applicable.`,
+      predictedClicksGain: Math.round(clicksGain),
+      predictedLeadsGain: Math.round(leadsGain * 100) / 100,
+      predictedRevenueGain: Math.round(revenueGain * 100) / 100,
+      confidenceScore: 68,
+      reasoning: `${impressions} impressions in the current 28-day GSC window at position ${position.toFixed(1)}. A 20% CTR improvement estimates +${clicksGain.toFixed(1)} clicks and +${leadsGain.toFixed(2)} leads/month = $${revenueGain.toFixed(0)}/month.`,
+    });
   }
 
-  // 3. Position Push — pages sitting at 11-20 are close to page 1 gold
-  if (position >= 11 && position <= 25 && impressions > 50) {
+  // 3. Position Push — pages near page one deserve measured iteration.
+  if (position >= 11 && position <= 30 && impressions >= 5) {
     const currentCTR = getCTR(position);
     const targetPosition = Math.max(1, position - 5);
     const targetCTR = getCTR(targetPosition);
-    const currentDailyClicks = impressions * currentCTR;
-    const newDailyClicks = impressions * targetCTR;
-    const clicksGain = newDailyClicks - currentDailyClicks;
-    const leadsGain = (clicksGain / 100) * (convRate / 100) * 30;
+    const currentMonthlyClicks = impressions * currentCTR;
+    const newMonthlyClicks = impressions * targetCTR;
+    const clicksGain = newMonthlyClicks - currentMonthlyClicks;
+    const leadsGain = clicksGain * (convRate / 100);
     const revenueGain = leadsGain * REVENUE_PER_LEAD;
-    if (revenueGain > 50) {
-      actions.push({
-        pageSlug: slug,
-        pageTitle: title,
-        actionType: "position_push",
-        actionDetail: `Push "${title}" from position ${position.toFixed(0)} to ${targetPosition} via: (1) Add 500 words of E-E-A-T content, (2) Add 3 internal links from high-authority pages, (3) Add FAQ schema, (4) Improve keyword density to 1.5-2%.`,
-        predictedClicksGain: Math.round(clicksGain * 30),
-        predictedLeadsGain: Math.round(leadsGain * 100) / 100,
-        predictedRevenueGain: Math.round(revenueGain * 100) / 100,
-        confidenceScore: 58,
-        reasoning: `Pos ${position.toFixed(1)} → pos ${targetPosition}: CTR ${(currentCTR * 100).toFixed(1)}% → ${(targetCTR * 100).toFixed(1)}%. ${impressions} impressions/day × CTR gain = +${clicksGain.toFixed(1)} clicks/day = $${revenueGain.toFixed(0)}/month`,
-      });
-    }
+    actions.push({
+      pageSlug: slug,
+      pageTitle: title,
+      actionType: "position_push",
+      actionDetail: `Push "${title}" from position ${position.toFixed(0)} to ${targetPosition} via: (1) Add 500 words of E-E-A-T content, (2) Add 3 internal links from high-authority pages, (3) Add FAQ schema, (4) Improve keyword density to 1.5-2%.`,
+      predictedClicksGain: Math.round(clicksGain),
+      predictedLeadsGain: Math.round(leadsGain * 100) / 100,
+      predictedRevenueGain: Math.round(revenueGain * 100) / 100,
+      confidenceScore: 58,
+      reasoning: `Position ${position.toFixed(1)} → ${targetPosition}: CTR ${(currentCTR * 100).toFixed(1)}% → ${(targetCTR * 100).toFixed(1)}%. The current 28-day window has ${impressions} impressions, estimating +${clicksGain.toFixed(1)} clicks = $${revenueGain.toFixed(0)}/month.`,
+    });
   }
 
   // 4. Meta Description Rewrite — improves CTR by 8-15%
@@ -281,7 +412,7 @@ export async function runRevenueIntelAgent(
       totalPredictedRevenueImpact: "0",
       status: "running",
     });
-    runId = (runResult as any).insertId || 0;
+    runId = getMysqlInsertId(runResult);
   }
 
   try {
@@ -294,7 +425,10 @@ export async function runRevenueIntelAgent(
 
     // 2. Pull all pages with GSC data
     const pages = db ? await db.select().from(seoPages)
-      .where(sql`gscImpressions > 0 OR gscClicks > 0`)
+      .where(and(
+        sql`gscImpressions > 0 OR gscClicks > 0`,
+        gte(seoPages.gscLastChecked, new Date(Date.now() - 72 * 60 * 60 * 1000)),
+      ))
       .orderBy(desc(seoPages.gscImpressions))
       .limit(200) : [];
 
@@ -416,11 +550,13 @@ Respond ONLY with valid JSON:
       }
     }
 
-    // 8. Create actions for execution plan
+    // 8. Execute up to two supported, reviewable content actions. Everything
+    // else remains transparently queued or blocked rather than being counted as
+    // "auto-executed" without a concrete output.
+    let draftsExecuted = 0;
     for (const plan of (parsed.executionPlan || [])) {
       if (plan.priority === "auto_execute") {
-        // Create an action that the system will execute
-        await createAction({
+        const actionId = await createAction({
           agentSlug: "revenue_intel" as any,
           priority: "p1",
           title: `[AUTO-EXECUTE] ${plan.actionType}: ${plan.pageSlug}`,
@@ -429,19 +565,18 @@ Respond ONLY with valid JSON:
           requiresApproval: 0,
           payload: JSON.stringify({ pageSlug: plan.pageSlug, actionType: plan.actionType, change: plan.specificChange }),
         });
-        actionsExecuted++;
         context.actionsCreated++;
-
-        // Mark as executing in DB
-        if (db) {
-          await db.update(revenueIntelPredictions).set({
-            status: "executing",
-            executedAt: new Date(),
-          }).where(and(
-            eq(revenueIntelPredictions.pageSlug, plan.pageSlug),
-            eq(revenueIntelPredictions.actionType, plan.actionType),
-            eq(revenueIntelPredictions.runId, runId)
-          ));
+        if (!db || draftsExecuted >= MAX_AUTO_DRAFTS_PER_RUN) {
+          await updateAction(actionId, {
+            status: "queued",
+            result: JSON.stringify({ reason: "Execution cap reached; queued for the next reviewed cycle." }),
+          });
+          continue;
+        }
+        const execution = await createRevenueDraft({ db, context, actionId, runId, plan });
+        if (execution) {
+          actionsExecuted++;
+          draftsExecuted++;
         }
       } else if (plan.priority === "escalate_to_chase") {
         await createAction({

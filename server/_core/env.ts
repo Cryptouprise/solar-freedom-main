@@ -10,4 +10,8 @@ export const ENV = {
   openRouterApiKey: process.env.OPENROUTER_API_KEY ?? "",
   ghlApiKey: process.env.ghlapi ?? "",
   ghlLocationId: process.env.GHL_LOCATION_ID ?? "WBEbDUNxKL5GyxIUjjdZ",
+  assistableApiKey: process.env.ASSISTABLE_API_KEY ?? "",
+  assistableSubaccountId: process.env.ASSISTABLE_SUBACCOUNT_ID ?? "",
+  assistableResearchAssistantId: process.env.ASSISTABLE_RESEARCH_ASSISTANT_ID ?? "",
+  assistableOutboundEnabled: process.env.ASSISTABLE_OUTBOUND_ENABLED === "true",
 };

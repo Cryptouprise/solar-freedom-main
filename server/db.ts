@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, InsertLead, InsertUser, leads, siteConfig, users } from "../drizzle/schema";
 import { sanitizeStoredHtml } from "./security/html";
 import { ENV } from './_core/env';
+import { blogPosts as staticBlogPosts, type BlogPost as StaticBlogPost } from "../client/src/data/blog";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -155,6 +156,45 @@ export async function markLeadGhlSent(id: number) {
 function safeJson(val: string | null | undefined, fallback: unknown) {
   if (!val) return fallback;
   try { return JSON.parse(val); } catch { return fallback; }
+}
+
+function escapeStaticHtml(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+export function staticPostToHtml(post: StaticBlogPost) {
+  return post.content.map((section) => {
+    const text = escapeStaticHtml(section.content ?? "");
+    if (section.type === "h2") return `<h2>${text}</h2>`;
+    if (section.type === "h3") return `<h3>${text}</h3>`;
+    if (section.type === "list") return `<ul>${(section.items ?? []).map((item) => `<li>${escapeStaticHtml(item)}</li>`).join("")}</ul>`;
+    if (section.type === "image" && section.src) return `<figure><img src="${escapeStaticHtml(section.src)}" alt="${escapeStaticHtml(section.alt ?? "")}" />${section.caption ? `<figcaption>${escapeStaticHtml(section.caption)}</figcaption>` : ""}</figure>`;
+    if (section.type === "stat-block") return `<ul>${(section.stats ?? []).map((stat) => `<li><strong>${escapeStaticHtml(stat.value)}</strong> ${escapeStaticHtml(stat.label)}</li>`).join("")}</ul>`;
+    return text ? `<p>${text}</p>` : "";
+  }).filter(Boolean).join("\n");
+}
+
+function staticPostRecord(post: StaticBlogPost, index: number) {
+  return {
+    id: -(index + 1),
+    slug: post.slug,
+    title: post.title,
+    metaTitle: post.metaTitle,
+    metaDescription: post.metaDescription,
+    heroImage: post.heroImage,
+    category: post.category,
+    tags: JSON.stringify([]),
+    content: staticPostToHtml(post),
+    excerpt: post.excerpt,
+    readTime: post.readTime,
+    relatedSlugs: JSON.stringify(post.relatedSlugs),
+    faqItems: JSON.stringify(post.faq),
+    canonicalUrl: post.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${post.slug}`,
+    published: 1,
+    publishedAt: null,
+    createdAt: null,
+    updatedAt: null,
+  };
 }
 
 /**
@@ -345,7 +385,19 @@ export async function getAllBlogPostsAdmin(limit = 200, offset = 0) {
     .limit(limit)
     .offset(offset);
 
-  return rows;
+  const dbSlugs = new Set(rows.map((row) => row.slug));
+  const staticRows = staticBlogPosts
+    .filter((post) => !dbSlugs.has(post.slug))
+    .map((post, index) => ({
+      id: -(index + 1),
+      slug: post.slug,
+      title: post.title,
+      published: 1,
+      updatedAt: null,
+      publishedAt: null,
+    }));
+
+  return [...rows, ...staticRows].slice(0, limit);
 }
 
 /**
@@ -361,7 +413,9 @@ export async function getAdminBlogPost(slug: string) {
     .where(eq(blogPosts.slug, slug))
     .limit(1);
 
-  return post ? { ...post, content: sanitizeStoredHtml(post.content) } : null;
+  if (post) return { ...post, content: sanitizeStoredHtml(post.content) };
+  const staticIndex = staticBlogPosts.findIndex((candidate) => candidate.slug === slug);
+  return staticIndex === -1 ? null : staticPostRecord(staticBlogPosts[staticIndex], staticIndex);
 }
 
 /**
@@ -392,10 +446,34 @@ export async function updateBlogPost(
     ? data
     : { ...data, content: sanitizeStoredHtml(data.content) };
 
-  await db
-    .update(blogPosts)
-    .set({ ...safeData, updatedAt: new Date() })
-    .where(eq(blogPosts.slug, slug));
+  const [existing] = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+  if (existing) {
+    await db
+      .update(blogPosts)
+      .set({ ...safeData, updatedAt: new Date() })
+      .where(eq(blogPosts.slug, slug));
+  } else {
+    const staticIndex = staticBlogPosts.findIndex((candidate) => candidate.slug === slug);
+    if (staticIndex === -1) throw new Error("Post not found");
+    const base = staticPostRecord(staticBlogPosts[staticIndex], staticIndex);
+    await db.insert(blogPosts).values({
+      slug,
+      title: safeData.title ?? base.title,
+      metaTitle: safeData.metaTitle ?? base.metaTitle,
+      metaDescription: safeData.metaDescription ?? base.metaDescription,
+      heroImage: safeData.heroImage ?? base.heroImage,
+      category: safeData.category ?? base.category,
+      tags: safeData.tags ?? JSON.stringify(base.tags),
+      content: safeData.content ?? base.content,
+      excerpt: safeData.excerpt ?? base.excerpt,
+      readTime: safeData.readTime ?? base.readTime,
+      relatedSlugs: safeData.relatedSlugs ?? base.relatedSlugs,
+      faqItems: safeData.faqItems ?? base.faqItems,
+      canonicalUrl: safeData.canonicalUrl ?? base.canonicalUrl,
+      published: safeData.published ?? 1,
+      publishedAt: new Date(),
+    });
+  }
 
   return { success: true };
 }

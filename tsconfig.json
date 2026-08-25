@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "ignoreDeprecations": "5.0",
     "types": ["node", "vite/client"],

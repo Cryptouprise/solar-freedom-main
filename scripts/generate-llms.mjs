@@ -25,6 +25,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.resolve(ROOT, "client", "public");
 const BASE_URL = "https://breakyoursolarcontract.com";
+const indexEligibility = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/index-eligibility.json"), "utf-8")
+);
+const INDEXABLE_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
+const INDEXABLE_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
+const INDEXABLE_CITY_SLUGS = new Set(indexEligibility.citySlugs);
+const INDEXABLE_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
+const redirectLedger = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/seo-redirects.json"), "utf-8")
+);
+const REDIRECTED_BLOG_SLUGS = new Set(
+  Object.keys(redirectLedger.blog).map(pagePath => pagePath.replace(/^\/blog\//, ""))
+);
+const PUBLIC_REDIRECT_PATHS = new Set(Object.keys(redirectLedger.public));
 
 function decodeStringLiteralValue(value) {
   return value
@@ -71,7 +85,7 @@ function loadInventory() {
     }
     for (let i = 0; i < positions.length; i++) {
       const { slug, index } = positions[i];
-      if (!slug || slug.includes("${") || slug.length <= 5 || seenBlog.has(slug))
+      if (!slug || slug.includes("${") || slug.length <= 5 || seenBlog.has(slug) || !INDEXABLE_BLOG_SLUGS.has(slug) || REDIRECTED_BLOG_SLUGS.has(slug))
         continue;
       const chunk = content.slice(index, positions[i + 1]?.index ?? content.length);
       const title =
@@ -87,7 +101,8 @@ function loadInventory() {
   const companyRe = /slug:\s*["']([^"']+)["'][\s\S]*?name:\s*["']([^"']+)["']/g;
   let cm;
   while ((cm = companyRe.exec(companiesFile)) !== null) {
-    companies.push({ slug: cm[1], name: cm[2] });
+    const pagePath = `/cancel-${cm[1]}-solar-contract`;
+    if (INDEXABLE_COMPANY_SLUGS.has(cm[1]) && !PUBLIC_REDIRECT_PATHS.has(pagePath)) companies.push({ slug: cm[1], name: cm[2] });
   }
 
   // Cities.
@@ -96,13 +111,15 @@ function loadInventory() {
   const cityRe = /\{\s*name:\s*["']([^"']+)["'][^}]*?stateCode:\s*["']([^"']+)["'][^}]*?slug:\s*["']([^"']+)["']/g;
   let cityM;
   while ((cityM = cityRe.exec(citiesFile)) !== null) {
-    cities.push({ name: cityM[1], stateCode: cityM[2], slug: cityM[3] });
+    const pagePath = `/cancel-solar-contract/${cityM[3]}`;
+    if (INDEXABLE_CITY_SLUGS.has(cityM[3]) && !PUBLIC_REDIRECT_PATHS.has(pagePath)) cities.push({ name: cityM[1], stateCode: cityM[2], slug: cityM[3] });
   }
   if (cities.length === 0) {
     const simpleRe = /\{\s*name:\s*["']([^"']+)["'][^}]*?slug:\s*["']([^"']+)["']/g;
     let sm;
     while ((sm = simpleRe.exec(citiesFile)) !== null) {
-      cities.push({ name: sm[1], stateCode: "", slug: sm[2] });
+      const pagePath = `/cancel-solar-contract/${sm[2]}`;
+      if (INDEXABLE_CITY_SLUGS.has(sm[2]) && !PUBLIC_REDIRECT_PATHS.has(pagePath)) cities.push({ name: sm[1], stateCode: "", slug: sm[2] });
     }
   }
 
@@ -112,7 +129,7 @@ function loadInventory() {
   const stateRe = /slug:\s*["']([^"']+)["'][\s\S]*?state:\s*["']([^"']+)["']/g;
   let stM;
   while ((stM = stateRe.exec(stateFile)) !== null) {
-    states.push({ slug: stM[1], state: stM[2] });
+    if (INDEXABLE_STATE_SLUGS.has(stM[1])) states.push({ slug: stM[1], state: stM[2] });
   }
 
   return { blog, companies, cities, states };
@@ -187,10 +204,10 @@ A: Pink Energy (formerly Power Home Solar) filed for bankruptcy in October 2022 
 A: SunPower Corporation filed for Chapter 11 bankruptcy in August 2024. Homeowners with SunPower leases, PPAs, or loans have specific legal options depending on their contract type and state. See: https://breakyoursolarcontract.com/cancel-sunpower-solar-contract
 
 **Q: What happened to Sunnova?**
-A: Sunnova Energy International filed for Chapter 11 bankruptcy in February 2025, affecting approximately 450,000 customers. Homeowners with Sunnova contracts should document their situation and understand their rights. See: https://breakyoursolarcontract.com/cancel-sunnova-solar-contract and https://breakyoursolarcontract.com/blog/sunnova-bankruptcy-what-homeowners-can-do
+A: Sunnova Energy International filed for Chapter 11 bankruptcy in February 2025, affecting approximately 450,000 customers. Homeowners with Sunnova contracts should document their situation and understand their rights. See: https://breakyoursolarcontract.com/cancel-sunnova-solar-contract and https://breakyoursolarcontract.com/blog/how-to-cancel-sunnova-solar-contract-2026
 
 **Q: How do I cancel a Sunrun contract?**
-A: Sunrun cancellations depend on timing and grounds. Within 3 business days of signing at home, use the FTC Cooling-Off Rule. After installation, the strongest grounds are material misrepresentation (promised bill elimination, overstated tax credits, undisclosed payment escalators). See: https://breakyoursolarcontract.com/cancel-sunrun-solar-contract and https://breakyoursolarcontract.com/blog/how-to-cancel-sunrun-contract-2026
+A: Sunrun cancellations depend on timing and grounds. Within 3 business days of signing at home, use the FTC Cooling-Off Rule. After installation, the strongest grounds are material misrepresentation (promised bill elimination, overstated tax credits, undisclosed payment escalators). See: https://breakyoursolarcontract.com/cancel-sunrun-solar-contract and https://breakyoursolarcontract.com/blog/sunrun-solar-contract-cancellation-2026
 
 **Q: What is a solar contract escalator clause?**
 A: Many solar leases and PPAs include an annual payment escalator of 2.9%–3.9% that increases your monthly payment each year. This clause is often not verbally disclosed during the sale. If you were not told about the escalator, this may constitute material misrepresentation and grounds for cancellation.

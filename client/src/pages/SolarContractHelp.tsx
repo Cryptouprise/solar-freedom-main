@@ -13,70 +13,70 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 const exitOptions = [
   {
     icon: <Scale className="w-6 h-6" />,
-    title: "Legal Cancellation",
-    description: "Challenge the contract based on misrepresentation, TILA violations, or state consumer protection law. Often the lowest-cost path.",
-    timeline: "30–90 days",
-    cost: "Terms require written confirmation",
-    href: "/blog/how-to-get-out-of-a-solar-contract",
-  },
-  {
-    icon: <FileText className="w-6 h-6" />,
-    title: "Contract Rescission",
-    description: "If you were not given a proper Notice of Cancellation at signing, your 3-day FTC cooling-off window may still be legally open.",
-    timeline: "7–30 days",
-    cost: "Low to none",
+    title: "Check Written Cancellation Terms",
+    description: "Locate the signed Notice of Cancellation and the agreement's cancellation, termination, funding, default, and dispute sections.",
+    timing: "Act promptly",
+    record: "Notice + delivery proof",
     href: "/blog/solar-contract-rescission-rights",
   },
   {
+    icon: <FileText className="w-6 h-6" />,
+    title: "Map the Contract Parties",
+    description: "Identify the seller, installer, lender, system owner, servicer, warranty provider, and equipment manufacturers before directing a request.",
+    timing: "Before escalating",
+    record: "Contracts + statements",
+    href: "/blog/how-to-get-out-of-a-solar-contract",
+  },
+  {
     icon: <DollarSign className="w-6 h-6" />,
-    title: "Negotiated Buyout",
-    description: "Negotiate a reduced buyout amount with the solar company or lender. Often possible for 30–60% less than the stated buyout price.",
-    timeline: "30–60 days",
-    cost: "Reduced buyout",
-    href: "/blog/how-to-negotiate-solar-contract-cancellation",
+    title: "Review Loan and Payoff Records",
+    description: "Compare the cash price, amount financed, disclosures, payment schedule, account history, and a current written payoff quote.",
+    timing: "Before missing payment",
+    record: "Agreement + payoff quote",
+    href: "/blog/goodleap-solar-loan-cancellation-hidden-fees-2026",
   },
   {
     icon: <Home className="w-6 h-6" />,
-    title: "Transfer to Buyer",
-    description: "When selling your home, transfer the solar agreement to the buyer. Works best for leases and PPAs with reasonable terms.",
-    timeline: "At closing",
-    cost: "None if successful",
-    href: "/blog/sell-house-with-solar-panels",
+    title: "Prepare for a Home Sale",
+    description: "Request transfer, assumption, prepayment, payoff, title, and escrow requirements early enough to avoid a closing delay.",
+    timing: "Before listing or closing",
+    record: "Written transfer terms",
+    href: "/selling-house-with-solar",
   },
 ];
 
 const commonProblems = [
-  { label: "Payment higher than electric bill", href: "/blog/solar-payments-too-high-help" },
-  { label: "System not producing what was promised", href: "/blog/solar-system-underperforming" },
-  { label: "Misleading savings claims", href: "/blog/solar-misleading-savings-claims" },
-  { label: "Solar company won't respond", href: "/blog/solar-company-wont-help" },
-  { label: "Trying to sell your home", href: "/blog/selling-house-with-solar-loan" },
-  { label: "Door-to-door sales pressure", href: "/blog/solar-door-to-door-sales-pressure" },
-  { label: "Solar company went bankrupt", href: "/blog/solar-company-went-bankrupt" },
-  { label: "Contract red flags", href: "/blog/solar-contract-red-flags" },
-  { label: "Solar regret", href: "/blog/solar-regret-what-to-do" },
-  { label: "Credit score concerns", href: "/blog/solar-credit-score-fears" },
+  { label: "Payment changed or is higher than expected", href: "/blog/solar-payment-shock-help" },
+  { label: "System production differs from the proposal", href: "/blog/undersized-solar-system-legal-options" },
+  { label: "Sales savings statements did not match", href: "/blog/solar-misleading-savings-claims" },
+  { label: "The company has not resolved a documented request", href: "/blog/how-to-file-a-complaint-against-solar-company-attorney-general" },
+  { label: "Preparing to sell a home with solar", href: "/selling-house-with-solar" },
+  { label: "Checking door-to-door sales statements", href: "/blog/solar-fraud-warning-signs" },
+  { label: "The installer changed, closed, or stopped servicing", href: "/blog/solar-installer-out-of-business" },
+  { label: "Reviewing a Sunrun agreement", href: "/blog/sunrun-solar-contract-cancellation-2026" },
+  { label: "Reviewing a GoodLeap loan", href: "/blog/goodleap-solar-loan-cancellation-hidden-fees-2026" },
+  { label: "Checking New Jersey records and complaints", href: "/blog/new-jersey-solar-contract-rights" },
 ];
 
 const featuredArticles = [
+  "sunrun-solar-contract-cancellation-2026",
+  "goodleap-solar-loan-cancellation-hidden-fees-2026",
   "how-to-get-out-of-a-solar-contract",
-  "solar-contract-rescission-rights",
-  "solar-panel-scam-signs-and-solutions",
-  "cancel-solar-loan-or-lease-early",
-  "solar-payments-too-high-help",
-  "how-to-negotiate-solar-contract-cancellation",
+  "blue-raven-solar-complaints",
+  "adt-solar-complaints",
+  "new-jersey-solar-contract-rights",
 ];
 
 export default function SolarContractHelp() {
   useSeoMeta({
-    title: 'Solar Contract Help: All Your Options Explained | Solar Freedom',
-    description: 'Comprehensive solar contract help: legal cancellation, rescission rights, negotiated buyout, and transfer options. Free case review available.',
+    title: 'Solar Contract Help: Documents, Options and Next Steps',
+    description: 'Start with the solar agreement, financing records, cancellation notice, bills, production data, company status, home-sale requirements, and complaint channels.',
     canonical: 'https://breakyoursolarcontract.com/solar-contract-help',
   });
   useEffect(() => {
-    document.title = "Solar Contract Help: All Your Options Explained | Solar Freedom";
+    document.title = "Solar Contract Help: Documents, Options and Next Steps";
     const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Comprehensive solar contract help: legal cancellation, rescission rights, negotiated buyout, and transfer options. Free case review available.");
+    if (meta) meta.setAttribute("content", "Start with the solar agreement, financing records, cancellation notice, bills, production data, company status, home-sale requirements, and complaint channels.");
   }, []);
 
   const articles = blogPosts.filter(p => featuredArticles.includes(p.slug));
@@ -93,7 +93,7 @@ export default function SolarContractHelp() {
         </Link>
         <Link href="/#contact">
           <button className="text-sm font-semibold px-4 py-2 rounded-lg text-black" style={{ background: "oklch(0.78 0.18 85)" }}>
-            Free Case Review
+            Contract Review
           </button>
         </Link>
       </nav>
@@ -107,12 +107,12 @@ export default function SolarContractHelp() {
           SOLAR CONTRACT<br /><span className="text-amber-400">HELP CENTER</span>
         </h1>
         <p className="text-xl text-gray-300 max-w-3xl mb-8 leading-relaxed">
-          If you are stuck in a solar contract that is not working for you, you are not alone — and you are not necessarily trapped. This page covers every exit option available to homeowners, from legal cancellation to negotiated buyouts to transfer at sale.
+          Use this page to identify the agreement, parties, written cancellation terms, financing records, service history, company status, and home-sale requirements before choosing a financial or legal next step.
         </p>
         <div className="flex flex-wrap gap-4">
           <Link href="/#contact">
             <button className="flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-black" style={{ background: "oklch(0.78 0.18 85)" }}>
-              Get Free Case Review <ArrowRight className="w-4 h-4" />
+              Request Contract Review <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
           <a href="tel:+19049214971" className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:border-white/40 transition-colors">
@@ -142,8 +142,8 @@ export default function SolarContractHelp() {
       {/* EXIT OPTIONS */}
       <section className="px-6 py-16 border-t border-white/8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>YOUR EXIT OPTIONS</h2>
-          <p className="text-gray-400 mb-10">There is no single path out of a solar contract. The right option depends on your contract type, how long ago you signed, and the specific facts of your situation.</p>
+          <h2 className="text-3xl font-black text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>PATHS TO CHECK</h2>
+          <p className="text-gray-400 mb-10">There is no universal exit. Use the written agreement and current records to determine which path is relevant before taking action.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {exitOptions.map((opt) => (
               <Link key={opt.href} href={opt.href}>
@@ -153,12 +153,12 @@ export default function SolarContractHelp() {
                   <p className="text-gray-400 text-sm mb-4 leading-relaxed">{opt.description}</p>
                   <div className="flex gap-4 text-xs">
                     <div>
-                      <span className="text-gray-500">Timeline: </span>
-                      <span className="text-amber-400 font-mono">{opt.timeline}</span>
+                      <span className="text-gray-500">Timing: </span>
+                      <span className="text-amber-400 font-mono">{opt.timing}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Cost: </span>
-                      <span className="text-green-400 font-mono">{opt.cost}</span>
+                      <span className="text-gray-500">Key record: </span>
+                      <span className="text-green-400 font-mono">{opt.record}</span>
                     </div>
                   </div>
                 </div>
@@ -168,15 +168,15 @@ export default function SolarContractHelp() {
         </div>
       </section>
 
-      {/* KEY LEGAL FACTS */}
+      {/* VERIFICATION CHECKPOINTS */}
       <section className="px-6 py-16 border-t border-white/8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-black text-white mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KEY LEGAL FACTS</h2>
+          <h2 className="text-3xl font-black text-white mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>VERIFICATION CHECKPOINTS</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { icon: <Clock className="w-5 h-5" />, title: "FTC Cooling-Off Rule", body: "You have 3 business days to cancel any contract signed at your home. If you were not given written notice of this right, the window may still be legally open — even years later." },
-              { icon: <AlertTriangle className="w-5 h-5" />, title: "TILA Violations", body: "The Truth in Lending Act requires specific disclosures for solar loans. If your lender failed to provide them, you may have a right of rescission regardless of how long ago you signed." },
-              { icon: <Shield className="w-5 h-5" />, title: "State Consumer Protection", body: "Most states have Deceptive Trade Practices Acts that allow consumers to void contracts obtained through misrepresentation. These laws often have stronger remedies than federal law." },
+              { icon: <Clock className="w-5 h-5" />, title: "Cancellation Coverage", body: "The FTC Cooling-Off Rule covers certain sales made at a home or temporary location and has exclusions. Check the signed notice, transaction method, jurisdiction, and actual rule coverage." },
+              { icon: <AlertTriangle className="w-5 h-5" />, title: "Financing Disclosures", body: "Compare the cash price, amount financed, APR, finance charge, total of payments, payment schedule, and expected-prepayment terms. A discrepancy requires fact-specific review." },
+              { icon: <Shield className="w-5 h-5" />, title: "Official State Records", body: "Contractor registration, licensing, complaint channels, and remedies vary by state and transaction. Use official agency records rather than a universal online summary." },
             ].map((fact) => (
               <div key={fact.title} className="p-5 rounded-xl border border-white/8" style={{ background: "oklch(0.13 0.01 265)" }}>
                 <div className="text-amber-400 mb-3">{fact.icon}</div>
@@ -208,7 +208,7 @@ export default function SolarContractHelp() {
           <div className="mt-6 text-center">
             <Link href="/blog">
               <button className="text-amber-400 text-sm font-semibold hover:text-amber-300 transition-colors flex items-center gap-2 mx-auto">
-                View All 45 Articles <ArrowRight className="w-4 h-4" />
+                View All Articles <ArrowRight className="w-4 h-4" />
               </button>
             </Link>
           </div>

@@ -5,6 +5,7 @@ import { stateLaws } from "@/data/state-laws";
 import { blogPosts } from "@/data/blog";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { trackPhoneClick } from "@/lib/analytics";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 // Group cities by state
 function groupByState(cityList: typeof cities) {
@@ -32,6 +33,12 @@ const STATIC_PAGES = [
 
 export default function SitemapPage() {
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
+  useSeoMeta({
+    title: "Site Directory | Solar Freedom",
+    description: "Browse Solar Freedom resources by topic, solar company, and location.",
+    canonical: "https://breakyoursolarcontract.com/sitemap",
+    noindex: true,
+  });
   const byState = groupByState(cities);
   const sortedStates = Object.keys(byState).sort();
 

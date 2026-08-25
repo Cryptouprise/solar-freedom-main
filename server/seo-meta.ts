@@ -26,6 +26,7 @@ import { companies } from "../client/src/data/companies";
 import { stateLaws } from "../client/src/data/state-laws";
 import { blogPosts } from "../client/src/data/blog";
 import { INDEXED_CITY_SLUGS } from "../client/src/data/indexed-cities";
+import { isCanonicalBlogIndexed, isCompanyIndexed, isStateIndexed } from "../client/src/data/indexEligibility";
 import { sanitizeStoredHtml } from "./security/html";  // server/security/html.ts
 
 const BASE_URL = "https://breakyoursolarcontract.com";
@@ -136,6 +137,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
       description: desc,
       canonical: BASE_URL + path,
+      noindex: !isCompanyIndexed(company.slug),
     };
   }
 
@@ -263,7 +265,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       ? `${law.metaTitle} | Solar Freedom`
       : `${law.state} Solar Contract Laws | Your Rights | Solar Freedom`;
     const description = `Review solar-contract consumer information for ${law.state}, including records to gather and official sources to verify. Options depend on facts and current law.`;
-    map[path] = { title, description, canonical: BASE_URL + path };
+    map[path] = { title, description, canonical: BASE_URL + path, noindex: !isStateIndexed(law.slug) };
   }
 
   // ─── Blog posts ───────────────────────────────────────────────────────────
@@ -273,6 +275,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       title: `${post.metaTitle} | Solar Freedom`,
       description: suppressUnverifiedFirstPartyClaims(post.metaDescription),
       canonical: BASE_URL + path,
+      noindex: !isCanonicalBlogIndexed(post.slug),
     };
   }
 
@@ -389,6 +392,16 @@ function renderDbPostContent(rawContent: string): string {
     .join("\n");
 }
 
+function extractExternalCitations(content: string): string[] {
+  const urls: string[] = [];
+  const markdownLink = /\[[^\]]+\]\((https?:\/\/[^)]+)\)/g;
+  const htmlLink = /href=["'](https?:\/\/[^"']+)["']/gi;
+  let match: RegExpExecArray | null;
+  while ((match = markdownLink.exec(content)) !== null) urls.push(match[1]);
+  while ((match = htmlLink.exec(content)) !== null) urls.push(match[1]);
+  return Array.from(new Set(urls));
+}
+
 function normalizeFaqItems(value: unknown): Array<{ q: string; a: string }> {
   if (!Array.isArray(value)) return [];
   return value
@@ -422,16 +435,25 @@ export function renderDbBlogPost(
     post.canonicalUrl?.startsWith(`${BASE_URL}/`)
       ? post.canonicalUrl
       : `${BASE_URL}${pagePath}`;
+  const slug = pagePath.startsWith("/blog/") ? pagePath.slice("/blog/".length) : "";
+  const noindex = !isCanonicalBlogIndexed(slug);
   const faq = normalizeFaqItems(post.faqItems);
+  const citations = extractExternalCitations(post.content);
+  const organizationId = `${BASE_URL}/#organization`;
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
     description,
-    mainEntityOfPage: canonical,
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${canonical}#webpage` },
+    url: canonical,
     datePublished: safeIsoDate(post.publishedAt),
     dateModified: safeIsoDate(post.updatedAt ?? post.publishedAt),
-    publisher: { "@type": "Organization", name: "Solar Freedom", url: BASE_URL },
+    author: { "@type": "Organization", "@id": organizationId, name: "Solar Freedom", url: BASE_URL },
+    publisher: { "@type": "Organization", "@id": organizationId, name: "Solar Freedom", url: BASE_URL },
+    citation: citations.length ? citations : undefined,
+    inLanguage: "en-US",
+    isAccessibleForFree: true,
   };
   const schemas: object[] = [articleSchema];
   if (faq.length) {
@@ -452,7 +474,13 @@ export function renderDbBlogPost(
         .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
         .join("")}</section>`
     : "";
-  const semanticArticle = `<div id="root"><main class="seo-server-rendered" data-content-source="database"><nav><a href="/">Home</a> / <a href="/blog">Blog</a></nav><article><p>${escapeHtml(post.category || "Solar contract guide")}</p><h1>${escapeHtml(post.title)}</h1>${post.excerpt ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(post.excerpt))}</p>` : ""}<div class="article-body">${body}</div>${faqHtml}</article></main></div>`;
+  const citationsHtml = citations.length
+    ? `<section class="article-sources"><h2>Primary sources and official procedures</h2><ul>${citations
+        .map(url => `<li><a href="${escapeHtml(url)}" rel="noopener noreferrer">${escapeHtml(url)}</a></li>`)
+        .join("")}</ul></section>`
+    : "";
+  const editorialHtml = `<section class="editorial-method"><h2>Editorial method</h2><p>Solar Freedom publishes educational contract-navigation content. Articles are checked for source accuracy, clear separation between general information and individual advice, current official procedures, and unsupported outcome claims. We do not claim attorney review unless a named reviewer and review date are displayed. This article is not legal advice.</p></section>`;
+  const semanticArticle = `<div id="root"><main class="seo-server-rendered" data-content-source="database"><nav><a href="/">Home</a> / <a href="/blog">Blog</a></nav><article><p>${escapeHtml(post.category || "Solar contract guide")}</p><h1>${escapeHtml(post.title)}</h1>${post.excerpt ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(post.excerpt))}</p>` : ""}<div class="article-body">${body}</div>${citationsHtml}${faqHtml}${editorialHtml}</article></main></div>`;
 
   const $ = cheerio.load(html);
   $("title").text(`${title} | Solar Freedom`);
@@ -464,6 +492,10 @@ export function renderDbBlogPost(
   $('meta[property="og:description"]').attr("content", description);
   $('meta[name="twitter:title"]').attr("content", title);
   $('meta[name="twitter:description"]').attr("content", description);
+  if (noindex) {
+    $('meta[name="robots"]').remove();
+    $('head').append('<meta name="robots" content="noindex, follow">');
+  }
   $("head").append(
     `<script type="application/ld+json">${JSON.stringify(schemas).replace(/</g, "\\u003c")}</script>`
   );

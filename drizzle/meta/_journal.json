@@ -159,15 +159,29 @@
     {
       "idx": 22,
       "version": "5",
-      "when": 1787628633592,
-      "tag": "0022_many_unicorn",
+      "when": 1785342431585,
+      "tag": "0022_purple_bedlam",
       "breakpoints": true
     },
     {
       "idx": 23,
       "version": "5",
-      "when": 1787628978960,
-      "tag": "0023_lovely_green_goblin",
+      "when": 1786512962516,
+      "tag": "0023_windy_black_panther",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1786675750331,
+      "tag": "0024_fat_chronomancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1786676995313,
+      "tag": "0025_supreme_forge",
       "breakpoints": true
     }
   ]

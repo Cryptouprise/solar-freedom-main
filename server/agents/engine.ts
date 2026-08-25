@@ -12,6 +12,7 @@ import {
   agentMessages,
   agentActions,
   agentRunLog,
+  agentChatThreads,
   contentPipeline,
   attorneyProspects,
   seoChangeLog,
@@ -67,13 +68,16 @@ export async function agentLLM(params: {
   // Check if OpenRouter model (Qwen/DeepSeek) — use callAgentLLM
   const OPENROUTER_PREFIXES = ["qwen/", "deepseek/", "mistralai/", "meta-llama/"];
   const isOpenRouter = OPENROUTER_PREFIXES.some(p => modelId.startsWith(p));
+  const isScheduledCallback = params.context.triggerType === "cron";
+  const maxTokens = isScheduledCallback ? Math.min(params.maxTokens ?? 4000, 900) : (params.maxTokens ?? 4000);
 
   if (isOpenRouter) {
     const res = await callAgentLLM({
       agentSlug: params.agentSlug,
       modelOverride: modelId,
       messages: params.messages as any,
-      maxTokens: params.maxTokens ?? 4000,
+      maxTokens,
+      executionMode: isScheduledCallback ? "scheduled" : "standard",
     });
     params.context.llmCalls++;
     return res.content;
@@ -87,7 +91,7 @@ export async function agentLLM(params: {
     referenceId: params.context.runId,
     referenceType: "agent_run",
     temperature: params.temperature ?? 0.4,
-    maxTokens: params.maxTokens ?? 4000,
+    maxTokens,
   });
   params.context.llmCalls++;
   return result;
@@ -189,6 +193,31 @@ export async function completeRun(
     status === "failed" ? "error" : "idle",
     summary
   );
+
+  // Preserve a short, reviewable evidence trail for every completed agent run.
+  // These rows expire after 30 days; agentRunLog remains the permanent audit record.
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30);
+  await db.insert(agentChatThreads).values({
+    agentSlug: context.agentSlug,
+    runId: context.runId,
+    role: "agent",
+    message: status === "failed" && errorMessage ? `${summary}\n\nError: ${errorMessage}` : summary,
+    messageType: status === "failed" ? "error" : "summary",
+    metadata: JSON.stringify({
+      triggerType: context.triggerType,
+      triggeredBy: context.triggeredBy,
+      actionsCreated: context.actionsCreated,
+      messagesCreated: context.messagesCreated,
+      tokensIn: context.tokensIn,
+      tokensOut: context.tokensOut,
+      costUsd: context.costUsd,
+      durationMs,
+      status,
+    }),
+    createdAt: new Date(),
+    expiresAt,
+  });
 }
 
 // ─── Inter-Agent Messaging ────────────────────────────────────────────────────
@@ -455,17 +484,24 @@ You escalate to Chase (via notifyOwner) when:
 You are the institutional memory. Log everything. Improve everything. Protect everything.`,
     cronExpression: "0 0 5 * * *", // Daily 5am UTC
   },
+  {
+    slug: "revenue_intel",
+    name: "Revenue Intelligence Agent",
+    description: "Ranks SEO and conversion opportunities by expected lead and revenue impact using verified measurement inputs.",
+    role: "Prioritize only measurable revenue opportunities. Do not claim performance improvements without current, verified Search Console and conversion data.",
+    cronExpression: "0 0 6,14 * * *", // Twice daily; schedule registration remains an explicit operating decision.
+  },
 ];
 
 export async function seedAgents(): Promise<void> {
   const db = await getDb();
   if (!db) return;
 
-  // Check if agents already exist
-  const existing = await db.select().from(agents).limit(1);
-  if (existing.length > 0) return; // Already seeded
+  const existing = await db.select({ slug: agents.slug }).from(agents);
+  const existingSlugs = new Set(existing.map((agent) => agent.slug));
 
   for (const def of AGENT_DEFINITIONS) {
+    if (existingSlugs.has(def.slug)) continue;
     await db.insert(agents).values({
       slug: def.slug,
       name: def.name,
@@ -478,5 +514,5 @@ export async function seedAgents(): Promise<void> {
       totalCostUsd: "0",
     });
   }
-  console.log("[AgentEngine] Seeded 6 agents into database");
+  console.log("[AgentEngine] Verified agent registry");
 }

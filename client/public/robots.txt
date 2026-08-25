@@ -63,7 +63,6 @@ Allow: /
 
 # Sitemaps
 Sitemap: https://breakyoursolarcontract.com/sitemap.xml
-Sitemap: https://breakyoursolarcontract.com/image-sitemap.xml
 
 # AI-readable content index
 # https://breakyoursolarcontract.com/llms.txt

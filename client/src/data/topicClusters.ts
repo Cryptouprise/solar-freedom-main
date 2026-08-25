@@ -1,8 +1,7 @@
-// ─── TOPIC CLUSTER ARCHITECTURE ─────────────────────────────────────────────
-// Design Philosophy: Dark Industrial / Cinematic — Bebas Neue + Inter
-// Each cluster has ONE pillar page and multiple supporting spokes.
-// Internal links flow: Spoke → Pillar (always), Pillar → Spokes (always)
-// This tells Google exactly what the site is about and builds topical authority.
+// ─── EVIDENCE-BASED TOPIC CLUSTERS ───────────────────────────────────────────
+// Each cluster has one canonical pillar and a small set of final-destination,
+// index-eligible supporting pages. Redirect sources and quarantined templates
+// must never be added here.
 
 export interface ClusterSpoke {
   title: string;
@@ -18,424 +17,333 @@ export interface TopicCluster {
   pillarUrl: string;
   pillarKeyword: string;
   pillarDescription: string;
-  color: string; // amber, red, blue, green, purple
+  color: string;
   spokes: ClusterSpoke[];
 }
 
 export const TOPIC_CLUSTERS: TopicCluster[] = [
   {
-    id: "cancel-solar-contract",
+    id: "contract-review",
     pillarTitle: "How to Get Out of a Solar Contract",
     pillarUrl: "/blog/how-to-get-out-of-a-solar-contract",
-    pillarKeyword: "how to cancel solar contract",
+    pillarKeyword: "how to get out of a solar contract",
     pillarDescription:
-      "The definitive guide to canceling any solar panel agreement — lease, PPA, or loan — with legal strategies that actually work.",
+      "A document-first framework for identifying the agreement, parties, timing, written options, evidence, and safe next steps.",
     color: "amber",
     spokes: [
       {
-        title: "Solar Contract Red Flags",
-        url: "/blog/solar-contract-red-flags",
+        title: "Solar Contract Rescission Rights",
+        url: "/blog/solar-contract-rescission-rights",
         type: "blog",
-        description: "Warning signs your solar contract is predatory",
-        targetKeyword: "solar contract red flags",
-      },
-      {
-        title: "TILA Violations in Solar Loans",
-        url: "/blog/tila-violations-solar-loans",
-        type: "blog",
-        description: "How Truth in Lending Act violations void your contract",
-        targetKeyword: "TILA violations solar loans",
-      },
-      {
-        title: "GoodLeap Solar Loan Problems",
-        url: "/blog/goodleap-solar-loan-problems-contract-cancellation",
-        type: "blog",
-        description: "How to escape a predatory GoodLeap solar loan",
-        targetKeyword: "GoodLeap solar loan problems",
-      },
-      {
-        title: "Mosaic Solar Loan Bankruptcy Guide",
-        url: "/blog/mosaic-solar-loan-problems-bankruptcy-guide",
-        type: "blog",
-        description: "Mosaic Solar filed Chapter 11 — what it means for your loan",
-        targetKeyword: "Mosaic solar loan problems",
+        description: "How to check written cancellation notices and transaction-specific deadlines",
+        targetKeyword: "solar contract rescission rights",
       },
       {
         title: "Cancel Sunrun Before Installation",
         url: "/blog/cancel-sunrun-solar-contract-before-installation",
         type: "blog",
-        description: "How to cancel a Sunrun contract before panels go up",
-        targetKeyword: "cancel Sunrun solar contract before installation",
+        description: "Records and written steps to check before installation begins",
+        targetKeyword: "cancel Sunrun before installation",
       },
       {
-        title: "Cancel Solar Contract in Texas",
-        url: "/cancel-solar-contract/dallas-tx",
-        type: "city",
-        description: "Texas-specific cancellation rights and attorneys",
-        targetKeyword: "cancel solar contract Texas",
+        title: "Solar Contract Escalator Clauses",
+        url: "/blog/solar-contract-escalator-clause-explained-how-to-fight-it",
+        type: "blog",
+        description: "How to identify and calculate a lease or PPA escalator",
+        targetKeyword: "solar contract escalator clause",
       },
       {
-        title: "Cancel Solar Contract in California",
-        url: "/cancel-solar-contract/los-angeles-ca",
-        type: "city",
-        description: "California solar consumer protection laws",
-        targetKeyword: "cancel solar contract California",
+        title: "Contract Assignment Without Consent",
+        url: "/blog/solar-contract-assignment-without-consent",
+        type: "blog",
+        description: "Documents to compare when an agreement or account changes hands",
+        targetKeyword: "solar contract assignment without consent",
       },
       {
-        title: "Cancel Solar Contract in Florida",
-        url: "/cancel-solar-contract/miami-fl",
-        type: "city",
-        description: "Florida solar lease and PPA cancellation",
-        targetKeyword: "cancel solar contract Florida",
+        title: "I Do Not Know What to Do With My Solar Contract",
+        url: "/blog/solar-contract-help-i-dont-know-what-to-do",
+        type: "blog",
+        description: "A practical starting checklist for an unclear solar problem",
+        targetKeyword: "solar contract help",
       },
       {
-        title: "Free Case Review",
-        url: "/",
-        type: "home",
-        description: "Get a free consultation from our solar attorneys",
-        targetKeyword: "solar contract attorney free consultation",
+        title: "Solar Contracts and Military Families",
+        url: "/blog/solar-contract-military-families",
+        type: "blog",
+        description: "Records and transfer questions for military household moves",
+        targetKeyword: "solar contract military families",
       },
     ],
   },
   {
-    id: "solar-bankruptcy",
-    pillarTitle: "Solar Company Bankruptcies: What Homeowners Must Do",
-    pillarUrl: "/blog/sunpower-bankruptcy-solar-contract",
-    pillarKeyword: "solar company bankruptcy homeowners",
+    id: "solar-loans-payments",
+    pillarTitle: "GoodLeap Solar Loan Payoff and Contract Review",
+    pillarUrl: "/blog/goodleap-solar-loan-cancellation-hidden-fees-2026",
+    pillarKeyword: "cancel GoodLeap solar loan",
     pillarDescription:
-      "SunPower, Sunnova, Lumio, Pink Energy, ADT Solar — dozens of solar companies have gone bankrupt. Here is exactly what to do if your company is one of them.",
+      "A source-backed guide to loan documents, payoff quotes, payment changes, UCC-1 records, home-sale assumptions, and complaints.",
+    color: "blue",
+    spokes: [
+      {
+        title: "Solar Loan Help",
+        url: "/solar-loan-help",
+        type: "home",
+        description: "Start with the agreement, disclosures, statements, and payoff records",
+        targetKeyword: "solar loan help",
+      },
+      {
+        title: "Solar Payment Shock",
+        url: "/blog/solar-payment-shock-help",
+        type: "blog",
+        description: "What to compare when the payment changes or exceeds expectations",
+        targetKeyword: "solar payment shock",
+      },
+      {
+        title: "Sunlight Financial Loan Complaints",
+        url: "/blog/sunlight-financial-solar-loan-complaints",
+        type: "blog",
+        description: "How to identify the current servicer and preserve loan records",
+        targetKeyword: "Sunlight Financial solar loan complaints",
+      },
+      {
+        title: "Selling a House With a Solar Loan",
+        url: "/blog/selling-house-with-solar-loan",
+        type: "blog",
+        description: "Payoff, title, buyer, lender, and closing records to request early",
+        targetKeyword: "selling house with solar loan",
+      },
+      {
+        title: "Solar Savings Statements Did Not Match",
+        url: "/blog/i-was-lied-to-about-solar-savings",
+        type: "blog",
+        description: "How to compare written projections with bills and production data",
+        targetKeyword: "lied to about solar savings",
+      },
+    ],
+  },
+  {
+    id: "company-status-support",
+    pillarTitle: "When a Solar Installer Changes or Closes",
+    pillarUrl: "/blog/solar-installer-out-of-business",
+    pillarKeyword: "solar installer out of business",
+    pillarDescription:
+      "How to separate the installer, lender, system owner, servicer, and equipment warranty when a company changes or exits.",
     color: "red",
     spokes: [
       {
-        title: "SunPower Bankruptcy Solar Contract",
-        url: "/blog/sunpower-bankruptcy-solar-contract",
+        title: "Sunrun Contract Cancellation Options",
+        url: "/blog/sunrun-solar-contract-cancellation-2026",
         type: "blog",
-        description: "600,000 SunPower customers in limbo — your legal options",
-        targetKeyword: "SunPower bankruptcy solar contract",
+        description: "Agreement timing, notice, installation, transfer, and official support records",
+        targetKeyword: "cancel Sunrun contract",
       },
       {
-        title: "Sunnova Bankruptcy: Homeowner Guide",
-        url: "/blog/sunnova-bankruptcy-solar-contract",
+        title: "Blue Raven Solar Status and Support",
+        url: "/blog/blue-raven-solar-complaints",
         type: "blog",
-        description: "Sunnova filed for bankruptcy — here's what to do",
-        targetKeyword: "Sunnova bankruptcy solar contract",
+        description: "Acquisition dates, current support routing, lender, and warranty records",
+        targetKeyword: "Blue Raven Solar complaints",
       },
       {
-        title: "Lumio Solar Bankruptcy Guide",
-        url: "/blog/lumio-solar-bankruptcy-homeowner-guide",
+        title: "ADT Solar Shutdown and Support",
+        url: "/blog/adt-solar-complaints",
         type: "blog",
-        description: "Lumio Solar victims — your rights after bankruptcy",
-        targetKeyword: "Lumio Solar bankruptcy",
+        description: "How to identify the current lender, warranty provider, and service route",
+        targetKeyword: "ADT Solar complaints",
       },
       {
-        title: "Pink Energy Bankruptcy Guide",
-        url: "/blog/pink-energy-bankruptcy-what-homeowners-need-to-know",
+        title: "Freedom Forever Company Status",
+        url: "/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026",
         type: "blog",
-        description: "What Pink Energy victims can do now",
-        targetKeyword: "Pink Energy bankruptcy homeowners",
+        description: "How to verify company status before relying on bankruptcy claims",
+        targetKeyword: "Freedom Forever solar company status",
       },
       {
-        title: "Solar Company Went Bankrupt",
-        url: "/blog/solar-company-went-bankrupt",
+        title: "Tesla and SolarCity Contract Help",
+        url: "/blog/tesla-solar-solarcity-complaints-cancel-2026",
         type: "blog",
-        description: "What to do when your solar company goes out of business",
-        targetKeyword: "solar company went bankrupt what to do",
+        description: "Records to gather for a Tesla or legacy SolarCity account issue",
+        targetKeyword: "Tesla SolarCity complaints",
       },
       {
-        title: "Cancel SunPower Contract",
-        url: "/cancel-sunpower-solar-contract",
-        type: "company",
-        description: "SunPower bankruptcy and contract cancellation",
-        targetKeyword: "cancel SunPower contract",
-      },
-      {
-        title: "Cancel Sunnova Contract",
-        url: "/cancel-sunnova-solar-contract",
-        type: "company",
-        description: "Sunnova PPA and lease exit strategies",
+        title: "Sunnova Contract and Account Options",
+        url: "/blog/how-to-cancel-sunnova-solar-contract-2026",
+        type: "blog",
+        description: "How to identify current account, transfer, and written contract procedures",
         targetKeyword: "cancel Sunnova solar contract",
       },
-    ],
-  },
-  {
-    id: "solar-scam",
-    pillarTitle: "Solar Panel Scams: What You Need to Know",
-    pillarUrl: "/blog/solar-contract-red-flags",
-    pillarKeyword: "solar panel scam",
-    pillarDescription:
-      "How to identify solar scams, deceptive sales tactics, and what legal recourse you have when a solar company defrauds you.",
-    color: "orange",
-    spokes: [
       {
-        title: "Solar Panel Scam Signs & Solutions",
-        url: "/blog/solar-panel-scam-signs-and-solutions",
+        title: "Complete Solaria Complaints",
+        url: "/blog/complete-solaria-complaints",
         type: "blog",
-        description: "8 signs you were scammed by a solar company",
-        targetKeyword: "solar panel scam signs",
+        description: "How to document a Complete Solaria project or service issue",
+        targetKeyword: "Complete Solaria complaints",
       },
       {
-        title: "Solar Door-to-Door Scam Guide",
-        url: "/blog/solar-door-to-door-scam-guide",
+        title: "Vivint Solar Contract Records",
+        url: "/blog/cancel-vivint-solar-contract",
         type: "blog",
-        description: "How to identify and fight back against door-to-door solar fraud",
-        targetKeyword: "solar door to door scam",
-      },
-      {
-        title: "Solar Tax Credit Scam: Didn't Get It",
-        url: "/blog/solar-tax-credit-scam-didnt-get-it",
-        type: "blog",
-        description: "Promised a 30% tax credit you never received? Here's what to do",
-        targetKeyword: "solar tax credit scam",
-      },
-      {
-        title: "Cancel Pink Energy Solar Contract",
-        url: "/cancel-pink-energy-solar-contract",
-        type: "company",
-        description: "Pink Energy fraud victims — legal options",
-        targetKeyword: "cancel Pink Energy solar contract",
-      },
-      {
-        title: "Cancel Sunrun Solar Contract",
-        url: "/cancel-sunrun-solar-contract",
-        type: "company",
-        description: "Sunrun complaints and cancellation guide",
-        targetKeyword: "cancel Sunrun solar contract",
-      },
-      {
-        title: "Cancel Vivint Solar Contract",
-        url: "/cancel-vivint-solar-solar-contract",
-        type: "company",
-        description: "Vivint Solar complaints and exit strategies",
+        description: "How to identify the current contract and support path for a legacy account",
         targetKeyword: "cancel Vivint Solar contract",
       },
     ],
   },
   {
-    id: "solar-regret",
-    pillarTitle: "Solar Panel Regret: You're Not Alone",
-    pillarUrl: "/blog/solar-contract-rescission-rights",
-    pillarKeyword: "solar panel regret cancel",
+    id: "sales-complaints",
+    pillarTitle: "How to File a Solar Company Complaint",
+    pillarUrl: "/blog/how-to-file-a-complaint-against-solar-company-attorney-general",
+    pillarKeyword: "file complaint against solar company",
     pillarDescription:
-      "Millions of homeowners regret their solar purchase. Here's why it happens and what you can legally do about it.",
-    color: "blue",
+      "How to build a factual record and use company, financial-regulator, consumer-protection, and contractor complaint channels.",
+    color: "orange",
     spokes: [
       {
-        title: "3-Day Right of Rescission",
-        url: "/blog/solar-contract-rescission-rights",
+        title: "Report Solar Fraud to an Attorney General",
+        url: "/blog/solar-fraud-report-to-attorney-general",
         type: "blog",
-        description: "Your legal right to cancel within 3 days",
-        targetKeyword: "solar contract rescission rights",
+        description: "Records and privacy considerations for a state consumer complaint",
+        targetKeyword: "report solar fraud attorney general",
       },
       {
-        title: "File an Attorney General Complaint",
-        url: "/blog/how-to-file-a-complaint-against-solar-company-attorney-general",
+        title: "Solar Sales Warning Signs",
+        url: "/blog/solar-fraud-warning-signs",
         type: "blog",
-        description: "How AG complaints support solar contract disputes",
-        targetKeyword: "file complaint against solar company attorney general",
+        description: "Statements and documents to verify before relying on a sales claim",
+        targetKeyword: "solar fraud warning signs",
       },
+      {
+        title: "Misleading Solar Savings Claims",
+        url: "/blog/solar-misleading-savings-claims",
+        type: "blog",
+        description: "Compare sales projections with the agreement, bills, and production records",
+        targetKeyword: "misleading solar savings claims",
+      },
+      {
+        title: "Solar Scams Targeting Senior Homeowners",
+        url: "/blog/senior-homeowners-solar-scams",
+        type: "blog",
+        description: "Records and support steps for older homeowners and their families",
+        targetKeyword: "senior homeowners solar scams",
+      },
+      {
+        title: "Spanish-Language Solar Contracts",
+        url: "/blog/solar-contract-spanish-speaking-homeowners",
+        type: "blog",
+        description: "How to preserve translated sales statements and signed contract records",
+        targetKeyword: "Spanish solar contract help",
+      },
+      {
+        title: "Undersized Solar System Records",
+        url: "/blog/undersized-solar-system-legal-options",
+        type: "blog",
+        description: "Compare the design, production estimate, actual output, and utility bills",
+        targetKeyword: "undersized solar system options",
+      },
+    ],
+  },
+  {
+    id: "selling-home",
+    pillarTitle: "Selling a Home With Solar",
+    pillarUrl: "/selling-house-with-solar",
+    pillarKeyword: "selling house with solar panels",
+    pillarDescription:
+      "A closing-focused guide to ownership, payoff, prepayment, transfer, assumption, title, lender, buyer, and escrow records.",
+    color: "purple",
+    spokes: [
+      {
+        title: "Sell a House With Solar Panels",
+        url: "/blog/sell-house-with-solar-panels",
+        type: "blog",
+        description: "Identify ownership, financing, transfer, and payoff requirements",
+        targetKeyword: "sell house with solar panels",
+      },
+      {
+        title: "Selling a Home With a Solar PPA",
+        url: "/blog/selling-home-with-solar-ppa-panels-transfer-or-cancel",
+        type: "blog",
+        description: "Transfer, prepayment, buyer approval, and escrow questions for a PPA",
+        targetKeyword: "selling home with solar PPA",
+      },
+      {
+        title: "Selling a House With a Solar Loan",
+        url: "/blog/selling-house-with-solar-loan",
+        type: "blog",
+        description: "Current payoff, title, lender, and closing records to request",
+        targetKeyword: "selling house with solar loan",
+      },
+      {
+        title: "Sunnova Contract Transfer",
+        url: "/blog/sunnova-contract-transfer-selling-home-2026",
+        type: "blog",
+        description: "Documents and approval steps to check before a Sunnova home sale",
+        targetKeyword: "Sunnova contract transfer selling home",
+      },
+      {
+        title: "GoodLeap Payoff and Assumption",
+        url: "/blog/goodleap-solar-loan-cancellation-hidden-fees-2026",
+        type: "blog",
+        description: "Payoff quotes, UCC-1 records, and buyer-assumption procedures",
+        targetKeyword: "GoodLeap loan home sale",
+      },
+    ],
+  },
+  {
+    id: "state-location-guides",
+    pillarTitle: "Solar Contract Laws by State",
+    pillarUrl: "/solar-contract-laws",
+    pillarKeyword: "solar contract laws by state",
+    pillarDescription:
+      "A starting point for locating official state resources, contractor records, written notices, and complaint channels.",
+    color: "green",
+    spokes: [
       {
         title: "New Jersey Solar Contract Rights",
         url: "/blog/new-jersey-solar-contract-rights",
         type: "blog",
-        description: "New Jersey rescission and Consumer Fraud Act options",
+        description: "Cancellation notices, contractor registration, records, and official complaints",
         targetKeyword: "New Jersey solar contract rights",
       },
       {
-        title: "Cancel Solar Contract Rescission",
-        url: "/blog/cancel-solar-contract-rescission-rights",
-        type: "blog",
-        description: "Extended rescission rights after deceptive solar sales",
-        targetKeyword: "cancel solar contract rescission",
+        title: "Florida Solar Contract Law Resources",
+        url: "/solar-contract-laws/florida",
+        type: "city",
+        description: "Florida-specific agencies, records, and contract questions to verify",
+        targetKeyword: "Florida solar contract law",
       },
       {
-        title: "Selling House With Solar Lease",
-        url: "/blog/selling-house-with-solar-lease-complete-guide",
-        type: "blog",
-        description: "Solar lease blocking your home sale? Here's how to handle it",
-        targetKeyword: "selling house with solar lease",
+        title: "Ohio Solar Contract Law Resources",
+        url: "/solar-contract-laws/ohio",
+        type: "city",
+        description: "Ohio-specific agencies, records, and contract questions to verify",
+        targetKeyword: "Ohio solar contract law",
       },
       {
-        title: "Solar Lien on House: Removal Guide",
-        url: "/blog/solar-lien-on-house-removal-guide",
-        type: "blog",
-        description: "How to remove a UCC-1 solar lien blocking your home sale",
-        targetKeyword: "solar lien on house removal",
+        title: "Nevada Solar Contract Law Resources",
+        url: "/solar-contract-laws/nevada",
+        type: "city",
+        description: "Nevada-specific agencies, records, and contract questions to verify",
+        targetKeyword: "Nevada solar contract law",
       },
       {
-        title: "Solar Payments Too High: Help",
-        url: "/blog/solar-payments-too-high-help",
-        type: "blog",
-        description: "Paying more for solar than your old electric bill? Here's why",
-        targetKeyword: "solar payments too high",
-      },
-      {
-        title: "Cancel GoodLeap Solar Loan",
-        url: "/cancel-goodleap-solar-contract",
-        type: "company",
-        description: "GoodLeap loan cancellation strategies",
-        targetKeyword: "cancel GoodLeap solar loan",
-      },
-      {
-        title: "Solar Loan Cancellation Guide",
-        url: "/blog/solar-loan-cancellation-goodleap-mosaic",
-        type: "blog",
-        description: "GoodLeap, Mosaic, Sunlight — how to cancel solar loans",
-        targetKeyword: "cancel solar loan GoodLeap Mosaic",
-      },
-      {
-        title: "Cancel Sunnova Solar Contract",
-        url: "/cancel-sunnova-solar-contract",
-        type: "company",
-        description: "Sunnova PPA and lease exit strategies",
-        targetKeyword: "cancel Sunnova solar contract",
-      },
-      {
-        title: "Free Case Review",
-        url: "/",
-        type: "home",
-        description: "Talk to a solar attorney today — free",
-        targetKeyword: "solar contract free review",
-      },
-    ],
-  },
-  {
-    id: "company-complaints",
-    pillarTitle: "Solar Company Complaints & Fraud Database",
-    pillarUrl: "/cancel-sunrun-solar-contract",
-    pillarKeyword: "solar company complaints fraud",
-    pillarDescription:
-      "Documented complaints, lawsuits, BBB ratings, and legal violations for every major solar company in America.",
-    color: "purple",
-    spokes: [
-      {
-        title: "Cancel Sunrun Contract",
-        url: "/cancel-sunrun-solar-contract",
-        type: "company",
-        description: "Sunrun — #1 most complained-about solar company",
-        targetKeyword: "cancel Sunrun contract",
-      },
-      {
-        title: "Cancel SunPower Contract",
-        url: "/cancel-sunpower-solar-contract",
-        type: "company",
-        description: "SunPower bankruptcy and contract cancellation",
-        targetKeyword: "cancel SunPower contract",
-      },
-      {
-        title: "Freedom Forever Solar Bankruptcy 2026",
-        url: "/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026",
-        type: "blog",
-        description: "Freedom Forever bankruptcy — what homeowners can do in 2026",
-        targetKeyword: "Freedom Forever solar bankruptcy homeowners",
-      },
-      {
-        title: "Cancel ADT Solar Contract",
-        url: "/cancel-adt-solar-solar-contract",
-        type: "company",
-        description: "ADT Solar (Sunpro) cancellation strategies",
-        targetKeyword: "cancel ADT Solar contract",
-      },
-      {
-        title: "Sunrun Contract Cancellation 2026",
-        url: "/blog/sunrun-solar-contract-cancellation-2026",
-        type: "blog",
-        description: "Step-by-step Sunrun cancellation guide with 2026 legal updates",
-        targetKeyword: "Sunrun contract cancellation 2026",
-      },
-      {
-        title: "Sunrun Complaints in California",
-        url: "/blog/sunrun-complaints-california",
-        type: "blog",
-        description: "California Sunrun complaints, NEM 3.0, and legal rights",
-        targetKeyword: "Sunrun complaints California",
-      },
-      {
-        title: "Cancel Sunrun Before Installation",
-        url: "/blog/cancel-sunrun-solar-contract-before-installation",
-        type: "blog",
-        description: "How to cancel a Sunrun agreement before panels go up",
-        targetKeyword: "cancel Sunrun solar contract before installation",
-      },
-      {
-        title: "Pink Energy Bankruptcy",
-        url: "/blog/pink-energy-bankruptcy-what-homeowners-need-to-know",
-        type: "blog",
-        description: "Pink Energy victims — what you can recover",
-        targetKeyword: "Pink Energy bankruptcy victims",
-      },
-      {
-        title: "SunPower Bankruptcy Solar Contract",
-        url: "/blog/sunpower-bankruptcy-solar-contract",
-        type: "blog",
-        description: "What SunPower's Chapter 11 means for your contract",
-        targetKeyword: "SunPower bankruptcy solar contract",
-      },
-      {
-        title: "Sunnova Bankruptcy Guide",
-        url: "/blog/sunnova-bankruptcy-solar-contract",
-        type: "blog",
-        description: "Sunnova bankruptcy — homeowner rights and next steps",
-        targetKeyword: "Sunnova bankruptcy homeowners",
-      },
-    ],
-  },
-  {
-    id: "state-pages",
-    pillarTitle: "Solar Contract Laws by State",
-    pillarUrl: "/cancel-solar-contract/dallas-tx",
-    pillarKeyword: "solar contract laws by state",
-    pillarDescription:
-      "Every state has different consumer protection laws that affect your right to cancel a solar contract. Find yours.",
-    color: "green",
-    spokes: [
-      {
-        title: "Texas Solar Contract Law",
+        title: "Dallas Solar Contract Help",
         url: "/cancel-solar-contract/dallas-tx",
         type: "city",
-        description: "Texas DTPA and solar cancellation rights",
-        targetKeyword: "cancel solar contract Texas law",
+        description: "Texas resources and records for a Dallas-area solar dispute",
+        targetKeyword: "cancel solar contract Dallas Texas",
       },
       {
-        title: "California Solar Contract Law",
+        title: "Los Angeles Solar Contract Help",
         url: "/cancel-solar-contract/los-angeles-ca",
         type: "city",
-        description: "California Consumer Legal Remedies Act",
-        targetKeyword: "cancel solar contract California law",
+        description: "California resources and records for a Los Angeles-area solar dispute",
+        targetKeyword: "cancel solar contract Los Angeles California",
       },
       {
-        title: "Florida Solar Contract Law",
+        title: "Miami Solar Contract Help",
         url: "/cancel-solar-contract/miami-fl",
         type: "city",
-        description: "Florida Deceptive and Unfair Trade Practices Act",
-        targetKeyword: "cancel solar contract Florida law",
-      },
-      {
-        title: "Arizona Solar Contract Law",
-        url: "/cancel-solar-contract/phoenix-az",
-        type: "city",
-        description: "Arizona Consumer Fraud Act solar rights",
-        targetKeyword: "cancel solar contract Arizona law",
-      },
-      {
-        title: "Nevada Solar Contract Law",
-        url: "/cancel-solar-contract/las-vegas-nv",
-        type: "city",
-        description: "Nevada solar consumer protection statutes",
-        targetKeyword: "cancel solar contract Nevada law",
-      },
-      {
-        title: "Get Out of Solar Contract by State",
-        url: "/blog/get-out-of-solar-contract-by-state",
-        type: "blog",
-        description: "State-by-state guide to solar contract cancellation rights",
-        targetKeyword: "get out of solar contract by state",
-      },
-      {
-        title: "How to Cancel Solar Contract",
-        url: "/blog/how-to-get-out-of-a-solar-contract",
-        type: "blog",
-        description: "The complete legal guide to canceling any solar contract",
-        targetKeyword: "how to cancel solar contract",
+        description: "Florida resources and records for a Miami-area solar dispute",
+        targetKeyword: "cancel solar contract Miami Florida",
       },
     ],
   },
@@ -443,16 +351,17 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
 
 export function getClusterForPage(url: string): TopicCluster | undefined {
   return TOPIC_CLUSTERS.find(
-    (c) =>
-      c.pillarUrl === url ||
-      c.spokes.some((s) => s.url === url)
+    (cluster) =>
+      cluster.pillarUrl === url ||
+      cluster.spokes.some((spoke) => spoke.url === url)
   );
 }
 
 export function getRelatedSpokes(url: string, limit = 4): ClusterSpoke[] {
   const cluster = getClusterForPage(url);
   if (!cluster) return [];
-  const currentIndex = cluster.spokes.findIndex((s) => s.url === url);
+
+  const currentIndex = cluster.spokes.findIndex((spoke) => spoke.url === url);
   const orderedSpokes =
     currentIndex >= 0
       ? [
@@ -461,5 +370,5 @@ export function getRelatedSpokes(url: string, limit = 4): ClusterSpoke[] {
         ]
       : cluster.spokes;
 
-  return orderedSpokes.filter((s) => s.url !== url).slice(0, limit);
+  return orderedSpokes.filter((spoke) => spoke.url !== url).slice(0, limit);
 }

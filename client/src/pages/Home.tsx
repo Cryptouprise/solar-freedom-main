@@ -20,6 +20,7 @@ import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import OutcomesSection from "@/components/OutcomesSection";
+import homeFaqs from "@shared/home-faq.json";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -722,6 +723,8 @@ function FAQItem({ q, a, delay }: { q: string; a: string; delay: number }) {
   );
 }
 
+const HOME_FAQS = homeFaqs;
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const formRef = useRef<HTMLDivElement>(null);
@@ -741,46 +744,39 @@ export default function Home() {
     {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
+      '@id': 'https://breakyoursolarcontract.com/#website',
       name: 'Solar Freedom',
       url: 'https://breakyoursolarcontract.com',
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: {
-          '@type': 'EntryPoint',
-          urlTemplate: 'https://breakyoursolarcontract.com/blog?q={search_term_string}',
-        },
-        'query-input': 'required name=search_term_string',
-      },
+      publisher: { '@id': 'https://breakyoursolarcontract.com/#organization' },
+      inLanguage: 'en-US',
     },
     {
       '@context': 'https://schema.org',
       '@type': 'Organization',
+      '@id': 'https://breakyoursolarcontract.com/#organization',
       name: 'Solar Freedom',
       url: 'https://breakyoursolarcontract.com',
       logo: {
         '@type': 'ImageObject',
         url: 'https://breakyoursolarcontract.com/favicon.ico',
       },
-      description: 'Solar Freedom helps homeowners review their solar contracts, understand their legal rights, and connect with consumer protection attorneys to pursue cancellation, loan reduction, or lien release.',
-      sameAs: [
-        'https://medium.com/@solarfreedom',
-      ],
+      description: 'Solar Freedom publishes educational solar-contract guides and provides intake for fact-specific document reviews.',
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'customer support',
+        telephone: phoneDisplay,
         availableLanguage: 'English',
+        areaServed: 'US',
       },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'Service',
-      name: 'Solar Contract Case Review',
-      provider: {
-        '@type': 'Organization',
-        name: 'Solar Freedom',
-      },
-      description: 'Free solar contract review connecting homeowners with consumer protection attorneys who specialize in solar contract cancellation, loan disputes, and lien removal.',
-      serviceType: 'Consumer Advocacy',
+      '@id': 'https://breakyoursolarcontract.com/#contract-review-service',
+      name: 'Solar Contract Document Review',
+      provider: { '@id': 'https://breakyoursolarcontract.com/#organization' },
+      description: 'Fact-specific intake and document review for solar agreements, financing records, notices, bills, production records, service history, and home-sale requirements.',
+      serviceType: 'Solar contract document review',
       areaServed: {
         '@type': 'Country',
         name: 'United States',
@@ -789,44 +785,17 @@ export default function Home() {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'USD',
-        description: 'Free initial case review',
+        description: 'Initial intake review offered at no charge',
       },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: [
-        {
-          '@type': 'Question',
-          name: 'Can I actually cancel my solar contract?',
-          acceptedAnswer: { '@type': 'Answer', text: 'Cancellation or another remedy may be possible, but it depends on the agreement, disclosures, sales representations, performance records, applicable law, and parties involved. An individual review is required.' },
-        },
-        {
-          '@type': 'Question',
-          name: 'What does a solar contract review cost?',
-          acceptedAnswer: { '@type': 'Answer', text: 'The initial case review is free. Any fees, scope, and engagement terms must be disclosed and agreed before paid services begin.' },
-        },
-        {
-          '@type': 'Question',
-          name: 'How long does solar contract cancellation take?',
-          acceptedAnswer: { '@type': 'Answer', text: 'Timing varies with the agreement, facts, parties, process, and jurisdiction. No result or timeline can be determined from general information alone.' },
-        },
-        {
-          '@type': 'Question',
-          name: 'What if my solar company went bankrupt?',
-          acceptedAnswer: { '@type': 'Answer', text: "A company's bankruptcy does not automatically cancel every related agreement. However, company bankruptcy is often strong grounds for cancellation. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually." },
-        },
-        {
-          '@type': 'Question',
-          name: 'Can I cancel a solar loan, not just a lease?',
-          acceptedAnswer: { '@type': 'Answer', text: 'Solar loans may be cancelable under TILA rescission rights, FTC Holder Rule, or state consumer protection laws. Loans, leases, and power purchase agreements create different rights and obligations. The signed documents and applicable law determine which options are relevant.' },
-        },
-        {
-          '@type': 'Question',
-          name: 'I was told I could not cancel my solar contract. Can Solar Freedom still help?',
-          acceptedAnswer: { '@type': 'Answer', text: 'A prior denial does not answer every legal or contractual question. Many homeowners are told cancellation is impossible by the solar company itself. An independent legal review often reveals options the company did not disclose.' },
-        },
-      ],
+      mainEntity: HOME_FAQS.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
     },
   ];
 
@@ -1294,41 +1263,14 @@ export default function Home() {
           </Reveal>
 
           <div className="space-y-3">
-            <FAQItem
-              q="Can I actually cancel my solar contract?"
-              a="Cancellation or another remedy may be possible, but it depends on the agreement, disclosures, sales representations, performance records, applicable law, and parties involved. An individual review is required."
-              delay={0}
-            />
-            <FAQItem
-              q="What does this cost me?"
-              a="Any fees, scope, and engagement terms must be disclosed and agreed before paid services begin. Submitting an intake form does not create an attorney-client relationship or guarantee representation."
-              delay={0.05}
-            />
-            <FAQItem
-              q="How long does the process take?"
-              a="Timing varies with the agreement, facts, parties, process, and jurisdiction. No result or timeline can be determined from general information alone."
-              delay={0.1}
-            />
-            <FAQItem
-              q="What if my solar company went bankrupt?"
-              a="A company's bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually."
-              delay={0.15}
-            />
-            <FAQItem
-              q="Will this hurt my credit score?"
-              a="Credit reporting can be affected by payment and dispute activity. Review the account status and obtain advice specific to your circumstances before changing payments or obligations."
-              delay={0.2}
-            />
-            <FAQItem
-              q="What if I have a solar loan, not a lease?"
-              a="Loans, leases, and power purchase agreements create different rights and obligations. The signed documents and applicable law determine which questions and options are relevant."
-              delay={0.25}
-            />
-            <FAQItem
-              q="I already tried to cancel and was told I couldn't. Can you still help?"
-              a="A prior denial does not answer every legal or contractual question. Preserve the denial, agreement, disclosures, and communications for an independent, fact-specific review."
-              delay={0.3}
-            />
+            {HOME_FAQS.map((item, index) => (
+              <FAQItem
+                key={item.q}
+                q={item.q}
+                a={item.a}
+                delay={index * 0.05}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -1490,19 +1432,19 @@ export default function Home() {
         <div className="container relative z-10 text-center">
           <Reveal>
             <h2 className="font-display text-white leading-none mb-6" style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}>
-              EVERY MONTH YOU WAIT
+              START WITH THE DOCUMENTS.
               <br />
-              <span className="text-amber-gradient">COSTS YOU MONEY.</span>
+              <span className="text-amber-gradient">GET A CLEAR NEXT STEP.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-gray-300 text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-              The average homeowner who contacts us is paying <span className="text-red-400 font-semibold">$185/month</span> they shouldn't be. That's <span className="text-red-400 font-semibold">$2,220 every year</span> going to a contract you were misled into signing.
+              A useful review begins with the signed agreement, financing documents, sales proposal, bills, production records, and service history. The available options depend on those facts and your jurisdiction.
             </p>
           </Reveal>
           <Reveal delay={0.2}>
             <button onClick={() => scrollToForm("footer_final_cta")} className="btn-amber btn-amber-pulse px-12 py-6 rounded text-xl font-bold">
-              REQUEST MY CASE REVIEW NOW →
+              REQUEST A CONTRACT REVIEW →
             </button>
           </Reveal>
           <Reveal delay={0.3}>
@@ -1517,8 +1459,8 @@ export default function Home() {
           <Reveal>
             <div className="flex items-center justify-between mb-12">
               <div>
-                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-2">— Legal Intelligence</div>
-                <h2 className="font-black text-white uppercase leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 4vw, 3rem)' }}>KNOW YOUR RIGHTS</h2>
+                <div className="text-amber-500 font-mono text-xs uppercase tracking-widest mb-2">— Evidence-Based Guides</div>
+                <h2 className="font-black text-white uppercase leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 4vw, 3rem)' }}>START WITH THE RIGHT RECORDS</h2>
               </div>
               <a href="/blog" className="hidden md:flex items-center gap-2 text-amber-500 hover:text-amber-400 font-bold text-sm uppercase tracking-wider transition-colors">
                 All Articles →
@@ -1529,27 +1471,51 @@ export default function Home() {
             {[
               {
                 slug: 'sunrun-solar-contract-cancellation-2026',
-                title: 'Sunrun Solar Contract Cancellation 2026: Your Legal Options',
-                excerpt: 'Review Sunrun agreement terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.',
+                title: 'How to Cancel a Sunrun Contract: Your Options',
+                excerpt: 'Check timing, written notice, installation status, agreement type, home-sale transfer, official contacts, and records to preserve.',
                 category: 'Most Read',
-                readTime: '11 min read',
+                readTime: '9 min read',
                 img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
                 featured: true,
               },
               {
-                slug: 'how-to-get-out-of-a-solar-contract',
-                title: 'How to Get Out of a Solar Contract (Step-by-Step Guide)',
-                excerpt: 'The exact legal strategies used to cancel solar contracts — TILA violations, FTC Cooling-Off Rule, state DTPA claims, and more.',
-                category: 'Legal Guide',
+                slug: 'goodleap-solar-loan-cancellation-hidden-fees-2026',
+                title: 'Cancel a GoodLeap Solar Loan: Payoff, Fees and Sale',
+                excerpt: 'Compare the agreement, financed amount, payment schedule, payoff quote, UCC-1 record, home-sale assumption, and complaint channels.',
+                category: 'Loan Guide',
                 readTime: '9 min read',
+                img: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80',
+              },
+              {
+                slug: 'how-to-get-out-of-a-solar-contract',
+                title: 'How to Get Out of a Solar Contract: 7 Steps',
+                excerpt: 'Identify the agreement and parties, check written cancellation terms, preserve evidence, compare exit paths, and avoid creating a default.',
+                category: 'Contract Guide',
+                readTime: '10 min read',
                 img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80',
               },
               {
-                slug: 'cancel-solar-contract-after-installation',
-                title: 'Can You Cancel a Solar Contract After Installation?',
-                excerpt: 'Most homeowners assume once the panels are up, they\'re locked in forever. That\'s not always true. Here are your post-installation options.',
-                category: 'Legal Guide',
-                readTime: '7 min read',
+                slug: 'blue-raven-solar-complaints',
+                title: 'Blue Raven Solar: Status, Support and Contract Help',
+                excerpt: 'Use the project date, acquisition timeline, lender, warranty provider, production records, and current support route to identify responsibility.',
+                category: 'Company Guide',
+                readTime: '8 min read',
+                img: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600&q=80',
+              },
+              {
+                slug: 'adt-solar-complaints',
+                title: 'ADT Solar: Shutdown, Support and Contract Options',
+                excerpt: 'Separate the installer, lender, equipment warranties, workmanship warranty, monitoring, and service obligations before taking action.',
+                category: 'Company Guide',
+                readTime: '8 min read',
+                img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80',
+              },
+              {
+                slug: 'new-jersey-solar-contract-rights',
+                title: 'New Jersey Solar Contract Rights and Complaints',
+                excerpt: 'Check the cancellation notice, contractor registration, financing disclosures, official complaint procedures, and records to preserve.',
+                category: 'State Guide',
+                readTime: '9 min read',
                 img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80',
               },
             ].map((post, i) => (
@@ -1564,7 +1530,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent" />
                     {(post as any).featured && (
                       <div className="absolute top-3 right-3">
-                        <span className="bg-amber-500 text-black text-xs font-black uppercase tracking-wider px-2 py-1 rounded">🔥 Most Read</span>
+                        <span className="bg-amber-500 text-black text-xs font-black uppercase tracking-wider px-2 py-1 rounded">Most Read</span>
                       </div>
                     )}
                     <div className="absolute bottom-3 left-4">

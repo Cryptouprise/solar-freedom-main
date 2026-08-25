@@ -33,6 +33,7 @@ import { runManagerAgent } from "./managerAgent";
 import { runInfraAgent } from "./infraAgent";
 import { runRevenueIntelAgent } from "./revenueIntelAgent";
 import type { AgentSlug, AgentThinkResult } from "./engine";
+import { ensureDailyChecklists, reviewWorkerRun, type WorkerSlug } from "./managerQuality";
 
 /**
  * Run a specific agent by slug.
@@ -76,23 +77,38 @@ export async function runAllAgents(
   // 0. Manager runs FIRST — sets goals and fires agents with directives
   results.manager = await runManagerAgent("cron", triggeredBy);
 
-  // 1. Revenue Intel — identifies highest-value opportunities
-  results.revenue_intel = await runRevenueIntelAgent("cron", triggeredBy);
+  const workers: WorkerSlug[] = ["revenue_intel", "seo_intel", "money_maker", "content", "editor", "infra"];
+  const checklistIds = await ensureDailyChecklists();
+  for (const worker of workers) {
+    let result: AgentThinkResult | undefined;
+    let error: Error | undefined;
+    try {
+      result = await runAgent(worker, "cron", triggeredBy);
+      results[worker] = result;
+    } catch (caught: any) {
+      error = caught instanceof Error ? caught : new Error(String(caught));
+      results[worker] = { summary: `Failed: ${error.message}`, actionsCreated: 0, messagesCreated: 0 };
+    }
 
-  // 2. SEO Intel — provides ranking data
-  results.seo_intel = await runSeoIntel("cron", triggeredBy);
+    const review = await reviewWorkerRun({
+      agentSlug: worker,
+      checklistId: checklistIds[worker],
+      result,
+      error,
+      retryNumber: 0,
+    });
+    if (review.verdict !== "rework") continue;
 
-  // 3. Money Maker — uses SEO + revenue intel data
-  results.money_maker = await runMoneyMaker("cron", triggeredBy);
-
-  // 4. Content Agent — receives directives from Manager + Revenue Intel
-  results.content = await runContentAgent("cron", triggeredBy);
-
-  // 5. Editor — reviews and improves content output
-  results.editor = await runEditorAgent("cron", triggeredBy);
-
-  // 6. Infrastructure Agent — monitors the full cycle
-  results.infra = await runInfraAgent("cron", triggeredBy);
+    try {
+      const retry = await runAgent(worker, "directive", `${triggeredBy}:manager_quality_rework`);
+      results[`${worker}_rework`] = retry;
+      await reviewWorkerRun({ agentSlug: worker, checklistId: checklistIds[worker], result: retry, retryNumber: 1 });
+    } catch (caught: any) {
+      const retryError = caught instanceof Error ? caught : new Error(String(caught));
+      results[`${worker}_rework`] = { summary: `Rework failed: ${retryError.message}`, actionsCreated: 0, messagesCreated: 0 };
+      await reviewWorkerRun({ agentSlug: worker, checklistId: checklistIds[worker], error: retryError, retryNumber: 1 });
+    }
+  }
 
   return results;
 }

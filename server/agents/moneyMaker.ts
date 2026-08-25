@@ -18,16 +18,14 @@ import {
   completeRun,
   sendMessage,
   createAction,
-  updateAction,
   getUnreadMessages,
   markMessageActedOn,
   type AgentThinkResult,
 } from "./engine";
-import { formatResearchReceipt, researchAttorneyProspects } from "../attorneyResearch";
+import { executeAttorneyResearch, saveAgentChatMessage } from "./attorneyResearch";
 import { getDb } from "../db";
 import {
   attorneyProspects,
-  agentChatThreads,
   revenueTracker,
   lawFirms,
   leadDeliveries,
@@ -153,7 +151,8 @@ export async function runMoneyMaker(
       ],
       context,
       temperature: 0.3,
-      maxTokens: 6000,
+      // Heartbeat calls need focused revenue actions, not a long-form report.
+      maxTokens: 1800,
     });
 
     // 4. Parse response
@@ -191,10 +190,9 @@ export async function runMoneyMaker(
 
     const db = await getDb();
 
-    // 5. Create priority actions and retain research actions for automatic execution.
-    const researchActionIds: number[] = [];
+    // 5. Create priority actions
     for (const action of (parsed.actions || [])) {
-      const actionId = await createAction({
+      await createAction({
         agentSlug: "money_maker",
         priority: (action.priority as any) || "p3",
         title: action.title,
@@ -203,7 +201,6 @@ export async function runMoneyMaker(
         payload: JSON.stringify({ estimatedRevenue: action.estimatedRevenue }),
         requiresApproval: action.requiresApproval ? 1 : 0,
       });
-      if (action.actionType === "research_firm") researchActionIds.push(actionId);
       context.actionsCreated++;
     }
 
@@ -246,42 +243,32 @@ export async function runMoneyMaker(
       context.actionsCreated++;
     }
 
-    // 9. Execute any firm-research action now, rather than leaving it permanently queued.
-    // Records are source-backed by Google Maps and retain their source link for review.
-    const [prospectCount] = db
-      ? await db.select({ count: sql<number>`COUNT(*)` }).from(attorneyProspects)
-      : [{ count: 0 }];
-    const shouldSeedPipeline = Number(prospectCount?.count || 0) === 0;
-    if (db && (researchActionIds.length > 0 || shouldSeedPipeline)) {
-      const startedAt = new Date();
-      try {
-        for (const actionId of researchActionIds) {
-          await updateAction(actionId, { status: "running", startedAt });
-        }
-        const receipts = await researchAttorneyProspects(resolveResearchStates(parsed.actions || []));
-        const receiptText = formatResearchReceipt(receipts);
-        const completedAt = new Date();
-        for (const actionId of researchActionIds) {
-          await updateAction(actionId, {
-            status: "completed",
-            result: `${receiptText}\n\nEvidence is saved on each prospect card as a Google Maps source link. No outreach was sent automatically.`,
-            completedAt,
-            durationMs: completedAt.getTime() - startedAt.getTime(),
-          });
-        }
-        await writeMoneyMakerThread(db, context.runId, "result", receiptText, { receipts });
-      } catch (researchError: any) {
-        const message = `Attorney research did not complete: ${researchError?.message || "Unknown error"}`;
-        for (const actionId of researchActionIds) {
-          await updateAction(actionId, { status: "failed", errorMessage: message, completedAt: new Date() });
-        }
-        await writeMoneyMakerThread(db, context.runId, "error", message);
+    // 9. Execute research_firm actions immediately (don't just queue them)
+    const researchActions = (parsed.actions || []).filter(a => a.actionType === "research_firm");
+    if (researchActions.length > 0) {
+      // Extract states from action descriptions
+      const stateKeywords = ["California", "Texas", "Florida", "Arizona", "Nevada", "Colorado", "Georgia", "North Carolina", "South Carolina", "New York", "New Jersey", "Ohio", "Michigan", "Illinois", "Washington"];
+      const statesToResearch = stateKeywords.filter(s =>
+        researchActions.some(a => a.description?.includes(s) || a.title?.includes(s))
+      ).slice(0, 3); // Max 3 states per run to control cost
+
+      if (statesToResearch.length === 0) {
+        // Default to top solar states if no specific states mentioned
+        statesToResearch.push("California", "Texas", "Florida");
       }
+
+      const researchResult = await executeAttorneyResearch(statesToResearch, context.runId);
+      await saveAgentChatMessage(
+        "money_maker",
+        `Attorney research complete: found ${researchResult.found} attorneys across ${researchResult.states.join(", ")}, saved ${researchResult.saved} new prospects to pipeline`,
+        "result",
+        context.runId
+      );
     }
 
-    // 10. Preserve the agent's conclusion after the live run ends.
-    if (db && parsed.analysis) {
-      await writeMoneyMakerThread(db, context.runId, "analysis", parsed.analysis);
+    // 10. Save analysis as chat thread
+    if (parsed.analysis) {
+      await saveAgentChatMessage("money_maker", parsed.analysis, "analysis", context.runId);
     }
 
     // 11. Mark inbox as processed
@@ -297,41 +284,6 @@ export async function runMoneyMaker(
     await completeRun(context, `Error: ${error.message}`, "failed", error.message);
     throw error;
   }
-}
-
-const RESEARCH_STATE_NAMES = [
-  "California", "Texas", "Florida", "Arizona", "Nevada", "Colorado", "Georgia",
-  "North Carolina", "South Carolina", "New York", "New Jersey", "Ohio", "Michigan",
-  "Illinois", "Washington",
-] as const;
-
-function resolveResearchStates(actions: Array<{ title?: string; description?: string; actionType?: string }>) {
-  const researchText = actions
-    .filter(action => action.actionType === "research_firm")
-    .map(action => `${action.title || ""} ${action.description || ""}`)
-    .join(" ");
-  const requestedStates = RESEARCH_STATE_NAMES.filter(state => researchText.includes(state));
-  return (requestedStates.length > 0 ? requestedStates : ["California", "Texas", "Florida"]).slice(0, 3);
-}
-
-async function writeMoneyMakerThread(
-  db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
-  runId: number,
-  messageType: "analysis" | "result" | "error",
-  message: string,
-  metadata?: unknown,
-) {
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30);
-  await db.insert(agentChatThreads).values({
-    agentSlug: "money_maker",
-    runId,
-    role: "agent",
-    message,
-    messageType,
-    metadata: metadata ? JSON.stringify(metadata) : null,
-    expiresAt,
-  });
 }
 
 // ─── Revenue State Gathering ──────────────────────────────────────────────────

@@ -1076,18 +1076,68 @@
 - [x] Run all tests and save checkpoint
 
 ## Phase 58 — Fix All Remaining Agent Errors (Jul 28)
+
 - [x] Fix Qwen3-235B-Thinking always returning empty content — switched all agents to qwen/qwen3-32b (stable, fast)
 - [x] Clear DB agentModelConfig overrides that were pinning agents to broken model
 - [x] Fix SEO Intel hardcoded post slugs (sunrun-solar-contract-cancellation-2026, goodleap-cancel-solar-loan-2026) that don't exist in DB — agent now uses actual DB slugs from gatherSeoState
 - [x] Fix leadSessions duplicate entry crash — replaced read-then-insert with atomic ON DUPLICATE KEY UPDATE
 - [x] 108/108 tests passing
 
-## Phase 60 — Money Maker Execution, Attorney Pipeline, and Retained Agent History
-- [x] Add a 30-day-retention agent chat-thread table and migration
-- [x] Make Money Maker record a durable, human-readable run result with links to every created prospect and created task
-- [x] Implement verified attorney research that stores source URLs and never invents attorney contact details
-- [x] Add an admin-controlled attorney research run for selected states with an explicit result summary
-- [x] Build `/admin/attorneys` Kanban board for Prospect → Contacted → Responded → Negotiating → Signed → Active
-- [x] Add evidence, owner notes, timestamps, and a clear done/not-done outcome to each attorney card
-- [x] Persist and reload agent-chat threads for 30 days in Agent Command Center
-- [x] Add focused tests, visual verification, and a published checkpoint
+## Phase 60 — Autonomous Revenue Operations, Agent Governance & Assistable AI Preparation
+- [x] Finish the Money Maker execution loop architecture: require evidence-backed attorney research, deduplicate/score/store verified prospects, and transparently record the blocked dependency until the research connector is configured
+- [x] Build `/admin/attorneys` Kanban pipeline with prioritized prospects, visible research evidence, pipeline statuses, and owner-controlled updates
+- [x] Add attorney prospect detail history: discovery source, research evidence, score breakdown, outreach notes, dates, and outcome/revenue attribution fields
+- [x] Add persistent 30-day agent chat/run threads with summaries, actions, execution evidence, errors, and linked outputs
+- [x] Add action evidence and outcome tracking: queued, running, completed, failed, blocked; include timestamps and concrete results or blockers
+- [x] Implement a manager-led daily operating checklist for every agent with expected inputs, outputs, quality checks, and measured success criteria
+- [x] Implement manager quality matrix, acceptance/rejection explanations, and one bounded automatic rework/retry workflow for sub-agent deliverables
+- [x] Schedule the manager-led operating cycle for 8:00 AM Mountain Time with DST-safe guards and prevent automated texts/calls outside 8:00 AM–5:00 PM Mountain Time
+- [x] Preserve safe preparation outside contact hours; do not send external email, texts, or calls until explicit activation and credentials are provided
+- [x] Establish self-learning measurements through persistent manager QA lessons, lead/conversion tracking, attorney pipeline outcomes, and Revenue Intel predicted-versus-actual fields
+- [x] Research Assistable AI v3 SDK/API and create an integration plan, typed adapter, settings panel, and safe dry-run mode without messaging/calling activation
+- [ ] Request Assistable AI credentials tomorrow; validate them with a non-mutating health/read call before enabling CRM, calling, text, voicemail, or workflow features
+- [ ] Verify all agents run, record evidence, complete daily checklists, and surface manager QA outcomes in the Command Center
+- [x] Add and run Vitest coverage for manager QA and Assistable contact-hour safety controls (113 tests passing)
+- [ ] Save checkpoint and verify production deployment
+
+## Phase 61 — Implementation Ledger
+- [x] Deliver an evidence-based breakdown of completed work, scheduled behavior, unimplemented capabilities, and external dependencies
+
+## Phase 63 — Evidence-Based SEO Completion
+- [x] Reconcile concurrent authenticated-GSC, content-rewrite, and measurement-integrity changes without overwriting either implementation
+- [x] Persist the verified Search Console baseline and connect scheduled refresh results to the SEO agent’s decision state (49 current pages refreshed from July 14–August 11)
+- [x] Complete the current evidence-backed content workflow while retaining review controls: live GSC-driven drafts are created in Blog Studio, never auto-published
+- [x] Fix SEO Intel’s static-versus-database blog target resolution so real indexed static articles can be optimized instead of silently skipped
+- [ ] Save checkpoint, publish the reconciled changes, and deliver the factual operating-status report (130 Vitest tests passing; local production build was memory-terminated after Vite transformed modules)
+
+## Phase 64 — Complete Daily Worker Validation
+- [x] Repair Revenue Intelligence so it consumes current verified GSC page measurements instead of reporting zero analyzed pages (49 pages / 16 opportunities verified)
+- [x] Fix Revenue Intelligence run-ID persistence so predictions, completion status, and outcomes link to the actual run instead of remaining at runId 0/running
+- [x] Replace false “auto-executing” counts with real execution for supported revenue actions and explicit queued/blocked status for unsupported actions (two reviewable Blog Studio drafts created)
+- [ ] Run a new full Manager-led worker cycle after fresh GSC persistence and record per-worker Manager QA evidence
+- [ ] Validate the daily 8:00 AM Mountain schedule, worker outputs, action evidence, and visible Command Center statuses
+
+## Phase 65 — Bounded Agent LLM Calls
+- [x] Add an abortable per-attempt timeout and bounded fallback path to shared agent LLM calls so one provider hang cannot stall the Manager cycle
+- [ ] Record the interrupted SEO worker as a transparent failed/blocked run and rerun the Manager-led sequence after the timeout safeguard
+
+## Phase 66 — Thread-Wide Status Reconciliation
+- [x] Deliver a plain-English summary of all requested work, implemented work, verified results, pending items, blockers, and required owner input
+
+## Phase 67 — Restore Worker Schedules
+- [x] Resume the disabled Revenue Intel, SEO Intel, Money Maker, Content, Editor, and Infrastructure worker schedules
+- [x] Verify each worker schedule is enabled with a future execution time and record the restored daily operating sequence
+
+## Phase 68 — Daily Manager QA Report Delivery
+- [x] Add an idempotent scheduled report endpoint that summarizes the Manager’s current worker checklists and QA verdicts
+- [x] Deliver the report as a project-owner notification at 8:30 AM Mountain Time without sending any end-user outreach
+- [x] Publish and schedule DST-safe report triggers (daylight task `5N8EL37svNc3tnMShcaYZC`; standard task `WBivms5tuqznvMhCxbmGPi`) and verify both are enabled
+
+## Phase 69 — Daily SEO Report Section
+- [x] Add verified current SEO rankings, index coverage, recent SEO changes, and review-required drafts to the 8:30 AM Manager QA report
+- [x] Validate and publish the expanded report before its next scheduled delivery
+
+## Phase 70 — Preview SEO Ranking Change Banner
+- [x] Detect significant verified SEO ranking changes from persisted Search Console snapshots
+- [x] Display a clear preview/admin notification banner with the direction, magnitude, freshness, and SEO review link
+- [x] Validate the banner in preview without showing alerts for missing or stale measurements

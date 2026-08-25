@@ -9,6 +9,8 @@ import { clearLegacyContactStorage } from "../client/src/hooks/useContactInfo";
 describe("truthful client analytics", () => {
   const gtag = vi.fn();
   const originalWindow = globalThis.window;
+  const originalFetch = globalThis.fetch;
+  const fetchMock = vi.fn().mockResolvedValue(new Response());
 
   beforeEach(() => {
     gtag.mockClear();
@@ -17,9 +19,11 @@ describe("truthful client analytics", () => {
       configurable: true,
       value: {
         gtag,
-        location: { href: "https://breakyoursolarcontract.com/" },
+        location: { href: "https://breakyoursolarcontract.com/", origin: "https://breakyoursolarcontract.com" },
+        localStorage: { getItem: () => "sf_test_session" },
       },
     });
+    vi.stubGlobal("fetch", fetchMock);
   });
 
   afterEach(() => {
@@ -27,6 +31,7 @@ describe("truthful client analytics", () => {
       configurable: true,
       value: originalWindow,
     });
+    vi.stubGlobal("fetch", originalFetch);
   });
 
   it("deduplicates the same SPA route and emits the next route once", () => {
@@ -70,7 +75,7 @@ describe("truthful client analytics", () => {
 
   it("records a persisted lead while measuring pending CRM separately", () => {
     expect(
-      recordLeadSubmission({ persisted: true, crmSent: false }, "test_form", "/test")
+      recordLeadSubmission({ persisted: true, crmSent: false, leadId: 42 }, "test_form", "/test")
     ).toBe(true);
 
     expect(gtag.mock.calls.some((call) => call[1] === "generate_lead")).toBe(true);
@@ -78,6 +83,16 @@ describe("truthful client analytics", () => {
     expect(crmEvent?.[2]).toMatchObject({ delivery_status: "pending" });
     expect(JSON.stringify(gtag.mock.calls)).not.toContain("email");
     expect(JSON.stringify(gtag.mock.calls)).not.toContain("phone_number");
+    expect(fetchMock).toHaveBeenCalledWith("/api/journey/event", expect.objectContaining({
+      method: "POST",
+      keepalive: true,
+    }));
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+      type: "form_submit",
+      sessionId: "sf_test_session",
+      page: "/test",
+      leadId: 42,
+    });
   });
 });
 

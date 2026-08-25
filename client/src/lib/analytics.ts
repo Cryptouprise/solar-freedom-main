@@ -91,7 +91,38 @@ export function trackCrmDelivery(formName: string, page: string, crmSent: boolea
 export type LeadSubmissionStatus = {
   persisted: boolean;
   crmSent: boolean;
+  leadId?: number | null;
 };
+
+const JOURNEY_SESSION_KEY = "sf_session_id";
+
+function recordFirstPartyLeadSubmit(formName: string, page: string, leadId?: number) {
+  if (typeof window === "undefined" || typeof fetch !== "function") return;
+
+  let sessionId = "";
+  try {
+    sessionId = window.localStorage?.getItem(JOURNEY_SESSION_KEY) ?? "";
+  } catch {
+    return;
+  }
+  if (!sessionId) return;
+
+  const pagePath = new URL(page, window.location.origin).pathname;
+  void fetch("/api/journey/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "form_submit",
+      sessionId,
+      page: pagePath,
+      leadId,
+      detail: JSON.stringify({ formName }),
+    }),
+    keepalive: true,
+  }).catch(() => {
+    // Attribution must never block a confirmed lead submission.
+  });
+}
 
 export function recordLeadSubmission(
   result: LeadSubmissionStatus | null | undefined,
@@ -104,6 +135,7 @@ export function recordLeadSubmission(
   }
   trackFormSubmit(formName, page);
   trackCrmDelivery(formName, page, result.crmSent);
+  recordFirstPartyLeadSubmit(formName, page, result.leadId ?? undefined);
   return true;
 }
 

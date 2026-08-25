@@ -24,6 +24,8 @@ import { desc, gte, eq, and, isNull } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 import { upsertBlogDraft } from "../db";
 
+const CALLBACK_BUDGET_MS = 25_000;
+
 // ─── Daily Cost Alert ─────────────────────────────────────────────────────────
 
 async function buildDailyCostAlert(): Promise<{
@@ -87,7 +89,9 @@ async function checkAgentHealth(): Promise<Array<{
     let consecutiveFailures = 0;
 
     for (const run of recentRuns) {
-      if (run.status === "failed") {
+      const runningTooLong = run.status === "running"
+        && Date.now() - new Date(run.startedAt).getTime() > CALLBACK_BUDGET_MS;
+      if (run.status === "failed" || run.status === "timeout" || runningTooLong) {
         consecutiveFailures++;
       } else {
         break;
@@ -102,6 +106,12 @@ async function checkAgentHealth(): Promise<Array<{
     if (!lastRun) {
       issues.push("Agent has never run — may not be registered");
     } else {
+      if (lastRun.status === "running") {
+        issues.push("Latest run is still marked running — completion was not recorded");
+      }
+      if (lastRun.durationMs && lastRun.durationMs > CALLBACK_BUDGET_MS) {
+        issues.push(`Latest run took ${Math.round(lastRun.durationMs / 1000)}s, exceeding the 25s scheduler callback budget`);
+      }
       const hoursSinceRun = (Date.now() - new Date(lastRun.startedAt).getTime()) / 3600000;
       if (hoursSinceRun > 48) {
         issues.push(`Last run was ${Math.round(hoursSinceRun)}h ago — may be stuck`);

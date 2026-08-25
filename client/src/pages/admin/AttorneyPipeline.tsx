@@ -1,293 +1,210 @@
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/components/AdminLayout";
 import { trpc } from "@/lib/trpc";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Building2,
-  Calendar,
-  CheckCircle2,
-  ExternalLink,
-  Loader2,
-  MapPinned,
-  MessageSquareText,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  TrendingUp,
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { Building2, ExternalLink, Loader2, Mail, MapPin, Phone, Play, RefreshCw, Search, Star, Users } from "lucide-react";
 
-type OutreachStatus =
-  | "not_contacted"
-  | "researching"
-  | "ready_to_pitch"
-  | "pitched"
-  | "in_conversation"
-  | "signed"
-  | "rejected"
-  | "not_interested";
+const COLUMNS = [
+  { key: "not_contacted", label: "Prospects", hint: "Verified firms awaiting review", color: "border-slate-500/30" },
+  { key: "researching", label: "Researching", hint: "Evidence is being gathered", color: "border-blue-500/30" },
+  { key: "ready_to_pitch", label: "Ready to pitch", hint: "Qualified for outreach review", color: "border-amber-500/30" },
+  { key: "pitched", label: "Contacted", hint: "Outreach logged", color: "border-purple-500/30" },
+  { key: "in_conversation", label: "In conversation", hint: "Partnership discussion", color: "border-cyan-500/30" },
+  { key: "signed", label: "Signed", hint: "Ready for lead delivery", color: "border-emerald-500/30" },
+] as const;
 
 type Prospect = {
   id: number;
   firmName: string;
-  website: string | null;
+  contactPerson: string | null;
+  state: string | null;
+  city: string | null;
   phone: string | null;
   email: string | null;
-  state: string | null;
+  website: string | null;
   practiceAreas: string | null;
   overallScore: number;
-  outreachStatus: OutreachStatus;
+  outreachStatus: typeof COLUMNS[number]["key"] | "rejected" | "not_interested";
   outreachNotes: string | null;
   pitchAngle: string | null;
-  sourceUrl: string | null;
   discoveredVia: string | null;
+  sourceUrl: string | null;
+  discoveredBy: string | null;
   verifiedAt: Date | null;
   createdAt: Date;
-  updatedAt: Date;
 };
 
-const COLUMNS: Array<{ id: OutreachStatus; label: string; description: string; color: string }> = [
-  { id: "researching", label: "Research", description: "Verified source found; review fit", color: "border-sky-500/30" },
-  { id: "ready_to_pitch", label: "Ready to pitch", description: "Contact angle is prepared", color: "border-violet-500/30" },
-  { id: "pitched", label: "Contacted", description: "Outreach sent or call made", color: "border-amber-500/30" },
-  { id: "in_conversation", label: "In conversation", description: "Commercial terms in progress", color: "border-orange-500/30" },
-  { id: "signed", label: "Signed", description: "Set up as active partner in Lead Distribution", color: "border-emerald-500/30" },
-];
-
-function displayedStatus(status: OutreachStatus) {
-  return status === "not_contacted" ? "researching" : status;
-}
-
-function parseAreas(value: string | null) {
-  if (!value) return [];
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : [value];
-  } catch {
-    return [value];
-  }
-}
-
 function scoreClass(score: number) {
-  if (score >= 70) return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
-  if (score >= 45) return "bg-amber-500/15 text-amber-300 border-amber-500/30";
-  return "bg-white/5 text-gray-300 border-white/10";
+  if (score >= 70) return "text-emerald-300 bg-emerald-500/10 border-emerald-500/25";
+  if (score >= 45) return "text-amber-300 bg-amber-500/10 border-amber-500/25";
+  return "text-slate-300 bg-slate-500/10 border-slate-500/25";
+}
+
+function safeUrl(url: string | null) {
+  if (!url) return null;
+  return /^https?:\/\//.test(url) ? url : `https://${url}`;
+}
+
+function ProspectCard({ prospect, onMove }: { prospect: Prospect; onMove: (id: number, status: Prospect["outreachStatus"]) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const columnIndex = COLUMNS.findIndex(c => c.key === prospect.outreachStatus);
+  const next = columnIndex >= 0 ? COLUMNS[columnIndex + 1] : undefined;
+  const source = prospect.discoveredVia || "No evidence source recorded";
+
+  return (
+    <article className="rounded-xl bg-[#171a21] border border-white/8 p-3 space-y-3 shadow-sm">
+      <div className="flex gap-2 justify-between items-start">
+        <div className="min-w-0">
+          <h3 className="text-white text-sm font-semibold leading-tight line-clamp-2">{prospect.firmName}</h3>
+          <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+            <MapPin className="w-3 h-3" />{[prospect.city, prospect.state].filter(Boolean).join(", ") || "Location unverified"}
+          </p>
+        </div>
+        <Badge className={`shrink-0 text-xs border ${scoreClass(Number(prospect.overallScore || 0))}`}>
+          {Number(prospect.overallScore || 0)}/100
+        </Badge>
+      </div>
+
+      <div className="text-[11px] text-gray-500 rounded bg-white/[0.03] px-2 py-1.5">
+        <span className="text-gray-600">Evidence: </span>{source}
+        {prospect.verifiedAt ? <span className="text-emerald-400"> · verified {new Date(prospect.verifiedAt).toLocaleDateString()}</span> : <span className="text-amber-400"> · unverified</span>}
+        {safeUrl(prospect.sourceUrl) && <a href={safeUrl(prospect.sourceUrl)!} target="_blank" rel="noreferrer" className="ml-2 inline-flex items-center gap-1 text-sky-300 hover:text-sky-200">Open source <ExternalLink className="w-3 h-3" /></a>}
+      </div>
+
+      {expanded && (
+        <div className="space-y-2 border-t border-white/5 pt-2 text-xs">
+          {prospect.contactPerson && <p className="text-gray-300"><Users className="w-3 h-3 inline mr-1 text-gray-500" />{prospect.contactPerson}</p>}
+          {prospect.email && <p className="text-gray-300 truncate"><Mail className="w-3 h-3 inline mr-1 text-gray-500" />{prospect.email}</p>}
+          {prospect.phone && <p className="text-gray-300"><Phone className="w-3 h-3 inline mr-1 text-gray-500" />{prospect.phone}</p>}
+          {prospect.practiceAreas && <p className="text-gray-400"><span className="text-gray-600">Practice:</span> {prospect.practiceAreas}</p>}
+          {prospect.pitchAngle && <p className="text-amber-100/80 leading-relaxed"><span className="text-amber-400">Suggested pitch:</span> {prospect.pitchAngle}</p>}
+          {prospect.outreachNotes && <p className="text-gray-400 whitespace-pre-wrap"><span className="text-gray-600">Notes:</span> {prospect.outreachNotes}</p>}
+        </div>
+      )}
+
+      <div className="flex items-center gap-2">
+        <button className="text-xs text-gray-500 hover:text-white" onClick={() => setExpanded(v => !v)}>{expanded ? "Less" : "Details"}</button>
+        {safeUrl(prospect.website) && <a href={safeUrl(prospect.website)!} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">Site <ExternalLink className="w-3 h-3" /></a>}
+        <div className="flex-1" />
+        {next && <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-white/10 hover:bg-amber-500/10 hover:text-amber-300" onClick={() => onMove(prospect.id, next.key)}>{next.label} →</Button>}
+      </div>
+    </article>
+  );
 }
 
 export default function AttorneyPipeline() {
   const utils = trpc.useUtils();
-  const { data: prospects = [], isLoading } = trpc.agents.listAttorneyProspects.useQuery();
-  const research = trpc.agents.researchAttorneyProspects.useMutation({
-    onSuccess: (result) => {
-      void utils.agents.listAttorneyProspects.invalidate();
-      void utils.agents.getChatThreads.invalidate({ agentSlug: "money_maker", limit: 50 });
-      toast.success("Attorney research completed", { description: result.summary });
-    },
-    onError: error => toast.error("Research did not complete", { description: error.message }),
-  });
-  const updateProspect = trpc.agents.updateAttorneyProspect.useMutation({
+  const { data: attorneys = [], isLoading } = trpc.agents.listAttorneys.useQuery();
+  const [selectedStates, setSelectedStates] = useState<string[]>(["California", "Texas", "Florida"]);
+  const [crmPreview, setCrmPreview] = useState<any>(null);
+
+  const update = trpc.agents.updateAttorney.useMutation({
     onSuccess: () => {
-      void utils.agents.listAttorneyProspects.invalidate();
-      toast.success("Pipeline updated");
+      utils.agents.listAttorneys.invalidate();
+      toast.success("Prospect moved and timestamped");
     },
-    onError: error => toast.error("Could not update prospect", { description: error.message }),
+    onError: (error) => toast.error(error.message),
+  });
+  const research = trpc.agents.runAttorneyResearch.useMutation({
+    onSuccess: (result) => {
+      utils.agents.listAttorneys.invalidate();
+      toast.success(`Research complete: ${result.saved} verified prospects added from ${result.states.join(", ") || "selected states"}; ${result.duplicates} duplicates skipped.`);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const contactPreview = trpc.agents.assistableContactDryRun.useMutation({
+    onSuccess: result => setCrmPreview(result),
+    onError: error => toast.error(error.message),
+  });
+  const testAssistable = trpc.agents.testAssistableConnection.useMutation({
+    onSuccess: result => toast.success(`Assistable connected. Read-only validation request: ${result.requestId || "complete"}`),
+    onError: error => toast.error(error.message),
   });
 
-  const [statesInput, setStatesInput] = useState("California, Texas, Florida");
-  const [noteProspect, setNoteProspect] = useState<Prospect | null>(null);
-  const [note, setNote] = useState("");
+  const prospects = attorneys as Prospect[];
+  const grouped = useMemo(() => Object.fromEntries(COLUMNS.map(c => [c.key, prospects.filter(p => p.outreachStatus === c.key)])), [prospects]);
+  const scoreAverage = prospects.length ? Math.round(prospects.reduce((sum, p) => sum + Number(p.overallScore || 0), 0) / prospects.length) : 0;
 
-  const allProspects = prospects as Prospect[];
-  const grouped = useMemo(() => {
-    const groups = Object.fromEntries(COLUMNS.map(column => [column.id, [] as Prospect[]])) as Record<OutreachStatus, Prospect[]>;
-    for (const prospect of allProspects) {
-      const target = displayedStatus(prospect.outreachStatus);
-      if (groups[target]) groups[target].push(prospect);
-    }
-    return groups;
-  }, [allProspects]);
-
-  const move = (prospect: Prospect, nextStatus: OutreachStatus) => {
-    updateProspect.mutate({
-      id: prospect.id,
-      outreachStatus: nextStatus,
-      outreachNotes: prospect.outreachNotes || undefined,
-      pitchAngle: prospect.pitchAngle || undefined,
-    });
-  };
-
-  const runResearch = () => {
-    const states = statesInput.split(",").map(value => value.trim()).filter(Boolean).slice(0, 3);
-    if (!states.length) {
-      toast.error("Enter at least one state to research.");
-      return;
-    }
-    research.mutate({ states });
-  };
-
-  const saveNote = () => {
-    if (!noteProspect) return;
-    const timestamp = new Date().toLocaleString();
-    const prior = noteProspect.outreachNotes?.trim();
-    const nextNotes = [prior, `[${timestamp}] ${note.trim()}`].filter(Boolean).join("\n\n");
-    updateProspect.mutate({
-      id: noteProspect.id,
-      outreachStatus: noteProspect.outreachStatus,
-      outreachNotes: nextNotes,
-      pitchAngle: noteProspect.pitchAngle || undefined,
-    }, { onSuccess: () => { setNoteProspect(null); setNote(""); } });
-  };
-
-  const stats = {
-    total: allProspects.length,
-    verified: allProspects.filter(prospect => prospect.sourceUrl).length,
-    contacted: allProspects.filter(prospect => ["pitched", "in_conversation", "signed"].includes(prospect.outreachStatus)).length,
-    signed: allProspects.filter(prospect => prospect.outreachStatus === "signed").length,
-  };
+  function toggleState(state: string) {
+    setSelectedStates(current => current.includes(state) ? current.filter(s => s !== state) : [...current, state]);
+  }
 
   return (
-    <AdminLayout title="Attorney Revenue Pipeline" subtitle="Evidence-backed attorney research, outreach progress, and next revenue actions">
-      <div className="p-6 space-y-6 text-white">
-        <Card className="border-amber-500/25 bg-gradient-to-br from-amber-500/10 via-[#111318] to-[#111318]">
-          <CardContent className="p-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-2 text-amber-300 font-semibold">
-                <Sparkles className="w-4 h-4" /> Money Maker execution board
-              </div>
-              <p className="text-sm text-gray-300 mt-2 leading-relaxed">
-                The agent now researches real Google Maps listings, records the direct source link, and saves only source-backed prospects here. It does <strong className="text-white">not</strong> invent contacts or send outreach without your approval. Each card shows exactly what was found and what still needs to happen.
-              </p>
+    <AdminLayout title="Attorney Pipeline" subtitle="Evidence-backed attorney prospecting, partnership progress, and lead-buyer readiness">
+      <div className="p-6 space-y-6">
+        <section className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-[#171a21] to-[#111318] p-5">
+          <div className="flex flex-col xl:flex-row gap-5 xl:items-center xl:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-amber-300 text-sm font-semibold"><Building2 className="w-4 h-4" />Money Maker execution board</div>
+              <h1 className="text-white text-2xl font-bold mt-1">Attorney partnerships that turn leads into revenue</h1>
+              <p className="text-gray-400 text-sm mt-2 max-w-3xl">Every card must show its source, verification state, score, and pipeline movement. This board does not claim that a firm was contacted unless an outreach event was actually logged.</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-              <input
-                value={statesInput}
-                onChange={event => setStatesInput(event.target.value)}
-                aria-label="States to research"
-                className="h-9 w-full sm:w-56 rounded-md border border-white/15 bg-black/20 px-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-                placeholder="California, Texas, Florida"
-              />
-              <Button onClick={runResearch} disabled={research.isPending} className="bg-amber-500 hover:bg-amber-400 text-black font-semibold">
-                {research.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Search className="w-4 h-4 mr-2" />}
-                Research states
+            <div className="grid grid-cols-3 gap-3 shrink-0">
+              <div className="rounded-xl bg-black/20 border border-white/5 px-4 py-3"><div className="text-gray-500 text-[10px] uppercase tracking-wider">Prospects</div><div className="text-white font-mono text-xl mt-1">{prospects.length}</div></div>
+              <div className="rounded-xl bg-black/20 border border-white/5 px-4 py-3"><div className="text-gray-500 text-[10px] uppercase tracking-wider">Signed</div><div className="text-emerald-300 font-mono text-xl mt-1">{grouped.signed?.length || 0}</div></div>
+              <div className="rounded-xl bg-black/20 border border-white/5 px-4 py-3"><div className="text-gray-500 text-[10px] uppercase tracking-wider">Avg. score</div><div className="text-amber-300 font-mono text-xl mt-1">{scoreAverage}</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-white/8 bg-[#151820] p-4">
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-white font-semibold flex items-center gap-2"><Search className="w-4 h-4 text-blue-400" />Research attorney prospects</h2>
+              <p className="text-gray-500 text-xs mt-1">Runs research only. It does not email, text, call, or change voicemail. External contact requires a separately enabled CRM action.</p>
+            </div>
+            <div className="flex items-center flex-wrap gap-2">
+              {["California", "Texas", "Florida", "Arizona", "Nevada"].map(state => (
+                <button key={state} onClick={() => toggleState(state)} className={`px-2.5 py-1.5 rounded-md text-xs border transition-colors ${selectedStates.includes(state) ? "bg-blue-500/15 border-blue-500/30 text-blue-200" : "border-white/10 text-gray-500 hover:text-gray-300"}`}>{state}</button>
+              ))}
+              <Button disabled={research.isPending || !selectedStates.length} onClick={() => research.mutate({ states: selectedStates })} className="bg-amber-500 hover:bg-amber-400 text-black font-semibold">
+                {research.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}Run research
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { label: "Prospects", value: stats.total, icon: Building2, tone: "text-white" },
-            { label: "Evidence verified", value: stats.verified, icon: ShieldCheck, tone: "text-sky-300" },
-            { label: "Outreach started", value: stats.contacted, icon: MessageSquareText, tone: "text-amber-300" },
-            { label: "Signed partners", value: stats.signed, icon: TrendingUp, tone: "text-emerald-300" },
-          ].map(stat => (
-            <Card key={stat.label} className="bg-white/5 border-white/10">
-              <CardContent className="p-4 flex items-center gap-3">
-                <stat.icon className={`w-5 h-5 ${stat.tone}`} />
-                <div><div className="text-xl font-bold">{stat.value}</div><div className="text-xs text-gray-500">{stat.label}</div></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <section className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.04] p-4">
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-white font-semibold flex items-center gap-2"><Play className="w-4 h-4 text-cyan-300" />Assistable AI CRM — safe activation readiness</h2>
+              <p className="text-gray-400 text-xs mt-1 max-w-3xl">The integration is installed in safe mode. It cannot call, text, email, enroll a campaign, or alter voicemail. Tomorrow, add the API key and subaccount ID, then use the read-only test before enabling any channel.</p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" size="sm" onClick={() => contactPreview.mutate({ firstName: "Chase", email: "chasef1124@gmail.com", phone: "214-529-1531", companyName: "Solar Freedom" })} disabled={contactPreview.isPending} className="border-cyan-500/30 text-cyan-200 hover:bg-cyan-500/10">
+                {contactPreview.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Search className="w-3 h-3 mr-1" />}Preview test contact
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => testAssistable.mutate()} disabled={testAssistable.isPending} className="border-white/10 text-gray-300">
+                {testAssistable.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}Read-only connection test
+              </Button>
+            </div>
+          </div>
+          {crmPreview && <div className="mt-3 rounded-lg border border-cyan-500/15 bg-black/20 px-3 py-2 text-xs text-cyan-100"><strong>Dry run only:</strong> {crmPreview.payload?.email || "No email"} · {crmPreview.payload?.phone || "No phone"} · DND: {String(crmPreview.payload?.dnd)}. No API request was made and no contact was created.</div>}
+        </section>
 
-        {isLoading ? (
-          <div className="py-16 text-center text-gray-500"><Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />Loading attorney pipeline…</div>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-            {COLUMNS.map((column, index) => (
-              <section key={column.id} className={`min-w-0 rounded-xl border ${column.color} bg-white/[0.025] p-3`}>
-                <header className="mb-3 pb-3 border-b border-white/10">
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="font-semibold text-sm">{column.label}</h2>
-                    <Badge className="border-white/10 bg-white/5 text-gray-300">{grouped[column.id].length}</Badge>
+        {isLoading ? <div className="py-24 flex justify-center text-gray-400"><Loader2 className="w-5 h-5 animate-spin mr-2" />Loading pipeline…</div> : (
+          <section className="overflow-x-auto pb-3">
+            <div className="grid grid-flow-col auto-cols-[280px] gap-4 min-w-max">
+              {COLUMNS.map(column => (
+                <div key={column.key} className={`rounded-xl border-t-2 ${column.color} bg-[#111318] p-3 min-h-[460px]`}>
+                  <div className="mb-3"><div className="flex items-center justify-between"><h2 className="text-white font-semibold text-sm">{column.label}</h2><Badge variant="outline" className="text-gray-400 border-white/10">{grouped[column.key]?.length || 0}</Badge></div><p className="text-[11px] text-gray-600 mt-1">{column.hint}</p></div>
+                  <div className="space-y-3">
+                    {(grouped[column.key] || []).map(prospect => <ProspectCard key={prospect.id} prospect={prospect} onMove={(id, status) => update.mutate({ id, outreachStatus: status })} />)}
+                    {!grouped[column.key]?.length && <div className="rounded-lg border border-dashed border-white/10 px-3 py-8 text-center text-xs text-gray-600">No prospects in this stage.</div>}
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">{column.description}</p>
-                </header>
-                <div className="space-y-3">
-                  {grouped[column.id].map(prospect => (
-                    <ProspectCard
-                      key={prospect.id}
-                      prospect={prospect}
-                      canMoveBack={index > 0}
-                      canMoveForward={index < COLUMNS.length - 1}
-                      onMoveBack={() => move(prospect, COLUMNS[index - 1].id)}
-                      onMoveForward={() => move(prospect, COLUMNS[index + 1].id)}
-                      onAddNote={() => { setNoteProspect(prospect); setNote(""); }}
-                      isUpdating={updateProspect.isPending}
-                    />
-                  ))}
-                  {grouped[column.id].length === 0 && <p className="rounded-lg border border-dashed border-white/10 py-6 px-3 text-center text-xs text-gray-600">No prospects here yet.</p>}
                 </div>
-              </section>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
         )}
+
+        <section className="rounded-xl border border-white/8 bg-[#151820] p-4 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-white font-semibold"><Star className="w-4 h-4 text-amber-400" />What this agent can do today</div>
+          <p className="mt-2 leading-relaxed">It can create and rank research work, preserve evidence, prioritize the best partnership opportunities, draft approved outreach, and track delivery/revenue outcomes. It is intentionally prevented from texting, calling, or emailing until the CRM connection and explicit sending rules are enabled.</p>
+        </section>
       </div>
-
-      <Dialog open={Boolean(noteProspect)} onOpenChange={open => !open && setNoteProspect(null)}>
-        <DialogContent className="bg-[#12151b] border-white/10 text-white max-w-lg">
-          <DialogHeader><DialogTitle>Add pipeline note — {noteProspect?.firmName}</DialogTitle></DialogHeader>
-          <p className="text-sm text-gray-400">Record the actual outcome: attempted call, reply received, pricing discussion, or why this prospect is not a fit.</p>
-          <Textarea value={note} onChange={event => setNote(event.target.value)} placeholder="Example: Called intake line; requested partnership details be emailed to managing attorney." className="min-h-28 bg-black/25 border-white/15" />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNoteProspect(null)} className="border-white/15 text-gray-300">Cancel</Button>
-            <Button onClick={saveNote} disabled={!note.trim() || updateProspect.isPending} className="bg-amber-500 hover:bg-amber-400 text-black">Save evidence note</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </AdminLayout>
-  );
-}
-
-function ProspectCard({ prospect, canMoveBack, canMoveForward, onMoveBack, onMoveForward, onAddNote, isUpdating }: {
-  prospect: Prospect;
-  canMoveBack: boolean;
-  canMoveForward: boolean;
-  onMoveBack: () => void;
-  onMoveForward: () => void;
-  onAddNote: () => void;
-  isUpdating: boolean;
-}) {
-  const areas = parseAreas(prospect.practiceAreas);
-  return (
-    <Card className="border-white/10 bg-[#12151b] shadow-none">
-      <CardContent className="p-3 space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="font-medium text-sm leading-snug text-white">{prospect.firmName}</p>
-            <p className="flex items-center gap-1 text-xs text-gray-500 mt-1"><MapPinned className="w-3 h-3" />{prospect.state || "Location pending"}</p>
-          </div>
-          <Badge className={`font-mono text-xs ${scoreClass(Number(prospect.overallScore || 0))}`}>{prospect.overallScore}/100</Badge>
-        </div>
-
-        <div className="flex flex-wrap gap-1">
-          {areas.slice(0, 2).map((area, index) => <span key={`${area}-${index}`} className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-gray-400">{area}</span>)}
-          {prospect.discoveredVia && <span className="rounded bg-sky-500/10 px-1.5 py-0.5 text-[10px] text-sky-300">{prospect.discoveredVia.replace(/_/g, " ")}</span>}
-        </div>
-
-        {prospect.sourceUrl ? (
-          <a href={prospect.sourceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-sky-300 hover:text-sky-200">
-            <ShieldCheck className="w-3.5 h-3.5" /> Evidence source <ExternalLink className="w-3 h-3" />
-          </a>
-        ) : <p className="text-xs text-amber-300">Needs source verification before outreach.</p>}
-
-        {prospect.pitchAngle && <p className="rounded-md border border-amber-500/15 bg-amber-500/5 p-2 text-[11px] leading-relaxed text-amber-100/80">{prospect.pitchAngle}</p>}
-        {prospect.outreachNotes && <p className="line-clamp-3 text-[11px] leading-relaxed text-gray-500 whitespace-pre-line">{prospect.outreachNotes}</p>}
-
-        <div className="flex items-center gap-1 border-t border-white/5 pt-2">
-          {canMoveBack && <Button variant="ghost" size="sm" onClick={onMoveBack} disabled={isUpdating} className="h-7 px-2 text-xs text-gray-400 hover:text-white"><ArrowLeft className="w-3 h-3 mr-1" />Back</Button>}
-          <Button variant="ghost" size="sm" onClick={onAddNote} className="h-7 px-2 text-xs text-gray-400 hover:text-white"><MessageSquareText className="w-3 h-3 mr-1" />Note</Button>
-          {canMoveForward && <Button variant="ghost" size="sm" onClick={onMoveForward} disabled={isUpdating} className="h-7 px-2 ml-auto text-xs text-amber-300 hover:text-amber-200">Advance<ArrowRight className="w-3 h-3 ml-1" /></Button>}
-          {!canMoveForward && <Badge className="ml-auto border-emerald-500/25 bg-emerald-500/10 text-emerald-300 text-[10px]"><CheckCircle2 className="w-3 h-3 mr-1" />Needs partner setup</Badge>}
-        </div>
-        <p className="flex items-center gap-1 text-[10px] text-gray-600"><Calendar className="w-3 h-3" />Updated {new Date(prospect.updatedAt).toLocaleString()}</p>
-      </CardContent>
-    </Card>
   );
 }

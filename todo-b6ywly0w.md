@@ -1,0 +1,51 @@
+# Project TODO
+
+- [x] Capture verified Search Console performance, index coverage, sitemap, and GA4 configuration evidence.
+- [x] Verify the disabled SEO heartbeat and the silent Revenue Intel cron skip.
+- [x] Allow the scheduled handler to execute every registered agent, including Revenue Intel, and fail invalid jobs visibly.
+- [x] Add an accountable agent-health endpoint that identifies missing schedules, stale runs, and unusable SEO measurement snapshots.
+- [x] Replace the dashboard’s simulated full-cycle progress with real mutation outcomes and error reporting.
+- [x] Add unit tests covering cron slug validation, health-state derivation, and dashboard-run safeguards.
+- [x] Audit sitemap/canonical/robots generation and isolate legacy or error-producing sitemap signals.
+- [x] Reduce indexable URL exposure to priority lead-generating content without suppressing valuable city or core service pages.
+- [x] Validate build, tests, production smoke checks, and rendered recovery dashboard behavior.
+- [x] Save a production checkpoint and confirm the published release.
+- [x] Compare the incoming autonomous-revenue checkpoint against the local recovery edits and preserve both intents.
+- [x] Merge the overlapping agent, dashboard, sitemap, and measurement changes without dropping either workflow.
+- [x] Re-run the combined validation suite and production checks after integration.
+- [x] Restore the missing project-owner worker schedules and verify their registered jobs and execution readiness.
+- [x] Make the admin scheduler view read the project-owner agent registry so restored jobs do not display as false missing states.
+- [x] Render newly restored schedules as an ‘awaiting first run’ state instead of a red error while preserving real failure visibility.
+- [x] Expand crawler-visible content on the focused city-page template so priority city URLs provide meaningful source-visible local context.
+- [x] Resolve the remaining live smoke failures by filtering redirected dynamic blog URLs and validating private routes remain noindex at origin and through the managed edge.
+- [x] Investigate the live admin canonical behavior: the project’s production artifact emits no canonical; the managed edge adds only a self-canonical to an explicitly noindex response, so no unsafe canonical override was introduced.
+- [x] Verify the restored Heartbeat jobs’ first completed execution outcomes and surface actionable failures.
+- [x] Audit GA4 and lead-event instrumentation, then repair missing attribution or lead-conversion reporting.
+- [x] Establish automated 7- and 14-day GSC comparison checkpoints with an accountable reporting destination.
+- [ ] Validate the combined operations and measurement loop, then publish the completed monitoring upgrade.
+- [x] Produce a direct evidence-based accounting of completed SEO repairs, current ranking mechanism, and remaining risks without treating existing access as a blocker.
+- [x] Reprioritize remaining work to the highest-impact ranking and lead-generation actions only.
+- [x] Retrieve and reconcile Similarweb traffic, channel, engagement, rank, and geography data with first-party SEO and lead evidence.
+- [x] Produce a complete SEO/GEO operating checklist covering indexability, technical delivery, content quality, entity/answer-engine readiness, authority, and conversion integrity.
+- [ ] Complete the remaining high-impact checklist failures that can be repaired safely in the application, including verified authority execution and the expert-review operating model.
+- [x] Schedule recurring scorecard collection and evidence-based alerts for meaningful SEO/GEO or lead-performance deterioration.
+- [x] Publish a plain-language recovery scorecard with the exact five ranking-to-lead workstreams, evidence, owner, and success thresholds.
+- [ ] Build and operate a verified authority-acquisition ledger focused on the small set of priority commercial pages.
+- [ ] Send the approved USREA contributor submission and record the exact submission evidence as unearned outreach.
+- [x] Reconcile and report the current live SEO/GEO, lead-measurement, authority, agent, and scheduling status in plain language.
+- [x] Diagnose why durable leads are not reaching the CRM or partner-delivery system and repair the delivery path with verified evidence.
+- [x] Correct the scorecard so HighLevel CRM sync and optional law-firm partner delivery are reported as distinct conversion health signals.
+- [x] Add an explicit partner-routing availability alert when no real active law-firm partner is configured, while preserving the healthy HighLevel CRM-sync signal.
+- [x] Document that partner delivery remains intentionally disabled until a verified law-firm partner and delivery endpoint are onboarded.
+- [x] Bound worker-agent LLM retries and fallback runtime to fit the scheduler callback window before re-enabling any paused worker schedule.
+- [x] Keep the scheduled OpenRouter abort budget active through response-body parsing so a slow streamed response cannot exceed the callback window.
+- [x] Publish a sourced, linkable solar-loan document checklist that supports priority commercial pages and legitimate resource-page outreach.
+- [x] Replace abstract automation choices with a concrete recurring operating cadence and clear weekly reporting format.
+- [ ] Replace the failing short HTTP agent callbacks with the verified expert-review cadence and retain only deterministic site jobs on the site scheduler.
+- [x] Implement threshold-based SEO and lead deterioration alerts with a concrete dashboard delivery destination.
+- [x] Add explicit owners to each recovery workstream in the published scorecard.
+- [x] Add recurring durable-lead, CRM-delivery, and verified-authority regression checks to the scorecard pipeline.
+- [x] Add a broader technical GEO regression signal beyond backlinks through canonical, schema, and sitemap coverage of indexable commercial content.
+- [ ] Surface scorecard alerts in the Agent Command Center and verify the replacement expert-review cadence executes automatically.
+- [x] Present the legacy Manager slot as migrated to the automatic expert-review cadence rather than as a missing scheduler error.
+- [x] Present intentionally paused short-callback agents as migrated to the expert review cadence rather than as generic scheduler errors.

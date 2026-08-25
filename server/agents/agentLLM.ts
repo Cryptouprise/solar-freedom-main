@@ -40,6 +40,40 @@ export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel:
 
 // Fallback model when OpenRouter fails
 const FALLBACK_MODEL = "gpt-5-mini";
+const OPENROUTER_ATTEMPT_TIMEOUT_MS = 45_000;
+const BUILTIN_ATTEMPT_TIMEOUT_MS = 60_000;
+const SCHEDULED_OPENROUTER_ATTEMPT_TIMEOUT_MS = 18_000;
+const SCHEDULED_BUILTIN_ATTEMPT_TIMEOUT_MS = 24_000;
+
+export type AgentExecutionMode = "standard" | "scheduled";
+
+export function resolveAgentTimeoutProfile(mode: AgentExecutionMode = "standard") {
+  return mode === "scheduled"
+    ? {
+        openRouterAttemptTimeoutMs: SCHEDULED_OPENROUTER_ATTEMPT_TIMEOUT_MS,
+        builtInAttemptTimeoutMs: SCHEDULED_BUILTIN_ATTEMPT_TIMEOUT_MS,
+        maxOpenRouterAttempts: 1,
+      }
+    : {
+        openRouterAttemptTimeoutMs: OPENROUTER_ATTEMPT_TIMEOUT_MS,
+        builtInAttemptTimeoutMs: BUILTIN_ATTEMPT_TIMEOUT_MS,
+        maxOpenRouterAttempts: 3,
+      };
+}
+
+export async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 // Full curated model list for the selector UI
 export const AVAILABLE_MODELS = [
@@ -104,6 +138,7 @@ export interface AgentLLMMessage {
 export interface AgentLLMOptions {
   agentSlug?: string;
   modelOverride?: string;
+  executionMode?: AgentExecutionMode;
   messages: AgentLLMMessage[];
   tools?: object[];
   responseFormat?: object;
@@ -116,15 +151,16 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
   usage?: { promptTokens: number; completionTokens: number };
 }> {
   const modelId = opts.modelOverride ?? (opts.agentSlug ? await getAgentModel(opts.agentSlug) : FALLBACK_MODEL);
+  const timeoutProfile = resolveAgentTimeoutProfile(opts.executionMode);
 
   // Route to OpenRouter for Qwen/DeepSeek models — with retry + fallback
   if (OPENROUTER_MODELS.has(modelId)) {
     // Try OpenRouter up to 3 times with exponential backoff
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = timeoutProfile.maxOpenRouterAttempts;
     let lastError: Error | null = null;
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const result = await callOpenRouter(modelId, opts);
+        const result = await callOpenRouter(modelId, opts, timeoutProfile.openRouterAttemptTimeoutMs);
         // Validate we got actual content back
         if (!result.content && !result.toolCalls?.length) {
           throw new Error("OpenRouter returned empty content");
@@ -141,25 +177,25 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
     }
     // All retries exhausted — fall back to built-in LLM
     console.error(`[agentLLM] OpenRouter failed after ${MAX_RETRIES} attempts for ${modelId}. Falling back to ${FALLBACK_MODEL}. Last error: ${lastError?.message}`);
-    return callBuiltIn(opts);
+    return callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs);
   }
 
   // Use built-in proxy for everything else
-  return callBuiltIn(opts);
+  return callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs);
 }
 
 // ─── Built-in LLM call (Manus proxy) ──────────────────────────────────────────
-async function callBuiltIn(opts: AgentLLMOptions): Promise<{
+async function callBuiltIn(opts: AgentLLMOptions, timeoutMs: number): Promise<{
   content: string;
   toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
   usage?: { promptTokens: number; completionTokens: number };
 }> {
-  const res = await invokeLLM({
+  const res = await withTimeout(invokeLLM({
     messages: opts.messages,
     ...(opts.tools ? { tools: opts.tools as any, tool_choice: "auto" } : {}),
     ...(opts.responseFormat ? { response_format: opts.responseFormat as any } : {}),
     ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
-  });
+  }), timeoutMs, "Built-in agent model");
 
   const msg = res.choices[0].message;
   const toolCalls = msg.tool_calls?.map((tc: any) => ({
@@ -179,7 +215,8 @@ async function callBuiltIn(opts: AgentLLMOptions): Promise<{
 // ─── OpenRouter call ───────────────────────────────────────────────────────────
 async function callOpenRouter(
   modelId: string,
-  opts: AgentLLMOptions
+  opts: AgentLLMOptions,
+  timeoutMs: number,
 ): Promise<{ content: string; toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>; usage?: { promptTokens: number; completionTokens: number } }> {
   const apiKey = ENV.openRouterApiKey;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY not set");
@@ -195,51 +232,62 @@ async function callOpenRouter(
   if (opts.responseFormat) body.response_format = opts.responseFormat;
   if (opts.maxTokens) body.max_tokens = opts.maxTokens;
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://breakyoursolarcontract.com",
-      "X-Title": "Solar Freedom Agent System",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter error ${res.status}: ${err}`);
-  }
-
-  // Guard against empty body (causes "Unexpected end of JSON input")
-  const rawText = await res.text();
-  if (!rawText || rawText.trim() === "") {
-    throw new Error("OpenRouter returned empty response body");
-  }
-
-  let data: any;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    data = JSON.parse(rawText);
-  } catch (e) {
-    throw new Error(`OpenRouter returned invalid JSON: ${rawText.substring(0, 200)}`);
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://breakyoursolarcontract.com",
+        "X-Title": "Solar Freedom Agent System",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`OpenRouter error ${res.status}: ${err}`);
+    }
+
+    // Keep the abort timer alive while the response body streams. A response can
+    // return headers quickly yet spend far longer streaming the body otherwise.
+    const rawText = await res.text();
+    if (!rawText || rawText.trim() === "") {
+      throw new Error("OpenRouter returned empty response body");
+    }
+
+    let data: any;
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      throw new Error(`OpenRouter returned invalid JSON: ${rawText.substring(0, 200)}`);
+    }
+
+    if (data.error) {
+      throw new Error(`OpenRouter API error: ${data.error.message || JSON.stringify(data.error)}`);
+    }
+
+    const msg = data.choices?.[0]?.message;
+    if (!msg) throw new Error(`No message in OpenRouter response: ${JSON.stringify(data).substring(0, 200)}`);
+
+    const toolCalls = msg.tool_calls?.map((tc: any) => ({
+      name: tc.function.name,
+      arguments: JSON.parse(tc.function.arguments || "{}"),
+    }));
+
+    return {
+      content: msg.content ?? "",
+      toolCalls,
+      usage: data.usage ? { promptTokens: data.usage.prompt_tokens, completionTokens: data.usage.completion_tokens } : undefined,
+    };
+  } catch (error: any) {
+    if (error?.name === "AbortError") {
+      throw new Error(`OpenRouter attempt timed out after ${Math.round(timeoutMs / 1000)}s`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  // Check for OpenRouter error in body (some errors come as 200 with error field)
-  if (data.error) {
-    throw new Error(`OpenRouter API error: ${data.error.message || JSON.stringify(data.error)}`);
-  }
-
-  const msg = data.choices?.[0]?.message;
-  if (!msg) throw new Error(`No message in OpenRouter response: ${JSON.stringify(data).substring(0, 200)}`);
-
-  const toolCalls = msg.tool_calls?.map((tc: any) => ({
-    name: tc.function.name,
-    arguments: JSON.parse(tc.function.arguments || "{}"),
-  }));
-
-  return {
-    content: msg.content ?? "",
-    toolCalls,
-    usage: data.usage ? { promptTokens: data.usage.prompt_tokens, completionTokens: data.usage.completion_tokens } : undefined,
-  };
 }

@@ -24,6 +24,7 @@ import {
 import { getDb } from "../db";
 import { seoChangeLog, seoPages, blogPosts, contentPipeline, blogDrafts } from "../../drizzle/schema";
 import { desc, eq, sql, and, gte, lt } from "drizzle-orm";
+import { blogPosts as staticBlogPosts } from "../../client/src/data/blog";
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
 
@@ -41,20 +42,10 @@ SITE CONTEXT:
 - Site was hit by Google penalty (thin/AI content) — NOW RECOVERING
 - Current domain: breakyoursolarcontract.com
 
-KNOWN PERFORMANCE DATA (from last GSC pull):
-TOP PAGES:
-  1. /blog/goodleap-cancel-solar-loan-2026 → 54 clicks, 4,618 impr, pos 8.2
-  2. /blog/sunrun-solar-contract-cancellation-2026 → 47 clicks, 8,473 impr, pos 9.0 ← BIGGEST OPPORTUNITY
-  3. /blog/how-to-get-out-of-solar-contract → 27 clicks, 3,114 impr, pos 19.7
-  4. /blog/new-jersey-solar-contract-cancellation → 19 clicks, 641 impr, pos 7.7
-  5. /blog/blue-raven-solar-complaints → 15 clicks, 857 impr, pos 8.9
-
-TOP 5 KEYWORD GAPS (high impressions, low rank, no dedicated article):
-  1. "cancel sunrun contract california" → 234 impr, pos 31.3 — NO ARTICLE EXISTS
-  2. "how to get out of sunrun contract" → 160 impr, pos 17.5
-  3. "sunrun cancellation" → 130 impr, pos 30.8
-  4. "cancel sunrun before installation" → 119 impr, pos 15.6
-  5. "solar cancellation california" → 91 impr, pos 31.5
+PERFORMANCE DATA:
+- Treat the CURRENT SEO STATE supplied with each run as the source of truth.
+- Do not quote, prioritize, or calculate against pre-written traffic figures.
+- If GSC freshness is missing or stale, create a measurement action rather than inventing a ranking conclusion.
 
 LEAD CONVERSION MATH:
 - Position 1–3: ~30% CTR → 1,000 impressions = 300 clicks
@@ -62,13 +53,6 @@ LEAD CONVERSION MATH:
 - Position 11–30: ~1–3% CTR → 1,000 impressions = 10–30 clicks
 - Site conversion rate: ~2% of visitors fill out form
 - Each lead worth: $150–$500 to us
-
-SUNRUN OPPORTUNITY CALCULATION:
-- "sunrun-solar-contract-cancellation-2026" has 8,473 impressions at pos 9.0
-- Moving from pos 9 to pos 3 = CTR from ~5% to ~30% = 6× more clicks
-- 8,473 × 25% more CTR = ~2,118 additional clicks/month
-- At 2% conversion = 42 more leads/month
-- At $200/lead = $8,400/month additional revenue from ONE page improvement
 
 CONTENT DIRECTIVES FORMAT:
 When sending directives to Content Agent, include:
@@ -171,7 +155,7 @@ OUTPUT FORMAT — respond ONLY with valid JSON:
   "title": "New SEO-optimized H1 title",
   "metaTitle": "Meta title (60 chars max)",
   "metaDescription": "Meta description (155 chars max)",
-  "content": "Full improved article in markdown format",
+  "content": "Full improved article in semantic HTML format",
   "excerpt": "2-3 sentence excerpt",
   "faqItems": [
     {"question": "Q1", "answer": "A1"},
@@ -179,6 +163,12 @@ OUTPUT FORMAT — respond ONLY with valid JSON:
     {"question": "Q3", "answer": "A3"}
   ]
 }`;
+
+function normalizeSeoDraftLanguage(value: string | undefined) {
+  return (value ?? "")
+    .replace(/\bfree legal review\b/gi, "free case review")
+    .replace(/\bfree legal guide(s)?\b/gi, "consumer protection guide$1");
+}
 
 // ─── Main Execution ───────────────────────────────────────────────────────────
 
@@ -190,7 +180,7 @@ export async function runSeoIntel(
 
   try {
     // 1. Gather state
-    const state = await gatherSeoState();
+    const seoState = await gatherSeoState();
 
     // 2. Check inbox
     const inbox = await getUnreadMessages("seo_intel");
@@ -207,7 +197,7 @@ export async function runSeoIntel(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `CURRENT SEO STATE:\n${state}${inboxSummary}\n\nAnalyze the SEO data. Calculate the revenue impact of each opportunity. Prioritize by money, not by vanity metrics. Send specific content directives to the Content Agent for the top 2–3 opportunities. Also identify 1-2 existing posts to optimize (optimizeExisting array).`,
+          content: `CURRENT SEO STATE:\n${seoState.content}${inboxSummary}\n\nAnalyze the SEO data. Calculate revenue impact only when CURRENT SEO STATE contains fresh measurements. Prioritize by money, not vanity metrics. Create content directives or optimize existing posts only when the measurement-integrity rules permit them.`,
         },
       ],
       context,
@@ -256,6 +246,21 @@ export async function runSeoIntel(
       parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
     } catch {
       parsed = { analysis: response };
+    }
+
+    // Prevent absent or stale Search Console data from becoming invented
+    // rankings, keyword gaps, revenue forecasts, or automatic rewrites.
+    if (!seoState.hasCurrentMeasurements) {
+      parsed.topOpportunities = [];
+      parsed.contentDirectives = [];
+      parsed.optimizeExisting = [];
+      parsed.actions = [{
+        priority: "p1",
+        title: "Refresh verified Google Search Console measurements",
+        description: "SEO Intel cannot make ranking-based recommendations because current page-level Search Console measurements are unavailable or stale. Run the authenticated GSC refresh and rerun this audit.",
+        actionType: "gsc_data_sync",
+      }];
+      parsed.analysis = "Current Search Console measurements are unavailable or stale. No ranking, traffic, revenue, or optimization claim was made; a data-refresh blocker was recorded instead.";
     }
 
     const db = await getDb();
@@ -309,7 +314,7 @@ export async function runSeoIntel(
       for (const opt of (parsed.optimizeExisting || []).slice(0, 2)) {
         try {
           // Fetch the existing post content
-          const [post] = await db.select({
+          const [dbPost] = await db.select({
             id: blogPosts.id,
             title: blogPosts.title,
             slug: blogPosts.slug,
@@ -319,6 +324,20 @@ export async function runSeoIntel(
           }).from(blogPosts)
             .where(eq(blogPosts.slug, opt.postSlug))
             .limit(1);
+
+          const staticPost = staticBlogPosts.find((candidate) => candidate.slug === opt.postSlug);
+          const post = dbPost ? {
+            ...dbPost,
+            sourceContent: dbPost.content || "",
+          } : staticPost ? {
+            id: null,
+            title: staticPost.title,
+            slug: staticPost.slug,
+            content: "",
+            metaTitle: staticPost.metaTitle,
+            metaDescription: staticPost.metaDescription,
+            sourceContent: JSON.stringify(staticPost.content),
+          } : null;
 
           if (!post) {
             console.log(`[SEO Intel] Post not found: ${opt.postSlug}`);
@@ -332,7 +351,7 @@ export async function runSeoIntel(
               { role: "system", content: SEO_OPTIMIZE_PROMPT },
               {
                 role: "user",
-                content: `TARGET KEYWORD: "${opt.keyword}"\n\nSEO IMPROVEMENTS NEEDED:\n${opt.seoImprovements || "Improve title, meta, add FAQ, strengthen CTAs"}\n\nCURRENT ARTICLE TITLE: ${post.title}\nCURRENT META TITLE: ${post.metaTitle || "none"}\nCURRENT META DESC: ${post.metaDescription || "none"}\n\nCURRENT CONTENT (first 3000 chars):\n${(post.content || "").substring(0, 3000)}\n\nOptimize this article for the target keyword. Keep the same topic but make it rank higher.`,
+                content: `TARGET KEYWORD: "${opt.keyword}"\n\nSEO IMPROVEMENTS NEEDED:\n${opt.seoImprovements || "Improve title, meta, add FAQ, strengthen CTAs"}\n\nCURRENT ARTICLE TITLE: ${post.title}\nCURRENT META TITLE: ${post.metaTitle || "none"}\nCURRENT META DESC: ${post.metaDescription || "none"}\n\nCURRENT CONTENT (first 6000 chars):\n${post.sourceContent.substring(0, 6000)}\n\nOptimize this article for the target keyword. Keep the same topic but make it rank higher. Return safe semantic HTML, not Markdown.`,
               },
             ],
             context,
@@ -361,6 +380,15 @@ export async function runSeoIntel(
             console.log(`[SEO Intel] No content generated for ${opt.postSlug}`);
             continue;
           }
+
+          optimized = {
+            ...optimized,
+            title: normalizeSeoDraftLanguage(optimized.title),
+            metaTitle: normalizeSeoDraftLanguage(optimized.metaTitle),
+            metaDescription: normalizeSeoDraftLanguage(optimized.metaDescription),
+            excerpt: normalizeSeoDraftLanguage(optimized.excerpt),
+            content: normalizeSeoDraftLanguage(optimized.content),
+          };
 
           // Save to BlogStudio drafts
           const draftName = `SEO Optimization — ${opt.keyword} — ${new Date().toLocaleDateString()}`;
@@ -447,9 +475,14 @@ export async function runSeoIntel(
 
 // ─── SEO State Gathering ──────────────────────────────────────────────────────
 
-async function gatherSeoState(): Promise<string> {
+async function gatherSeoState(): Promise<{ content: string; hasCurrentMeasurements: boolean }> {
   const db = await getDb();
-  if (!db) return "Database unavailable";
+  if (!db) {
+    return {
+      content: "Database unavailable. Do not make ranking, traffic, revenue, or optimization claims.",
+      hasCurrentMeasurements: false,
+    };
+  }
 
   // Tracked pages sorted by impressions
   const pages = await db.select().from(seoPages)
@@ -477,10 +510,18 @@ async function gatherSeoState(): Promise<string> {
     .orderBy(desc(contentPipeline.updatedAt))
     .limit(20);
 
-  // Changes with measured impact
-  const impactedChanges = changes.filter(c => c.impactMeasured === 1);
+  const currentMeasurementCutoff = Date.now() - 72 * 60 * 60 * 1000;
+  const hasCurrentMeasurements = pages.some((page) => {
+    const checkedAt = page.gscLastChecked?.getTime() ?? 0;
+    return checkedAt >= currentMeasurementCutoff && Number(page.gscImpressions ?? 0) > 0;
+  });
+  const measurementGuidance = hasCurrentMeasurements
+    ? "Fresh page-level Google Search Console measurements are available. Use only these supplied figures and exact published slugs."
+    : "No fresh page-level Google Search Console measurements are available. Do not make ranking, traffic, revenue, keyword-gap, or automatic optimization claims; request a verified GSC refresh instead.";
 
-  return `
+  return {
+    hasCurrentMeasurements,
+    content: `
 ═══ TRACKED PAGES (${pages.length}) ═══
 ${pages.slice(0, 15).map(p =>
   `  ${p.url}: pos ${p.gscAvgPosition ?? "?"} | ${p.gscImpressions ?? 0} impr | ${p.gscClicks ?? 0} clicks`
@@ -500,18 +541,12 @@ ${pipeline.slice(0, 10).map(p =>
   `  [${p.stage}] "${p.title}" | kw: ${p.targetKeyword || "none"} | requested by: ${p.requestedBy || "?"}`
 ).join("\n") || "  Empty pipeline"}
 
-═══ KNOWN KEYWORD GAPS (hardcoded from last GSC analysis) ═══
-  1. "cancel sunrun contract california" → 234 impr, pos 31.3 — NO ARTICLE
-  2. "how to get out of sunrun contract" → 160 impr, pos 17.5
-  3. "sunrun cancellation" → 130 impr, pos 30.8
-  4. "cancel sunrun before installation" → 119 impr, pos 15.6
-  5. "solar cancellation california" → 91 impr, pos 31.5
-  6. "goodleap solar loan cancellation" → 4,618 impr, pos 8.2 (optimize existing)
-  7. "sunrun solar contract cancellation" → 8,473 impr, pos 9.0 (BIGGEST OPPORTUNITY)
+═══ MEASUREMENT INTEGRITY ═══
+${measurementGuidance}
 
 ═══ CITY PAGES AVAILABLE FOR INTERNAL LINKING ═══
   /cancel-solar-contract/phoenix-az
-  /cancel-solar-contract/houston-tx
+  /blog/cancel-solar-contract-houston-tx
   /cancel-solar-contract/dallas-tx
   /cancel-solar-contract/los-angeles-ca
   /cancel-solar-contract/las-vegas-nv
@@ -519,5 +554,6 @@ ${pipeline.slice(0, 10).map(p =>
   /cancel-solar-contract/san-antonio-tx
   /cancel-solar-contract/jacksonville-fl
   /cancel-solar-contract/tampa-fl
-  /cancel-solar-contract/orlando-fl`;
+  /cancel-solar-contract/orlando-fl`,
+  };
 }

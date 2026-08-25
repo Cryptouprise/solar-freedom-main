@@ -122,6 +122,30 @@ export type SeoStrategy = typeof seoStrategy.$inferSelect;
 export type InsertSeoStrategy = typeof seoStrategy.$inferInsert;
 
 /**
+ * SEO scorecard snapshots — immutable operating snapshots captured by the
+ * scheduled scorecard. These power 7- and 14-day comparisons without
+ * overwriting the source metrics held on individual SEO pages.
+ */
+export const seoScorecardSnapshots = mysqlTable("seoScorecardSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  capturedAt: timestamp("capturedAt").defaultNow().notNull(),
+  periodStart: varchar("periodStart", { length: 10 }).notNull(),
+  periodEnd: varchar("periodEnd", { length: 10 }).notNull(),
+  pageRows: int("pageRows").default(0).notNull(),
+  clicks: int("clicks").default(0).notNull(),
+  impressions: int("impressions").default(0).notNull(),
+  durableLeads: int("durableLeads").default(0).notNull(),
+  crmDeliveries: int("crmDeliveries").default(0).notNull(),
+  bookedAppointments: int("bookedAppointments").default(0).notNull(),
+  verifiedBacklinks: int("verifiedBacklinks").default(0).notNull(),
+  geoReadiness: int("geoReadiness").default(0).notNull(),
+  alerts: text("alerts"),
+});
+
+export type SeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferSelect;
+export type InsertSeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferInsert;
+
+/**
  * SEO Pages table — inventory of every page on the site with its SEO status.
  * Tracks indexing status, canonical, schema coverage, internal links, and GSC data.
  * This is the single source of truth for what's on the site and how it's performing.
@@ -1273,6 +1297,9 @@ export type InsertLeadJourneyEvent = typeof leadJourneyEvents.$inferInsert;
 export const ghlPipelineEvents = mysqlTable("ghlPipelineEvents", {
   id: int("id").autoincrement().primaryKey(),
 
+  // GoHighLevel event or appointment identifier. Unique when supplied so webhook
+  // retries cannot inflate appointment, qualification, or won counts.
+  externalEventId: varchar("externalEventId", { length: 128 }).unique(),
   ghlContactId: varchar("ghlContactId", { length: 64 }).notNull(),
   ghlOpportunityId: varchar("ghlOpportunityId", { length: 64 }),
   pipelineId: varchar("pipelineId", { length: 64 }),
@@ -1449,8 +1476,56 @@ export type AgentGoalRetryConfig = typeof agentGoalRetryConfig.$inferSelect;
 export type InsertAgentGoalRetryConfig = typeof agentGoalRetryConfig.$inferInsert;
 
 /**
- * Durable Agent Chat Thread entries.
- * Keeps agent conversations, analyses, and execution receipts for 30 days.
+ * Manager-owned daily operating checklist for each agent. A checklist records
+ * what must be produced, why it matters to revenue, the measurable target,
+ * and the final execution state for a given business day.
+ */
+export const agentDailyChecklists = mysqlTable("agentDailyChecklists", {
+  id: int("id").autoincrement().primaryKey(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD in America/Denver
+  agentSlug: varchar("agentSlug", { length: 64 }).notNull(),
+  runId: int("runId"),
+  status: mysqlEnum("status", ["planned", "running", "passed", "rework", "blocked", "failed"]).default("planned").notNull(),
+  objective: varchar("objective", { length: 500 }).notNull(),
+  revenuePath: text("revenuePath"),
+  successCriteria: text("successCriteria").notNull(),
+  evidence: text("evidence"),
+  qaScore: int("qaScore"),
+  qaFeedback: text("qaFeedback"),
+  retryCount: int("retryCount").default(0).notNull(),
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AgentDailyChecklist = typeof agentDailyChecklists.$inferSelect;
+export type InsertAgentDailyChecklist = typeof agentDailyChecklists.$inferInsert;
+
+/**
+ * Deterministic manager QA verdict for an individual agent run. The dimensions
+ * JSON records the scorecard used for the accept/rework/block decision.
+ */
+export const agentQualityReviews = mysqlTable("agentQualityReviews", {
+  id: int("id").autoincrement().primaryKey(),
+  date: varchar("date", { length: 10 }).notNull(),
+  agentSlug: varchar("agentSlug", { length: 64 }).notNull(),
+  runId: int("runId").notNull(),
+  checklistId: int("checklistId"),
+  reviewerSlug: varchar("reviewerSlug", { length: 64 }).default("manager").notNull(),
+  verdict: mysqlEnum("verdict", ["passed", "rework", "blocked", "failed"]).notNull(),
+  qualityScore: int("qualityScore").notNull(),
+  dimensions: text("dimensions"),
+  feedback: text("feedback").notNull(),
+  retryNumber: int("retryNumber").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AgentQualityReview = typeof agentQualityReviews.$inferSelect;
+export type InsertAgentQualityReview = typeof agentQualityReviews.$inferInsert;
+
+/**
+ * Agent Chat Threads.
+ * Persists agent run summaries and messages for 30 days.
+ * Linked to agentRuns by runId.
  */
 export const agentChatThreads = mysqlTable("agentChatThreads", {
   id: int("id").autoincrement().primaryKey(),
@@ -1458,9 +1533,7 @@ export const agentChatThreads = mysqlTable("agentChatThreads", {
   runId: int("runId"),
   role: mysqlEnum("role", ["agent", "system", "user"]).default("agent").notNull(),
   message: text("message").notNull(),
-  messageType: mysqlEnum("messageType", ["analysis", "action", "result", "error", "directive", "summary"])
-    .default("analysis")
-    .notNull(),
+  messageType: mysqlEnum("messageType", ["analysis", "action", "result", "error", "directive", "summary"]).default("analysis").notNull(),
   metadata: text("metadata"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(),

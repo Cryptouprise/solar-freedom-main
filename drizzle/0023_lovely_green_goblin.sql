@@ -1,1 +1,0 @@
-ALTER TABLE `attorneyProspects` ADD `sourceUrl` varchar(1000);

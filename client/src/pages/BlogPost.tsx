@@ -3,6 +3,7 @@
 // Psychology: Loss aversion, social proof, urgency, authority signals throughout
 import { Link, useParams } from 'wouter';
 import { getBlogPost, getRelatedPosts, BlogSection } from '@/data/blog';
+import { isBlogIndexed } from '@/data/indexEligibility';
 import { trpc } from '@/lib/trpc';
 import TopicClusterWidget from '@/components/TopicClusterWidget';
 import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
@@ -16,6 +17,15 @@ import { SchemaInjector } from '@/components/SchemaInjector';
 import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { trackPhoneClick } from '@/lib/analytics';
 import { hasVerifiedQuoteEvidence, suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from '@shared/contentGovernance';
+
+const SITE_URL = 'https://breakyoursolarcontract.com';
+const ORGANIZATION_ENTITY = {
+  '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
+  name: 'Solar Freedom',
+  url: SITE_URL,
+  logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.ico` },
+} as const;
 
 function renderInlineContent(content?: string): ReactNode {
   if (!content) return null;
@@ -61,6 +71,128 @@ function renderInlineContent(content?: string): ReactNode {
   }
 
   return parts.length > 0 ? parts : content;
+}
+
+type FaqItem = { q: string; a: string };
+
+function normalizeSchemaDate(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+}
+
+function uniqueExternalUrls(values: string[]): string[] {
+  return Array.from(new Set(values.filter((value) => /^https?:\/\//i.test(value))));
+}
+
+function extractCitationsFromSections(sections: BlogSection[]): string[] {
+  const urls: string[] = [];
+  const markdownLink = /\[[^\]]+\]\((https?:\/\/[^)]+)\)/g;
+  for (const section of sections) {
+    const textValues = [section.content ?? '', ...(section.items ?? [])];
+    for (const value of textValues) {
+      markdownLink.lastIndex = 0;
+      let match: RegExpExecArray | null;
+      while ((match = markdownLink.exec(value)) !== null) urls.push(match[1]);
+    }
+  }
+  return uniqueExternalUrls(urls);
+}
+
+function extractCitationsFromHtml(html: string): string[] {
+  const urls: string[] = [];
+  const linkRegex = /href=["'](https?:\/\/[^"']+)["']/gi;
+  let match: RegExpExecArray | null;
+  while ((match = linkRegex.exec(html)) !== null) urls.push(match[1]);
+  return uniqueExternalUrls(urls);
+}
+
+function sourceLabel(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/$/, '');
+    return `${parsed.hostname.replace(/^www\./, '')}${path}`;
+  } catch {
+    return url;
+  }
+}
+
+function VisibleFaq({ items }: { items: FaqItem[] }) {
+  const governed = items
+    .map((item) => ({
+      q: suppressUnverifiedFirstPartyClaims(item.q).trim(),
+      a: suppressUnverifiedFirstPartyClaims(item.a).trim(),
+    }))
+    .filter((item) => item.q && item.a);
+
+  if (!governed.length) return null;
+
+  return (
+    <section className="faq-section mt-14 border-t border-white/10 pt-10" aria-labelledby="article-faq-heading">
+      <h2 id="article-faq-heading" className="font-black text-white mb-6 leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.7rem, 3vw, 2.3rem)' }}>
+        Frequently Asked Questions
+      </h2>
+      <div className="space-y-4">
+        {governed.map((item, index) => (
+          <details key={`${item.q}-${index}`} className="rounded-xl border border-white/10 bg-zinc-900/60 p-5" open={index === 0}>
+            <summary className="cursor-pointer text-white font-bold leading-snug">{item.q}</summary>
+            <p className="mt-3 text-zinc-300 leading-relaxed">{renderInlineContent(item.a)}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SourceList({ citations }: { citations: string[] }) {
+  if (!citations.length) return null;
+  return (
+    <section className="article-sources mt-14 border-t border-white/10 pt-10" aria-labelledby="article-sources-heading">
+      <h2 id="article-sources-heading" className="font-black text-white mb-3 leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.7rem, 3vw, 2.3rem)' }}>
+        Primary Sources and Official Procedures
+      </h2>
+      <p className="text-zinc-400 text-sm mb-5">Use the linked source pages to verify current procedures, contact details, and coverage before acting.</p>
+      <ul className="space-y-3">
+        {citations.map((url) => (
+          <li key={url} className="flex gap-3 text-sm">
+            <span className="text-amber-500" aria-hidden="true">→</span>
+            <a href={url} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline underline-offset-4 break-all">
+              {sourceLabel(url)}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function EditorialMethod() {
+  return (
+    <section className="px-6 py-12 border-t border-white/10">
+      <div className="max-w-4xl mx-auto">
+        <div className="rounded-xl border border-white/10 p-6 md:p-8" style={{ background: 'oklch(0.13 0.01 265)' }}>
+          <div className="flex items-start gap-5">
+            <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center shrink-0" aria-hidden="true">
+              <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+            </div>
+            <div>
+              <div className="text-zinc-500 text-xs font-mono uppercase tracking-wider mb-1">Editorial Method</div>
+              <h3 className="text-white font-bold text-lg mb-2">Solar Freedom Editorial Team</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed mb-3">
+                Solar Freedom publishes educational contract-navigation content. Articles are checked for source accuracy, clear separation between general information and individual advice, current official procedures, and unsupported outcome claims. We do not claim attorney review unless a named reviewer and review date are displayed. This article is not legal advice.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>Primary Sources</span>
+                <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>Document First</span>
+                <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>Fact Specific</span>
+                <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>No Guaranteed Outcome</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function renderSection(section: BlogSection, index: number) {
@@ -287,14 +419,16 @@ export default function BlogPost() {
   const staticPost = getBlogPost(slug);
   const related = getRelatedPosts(slug, 3);
 
-  // Only fetch from DB if static post not found
+  // A published database post deliberately overrides its static predecessor.
+  // This lets an approved Blog Studio edit replace a static indexed article
+  // without changing the public URL or publishing agent work automatically.
   const { data: dbPostRaw, isLoading: dbLoading } = trpc.content.getPost.useQuery(
     { slug },
-    { enabled: !staticPost && !!slug }
+    { enabled: !!slug }
   );
 
   const dbPost = dbPostRaw ? dbPostToBlogPost(dbPostRaw as Record<string, unknown>) : null;
-  const post = staticPost || dbPost;
+  const post = dbPost || staticPost;
 
   useSeoMeta({
     title: post ? `${post.metaTitle ?? post.title} | Solar Freedom` : 'Article Not Found | Solar Freedom',
@@ -302,6 +436,7 @@ export default function BlogPost() {
     canonical: (post as { canonicalUrl?: string | null } | undefined)?.canonicalUrl ?? `https://breakyoursolarcontract.com/blog/${slug}`,
     ogType: 'article',
     ogImage: post?.heroImage ?? undefined,
+    noindex: !isBlogIndexed(slug),
   });
 
   useEffect(() => {
@@ -335,7 +470,7 @@ export default function BlogPost() {
   }
 
   // ─── DB post render path (content stored as HTML) ────────────────────────────
-  if (!staticPost && dbPost) {
+  if (dbPost) {
     const rawFaqItems = (dbPostRaw as Record<string,unknown>)?.faqItems;
     const faq: { q: string; a: string }[] = Array.isArray(rawFaqItems)
       ? (rawFaqItems as Array<{question?: string; answer?: string; q?: string; a?: string}>).map(f => ({
@@ -346,7 +481,21 @@ export default function BlogPost() {
     const rawPublishedAt = (dbPostRaw as Record<string,unknown>)?.publishedAt;
     const publishDate = rawPublishedAt
       ? new Date(String(rawPublishedAt)).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-      : '2026';
+      : 'Date not available';
+    const dbHtmlContent = Array.isArray(dbPost.content)
+      ? (dbPost.content[0]?.content ?? '')
+      : String(dbPost.content ?? '');
+    const dbCitations = extractCitationsFromHtml(dbHtmlContent);
+    const dbPublishedAt = normalizeSchemaDate(
+      (dbPostRaw as Record<string, unknown>)?.publishedAt
+        ? String((dbPostRaw as Record<string, unknown>).publishedAt)
+        : undefined
+    );
+    const dbModifiedAt = normalizeSchemaDate(
+      (dbPostRaw as Record<string, unknown>)?.updatedAt
+        ? String((dbPostRaw as Record<string, unknown>).updatedAt)
+        : undefined
+    );
 
     const dbSchemas: object[] = [
       {
@@ -354,19 +503,24 @@ export default function BlogPost() {
         '@type': 'Article',
         headline: dbPost.title,
         description: suppressUnverifiedFirstPartyClaims(dbPost.metaDescription ?? dbPost.excerpt),
-        datePublished: (dbPostRaw as Record<string,unknown>)?.publishedAt ? String((dbPostRaw as Record<string,unknown>).publishedAt) : '2026-01-01',
-        dateModified: (dbPostRaw as Record<string,unknown>)?.updatedAt ? String((dbPostRaw as Record<string,unknown>).updatedAt) : '2026-01-01',
-        publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
-        mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${slug}` },
-        image: dbPost.heroImage ?? '',
+        datePublished: dbPublishedAt,
+        dateModified: dbModifiedAt ?? dbPublishedAt,
+        author: ORGANIZATION_ENTITY,
+        publisher: ORGANIZATION_ENTITY,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${slug}` },
+        url: `${SITE_URL}/blog/${slug}`,
+        image: dbPost.heroImage || undefined,
+        citation: dbCitations.length ? dbCitations : undefined,
+        inLanguage: 'en-US',
+        isAccessibleForFree: true,
       },
       {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
-          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://breakyoursolarcontract.com/blog' },
-          { '@type': 'ListItem', position: 3, name: dbPost.title, item: `https://breakyoursolarcontract.com/blog/${slug}` },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
+          { '@type': 'ListItem', position: 3, name: dbPost.title, item: `${SITE_URL}/blog/${slug}` },
         ],
       },
     ];
@@ -473,13 +627,16 @@ export default function BlogPost() {
               <DoIQualifyQuiz />
 
               {/* HTML content from database with inline CTA cadence */}
-              <div className="space-y-0">
+              <div className="article-content space-y-0">
                 {renderDbContentWithInlineCtas(
-                  Array.isArray(dbPost.content) ? (dbPost.content[0]?.content ?? '') : String(dbPost.content ?? ''),
+                  dbHtmlContent,
                   "Still Paying on a Solar Contract?",
                   "Request an individual review. Options depend on your agreement, facts, and jurisdiction."
                 )}
               </div>
+
+              <SourceList citations={dbCitations} />
+              <VisibleFaq items={faq} />
 
               {/* Final CTA */}
               <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
@@ -535,31 +692,7 @@ export default function BlogPost() {
           </div>
         </div>
 
-        {/* AUTHOR E-E-A-T BIO */}
-        <section className="px-6 py-12 border-t border-white/10">
-          <div className="max-w-4xl mx-auto">
-            <div className="rounded-xl border border-white/10 p-6 md:p-8" style={{ background: 'oklch(0.13 0.01 265)' }}>
-              <div className="flex items-start gap-5">
-                <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center shrink-0">
-                  <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                </div>
-                <div>
-                  <div className="text-zinc-500 text-xs font-mono uppercase tracking-wider mb-1">Reviewed By</div>
-                  <h3 className="text-white font-bold text-lg mb-2">Solar Freedom Legal Research Team</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed mb-3">
-                    Our content is researched and reviewed by consumer protection specialists with expertise in solar contract law, Truth in Lending Act (TILA) violations, FTC regulations, and state-level deceptive trade practices statutes. We analyze real court filings, AG enforcement actions, and CFPB complaints to ensure accuracy.
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>TILA &amp; RESPA</span>
-                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>FTC Holder Rule</span>
-                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>State DTPA</span>
-                    <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>CFPB Data</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <EditorialMethod />
 
         {/* TOPIC CLUSTER INTERNAL LINKS */}
         <section className="px-6 pb-0">
@@ -616,26 +749,33 @@ export default function BlogPost() {
 
   // ─── Static post render path (existing logic) ────────────────────────────────
 
-  // Build Article + BreadcrumbList + FAQPage schemas for schema stacking
+  // Build Article + BreadcrumbList + visible FAQ schema from the same content.
+  const staticCitations = extractCitationsFromSections(post.content);
+  const staticPublishedAt = normalizeSchemaDate(post.publishDate);
   const schemas: object[] = [
     {
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: post.title,
       description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
-      datePublished: post.publishDate ?? '2026-01-01',
-      dateModified: post.publishDate ?? '2026-01-01',
-      publisher: { '@type': 'Organization', name: 'Solar Freedom', logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' } },
-      mainEntityOfPage: { '@type': 'WebPage', '@id': `https://breakyoursolarcontract.com/blog/${params.slug}` },
-      image: post.heroImage ?? '',
+      datePublished: staticPublishedAt,
+      dateModified: staticPublishedAt,
+      author: ORGANIZATION_ENTITY,
+      publisher: ORGANIZATION_ENTITY,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${params.slug}` },
+      url: `${SITE_URL}/blog/${params.slug}`,
+      image: post.heroImage || undefined,
+      citation: staticCitations.length ? staticCitations : undefined,
+      inLanguage: 'en-US',
+      isAccessibleForFree: true,
     },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://breakyoursolarcontract.com' },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://breakyoursolarcontract.com/blog' },
-        { '@type': 'ListItem', position: 3, name: post.title, item: `https://breakyoursolarcontract.com/blog/${params.slug}` },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
+        { '@type': 'ListItem', position: 3, name: post.title, item: `${SITE_URL}/blog/${params.slug}` },
       ],
     },
   ];
@@ -652,37 +792,8 @@ export default function BlogPost() {
       })),
     });
 
-    // Add Speakable schema for AEO — point to FAQ Q&A for voice/AI answer engines
-    schemas.push({
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      speakable: {
-        '@type': 'SpeakableSpecification',
-        cssSelector: ['article h2', 'article h3', '.faq-section'],
-        xpath: [
-          "/html/head/title",
-          "/html/head/meta[@name='description']/@content",
-        ],
-      },
-      url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
-    });
   }
 
-  // Add VideoObject schema placeholder — future YouTube embeds will populate this
-  schemas.push({
-    '@context': 'https://schema.org',
-    '@type': 'VideoObject',
-    name: `${post.title} — Solar Freedom Video`,
-    description: suppressUnverifiedFirstPartyClaims(post.metaDescription ?? post.excerpt),
-    thumbnailUrl: post.heroImage ?? 'https://breakyoursolarcontract.com/favicon.ico',
-    uploadDate: post.publishDate ?? '2026-01-01',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Solar Freedom',
-      logo: { '@type': 'ImageObject', url: 'https://breakyoursolarcontract.com/favicon.ico' },
-    },
-    url: `https://breakyoursolarcontract.com/blog/${params.slug}`,
-  });
 
   // Insert exactly ONE inline CTA at the midpoint of the article
   const sectionsWithCTAs: ReactElement[] = [];
@@ -782,9 +893,12 @@ export default function BlogPost() {
           <DoIQualifyQuiz />
 
           {/* Article content */}
-          <div className="prose-invert max-w-none">
+          <div className="article-content prose-invert max-w-none">
             {sectionsWithCTAs}
           </div>
+
+          <SourceList citations={staticCitations} />
+          <VisibleFaq items={post.faq ?? []} />
 
           {/* Final CTA */}
           <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
@@ -841,31 +955,7 @@ export default function BlogPost() {
         </div>
       </div>
 
-      {/* AUTHOR E-E-A-T BIO */}
-      <section className="px-6 py-12 border-t border-white/10">
-        <div className="max-w-4xl mx-auto">
-          <div className="rounded-xl border border-white/10 p-6 md:p-8" style={{ background: 'oklch(0.13 0.01 265)' }}>
-            <div className="flex items-start gap-5">
-              <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center shrink-0">
-                <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-              </div>
-              <div>
-                <div className="text-zinc-500 text-xs font-mono uppercase tracking-wider mb-1">Reviewed By</div>
-                <h3 className="text-white font-bold text-lg mb-2">Solar Freedom Legal Research Team</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed mb-3">
-                  Our content is researched and reviewed by consumer protection specialists with expertise in solar contract law, Truth in Lending Act (TILA) violations, FTC regulations, and state-level deceptive trade practices statutes. We analyze real court filings, AG enforcement actions, and CFPB complaints to ensure accuracy.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>TILA &amp; RESPA</span>
-                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>FTC Holder Rule</span>
-                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>State DTPA</span>
-                  <span className="px-2.5 py-1 rounded text-xs font-medium text-amber-400 border border-amber-500/30" style={{ background: 'oklch(0.72 0.19 50 / 8%)' }}>CFPB Data</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <EditorialMethod />
 
       {/* TOPIC CLUSTER INTERNAL LINKS */}
       <section className="px-6 pb-0">

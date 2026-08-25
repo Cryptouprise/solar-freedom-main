@@ -35,6 +35,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DIST = path.resolve(ROOT, "dist", "public");
 const BASE_URL = "https://breakyoursolarcontract.com";
+const indexEligibility = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/index-eligibility.json"), "utf-8")
+);
+const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
+const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
+const INDEXED_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
+const INDEXED_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
+const redirectLedger = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/seo-redirects.json"), "utf-8")
+);
+const REDIRECT_SOURCE_PATHS = new Set([
+  ...Object.keys(redirectLedger.public),
+  ...Object.keys(redirectLedger.blog),
+]);
+const HOME_FAQS = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/home-faq.json"), "utf-8")
+);
 
 // ─── Load city/company/state data ────────────────────────────────────────────
 async function loadData() {
@@ -363,6 +380,17 @@ function parseFaqItems(chunk) {
   return items;
 }
 
+function parseExternalCitations(chunk) {
+  const urls = [];
+  const markdownLink = /\[[^\]]+\]\((https?:\/\/[^)]+)\)/g;
+  let match;
+  while ((match = markdownLink.exec(chunk)) !== null) urls.push(match[1]);
+
+  const htmlLink = /href=["'](https?:\/\/[^"']+)["']/gi;
+  while ((match = htmlLink.exec(chunk)) !== null) urls.push(match[1]);
+  return Array.from(new Set(urls));
+}
+
 const MONTH_INDEX = {
   january: "01", february: "02", march: "03", april: "04",
   may: "05", june: "06", july: "07", august: "08",
@@ -487,6 +515,7 @@ function loadBlogData() {
         category: findStringProp(chunk, "category")?.value || "Solar contract guide",
         datePublished: toIsoDate(publishDate),
         dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
+        citations: parseExternalCitations(chunk),
       };
     }
   }
@@ -507,16 +536,6 @@ function loadBlogData() {
   return blogEntries;
 }
 
-// ─── Indexed city whitelist (must match client/src/data/indexed-cities.ts) ────
-const INDEXED_CITY_SLUGS = new Set([
-  "hartford-ct", "phoenix-az", "cincinnati-oh", "north-las-vegas-nv",
-  "houston-tx", "greenville-sc", "denver-co", "san-antonio-tx",
-  "little-rock-ar", "las-vegas-nv", "youngstown-oh", "west-valley-city-ut",
-  "shreveport-la", "santa-ana-ca", "new-haven-ct", "los-angeles-ca",
-  "dallas-tx", "san-diego-ca", "austin-tx", "murfreesboro-tn",
-  "miami-fl", "nashville-tn", "san-francisco-ca", "san-jose-ca", "savannah-ga",
-]);
-
 // ─── City-specific meta overrides for high-opportunity pages ─────────────────
 // ─── Build meta map ───────────────────────────────────────────────────────────
 function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
@@ -524,10 +543,11 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
 
   // Homepage
   map["/"] = {
-    title: "Cancel Your Solar Contract | Solar Freedom",
+    title: "Solar Contract Review and Document Help | Solar Freedom",
     description:
-      "Trapped in a solar contract? Solar Freedom helps homeowners review their options, understand their rights, and connect with consumer protection attorneys. Free case review.",
+      "Organize your solar agreement, financing records, notices, bills, production data, service history, company status, and home-sale requirements for individual review.",
     canonical: `${BASE_URL}/`,
+    faq: HOME_FAQS,
   };
 
   // City pages — 303 pages
@@ -563,6 +583,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
       description: `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`,
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_COMPANY_SLUGS.has(company.slug),
       // Rich fields for unique prerender content
       companyData: {
         status: company.status,
@@ -588,6 +609,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title,
       description,
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_STATE_SLUGS.has(state.slug),
       geo: { region: state.state },
       stateData: {
         state: state.state,
@@ -610,9 +632,11 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: data.title,
       description: suppressUnverifiedFirstPartyClaims(data.description),
       canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_BLOG_SLUGS.has(slug),
       faq: data.faq?.map(item => ({ ...item, a: suppressUnverifiedFirstPartyClaims(item.a) })),
       datePublished: data.datePublished,
       dateModified: data.dateModified,
+      citations: data.citations,
       contentSections: data.contentSections,
       excerpt: suppressUnverifiedFirstPartyClaims(data.excerpt),
       category: data.category,
@@ -647,11 +671,6 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       desc: "Compare complaints and cancellation options for Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and more.",
     },
     {
-      path: "/sunrun",
-      title: "Sunrun Solar Contract Cancellation | Solar Freedom",
-      desc: "Review Sunrun contract terms, escalator provisions, complaint resources, and records to gather before requesting an individual case review.",
-    },
-    {
       path: "/solar-lien-removal",
       title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom",
       desc: "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
@@ -677,14 +696,10 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       desc: "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
     },
     {
-      path: "/media",
-      title: "Solar Contract Truth Hub \u2014 Watch & Listen | Solar Freedom",
-      desc: "Watch solar contract videos and the Elite Solar Recovery Podcast. Real Sunrun, SunPower, GoodLeap, and Pink Energy cases. Free case audit.",
-    },
-    {
       path: "/sitemap",
-      title: "Site Map — All Pages | Break Your Solar Contract",
-      desc: "Complete directory of all pages on breakyoursolarcontract.com — 300 city pages, 13 company pages, 51 state law pages, and 95+ blog articles about solar contract cancellation.",
+      title: "Site Directory | Solar Freedom",
+      desc: "Browse Solar Freedom resources by topic, solar company, and location.",
+      noindex: true,
     },
   ];
   for (const p of staticPages) {
@@ -692,6 +707,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: p.title,
       description: p.desc,
       canonical: `${BASE_URL}${p.path}`,
+      noindex: p.noindex,
     };
   }
 
@@ -774,54 +790,67 @@ function classifyPath(urlPath) {
 
 function buildInternalLinks(urlPath) {
   const defaultLinks = [
-    ["/", "Solar Freedom home"],
-    ["/blog", "Solar contract help blog"],
-    ["/solar-contract-laws", "Solar contract laws by state"],
-    ["/solar-lien-removal", "Solar lien removal"],
-    ["/solar-loan-help", "Solar loan help"],
-    ["/selling-house-with-solar", "Selling a home with solar"],
-    ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
-    ["/cancel-sunnova-solar-contract", "Cancel Sunnova solar contract"],
-    ["/cancel-goodleap-solar-contract", "GoodLeap solar loan help"],
-    ["/blog/solar-contract-red-flags", "Solar contract red flags"],
-    ["/blog/solar-fraud-warning-signs", "Solar fraud warning signs"],
-    [
-      "/blog/how-to-get-out-of-a-solar-contract",
-      "How to get out of a solar contract",
-    ],
+    ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
+    ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
+    ["/blog/goodleap-solar-loan-cancellation-hidden-fees-2026", "GoodLeap loan payoff and cancellation guide"],
+    ["/blog/blue-raven-solar-complaints", "Blue Raven Solar status and support"],
+    ["/blog/adt-solar-complaints", "ADT Solar shutdown and support"],
+    ["/blog/new-jersey-solar-contract-rights", "New Jersey solar contract rights"],
+    ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
+    ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
   ];
 
   const contextualLinks = {
+    "/blog/how-to-get-out-of-a-solar-contract": [
+      ["/blog/solar-contract-rescission-rights", "Check solar contract rescission terms"],
+      ["/solar-loan-help", "Review a solar loan"],
+      ["/selling-house-with-solar", "Selling a home with solar"],
+    ],
     "/blog/sunrun-solar-contract-cancellation-2026": [
       ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
       ["/blog/sunrun-complaints-california", "Sunrun complaints in California"],
       ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
-      ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
+    ],
+    "/blog/goodleap-solar-loan-cancellation-hidden-fees-2026": [
+      ["/solar-loan-help", "Solar loan document review"],
+      ["/blog/solar-payments-too-high-help", "What to review when solar payments are too high"],
+      ["/selling-house-with-solar", "Selling a home with a solar loan"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "Solar loan complaint options"],
+    ],
+    "/blog/blue-raven-solar-complaints": [
+      ["/blog/solar-installer-out-of-business", "When a solar installer changes or closes"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
+      ["/blog/how-to-get-out-of-a-solar-contract", "Review solar contract exit options"],
+    ],
+    "/blog/adt-solar-complaints": [
+      ["/blog/solar-installer-out-of-business", "When a solar installer exits the market"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
+      ["/blog/how-to-get-out-of-a-solar-contract", "Review solar contract exit options"],
     ],
     "/blog/solar-contract-rescission-rights": [
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
       ["/blog/new-jersey-solar-contract-rights", "New Jersey solar contract rights"],
-      ["/blog/cancel-solar-contract-rescission-rights", "Cancel solar contract rescission"],
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
+      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
+      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
     ],
     "/blog/new-jersey-solar-contract-rights": [
       ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company AG complaint"],
+      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
       ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
       ["/solar-contract-laws", "Solar contract laws by state"],
     ],
     "/blog/how-to-file-a-complaint-against-solar-company-attorney-general": [
       ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
+      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
+      ["/blog/goodleap-solar-loan-cancellation-hidden-fees-2026", "GoodLeap loan complaint and payoff guide"],
       ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-      ["/blog/solar-fraud-warning-signs", "Solar fraud warning signs"],
     ],
     "/blog/sunrun-complaints-california": [
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun solar contract cancellation"],
+      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
       ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
       ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/cancel-sunrun-solar-contract", "Cancel Sunrun solar contract"],
+      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
     ],
   };
 
@@ -833,6 +862,7 @@ function buildInternalLinks(urlPath) {
 
   return links
     .filter(([href]) => href !== urlPath)
+    .filter(([href]) => !REDIRECT_SOURCE_PATHS.has(href))
     .filter(([href]) => {
       if (seen.has(href)) return false;
       seen.add(href);
@@ -847,6 +877,8 @@ function buildInternalLinks(urlPath) {
 
 function buildSchemaBlocks(meta, urlPath, pageType) {
   const pageName = stripBrand(meta.title);
+  const organizationId = `${BASE_URL}/#organization`;
+  const websiteId = `${BASE_URL}/#website`;
   const blocks = [
     {
       "@context": "https://schema.org",
@@ -857,15 +889,12 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
       description: meta.description,
       isPartOf: {
         "@type": "WebSite",
+        "@id": websiteId,
         name: "Solar Freedom",
         url: BASE_URL,
+        publisher: { "@id": organizationId },
       },
-      about: [
-        "solar contract cancellation",
-        "solar lease problems",
-        "solar loan disputes",
-        "consumer protection law",
-      ],
+      inLanguage: "en-US",
     },
     {
       "@context": "https://schema.org",
@@ -897,18 +926,68 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
     },
   ];
 
+  if (urlPath === "/") {
+    blocks.push(
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": organizationId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+        logo: { "@type": "ImageObject", url: `${BASE_URL}/favicon.ico` },
+        description: "Solar Freedom publishes educational solar-contract guides and provides intake for fact-specific document reviews.",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+        publisher: { "@id": organizationId },
+        inLanguage: "en-US",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "@id": `${BASE_URL}/#contract-review-service`,
+        name: "Solar Contract Document Review",
+        provider: { "@id": organizationId },
+        description: "Fact-specific intake and document review for solar agreements, financing records, notices, bills, production records, service history, and home-sale requirements.",
+        serviceType: "Solar contract document review",
+        areaServed: { "@type": "Country", name: "United States" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          description: "Initial intake review offered at no charge",
+        },
+      }
+    );
+  }
+
   if (pageType === "blog_post") {
     const article = {
       "@context": "https://schema.org",
       "@type": "Article",
       headline: pageName,
       description: meta.description,
-      mainEntityOfPage: meta.canonical,
-      publisher: {
+      mainEntityOfPage: { "@type": "WebPage", "@id": `${meta.canonical}#webpage` },
+      url: meta.canonical,
+      author: {
         "@type": "Organization",
+        "@id": organizationId,
         name: "Solar Freedom",
         url: BASE_URL,
       },
+      publisher: {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+      },
+      citation: Array.isArray(meta.citations) && meta.citations.length ? meta.citations : undefined,
+      inLanguage: "en-US",
+      isAccessibleForFree: true,
     };
     if (meta.datePublished) article.datePublished = meta.datePublished;
     if (meta.dateModified) article.dateModified = meta.dateModified;
@@ -940,17 +1019,40 @@ function buildCityUniqueContent(meta, urlPath) {
   if (!cd) return '';
   const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';
   const stateName = cd.state || cd.stateCode || 'your state';
+  const population = cd.population ? `${cd.population} residents` : 'a local homeowner population';
+  const solarActivity = cd.solarActivity || 'active';
+  const stateLaw = cd.stateLaw ? escapeHtml(cd.stateLaw) : '';
   const companies = (cd.companies || [])
     .map(company => `<li>${escapeHtml(company)}</li>`)
     .join('');
 
   return `
-      <h2>Page location</h2>
+      <h2>Solar contract questions in ${escapeHtml(cityName)}</h2>
+      <p>${escapeHtml(cityName)} is a ${escapeHtml(solarActivity.toLowerCase())} solar market in ${escapeHtml(stateName)}, with an estimated ${escapeHtml(population)}. If a solar agreement, production promise, billing issue, or transfer requirement is causing concern, start with the signed documents and the facts specific to the installation rather than relying on a general online answer.</p>
+      <p>Solar Freedom’s ${escapeHtml(cityName)} resource is designed to help homeowners organize the information that may matter in a contract review. It does not determine whether a company, lender, salesperson, or agreement violated any law, and it does not replace advice from a qualified professional.</p>
+
+      <h2>What to gather before requesting help</h2>
+      <ul>
+        <li>The signed contract, financing agreement, lease, PPA, and all addenda or change orders.</li>
+        <li>Sales proposals, promised-production estimates, utility bills, monitoring records, and any relevant inspection or permit documents.</li>
+        <li>Emails, text messages, advertisements, and notes describing what was represented before the agreement was signed.</li>
+        <li>Any correspondence about cancellation, system performance, billing, repair, a lien, a home sale, or a proposed transfer.</li>
+      </ul>
+
+      <h2>${escapeHtml(stateName)} consumer-law reference</h2>
+      ${stateLaw ? `<p>The state-law reference associated with this location is <strong>${stateLaw}</strong>. Whether a statute applies, whether a deadline exists, and what options may be available depend on the actual agreement and facts. Review the official statutory text and seek appropriate professional guidance before acting.</p>` : `<p>Consumer-protection rules and contract remedies vary by state and by the facts of the transaction. Review the dedicated ${escapeHtml(stateName)} law resource for a starting point.</p>`}
+
+      <h2>Companies researched in this location</h2>
+      <p>The following names are included in Solar Freedom’s research library for ${escapeHtml(cityName)}. Their appearance here is not a statement that they currently operate in the city or that any individual has a claim against them.</p>
       <dl>
         <dt>City</dt><dd>${escapeHtml(cityName)}</dd>
         <dt>State</dt><dd>${escapeHtml(stateName)}</dd>
+        <dt>Market activity</dt><dd>${escapeHtml(solarActivity)}</dd>
       </dl>
-      ${companies ? `<h2>Companies listed for this location</h2><ul>${companies}</ul>` : ''}`;
+      ${companies ? `<ul>${companies}</ul>` : ''}
+
+      <h2>Practical next step</h2>
+      <p>Keep a written timeline of the sale, installation, billing, and service events. A fact-specific review can help identify which questions to raise, what documents are missing, and whether a local or state-level resource may be relevant.</p>`;
 }
 
 function buildCompanyUniqueContent(meta) {
@@ -1034,16 +1136,28 @@ function buildStateUniqueContent(meta) {
     ${faq ? `<section><h2>${escapeHtml(state.state)} solar contract FAQ</h2>${faq}</section>` : ""}`;
 }
 
+function buildHomeUniqueContent() {
+  const faq = HOME_FAQS
+    .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+    .join("");
+  return `<section class="faq-section"><h2>Common solar contract questions</h2>${faq}</section>`;
+}
+
 function buildBlogUniqueContent(meta) {
   const sections = renderContentSections(meta.contentSections);
   const faq = (meta.faq || [])
     .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`)
     .join("");
+  const sources = (meta.citations || [])
+    .map(url => `<li><a href="${escapeHtml(url)}" rel="noopener noreferrer">${escapeHtml(url)}</a></li>`)
+    .join("");
   return `
     ${meta.category ? `<p>${escapeHtml(meta.category)}</p>` : ""}
     ${meta.excerpt ? `<p>${escapeHtml(meta.excerpt)}</p>` : ""}
     ${sections}
-    ${faq ? `<section><h2>Frequently asked questions</h2>${faq}</section>` : ""}`;
+    ${sources ? `<section class="article-sources"><h2>Primary sources and official procedures</h2><ul>${sources}</ul></section>` : ""}
+    ${faq ? `<section class="faq-section"><h2>Frequently asked questions</h2>${faq}</section>` : ""}
+    <section class="editorial-method"><h2>Editorial method</h2><p>Solar Freedom publishes educational contract-navigation content. Articles are checked for source accuracy, clear separation between general information and individual advice, current official procedures, and unsupported outcome claims. We do not claim attorney review unless a named reviewer and review date are displayed. This article is not legal advice.</p></section>`;
 }
 
 function buildSemanticShellContent(meta, urlPath) {
@@ -1058,7 +1172,9 @@ function buildSemanticShellContent(meta, urlPath) {
 
   // Build page-type-specific unique body content
   let uniqueBody = '';
-  if (pageType === 'city_page') {
+  if (urlPath === '/') {
+    uniqueBody = buildHomeUniqueContent();
+  } else if (pageType === 'city_page') {
     uniqueBody = buildCityUniqueContent(meta, urlPath);
   } else if (pageType === 'company_page') {
     uniqueBody = buildCompanyUniqueContent(meta, urlPath);
@@ -1126,6 +1242,7 @@ function buildShellHtml(meta, jsFile, cssFile, urlPath) {
 // Keep injectMeta for homepage (which already exists as index.html and needs full content)
 function injectMeta(html, meta) {
   const $ = cheerio.load(html, { decodeEntities: false });
+  const schemaBlocks = buildSchemaBlocks(meta, "/", classifyPath("/"));
   $("title").text(meta.title);
   $('meta[name="description"]').attr("content", meta.description);
   $('link[rel="canonical"]').remove();
@@ -1135,6 +1252,8 @@ function injectMeta(html, meta) {
   $('meta[property="og:url"]').attr("content", meta.canonical);
   $('meta[name="twitter:title"]').attr("content", meta.title);
   $('meta[name="twitter:description"]').attr("content", meta.description);
+  $('script[type="application/ld+json"]').remove();
+  $("head").append(`<script type="application/ld+json">${schemaBlocks}</script>`);
   $("#root").replaceWith(buildSemanticShellContent(meta, "/"));
   return $.html();
 }

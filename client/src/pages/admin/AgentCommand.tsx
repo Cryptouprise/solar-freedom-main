@@ -4,7 +4,7 @@
  * Dark theme, gold accents, Owner/Team mode toggle.
  */
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
 import AdminLayout from "@/components/AdminLayout";
@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { fullCycleRunError } from "./agentCommandState";
 
 // ─── Agent Metadata ───────────────────────────────────────────────────────────
 
@@ -89,6 +90,7 @@ function StatusBadge({ status }: { status: string }) {
     failed: { color: "text-red-400", icon: XCircle },
     approved: { color: "text-green-400", icon: CheckCircle2 },
     rejected: { color: "text-red-400", icon: XCircle },
+    blocked: { color: "text-amber-400", icon: AlertTriangle },
   };
   const c = config[status] || config.idle;
   const Icon = c.icon;
@@ -104,23 +106,27 @@ function StatusBadge({ status }: { status: string }) {
 
 function OwnerView() {
   const { data: overview, isLoading, refetch } = trpc.agents.overview.useQuery();
+  const { data: dailyQuality, refetch: refetchDailyQuality } = trpc.agents.dailyQuality.useQuery();
   const triggerAll = trpc.agents.triggerAll.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => { refetch(); refetchDailyQuality(); },
   });
-  const [runProgress, setRunProgress] = useState<Record<string, "pending" | "running" | "done" | "error">>({});
+  const reconcileSchedule = trpc.agents.reconcileDailySchedule.useMutation({
+    onSuccess: () => {
+      refetchDailyQuality();
+      window.alert("Daily Manager schedule reconciled. The system will start at 8:00 AM America/Denver and only the Manager has a timer.");
+    },
+    onError: error => window.alert(`Schedule update failed: ${error.message}`),
+  });
+  const [runError, setRunError] = useState<string | null>(null);
 
   const handleRunAll = async () => {
-    const slugs = ["manager", "revenue_intel", "seo_intel", "content", "editor", "money_maker", "infra"];
-    const initial: Record<string, "pending"> = {};
-    slugs.forEach(s => { initial[s] = "pending"; });
-    setRunProgress(initial);
-    // Fire triggerAll and show progress
-    for (const slug of slugs) {
-      setRunProgress(prev => ({ ...prev, [slug]: "running" }));
-      await new Promise(r => setTimeout(r, 800));
-      setRunProgress(prev => ({ ...prev, [slug]: "done" }));
+    setRunError(null);
+    try {
+      await triggerAll.mutateAsync();
+      await refetch();
+    } catch (error) {
+      setRunError(fullCycleRunError(error));
     }
-    triggerAll.mutate();
   };
 
   if (isLoading) {
@@ -134,6 +140,9 @@ function OwnerView() {
   const agents = overview?.agents || [];
   const recentRuns = overview?.recentRuns || [];
   const actions = overview?.recentActions || [];
+  const scheduleHealth = overview?.scheduleHealth || [];
+  const seoMeasurementHealth = overview?.seoMeasurementHealth;
+  const scorecardAlerts = actions.filter((action: any) => String(action.title || "").startsWith("[SCORECARD"));
 
   return (
     <div className="space-y-6">
@@ -164,10 +173,10 @@ function OwnerView() {
         <div className="flex items-center gap-3">
           <Button
             onClick={handleRunAll}
-            disabled={triggerAll.isPending || Object.values(runProgress).some(s => s === "running")}
+            disabled={triggerAll.isPending}
             className="bg-amber-500 hover:bg-amber-600 text-black font-bold"
           >
-            {triggerAll.isPending || Object.values(runProgress).some(s => s === "running") ? (
+            {triggerAll.isPending ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Running All Agents...</>
             ) : (
               <><Zap className="w-4 h-4 mr-2" /> Run Full System Cycle</>
@@ -176,32 +185,104 @@ function OwnerView() {
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="w-4 h-4 mr-1" /> Refresh
           </Button>
+          <Button variant="outline" size="sm" onClick={() => reconcileSchedule.mutate()} disabled={reconcileSchedule.isPending} className="border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10">
+            {reconcileSchedule.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Clock className="w-4 h-4 mr-1" />}8 AM MT Schedule
+          </Button>
         </div>
-        {/* Per-agent progress panel */}
-        {Object.keys(runProgress).length > 0 && (
-          <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-black/30 border border-white/10">
-            {Object.entries(runProgress).map(([slug, status]) => {
-              const meta = AGENT_META[slug];
-              const Icon = meta?.icon || Activity;
-              return (
-                <div key={slug} className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border",
-                  status === "done" && "bg-green-500/10 border-green-500/30 text-green-400",
-                  status === "running" && "bg-amber-500/10 border-amber-500/30 text-amber-400",
-                  status === "pending" && "bg-white/5 border-white/10 text-gray-500",
-                  status === "error" && "bg-red-500/10 border-red-500/30 text-red-400",
-                )}>
-                  {status === "running" ? <Loader2 className="w-3 h-3 animate-spin" /> :
-                   status === "done" ? <CheckCircle2 className="w-3 h-3" /> :
-                   status === "error" ? <XCircle className="w-3 h-3" /> :
-                   <Clock className="w-3 h-3" />}
-                  {meta?.name || slug}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {runError ? <p className="text-sm text-red-400" role="alert">{runError}</p> : null}
       </div>
+
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-cyan-400" /> SCHEDULER TRUTH
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          {scheduleHealth.map((schedule: any) => {
+            const meta = AGENT_META[schedule.slug] || AGENT_META.manager;
+            const isAwaitingFirstRun = schedule.state === "awaiting_first_run";
+            const isMigrated = ["paused", "migrated"].includes(schedule.state);
+            const issue = ["missing", "stale"].includes(schedule.state);
+            return (
+              <div key={schedule.slug} className="rounded-lg bg-black/20 border border-white/10 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-mono text-gray-200">{meta.name}</span>
+                  <StatusBadge status={issue ? "error" : isMigrated ? "paused" : isAwaitingFirstRun ? "queued" : "completed"} />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  {schedule.state === "migrated" ? "migrated to automatic expert review" : isMigrated ? "short callback paused; expert review replacement pending" : isAwaitingFirstRun ? "awaiting first run" : issue ? schedule.state.replaceAll("_", " ") : "scheduled"}
+                </p>
+                <p className="mt-1 text-[11px] text-gray-600">
+                  {isAwaitingFirstRun
+                    ? `Next scheduler event: ${schedule.nextScheduledExecutionAt ? new Date(schedule.nextScheduledExecutionAt).toLocaleString() : "pending"}`
+                    : `Last scheduler event: ${schedule.lastScheduledExecutionAt ? new Date(schedule.lastScheduledExecutionAt).toLocaleString() : "never"}`}
+                </p>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      {seoMeasurementHealth ? (
+        <div className={cn(
+          "rounded-lg border px-4 py-3 text-sm",
+          seoMeasurementHealth.state === "current"
+            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+            : "border-red-500/30 bg-red-500/10 text-red-300",
+        )}>
+          <strong>SEO measurement:</strong> {seoMeasurementHealth.state}. {seoMeasurementHealth.trackedPageCount} tracked pages with GSC data. Last checked: {seoMeasurementHealth.lastCheckedAt ? new Date(seoMeasurementHealth.lastCheckedAt).toLocaleString() : "never"}.
+        </div>
+      ) : null}
+
+      {scorecardAlerts.length > 0 ? (
+        <Card className="border-red-500/40 bg-red-500/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-mono text-red-200 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-400" /> SCORECARD ALERTS
+            </CardTitle>
+            <p className="text-xs text-red-200/80">Material GSC, durable-lead, or CRM-delivery changes from the scheduled scorecard. Each alert also remains in the action queue for accountable follow-up.</p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {scorecardAlerts.map((alert: any) => (
+              <div key={alert.id} className="rounded-md border border-red-400/20 bg-black/20 px-3 py-2">
+                <p className="text-xs font-mono text-red-100">{alert.title}</p>
+                <p className="mt-1 text-xs text-red-100/80">{alert.description}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {/* Manager quality matrix */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <Shield className="w-4 h-4 text-cyan-400" /> MANAGER DAILY QUALITY MATRIX
+          </CardTitle>
+          <p className="text-xs text-gray-500">Every worker must produce evidence against a daily checklist. The Manager passes, requests one rework, blocks external dependencies, or records failure.</p>
+        </CardHeader>
+        <CardContent>
+          {dailyQuality?.checklists?.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {dailyQuality.checklists.map((checklist: any) => (
+                <div key={checklist.id} className="rounded-lg border border-white/8 bg-black/20 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-white">{AGENT_META[checklist.agentSlug]?.name || checklist.agentSlug}</span>
+                    <StatusBadge status={checklist.status} />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2 leading-relaxed">{checklist.objective}</p>
+                  <p className="text-[10px] text-gray-600 mt-2">Success: {checklist.successCriteria}</p>
+                  {checklist.qaScore != null && <p className="text-xs text-cyan-300 mt-2">QA score: {checklist.qaScore}/100 · {checklist.retryCount || 0} rework attempt(s)</p>}
+                  {checklist.qaFeedback && <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">{checklist.qaFeedback}</p>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No checklist has been created for {dailyQuality?.date || "today"} yet. The Manager creates the day’s matrix at the 8:00 AM Mountain cycle.</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -269,6 +350,16 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
   const markDone = trpc.agents.markActionDone.useMutation({
     onSuccess: () => utils.agents.actions.invalidate(),
   });
+  const execute = trpc.agents.executeAction.useMutation({
+    onSuccess: (response) => {
+      utils.agents.actions.invalidate();
+      utils.agents.chatThreads.invalidate();
+      if (response.blocked) {
+        window.alert("This task is blocked pending its evidence-based research integration. The action card now contains the reason; no unverified prospects were created.");
+      }
+    },
+    onError: (error) => window.alert(`Action could not run: ${error.message}`),
+  });
 
   const ACTION_EXPLANATIONS: Record<string, string> = {
     fix_gsc_data_parsing: "Google Search Console data had parsing errors — agent wants to fix how GSC data is read",
@@ -288,7 +379,7 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-mono text-gray-300 flex items-center justify-between">
           <span>ACTIONS CREATED</span>
-          <span className="text-[10px] text-gray-600 font-normal">Click ✓ to mark done, ✕ to dismiss</span>
+          <span className="text-[10px] text-gray-600 font-normal">Run supported work, then review its evidence before marking done</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -296,7 +387,7 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
           <p className="text-gray-500 text-sm">No actions yet. Run this agent to generate actions.</p>
         )}
         {actions.map((action: any) => (
-          <div key={action.id} className="p-3 rounded-lg bg-black/20 border border-white/5 space-y-1.5">
+          <div key={action.id} className="p-3 rounded-lg bg-black/20 border border-white/5 space-y-2">
             {/* Title row */}
             <div className="flex items-start gap-2">
               <PriorityBadge priority={action.priority} />
@@ -309,6 +400,12 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
                 {action.description || ACTION_EXPLANATIONS[action.actionType]}
               </p>
             )}
+            {(action.result || action.errorMessage) && (
+              <div className={`rounded-md px-2 py-1.5 text-[11px] leading-relaxed whitespace-pre-wrap ${action.errorMessage ? "bg-red-500/5 text-red-200 border border-red-500/15" : "bg-emerald-500/5 text-emerald-100 border border-emerald-500/15"}`}>
+                <span className="font-semibold">{action.errorMessage ? "Execution issue: " : "Execution evidence: "}</span>
+                {action.errorMessage || action.result}
+              </div>
+            )}
             {/* Date + action type */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 text-[10px] text-gray-600">
@@ -318,9 +415,19 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
                   <span className="ml-1 px-1.5 py-0.5 rounded bg-white/5 text-gray-600 font-mono">{action.actionType}</span>
                 )}
               </div>
-              {/* Buttons — only show on queued/blocked actions */}
+              {/* A Run control appears only for action types with a safe execution adapter. */}
               {["queued", "blocked", "failed"].includes(action.status) && (
                 <div className="flex items-center gap-1">
+                  {action.actionType === "research_firm" && !action.requiresApproval && (
+                    <button
+                      onClick={() => execute.mutate({ actionId: action.id })}
+                      disabled={execute.isPending}
+                      title="Run evidence-backed attorney research"
+                      className="flex items-center gap-1 px-1.5 py-1 rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 text-[10px] border border-blue-500/20 transition-colors"
+                    >
+                      {execute.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}Run
+                    </button>
+                  )}
                   <button
                     onClick={() => markDone.mutate({ actionId: action.id })}
                     disabled={markDone.isPending}
@@ -389,32 +496,13 @@ const AGENT_SUGGESTED_PROMPTS: Record<string, string[]> = {
 };
 
 function AgentDetailView({ slug }: { slug: string }) {
-  const utils = trpc.useUtils();
   const { data: agent } = trpc.agents.get.useQuery({ slug: slug as any });
   const { data: runs } = trpc.agents.runs.useQuery({ agentSlug: slug as any, limit: 10 });
   const { data: actions } = trpc.agents.actions.useQuery({ agentSlug: slug as any, limit: 20 });
-  const { data: savedThreads } = trpc.agents.getChatThreads.useQuery({ agentSlug: slug as any, limit: 50 });
-  const trigger = trpc.agents.trigger.useMutation({
-    onSuccess: () => {
-      void utils.agents.get.invalidate({ slug: slug as any });
-      void utils.agents.runs.invalidate({ agentSlug: slug as any, limit: 10 });
-      void utils.agents.actions.invalidate({ agentSlug: slug as any, limit: 20 });
-      void utils.agents.getChatThreads.invalidate({ agentSlug: slug as any, limit: 50 });
-      setChatMessages([]);
-    },
-  });
+  const { data: threadEntries = [] } = trpc.agents.chatThreads.useQuery({ agentSlug: slug as any, limit: 30 });
+  const trigger = trpc.agents.trigger.useMutation();
   const chatMutation = trpc.agents.chat.useMutation();
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
-
-  useEffect(() => {
-    if (!savedThreads || chatMessages.length > 0) return;
-    setChatMessages([...savedThreads]
-      .reverse()
-      .map((thread: any) => ({
-        role: thread.role === "user" ? "user" : "assistant",
-        content: thread.message,
-      })));
-  }, [savedThreads, chatMessages.length]);
 
   const handleSendMessage = (content: string) => {
     const newMessages: Message[] = [...chatMessages, { role: "user", content }];
@@ -512,6 +600,29 @@ function AgentDetailView({ slug }: { slug: string }) {
 
       {/* Actions */}
       <ActionQueue agentSlug={slug} actions={actions || []} />
+
+      {/* Persistent execution / chat evidence */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-mono text-gray-300 flex items-center gap-2">
+            <History className="w-4 h-4 text-cyan-400" /> SAVED THREAD & EXECUTION EVIDENCE
+          </CardTitle>
+          <p className="text-xs text-gray-500">Run summaries, errors, and conversations are retained for 30 days. Permanent run history remains above.</p>
+        </CardHeader>
+        <CardContent className="space-y-2 max-h-80 overflow-y-auto">
+          {threadEntries.map((entry: any) => (
+            <div key={entry.id} className="rounded-lg border border-white/5 bg-black/10 px-3 py-2">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider mb-1">
+                <span className={entry.role === "user" ? "text-blue-300" : entry.messageType === "error" ? "text-red-300" : "text-cyan-300"}>{entry.role === "user" ? "You" : meta.name}</span>
+                <span className="text-gray-600">{entry.messageType}</span>
+                <span className="ml-auto text-gray-600 normal-case tracking-normal">{new Date(entry.createdAt).toLocaleString()}</span>
+              </div>
+              <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed">{entry.message}</p>
+            </div>
+          ))}
+          {!threadEntries.length && <p className="text-sm text-gray-500">No saved activity yet. The next run or chat will create an evidence entry here.</p>}
+        </CardContent>
+      </Card>
 
       {/* Live Chat */}
       <Card className="bg-white/5 border-white/10">

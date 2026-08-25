@@ -6,6 +6,9 @@ import path from "path";
 import { createServer, type Server } from "http";
 import * as cheerio from "cheerio";
 import { blogPosts as clientBlogPosts } from "../client/src/data/blog";
+import indexEligibility from "../shared/index-eligibility.json";
+import redirectLedger from "../shared/seo-redirects.json";
+import { PUBLIC_PATH_REDIRECTS } from "./seo-redirects";
 
 const { getDbBlogPostStatus, getDbBlogPosts } = vi.hoisted(() => ({
   getDbBlogPostStatus: vi.fn(),
@@ -38,6 +41,8 @@ describe("truthful SEO page delivery", () => {
       path.join(publicDir, "blog", "known", "index.html"),
       "<!doctype html><h1>Known static article</h1>"
     );
+    fs.mkdirSync(path.join(publicDir, "admin", "blog-studio"), { recursive: true });
+    fs.writeFileSync(path.join(publicDir, "admin", "blog-studio", "index.html"), rootTemplate);
 
     getDbBlogPostStatus.mockImplementation(async (slug: string) => ({
       available: true,
@@ -116,9 +121,12 @@ describe("truthful SEO page delivery", () => {
     expect(html).toContain("Actual database body");
     expect(html).toContain('"@type":"Article"');
     expect(html).toContain('"@type":"FAQPage"');
-    expect(html).not.toContain('"author":');
-    expect(html).toContain('"publisher":{"@type":"Organization","name":"Solar Freedom","url":"https://breakyoursolarcontract.com"}');
+    expect(html).toContain('"author":{"@type":"Organization","@id":"https://breakyoursolarcontract.com/#organization","name":"Solar Freedom","url":"https://breakyoursolarcontract.com"}');
+    expect(html).toContain('"publisher":{"@type":"Organization","@id":"https://breakyoursolarcontract.com/#organization","name":"Solar Freedom","url":"https://breakyoursolarcontract.com"}');
+    expect(html).toContain('class="editorial-method"');
+    expect(html).toContain("Frequently asked questions");
     expect(html).not.toContain("Solar Freedom Legal Team");
+    expect(html).not.toContain("Solar Freedom Legal Research Team");
     expect(html).not.toContain("Unverified testimonial");
     expect(html).not.toContain("<script>bad()</script>");
     expect(html).not.toContain("style=");
@@ -146,9 +154,9 @@ describe("truthful SEO page delivery", () => {
 describe("dynamic published-content inventory", () => {
   const posts = [
     {
-      slug: "database-article",
-      title: "Database Article",
-      excerpt: "A runtime-published article.",
+      slug: "solar-payment-shock-help",
+      title: "Solar Payment Shock Help",
+      excerpt: "A runtime-published article in the verified eligibility ledger.",
       updatedAt: new Date("2026-06-02T00:00:00Z"),
     },
   ];
@@ -156,16 +164,28 @@ describe("dynamic published-content inventory", () => {
   it("merges DB posts into sitemap XML without duplicates", () => {
     const base = `<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://breakyoursolarcontract.com/</loc></url></urlset>`;
     const merged = mergeDynamicPostsIntoSitemap(base, posts);
-    expect(merged).toContain("/blog/database-article");
+    expect(merged).toContain("/blog/solar-payment-shock-help");
     expect(merged).toContain("2026-06-02");
-    expect(mergeDynamicPostsIntoSitemap(merged, posts).match(/database-article/g)).toHaveLength(1);
+    expect(mergeDynamicPostsIntoSitemap(merged, posts).match(/solar-payment-shock-help/g)).toHaveLength(1);
+  });
+
+  it("excludes database rows whose blog slugs are legacy redirects", () => {
+    const base = `<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`;
+    const merged = mergeDynamicPostsIntoSitemap(base, [
+      { slug: "solar-panel-scam-signs-what-to-do", updatedAt: new Date("2026-06-02T00:00:00Z") },
+      { slug: "how-to-get-out-of-a-solar-contract", updatedAt: new Date("2026-06-03T00:00:00Z") },
+      { slug: "unapproved-database-article", updatedAt: new Date("2026-06-04T00:00:00Z") },
+    ]);
+    expect(merged).not.toContain("solar-panel-scam-signs-what-to-do");
+    expect(merged).toContain("how-to-get-out-of-a-solar-contract");
+    expect(merged).not.toContain("unapproved-database-article");
   });
 
   it("merges DB posts into the LLM inventory without duplicates", () => {
     const merged = appendDynamicPostsToLlms("# Solar Freedom\n", posts);
     expect(merged).toContain("## Dynamically published articles");
-    expect(merged).toContain("A runtime-published article.");
-    expect(appendDynamicPostsToLlms(merged, posts).match(/database-article/g)).toHaveLength(1);
+    expect(merged).toContain("A runtime-published article in the verified eligibility ledger.");
+    expect(appendDynamicPostsToLlms(merged, posts).match(/solar-payment-shock-help/g)).toHaveLength(1);
   });
 });
 
@@ -188,8 +208,8 @@ describe("pre-render source parity", () => {
       "app.css",
       "/blog/how-to-get-out-of-a-solar-contract"
     );
-    expect(blog).toContain("Step 1: Understand Your Solar Contract Type");
-    expect(blog).toContain("Thousands of homeowners across the U.S.");
+    expect(blog).toContain("Step 1: What type of solar agreement do you have?");
+    expect(blog).toContain("Direct answer: you may have an exit, cancellation, payoff, transfer, purchase, or dispute option");
 
     const state = prerender.buildShellHtml(
       meta["/solar-contract-laws/texas"],
@@ -254,10 +274,20 @@ describe("pre-render source parity", () => {
       path.resolve(process.cwd(), "client/public/llms-full.txt"),
       "utf8"
     );
+    const redirectedSitemapSlugs = new Set(
+      Object.keys(redirectLedger.blog).map(pagePath => pagePath.replace(/^\/blog\//, ""))
+    );
+    const eligibleBlogSlugs = new Set(indexEligibility.blogSlugs);
     for (const slug of clientSlugs) {
       const url = `https://breakyoursolarcontract.com/blog/${slug}`;
-      expect(sitemap, `${url} is missing from sitemap.xml`).toContain(url);
-      expect(llmsFull, `${url} is missing from llms-full.txt`).toContain(url);
+      const shouldBeDiscoverable = eligibleBlogSlugs.has(slug) && !redirectedSitemapSlugs.has(slug);
+      if (shouldBeDiscoverable) {
+        expect(sitemap, `${url} is missing from sitemap.xml`).toContain(url);
+        expect(llmsFull, `${url} is missing from llms-full.txt`).toContain(url);
+      } else {
+        expect(sitemap, `${url} should not be in sitemap.xml`).not.toContain(url);
+        expect(llmsFull, `${url} should not be in llms-full.txt`).not.toContain(url);
+      }
     }
   });
 
@@ -283,11 +313,11 @@ describe("pre-render source parity", () => {
 
     for (const route of exactRoutes) {
       expect(
-        Boolean(prerenderMap[route]) || CLIENT_ONLY_ROUTES.has(route),
+        Boolean(prerenderMap[route]) || CLIENT_ONLY_ROUTES.has(route) || Boolean(PUBLIC_PATH_REDIRECTS[route]),
         `${route} is missing from production page delivery`
       ).toBe(true);
       expect(
-        Boolean(serverMap[route]) || CLIENT_ONLY_ROUTES.has(route),
+        Boolean(serverMap[route]) || CLIENT_ONLY_ROUTES.has(route) || Boolean(PUBLIC_PATH_REDIRECTS[route]),
         `${route} is missing from development page delivery`
       ).toBe(true);
     }
