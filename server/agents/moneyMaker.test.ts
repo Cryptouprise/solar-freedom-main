@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPriorityDraft } from "./moneyMaker";
+import { buildPriorityDraft, parseMoneyMakerResponse } from "./moneyMaker";
 
 describe("Money Maker priority execution drafts", () => {
   it("creates a personalized review-only introduction from public prospect evidence", () => {
@@ -21,5 +21,16 @@ describe("Money Maker priority execution drafts", () => {
     expect(draft).toContain("Hi there,");
     expect(draft).toContain("consumer-protection work");
     expect(draft).toContain("your market");
+  });
+
+  it("recovers structured actions when a provider inserts a raw line break inside JSON text", () => {
+    const parsed = parseMoneyMakerResponse(`{
+      "analysis": "Collection gap is $
+      130K and needs a firm-by-firm reconciliation.",
+      "actions": [{"priority":"p1","title":"Reconcile invoices","description":"Review the invoice roster","actionType":"revenue_optimization","estimatedRevenue":"$130K","requiresApproval":true}]
+    }`);
+    expect(parsed.analysis).toContain("130K");
+    expect(parsed.actions).toHaveLength(1);
+    expect(parsed.actions?.[0].title).toBe("Reconcile invoices");
   });
 });

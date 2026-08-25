@@ -1184,3 +1184,7 @@
 - [x] Record redirect-only websites as a reviewable skipped condition instead of repeatedly consuming the batch
 - [x] Show the latest public-contact enrichment receipt directly in the Attorney Pipeline
 - [x] Run the public-contact enrichment batch inside the already verified Money Maker schedule as the durable fallback for the stalled duplicate callback
+
+## Phase 77 — Money Maker Structured Output Recovery
+- [x] Recover usable analysis, revenue-leak, and action fields when the model returns malformed JSON rather than dropping all tasks
+- [x] Verify a manual Money Maker cycle creates visible, reviewable outcomes and a public-contact receipt without sending outreach — live validation created 8 reviewable actions

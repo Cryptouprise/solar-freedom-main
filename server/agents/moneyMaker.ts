@@ -120,6 +120,54 @@ OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
   ]
 }`;
 
+type MoneyMakerResponse = {
+  analysis?: string;
+  revenueLeaks?: Array<{ issue: string; estimatedLoss: string; fix: string }>;
+  actions?: Array<{ priority: string; title: string; description: string; actionType: string; estimatedRevenue: string; requiresApproval?: boolean }>;
+  prospectUpdates?: Array<{ prospectId: number; newScore: number; pitchAngle: string; outreachStatus: string }>;
+  messages?: Array<{ toAgent: string; type: string; subject: string; body: string }>;
+};
+
+function extractFirstJsonObject(value: string) {
+  const start = value.indexOf("{");
+  if (start < 0) return null;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (let index = start; index < value.length; index++) {
+    const char = value[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') quoted = true;
+    else if (char === "{") depth++;
+    else if (char === "}" && --depth === 0) return value.slice(start, index + 1);
+  }
+  return null;
+}
+
+/**
+ * The provider occasionally emits a raw line break inside an otherwise valid JSON string.
+ * Preserve the structured actions by retrying after normalizing raw line breaks; if that is
+ * still invalid, return the full text as transparent analysis instead of pretending work ran.
+ */
+export function parseMoneyMakerResponse(response: string): MoneyMakerResponse {
+  const candidate = extractFirstJsonObject(response);
+  if (!candidate) return { analysis: response };
+  try {
+    return JSON.parse(candidate) as MoneyMakerResponse;
+  } catch {
+    try {
+      return JSON.parse(candidate.replace(/[\r\n]+/g, " ")) as MoneyMakerResponse;
+    } catch {
+      return { analysis: response };
+    }
+  }
+}
+
 // ─── Main Execution ───────────────────────────────────────────────────────────
 
 export async function runMoneyMaker(
@@ -152,42 +200,13 @@ export async function runMoneyMaker(
       ],
       context,
       temperature: 0.3,
+      responseFormat: { type: "json_object" },
       // Heartbeat calls need focused revenue actions, not a long-form report.
       maxTokens: 1800,
     });
 
     // 4. Parse response
-    let parsed: {
-      analysis?: string;
-      revenueLeaks?: Array<{ issue: string; estimatedLoss: string; fix: string }>;
-      actions?: Array<{
-        priority: string;
-        title: string;
-        description: string;
-        actionType: string;
-        estimatedRevenue: string;
-        requiresApproval?: boolean;
-      }>;
-      prospectUpdates?: Array<{
-        prospectId: number;
-        newScore: number;
-        pitchAngle: string;
-        outreachStatus: string;
-      }>;
-      messages?: Array<{
-        toAgent: string;
-        type: string;
-        subject: string;
-        body: string;
-      }>;
-    } = {};
-
-    try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
-    } catch {
-      parsed = { analysis: response };
-    }
+    const parsed = parseMoneyMakerResponse(response);
 
     const db = await getDb();
 

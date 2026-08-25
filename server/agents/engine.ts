@@ -60,6 +60,7 @@ export async function agentLLM(params: {
   context: AgentRunContext;
   temperature?: number;
   maxTokens?: number;
+  responseFormat?: object;
 }): Promise<string> {
   // Dynamically import to avoid circular deps
   const { callAgentLLM, getAgentModel } = await import("./agentLLM");
@@ -78,6 +79,7 @@ export async function agentLLM(params: {
       messages: params.messages as any,
       maxTokens,
       executionMode: isScheduledCallback ? "scheduled" : "standard",
+      responseFormat: params.responseFormat,
     });
     params.context.llmCalls++;
     return res.content;
