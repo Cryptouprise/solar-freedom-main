@@ -1178,3 +1178,7 @@
 - [x] Make every Money Maker cycle materialize missing review-only priority outreach drafts and record the exact asset count
 - [x] Ensure the revenue-state prompt reports the full scored pipeline, direct-solar priority count, and actual ready-to-pitch count
 - [x] Add focused tests; publish the scheduled-execution improvement
+
+## Phase 76 — Progressive Public Contact Enrichment
+- [x] Ensure each public-source enrichment cycle advances to prospects that have not already received a source-refresh attempt
+- [x] Record redirect-only websites as a reviewable skipped condition instead of repeatedly consuming the batch

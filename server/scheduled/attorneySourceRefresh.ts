@@ -5,7 +5,7 @@
  * keeps only visible business contact routes, and never contacts a prospect.
  */
 import type { Request, Response } from "express";
-import { and, asc, eq, isNotNull, isNull, or } from "drizzle-orm";
+import { and, asc, eq, isNotNull, isNull, notLike, or } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { getDb } from "../db";
 import { agentChatThreads, attorneyProspects } from "../../drizzle/schema";
@@ -54,7 +54,11 @@ export async function refreshPublicAttorneyContacts(taskUid: string = "manual_va
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   const candidates = await db.select().from(attorneyProspects)
-    .where(and(isNotNull(attorneyProspects.website), or(isNull(attorneyProspects.email), isNull(attorneyProspects.phone))))
+    .where(and(
+      isNotNull(attorneyProspects.website),
+      or(isNull(attorneyProspects.email), isNull(attorneyProspects.phone)),
+      or(isNull(attorneyProspects.outreachNotes), notLike(attorneyProspects.outreachNotes, "%[Public source refresh%")),
+    ))
     .orderBy(asc(attorneyProspects.qualityTier), asc(attorneyProspects.createdAt))
     .limit(MAX_PROSPECTS_PER_RUN);
 
@@ -78,6 +82,10 @@ export async function refreshPublicAttorneyContacts(taskUid: string = "manual_va
       await db.update(attorneyProspects).set(fields).where(eq(attorneyProspects.id, prospect.id));
     } catch (error) {
       failures++;
+      await db.update(attorneyProspects).set({
+        outreachNotes: `${prospect.outreachNotes || ""}\n[Public source refresh ${new Date().toISOString()}] Website check failed: ${error instanceof Error ? error.message : String(error)}. This website will not be retried automatically.`.trim(),
+        updatedAt: new Date(),
+      }).where(eq(attorneyProspects.id, prospect.id));
       console.warn("[AttorneySourceRefresh] Public website check failed", { prospectId: prospect.id, error: String(error) });
     }
   }
