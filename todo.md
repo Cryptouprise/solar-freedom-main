@@ -1155,3 +1155,9 @@
 - [x] Detect Google Maps usage exhaustion and record a durable, plain-English blocked Money Maker result instead of a silent failure
 - [x] Keep the research board usable when a provider quota is exhausted; show that no prospects were created and provide an explicit retry/provider path
 - [ ] Restore an approved research-provider quota or connect an alternate provider before the first live attorney discovery pass
+
+## Phase 73 — Overnight Attorney Discovery Launch
+- [x] Audit the currently enabled Money Maker schedule, external research-source capacity, and approved fallbacks
+- [x] Build a paced overnight attorney-discovery worker that saves direct evidence links and a durable run receipt
+- [ ] Register or update the deployed overnight schedule and verify its callback execution history
+- [ ] Run and validate an initial discovery pass; record exact saved prospects or a concrete provider blocker
