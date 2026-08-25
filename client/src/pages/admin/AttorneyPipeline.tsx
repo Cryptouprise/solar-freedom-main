@@ -128,6 +128,8 @@ export default function AttorneyPipeline() {
   const { data: attorneys = [], isLoading } = trpc.agents.listAttorneys.useQuery();
   const { data: moneyMakerHistory = [] } = trpc.agents.chatThreads.useQuery({ agentSlug: "money_maker", limit: 10 });
   const [selectedStates, setSelectedStates] = useState<string[]>(["California", "Texas", "Florida"]);
+  const [priorityOnly, setPriorityOnly] = useState(false);
+  const [directEmailOnly, setDirectEmailOnly] = useState(false);
   const [crmPreview, setCrmPreview] = useState<any>(null);
   const latestRefresh = moneyMakerHistory.find(entry => entry.message.startsWith("Public-source refresh completed:"));
 
@@ -175,7 +177,14 @@ export default function AttorneyPipeline() {
   });
 
   const prospects = attorneys as Prospect[];
-  const grouped = useMemo(() => Object.fromEntries(COLUMNS.map(c => [c.key, prospects.filter(p => p.outreachStatus === c.key)])), [prospects]);
+  const priorityProspectCount = useMemo(() => prospects.filter(prospect => prospect.qualityTier === "priority").length, [prospects]);
+  const directEmailProspectCount = useMemo(() => prospects.filter(prospect => Boolean(prospect.email?.trim())).length, [prospects]);
+  const visibleProspects = useMemo(() => prospects.filter(prospect => {
+    if (priorityOnly && prospect.qualityTier !== "priority") return false;
+    if (directEmailOnly && !prospect.email?.trim()) return false;
+    return true;
+  }), [prospects, priorityOnly, directEmailOnly]);
+  const grouped = useMemo(() => Object.fromEntries(COLUMNS.map(c => [c.key, visibleProspects.filter(p => p.outreachStatus === c.key)])), [visibleProspects]);
   const scoreAverage = prospects.length ? Math.round(prospects.reduce((sum, p) => sum + Number(p.overallScore || 0), 0) / prospects.length) : 0;
   const priorityQueue = useMemo(() => prospects
     .filter(prospect => prospect.qualityTier === "priority")
@@ -261,6 +270,25 @@ export default function AttorneyPipeline() {
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mt-4 text-xs">
             {["1. Review evidence", "2. Verify profile", "3. Approve draft", "4. Confirm send"].map((step, index) => <div key={step} className="rounded-lg border border-white/8 bg-black/20 px-3 py-2 text-gray-400"><span className="text-violet-300 font-mono mr-1">0{index + 1}</span>{step}</div>)}
           </div>
+        </section>
+
+        <section className="rounded-xl border border-white/8 bg-[#151820] p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-white font-semibold flex items-center gap-2"><Search className="w-4 h-4 text-amber-300" />Quick filters</h2>
+              <p className="text-gray-500 text-xs mt-1">Filters apply to the Kanban board below and can be combined.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => setPriorityOnly(current => !current)} className={priorityOnly ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-100" : "border-white/10 text-gray-300 hover:border-emerald-500/35 hover:text-emerald-200"}>
+                <Star className="mr-1.5 h-3.5 w-3.5" />Top priority <Badge className="ml-1.5 border-0 bg-black/20 text-current">{priorityProspectCount}</Badge>
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setDirectEmailOnly(current => !current)} className={directEmailOnly ? "border-sky-500/50 bg-sky-500/15 text-sky-100" : "border-white/10 text-gray-300 hover:border-sky-500/35 hover:text-sky-200"}>
+                <Mail className="mr-1.5 h-3.5 w-3.5" />Direct email <Badge className="ml-1.5 border-0 bg-black/20 text-current">{directEmailProspectCount}</Badge>
+              </Button>
+              {(priorityOnly || directEmailOnly) && <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white" onClick={() => { setPriorityOnly(false); setDirectEmailOnly(false); }}>Clear filters</Button>}
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-gray-500">Showing <span className="font-mono text-gray-300">{visibleProspects.length}</span> of <span className="font-mono text-gray-300">{prospects.length}</span> prospects{priorityOnly && directEmailOnly ? " with top-priority status and a direct public email" : priorityOnly ? " with top-priority status" : directEmailOnly ? " with a direct public email" : ""}.</p>
         </section>
 
         <section className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.04] p-4">

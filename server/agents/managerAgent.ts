@@ -53,6 +53,7 @@ import {
 import { getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
 import { DAILY_QUALITY_MATRIX, ensureDailyChecklists, type WorkerSlug } from "./managerQuality";
+import { monitorQwen37PlusPricing, QWEN37_PLUS_DAILY_SPEND_ALERT_USD } from "./openRouterPromotionMonitor";
 import {
   contentPipeline,
   blogPosts,
@@ -185,12 +186,16 @@ export async function runManagerAgent(
 
   try {
     // 1. Gather full system state
-    const [state, goalStats, memory, lessons] = await Promise.all([
+    const [state, goalStats, memory, lessons, qwenPricing] = await Promise.all([
       gatherSystemState(),
       getAllAgentGoalStats(7),
       getAllMemory("manager"),
       getLessons("manager", 15),
+      monitorQwen37PlusPricing(),
     ]);
+    const pricingContext = qwenPricing.snapshot
+      ? `\n\n═══ OPENROUTER QWEN3.7 PLUS WATCH ═══\nLive observed price: $${qwenPricing.snapshot.inputPer1M.toFixed(4)}/M input | $${qwenPricing.snapshot.outputPer1M.toFixed(4)}/M output | 24h measured spend: $${qwenPricing.dailySpendUsd.toFixed(4)} | Changed since last Manager check: ${qwenPricing.changed ? "YES" : "no"} | Spend alert: ${qwenPricing.spendAlert ? "YES" : "no"}`
+      : `\n\n═══ OPENROUTER QWEN3.7 PLUS WATCH ═══\nLive pricing check unavailable: ${qwenPricing.error || "unknown error"} | 24h measured spend: $${qwenPricing.dailySpendUsd.toFixed(4)} | Spend alert: ${qwenPricing.spendAlert ? "YES" : "no"}`;
 
     // 2. Check inbox
     const inbox = await getUnreadMessages("manager");
@@ -241,7 +246,7 @@ export async function runManagerAgent(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `SYSTEM STATE:\n${state}\n\n═══ GOAL HIT RATES (last 7 days) ═══\n${goalPerf || "No goals recorded yet"}${memoryContext}${lessonsContext}${inboxSummary}${approvalContext}${publishContext}\n\nIt is ${new Date().toUTCString()}. Set today's goals. Fire the agents. What makes the most money today?`,
+          content: `SYSTEM STATE:\n${state}${pricingContext}\n\n═══ GOAL HIT RATES (last 7 days) ═══\n${goalPerf || "No goals recorded yet"}${memoryContext}${lessonsContext}${inboxSummary}${approvalContext}${publishContext}\n\nIt is ${new Date().toUTCString()}. Set today's goals. Fire the agents. What makes the most money today?`,
         },
       ],
       context,
@@ -390,6 +395,18 @@ export async function runManagerAgent(
       });
       context.messagesCreated++;
       qaSummary.push(`${worker}: scheduled for independent QA`);
+    }
+
+    if ((qwenPricing.changed || qwenPricing.spendAlert) && qwenPricing.snapshot) {
+      await createAction({
+        agentSlug: "manager",
+        priority: "p1",
+        title: qwenPricing.changed ? "[MODEL PRICE CHANGE] Qwen3.7 Plus OpenRouter rate changed" : "[MODEL SPEND ALERT] Qwen3.7 Plus exceeded daily guardrail",
+        description: `Live Qwen3.7 Plus price: $${qwenPricing.snapshot.inputPer1M.toFixed(4)}/M input and $${qwenPricing.snapshot.outputPer1M.toFixed(4)}/M output. Measured 24-hour agent spend: $${qwenPricing.dailySpendUsd.toFixed(4)} (guardrail: $${QWEN37_PLUS_DAILY_SPEND_ALERT_USD.toFixed(2)}). Review promotion status and model usage before the next operating cycle.`,
+        actionType: "revenue_optimization",
+        requiresApproval: 1,
+      });
+      context.actionsCreated++;
     }
 
     // 15. Mark inbox read

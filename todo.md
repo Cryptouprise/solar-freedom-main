@@ -1188,3 +1188,15 @@
 ## Phase 77 — Money Maker Structured Output Recovery
 - [x] Recover usable analysis, revenue-leak, and action fields when the model returns malformed JSON rather than dropping all tasks
 - [x] Verify a manual Money Maker cycle creates visible, reviewable outcomes and a public-contact receipt without sending outreach — live validation created 8 reviewable actions
+
+## Phase 78 — Attorney Pipeline Quick Filters
+- [x] Add a one-click Top Priority filter for direct-solar, outreach-ready prospects
+- [x] Add a one-click Direct Email filter for prospects with publicly listed email addresses
+- [x] Validate quick-filter states, result counts, and published dashboard behavior
+
+## Phase 79 — Money Maker Audit and Qwen3.7 Flash Promotion Routing
+- [x] Audit the last Money Maker run, created tasks/drafts/prospects, model configuration, and Manager oversight
+- [x] Verify the exact Qwen3.7 Flash OpenRouter model identifier, provider route, current promotion terms, and standard pricing
+- [x] Prioritize the verified working Qwen3.7 Plus OpenRouter route for appropriate worker roles with bounded fallback behavior; Qwen3.7 Flash remains available but returned empty content in live verification
+- [x] Add promotion-price and measured-spend monitoring that alerts the Manager when the live rate changes or daily Qwen3.7 Plus spend exceeds $5
+- [x] Validate and document the agent’s actual operating instructions and work results; publish the completed configuration

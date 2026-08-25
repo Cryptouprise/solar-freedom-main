@@ -19,6 +19,7 @@ const OPENROUTER_MODELS = new Set([
   "qwen/qwen3-235b-a22b-2507",
   "qwen/qwen3-32b",
   "qwen/qwen3.7-flash",
+  "qwen/qwen3.7-plus",
   "qwen/qwen3-max",
   "qwen/qwen3-max-thinking",
   "deepseek/deepseek-v4-pro",
@@ -31,15 +32,28 @@ const OPENROUTER_MODELS = new Set([
 export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel: string }> = {
   manager:       { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
   revenue_intel: { modelId: "deepseek/deepseek-v4-pro",           modelLabel: "DeepSeek V4 Pro" },
-  content:       { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
-  seo_intel:     { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
-  editor:        { modelId: "deepseek/deepseek-v4-flash",         modelLabel: "DeepSeek V4 Flash" },
-  money_maker:   { modelId: "deepseek/deepseek-v4-pro",           modelLabel: "DeepSeek V4 Pro" },
-  infra:         { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
+  content:       { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
+  seo_intel:     { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
+  editor:        { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
+  money_maker:   { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
+  infra:         { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
 };
 
 // Fallback model when OpenRouter fails
 const FALLBACK_MODEL = "gpt-5-mini";
+export const OPENROUTER_MODEL_PRICING: Record<string, { inputPer1M: number; outputPer1M: number }> = {
+  "qwen/qwen3.7-flash": { inputPer1M: 0.03, outputPer1M: 0.13 },
+  "qwen/qwen3.7-plus": { inputPer1M: 0.32, outputPer1M: 1.28 },
+  "qwen/qwen3-32b": { inputPer1M: 0.08, outputPer1M: 0.28 },
+  "deepseek/deepseek-v4-pro": { inputPer1M: 0.44, outputPer1M: 0.87 },
+  "deepseek/deepseek-v4-flash": { inputPer1M: 0.14, outputPer1M: 0.28 },
+};
+
+export function estimateOpenRouterCost(modelId: string, usage?: { promptTokens: number; completionTokens: number }) {
+  const rate = OPENROUTER_MODEL_PRICING[modelId];
+  if (!rate || !usage) return 0;
+  return (usage.promptTokens / 1_000_000) * rate.inputPer1M + (usage.completionTokens / 1_000_000) * rate.outputPer1M;
+}
 const OPENROUTER_ATTEMPT_TIMEOUT_MS = 45_000;
 const BUILTIN_ATTEMPT_TIMEOUT_MS = 60_000;
 const SCHEDULED_OPENROUTER_ATTEMPT_TIMEOUT_MS = 18_000;
@@ -82,6 +96,7 @@ export const AVAILABLE_MODELS = [
   { id: "qwen/qwen3-235b-a22b-2507",          label: "Qwen3-235B 2507",          provider: "qwen", costIn: 0.09, costOut: 0.55 },
   { id: "qwen/qwen3-32b",                     label: "Qwen3-32B",                provider: "qwen", costIn: 0.08, costOut: 0.28 },
   { id: "qwen/qwen3.7-flash",                 label: "Qwen3.7 Flash",            provider: "qwen", costIn: 0.03, costOut: 0.13 },
+  { id: "qwen/qwen3.7-plus",                  label: "Qwen3.7 Plus (OpenRouter)", provider: "qwen", costIn: 0.32, costOut: 1.28 },
   { id: "qwen/qwen3-max-thinking",            label: "Qwen3 Max Thinking",       provider: "qwen", costIn: 0.78, costOut: 3.90 },
   // DeepSeek
   { id: "deepseek/deepseek-v4-pro",           label: "DeepSeek V4 Pro",          provider: "deepseek", costIn: 0.44, costOut: 0.87 },
@@ -149,6 +164,7 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
   content: string;
   toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
   usage?: { promptTokens: number; completionTokens: number };
+  modelId: string;
 }> {
   const modelId = opts.modelOverride ?? (opts.agentSlug ? await getAgentModel(opts.agentSlug) : FALLBACK_MODEL);
   const timeoutProfile = resolveAgentTimeoutProfile(opts.executionMode);
@@ -165,7 +181,7 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
         if (!result.content && !result.toolCalls?.length) {
           throw new Error("OpenRouter returned empty content");
         }
-        return result;
+        return { ...result, modelId };
       } catch (err: any) {
         lastError = err;
         console.error(`[agentLLM] OpenRouter attempt ${attempt}/${MAX_RETRIES} failed for ${modelId}: ${err.message}`);
@@ -177,11 +193,11 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
     }
     // All retries exhausted — fall back to built-in LLM
     console.error(`[agentLLM] OpenRouter failed after ${MAX_RETRIES} attempts for ${modelId}. Falling back to ${FALLBACK_MODEL}. Last error: ${lastError?.message}`);
-    return callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs);
+    return { ...(await callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs)), modelId: FALLBACK_MODEL };
   }
 
   // Use built-in proxy for everything else
-  return callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs);
+  return { ...(await callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs)), modelId };
 }
 
 // ─── Built-in LLM call (Manus proxy) ──────────────────────────────────────────

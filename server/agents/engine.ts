@@ -40,6 +40,7 @@ export type AgentRunContext = {
   tokensOut: number;
   costUsd: number;
   llmCalls: number;
+  modelId?: string;
   actionsCreated: number;
   messagesCreated: number;
 };
@@ -63,14 +64,17 @@ export async function agentLLM(params: {
   responseFormat?: object;
 }): Promise<string> {
   // Dynamically import to avoid circular deps
-  const { callAgentLLM, getAgentModel } = await import("./agentLLM");
+  const { callAgentLLM, estimateOpenRouterCost, getAgentModel } = await import("./agentLLM");
   const modelId = await getAgentModel(params.agentSlug);
 
   // Check if OpenRouter model (Qwen/DeepSeek) — use callAgentLLM
   const OPENROUTER_PREFIXES = ["qwen/", "deepseek/", "mistralai/", "meta-llama/"];
   const isOpenRouter = OPENROUTER_PREFIXES.some(p => modelId.startsWith(p));
   const isScheduledCallback = params.context.triggerType === "cron";
-  const maxTokens = isScheduledCallback ? Math.min(params.maxTokens ?? 4000, 900) : (params.maxTokens ?? 4000);
+  // Qwen3.7 Plus spends part of the completion budget on internal reasoning.
+  // Keep cron output bounded but leave enough room for a valid structured payload.
+  const scheduledTokenCap = modelId === "qwen/qwen3.7-plus" ? 1_400 : 900;
+  const maxTokens = isScheduledCallback ? Math.min(params.maxTokens ?? 4000, scheduledTokenCap) : (params.maxTokens ?? 4000);
 
   if (isOpenRouter) {
     const res = await callAgentLLM({
@@ -82,6 +86,12 @@ export async function agentLLM(params: {
       responseFormat: params.responseFormat,
     });
     params.context.llmCalls++;
+    if (res.usage) {
+      params.context.tokensIn += res.usage.promptTokens;
+      params.context.tokensOut += res.usage.completionTokens;
+      params.context.costUsd += estimateOpenRouterCost(res.modelId, res.usage);
+    }
+    params.context.modelId = res.modelId;
     return res.content;
   }
 
@@ -185,6 +195,7 @@ export async function completeRun(
     tokensOut: context.tokensOut,
     costUsd: context.costUsd.toFixed(6),
     llmCalls: context.llmCalls,
+    model: context.modelId ?? context.agentSlug,
     completedAt: new Date(),
     durationMs,
     errorMessage,
