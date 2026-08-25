@@ -1084,7 +1084,7 @@
 - [x] 108/108 tests passing
 
 ## Phase 60 — Autonomous Revenue Operations, Agent Governance & Assistable AI Preparation
-- [x] Finish the Money Maker execution loop architecture: require evidence-backed attorney research, deduplicate/score/store verified prospects, and transparently record the blocked dependency until the research connector is configured
+- [x] Finish the Money Maker execution loop architecture: execute Google Maps source-backed attorney research, deduplicate/score/store verified prospects, and retain direct evidence links with every result
 - [x] Build `/admin/attorneys` Kanban pipeline with prioritized prospects, visible research evidence, pipeline statuses, and owner-controlled updates
 - [x] Add attorney prospect detail history: discovery source, research evidence, score breakdown, outreach notes, dates, and outcome/revenue attribution fields
 - [x] Add persistent 30-day agent chat/run threads with summaries, actions, execution evidence, errors, and linked outputs

@@ -54,7 +54,6 @@ const NAV_SECTIONS = [
       { label: "GHL CRM", href: "/admin/ghl", icon: DollarSign, description: "GoHighLevel contacts & pipeline" },
       { label: "Attorney Pipeline", href: "/admin/attorneys", icon: Building2, description: "Prospects, outreach & revenue partners" },
       { label: "Lead Distribution", href: "/admin/lead-distribution", icon: Building2, description: "Law firm partners & routing" },
-      { label: "Attorney Pipeline", href: "/admin/attorneys", icon: Users, description: "Prospecting & firm partnerships" },
       { label: "AI Costs", href: "/admin/press-releases#costs", icon: BarChart3, description: "Model spend tracking" },
     ],
   },
