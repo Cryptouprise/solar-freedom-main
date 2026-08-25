@@ -1141,3 +1141,12 @@
 - [x] Detect significant verified SEO ranking changes from persisted Search Console snapshots
 - [x] Display a clear preview/admin notification banner with the direction, magnitude, freshness, and SEO review link
 - [x] Validate the banner in preview without showing alerts for missing or stale measurements
+
+## Phase 71 — Attorney Partner Quality Matrix and LinkedIn Outreach Readiness
+- [x] Define evidence-only qualification criteria for attorney lead and appointment partners
+- [x] Route high-stakes partnership qualification through a stronger reasoning model with bounded cost controls
+- [x] Add weighted score dimensions, pass/fail gates, confidence, and plain-English score explanations to every attorney prospect
+- [x] Add a LinkedIn lookup link, public-profile research status, and outreach-readiness checklist to attorney prospect records
+- [x] Add a human-reviewed LinkedIn outreach draft queue; do not send messages automatically
+- [x] Inspect available LinkedIn integrations and document the approved connection path for sending messages from the system
+- [x] Add tests and visual verification; publish the completed workflow

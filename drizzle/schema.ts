@@ -856,6 +856,11 @@ export const attorneyProspects = mysqlTable("attorneyProspects", {
   // Scoring (0-100)
   overallScore: int("overallScore").default(0).notNull(),
   scoreBreakdown: text("scoreBreakdown"), // JSON: {contingency: 30, experience: 25, coverage: 20, revenue_potential: 25}
+  qualityTier: mysqlEnum("qualityTier", ["unreviewed", "priority", "review", "defer"]).default("unreviewed").notNull(),
+  qualityConfidence: int("qualityConfidence").default(0).notNull(),
+  qualityExplanation: text("qualityExplanation"),
+  qualityGates: text("qualityGates"), // JSON array of evidence and manual-verification gates
+  qualityReviewedAt: timestamp("qualityReviewedAt"),
 
   // Outreach status
   outreachStatus: mysqlEnum("outreachStatus", [
@@ -865,6 +870,15 @@ export const attorneyProspects = mysqlTable("attorneyProspects", {
   outreachNotes: text("outreachNotes"),
   lastContactedAt: timestamp("lastContactedAt"),
   pitchAngle: text("pitchAngle"), // Personalized pitch recommendation
+
+  // LinkedIn research and approval-controlled outreach. LinkedIn data is never scraped.
+  linkedInSearchUrl: varchar("linkedInSearchUrl", { length: 1000 }),
+  linkedInProfileUrl: varchar("linkedInProfileUrl", { length: 1000 }), // manually verified by owner
+  linkedInResearchStatus: mysqlEnum("linkedInResearchStatus", ["not_started", "research_ready", "verified", "not_found"]).default("not_started").notNull(),
+  linkedInOutreachStatus: mysqlEnum("linkedInOutreachStatus", ["not_ready", "drafted", "approved", "sent", "replied", "not_a_fit"]).default("not_ready").notNull(),
+  linkedInDraft: text("linkedInDraft"),
+  outreachApprovedAt: timestamp("outreachApprovedAt"),
+  outreachSentAt: timestamp("outreachSentAt"),
 
   // Source
   discoveredBy: varchar("discoveredBy", { length: 50 }).default("money_maker"), // agent slug

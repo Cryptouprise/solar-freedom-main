@@ -26,6 +26,8 @@ import { getDb } from "./db";
 import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig, agentActions, attorneyProspects, agentChatThreads, agentDailyChecklists, agentQualityReviews, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
 import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS, callAgentLLM } from "./agents/agentLLM";
 import { desc, eq, and, gte } from "drizzle-orm";
+import { buildLinkedInLookupUrl, reviewAttorneyQuality } from "./attorneyQuality";
+import { invokeLLM } from "./_core/llm";
 
 const agentSlugSchema = z.enum(["money_maker", "seo_intel", "content", "editor", "manager", "infra", "revenue_intel"]);
 
@@ -547,6 +549,112 @@ export const agentRouter = router({
         outreachStatus: input.outreachStatus,
         outreachNotes: input.outreachNotes,
         lastContactedAt: ["pitched", "in_conversation"].includes(input.outreachStatus) ? new Date() : undefined,
+        updatedAt: new Date(),
+      }).where(eq(attorneyProspects.id, input.id));
+      return { success: true };
+    }),
+
+  /** Run a bounded, evidence-only partner-quality review for one prospect. */
+  reviewAttorneyQuality: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const prospect = (await db.select().from(attorneyProspects).where(eq(attorneyProspects.id, input.id)).limit(1))[0];
+      if (!prospect) throw new Error("Attorney prospect not found");
+      const review = await reviewAttorneyQuality({
+        firmName: prospect.firmName,
+        state: prospect.state,
+        city: prospect.city,
+        website: prospect.website,
+        phone: prospect.phone,
+        practiceAreas: prospect.practiceAreas,
+        sourceUrl: prospect.sourceUrl,
+        discoveredVia: prospect.discoveredVia,
+      });
+      const linkedInSearchUrl = prospect.linkedInSearchUrl || buildLinkedInLookupUrl(prospect.firmName, prospect.state);
+      await db.update(attorneyProspects).set({
+        overallScore: review.score,
+        scoreBreakdown: JSON.stringify(review.scoreBreakdown),
+        qualityTier: review.tier,
+        qualityConfidence: review.confidence,
+        qualityExplanation: review.explanation,
+        qualityGates: JSON.stringify(review.gates),
+        qualityReviewedAt: new Date(),
+        pitchAngle: review.suggestedPitch,
+        linkedInSearchUrl,
+        linkedInResearchStatus: "research_ready",
+        updatedAt: new Date(),
+      }).where(eq(attorneyProspects.id, input.id));
+      return { success: true, review, linkedInSearchUrl };
+    }),
+
+  /** Create a personalized LinkedIn introduction for review. It never sends a message. */
+  draftLinkedInOutreach: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const prospect = (await db.select().from(attorneyProspects).where(eq(attorneyProspects.id, input.id)).limit(1))[0];
+      if (!prospect) throw new Error("Attorney prospect not found");
+      if (!prospect.qualityReviewedAt || prospect.qualityTier === "defer") {
+        throw new Error("Run the quality review and address its gates before drafting outreach.");
+      }
+      const response = await invokeLLM({
+        model: "claude-sonnet-4-6",
+        maxTokens: 700,
+        messages: [{
+          role: "system",
+          content: "Write a concise, respectful LinkedIn connection note for a possible B2B law-firm partnership. Do not claim the recipient handles solar cases, accepts referrals, or has a particular role unless those facts were provided. Do not promise leads. Ask whether they are open to a brief conversation about consumer/solar-contract dispute appointments in their service area. Output the note only, under 500 characters.",
+        }, {
+          role: "user",
+          content: JSON.stringify({ firmName: prospect.firmName, state: prospect.state, city: prospect.city, publicPracticeSignal: prospect.practiceAreas, pitchAngle: prospect.pitchAngle }),
+        }],
+      });
+      const content = response.choices[0]?.message.content;
+      if (typeof content !== "string" || !content.trim()) throw new Error("Draft generation returned no usable content");
+      const draft = content.trim().slice(0, 500);
+      await db.update(attorneyProspects).set({
+        linkedInDraft: draft,
+        linkedInOutreachStatus: "drafted",
+        updatedAt: new Date(),
+      }).where(eq(attorneyProspects.id, input.id));
+      return { success: true, draft };
+    }),
+
+  /** Record an owner-verified LinkedIn profile or research outcome without scraping LinkedIn. */
+  updateLinkedInResearch: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      status: z.enum(["not_started", "research_ready", "verified", "not_found"]),
+      profileUrl: z.string().url().max(1000).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db.update(attorneyProspects).set({
+        linkedInResearchStatus: input.status,
+        linkedInProfileUrl: input.profileUrl,
+        updatedAt: new Date(),
+      }).where(eq(attorneyProspects.id, input.id));
+      return { success: true };
+    }),
+
+  /** Owner approval unlocks a draft for external sending; the platform still sends nothing. */
+  approveLinkedInOutreach: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const prospect = (await db.select().from(attorneyProspects).where(eq(attorneyProspects.id, input.id)).limit(1))[0];
+      if (!prospect?.linkedInDraft) throw new Error("Create and review a LinkedIn draft before approving it.");
+      await db.update(attorneyProspects).set({
+        linkedInOutreachStatus: "approved",
+        outreachApprovedAt: new Date(),
         updatedAt: new Date(),
       }).where(eq(attorneyProspects.id, input.id));
       return { success: true };

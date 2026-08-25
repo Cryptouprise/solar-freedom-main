@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { agentChatThreads, attorneyProspects } from "../../drizzle/schema";
 import { makeRequest, type PlaceDetailsResult, type PlacesSearchResult } from "../_core/map";
+import { buildLinkedInLookupUrl } from "../attorneyQuality";
 
 const QUERY_PREFIXES = ["consumer protection attorney", "solar contract lawyer", "DTPA attorney"] as const;
 
@@ -80,6 +81,8 @@ export async function executeAttorneyResearch(states: string[], runId?: number):
           discoveredBy: "money_maker",
           discoveredVia: "google_maps",
           sourceUrl: evidenceUrl,
+          linkedInSearchUrl: buildLinkedInLookupUrl(details.name, state),
+          linkedInResearchStatus: "research_ready",
           verifiedAt: new Date(),
         });
         saved++;

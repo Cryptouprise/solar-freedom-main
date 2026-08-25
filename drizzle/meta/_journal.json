@@ -183,6 +183,13 @@
       "when": 1786676995313,
       "tag": "0025_supreme_forge",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1787630886042,
+      "tag": "0026_curly_nick_fury",
+      "breakpoints": true
     }
   ]
 }
