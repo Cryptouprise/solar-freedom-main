@@ -32,6 +32,9 @@ export default function OutcomeScorecard() {
   );
   const seoRuns = trpc.agents.runs.useQuery({ agentSlug: "seo_intel", limit: 5 }, { enabled: !!user && user.role === "admin", staleTime: 60_000 });
   const seoActions = trpc.agents.actions.useQuery({ agentSlug: "seo_intel", limit: 8 }, { enabled: !!user && user.role === "admin", staleTime: 60_000 });
+  const runScorecard = trpc.performance.runDailyScorecard.useMutation({
+    onSuccess: () => { void refetch(); },
+  });
   const latest = data?.snapshots?.[0];
 
   return (
@@ -41,12 +44,21 @@ export default function OutcomeScorecard() {
           <p className="text-sm text-gray-400">
             One view of recovery. A metric is shown only after its source system records it.
           </p>
+          <div className="flex gap-2">
+          <button
+            disabled={runScorecard.isPending}
+            onClick={() => runScorecard.mutate()}
+            className="rounded-lg border border-amber-400/50 bg-amber-400/10 px-3 py-2 text-xs font-mono text-amber-100 transition hover:bg-amber-400/20 disabled:opacity-50"
+          >
+            {runScorecard.isPending ? "Creating verified baseline…" : "Run verified scorecard"}
+          </button>
           <button
             onClick={() => refetch()}
             className="rounded-lg border border-white/15 px-3 py-2 text-xs font-mono text-gray-300 transition hover:border-amber-400 hover:text-white"
           >
             Refresh
           </button>
+          </div>
         </div>
 
         {isLoading && <p className="py-16 text-center font-mono text-sm text-gray-400">Loading scorecard…</p>}

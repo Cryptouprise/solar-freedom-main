@@ -137,43 +137,47 @@ async function readTechnicalGeoReadiness() {
   return { total, score: total > 0 ? Math.round((ready / total) * 100) : 0 };
 }
 
+/** Runs one complete verified scorecard cycle for either a scheduled callback or an explicit admin baseline refresh. */
+export async function runSeoScorecard(now = new Date()) {
+  const [scorecard, leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([
+    refreshGscPageMetrics(now),
+    readLeadScorecard(now),
+    readVerifiedBacklinkCount(),
+    readTechnicalGeoReadiness(),
+  ]);
+  const geoAlerts = geoCoverage.total > 0 && geoCoverage.score < 95
+    ? [{ severity: "warning", metric: "geo_readiness", message: `Technical GEO readiness is ${geoCoverage.score}% across ${geoCoverage.total} indexable commercial pages. Restore canonical, schema, and sitemap coverage before expanding content.` }]
+    : [];
+  const alerts = [...scorecard.alerts, ...leadScorecard.alerts, ...buildAuthorityScorecardAlerts(verifiedBacklinks), ...geoAlerts];
+  await surfaceScorecardAlerts(alerts);
+  if (alerts.length > 0) {
+    await notifyOwner({
+      title: `SEO and lead scorecard alert — ${alerts.length} material change${alerts.length === 1 ? "" : "s"}`,
+      content: [
+        `28-day window: ${scorecard.startDate} through ${scorecard.endDate}`,
+        `Clicks: ${scorecard.clicks} | Impressions: ${scorecard.impressions} | Pages: ${scorecard.rows}`,
+        `Durable leads: ${leadScorecard.currentLeads} | HighLevel syncs: ${leadScorecard.currentCrmSynced} | Partner deliveries: ${leadScorecard.currentPartnerDelivered} | Booked appointments: ${leadScorecard.currentAppointments}`,
+        ...alerts.map((alert) => `${alert.severity.toUpperCase()}: ${alert.message}`),
+      ].join("\n"),
+    });
+  }
+  const comparisons = await saveSnapshotAndComparisons({ now, scorecard, leadScorecard, geoReadiness: geoCoverage.score, alerts });
+  return { ok: true, scorecard, leadScorecard, geoCoverage, alerts, comparisons, refreshedAt: now.toISOString() };
+}
+
 /** Refreshes source-of-truth GSC page metrics for the existing SEO agent and dashboard. */
 export async function seoScorecardHandler(req: Request, res: Response) {
   try {
     const user = await sdk.authenticateRequest(req);
     if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only endpoint" });
-
-    const [scorecard, leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([
-      refreshGscPageMetrics(),
-      readLeadScorecard(),
-      readVerifiedBacklinkCount(),
-      readTechnicalGeoReadiness(),
-    ]);
-    const geoAlerts = geoCoverage.total > 0 && geoCoverage.score < 95
-      ? [{ severity: "warning", metric: "geo_readiness", message: `Technical GEO readiness is ${geoCoverage.score}% across ${geoCoverage.total} indexable commercial pages. Restore canonical, schema, and sitemap coverage before expanding content.` }]
-      : [];
-    const alerts = [...scorecard.alerts, ...leadScorecard.alerts, ...buildAuthorityScorecardAlerts(verifiedBacklinks), ...geoAlerts];
-    await surfaceScorecardAlerts(alerts);
-    if (alerts.length > 0) {
-      await notifyOwner({
-        title: `SEO and lead scorecard alert — ${alerts.length} material change${alerts.length === 1 ? "" : "s"}`,
-        content: [
-          `28-day window: ${scorecard.startDate} through ${scorecard.endDate}`,
-          `Clicks: ${scorecard.clicks} | Impressions: ${scorecard.impressions} | Pages: ${scorecard.rows}`,
-          `Durable leads: ${leadScorecard.currentLeads} | HighLevel syncs: ${leadScorecard.currentCrmSynced} | Partner deliveries: ${leadScorecard.currentPartnerDelivered} | Booked appointments: ${leadScorecard.currentAppointments}`,
-          ...alerts.map((alert) => `${alert.severity.toUpperCase()}: ${alert.message}`),
-        ].join("\n"),
-      });
-    }
-    const now = new Date();
-    const comparisons = await saveSnapshotAndComparisons({ now, scorecard, leadScorecard, geoReadiness: geoCoverage.score, alerts });
-    return res.json({ ok: true, scorecard, leadScorecard, geoCoverage, alerts, comparisons, refreshedAt: now.toISOString() });
+    return res.json(await runSeoScorecard());
   } catch (error: any) {
     const errorId = crypto.randomUUID();
     console.error(`[SeoScorecard:${errorId}]`, error);
     return res.status(500).json({
       error: "SEO scorecard refresh failed",
       errorId,
+      detail: String(error?.message || "Unknown scorecard error").slice(0, 500),
       timestamp: new Date().toISOString(),
     });
   }

@@ -27,6 +27,7 @@ import { ghlRouter } from "./ghlRouter";
 import { journeyRouter } from "./journeyRouter";
 import { revenueIntelRouter } from "./revenueIntelRouter";
 import { getGA4Report } from "./ga4";
+import { runSeoScorecard } from "./scheduled/seoScorecard";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
 import { enforcePublicMutationLimit } from "./security/rateLimit";
 import { isAllowedPressReleaseSetting, PRESS_RELEASE_OPERATIONAL_KEYS } from "./security/configPolicy";
@@ -300,6 +301,10 @@ export const appRouter = router({
 
   // ── Outcome scorecard: clicks → leads → appointments ───────────────────────
   performance: router({
+    runDailyScorecard: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      return runSeoScorecard();
+    }),
     dailyScorecard: protectedProcedure
       .input(z.object({ limit: z.number().min(1).max(90).default(30) }))
       .query(async ({ ctx, input }) => {

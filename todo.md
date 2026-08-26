@@ -1219,3 +1219,12 @@
 ## Phase 81 — Per-Attorney Review-Only LinkedIn Drafts
 - [x] Add a visible per-attorney AI button that generates and saves one personalized LinkedIn outreach draft for human review only
 - [x] Enforce the existing evidence and quality gate before draft generation, show progress and the saved review state, and never send or automate LinkedIn messaging
+
+## Phase 82 — Verified Daily SEO Performance Reporting
+- [ ] Reconcile the fresh Search Console page measurements with the absent Outcomes scorecard baseline and expose a dated prior-period comparison
+- [ ] Produce a recurring owner-facing report of verified CTR, ranking/position, clicks, impressions, and conversion movement without requiring a manual request
+
+## Phase 83 — P1 Revenue Measurement and Conversion Loop
+- [ ] Make daily organic visibility, CTA engagement, time-on-page, durable leads, booked appointments, and conversion-rate measurement the Manager’s top required operating receipt
+- [ ] Create visible P1 escalation when fresh SEO/CTA/conversion data or a verified next action is missing
+- [ ] Show every daily measurement date, prior-period comparison, ranked problem, corrective action, implementation state, and next measurement date in the owner dashboard
