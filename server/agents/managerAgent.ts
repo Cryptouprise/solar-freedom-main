@@ -61,6 +61,7 @@ import {
   lawFirms,
   agentActions,
   leads,
+  seoScorecardSnapshots,
 } from "../../drizzle/schema";
 import { desc, eq, and, sql, gte } from "drizzle-orm";
 
@@ -397,6 +398,10 @@ export async function runManagerAgent(
       qaSummary.push(`${worker}: scheduled for independent QA`);
     }
 
+    const seoGate = await enforceDailySeoRevenueGate();
+    if (seoGate.actionCreated) context.actionsCreated++;
+    qaSummary.push(`daily SEO revenue gate: ${seoGate.summary}`);
+
     if ((qwenPricing.changed || qwenPricing.spendAlert) && qwenPricing.snapshot) {
       await createAction({
         agentSlug: "manager",
@@ -437,6 +442,50 @@ export async function runManagerAgent(
     await completeRun(context, `Error: ${error.message}`, "failed", error.message);
     throw error;
   }
+}
+
+async function enforceDailySeoRevenueGate(): Promise<{ actionCreated: boolean; summary: string }> {
+  const db = await getDb();
+  if (!db) return { actionCreated: false, summary: "blocked — database unavailable" };
+
+  const [latestSnapshot] = await db.select().from(seoScorecardSnapshots)
+    .orderBy(desc(seoScorecardSnapshots.capturedAt))
+    .limit(1);
+  const queue = await getActionQueue({ limit: 100 });
+  const ensureGateAction = async (title: string, description: string) => {
+    const existing = queue.find(action => action.title === title && ["queued", "running", "blocked"].includes(action.status));
+    if (existing) return false;
+    await createAction({
+      agentSlug: "manager",
+      priority: "p1",
+      title,
+      description,
+      actionType: "measurement_repair",
+      requiresApproval: 0,
+    });
+    return true;
+  };
+
+  const staleCutoff = Date.now() - 30 * 60 * 60 * 1000;
+  if (!latestSnapshot || new Date(latestSnapshot.capturedAt).getTime() < staleCutoff) {
+    const actionCreated = await ensureGateAction(
+      "[P1 SEO MEASUREMENT BLOCKED] Daily scorecard is stale or missing",
+      "No verified Search Console scorecard snapshot exists within the last 30 hours. Do not make ranking or conversion claims. Run the verified scorecard, capture clicks/impressions/CTR/position/leads, and record the failure detail if source data is unavailable."
+    );
+    return { actionCreated, summary: "blocked — current verified scorecard is stale or missing" };
+  }
+
+  const seoRuns = await getRunLog("seo_intel", 5);
+  const completedAfterMeasurement = seoRuns.some(run => run.status === "completed" && new Date(run.completedAt || run.startedAt || 0).getTime() >= new Date(latestSnapshot.capturedAt).getTime());
+  if (!completedAfterMeasurement) {
+    const actionCreated = await ensureGateAction(
+      "[P1 SEO EXECUTION RECEIPT MISSING] No completed SEO Intel run after measurement",
+      `The latest verified scorecard was captured at ${new Date(latestSnapshot.capturedAt).toISOString()}, but no completed SEO Intel run is recorded afterward. Run SEO Intel with the fresh measurement, then record a reviewable action, draft, explicit no-op, or blocked reason.`
+    );
+    return { actionCreated, summary: "needs execution receipt after latest measurement" };
+  }
+
+  return { actionCreated: false, summary: "pass — fresh measurement and post-measurement SEO execution receipt recorded" };
 }
 
 // ─── System State Gathering ───────────────────────────────────────────────────
