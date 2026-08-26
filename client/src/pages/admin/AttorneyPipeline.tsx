@@ -57,7 +57,7 @@ function safeUrl(url: string | null) {
   return /^https?:\/\//.test(url) ? url : `https://${url}`;
 }
 
-function ProspectCard({ prospect, onMove, onReview, onDraft, onApprove, onVerifyLinkedIn }: { prospect: Prospect; onMove: (id: number, status: Prospect["outreachStatus"]) => void; onReview: (id: number) => void; onDraft: (id: number) => void; onApprove: (id: number) => void; onVerifyLinkedIn: (id: number, url: string) => void }) {
+function ProspectCard({ prospect, onMove, onReview, onDraft, onApprove, onVerifyLinkedIn, isDrafting }: { prospect: Prospect; onMove: (id: number, status: Prospect["outreachStatus"]) => void; onReview: (id: number) => void; onDraft: (id: number) => void; onApprove: (id: number) => void; onVerifyLinkedIn: (id: number, url: string) => void; isDrafting: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [profileUrl, setProfileUrl] = useState(prospect.linkedInProfileUrl || "");
   const columnIndex = COLUMNS.findIndex(c => c.key === prospect.outreachStatus);
@@ -115,7 +115,7 @@ function ProspectCard({ prospect, onMove, onReview, onDraft, onApprove, onVerify
         {safeUrl(prospect.website) && <a href={safeUrl(prospect.website)!} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">Site <ExternalLink className="w-3 h-3" /></a>}
         <div className="flex-1" />
         <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-amber-500/25 text-amber-200" onClick={() => onReview(prospect.id)}><ShieldCheck className="w-3 h-3 mr-1" />Review</Button>
-        {["priority", "review"].includes(prospect.qualityTier) && <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-violet-500/25 text-violet-200" onClick={() => onDraft(prospect.id)}><FilePenLine className="w-3 h-3 mr-1" />Draft</Button>}
+        {["priority", "review"].includes(prospect.qualityTier) && <Button size="sm" variant="outline" disabled={isDrafting} className="h-7 px-2 text-xs border-violet-500/25 text-violet-200" onClick={() => { setExpanded(true); onDraft(prospect.id); }}>{isDrafting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <FilePenLine className="w-3 h-3 mr-1" />}{prospect.linkedInDraft ? "Regenerate AI draft" : "Generate AI message"}</Button>}
         {prospect.linkedInOutreachStatus === "drafted" && <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-emerald-500/25 text-emerald-200" onClick={() => onApprove(prospect.id)}><CheckCircle2 className="w-3 h-3 mr-1" />Approve</Button>}
         {next && <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-white/10 hover:bg-amber-500/10 hover:text-amber-300" onClick={() => onMove(prospect.id, next.key)}>{next.label} →</Button>}
       </div>
@@ -316,7 +316,7 @@ export default function AttorneyPipeline() {
                 <div key={column.key} className={`rounded-xl border-t-2 ${column.color} bg-[#111318] p-3 min-h-[460px]`}>
                   <div className="mb-3"><div className="flex items-center justify-between"><h2 className="text-white font-semibold text-sm">{column.label}</h2><Badge variant="outline" className="text-gray-400 border-white/10">{grouped[column.key]?.length || 0}</Badge></div><p className="text-[11px] text-gray-600 mt-1">{column.hint}</p></div>
                   <div className="space-y-3">
-                    {(grouped[column.key] || []).map(prospect => <ProspectCard key={prospect.id} prospect={prospect} onMove={(id, status) => update.mutate({ id, outreachStatus: status })} onReview={id => qualityReview.mutate({ id })} onDraft={id => draftLinkedIn.mutate({ id })} onApprove={id => approveLinkedIn.mutate({ id })} onVerifyLinkedIn={(id, profileUrl) => updateLinkedIn.mutate({ id, status: profileUrl ? "verified" : "research_ready", profileUrl: profileUrl || undefined })} />)}
+                    {(grouped[column.key] || []).map(prospect => <ProspectCard key={prospect.id} prospect={prospect} onMove={(id, status) => update.mutate({ id, outreachStatus: status })} onReview={id => qualityReview.mutate({ id })} onDraft={id => draftLinkedIn.mutate({ id })} onApprove={id => approveLinkedIn.mutate({ id })} onVerifyLinkedIn={(id, profileUrl) => updateLinkedIn.mutate({ id, status: profileUrl ? "verified" : "research_ready", profileUrl: profileUrl || undefined })} isDrafting={draftLinkedIn.isPending} />)}
                     {!grouped[column.key]?.length && <div className="rounded-lg border border-dashed border-white/10 px-3 py-8 text-center text-xs text-gray-600">No prospects in this stage.</div>}
                   </div>
                 </div>

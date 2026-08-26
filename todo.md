@@ -1214,3 +1214,7 @@
 - [x] Constrain SEO decisions to a compact structured payload so complete ranking and conversion actions are persisted instead of truncated
 - [x] Treat OpenRouter security-policy denials as non-retryable and keep SEO Intel on a reliable measured-work path while Flash availability is monitored
 - [x] Route non-OpenRouter configured agent models through the native agent helper instead of the legacy OpenRouter-only cost tracker
+
+## Phase 81 — Per-Attorney Review-Only LinkedIn Drafts
+- [x] Add a visible per-attorney AI button that generates and saves one personalized LinkedIn outreach draft for human review only
+- [x] Enforce the existing evidence and quality gate before draft generation, show progress and the saved review state, and never send or automate LinkedIn messaging
