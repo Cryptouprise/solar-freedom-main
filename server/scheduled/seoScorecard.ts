@@ -73,7 +73,7 @@ async function surfaceScorecardAlerts(alerts: Array<{ severity: string; metric: 
 
 async function saveSnapshotAndComparisons(input: {
   now: Date;
-  scorecard: { startDate: string; endDate: string; rows: number; clicks: number; impressions: number };
+  scorecard: { startDate: string; endDate: string; rows: number; clicks: number; impressions: number; ctrPercent: number; avgPosition: number };
   leadScorecard: { currentLeads: number; currentCrmSynced: number; currentAppointments: number };
   geoReadiness: number;
   alerts: Array<{ severity: string; metric: string; message: string }>;
@@ -86,6 +86,8 @@ async function saveSnapshotAndComparisons(input: {
   const values = {
     clicks: input.scorecard.clicks,
     impressions: input.scorecard.impressions,
+    ctrPercent: input.scorecard.ctrPercent.toFixed(4),
+    avgPosition: input.scorecard.avgPosition.toFixed(2),
     durableLeads: input.leadScorecard.currentLeads,
     crmDeliveries: input.leadScorecard.currentCrmSynced,
     bookedAppointments: input.leadScorecard.currentAppointments,

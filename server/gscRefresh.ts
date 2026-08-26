@@ -39,6 +39,19 @@ export function normalizeGscRows(rows: Array<{ keys?: string[]; clicks?: number;
     .filter((row) => row.url.startsWith("https://breakyoursolarcontract.com/"));
 }
 
+export function summarizeGscMetrics(rows: GscPageMetric[]) {
+  const clicks = rows.reduce((sum, row) => sum + row.clicks, 0);
+  const impressions = rows.reduce((sum, row) => sum + row.impressions, 0);
+  return {
+    clicks,
+    impressions,
+    ctrPercent: impressions > 0 ? (clicks / impressions) * 100 : 0,
+    avgPosition: impressions > 0
+      ? rows.reduce((sum, row) => sum + (row.position * row.impressions), 0) / impressions
+      : 0,
+  };
+}
+
 export function buildGscScorecardAlerts(input: {
   previousClicks: number;
   previousImpressions: number;
@@ -103,8 +116,7 @@ export async function refreshGscPageMetrics(now = new Date()) {
     clicks: sql<number>`COALESCE(SUM(${seoPages.gscClicks}), 0)`,
     impressions: sql<number>`COALESCE(SUM(${seoPages.gscImpressions}), 0)`,
   }).from(seoPages);
-  const clicks = rows.reduce((sum, row) => sum + row.clicks, 0);
-  const impressions = rows.reduce((sum, row) => sum + row.impressions, 0);
+  const { clicks, impressions, ctrPercent, avgPosition } = summarizeGscMetrics(rows);
   const alerts = buildGscScorecardAlerts({
     previousClicks: Number(previous?.clicks ?? 0),
     previousImpressions: Number(previous?.impressions ?? 0),
@@ -139,6 +151,8 @@ export async function refreshGscPageMetrics(now = new Date()) {
     rows: rows.length,
     clicks,
     impressions,
+    ctrPercent,
+    avgPosition,
     alerts,
   };
 }

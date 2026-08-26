@@ -134,6 +134,8 @@ export const seoScorecardSnapshots = mysqlTable("seoScorecardSnapshots", {
   pageRows: int("pageRows").default(0).notNull(),
   clicks: int("clicks").default(0).notNull(),
   impressions: int("impressions").default(0).notNull(),
+  ctrPercent: decimal("ctrPercent", { precision: 8, scale: 4 }).default("0").notNull(),
+  avgPosition: decimal("avgPosition", { precision: 8, scale: 2 }).default("0").notNull(),
   durableLeads: int("durableLeads").default(0).notNull(),
   crmDeliveries: int("crmDeliveries").default(0).notNull(),
   bookedAppointments: int("bookedAppointments").default(0).notNull(),

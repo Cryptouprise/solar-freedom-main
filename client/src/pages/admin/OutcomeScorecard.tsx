@@ -82,9 +82,11 @@ export default function OutcomeScorecard() {
 
         {latest && (
           <>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <MetricCard label="Organic clicks" value={latest.clicks} sub={`${latest.periodStart} to ${latest.periodEnd} · Search Console`} tone={latest.clicks > 0 ? "success" : "warning"} />
               <MetricCard label="Organic views" value={latest.impressions} sub={`${latest.pageRows} ranking pages · Search Console impressions`} tone={latest.impressions > 0 ? "success" : "warning"} />
+              <MetricCard label="Organic CTR" value={`${Number(latest.ctrPercent || 0).toFixed(2)}%`} sub="Clicks divided by Search Console impressions" tone={Number(latest.ctrPercent || 0) >= 2 ? "success" : "warning"} />
+              <MetricCard label="Average position" value={Number(latest.avgPosition || 0).toFixed(2)} sub="Impression-weighted Search Console position; lower is better" tone={Number(latest.avgPosition || 0) > 10 ? "warning" : "success"} />
               <MetricCard label="Durable leads" value={latest.durableLeads} sub="Website form submissions persisted to first-party storage" tone={latest.durableLeads > 0 ? "success" : "warning"} />
               <MetricCard label="Booked appointments" value={latest.bookedAppointments} sub="GoHighLevel appointment-booked events only" tone={latest.bookedAppointments > 0 ? "success" : "warning"} />
             </div>
@@ -115,7 +117,7 @@ export default function OutcomeScorecard() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] text-left text-sm">
                   <thead className="bg-black/20 text-xs uppercase tracking-wider text-gray-400">
-                    <tr><th className="px-5 py-3">Captured</th><th className="px-5 py-3">Organic clicks</th><th className="px-5 py-3">Views</th><th className="px-5 py-3">Leads</th><th className="px-5 py-3">Appointments</th><th className="px-5 py-3">GEO</th></tr>
+                    <tr><th className="px-5 py-3">Captured</th><th className="px-5 py-3">Organic clicks</th><th className="px-5 py-3">Views</th><th className="px-5 py-3">CTR</th><th className="px-5 py-3">Avg. position</th><th className="px-5 py-3">Leads</th><th className="px-5 py-3">Appointments</th><th className="px-5 py-3">GEO</th></tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {data.snapshots.map((row) => (
@@ -123,6 +125,8 @@ export default function OutcomeScorecard() {
                         <td className="px-5 py-3 text-gray-400">{formatDate(row.capturedAt)}</td>
                         <td className="px-5 py-3 font-medium">{row.clicks.toLocaleString()}</td>
                         <td className="px-5 py-3">{row.impressions.toLocaleString()}</td>
+                        <td className="px-5 py-3">{Number(row.ctrPercent || 0).toFixed(2)}%</td>
+                        <td className="px-5 py-3">{Number(row.avgPosition || 0).toFixed(2)}</td>
                         <td className="px-5 py-3">{row.durableLeads.toLocaleString()}</td>
                         <td className="px-5 py-3">{row.bookedAppointments.toLocaleString()}</td>
                         <td className="px-5 py-3">{row.geoReadiness}%</td>

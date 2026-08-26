@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildGscScorecardAlerts, normalizeGscRows } from "./gscRefresh";
+import { buildGscScorecardAlerts, normalizeGscRows, summarizeGscMetrics } from "./gscRefresh";
 
 describe("Search Console page refresh", () => {
   it("keeps only canonical-domain rows and preserves their metrics", () => {
@@ -27,5 +27,16 @@ describe("Search Console page refresh", () => {
       impressions: 0,
       rows: 0,
     })).toEqual([expect.objectContaining({ severity: "critical", metric: "rows" })]);
+  });
+
+  it("calculates an impression-weighted average position and verified CTR", () => {
+    const summary = summarizeGscMetrics([
+      { url: "https://breakyoursolarcontract.com/blog/a", clicks: 6, impressions: 100, ctr: 0.06, position: 8 },
+      { url: "https://breakyoursolarcontract.com/blog/b", clicks: 4, impressions: 300, ctr: 0.0133, position: 18 },
+    ]);
+    expect(summary.clicks).toBe(10);
+    expect(summary.impressions).toBe(400);
+    expect(summary.ctrPercent).toBe(2.5);
+    expect(summary.avgPosition).toBe(15.5);
   });
 });
