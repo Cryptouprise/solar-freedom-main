@@ -8,7 +8,9 @@ describe('GHL Webhook URL', () => {
     expect(url).toContain('webhook-trigger');
   });
 
-  it('GHL webhook endpoint responds with 200', async () => {
+  const liveProbe = process.env.RUN_LIVE_GHL_TESTS === '1' ? it : it.skip;
+
+  liveProbe('GHL webhook endpoint accepts an explicit integration probe', async () => {
     const url = process.env.GHL_WEBHOOK_URL!;
     const res = await fetch(url, {
       method: 'POST',

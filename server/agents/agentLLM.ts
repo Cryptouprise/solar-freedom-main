@@ -32,11 +32,11 @@ const OPENROUTER_MODELS = new Set([
 export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel: string }> = {
   manager:       { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
   revenue_intel: { modelId: "deepseek/deepseek-v4-pro",           modelLabel: "DeepSeek V4 Pro" },
-  content:       { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
-  seo_intel:     { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
-  editor:        { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
+  content:       { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
+  seo_intel:     { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
+  editor:        { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
   money_maker:   { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
-  infra:         { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
+  infra:         { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
 };
 
 // Fallback model when OpenRouter fails
@@ -185,6 +185,11 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
       } catch (err: any) {
         lastError = err;
         console.error(`[agentLLM] OpenRouter attempt ${attempt}/${MAX_RETRIES} failed for ${modelId}: ${err.message}`);
+        const nonRetryable = /\b(?:401|403)\b|access denied|security policy|invalid api key|model.*not found/i.test(err?.message ?? "");
+        if (nonRetryable) {
+          console.error(`[agentLLM] OpenRouter failure is non-retryable for ${modelId}; falling back immediately.`);
+          break;
+        }
         if (attempt < MAX_RETRIES) {
           // Exponential backoff: 2s, 4s, 8s
           await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt - 1)));

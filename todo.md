@@ -1200,3 +1200,17 @@
 - [x] Prioritize the verified working Qwen3.7 Plus OpenRouter route for appropriate worker roles with bounded fallback behavior; Qwen3.7 Flash remains available but returned empty content in live verification
 - [x] Add promotion-price and measured-spend monitoring that alerts the Manager when the live rate changes or daily Qwen3.7 Plus spend exceeds $5
 - [x] Validate and document the agent’s actual operating instructions and work results; publish the completed configuration
+
+## Phase 80 — Daily SEO Ranking and Conversion Operating Contract
+- [x] Audit what the SEO agent currently reads, reports, changes, and fails to execute
+- [x] Persist daily snapshots for rankings, clicks, impressions, CTR, traffic, leads, and conversions with day-over-day deltas
+- [ ] Require every SEO action to include a target metric, before value, after value, implementation evidence, and next measurement date
+- [ ] Let the SEO agent perform bounded, reviewable on-site conversion and internal-link improvements instead of only recommending them
+- [ ] Add a visible daily SEO outcome report and Manager quality gate for no-op or unmeasurable runs
+- [ ] Validate, publish, and document the daily SEO operating contract
+- [x] Normalize SEO-generated post URLs to real published slugs and record every skipped optimization with a precise reason
+- [x] Route SEO Intel through a verified fast model path without repeated timeout spend; Qwen3.7 Flash availability is monitored separately
+- [x] Recover valid SEO actions and directives when Qwen3.7 Flash returns JSON containing raw line breaks
+- [x] Constrain SEO decisions to a compact structured payload so complete ranking and conversion actions are persisted instead of truncated
+- [x] Treat OpenRouter security-policy denials as non-retryable and keep SEO Intel on a reliable measured-work path while Flash availability is monitored
+- [x] Route non-OpenRouter configured agent models through the native agent helper instead of the legacy OpenRouter-only cost tracker

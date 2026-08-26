@@ -6,7 +6,6 @@
  */
 
 import { getDb } from "../db";
-import { callLLM } from "../cron/aiCostTracker";
 import {
   agents,
   agentMessages,
@@ -67,46 +66,28 @@ export async function agentLLM(params: {
   const { callAgentLLM, estimateOpenRouterCost, getAgentModel } = await import("./agentLLM");
   const modelId = await getAgentModel(params.agentSlug);
 
-  // Check if OpenRouter model (Qwen/DeepSeek) — use callAgentLLM
-  const OPENROUTER_PREFIXES = ["qwen/", "deepseek/", "mistralai/", "meta-llama/"];
-  const isOpenRouter = OPENROUTER_PREFIXES.some(p => modelId.startsWith(p));
   const isScheduledCallback = params.context.triggerType === "cron";
-  // Qwen3.7 Plus spends part of the completion budget on internal reasoning.
-  // Keep cron output bounded but leave enough room for a valid structured payload.
-  const scheduledTokenCap = modelId === "qwen/qwen3.7-plus" ? 1_400 : 900;
+  // Keep cron output bounded while leaving enough room for Flash's reasoning
+  // tokens and a compact actionable SEO decision.
+  const scheduledTokenCap = modelId === "qwen/qwen3.7-plus" ? 1_400 : modelId === "qwen/qwen3.7-flash" ? 2_400 : 900;
   const maxTokens = isScheduledCallback ? Math.min(params.maxTokens ?? 4000, scheduledTokenCap) : (params.maxTokens ?? 4000);
 
-  if (isOpenRouter) {
-    const res = await callAgentLLM({
-      agentSlug: params.agentSlug,
-      modelOverride: modelId,
-      messages: params.messages as any,
-      maxTokens,
-      executionMode: isScheduledCallback ? "scheduled" : "standard",
-      responseFormat: params.responseFormat,
-    });
-    params.context.llmCalls++;
-    if (res.usage) {
-      params.context.tokensIn += res.usage.promptTokens;
-      params.context.tokensOut += res.usage.completionTokens;
-      params.context.costUsd += estimateOpenRouterCost(res.modelId, res.usage);
-    }
-    params.context.modelId = res.modelId;
-    return res.content;
-  }
-
-  // Built-in proxy
-  const result = await callLLM({
-    model: modelId,
-    messages: params.messages,
-    feature: `agent_${params.agentSlug}`,
-    referenceId: params.context.runId,
-    referenceType: "agent_run",
-    temperature: params.temperature ?? 0.4,
+  const res = await callAgentLLM({
+    agentSlug: params.agentSlug,
+    modelOverride: modelId,
+    messages: params.messages as any,
     maxTokens,
+    executionMode: isScheduledCallback ? "scheduled" : "standard",
+    responseFormat: params.responseFormat,
   });
   params.context.llmCalls++;
-  return result;
+  if (res.usage) {
+    params.context.tokensIn += res.usage.promptTokens;
+    params.context.tokensOut += res.usage.completionTokens;
+    params.context.costUsd += estimateOpenRouterCost(res.modelId, res.usage);
+  }
+  params.context.modelId = res.modelId;
+  return res.content;
 }
 
 // ─── DB Helpers ───────────────────────────────────────────────────────────────

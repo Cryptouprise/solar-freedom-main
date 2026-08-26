@@ -25,6 +25,7 @@ import { getDb } from "../db";
 import { seoChangeLog, seoPages, blogPosts, contentPipeline, blogDrafts } from "../../drizzle/schema";
 import { desc, eq, sql, and, gte, lt } from "drizzle-orm";
 import { blogPosts as staticBlogPosts } from "../../client/src/data/blog";
+import { refreshGscPageMetrics } from "../gscRefresh";
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
 
@@ -69,6 +70,19 @@ SEO RECOVERY PRIORITIES:
 3. Internal linking — every article should link to 3+ related articles and 2+ city pages
 4. Backlinks — Medium syndication with canonical tags (DA 95), press releases, HARO
 5. Technical — page speed, Core Web Vitals, schema markup
+
+EXECUTION SAFETY:
+- For optimizeExisting, copy a slug exactly from the supplied PUBLISHED ARTICLES list.
+- Never invent a future-dated, old, or /blog-prefixed slug. If no supplied post is a fit, return an empty optimizeExisting list.
+
+COMPACT OUTPUT LIMITS:
+- analysis: at most 80 words.
+- topOpportunities: at most 3 entries; each action and revenue field must be concise.
+- threats: at most 2 entries; each issue and fix must be at most 30 words.
+- actions: at most 4 entries; each title and description must be at most 24 words.
+- contentDirectives: at most 1 entry; use at most 4 specific sections and 4 internal links.
+- optimizeExisting: at most 1 entry.
+- messages: at most 2 entries; body at most 80 words.
 
 OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
 {
@@ -170,6 +184,49 @@ function normalizeSeoDraftLanguage(value: string | undefined) {
     .replace(/\bfree legal guide(s)?\b/gi, "consumer protection guide$1");
 }
 
+function normalizePublishedPostSlug(value: string | undefined): string {
+  return (value ?? "")
+    .trim()
+    .replace(/^https?:\/\/[^/]+/i, "")
+    .replace(/^\/?blog\//i, "")
+    .replace(/^\/+|\/+$/g, "");
+}
+
+function extractFirstJsonObject(value: string): string | null {
+  const start = value.indexOf("{");
+  if (start < 0) return null;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (let index = start; index < value.length; index++) {
+    const char = value[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') quoted = true;
+    else if (char === "{") depth++;
+    else if (char === "}" && --depth === 0) return value.slice(start, index + 1);
+  }
+  return null;
+}
+
+function parseSeoIntelResponse<T extends { analysis?: string }>(response: string): T {
+  const candidate = extractFirstJsonObject(response);
+  if (!candidate) return { analysis: response } as T;
+  try {
+    return JSON.parse(candidate) as T;
+  } catch {
+    try {
+      return JSON.parse(candidate.replace(/[\r\n]+/g, " ")) as T;
+    } catch {
+      return { analysis: response } as T;
+    }
+  }
+}
+
 // ─── Main Execution ───────────────────────────────────────────────────────────
 
 export async function runSeoIntel(
@@ -179,8 +236,20 @@ export async function runSeoIntel(
   const context = await startRun("seo_intel", triggerType, triggeredBy);
 
   try {
-    // 1. Gather state
-    const seoState = await gatherSeoState();
+    // 1. Gather state. If the scheduled scorecard missed its window, SEO Intel
+    // refreshes the verified GSC source itself before making any ranking or
+    // conversion decision. It never falls back to invented SEO measurements.
+    let seoState = await gatherSeoState();
+    let measurementRefreshNote = "";
+    if (!seoState.hasCurrentMeasurements) {
+      try {
+        const refreshed = await refreshGscPageMetrics();
+        seoState = await gatherSeoState();
+        measurementRefreshNote = `\n\n═══ LIVE MEASUREMENT REFRESH ═══\nSearch Console page metrics were refreshed for ${refreshed.rows} canonical pages (${refreshed.clicks} clicks, ${refreshed.impressions} impressions) before this analysis.`;
+      } catch (refreshError: any) {
+        measurementRefreshNote = `\n\n═══ LIVE MEASUREMENT REFRESH FAILED ═══\n${refreshError?.message || "Unknown Search Console refresh error"}. Do not make ranking or revenue claims until this source is restored.`;
+      }
+    }
 
     // 2. Check inbox
     const inbox = await getUnreadMessages("seo_intel");
@@ -197,12 +266,16 @@ export async function runSeoIntel(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `CURRENT SEO STATE:\n${seoState.content}${inboxSummary}\n\nAnalyze the SEO data. Calculate revenue impact only when CURRENT SEO STATE contains fresh measurements. Prioritize by money, not vanity metrics. Create content directives or optimize existing posts only when the measurement-integrity rules permit them.`,
+          content: `CURRENT SEO STATE:\n${seoState.content}${measurementRefreshNote}${inboxSummary}\n\nAnalyze the SEO data. Calculate revenue impact only when CURRENT SEO STATE contains fresh measurements. Prioritize by money, not vanity metrics. Create content directives or optimize existing posts only when the measurement-integrity rules permit them.`,
         },
       ],
       context,
       temperature: 0.25,
-      maxTokens: 5000,
+      // Qwen3.7 Flash uses reasoning tokens before its visible JSON. Give it the
+      // tested 4K budget and let the resilient parser handle its plain JSON
+      // response rather than requesting provider-enforced JSON mode, which has
+      // returned empty content for this model route.
+      maxTokens: 4096,
     });
 
     // 4. Parse
@@ -241,12 +314,7 @@ export async function runSeoIntel(
       messages?: Array<{ toAgent: string; type: string; subject: string; body: string }>;
     } = {};
 
-    try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
-    } catch {
-      parsed = { analysis: response };
-    }
+    parsed = parseSeoIntelResponse<typeof parsed>(response);
 
     // Prevent absent or stale Search Console data from becoming invented
     // rankings, keyword gaps, revenue forecasts, or automatic rewrites.
@@ -313,6 +381,7 @@ export async function runSeoIntel(
     if (db && (parsed.optimizeExisting || []).length > 0) {
       for (const opt of (parsed.optimizeExisting || []).slice(0, 2)) {
         try {
+          const postSlug = normalizePublishedPostSlug(opt.postSlug);
           // Fetch the existing post content
           const [dbPost] = await db.select({
             id: blogPosts.id,
@@ -322,10 +391,10 @@ export async function runSeoIntel(
             metaTitle: blogPosts.metaTitle,
             metaDescription: blogPosts.metaDescription,
           }).from(blogPosts)
-            .where(eq(blogPosts.slug, opt.postSlug))
+            .where(eq(blogPosts.slug, postSlug))
             .limit(1);
 
-          const staticPost = staticBlogPosts.find((candidate) => candidate.slug === opt.postSlug);
+          const staticPost = staticBlogPosts.find((candidate) => candidate.slug === postSlug);
           const post = dbPost ? {
             ...dbPost,
             sourceContent: dbPost.content || "",
@@ -340,6 +409,15 @@ export async function runSeoIntel(
           } : null;
 
           if (!post) {
+            await createAction({
+              agentSlug: "seo_intel",
+              priority: "p2",
+              title: `[SEO EXECUTION BLOCKED] Published post not found: ${postSlug || "empty slug"}`,
+              description: `SEO Intel proposed "${opt.postSlug}" for optimization, but that slug is not in the current published-post inventory. No draft was generated; the next cycle must use an exact supplied slug.`,
+              actionType: "technical_fix",
+              requiresApproval: 0,
+            });
+            context.actionsCreated++;
             console.log(`[SEO Intel] Post not found: ${opt.postSlug}`);
             continue;
           }
@@ -395,7 +473,7 @@ export async function runSeoIntel(
           const [existingDraft] = await db.select({ id: blogDrafts.id })
             .from(blogDrafts)
             .where(and(
-              eq(blogDrafts.postSlug, opt.postSlug),
+              eq(blogDrafts.postSlug, postSlug),
               eq(blogDrafts.name, draftName)
             ))
             .limit(1);
@@ -414,7 +492,7 @@ export async function runSeoIntel(
             }).where(eq(blogDrafts.id, existingDraft.id));
           } else {
             await db.insert(blogDrafts).values({
-              postSlug: opt.postSlug,
+              postSlug,
               name: draftName,
               title: optimized.title || post.title,
               content: optimized.content,
