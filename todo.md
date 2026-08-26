@@ -1206,7 +1206,8 @@
 - [x] Persist daily snapshots for rankings, clicks, impressions, CTR, traffic, leads, and conversions with day-over-day deltas
 - [ ] Require every SEO action to include a target metric, before value, after value, implementation evidence, and next measurement date
 - [ ] Let the SEO agent perform bounded, reviewable on-site conversion and internal-link improvements instead of only recommending them
-- [ ] Add a visible daily SEO outcome report and Manager quality gate for no-op or unmeasurable runs
+- [x] Add a visible daily SEO outcome report showing verified scorecard data when available plus dated SEO runs and reviewable actions while a baseline is pending
+- [ ] Add a Manager quality gate for no-op or unmeasurable SEO runs
 - [ ] Validate, publish, and document the daily SEO operating contract
 - [x] Normalize SEO-generated post URLs to real published slugs and record every skipped optimization with a precise reason
 - [x] Route SEO Intel through a verified fast model path without repeated timeout spend; Qwen3.7 Flash availability is monitored separately
