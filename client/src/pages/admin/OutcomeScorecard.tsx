@@ -1,6 +1,7 @@
 import AdminLayout from "@/components/AdminLayout";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -22,6 +23,26 @@ function MetricCard({ label, value, sub, tone = "default" }: { label: string; va
       <p className="mt-2 text-xs text-gray-400">{sub}</p>
     </section>
   );
+}
+
+function SeoTrendChart({ snapshots }: { snapshots: Array<{ capturedAt: Date | string; ctrPercent?: number | string | null; avgPosition?: number | string | null }> }) {
+  const latestByUtcDay = new Map<string, (typeof snapshots)[number]>();
+  [...snapshots].reverse().forEach((snapshot) => {
+    const date = new Date(snapshot.capturedAt);
+    const day = Number.isNaN(date.getTime()) ? "unknown" : date.toISOString().slice(0, 10);
+    latestByUtcDay.set(day, snapshot);
+  });
+  const points = Array.from(latestByUtcDay.values()).map((snapshot) => ({
+    date: formatDate(snapshot.capturedAt).replace(/, \d{4}$/, ""),
+    ctr: Number(snapshot.ctrPercent || 0),
+    position: Number(snapshot.avgPosition || 0),
+  }));
+
+  if (points.length < 2) {
+    return <section className="rounded-xl border border-white/10 bg-white/5 p-5"><h2 className="text-sm font-semibold text-white">30-day organic trend</h2><p className="mt-1 text-sm text-gray-400">CTR and average position appear only from verified daily scorecard snapshots.</p><div className="mt-4 rounded-lg border border-dashed border-amber-400/30 bg-amber-400/[0.04] px-4 py-8 text-sm text-amber-100">One verified baseline is recorded. The chart will draw a real trend after the next daily scorecard—not an invented line between missing days.</div></section>;
+  }
+
+  return <section className="rounded-xl border border-white/10 bg-white/5 p-5"><div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-sm font-semibold text-white">30-day organic trend</h2><p className="mt-1 text-sm text-gray-400">Verified scorecard snapshots only. Lower average position is better.</p></div><div className="flex gap-3 text-xs font-mono"><span className="text-amber-300">● CTR %</span><span className="text-violet-300">● Avg. position</span></div></div><div className="mt-5 h-72" aria-label="Thirty day organic click-through rate and average ranking position chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={points} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}><CartesianGrid stroke="#ffffff12" vertical={false} /><XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} /><YAxis yAxisId="ctr" tick={{ fill: "#fbbf24", fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} width={42} /><YAxis yAxisId="position" orientation="right" tick={{ fill: "#c4b5fd", fontSize: 11 }} tickLine={false} axisLine={false} width={32} reversed /><Tooltip contentStyle={{ background: "#101217", border: "1px solid #ffffff20", borderRadius: 8 }} labelStyle={{ color: "#e2e8f0" }} formatter={(value: number, name: string) => [name === "CTR" ? `${Number(value).toFixed(2)}%` : Number(value).toFixed(2), name]} /><Line yAxisId="ctr" type="monotone" dataKey="ctr" name="CTR" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4, fill: "#f59e0b" }} activeDot={{ r: 6 }} /><Line yAxisId="position" type="monotone" dataKey="position" name="Avg. position" stroke="#a78bfa" strokeWidth={3} dot={{ r: 4, fill: "#a78bfa" }} activeDot={{ r: 6 }} /></LineChart></ResponsiveContainer></div></section>;
 }
 
 export default function OutcomeScorecard() {
@@ -90,6 +111,8 @@ export default function OutcomeScorecard() {
               <MetricCard label="Durable leads" value={latest.durableLeads} sub="Website form submissions persisted to first-party storage" tone={latest.durableLeads > 0 ? "success" : "warning"} />
               <MetricCard label="Booked appointments" value={latest.bookedAppointments} sub="GoHighLevel appointment-booked events only" tone={latest.bookedAppointments > 0 ? "success" : "warning"} />
             </div>
+
+            <SeoTrendChart snapshots={data.snapshots} />
 
             <section className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h2 className="text-sm font-semibold text-white">What to act on</h2>

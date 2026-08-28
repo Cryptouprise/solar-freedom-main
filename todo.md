@@ -1229,3 +1229,4 @@
 - [x] Create visible P1 escalation when fresh SEO/CTA/conversion data or a verified next action is missing
 - [ ] Show every daily measurement date, prior-period comparison, ranked problem, corrective action, implementation state, and next measurement date in the owner dashboard
 - [x] Persist verified organic CTR and impression-weighted average position in every daily scorecard snapshot and show them in the Outcomes dashboard
+- [x] Add a 30-day Outcomes trend chart for persisted CTR and average ranking position with explicit missing-data states
