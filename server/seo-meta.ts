@@ -572,3 +572,137 @@ export async function injectMetaDynamic(
 
   return $.html();
 }
+
+/**
+ * Overlay database edits onto an already-prerendered page.
+ *
+ * Blog pages are served from the build-time prerender (server/seo-delivery.ts),
+ * which returns before the database branch is ever reached. Without this, an
+ * agent executor's metadata, FAQ and internal-link edits would only ever reach
+ * the React client, never the crawler-delivered HTML.
+ *
+ * The overlay is strictly ADDITIVE. It rewrites head metadata and appends FAQ
+ * content and internal links, but never removes anything the prerender emits,
+ * so applying it can only improve a page relative to serving the file as-is.
+ */
+export function applyDbOverlayToPrerendered(
+  html: string,
+  post: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    faqItems?: unknown;
+    content?: string | null;
+  }
+): string {
+  const faq = normalizeFaqItems(
+    typeof post.faqItems === "string" ? safeJsonParse(post.faqItems) : post.faqItems
+  );
+  const metaTitle = typeof post.metaTitle === "string" ? post.metaTitle.trim() : "";
+  const metaDescription = typeof post.metaDescription === "string" ? post.metaDescription.trim() : "";
+  const contentLinks = extractInternalLinks(post.content ?? "");
+
+  if (!metaTitle && !metaDescription && !faq.length && !contentLinks.length) return html;
+
+  const $ = cheerio.load(html);
+  const main = $("main.seo-prerender");
+  if (!main.length) return html;
+
+  if (metaTitle) {
+    const withBrand = /solar freedom/i.test(metaTitle) ? metaTitle : `${metaTitle} | Solar Freedom`;
+    $("title").text(withBrand);
+    $('meta[property="og:title"]').attr("content", withBrand);
+    $('meta[name="twitter:title"]').attr("content", withBrand);
+  }
+  if (metaDescription) {
+    const safeDescription = suppressUnverifiedFirstPartyClaims(metaDescription);
+    $('meta[name="description"]').attr("content", safeDescription);
+    $('meta[property="og:description"]').attr("content", safeDescription);
+    $('meta[name="twitter:description"]').attr("content", safeDescription);
+  }
+
+  // Append only FAQ entries the prerendered page does not already ask.
+  if (faq.length) {
+    const askedAlready = new Set(
+      main
+        .find("h2, h3")
+        .map((_i, element) => normalizeQuestionKey($(element).text()))
+        .get()
+    );
+    const fresh = faq.filter(item => !askedAlready.has(normalizeQuestionKey(item.q)));
+    if (fresh.length) {
+      const faqHtml = `<section aria-labelledby="db-faq"><h2 id="db-faq">Frequently asked questions</h2>${fresh
+        .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`)
+        .join("")}</section>`;
+      const nav = main.find("nav").first();
+      if (nav.length) nav.before(faqHtml);
+      else main.append(faqHtml);
+
+      const merged = [
+        ...faq.filter(item => askedAlready.has(normalizeQuestionKey(item.q))),
+        ...fresh,
+      ];
+      $("head").append(
+        `<script type="application/ld+json">${JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: merged.map(item => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: { "@type": "Answer", text: item.a },
+          })),
+        }).replace(/</g, "\\u003c")}</script>`
+      );
+    }
+  }
+
+  // Surface internal links an executor added to the stored body. The prerendered
+  // body comes from the static article data, so those anchors are not in it.
+  if (contentLinks.length) {
+    const linkedAlready = new Set(
+      main
+        .find("a[href]")
+        .map((_i, element) => String($(element).attr("href")))
+        .get()
+    );
+    const freshLinks = contentLinks.filter(link => !linkedAlready.has(link.href));
+    if (freshLinks.length) {
+      const list = main.find("nav ul").first();
+      const items = freshLinks
+        .map(link => `<li><a href="${escapeHtml(link.href)}">${escapeHtml(link.text)}</a></li>`)
+        .join("");
+      if (list.length) list.append(items);
+      else main.append(`<nav aria-label="Related Solar Freedom resources"><ul>${items}</ul></nav>`);
+    }
+  }
+
+  return $.html();
+}
+
+function safeJsonParse(value: string): unknown {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeQuestionKey(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+/** Internal (same-site, path-relative) anchors present in stored article HTML. */
+function extractInternalLinks(content: string): Array<{ href: string; text: string }> {
+  if (!content || !content.includes("<a")) return [];
+  const $ = cheerio.load(content, undefined, false);
+  const seen = new Set<string>();
+  const links: Array<{ href: string; text: string }> = [];
+  $("a[href]").each((_index, element) => {
+    const href = String($(element).attr("href") ?? "").trim();
+    const text = $(element).text().trim();
+    if (!href.startsWith("/") || href.startsWith("//") || !text) return;
+    if (seen.has(href)) return;
+    seen.add(href);
+    links.push({ href, text });
+  });
+  return links;
+}
