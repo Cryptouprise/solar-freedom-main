@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import indexEligibility from "@shared/index-eligibility.json";
+import seoRedirects from "@shared/seo-redirects.json";
 import {
   ACTION_EXECUTORS,
   ADVISORY_ACTION_TYPES,
@@ -173,6 +174,20 @@ describe("internal link destinations", () => {
       (indexEligibility.trustQuarantine?.paths ?? []).map((entry: { path: string }) => entry.path),
     );
     for (const target of targets) expect(quarantined.has(target)).toBe(false);
+  });
+
+  it("never offers a redirected blog slug as a destination", () => {
+    const redirectedBlogSlugs = Object.keys(seoRedirects.blog).map((path) => path.replace(/^\/blog\//, ""));
+    // These four sit in blogSlugs but are superseded by redirects.
+    expect(redirectedBlogSlugs.some((slug) => indexEligibility.blogSlugs.includes(slug))).toBe(true);
+    for (const slug of redirectedBlogSlugs) expect(targets).not.toContain(`/blog/${slug}`);
+  });
+
+  it("never offers a city path that 301s, such as houston-tx", () => {
+    expect(indexEligibility.citySlugs).toContain("houston-tx");
+    expect(Object.keys(seoRedirects.public)).toContain("/cancel-solar-contract/houston-tx");
+    expect(targets).not.toContain("/cancel-solar-contract/houston-tx");
+    for (const path of Object.keys(seoRedirects.public)) expect(targets).not.toContain(path);
   });
 
   it("includes both blog and city destinations", () => {

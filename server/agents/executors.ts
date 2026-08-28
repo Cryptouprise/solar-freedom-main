@@ -40,6 +40,7 @@ import {
   INDEXABLE_BLOG_SLUGS,
   INDEXABLE_CITY_PATHS,
 } from "../../client/src/data/indexEligibility";
+import { PUBLIC_PATH_REDIRECTS } from "../seo-redirects";
 
 // ─── Hard limits ──────────────────────────────────────────────────────────────
 // These are structural, not stylistic. A patch outside them is rejected.
@@ -324,12 +325,23 @@ async function executeMetadataRewrite(ctx: ExecutorContext): Promise<ExecutionOu
 // Covers internal_link and interlink_injection. Wraps phrases that already exist
 // in the page body with contextual links to other live, index-eligible pages.
 
-/** Every internal destination an executor is allowed to link to. */
+/**
+ * Every internal destination an executor is allowed to link to.
+ *
+ * The eligibility allowlists are not sufficient on their own: four entries in
+ * blogSlugs are superseded by blog redirects, and citySlugs still contains
+ * houston-tx, which 301s. Inserting a link to either would re-introduce the
+ * internal redirect hops the spam recovery removed, so every candidate is
+ * checked against the canonical-index rule and the public redirect ledger.
+ */
 export function allowedInternalTargets(excludeSlug?: string): string[] {
   const blog = Array.from(INDEXABLE_BLOG_SLUGS)
-    .filter((slug) => slug !== excludeSlug)
+    .filter((slug) => slug !== excludeSlug && isCanonicalBlogIndexed(slug))
     .map((slug) => `/blog/${slug}`);
-  return [...blog, ...INDEXABLE_CITY_PATHS].filter((path) => !isQuarantinedPath(path)).sort();
+  return [...blog, ...INDEXABLE_CITY_PATHS]
+    .filter((path) => !isQuarantinedPath(path))
+    .filter((path) => !Object.hasOwn(PUBLIC_PATH_REDIRECTS, path))
+    .sort();
 }
 
 function escapeRegExp(value: string): string {
