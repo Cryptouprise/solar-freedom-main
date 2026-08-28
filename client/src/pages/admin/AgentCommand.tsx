@@ -42,6 +42,7 @@ import {
   Trash2,
   CheckCheck,
   Calendar,
+  Undo2,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -342,6 +343,17 @@ function OwnerView() {
 
 // ─── Action Queue Component ─────────────────────────────────────────────────
 
+/** True when a completed action stored a rollback plan the owner can apply. */
+function hasRollback(result: unknown): boolean {
+  if (typeof result !== "string" || !result) return false;
+  try {
+    const parsed = JSON.parse(result);
+    return !!parsed?.rollback?.slug;
+  } catch {
+    return false;
+  }
+}
+
 function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[] }) {
   const utils = trpc.useUtils();
   const dismiss = trpc.agents.dismissAction.useMutation({
@@ -350,15 +362,25 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
   const markDone = trpc.agents.markActionDone.useMutation({
     onSuccess: () => utils.agents.actions.invalidate(),
   });
+  const { data: coverage } = trpc.agents.executorCoverage.useQuery();
+  const executableTypes = new Set((coverage?.executable ?? []).map((entry) => entry.actionType));
+
   const execute = trpc.agents.executeAction.useMutation({
     onSuccess: (response) => {
       utils.agents.actions.invalidate();
       utils.agents.chatThreads.invalidate();
-      if (response.blocked) {
-        window.alert("This task is blocked pending its evidence-based research integration. The action card now contains the reason; no unverified prospects were created.");
+      if (response.status === "blocked") {
+        window.alert(`This action did not change anything.\n\n${response.summary}`);
       }
     },
     onError: (error) => window.alert(`Action could not run: ${error.message}`),
+  });
+  const revert = trpc.agents.revertAction.useMutation({
+    onSuccess: (response) => {
+      utils.agents.actions.invalidate();
+      window.alert(response.summary);
+    },
+    onError: (error) => window.alert(`Revert failed: ${error.message}`),
   });
 
   const ACTION_EXPLANATIONS: Record<string, string> = {
@@ -415,14 +437,14 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
                   <span className="ml-1 px-1.5 py-0.5 rounded bg-white/5 text-gray-600 font-mono">{action.actionType}</span>
                 )}
               </div>
-              {/* A Run control appears only for action types with a safe execution adapter. */}
-              {["queued", "blocked", "failed"].includes(action.status) && (
+              {/* A Run control appears for every action type with a typed executor. */}
+              {["queued", "blocked", "failed", "approved"].includes(action.status) && (
                 <div className="flex items-center gap-1">
-                  {action.actionType === "research_firm" && !action.requiresApproval && (
+                  {executableTypes.has(action.actionType) && (!action.requiresApproval || action.status === "approved") && (
                     <button
                       onClick={() => execute.mutate({ actionId: action.id })}
                       disabled={execute.isPending}
-                      title="Run evidence-backed attorney research"
+                      title={coverage?.executable.find((entry) => entry.actionType === action.actionType)?.label ?? "Run this action"}
                       className="flex items-center gap-1 px-1.5 py-1 rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 text-[10px] border border-blue-500/20 transition-colors"
                     >
                       {execute.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}Run
@@ -445,6 +467,17 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
+              )}
+              {/* Anything an executor changed on a live page can be put straight back. */}
+              {action.status === "completed" && hasRollback(action.result) && (
+                <button
+                  onClick={() => revert.mutate({ actionId: action.id })}
+                  disabled={revert.isPending}
+                  title="Restore this page to its values from before the action ran"
+                  className="flex items-center gap-1 px-1.5 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] border border-amber-500/20 transition-colors"
+                >
+                  {revert.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Undo2 className="w-3 h-3" />}Revert
+                </button>
               )}
             </div>
           </div>

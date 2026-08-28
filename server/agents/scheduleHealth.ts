@@ -21,6 +21,20 @@ type SeoMeasurementRecord = {
 };
 
 const EXPECTED_AGENT_SLUGS = Object.keys(AGENT_CRON_CONFIGS);
+
+/**
+ * Scheduled jobs that are not agents but must still be watched. The action
+ * executor is the only path that applies queued SEO actions to live pages, so a
+ * silent stall there stops every ranking change without stopping any agent.
+ */
+const SUPPORT_JOBS: Array<{ slug: string; jobName: string }> = [
+  { slug: "action_executor", jobName: "agent-action-executor" },
+];
+
+const MONITORED_JOBS: Array<{ slug: string; jobName: string }> = [
+  ...EXPECTED_AGENT_SLUGS.map((slug) => ({ slug, jobName: `agent-${slug}` })),
+  ...SUPPORT_JOBS,
+];
 const STALE_AGENT_RUN_MS = 36 * 60 * 60 * 1000;
 const STALE_GSC_MEASUREMENT_MS = 72 * 60 * 60 * 1000;
 
@@ -47,8 +61,8 @@ export function buildAgentScheduleHealth(
   jobs: HeartbeatRecord[],
   now = Date.now(),
 ): AgentScheduleHealth[] {
-  return EXPECTED_AGENT_SLUGS.map((slug) => {
-    const job = jobs.find((candidate) => candidate.name === `agent-${slug}`);
+  return MONITORED_JOBS.map(({ slug, jobName }) => {
+    const job = jobs.find((candidate) => candidate.name === jobName);
     const agent = agents.find((candidate) => candidate.slug === slug);
     const migrated = slug === "manager" && !job;
     const enabled = Boolean(job?.isEnable);

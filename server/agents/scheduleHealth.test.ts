@@ -50,4 +50,23 @@ describe("agent schedule health", () => {
     expect(schedules.find((state) => state.slug === "seo_intel")?.state).toBe("stale");
     expect(measurement).toMatchObject({ state: "stale", trackedPageCount: 1 });
   });
+  it("watches the action executor, so a stalled executor is visible even when every agent is healthy", () => {
+    const now = Date.parse("2026-08-28T12:00:00Z");
+    const healthy = buildAgentScheduleHealth(
+      [],
+      [{ name: "agent-action-executor", isEnable: true, lastExecutedAt: "2026-08-28T09:30:00Z" }],
+      now,
+    );
+    expect(healthy.find((state) => state.slug === "action_executor")?.state).toBe("scheduled");
+
+    const stalled = buildAgentScheduleHealth(
+      [],
+      [{ name: "agent-action-executor", isEnable: true, lastExecutedAt: "2026-08-25T09:30:00Z" }],
+      now,
+    );
+    expect(stalled.find((state) => state.slug === "action_executor")?.state).toBe("stale");
+
+    const unregistered = buildAgentScheduleHealth([], [], now);
+    expect(unregistered.find((state) => state.slug === "action_executor")?.state).toBe("missing");
+  });
 });
