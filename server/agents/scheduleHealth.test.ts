@@ -17,7 +17,7 @@ describe("agent schedule health", () => {
     const states = buildAgentScheduleHealth(
       [],
       [
-        { name: "agent-manager", isEnable: false },
+        { name: "agent-manager-mountain-8-dst", isEnable: false },
         { name: "agent-infra", isEnable: true },
       ],
     );
@@ -26,13 +26,47 @@ describe("agent schedule health", () => {
     expect(states.find((state) => state.slug === "infra")?.state).toBe("awaiting_first_run");
   });
 
-  it("marks the legacy Manager callback as migrated when automatic expert review replaces it", () => {
-    const states = buildAgentScheduleHealth([], []);
-    expect(states.find((state) => state.slug === "manager")).toMatchObject({
+  it("reports the Manager's real DST job pair rather than the name it never registers", () => {
+    // registerCrons creates agent-manager-mountain-8-dst/-standard, never
+    // "agent-manager". Looking up the latter made every Manager state render as
+    // "migrated", hiding a disabled or stalled daily cycle.
+    const now = Date.parse("2026-08-28T15:10:00Z");
+    const healthy = buildAgentScheduleHealth(
+      [{ slug: "manager", lastRunAt: "2026-08-28T14:05:00Z", totalRuns: 12 }],
+      [
+        { name: "agent-manager-mountain-8-dst", isEnable: true, lastExecutedAt: "2026-08-28T14:00:00Z" },
+        { name: "agent-manager-mountain-8-standard", isEnable: true },
+      ],
+      now,
+    );
+    expect(healthy.find((state) => state.slug === "manager")?.state).toBe("scheduled");
+
+    const stalled = buildAgentScheduleHealth(
+      [{ slug: "manager", lastRunAt: "2026-08-24T14:05:00Z", totalRuns: 12 }],
+      [{ name: "agent-manager-mountain-8-dst", isEnable: true, lastExecutedAt: "2026-08-24T14:00:00Z" }],
+      now,
+    );
+    expect(stalled.find((state) => state.slug === "manager")?.state).toBe("stale");
+  });
+
+  it("keeps the migrated label only for a Manager that has actually been running", () => {
+    const migrated = buildAgentScheduleHealth(
+      [{ slug: "manager", lastRunAt: "2026-08-27T14:05:00Z", totalRuns: 9 }],
+      [],
+    );
+    expect(migrated.find((state) => state.slug === "manager")).toMatchObject({
       configured: true,
       state: "migrated",
     });
-    expect(states.find((state) => state.slug === "seo_intel")?.state).toBe("missing");
+    expect(migrated.find((state) => state.slug === "seo_intel")?.state).toBe("missing");
+  });
+
+  it("raises a Manager with no triggers and no runs as missing instead of reassuring the owner", () => {
+    const states = buildAgentScheduleHealth([], []);
+    expect(states.find((state) => state.slug === "manager")).toMatchObject({
+      configured: false,
+      state: "missing",
+    });
   });
 
   it("flags stale scheduler and Search Console measurement evidence", () => {
