@@ -24,7 +24,8 @@
     "seo:alert-summary": "node scripts/seo-alert-summary.mjs",
     "smoke:production": "node scripts/production-smoke.mjs",
     "submit:indexnow": "node scripts/submit-indexnow.mjs",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate"
+    "db:push": "drizzle-kit generate && drizzle-kit migrate",
+    "seo:linkgraph": "node scripts/verify-link-graph.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",

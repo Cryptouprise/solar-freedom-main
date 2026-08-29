@@ -20,6 +20,7 @@ import { attorneyDiscoveryHandler } from "../scheduled/attorneyDiscovery";
 import { attorneySourceRefreshHandler } from "../scheduled/attorneySourceRefresh";
 import { seoScorecardHandler } from "../scheduled/seoScorecard";
 import { managerQaReportHandler } from "../scheduled/managerQaReport";
+import { actionExecutorHandler } from "../scheduled/actionExecutor";
 import { registerJourneyEndpoint } from "../journeyRouter";
 import { registerGhlLifecycleWebhook } from "../ghlLifecycleWebhook";
 import { rateLimit } from "express-rate-limit";
@@ -162,6 +163,7 @@ async function startServer() {
   app.post("/api/scheduled/attorney-source-refresh", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), attorneySourceRefreshHandler);
   app.post("/api/scheduled/seo-scorecard", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), seoScorecardHandler);
   app.post("/api/scheduled/manager-qa-report", rateLimit({ windowMs: 60_000, limit: 5, standardHeaders: true, legacyHeaders: false }), managerQaReportHandler);
+  app.post("/api/scheduled/action-executor", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), actionExecutorHandler);
 
   // tRPC API
   app.use(

@@ -71,6 +71,23 @@ const DAILY_MANAGER_JOBS: HeartbeatJob[] = [
   },
 ];
 
+/**
+ * Drains the action queue after the analysis workers have had time to file
+ * their recommendations. Without this, actions with a typed executor would sit
+ * at "queued" until someone opened the Command Center and clicked each one.
+ */
+const EXECUTOR_JOBS: HeartbeatJob[] = [
+  {
+    name: "agent-action-executor",
+    cron: "0 30 3,9,15,21 * * *",
+    path: "/api/scheduled/action-executor",
+    method: "POST",
+    payload: {},
+    description:
+      "Action Executor — applies queued SEO actions that have a typed executor to live pages (4x daily, bounded batch, every change logged and revertible)",
+  },
+];
+
 const WORKER_JOBS: HeartbeatJob[] = (Object.entries(AGENT_CRON_CONFIGS) as [AgentSlug, { cron: string; description: string }][])
   .filter(([slug]) => slug !== "manager")
   .map(([slug, config]) => ({
@@ -82,7 +99,12 @@ const WORKER_JOBS: HeartbeatJob[] = (Object.entries(AGENT_CRON_CONFIGS) as [Agen
     description: config.description,
   }));
 
-const DESIRED_AGENT_JOBS = [...DAILY_MANAGER_JOBS, ...WORKER_JOBS];
+/**
+ * Every Heartbeat job this project owns. Exported so scheduleHealth coverage can
+ * be reconciled against it in a test — a job registered here but not monitored
+ * there is invisible when it stalls, which is how the Manager went unwatched.
+ */
+export const DESIRED_AGENT_JOBS = [...DAILY_MANAGER_JOBS, ...WORKER_JOBS, ...EXECUTOR_JOBS];
 
 /** List all project-owned agent schedules. */
 export async function listAgentCrons(userSession = "") {

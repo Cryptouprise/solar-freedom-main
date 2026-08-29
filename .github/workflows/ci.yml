@@ -1,0 +1,73 @@
+name: CI
+
+# Nothing gated a merge before this workflow existed: the only workflow in the
+# repo was the SEO heartbeat cron, so type errors, failing tests, broken
+# sitemaps and orphaned pages could all ship unnoticed. Every check here caught
+# a defect that actually shipped.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# This job only reads the repository and runs local checks; it posts nothing
+# back to GitHub, so the token needs no write scopes.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, test, build and verify SEO invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # Actions are pinned by commit SHA, matching seo-heartbeat.yml.
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      # No version pin here: package.json already sets packageManager, and
+      # specifying both makes the action fail with a version mismatch.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Unit and reconciliation tests
+        # When the GHL_WEBHOOK_URL secret is set, the webhook URL format check
+        # runs here too; without it that check skips. RUN_LIVE_GHL_TESTS is
+        # deliberately never set in CI — it POSTs a probe lead to the live CRM.
+        env:
+          GHL_WEBHOOK_URL: ${{ secrets.GHL_WEBHOOK_URL }}
+        run: pnpm test
+
+      - name: Build (sitemap, llms.txt, bundle, prerender)
+        run: pnpm build
+
+      - name: Verify crawlable internal link graph
+        run: pnpm seo:linkgraph
+
+      - name: Verify trust governance
+        run: pnpm governance:audit
+
+      - name: Audit trust claims on every indexable page
+        run: |
+          python3 -m pip install --quiet beautifulsoup4
+          python3 scripts/audit-indexable-trust-claims.py

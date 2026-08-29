@@ -1,18 +1,38 @@
 import { describe, it, expect } from 'vitest';
 
+/**
+ * GHL_WEBHOOK_URL is deployment configuration, not source code.
+ *
+ * This file previously asserted the variable was present, which made it fail on
+ * every checkout without the secret — including a clean checkout of main — so in
+ * practice it was permanently red and signalled nothing. Two different things
+ * were conflated: whether a value is configured (an environment question) and
+ * whether a configured value is well formed (a real check that should run
+ * wherever a value exists).
+ *
+ * They are now separate, using the same explicit opt-in the live probe below
+ * already used. Skips show up as skips in the test report rather than as
+ * assertions that quietly pass.
+ */
 describe('GHL Webhook URL', () => {
-  it('GHL_WEBHOOK_URL env var is set and is a valid leadconnectorhq URL', () => {
-    const url = process.env.GHL_WEBHOOK_URL;
-    expect(url).toBeTruthy();
+  const url = process.env.GHL_WEBHOOK_URL;
+  const requireConfiguration = process.env.RUN_LIVE_GHL_TESTS === '1';
+
+  // Runs anywhere a URL is configured, including CI when the secret is set.
+  it.runIf(Boolean(url))('is a valid leadconnectorhq webhook-trigger URL', () => {
     expect(url).toContain('leadconnectorhq.com');
     expect(url).toContain('webhook-trigger');
   });
 
-  const liveProbe = process.env.RUN_LIVE_GHL_TESTS === '1' ? it : it.skip;
+  // Only environments that own the CRM configuration are required to have it.
+  it.runIf(requireConfiguration)('has GHL_WEBHOOK_URL configured', () => {
+    expect(url).toBeTruthy();
+  });
+
+  const liveProbe = requireConfiguration ? it : it.skip;
 
   liveProbe('GHL webhook endpoint accepts an explicit integration probe', async () => {
-    const url = process.env.GHL_WEBHOOK_URL!;
-    const res = await fetch(url, {
+    const res = await fetch(process.env.GHL_WEBHOOK_URL!, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

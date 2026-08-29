@@ -10,12 +10,13 @@ import indexEligibility from "../shared/index-eligibility.json";
 import redirectLedger from "../shared/seo-redirects.json";
 import { PUBLIC_PATH_REDIRECTS } from "./seo-redirects";
 
-const { getDbBlogPostStatus, getDbBlogPosts } = vi.hoisted(() => ({
+const { getDbBlogPost, getDbBlogPostStatus, getDbBlogPosts } = vi.hoisted(() => ({
+  getDbBlogPost: vi.fn(),
   getDbBlogPostStatus: vi.fn(),
   getDbBlogPosts: vi.fn(),
 }));
 
-vi.mock("./db", () => ({ getDbBlogPostStatus, getDbBlogPosts }));
+vi.mock("./db", () => ({ getDbBlogPost, getDbBlogPostStatus, getDbBlogPosts }));
 
 import {
   CLIENT_ONLY_ROUTES,
@@ -28,6 +29,9 @@ import { buildMetaMap as buildServerMetaMap } from "./seo-meta";
 
 const rootTemplate = `<!doctype html><html><head><title>Home</title><meta name="description" content="home"><link rel="canonical" href="https://breakyoursolarcontract.com/"><meta property="og:url"><meta property="og:title"><meta property="og:description"><meta name="twitter:title"><meta name="twitter:description"></head><body><div id="root">home</div></body></html>`;
 
+/** Mirrors the shape scripts/prerender.mjs emits: a seo-prerender main with a related-links nav. */
+const prerenderedTemplate = `<!doctype html><html><head><title>Static Title | Solar Freedom</title><meta name="description" content="static description"><meta property="og:title" content="Static Title"><meta property="og:description" content="static description"><meta name="twitter:title" content="Static Title"><meta name="twitter:description" content="static description"></head><body><div id="root"><main class="seo-prerender" data-page-type="blog_post"><h1>Known static article</h1><h3>Existing prerendered question?</h3><p>Already answered here.</p><p>Static body copy.</p><nav aria-label="Related Solar Freedom resources"><h2>Related Solar Contract Resources</h2><ul><li><a href="/blog/solar-fraud-warning-signs">Solar fraud warning signs</a></li></ul></nav></main></div></body></html>`;
+
 describe("truthful SEO page delivery", () => {
   let server: Server;
   let baseUrl: string;
@@ -39,10 +43,32 @@ describe("truthful SEO page delivery", () => {
     fs.mkdirSync(path.join(publicDir, "blog", "known"), { recursive: true });
     fs.writeFileSync(
       path.join(publicDir, "blog", "known", "index.html"),
-      "<!doctype html><h1>Known static article</h1>"
+      prerenderedTemplate
     );
+    fs.mkdirSync(path.join(publicDir, "blog", "overlaid"), { recursive: true });
+    fs.writeFileSync(path.join(publicDir, "blog", "overlaid", "index.html"), prerenderedTemplate);
+    fs.mkdirSync(path.join(publicDir, "blog", "db-down"), { recursive: true });
+    fs.writeFileSync(path.join(publicDir, "blog", "db-down", "index.html"), prerenderedTemplate);
     fs.mkdirSync(path.join(publicDir, "admin", "blog-studio"), { recursive: true });
     fs.writeFileSync(path.join(publicDir, "admin", "blog-studio", "index.html"), rootTemplate);
+
+    getDbBlogPost.mockImplementation(async (slug: string) => {
+      if (slug === "db-down") throw new Error("Database unavailable");
+      if (slug !== "overlaid") return null;
+      return {
+        slug,
+        title: "Overlaid Article",
+        metaTitle: "Executor rewrote this title tag",
+        metaDescription:
+          "An executor rewrote this meta description so the snippet earns more clicks at its current position.",
+        content:
+          '<p>Body text with an executor link to <a href="/blog/known">the known article</a> and <a href="/cancel-solar-contract/phoenix-az">Phoenix solar contract help</a>.</p>',
+        faqItems: [
+          { q: "Does an executor FAQ reach the crawler?", a: "Yes, it is appended to the prerendered HTML." },
+          { q: "Existing prerendered question?", a: "This duplicate must not be added twice." },
+        ],
+      };
+    });
 
     getDbBlogPostStatus.mockImplementation(async (slug: string) => ({
       available: true,
@@ -77,6 +103,66 @@ describe("truthful SEO page delivery", () => {
       server.close(error => (error ? reject(error) : resolve()))
     );
     fs.rmSync(publicDir, { recursive: true, force: true });
+  });
+
+  describe("database overlay on prerendered pages", () => {
+    it("puts an executor's rewritten title tag and meta description into the crawler HTML", async () => {
+      const html = await (await fetch(`${baseUrl}/blog/overlaid`)).text();
+      const $ = cheerio.load(html);
+      expect($("title").text()).toBe("Executor rewrote this title tag | Solar Freedom");
+      expect($('meta[name="description"]').attr("content")).toContain("earns more clicks");
+      expect($('meta[property="og:title"]').attr("content")).toContain("Executor rewrote");
+      expect($('meta[name="twitter:description"]').attr("content")).toContain("earns more clicks");
+    });
+
+    it("appends executor FAQ entries to the body and to FAQPage schema, without duplicating existing questions", async () => {
+      const html = await (await fetch(`${baseUrl}/blog/overlaid`)).text();
+      const $ = cheerio.load(html);
+      expect($("main.seo-prerender").text()).toContain("Does an executor FAQ reach the crawler?");
+
+      const faqSchema = $('script[type="application/ld+json"]')
+        .map((_i, el) => JSON.parse($(el).text()))
+        .get()
+        .find((entry: any) => entry["@type"] === "FAQPage");
+      expect(faqSchema).toBeTruthy();
+      expect(faqSchema.mainEntity).toHaveLength(2);
+
+      // The question the prerendered page already asks must not be repeated in the body.
+      const bodyOccurrences = $("main.seo-prerender").text().split("Existing prerendered question?").length - 1;
+      expect(bodyOccurrences).toBe(1);
+    });
+
+    it("surfaces internal links an executor added to the stored body", async () => {
+      const html = await (await fetch(`${baseUrl}/blog/overlaid`)).text();
+      const $ = cheerio.load(html);
+      const hrefs = $("main.seo-prerender a[href]").map((_i, el) => $(el).attr("href")).get();
+      expect(hrefs).toContain("/blog/known");
+      expect(hrefs).toContain("/cancel-solar-contract/phoenix-az");
+    });
+
+    it("is strictly additive — it never drops a link the prerendered page already had", async () => {
+      const html = await (await fetch(`${baseUrl}/blog/overlaid`)).text();
+      const $ = cheerio.load(html);
+      const hrefs = $("main.seo-prerender a[href]").map((_i, el) => $(el).attr("href")).get();
+      expect(hrefs).toContain("/blog/solar-fraud-warning-signs");
+      expect($("main.seo-prerender h1").text()).toBe("Known static article");
+      expect($("main.seo-prerender").text()).toContain("Static body copy.");
+    });
+
+    it("serves the prerendered file unchanged when the page has no database row", async () => {
+      const html = await (await fetch(`${baseUrl}/blog/known`)).text();
+      const $ = cheerio.load(html);
+      expect($("title").text()).toBe("Static Title | Solar Freedom");
+      expect($("main.seo-prerender a[href]")).toHaveLength(1);
+    });
+
+    it("still serves the prerendered page when the database lookup throws", async () => {
+      const response = await fetch(`${baseUrl}/blog/db-down`);
+      expect(response.status).toBe(200);
+      const html = await response.text();
+      expect(html).toContain("Known static article");
+      expect(cheerio.load(html)("title").text()).toBe("Static Title | Solar Freedom");
+    });
   });
 
   it("serves a pre-rendered page with 200", async () => {

@@ -23,6 +23,16 @@ import {
 import { registerAllAgentCrons, listAgentCrons, deregisterAllAgentCrons, reconcileDailyOperatingCycle } from "./agents/registerCrons";
 import { buildAgentScheduleHealth, buildSeoMeasurementHealth } from "./agents/scheduleHealth";
 import { getDb } from "./db";
+import {
+  ACTION_EXECUTORS,
+  ADVISORY_ACTION_TYPES,
+  EXECUTABLE_ACTION_TYPES,
+  EXECUTOR_LIMITS,
+  executeQueuedAction,
+  revertExecutedAction,
+  runQueuedActionExecutions,
+} from "./agents/executors";
+import { summarizeBatch } from "./scheduled/actionExecutor";
 import { agentMessages, contentPipeline, agentHealthLog, systemChangeLog, mediumArticles, discoveredBacklinks, agentModelConfig, agentActions, attorneyProspects, agentChatThreads, agentDailyChecklists, agentQualityReviews, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
 import { getAgentModel, seedDefaultModelConfigs, AGENT_DEFAULT_MODELS, AVAILABLE_MODELS, callAgentLLM } from "./agents/agentLLM";
 import { desc, eq, and, gte } from "drizzle-orm";
@@ -470,59 +480,56 @@ export const agentRouter = router({
     }),
 
   /**
-   * Execute an action where an execution adapter is available.  Each run stores
-   * its evidence on the action instead of leaving a permanent opaque "queued" row.
+   * Execute one queued action through its typed executor.
+   *
+   * The adapter registry lives in server/agents/executors.ts. Types without an
+   * executor are marked blocked with the concrete reason they are advisory,
+   * rather than being left as an opaque permanent "queued" row.
    */
   executeAction: protectedProcedure
     .input(z.object({ actionId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
-      const db = await getDb();
-      if (!db) throw new Error("Database unavailable");
-
-      const action = (await db.select().from(agentActions)
-        .where(eq(agentActions.id, input.actionId)).limit(1))[0];
-      if (!action) throw new Error("Action not found");
-      if (action.requiresApproval && action.status !== "approved") {
-        throw new Error("This action needs approval before it can run");
-      }
-
-      const startedAt = new Date();
-      await db.update(agentActions).set({ status: "running", startedAt, errorMessage: null })
-        .where(eq(agentActions.id, input.actionId));
-
-      try {
-        let result: unknown;
-        if (action.actionType === "research_firm") {
-          const { executeAttorneyResearch } = await import("./agents/attorneyResearch");
-          const payload = action.payload ? JSON.parse(action.payload) : {};
-          const states = Array.isArray(payload.states) && payload.states.length
-            ? payload.states.slice(0, 5)
-            : ["California", "Texas", "Florida"];
-          result = await executeAttorneyResearch(states);
-        } else {
-          throw new Error(`No safe execution adapter is configured for ${action.actionType}. This remains a planning task until its integration is connected.`);
-        }
-
-        const researchBlocked = typeof result === "object" && result !== null && "status" in result && (result as { status?: string }).status === "blocked";
-        await db.update(agentActions).set({
-          status: researchBlocked ? "blocked" : "completed",
-          result: JSON.stringify(result),
-          completedAt: new Date(),
-          durationMs: Date.now() - startedAt.getTime(),
-        }).where(eq(agentActions.id, input.actionId));
-        return { success: !researchBlocked, blocked: researchBlocked, result };
-      } catch (error: any) {
-        await db.update(agentActions).set({
-          status: "failed",
-          errorMessage: error.message || "Execution failed",
-          retryCount: (action.retryCount || 0) + 1,
-          completedAt: new Date(),
-          durationMs: Date.now() - startedAt.getTime(),
-        }).where(eq(agentActions.id, input.actionId));
-        throw error;
-      }
+      return executeQueuedAction(input.actionId, `admin:${ctx.user.name || ctx.user.id}`);
     }),
+
+  /** Run a bounded batch of ready actions on demand, same path as the cron. */
+  runActionExecutor: protectedProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(EXECUTOR_LIMITS.maxBatchSize).optional() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      const report = await runQueuedActionExecutions({
+        limit: input.limit,
+        actor: `admin:${ctx.user.name || ctx.user.id}`,
+      });
+      return { ...report, summary: summarizeBatch(report) };
+    }),
+
+  /** Restore the exact pre-execution field values stored on a completed action. */
+  revertAction: protectedProcedure
+    .input(z.object({ actionId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      return revertExecutedAction(input.actionId, `admin:${ctx.user.name || ctx.user.id}`);
+    }),
+
+  /**
+   * Which action types can actually run, and why the rest cannot. Lets the
+   * Command Center label every row honestly instead of showing bare "queued".
+   */
+  executorCoverage: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") throw new Error("Forbidden");
+    const executable = EXECUTABLE_ACTION_TYPES.map(actionType => ({
+      actionType,
+      label: ACTION_EXECUTORS[actionType].label,
+      changeType: ACTION_EXECUTORS[actionType].changeType,
+    }));
+    const advisory = Object.entries(ADVISORY_ACTION_TYPES).map(([actionType, reason]) => ({
+      actionType,
+      reason,
+    }));
+    return { executable, advisory, limits: EXECUTOR_LIMITS };
+  }),
 
   /** List scored attorney prospects for the attorney pipeline board. */
   listAttorneys: protectedProcedure.query(async ({ ctx }) => {

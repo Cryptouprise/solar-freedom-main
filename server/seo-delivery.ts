@@ -2,8 +2,8 @@ import type { Express } from "express";
 import fs from "fs";
 import path from "path";
 import * as cheerio from "cheerio";
-import { getDbBlogPostStatus, getDbBlogPosts } from "./db";
-import { renderDbBlogPost } from "./seo-meta";
+import { getDbBlogPost, getDbBlogPostStatus, getDbBlogPosts } from "./db";
+import { applyDbOverlayToPrerendered, renderDbBlogPost } from "./seo-meta";
 import { rateLimit } from "express-rate-limit";
 import { isLegacyBlogSlug } from "./seo-redirects";
 import indexEligibility from "../shared/index-eligibility.json";
@@ -266,7 +266,24 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
     const prerendered = prerenderedFileFor(publicDir, pagePath);
     if (prerendered) {
       seoHeaders(response);
-      response.status(200).send(fs.readFileSync(prerendered, "utf8"));
+      let markup = fs.readFileSync(prerendered, "utf8");
+      // Agent executors and Blog Studio write blog edits to the database, but a
+      // prerendered file is served before the database branch below is reached.
+      // Overlay those edits so they reach the crawler, not just the React client.
+      if (pagePath.startsWith("/blog/")) {
+        const slug = pagePath.slice("/blog/".length);
+        if (slug && !slug.includes("/")) {
+          try {
+            const overlayPost = await getDbBlogPost(slug);
+            if (overlayPost) markup = applyDbOverlayToPrerendered(markup, overlayPost);
+          } catch (error) {
+            // A database problem must never take down a page that already has
+            // good prerendered HTML. Serve the file unchanged.
+            console.warn(`[SEO] DB overlay skipped for ${pagePath}:`, error);
+          }
+        }
+      }
+      response.status(200).send(markup);
       return;
     }
 
