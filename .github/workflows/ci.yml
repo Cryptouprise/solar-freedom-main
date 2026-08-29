@@ -51,9 +51,9 @@ jobs:
         run: pnpm check
 
       - name: Unit and reconciliation tests
-        # GHL_WEBHOOK_URL gates one live-integration assertion; supply it as a
-        # repository secret to run that test, otherwise it is expected to fail
-        # locally and is not a signal about the change under review.
+        # When the GHL_WEBHOOK_URL secret is set, the webhook URL format check
+        # runs here too; without it that check skips. RUN_LIVE_GHL_TESTS is
+        # deliberately never set in CI — it POSTs a probe lead to the live CRM.
         env:
           GHL_WEBHOOK_URL: ${{ secrets.GHL_WEBHOOK_URL }}
         run: pnpm test
