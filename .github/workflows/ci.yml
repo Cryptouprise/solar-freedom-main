@@ -11,6 +11,11 @@ on:
   push:
     branches: [main]
 
+# This job only reads the repository and runs local checks; it posts nothing
+# back to GitHub, so the token needs no write scopes.
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
