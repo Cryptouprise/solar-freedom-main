@@ -1,0 +1,65 @@
+name: CI
+
+# Nothing gated a merge before this workflow existed: the only workflow in the
+# repo was the SEO heartbeat cron, so type errors, failing tests, broken
+# sitemaps and orphaned pages could all ship unnoticed. Every check here caught
+# a defect that actually shipped.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, test, build and verify SEO invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Unit and reconciliation tests
+        # GHL_WEBHOOK_URL gates one live-integration assertion; supply it as a
+        # repository secret to run that test, otherwise it is expected to fail
+        # locally and is not a signal about the change under review.
+        env:
+          GHL_WEBHOOK_URL: ${{ secrets.GHL_WEBHOOK_URL }}
+        run: pnpm test
+
+      - name: Build (sitemap, llms.txt, bundle, prerender)
+        run: pnpm build
+
+      - name: Verify crawlable internal link graph
+        run: pnpm seo:linkgraph
+
+      - name: Verify trust governance
+        run: pnpm governance:audit
+
+      - name: Audit trust claims on every indexable page
+        run: |
+          python3 -m pip install --quiet beautifulsoup4
+          python3 scripts/audit-indexable-trust-claims.py

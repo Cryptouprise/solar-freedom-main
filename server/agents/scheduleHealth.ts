@@ -38,7 +38,7 @@ const SUPPORT_JOBS: Array<{ slug: string; jobName: string }> = [
  */
 const MANAGER_JOB_NAMES = ["agent-manager-mountain-8-dst", "agent-manager-mountain-8-standard"];
 
-const MONITORED_JOBS: Array<{ slug: string; jobNames: string[] }> = [
+export const MONITORED_JOBS: Array<{ slug: string; jobNames: string[] }> = [
   ...EXPECTED_AGENT_SLUGS.map((slug) => ({
     slug,
     jobNames: slug === "manager" ? MANAGER_JOB_NAMES : [`agent-${slug}`],

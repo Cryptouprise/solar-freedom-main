@@ -42,6 +42,7 @@ const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
 const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
 const INDEXED_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
 const INDEXED_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
+const RETIRED_PUBLIC_PATHS = new Set(indexEligibility.retiredPublicPaths ?? []);
 const redirectLedger = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/seo-redirects.json"), "utf-8")
 );
@@ -450,6 +451,13 @@ function fitMetaDescription(description) {
   return `${normalized.slice(0, 162).replace(/\s+\S*$/, "")}...`;
 }
 
+/** Hand-curated editorial relatedness already present in the article data. */
+function parseRelatedSlugs(chunk) {
+  const match = chunk.match(/\brelatedSlugs:\s*\[([^\]]*)\]/s);
+  if (!match) return [];
+  return (match[1].match(/["']([^"']+)["']/g) || []).map(value => value.replace(/["']/g, ""));
+}
+
 function loadBlogData() {
   const blogFiles = [
     "blog.ts",
@@ -516,6 +524,7 @@ function loadBlogData() {
         datePublished: toIsoDate(publishDate),
         dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
         citations: parseExternalCitations(chunk),
+        relatedSlugs: parseRelatedSlugs(chunk),
       };
     }
   }
@@ -788,90 +797,230 @@ function classifyPath(urlPath) {
   return "service_page";
 }
 
+/**
+ * Crawlable internal link graph.
+ *
+ * The previous implementation emitted the same hardcoded 8 links on every page,
+ * with per-page overrides for only 10 articles. The result was a site-wide link
+ * graph roughly 15 URLs wide: no page linked to the homepage, no page linked to
+ * any city page, and /blog linked to 8 of its own articles. Deep pages were
+ * discoverable only through sitemap.xml, which suppresses both crawl frequency
+ * and the internal PageRank those pages need to climb.
+ *
+ * The graph is now derived from the real content data, per page type, and every
+ * destination is checked for index eligibility, redirects and quarantine — a
+ * link to a noindex or redirecting URL is worse than no link at all.
+ */
+let LINK_INDEX = null;
+
+const QUARANTINED_LINK_PATHS = new Set(
+  (indexEligibility.trustQuarantine?.paths ?? []).map(entry => entry.path)
+);
+
+const HUB_LINKS = [
+  ["/solar-contract-help", "Solar contract help"],
+  ["/solar-exit-options", "Solar exit options"],
+  ["/solar-loan-help", "Solar loan help"],
+  ["/selling-house-with-solar", "Selling a house with solar"],
+  ["/solar-lien-removal", "Solar lien removal"],
+  ["/how-it-works", "How it works"],
+  ["/solar-contract-laws", "Solar contract laws by state"],
+  ["/solar-panel-scam", "Solar sales practices to check"],
+  ["/solar-companies", "Solar company profiles"],
+];
+
+/**
+ * Deterministic rotation. Taking a fixed slice of a shared list means the first
+ * few entries collect every inbound link and the tail collects none — the exact
+ * failure the old hardcoded block had. Rotating by page spreads inbound links
+ * across the whole set while keeping the build reproducible.
+ */
+function rotate(items, urlPath, count) {
+  if (!items.length || count <= 0) return [];
+  let hash = 0;
+  for (let index = 0; index < urlPath.length; index += 1) {
+    hash = (hash * 31 + urlPath.charCodeAt(index)) % 100000;
+  }
+  const start = hash % items.length;
+  return Array.from({ length: Math.min(count, items.length) }, (_value, offset) =>
+    items[(start + offset) % items.length]
+  );
+}
+
+const HOME_LINK = ["/", "Solar Freedom home"];
+
+/** A destination is linkable only if it is live, indexable and not redirecting. */
+function isLinkableTarget(pagePath) {
+  if (REDIRECT_SOURCE_PATHS.has(pagePath)) return false;
+  if (QUARANTINED_LINK_PATHS.has(pagePath)) return false;
+  if (RETIRED_PUBLIC_PATHS.has(pagePath)) return false;
+  if (pagePath.startsWith("/blog/")) {
+    return INDEXED_BLOG_SLUGS.has(pagePath.slice("/blog/".length));
+  }
+  if (pagePath.startsWith("/cancel-solar-contract/")) {
+    return INDEXED_CITY_SLUGS.has(pagePath.slice("/cancel-solar-contract/".length));
+  }
+  return true;
+}
+
+const STOP_TOKENS = new Set([
+  "solar", "contract", "the", "and", "for", "with", "your", "you", "how", "what",
+  "can", "get", "out", "of", "to", "a", "in", "is", "it", "2026", "cancel",
+]);
+
+function slugTokens(slug) {
+  return new Set(slug.split("-").filter(token => token.length > 2 && !STOP_TOKENS.has(token)));
+}
+
+/**
+ * Build the link graph once, after the content data is loaded. Everything the
+ * per-page builder needs is precomputed here so prerendering stays linear.
+ */
+function buildLinkIndex({ cityEntries, blogEntries }) {
+  const blogs = Object.entries(blogEntries)
+    .filter(([slug]) => isLinkableTarget(`/blog/${slug}`))
+    .map(([slug, data]) => ({
+      slug,
+      path: `/blog/${slug}`,
+      label: stripBrand(data.title),
+      tokens: slugTokens(slug),
+      related: (data.relatedSlugs || []).filter(related => isLinkableTarget(`/blog/${related}`)),
+    }));
+
+  const cities = cityEntries
+    .filter(city => isLinkableTarget(`/cancel-solar-contract/${city.slug}`))
+    .map(city => ({
+      slug: city.slug,
+      path: `/cancel-solar-contract/${city.slug}`,
+      label: `Cancel a solar contract in ${city.name}, ${city.stateCode || city.state}`,
+      state: city.stateCode || city.state,
+      tokens: slugTokens(city.slug),
+    }));
+
+  const citiesByState = new Map();
+  for (const city of cities) {
+    if (!citiesByState.has(city.state)) citiesByState.set(city.state, []);
+    citiesByState.get(city.state).push(city);
+  }
+
+  LINK_INDEX = { blogs, cities, citiesByState };
+  return LINK_INDEX;
+}
+
+/** Rank other articles by curated relatedness first, then shared slug topic tokens. */
+function relatedArticles(article, limit) {
+  const others = LINK_INDEX.blogs.filter(candidate => candidate.slug !== article.slug);
+  const curated = article.related
+    .map(slug => others.find(candidate => candidate.slug === slug))
+    .filter(Boolean);
+
+  const scored = others
+    .filter(candidate => !curated.includes(candidate))
+    .map(candidate => {
+      let score = 0;
+      for (const token of candidate.tokens) if (article.tokens.has(token)) score += 1;
+      return { candidate, score };
+    })
+    .filter(entry => entry.score > 0)
+    .sort((a, b) => b.score - a.score || a.candidate.slug.localeCompare(b.candidate.slug))
+    .map(entry => entry.candidate);
+
+  return [...curated, ...scored].slice(0, limit);
+}
+
+/** Cities whose slug shares a place token with the article, e.g. a city guide. */
+function citiesForArticle(article, limit) {
+  return LINK_INDEX.cities
+    .filter(city => [...city.tokens].some(token => article.tokens.has(token)))
+    .slice(0, limit);
+}
+
+function buildLinkPairs(urlPath) {
+  if (!LINK_INDEX) return [];
+  const pageType = classifyPath(urlPath);
+  const pairs = [];
+
+  if (urlPath === "/") {
+    pairs.push(...HUB_LINKS);
+    pairs.push(["/blog", "All solar contract guides"]);
+    pairs.push(...LINK_INDEX.blogs.slice(0, 6).map(blog => [blog.path, blog.label]));
+    pairs.push(...LINK_INDEX.cities.slice(0, 8).map(city => [city.path, city.label]));
+    return pairs;
+  }
+
+  if (pageType === "blog_index") {
+    // The blog hub is the crawl entry point for articles: link to all of them.
+    pairs.push(HOME_LINK);
+    pairs.push(...LINK_INDEX.blogs.map(blog => [blog.path, blog.label]));
+    pairs.push(...HUB_LINKS.slice(0, 3));
+    return pairs;
+  }
+
+  if (pageType === "blog_post") {
+    const slug = urlPath.slice("/blog/".length);
+    const article = LINK_INDEX.blogs.find(blog => blog.slug === slug);
+    if (article) {
+      pairs.push(...relatedArticles(article, 5).map(blog => [blog.path, blog.label]));
+      pairs.push(...citiesForArticle(article, 2).map(city => [city.path, city.label]));
+    }
+    pairs.push(["/blog", "All solar contract guides"]);
+    pairs.push(...rotate(HUB_LINKS, urlPath, 3));
+    pairs.push(HOME_LINK);
+    return pairs;
+  }
+
+  if (pageType === "city_page") {
+    const slug = urlPath.slice("/cancel-solar-contract/".length);
+    const city = LINK_INDEX.cities.find(entry => entry.slug === slug);
+    if (city) {
+      // Same-state neighbours first — this is what gives city pages inbound links.
+      const sameState = (LINK_INDEX.citiesByState.get(city.state) || [])
+        .filter(entry => entry.slug !== city.slug)
+        .slice(0, 3);
+      // Ring selection over the full city list: each city links to the ones
+      // following it, wrapping around, so the graph is a cycle and no city is
+      // left without inbound links.
+      const ordered = LINK_INDEX.cities;
+      const position = ordered.findIndex(entry => entry.slug === city.slug);
+      const ring = [];
+      for (let step = 1; ring.length < 4 - sameState.length && step < ordered.length; step += 1) {
+        const candidate = ordered[(position + step) % ordered.length];
+        if (candidate.slug !== city.slug && !sameState.includes(candidate)) ring.push(candidate);
+      }
+      pairs.push(...[...sameState, ...ring].map(entry => [entry.path, entry.label]));
+    }
+    pairs.push(...rotate(LINK_INDEX.blogs, urlPath, 3).map(blog => [blog.path, blog.label]));
+    pairs.push(...rotate(HUB_LINKS, urlPath, 2));
+    pairs.push(HOME_LINK);
+    return pairs;
+  }
+
+  // Static, service, company and state pages: home first so the per-page cap
+  // can never trim it, then the hub cluster, guides and cities.
+  pairs.push(HOME_LINK);
+  pairs.push(...HUB_LINKS.filter(([href]) => href !== urlPath));
+  pairs.push(...rotate(LINK_INDEX.blogs, urlPath, 4).map(blog => [blog.path, blog.label]));
+  pairs.push(...rotate(LINK_INDEX.cities, urlPath, 2).map(city => [city.path, city.label]));
+  pairs.push(["/blog", "All solar contract guides"]);
+  return pairs;
+}
+
 function buildInternalLinks(urlPath) {
-  const defaultLinks = [
-    ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-    ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
-    ["/blog/goodleap-solar-loan-cancellation-hidden-fees-2026", "GoodLeap loan payoff and cancellation guide"],
-    ["/blog/blue-raven-solar-complaints", "Blue Raven Solar status and support"],
-    ["/blog/adt-solar-complaints", "ADT Solar shutdown and support"],
-    ["/blog/new-jersey-solar-contract-rights", "New Jersey solar contract rights"],
-    ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-    ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
-  ];
-
-  const contextualLinks = {
-    "/blog/how-to-get-out-of-a-solar-contract": [
-      ["/blog/solar-contract-rescission-rights", "Check solar contract rescission terms"],
-      ["/solar-loan-help", "Review a solar loan"],
-      ["/selling-house-with-solar", "Selling a home with solar"],
-    ],
-    "/blog/sunrun-solar-contract-cancellation-2026": [
-      ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
-      ["/blog/sunrun-complaints-california", "Sunrun complaints in California"],
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
-    ],
-    "/blog/goodleap-solar-loan-cancellation-hidden-fees-2026": [
-      ["/solar-loan-help", "Solar loan document review"],
-      ["/blog/solar-payments-too-high-help", "What to review when solar payments are too high"],
-      ["/selling-house-with-solar", "Selling a home with a solar loan"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "Solar loan complaint options"],
-    ],
-    "/blog/blue-raven-solar-complaints": [
-      ["/blog/solar-installer-out-of-business", "When a solar installer changes or closes"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "Review solar contract exit options"],
-    ],
-    "/blog/adt-solar-complaints": [
-      ["/blog/solar-installer-out-of-business", "When a solar installer exits the market"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "Review solar contract exit options"],
-    ],
-    "/blog/solar-contract-rescission-rights": [
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
-      ["/blog/new-jersey-solar-contract-rights", "New Jersey solar contract rights"],
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-    ],
-    "/blog/new-jersey-solar-contract-rights": [
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/how-to-file-a-complaint-against-solar-company-attorney-general", "File a solar company complaint"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-      ["/solar-contract-laws", "Solar contract laws by state"],
-    ],
-    "/blog/how-to-file-a-complaint-against-solar-company-attorney-general": [
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
-      ["/blog/goodleap-solar-loan-cancellation-hidden-fees-2026", "GoodLeap loan complaint and payoff guide"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-    ],
-    "/blog/sunrun-complaints-california": [
-      ["/blog/sunrun-solar-contract-cancellation-2026", "Sunrun contract cancellation options"],
-      ["/blog/cancel-sunrun-solar-contract-before-installation", "Cancel Sunrun before installation"],
-      ["/blog/solar-contract-rescission-rights", "Solar contract rescission rights"],
-      ["/blog/how-to-get-out-of-a-solar-contract", "How to get out of a solar contract"],
-    ],
-  };
-
-  const links = [
-    ...(contextualLinks[urlPath] || []),
-    ...defaultLinks,
-  ];
-  const seen = new Set();
-
-  return links
-    .filter(([href]) => href !== urlPath)
-    .filter(([href]) => !REDIRECT_SOURCE_PATHS.has(href))
+  const seen = new Set([urlPath]);
+  const pairs = buildLinkPairs(urlPath)
+    .filter(([href]) => isLinkableTarget(href))
     .filter(([href]) => {
       if (seen.has(href)) return false;
       seen.add(href);
       return true;
-    })
-    .slice(0, 8)
-    .map(
-      ([href, label]) => `<li><a href="${href}">${escapeHtml(label)}</a></li>`
-    )
+    });
+
+  // The blog hub carries the whole article index; every other page stays compact.
+  const cap = urlPath === "/blog" ? 60 : urlPath === "/" ? 24 : 12;
+
+  return pairs
+    .slice(0, cap)
+    .map(([href, label]) => `<li><a href="${href}">${escapeHtml(label)}</a></li>`)
     .join("\n");
 }
 
@@ -1282,6 +1431,7 @@ async function main() {
 
   const { cityEntries, companyEntries, stateEntries } = await loadData();
   const blogEntries = loadBlogData();
+  buildLinkIndex({ cityEntries, blogEntries });
   // DB posts are handled at runtime by injectMetaDynamic() — not at build time.
   const allBlogEntries = { ...blogEntries };
   const metaMap = buildMetaMap(

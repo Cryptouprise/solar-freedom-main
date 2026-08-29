@@ -99,7 +99,12 @@ const WORKER_JOBS: HeartbeatJob[] = (Object.entries(AGENT_CRON_CONFIGS) as [Agen
     description: config.description,
   }));
 
-const DESIRED_AGENT_JOBS = [...DAILY_MANAGER_JOBS, ...WORKER_JOBS, ...EXECUTOR_JOBS];
+/**
+ * Every Heartbeat job this project owns. Exported so scheduleHealth coverage can
+ * be reconciled against it in a test — a job registered here but not monitored
+ * there is invisible when it stalls, which is how the Manager went unwatched.
+ */
+export const DESIRED_AGENT_JOBS = [...DAILY_MANAGER_JOBS, ...WORKER_JOBS, ...EXECUTOR_JOBS];
 
 /** List all project-owned agent schedules. */
 export async function listAgentCrons(userSession = "") {
