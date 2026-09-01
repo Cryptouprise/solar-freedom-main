@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
-import { seoScorecardSnapshots } from "../drizzle/schema";
+import { blogPosts, seoPageMetricSnapshots, seoScorecardSnapshots } from "../drizzle/schema";
 import {
   getLeads,
   insertExitIntentCapture,
@@ -316,7 +316,19 @@ export const appRouter = router({
           .from(seoScorecardSnapshots)
           .orderBy(desc(seoScorecardSnapshots.capturedAt))
           .limit(input.limit);
-        return { snapshots, measurementReady: snapshots.length > 0 };
+        const pageMetrics = await db
+          .select()
+          .from(seoPageMetricSnapshots)
+          .orderBy(desc(seoPageMetricSnapshots.capturedAt))
+          .limit(3_000);
+        const posts = await db.select({ slug: blogPosts.slug, targetKeyword: blogPosts.targetKeyword }).from(blogPosts);
+        const keywordByPageSlug = new Map(posts.map((post) => [`blog/${post.slug}`, post.targetKeyword || null]));
+        const pageTrendOptions = Array.from(new Map(pageMetrics.map((metric) => [metric.pageSlug, {
+          pageSlug: metric.pageSlug,
+          pageUrl: metric.pageUrl,
+          targetKeyword: keywordByPageSlug.get(metric.pageSlug) || null,
+        }])).values()).sort((a, b) => a.pageSlug.localeCompare(b.pageSlug));
+        return { snapshots, pageMetrics, pageTrendOptions, measurementReady: snapshots.length > 0 };
       }),
   }),
 

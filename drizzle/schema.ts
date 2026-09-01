@@ -147,6 +147,22 @@ export const seoScorecardSnapshots = mysqlTable("seoScorecardSnapshots", {
 export type SeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferSelect;
 export type InsertSeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferInsert;
 
+/** Verified daily Search Console page-level measurements used by the Outcomes trend filter. */
+export const seoPageMetricSnapshots = mysqlTable("seoPageMetricSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  capturedAt: timestamp("capturedAt").defaultNow().notNull(),
+  periodStart: varchar("periodStart", { length: 10 }).notNull(),
+  periodEnd: varchar("periodEnd", { length: 10 }).notNull(),
+  pageUrl: varchar("pageUrl", { length: 1000 }).notNull(),
+  pageSlug: varchar("pageSlug", { length: 500 }).notNull(),
+  clicks: int("clicks").default(0).notNull(),
+  impressions: int("impressions").default(0).notNull(),
+  ctrPercent: decimal("ctrPercent", { precision: 8, scale: 4 }).default("0").notNull(),
+  avgPosition: decimal("avgPosition", { precision: 8, scale: 2 }).default("0").notNull(),
+});
+
+export type SeoPageMetricSnapshot = typeof seoPageMetricSnapshots.$inferSelect;
+
 /**
  * SEO Pages table — inventory of every page on the site with its SEO status.
  * Tracks indexing status, canonical, schema coverage, internal links, and GSC data.

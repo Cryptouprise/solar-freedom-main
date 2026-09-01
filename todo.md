@@ -1230,3 +1230,5 @@
 - [ ] Show every daily measurement date, prior-period comparison, ranked problem, corrective action, implementation state, and next measurement date in the owner dashboard
 - [x] Persist verified organic CTR and impression-weighted average position in every daily scorecard snapshot and show them in the Outcomes dashboard
 - [x] Add a 30-day Outcomes trend chart for persisted CTR and average ranking position with explicit missing-data states
+- [x] Verify GitHub PR #39 merge and managed-project synchronization before the next deployment
+- [x] Add a filter above the Outcomes trend chart for source-verified individual page and target-keyword CTR/ranking progress

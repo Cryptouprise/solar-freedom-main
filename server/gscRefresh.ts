@@ -1,7 +1,7 @@
 import { GoogleAuth } from "google-auth-library";
 import { sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { seoPages } from "../drizzle/schema";
+import { seoPageMetricSnapshots, seoPages } from "../drizzle/schema";
 
 const SEARCH_CONSOLE_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
 const SEARCH_CONSOLE_API = "https://searchconsole.googleapis.com/webmasters/v3/sites";
@@ -142,6 +142,20 @@ export async function refreshGscPageMetrics(now = new Date()) {
         gscLastChecked: now,
       },
     });
+  }
+
+  if (rows.length > 0) {
+    await db.insert(seoPageMetricSnapshots).values(rows.map((row) => ({
+      capturedAt: now,
+      periodStart: isoDate(31, now),
+      periodEnd: isoDate(3, now),
+      pageUrl: row.url,
+      pageSlug: slugForUrl(row.url),
+      clicks: Math.round(row.clicks),
+      impressions: Math.round(row.impressions),
+      ctrPercent: ((row.impressions > 0 ? row.clicks / row.impressions : 0) * 100).toFixed(4),
+      avgPosition: row.position.toFixed(2),
+    })));
   }
 
   return {
