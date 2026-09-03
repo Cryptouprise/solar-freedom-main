@@ -53,6 +53,3 @@ const REDIRECT_SOURCE_PATHS = new Set([
 const HOME_FAQS = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/home-faq.json"), "utf-8")
 );
-
-// REST OF FILE MUST BE THE LOCAL 1522-LINE prerender.mjs
-// This truncated push is a bug - see follow-up
