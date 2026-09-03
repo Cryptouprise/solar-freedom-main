@@ -149,6 +149,19 @@ OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
 IMPORTANT: For P1 items, write the FULL DRAFT in the "draft" field. For P2/P3, write the outline only.
 ALWAYS fill in the contentBrief for every item — this is the business case that justifies the work.`;
 
+export function assessDraftReadiness(draft?: string): { passed: boolean; issues: string[] } {
+  const text = (draft || "").trim();
+  if (!text) return { passed: false, issues: ["No full draft was supplied."] };
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const issues = [
+    ...(words < 1600 ? [`Draft is incomplete at ${words} words; minimum pre-editor length is 1,600 words.`] : []),
+    ...(!/[.!?]["')\]]?$/.test(text) ? ["Draft appears truncated because it does not end with a complete sentence."] : []),
+    ...(!/\b(faq|frequently asked questions)\b/i.test(text) ? ["Draft is missing a visible FAQ section."] : []),
+    ...(!/\b(case review|15[- ]minute|20[- ]minute)\b/i.test(text) ? ["Draft is missing the required no-obligation case-review CTA."] : []),
+  ];
+  return { passed: issues.length === 0, issues };
+}
+
 // ─── Main Execution ───────────────────────────────────────────────────────────
 
 export async function runContentAgent(
@@ -269,6 +282,7 @@ export async function runContentAgent(
     // 5. Create/update content pipeline items
     if (db) {
       for (const item of (parsed.contentItems || [])) {
+        const selfQa = assessDraftReadiness(item.draft);
         // Check if already exists
         const [existing] = await db.select({ id: contentPipeline.id })
           .from(contentPipeline)
@@ -281,12 +295,13 @@ export async function runContentAgent(
           await db.update(contentPipeline).set({
             outline: item.outline || undefined,
             draft: item.draft || undefined,
-            stage: item.draft ? "draft_complete" : "outlined",
+            stage: item.draft ? (selfQa.passed ? "draft_complete" : "revision_needed") : "outlined",
             wordCount: item.estimatedWordCount,
             revenueJustification: item.revenueJustification,
             estimatedMonthlyTraffic: item.estimatedMonthlyTraffic,
             estimatedLeadsPerMonth: item.estimatedLeadsPerMonth,
             contentBrief: briefJson,
+            editorFeedback: item.draft && !selfQa.passed ? `Content self-QA: ${selfQa.issues.join(" ")}` : undefined,
             updatedAt: new Date(),
           }).where(eq(contentPipeline.id, existing.id));
         } else {
@@ -294,7 +309,7 @@ export async function runContentAgent(
             title: item.title,
             slug: item.slug,
             contentType: (item.contentType as any) || "blog_article",
-            stage: item.draft ? "draft_complete" : "outlined",
+            stage: item.draft ? (selfQa.passed ? "draft_complete" : "revision_needed") : "outlined",
             targetKeyword: item.targetKeyword,
             secondaryKeywords: JSON.stringify(item.secondaryKeywords || []),
             searchVolume: item.searchVolume,
@@ -308,6 +323,7 @@ export async function runContentAgent(
             estimatedMonthlyTraffic: item.estimatedMonthlyTraffic,
             estimatedLeadsPerMonth: item.estimatedLeadsPerMonth,
             contentBrief: briefJson,
+            editorFeedback: item.draft && !selfQa.passed ? `Content self-QA: ${selfQa.issues.join(" ")}` : undefined,
           });
         }
         context.actionsCreated++;
@@ -340,8 +356,8 @@ export async function runContentAgent(
           }
         }
 
-        // Notify editor if draft is complete
-        if (item.draft) {
+        // Notify Editor only after a deterministic completeness and CTA preflight.
+        if (item.draft && selfQa.passed) {
           await sendMessage({
             fromAgent: "content",
             toAgent: "editor",
@@ -349,6 +365,13 @@ export async function runContentAgent(
             priority: (item.priority as any) || "p2",
             subject: `[DRAFT READY] "${item.title}"`,
             body: `Draft complete for: "${item.title}"\nKeyword: ${item.targetKeyword}\nEstimated traffic: ${item.estimatedMonthlyTraffic || "?"}/mo\nEstimated leads: ${item.estimatedLeadsPerMonth || "?"}/mo\nRevenue justification: ${item.revenueJustification || "N/A"}\n\nPlease review and score. The draft is now in BlogStudio Drafts.`,
+          });
+          context.messagesCreated++;
+        } else if (item.draft) {
+          await sendMessage({
+            fromAgent: "content", toAgent: "content", type: "directive", priority: "p1",
+            subject: `[SELF-QA REVISION REQUIRED] "${item.title}"`,
+            body: `Do not send this draft to Editor yet. Fix these preflight issues and resubmit the same title, slug, and target keyword:\n- ${selfQa.issues.join("\n- ")}`,
           });
           context.messagesCreated++;
         }

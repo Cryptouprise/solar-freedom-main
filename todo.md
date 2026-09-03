@@ -1244,6 +1244,6 @@
 - [ ] Add a weekly OpenRouter model/deal evaluation with bounded production-like tests and a Manager review receipt before critical routing changes
 - [ ] Turn SEO Intel actions into accountable content, metadata, internal-link, and CTA execution paths instead of standalone recommendations
 - [x] Make editor reject/revision directives mandatory Content-agent work against the same article before a new topic can be selected
-- [ ] Add content self-QA and editor-feedback revision loops so rejected drafts receive targeted revisions before owner review
+- [x] Add content self-QA and editor-feedback revision loops so rejected drafts receive targeted revisions before owner review
 - [ ] Build owner-friendly clickable review, approve, publish, technical verification, and post-publication measurement states for content work
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option
