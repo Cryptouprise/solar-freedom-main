@@ -18,6 +18,7 @@ const needsWrite =
 if (needsWrite) {
   const source =
     PARTS.map(name => fs.readFileSync(path.join(__dirname, name), "utf8")).join("") +
+    "\nHUB_LINKS.push([\"/compare\", \"Compare solar company issues\"], [\"/solar-contract-laws/texas\", \"Texas solar contract laws\"], [\"/solar-contract-laws/california\", \"California solar contract laws\"], [\"/solar-contract-laws/arizona\", \"Arizona solar contract laws\"]);\n" +
     "\nexport { main };\n";
   fs.writeFileSync(assembledPath, source, "utf8");
 }
