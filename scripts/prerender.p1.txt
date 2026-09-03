@@ -1,0 +1,454 @@
+/**
+ * Static Pre-rendering Script
+ *
+ * Runs after `vite build` to generate individual HTML files for every URL.
+ * Each file gets the correct title, description, and canonical tag baked in.
+ *
+ * WHY: Cloudflare (used by Manus hosting) caches HTML at the edge and ignores
+ * server-side Cache-Control headers. By generating static HTML files at build
+ * time, we ensure every page has the correct meta tags without needing server
+ * injection at runtime.
+ *
+ * CRITICAL LESSONS LEARNED (do not remove this comment):
+ * 1. The injectMeta function MUST remove all existing canonical tags and append
+ *    a new one — NOT use .attr() which fails silently if the element is missing.
+ * 2. Blog posts MUST be included in the meta map — the prerender script must
+ *    read all batch files and extract slugs/metaTitle/metaDescription.
+ * 3. The index.html template has a hardcoded canonical pointing to / — this
+ *    MUST be replaced for every non-homepage URL or Google will treat all pages
+ *    as duplicates of the homepage (causing "Duplicate without user-selected canonical"
+ *    in GSC and preventing indexing of 300+ pages).
+ * 4. When adding new blog batch files, MUST update loadBlogData() to include them.
+ * 5. City pages need state codes in titles for geo-targeting (e.g., "Phoenix, AZ").
+ *
+ * OUTPUT: dist/public/cancel-solar-contract/phoenix-az/index.html, etc.
+ *
+ * See docs/lessons-learned/01-spa-soft-404-seo.md for full context.
+ */
+
+import * as cheerio from "cheerio";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath, pathToFileURL } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+const DIST = path.resolve(ROOT, "dist", "public");
+const BASE_URL = "https://breakyoursolarcontract.com";
+const indexEligibility = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/index-eligibility.json"), "utf-8")
+);
+const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
+const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
+const INDEXED_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
+const INDEXED_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
+const RETIRED_PUBLIC_PATHS = new Set(indexEligibility.retiredPublicPaths ?? []);
+const redirectLedger = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/seo-redirects.json"), "utf-8")
+);
+const REDIRECT_SOURCE_PATHS = new Set([
+  ...Object.keys(redirectLedger.public),
+  ...Object.keys(redirectLedger.blog),
+]);
+const HOME_FAQS = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/home-faq.json"), "utf-8")
+);
+
+// ─── Load city/company/state data ────────────────────────────────────────
+async function loadData() {
+  const citiesFile = fs.readFileSync(
+    path.resolve(ROOT, "client/src/data/cities.ts"),
+    "utf-8"
+  );
+  const companiesFile = fs.readFileSync(
+    path.resolve(ROOT, "client/src/data/companies.ts"),
+    "utf-8"
+  );
+  const stateLawsFile = fs.readFileSync(
+    path.resolve(ROOT, "client/src/data/state-laws.ts"),
+    "utf-8"
+  );
+
+  // Parse city entries with rich fields — split on object boundaries { ... }
+  // IMPORTANT: name: comes BEFORE slug: in each city object, so we must split
+  // on the opening brace of each object, not on the slug: field.
+  const cityEntries = [];
+  const cityObjectRegex = /\{\s*name:\s*["']([^"']+)["'][^}]*slug:\s*["']([^"']+)["'][^}]*\}/gs;
+  let cityMatch;
+  while ((cityMatch = cityObjectRegex.exec(citiesFile)) !== null) {
+    const objText = cityMatch[0];
+    const nameM = objText.match(/\bname:\s*["']([^"']+)["']/);
+    const stateM = objText.match(/\bstate:\s*["']([^"']+)["']/);
+    const stateCodeM = objText.match(/\bstateCode:\s*["']([^"']+)["']/);
+    const slugM = objText.match(/\bslug:\s*["']([^"']+)["']/);
+    const stateLawM = objText.match(/\bstateLaw:\s*["']([^"']+)["']/);
+    const populationM = objText.match(/\bpopulation:\s*["']([^"']+)["']/);
+    const solarActivityM = objText.match(/\bsolarActivity:\s*["']([^"']+)["']/);
+    const companiesM = objText.match(/\bcompanies:\s*\[([^\]]+)\]/);
+    const companiesList = companiesM
+      ? companiesM[1].match(/["']([^"']+)["']/g)?.map(s => s.replace(/["']/g, '')) || []
+      : [];
+    if (!nameM || !slugM) continue;
+    cityEntries.push({
+      name: nameM[1],
+      state: stateM?.[1] || '',
+      stateCode: stateCodeM?.[1] || '',
+      slug: slugM[1],
+      stateLaw: stateLawM?.[1] || '',
+      population: populationM?.[1] || '',
+      solarActivity: solarActivityM?.[1] || '',
+      companies: companiesList,
+    });
+  }
+
+  // Parse company entries with rich fields — split on object boundaries
+  const companyEntries = [];
+  // Companies have slug: before name: so use a broader object match
+  const companyObjectRegex = /\{[^}]*slug:\s*["']([^"']+)["'][\s\S]*?(?=\n\s*\{|$)/g;
+  // Use collectSlugChunks approach but read the FULL object by tracking braces
+  const companyChunks = [];
+  let braceDepth = 0;
+  let objStart = -1;
+  for (let ci = 0; ci < companiesFile.length; ci++) {
+    const ch = companiesFile[ci];
+    if (ch === '{') {
+      if (braceDepth === 0) objStart = ci;
+      braceDepth++;
+    } else if (ch === '}') {
+      braceDepth--;
+      if (braceDepth === 0 && objStart >= 0) {
+        companyChunks.push(companiesFile.slice(objStart, ci + 1));
+        objStart = -1;
+      }
+    }
+  }
+  for (const chunk of companyChunks) {
+    const slugM2 = chunk.match(/\bslug:\s*["']([^"']+)["']/);
+    if (!slugM2) continue;
+    const nameM = chunk.match(/\bname:\s*["']([^"']+)["']/);
+    const status = findStringProp(chunk, "status")?.value;
+    const complaintCount = findStringProp(chunk, "complaintCount")?.value;
+    const bbRating = findStringProp(chunk, "bbRating")?.value;
+    const summary = findStringProp(chunk, "summary")?.value;
+    const topComplaints = parseStringArray(chunk, "topComplaints");
+    const cancellationGrounds = parseStringArray(chunk, "cancellationGrounds");
+    const knownIssues = parseStringArray(chunk, "knownIssues");
+    const lawsuits = parseStringArray(chunk, "lawsuits");
+    if (!nameM) continue;
+    companyEntries.push({
+      slug: slugM2[1],
+      name: nameM[1],
+      status: status || 'Active',
+      complaintCount: complaintCount || '',
+      bbRating: bbRating || '',
+      summary: summary || '',
+      topComplaints,
+      cancellationGrounds,
+      knownIssues,
+      lawsuits,
+    });
+  }
+
+  const stateEntries = collectSlugChunks(stateLawsFile)
+    .map(({ slug, chunk }) => ({
+      slug,
+      state: findStringProp(chunk, "state")?.value || titleFromSlug(slug),
+      metaTitle: findStringProp(chunk, "metaTitle")?.value || null,
+      metaDescription: findStringProp(chunk, "metaDescription")?.value || null,
+      heroHook: findStringProp(chunk, "heroHook")?.value || null,
+      heroSubhook: findStringProp(chunk, "heroSubhook")?.value || null,
+      primaryStatute: findStringProp(chunk, "primaryStatute")?.value || null,
+      primaryStatuteTitle: findStringProp(chunk, "primaryStatuteTitle")?.value || null,
+      coolingOffNote: findStringProp(chunk, "coolingOffNote")?.value || null,
+      contentSections: parseContentSections(chunk),
+      faq: parseFaqItems(chunk),
+    }))
+    .filter((entry) => entry.slug && entry.state);
+
+  return { cityEntries, companyEntries, stateEntries };
+}
+
+// ─── Load ALL blog posts from all batch files ─────────────────────────────────
+// IMPORTANT: When adding new blog batch files, add them to this list.
+function readStringLiteralAt(content, startIndex) {
+  const quote = content[startIndex];
+  if (!["'", '"', "`"].includes(quote)) return null;
+
+  let value = "";
+  for (let i = startIndex + 1; i < content.length; i++) {
+    const ch = content[i];
+    if (ch === "\\") {
+      const next = content[i + 1] ?? "";
+      switch (next) {
+        case "n":
+          value += "\n";
+          break;
+        case "r":
+          value += "\r";
+          break;
+        case "t":
+          value += "\t";
+          break;
+        default:
+          value += next;
+      }
+      i++;
+      continue;
+    }
+
+    if (ch === quote) {
+      return { value, end: i + 1 };
+    }
+
+    value += ch;
+  }
+
+  return null;
+}
+
+function readStringAfterColon(content, colonEndIndex) {
+  let i = colonEndIndex;
+  while (i < content.length && /\s/.test(content[i])) i++;
+  return readStringLiteralAt(content, i);
+}
+
+function findStringProp(content, prop) {
+  const propRegex = new RegExp(`(?:["'\`]${prop}["'\`]|\\b${prop})\\s*:`, "g");
+  const match = propRegex.exec(content);
+  if (!match) return null;
+  return readStringAfterColon(content, propRegex.lastIndex);
+}
+
+function collectSlugChunks(content) {
+  const slugRegex = /(?:["'`]slug["'`]|\bslug)\s*:/g;
+  const slugs = [];
+  let match;
+
+  while ((match = slugRegex.exec(content)) !== null) {
+    const literal = readStringAfterColon(content, slugRegex.lastIndex);
+    if (!literal) continue;
+    slugs.push({
+      slug: literal.value,
+      start: match.index,
+      end: literal.end,
+    });
+  }
+
+  return slugs.map((entry, index) => ({
+    ...entry,
+    chunk: content.slice(
+      entry.start,
+      slugs[index + 1]?.start ?? content.length
+    ),
+  }));
+}
+
+function readBalanced(content, startIndex, openChar, closeChar) {
+  if (content[startIndex] !== openChar) return null;
+  let depth = 0;
+  for (let index = startIndex; index < content.length; index++) {
+    const character = content[index];
+    if (["'", '"', "`"].includes(character)) {
+      const literal = readStringLiteralAt(content, index);
+      if (literal) {
+        index = literal.end - 1;
+        continue;
+      }
+    }
+    if (character === openChar) depth += 1;
+    if (character === closeChar) {
+      depth -= 1;
+      if (depth === 0) {
+        return { value: content.slice(startIndex, index + 1), end: index + 1 };
+      }
+    }
+  }
+  return null;
+}
+
+function findArrayProp(content, prop) {
+  const property = new RegExp(`\\b${prop}\\s*:`).exec(content);
+  if (!property) return null;
+  let index = property.index + property[0].length;
+  while (index < content.length && /\s/.test(content[index])) index += 1;
+  return readBalanced(content, index, "[", "]");
+}
+
+function topLevelObjects(arraySource) {
+  const objects = [];
+  for (let index = 1; index < arraySource.length - 1; index++) {
+    if (["'", '"', "`"].includes(arraySource[index])) {
+      const literal = readStringLiteralAt(arraySource, index);
+      if (literal) index = literal.end - 1;
+      continue;
+    }
+    if (arraySource[index] !== "{") continue;
+    const object = readBalanced(arraySource, index, "{", "}");
+    if (!object) continue;
+    objects.push(object.value);
+    index = object.end - 1;
+  }
+  return objects;
+}
+
+function parseStringArray(content, prop) {
+  const array = findArrayProp(content, prop);
+  if (!array) return [];
+  const values = [];
+  for (let index = 1; index < array.value.length - 1; index++) {
+    if (!["'", '"', "`"].includes(array.value[index])) continue;
+    const literal = readStringLiteralAt(array.value, index);
+    if (!literal) continue;
+    values.push(literal.value);
+    index = literal.end - 1;
+  }
+  return values;
+}
+
+function parseContentSections(content) {
+  const array = findArrayProp(content, "content");
+  if (!array) return [];
+  return topLevelObjects(array.value)
+    .map(object => ({
+      type: findStringProp(object, "type")?.value || "p",
+      content: findStringProp(object, "content")?.value || "",
+      items: parseStringArray(object, "items"),
+      stats: (findArrayProp(object, "stats")
+        ? topLevelObjects(findArrayProp(object, "stats").value)
+        : []
+      ).map(stat => ({
+        value: findStringProp(stat, "value")?.value || "",
+        label: findStringProp(stat, "label")?.value || "",
+      })),
+    }))
+    .filter(section => section.content || section.items.length || section.stats.length);
+}
+
+// ─── FAQ + date extraction for richer structured data ────────────────────────
+// Pull the `faq: [ { q: '...', a: '...' }, ... ]` array out of a single article
+// chunk so it can be emitted as FAQPage JSON-LD (a strong AEO signal).
+function parseFaqItems(chunk) {
+  const faqKey = /\bfaq\s*:/g;
+  const match = faqKey.exec(chunk);
+  if (!match) return [];
+
+  // Find the opening bracket of the faq array.
+  let i = faqKey.lastIndex;
+  while (i < chunk.length && /\s/.test(chunk[i])) i++;
+  if (chunk[i] !== "[") return [];
+
+  // Scan to the matching closing bracket, skipping string literals.
+  let depth = 0;
+  let end = -1;
+  for (let j = i; j < chunk.length; j++) {
+    const ch = chunk[j];
+    if (ch === '"' || ch === "'" || ch === "`") {
+      const literal = readStringLiteralAt(chunk, j);
+      if (literal) {
+        j = literal.end - 1;
+        continue;
+      }
+    }
+    if (ch === "[") depth++;
+    else if (ch === "]") {
+      depth--;
+      if (depth === 0) {
+        end = j;
+        break;
+      }
+    }
+  }
+  if (end === -1) return [];
+
+  const block = chunk.slice(i, end + 1);
+  const items = [];
+  const qKey = /\bq\s*:/g;
+  let qMatch;
+  while ((qMatch = qKey.exec(block)) !== null) {
+    const question = readStringAfterColon(block, qKey.lastIndex);
+    if (!question) continue;
+    const aKey = /\ba\s*:/g;
+    aKey.lastIndex = question.end;
+    const aMatch = aKey.exec(block);
+    if (!aMatch) continue;
+    const answer = readStringAfterColon(block, aKey.lastIndex);
+    if (!answer) continue;
+    const q = question.value.trim();
+    const a = answer.value.trim();
+    if (q && a) items.push({ q, a });
+    qKey.lastIndex = answer.end;
+  }
+  return items;
+}
+
+function parseExternalCitations(chunk) {
+  const urls = [];
+  const markdownLink = /\[[^\]]+\]\((https?:\/\/[^)]+)\)/g;
+  let match;
+  while ((match = markdownLink.exec(chunk)) !== null) urls.push(match[1]);
+
+  const htmlLink = /href=["'](https?:\/\/[^"']+)["']/gi;
+  while ((match = htmlLink.exec(chunk)) !== null) urls.push(match[1]);
+  return Array.from(new Set(urls));
+}
+
+const MONTH_INDEX = {
+  january: "01", february: "02", march: "03", april: "04",
+  may: "05", june: "06", july: "07", august: "08",
+  september: "09", october: "10", november: "11", december: "12",
+};
+
+// Convert loose `publishDate` strings (e.g. "March 2026", "2026-03-15") into an
+// ISO date for datePublished/dateModified. Returns null when unparseable.
+function toIsoDate(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const monthYear = raw.match(/([A-Za-z]+)\s+(\d{4})/);
+  if (monthYear) {
+    const month = MONTH_INDEX[monthYear[1].toLowerCase()];
+    if (month) return `${monthYear[2]}-${month}-01`;
+  }
+  const yearOnly = raw.match(/^(\d{4})$/);
+  if (yearOnly) return `${yearOnly[1]}-01-01`;
+  return null;
+}
+
+function titleFromSlug(slug) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function cleanBlogTitle(slug, title) {
+  const normalized = (title || "").trim();
+  if (!normalized || normalized.toLowerCase() === "solar contract help") {
+    return titleFromSlug(slug);
+  }
+  return normalized;
+}
+
+function cleanBlogDescription(slug, description, title) {
+  const normalized = (description || "").trim();
+  const base =
+    normalized ||
+    `${cleanBlogTitle(slug, title)}: learn the solar contract risks, cancellation options, and documents homeowners should review before requesting a free legal case review.`;
+  const expanded =
+    base.length >= 110
+      ? base
+      : `${base} Review warning signs, legal options, and next steps before requesting a free solar contract case review.`;
+  return fitMetaDescription(expanded);
+}
+
+function fitMetaDescription(description) {
+  const normalized = String(description ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (normalized.length <= 165) return normalized;
+  return `${normalized.slice(0, 162).replace(/\s+\S*$/, "")}...`;
+}
+
+/** Hand-curated editorial relatedness already present in the article data. */
