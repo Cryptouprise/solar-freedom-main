@@ -167,9 +167,13 @@ export function parseJustiaConsumerLawListings(html: string, stateName: string):
 
 export function dedupeJustiaListings(
   listings: JustiaListing[],
-  existing: Array<{ firmName: string; state: string }>,
+  existing: Array<{ firmName: string; state: string | null }>,
 ): { toInsert: JustiaListing[]; duplicates: number } {
-  const known = new Set(existing.map(row => `${row.firmName.toLowerCase()}|${row.state.toLowerCase()}`));
+  const known = new Set(
+    existing
+      .filter((row): row is { firmName: string; state: string } => Boolean(row.state))
+      .map(row => `${row.firmName.toLowerCase()}|${row.state.toLowerCase()}`),
+  );
   const toInsert: JustiaListing[] = [];
   let duplicates = 0;
   for (const listing of listings) {
