@@ -38,9 +38,6 @@ export const CLIENT_ONLY_ROUTES = new Set([
   "/admin/outcomes",
   "/admin/revenue-intel",
   "/admin/attorneys",
-  "/free-cancellation-letter",
-  "/calculator",
-  "/compare",
 ]);
 
 export function normalizePagePath(originalUrl: string): string | null {

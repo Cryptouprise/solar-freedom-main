@@ -123,6 +123,21 @@ export function buildMetaMap(): Record<string, MetaEntry> {
       description:
         "Browse the Solar Freedom website directory, including service, company, city, state-law, and blog pages.",
     },
+    "/free-cancellation-letter": {
+      title: "Free Solar Contract Cancellation Letter | Solar Freedom",
+      description:
+        "Download solar contract cancellation letter templates for cooling-off, pre-installation, and post-installation situations. Review your documents before sending anything.",
+    },
+    "/calculator": {
+      title: "Solar Contract Cancellation Calculator | Solar Freedom",
+      description:
+        "Estimate remaining payments, escalator growth, and buyout questions on a solar lease, PPA, or loan. Results are informational, not a quote or legal advice.",
+    },
+    "/compare": {
+      title: "Compare Solar Company Contract Issues | Solar Freedom",
+      description:
+        "Compare cancellation issues, complaint themes, and documents to gather for major solar companies before requesting an individual case review.",
+    },
   };
 
   for (const [path, meta] of Object.entries(staticPages)) {
@@ -260,7 +275,6 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   // ─── State law pages ──────────────────────────────────────────────────────
   for (const law of stateLaws) {
     const path = `/solar-contract-laws/${law.slug}`;
-    // Use the data file's metaTitle/metaDescription (they are specific and compelling)
     const title = law.metaTitle
       ? `${law.metaTitle} | Solar Freedom`
       : `${law.state} Solar Contract Laws | Your Rights | Solar Freedom`;
@@ -284,57 +298,26 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   return map;
 }
 
-/**
- * Inject page-specific meta tags into the index.html string.
- * Uses cheerio (server-side DOM parser) instead of regex for robust handling
- * of Vite-built HTML which may have different attribute ordering/whitespace.
- *
- * Replaces: <title>, meta description, canonical, og:url, og:title, og:description,
- *           twitter:title, twitter:description
- */
 export function injectMeta(html: string, path: string): string {
   const map = buildMetaMap();
-
-  // Normalize path: strip trailing slash (except root), strip query string
   const normalizedPath =
     path === "/" ? "/" : path.replace(/\/$/, "").split("?")[0];
-
   const meta = map[normalizedPath];
-  if (!meta) return html; // Unknown path — serve as-is (homepage meta is fine)
-
+  if (!meta) return html;
   const $ = cheerio.load(html);
-
-  // <title>
   $("title").text(meta.title);
-
-  // meta description
   $('meta[name="description"]').attr("content", meta.description);
-
-  // canonical — remove all existing canonicals first, then set one
   $('link[rel="canonical"]').remove();
   $("head").append(`<link rel="canonical" href="${meta.canonical}" />`);
-
-  // og:url
   $('meta[property="og:url"]').attr("content", meta.canonical);
-
-  // og:title
   $('meta[property="og:title"]').attr("content", meta.title);
-
-  // og:description
   $('meta[property="og:description"]').attr("content", meta.description);
-
-  // twitter:title
   $('meta[name="twitter:title"]').attr("content", meta.title);
-
-  // twitter:description
   $('meta[name="twitter:description"]').attr("content", meta.description);
-
-  // robots noindex — critical for spam penalty recovery
   if (meta.noindex) {
     $('meta[name="robots"]').remove();
     $('head').append('<meta name="robots" content="noindex, follow" />');
   }
-
   return $.html();
 }
 
@@ -370,13 +353,9 @@ function safeIsoDate(value: unknown): string | undefined {
 function renderDbPostContent(rawContent: string): string {
   const content = rawContent.trim();
   if (!content) return "<p>This article is being prepared for publication.</p>";
-
   if (content.startsWith("<")) {
     return suppressUnverifiedFirstPartyClaims(suppressUnverifiedQuoteMarkup(sanitizeStoredHtml(content)));
   }
-
-  // Preserve useful source-visible structure for the occasional Markdown/plain
-  // post without introducing a second Markdown runtime into the request path.
   return content
     .split(/\n{2,}/)
     .map(block => {
@@ -415,11 +394,6 @@ function normalizeFaqItems(value: unknown): Array<{ q: string; a: string }> {
     .filter(item => item.q && item.a);
 }
 
-/**
- * Render a database-published article into the initial response. The React app
- * still takes over for interaction, but crawlers and no-JS readers receive the
- * same title, article body, FAQs, and Article schema immediately.
- */
 export function renderDbBlogPost(
   html: string,
   pagePath: string,
@@ -467,7 +441,6 @@ export function renderDbBlogPost(
       })),
     });
   }
-
   const body = renderDbPostContent(post.content);
   const faqHtml = faq.length
     ? `<section aria-labelledby="dynamic-faq"><h2 id="dynamic-faq">Frequently asked questions</h2>${faq
@@ -481,7 +454,6 @@ export function renderDbBlogPost(
     : "";
   const editorialHtml = `<section class="editorial-method"><h2>Editorial method</h2><p>Solar Freedom publishes educational contract-navigation content. Articles are checked for source accuracy, clear separation between general information and individual advice, current official procedures, and unsupported outcome claims. We do not claim attorney review unless a named reviewer and review date are displayed. This article is not legal advice.</p></section>`;
   const semanticArticle = `<div id="root"><main class="seo-server-rendered" data-content-source="database"><nav><a href="/">Home</a> / <a href="/blog">Blog</a></nav><article><p>${escapeHtml(post.category || "Solar contract guide")}</p><h1>${escapeHtml(post.title)}</h1>${post.excerpt ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(post.excerpt))}</p>` : ""}<div class="article-body">${body}</div>${citationsHtml}${faqHtml}${editorialHtml}</article></main></div>`;
-
   const $ = cheerio.load(html);
   $("title").text(`${title} | Solar Freedom`);
   $('meta[name="description"]').attr("content", description);
@@ -503,27 +475,14 @@ export function renderDbBlogPost(
   return $.html();
 }
 
-/**
- * Async version of injectMeta that also handles DB-published blog posts.
- *
- * DB posts are created after the build, so they don't have pre-rendered HTML files
- * and aren't in the static meta map. This function does a live DB lookup for
- * /blog/* paths that aren't in the static map, ensuring Googlebot always gets
- * the correct title and meta description even for newly published DB posts.
- */
 export async function injectMetaDynamic(
   html: string,
   path: string
 ): Promise<string> {
   const map = buildMetaMap();
-
-  // Normalize path: strip trailing slash (except root), strip query string
   const normalizedPath =
     path === "/" ? "/" : path.replace(/\/$/, "").split("?")[0];
-
   let meta = map[normalizedPath];
-
-  // If not in static map and it's a blog path, try DB lookup
   if (!meta && normalizedPath.startsWith("/blog/")) {
     try {
       const { getDbBlogPost } = await import("./db");
@@ -534,57 +493,24 @@ export async function injectMetaDynamic(
       console.warn(`[SEO] DB lookup failed for ${normalizedPath}:`, err);
     }
   }
-
-  if (!meta) return html; // Unknown path — serve as-is
-
+  if (!meta) return html;
   const $ = cheerio.load(html);
-
-  // <title>
   $("title").text(meta.title);
-
-  // meta description
   $('meta[name="description"]').attr("content", meta.description);
-
-  // canonical — remove all existing canonicals first, then set one
   $('link[rel="canonical"]').remove();
   $("head").append(`<link rel="canonical" href="${meta.canonical}" />`);
-
-  // og:url
   $('meta[property="og:url"]').attr("content", meta.canonical);
-
-  // og:title
   $('meta[property="og:title"]').attr("content", meta.title);
-
-  // og:description
   $('meta[property="og:description"]').attr("content", meta.description);
-
-  // twitter:title
   $('meta[name="twitter:title"]').attr("content", meta.title);
-
-  // twitter:description
   $('meta[name="twitter:description"]').attr("content", meta.description);
-
-  // robots noindex — critical for spam penalty recovery
   if (meta.noindex) {
     $('meta[name="robots"]').remove();
     $('head').append('<meta name="robots" content="noindex, follow" />');
   }
-
   return $.html();
 }
 
-/**
- * Overlay database edits onto an already-prerendered page.
- *
- * Blog pages are served from the build-time prerender (server/seo-delivery.ts),
- * which returns before the database branch is ever reached. Without this, an
- * agent executor's metadata, FAQ and internal-link edits would only ever reach
- * the React client, never the crawler-delivered HTML.
- *
- * The overlay is strictly ADDITIVE. It rewrites head metadata and appends FAQ
- * content and internal links, but never removes anything the prerender emits,
- * so applying it can only improve a page relative to serving the file as-is.
- */
 export function applyDbOverlayToPrerendered(
   html: string,
   post: {
@@ -600,13 +526,10 @@ export function applyDbOverlayToPrerendered(
   const metaTitle = typeof post.metaTitle === "string" ? post.metaTitle.trim() : "";
   const metaDescription = typeof post.metaDescription === "string" ? post.metaDescription.trim() : "";
   const contentLinks = extractInternalLinks(post.content ?? "");
-
   if (!metaTitle && !metaDescription && !faq.length && !contentLinks.length) return html;
-
   const $ = cheerio.load(html);
   const main = $("main.seo-prerender");
   if (!main.length) return html;
-
   if (metaTitle) {
     const withBrand = /solar freedom/i.test(metaTitle) ? metaTitle : `${metaTitle} | Solar Freedom`;
     $("title").text(withBrand);
@@ -619,8 +542,6 @@ export function applyDbOverlayToPrerendered(
     $('meta[property="og:description"]').attr("content", safeDescription);
     $('meta[name="twitter:description"]').attr("content", safeDescription);
   }
-
-  // Append only FAQ entries the prerendered page does not already ask.
   if (faq.length) {
     const askedAlready = new Set(
       main
@@ -636,7 +557,6 @@ export function applyDbOverlayToPrerendered(
       const nav = main.find("nav").first();
       if (nav.length) nav.before(faqHtml);
       else main.append(faqHtml);
-
       const merged = [
         ...faq.filter(item => askedAlready.has(normalizeQuestionKey(item.q))),
         ...fresh,
@@ -654,9 +574,6 @@ export function applyDbOverlayToPrerendered(
       );
     }
   }
-
-  // Surface internal links an executor added to the stored body. The prerendered
-  // body comes from the static article data, so those anchors are not in it.
   if (contentLinks.length) {
     const linkedAlready = new Set(
       main
@@ -674,7 +591,6 @@ export function applyDbOverlayToPrerendered(
       else main.append(`<nav aria-label="Related Solar Freedom resources"><ul>${items}</ul></nav>`);
     }
   }
-
   return $.html();
 }
 
@@ -690,7 +606,6 @@ function normalizeQuestionKey(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
-/** Internal (same-site, path-relative) anchors present in stored article HTML. */
 function extractInternalLinks(content: string): Array<{ href: string; text: string }> {
   if (!content || !content.includes("<a")) return [];
   const $ = cheerio.load(content, undefined, false);

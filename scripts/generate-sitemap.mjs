@@ -3,9 +3,9 @@
  *
  * Generates sitemap.xml covering ALL pages:
  * - Homepage + static pages
- * - 301 city pages (/cancel-solar-contract/{slug})
- * - 13 company pages (/cancel-{slug}-solar-contract)
- * - 51 state law pages (/solar-contract-laws/{slug})
+ * - Index-eligible city pages (/cancel-solar-contract/{slug})
+ * - Index-eligible company pages (/cancel-{slug}-solar-contract)
+ * - Index-eligible state law pages (/solar-contract-laws/{slug})
  * - All blog articles
  *
  * Run: node scripts/generate-sitemap.mjs
@@ -27,6 +27,9 @@ const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
 const INDEXED_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
 const INDEXED_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
 const RETIRED_PUBLIC_PATHS = new Set(indexEligibility.retiredPublicPaths);
+const QUARANTINED_PATHS = new Set(
+  (indexEligibility.trustQuarantine?.paths ?? []).map(entry => entry.path)
+);
 const redirectLedger = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/seo-redirects.json"), "utf-8")
 );
@@ -136,6 +139,9 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
     },
     { path: "/solar-contract-laws", priority: "0.8", changefreq: "monthly" },
     { path: "/solar-companies", priority: "0.8", changefreq: "monthly" },
+    { path: "/free-cancellation-letter", priority: "0.9", changefreq: "monthly" },
+    { path: "/calculator", priority: "0.8", changefreq: "monthly" },
+    { path: "/compare", priority: "0.7", changefreq: "monthly" },
     { path: "/sunrun", priority: "0.9", changefreq: "monthly" },
     { path: "/media", priority: "0.9", changefreq: "weekly" },
   ];
@@ -151,7 +157,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
   // Company pages (highest priority after homepage)
   for (const company of companyEntries) {
     const pagePath = `/cancel-${company.slug}-solar-contract`;
-    if (!INDEXED_COMPANY_SLUGS.has(company.slug) || PUBLIC_REDIRECT_PATHS.has(pagePath)) continue;
+    if (!INDEXED_COMPANY_SLUGS.has(company.slug) || PUBLIC_REDIRECT_PATHS.has(pagePath) || QUARANTINED_PATHS.has(pagePath)) continue;
     entries.push({
       url: `${BASE_URL}${pagePath}`,
       priority: "0.9",
@@ -163,7 +169,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
   let cityCount = 0;
   for (const city of cityEntries) {
     const pagePath = `/cancel-solar-contract/${city.slug}`;
-    if (!INDEXED_CITY_SLUGS.has(city.slug) || PUBLIC_REDIRECT_PATHS.has(pagePath)) continue; // skip noindexed or redirected cities
+    if (!INDEXED_CITY_SLUGS.has(city.slug) || PUBLIC_REDIRECT_PATHS.has(pagePath) || QUARANTINED_PATHS.has(pagePath)) continue; // skip noindexed, redirected, or quarantined cities
     entries.push({
       url: `${BASE_URL}${pagePath}`,
       priority: "0.8",
@@ -174,9 +180,10 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
 
   // State law pages — only states with verified demand and review eligibility
   for (const state of stateEntries) {
-    if (!INDEXED_STATE_SLUGS.has(state.slug)) continue;
+    const pagePath = `/solar-contract-laws/${state.slug}`;
+    if (!INDEXED_STATE_SLUGS.has(state.slug) || QUARANTINED_PATHS.has(pagePath)) continue;
     entries.push({
-      url: `${BASE_URL}/solar-contract-laws/${state.slug}`,
+      url: `${BASE_URL}${pagePath}`,
       priority: "0.7",
       changefreq: "monthly",
     });
