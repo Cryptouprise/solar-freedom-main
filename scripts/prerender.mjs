@@ -50,16 +50,17 @@ function qualifyTrustTree(value) {
   let source =
     PARTS.map(name => fs.readFileSync(path.join(__dirname, name), "utf8")).join("") +
     qualifyHelper +
-    "\\nHUB_LINKS.push([\\\"/compare\\\", \\\"Compare solar company issues\\\"], [\\\"/solar-contract-laws/texas\\\", \\\"Texas solar contract laws\\\"], [\\\"/solar-contract-laws/california\\\", \\\"California solar contract laws\\\"], [\\\"/solar-contract-laws/arizona\\\", \\\"Arizona solar contract laws\\\"]);\\n" +
-    "\\nexport { main };\\n";
+    '\nHUB_LINKS.push(["/compare", "Compare solar company issues"], ["/solar-contract-laws/texas", "Texas solar contract laws"], ["/solar-contract-laws/california", "California solar contract laws"], ["/solar-contract-laws/arizona", "Arizona solar contract laws"]);
+' +
+    "\nexport { main };\n";
   const before = source;
   source = source.replace(
     "function buildSemanticShellContent(meta, urlPath) {",
-    "function buildSemanticShellContent(meta, urlPath) {\\n  meta = qualifyTrustTree(meta);"
+    "function buildSemanticShellContent(meta, urlPath) {\n  meta = qualifyTrustTree(meta);"
   );
   source = source.replace(
     "function buildStateUniqueContent(meta) {",
-    "function buildStateUniqueContent(meta) {\\n  if (meta?.stateData) meta = { ...meta, stateData: qualifyTrustTree(meta.stateData) };"
+    "function buildStateUniqueContent(meta) {\n  if (meta?.stateData) meta = { ...meta, stateData: qualifyTrustTree(meta.stateData) };"
   );
   if (source === before) {
     throw new Error("prerender assembler: trust-claim hooks missing");
