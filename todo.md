@@ -1239,3 +1239,11 @@
 - [x] Refine the Outcomes chart loading-to-data transition so the visual change is smooth rather than abrupt
 - [x] Run an independent operational audit of every admin agent, including Money Maker, and surface specific working, blocked, and repair-needed states
 - [ ] Stabilize Money Maker’s repeated built-in model timeouts with a tested fallback and durable failed-run receipt
+- [ ] Verify whether z-ai/glm-5.3-flash and google/gemini-3.8-flash are available through the configured provider before routing a critical agent to either model
+- [ ] Add or document a clear per-agent output ledger distinguishing suggestions, reviewable drafts, implemented changes, and blocked work
+- [ ] Add a weekly OpenRouter model/deal evaluation with bounded production-like tests and a Manager review receipt before critical routing changes
+- [ ] Turn SEO Intel actions into accountable content, metadata, internal-link, and CTA execution paths instead of standalone recommendations
+- [x] Make editor reject/revision directives mandatory Content-agent work against the same article before a new topic can be selected
+- [ ] Add content self-QA and editor-feedback revision loops so rejected drafts receive targeted revisions before owner review
+- [ ] Build owner-friendly clickable review, approve, publish, technical verification, and post-publication measurement states for content work
+- [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option

@@ -175,6 +175,10 @@ export async function runContentAgent(
           `FROM: ${m.fromAgent} | PRIORITY: ${m.priority} | SUBJECT: ${m.subject}\n${m.body?.substring(0, 600)}`
         ).join("\n---\n")}`
       : "\n\n═══ INBOX: EMPTY ═══\nNo directives received. Identify the highest-value content gap from the state data and create a P1 brief for it.";
+    const mandatoryRevision = inbox.find(message => /\[(?:REVISION NEEDED|REJECTED)\]/i.test(message.subject || ""));
+    const workInstruction = mandatoryRevision
+      ? `MANDATORY REVISION: The Editor has rejected or requested revision of "${mandatoryRevision.subject}". Revise that exact article now. Preserve its existing title, slug, and target keyword unless the Editor explicitly instructs otherwise. Address every listed defect, return a complete replacement draft, and do not propose a different article in this run.`
+      : "Identify the single highest-value article to write right now.";
 
     const goalsContext = goals.length > 0
       ? `\n\n═══ TODAY'S GOALS ═══\n${formatGoalsForContext(goals)}`
@@ -193,7 +197,7 @@ export async function runContentAgent(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `CURRENT CONTENT STATE:\n${state}${inboxSummary}${goalsContext}${lessonsContext}${memoryContext}\n\nIdentify the single highest-value article to write right now. Write a COMPLETE draft (1,800-2,200 words) — full article body, not just an outline. Include all sections: hook, problem, legal rights, step-by-step, FAQ, CTAs. Keep it tight and punchy. Every piece of content must be tied to a revenue outcome.\n\nRespond with JSON only.`,
+          content: `CURRENT CONTENT STATE:\n${state}${inboxSummary}${goalsContext}${lessonsContext}${memoryContext}\n\n${workInstruction} Write a COMPLETE draft (1,800-2,200 words) — full article body, not just an outline. Include all sections: hook, problem, legal rights, step-by-step, FAQ, CTAs. Keep it tight and punchy. Every piece of content must be tied to a revenue outcome.\n\nRespond with JSON only.`,
         },
       ],
       context,
