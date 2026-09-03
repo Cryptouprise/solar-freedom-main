@@ -26,8 +26,11 @@ function MetricCard({ label, value, sub, tone = "default" }: { label: string; va
   );
 }
 
-function SeoTrendChart({ snapshots, pageMetrics, options }: { snapshots: Array<{ capturedAt: Date | string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; pageMetrics: Array<{ capturedAt: Date | string; pageSlug: string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; options: Array<{ pageSlug: string; pageUrl: string; targetKeyword: string | null }> }) {
+function SeoTrendChart({ snapshots, pageMetrics, options, loading = false }: { snapshots: Array<{ capturedAt: Date | string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; pageMetrics: Array<{ capturedAt: Date | string; pageSlug: string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; options: Array<{ pageSlug: string; pageUrl: string; targetKeyword: string | null }>; loading?: boolean }) {
   const [selection, setSelection] = useState("all");
+  if (loading) {
+    return <section className="rounded-xl border border-white/10 bg-white/5 p-5" aria-busy="true" aria-live="polite"><div className="flex items-end justify-between gap-4"><div className="space-y-2"><div className="h-4 w-44 animate-pulse rounded bg-white/10" /><div className="h-3 w-72 animate-pulse rounded bg-white/[0.07]" /></div><div className="h-10 w-72 animate-pulse rounded-md bg-white/[0.08]" /></div><div className="relative mt-5 h-72 overflow-hidden rounded-lg border border-white/[0.06] bg-black/15"><div className="absolute inset-x-5 top-12 h-px bg-white/[0.06]" /><div className="absolute inset-x-5 top-1/2 h-px bg-white/[0.06]" /><div className="absolute inset-x-5 bottom-12 h-px bg-white/[0.06]" /><div className="absolute inset-0 -translate-x-full animate-[shimmer_1.4s_infinite] bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" /><div className="absolute inset-0 flex items-center justify-center"><span className="rounded-full border border-amber-400/20 bg-amber-400/[0.06] px-3 py-1.5 text-xs font-mono text-amber-100">Loading verified trend data…</span></div></div></section>;
+  }
   const source = selection === "all" ? snapshots : pageMetrics.filter((metric) => metric.pageSlug === selection);
   const latestByUtcDay = new Map<string, (typeof source)[number]>();
   [...source].reverse().forEach((snapshot) => {
@@ -82,8 +85,10 @@ export default function OutcomeScorecard() {
           </div>
         </div>
 
-        {isLoading && <p className="py-16 text-center font-mono text-sm text-gray-400">Loading scorecard…</p>}
+        {isLoading && <p className="pt-4 text-center font-mono text-sm text-gray-400">Loading scorecard…</p>}
         {error && <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">The scorecard could not be loaded. It will not substitute zeroes for unavailable data.</p>}
+
+        {!error && <SeoTrendChart snapshots={data?.snapshots || []} pageMetrics={data?.pageMetrics || []} options={data?.pageTrendOptions || []} loading={isLoading} />}
 
         {!isLoading && !error && !latest && (
           <>
@@ -111,9 +116,6 @@ export default function OutcomeScorecard() {
               <MetricCard label="Durable leads" value={latest.durableLeads} sub="Website form submissions persisted to first-party storage" tone={latest.durableLeads > 0 ? "success" : "warning"} />
               <MetricCard label="Booked appointments" value={latest.bookedAppointments} sub="GoHighLevel appointment-booked events only" tone={latest.bookedAppointments > 0 ? "success" : "warning"} />
             </div>
-
-            <SeoTrendChart snapshots={data.snapshots} pageMetrics={data.pageMetrics || []} options={data.pageTrendOptions || []} />
-
             <section className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h2 className="text-sm font-semibold text-white">What to act on</h2>
               <p className="mt-1 text-sm text-gray-400">Latest verified snapshot: {formatDate(latest.capturedAt)}. Zero is a recorded zero only after the source event feed is active; unavailable sources remain visibly blocked.</p>
