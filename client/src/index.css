@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@keyframes chart-data-fade-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-data-fade {
+  animation: chart-data-fade-in 420ms ease-out both;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
