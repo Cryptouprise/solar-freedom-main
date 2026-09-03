@@ -1,0 +1,403 @@
+function parseRelatedSlugs(chunk) {
+  const match = chunk.match(/\brelatedSlugs:\s*\[([^\]]*)\]/s);
+  if (!match) return [];
+  return (match[1].match(/["']([^"']+)["']/g) || []).map(value => value.replace(/["']/g, ""));
+}
+
+function loadBlogData() {
+  const blogFiles = [
+    "blog.ts",
+    "blog-extra.ts",
+    "blog-articles-batch2.ts",
+    "blog-articles-batch3.ts",
+    "blog-articles-batch4.ts",
+    "blog-articles-batch5.ts",
+    "blog-articles-batch6.ts",
+    "blog-articles-batch7.ts",
+    "blog-articles-batch8.ts",
+    "blog-articles-batch9.ts",
+    "blog-articles-batch10.ts",
+    "blog-articles-batch11.ts",
+    "blog-articles-batch12.ts",
+    "blog-articles-batch13.ts",
+    "blog-articles-batch14.ts",
+    // ADD NEW BATCH FILES HERE when created
+  ];
+
+  const blogEntries = {};
+
+  for (const filename of blogFiles) {
+    const filePath = path.resolve(ROOT, "client/src/data", filename);
+    if (!fs.existsSync(filePath)) continue;
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    for (const entry of collectSlugChunks(content)) {
+      const { slug, chunk } = entry;
+      if (!slug || slug.includes("${") || slug.length <= 5 || blogEntries[slug])
+        continue;
+
+      const title =
+        findStringProp(chunk, "metaTitle")?.value ||
+        findStringProp(chunk, "title")?.value ||
+        "";
+      const description =
+        findStringProp(chunk, "metaDescription")?.value ||
+        findStringProp(chunk, "excerpt")?.value ||
+        "";
+
+      const cleanTitle = cleanBlogTitle(slug, title);
+      const cleanDescription = cleanBlogDescription(
+        slug,
+        description,
+        cleanTitle
+      );
+      const faq = parseFaqItems(chunk);
+      const publishDate =
+        findStringProp(chunk, "publishDate")?.value ||
+        findStringProp(chunk, "datePublished")?.value ||
+        "";
+      const updatedDate =
+        findStringProp(chunk, "updatedDate")?.value ||
+        findStringProp(chunk, "dateModified")?.value ||
+        "";
+      blogEntries[slug] = {
+        title: `${cleanTitle} | Solar Freedom`,
+        description: cleanDescription,
+        faq,
+        contentSections: parseContentSections(chunk),
+        excerpt: findStringProp(chunk, "excerpt")?.value || "",
+        category: findStringProp(chunk, "category")?.value || "Solar contract guide",
+        datePublished: toIsoDate(publishDate),
+        dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
+        citations: parseExternalCitations(chunk),
+        relatedSlugs: parseRelatedSlugs(chunk),
+      };
+    }
+  }
+
+  const seenDescriptions = new Map();
+  for (const [slug, data] of Object.entries(blogEntries)) {
+    const key = data.description.toLowerCase();
+    if (seenDescriptions.has(key)) {
+      const plainTitle = data.title.replace(/\s+\|\s+Solar Freedom$/i, "");
+      data.description = fitMetaDescription(
+        `${data.description} This ${plainTitle} guide explains the specific documents, risks, and cancellation options to review.`
+      );
+    } else {
+      seenDescriptions.set(key, slug);
+    }
+  }
+
+  return blogEntries;
+}
+
+// ─── City-specific meta overrides for high-opportunity pages ─────────────────
+// ─── Build meta map ───────────────────────────────────────────────────────────
+function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
+  const map = {};
+
+  // Homepage
+  map["/"] = {
+    title: "Solar Contract Review and Document Help | Solar Freedom",
+    description:
+      "Organize your solar agreement, financing records, notices, bills, production data, service history, company status, and home-sale requirements for individual review.",
+    canonical: `${BASE_URL}/`,
+    faq: HOME_FAQS,
+  };
+
+  // City pages — 303 pages
+  for (const city of cityEntries) {
+    const urlPath = `/cancel-solar-contract/${city.slug}`;
+    const cityLabel = city.stateCode
+      ? `${city.name}, ${city.stateCode}`
+      : city.name;
+    map[urlPath] = {
+      title: `Cancel Solar Contract in ${cityLabel} | Solar Freedom`,
+      description: fitMetaDescription(
+        `Review solar contract terms and consumer resources for ${cityLabel}. Options and timing depend on your agreement, facts, and jurisdiction.`
+      ),
+      canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_CITY_SLUGS.has(city.slug),
+      geo: { city: city.name, region: city.stateCode || undefined },
+      // Rich fields for unique prerender content
+      cityData: {
+        state: city.state,
+        stateCode: city.stateCode,
+        stateLaw: city.stateLaw,
+        population: city.population,
+        solarActivity: city.solarActivity,
+        companies: city.companies,
+      },
+    };
+  }
+
+  // Company pages
+  for (const company of companyEntries) {
+    const urlPath = `/cancel-${company.slug}-solar-contract`;
+    map[urlPath] = {
+      title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
+      description: `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`,
+      canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_COMPANY_SLUGS.has(company.slug),
+      // Rich fields for unique prerender content
+      companyData: {
+        status: company.status,
+        complaintCount: company.complaintCount,
+        bbRating: company.bbRating,
+        summary: company.summary,
+        topComplaints: company.topComplaints,
+        cancellationGrounds: company.cancellationGrounds,
+        knownIssues: company.knownIssues,
+        lawsuits: company.lawsuits,
+      },
+    };
+  }
+
+  // State law pages — 51 pages (use per-state metaTitle/metaDescription if available)
+  for (const state of stateEntries) {
+    const urlPath = `/solar-contract-laws/${state.slug}`;
+    const title = state.metaTitle
+      ? `${state.metaTitle} | Solar Freedom`
+      : `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`;
+    const description = `Review solar-contract consumer information for ${state.state}, including records to gather and official sources to verify. Options depend on facts and current law.`;
+    map[urlPath] = {
+      title,
+      description,
+      canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_STATE_SLUGS.has(state.slug),
+      geo: { region: state.state },
+      stateData: {
+        state: state.state,
+        heroHook: state.heroHook,
+        heroSubhook: state.heroSubhook,
+        primaryStatute: state.primaryStatute,
+        primaryStatuteTitle: state.primaryStatuteTitle,
+        coolingOffNote: state.coolingOffNote,
+        contentSections: state.contentSections,
+        faq: state.faq,
+      },
+      faq: state.faq,
+    };
+  }
+
+  // Blog posts — ALL 100+ posts
+  for (const [slug, data] of Object.entries(blogEntries)) {
+    const urlPath = `/blog/${slug}`;
+    map[urlPath] = {
+      title: data.title,
+      description: suppressUnverifiedFirstPartyClaims(data.description),
+      canonical: `${BASE_URL}${urlPath}`,
+      noindex: !INDEXED_BLOG_SLUGS.has(slug),
+      faq: data.faq?.map(item => ({ ...item, a: suppressUnverifiedFirstPartyClaims(item.a) })),
+      datePublished: data.datePublished,
+      dateModified: data.dateModified,
+      citations: data.citations,
+      contentSections: data.contentSections,
+      excerpt: suppressUnverifiedFirstPartyClaims(data.excerpt),
+      category: data.category,
+    };
+  }
+
+  // Static pages
+  const staticPages = [
+    {
+      path: "/blog",
+      title: "Solar Contract Help Blog | Solar Freedom",
+      desc: "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner.",
+    },
+    {
+      path: "/how-it-works",
+      title: "How Solar Contract Cancellation Works | Solar Freedom",
+      desc: "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
+    },
+    {
+      path: "/solar-contract-help",
+      title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",
+      desc: "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review.",
+    },
+    {
+      path: "/solar-panel-scam",
+      title: "Solar Panel Scam Warning Signs | Solar Freedom",
+      desc: "Learn the solar panel scam warning signs, from fake tax credit promises to hidden loan fees and liens. Free solar contract review.",
+    },
+    {
+      path: "/solar-companies",
+      title: "Solar Company Complaints & Cancellation Guide | Solar Freedom",
+      desc: "Compare complaints and cancellation options for Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and more.",
+    },
+    {
+      path: "/solar-lien-removal",
+      title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom",
+      desc: "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
+    },
+    {
+      path: "/solar-loan-help",
+      title: "Solar Loan Help | Fight Predatory Solar Loans | Solar Freedom",
+      desc: "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law.",
+    },
+    {
+      path: "/selling-house-with-solar",
+      title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
+      desc: "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment.",
+    },
+    {
+      path: "/solar-exit-options",
+      title: "Solar Exit Options | How to Get Out of a Solar Contract",
+      desc: "Compare possible solar-contract paths and the documents, limits, and risks to review before deciding what to do next.",
+    },
+    {
+      path: "/solar-contract-laws",
+      title: "Solar Contract Laws by State | Your Legal Rights | Solar Freedom",
+      desc: "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
+    },
+    {
+      path: "/sitemap",
+      title: "Site Directory | Solar Freedom",
+      desc: "Browse Solar Freedom resources by topic, solar company, and location.",
+      noindex: true,
+    },
+    {
+      path: "/free-cancellation-letter",
+      title: "Free Solar Contract Cancellation Letter | Solar Freedom",
+      desc: "Download solar contract cancellation letter templates for cooling-off, pre-installation, and post-installation situations. Review your documents before sending anything.",
+    },
+    {
+      path: "/calculator",
+      title: "Solar Contract Cancellation Calculator | Solar Freedom",
+      desc: "Estimate remaining payments, escalator growth, and buyout questions on a solar lease, PPA, or loan. Results are informational, not a quote or legal advice.",
+    },
+    {
+      path: "/compare",
+      title: "Compare Solar Company Contract Issues | Solar Freedom",
+      desc: "Compare cancellation issues, complaint themes, and documents to gather for major solar companies before requesting an individual case review.",
+    },
+  ];
+  for (const p of staticPages) {
+    map[p.path] = {
+      title: p.title,
+      description: p.desc,
+      canonical: `${BASE_URL}${p.path}`,
+      noindex: p.noindex,
+    };
+  }
+
+  return map;
+}
+
+// ─── Build lightweight shell HTML ────────────────────────────────────────────
+// Instead of copying the full 381 KB index.html into every directory,
+// generate a minimal shell that has the correct meta tags + references to
+// the hashed JS/CSS assets. This keeps each file ~3 KB instead of 381 KB,
+// reducing the total dist from 121 MB to under 6 MB so deployment doesn't time out.
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+const unsupportedFirstPartyClaimPatterns = [
+  /3,000\+/i,
+  /Our attorneys/i,
+  /Success Rate/i,
+  /Homeowners (?:Helped|Freed)/i,
+  /Avg\. Resolution Time/i,
+  /Results in 30[–-]90 days/i,
+  /within 24 hours/i,
+  /licensed counsel/i,
+  /nationwide coverage/i,
+  /limited number of new cases/i,
+  /Contract cancelled\. No more payments/i,
+  /(?:Solar Freedom|\bwe\b|\bour (?:team|attorneys)\b)[^.!?]{0,160}(?:no upfront cost|contingency basis|all 50 states)/i,
+];
+
+function suppressUnverifiedFirstPartyClaims(input) {
+  const value = String(input ?? "");
+  if (!unsupportedFirstPartyClaimPatterns.some(pattern => pattern.test(value))) return value;
+  return "This material is withheld pending documented evidence and review. Options depend on the agreement, facts, jurisdiction, and any written engagement terms.";
+}
+
+function stripBrand(title) {
+  return title
+    .replace(/\s+\|\s+Solar Freedom$/i, "")
+    .replace(/\s+—\s+Solar Freedom$/i, "")
+    .replace(/\s+â€”\s+Solar Freedom$/i, "")
+    .trim();
+}
+
+function fitMetaTitle(title) {
+  const normalized = String(title ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (normalized.length <= 70) return normalized;
+
+  const withoutBrand = stripBrand(normalized);
+  if (withoutBrand.length <= 70) return withoutBrand;
+
+  const tightened = withoutBrand
+    .replace(/\s+\((?:2026|2026 Guide|Complete Guide)\)/gi, "")
+    .replace(/\s+[\u2013\u2014-]\s+(?:Free Case Review|Legal Help|Solar Freedom).*$/i, "")
+    // For state law pages: trim '& Your Legal...' and similar suffixes
+    .replace(/\s+&(?:amp;)?\s+Your\s+Legal.*$/i, "")
+    .replace(/:\s+[A-Z][^,]+,\s+[A-Z][^&]+&.*$/, "")
+    .trim();
+  if (tightened.length <= 70) return tightened;
+
+  // Hard truncate at word boundary at 67 chars
+  return `${tightened.slice(0, 67).replace(/\s+\S*$/, "")}...`;
+}
+
+function classifyPath(urlPath) {
+  if (urlPath === "/blog") return "blog_index";
+  if (urlPath.startsWith("/blog/")) return "blog_post";
+  if (urlPath.startsWith("/cancel-solar-contract/")) return "city_page";
+  if (urlPath.startsWith("/solar-contract-laws/")) return "state_law";
+  if (urlPath.startsWith("/cancel-") && urlPath.endsWith("-solar-contract"))
+    return "company_page";
+  return "service_page";
+}
+
+/**
+ * Crawlable internal link graph.
+ *
+ * The previous implementation emitted the same hardcoded 8 links on every page,
+ * with per-page overrides for only 10 articles. The result was a site-wide link
+ * graph roughly 15 URLs wide: no page linked to the homepage, no page linked to
+ * any city page, and /blog linked to 8 of its own articles. Deep pages were
+ * discoverable only through sitemap.xml, which suppresses both crawl frequency
+ * and the internal PageRank those pages need to climb.
+ *
+ * The graph is now derived from the real content data, per page type, and every
+ * destination is checked for index eligibility, redirects and quarantine — a
+ * link to a noindex or redirecting URL is worse than no link at all.
+ */
+let LINK_INDEX = null;
+
+const QUARANTINED_LINK_PATHS = new Set(
+  (indexEligibility.trustQuarantine?.paths ?? []).map(entry => entry.path)
+);
+
+const HUB_LINKS = [
+  ["/solar-contract-help", "Solar contract help"],
+  ["/solar-exit-options", "Solar exit options"],
+  ["/solar-loan-help", "Solar loan help"],
+  ["/selling-house-with-solar", "Selling a house with solar"],
+  ["/solar-lien-removal", "Solar lien removal"],
+  ["/how-it-works", "How it works"],
+  ["/solar-contract-laws", "Solar contract laws by state"],
+  ["/solar-panel-scam", "Solar sales practices to check"],
+  ["/solar-companies", "Solar company profiles"],
+  ["/free-cancellation-letter", "Cancellation letter templates"],
+  ["/calculator", "Cancellation calculator"],
+];
+
+/**
+ * Deterministic rotation. Taking a fixed slice of a shared list means the first
+ * few entries collect every inbound link and the tail collects none — the exact
+ * failure the old hardcoded block had. Rotating by page spreads inbound links
+ * across the whole set while keeping the build reproducible.
+ */
+function rotate(items, urlPath, count) {
+  if (!items.length || count <= 0) return [];
+  let hash = 0;
