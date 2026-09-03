@@ -27,7 +27,7 @@ import { desc, eq, sql, and, gte, lt } from "drizzle-orm";
 import { blogPosts as staticBlogPosts } from "../../client/src/data/blog";
 import { refreshGscPageMetrics } from "../gscRefresh";
 
-// ─── System Prompt ────────────────────────────────────────────
+// ─── System Prompt ────────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `You are the SEO Intelligence Agent for Solar Freedom (breakyoursolarcontract.com).
 
@@ -147,3 +147,506 @@ OUTPUT FORMAT — respond ONLY with valid JSON, no markdown:
     }
   ]
 }`;
+
+// ─── SEO Optimization Prompt ──────────────────────────────────────────────────
+
+const SEO_OPTIMIZE_PROMPT = `You are an expert SEO content optimizer for Solar Freedom (breakyoursolarcontract.com).
+
+Your task: Rewrite/improve the given blog post to rank higher for the target keyword.
+
+RULES:
+1. Keep the same general topic and intent
+2. Improve the H1 to exactly match or closely contain the target keyword
+3. Add 2-3 FAQ items at the end (Q&A format) targeting long-tail variations
+4. Add a strong CTA section: "Get Your Free Case Review" with phone number (904) 507-5590
+5. Improve meta title and meta description
+6. Add internal links to relevant city pages and related articles
+7. Keep content 2,500+ words
+8. Do NOT claim to be attorneys — use "case specialists" or "consumer protection advocates"
+9. Include specific data points (state laws, cancellation windows, company-specific info)
+
+OUTPUT FORMAT — respond ONLY with valid JSON:
+{
+  "title": "New SEO-optimized H1 title",
+  "metaTitle": "Meta title (60 chars max)",
+  "metaDescription": "Meta description (155 chars max)",
+  "content": "Full improved article in semantic HTML format",
+  "excerpt": "2-3 sentence excerpt",
+  "faqItems": [
+    {"question": "Q1", "answer": "A1"},
+    {"question": "Q2", "answer": "A2"},
+    {"question": "Q3", "answer": "A3"}
+  ]
+}`;
+
+function normalizeSeoDraftLanguage(value: string | undefined) {
+  return (value ?? "")
+    .replace(/\bfree legal review\b/gi, "free case review")
+    .replace(/\bfree legal guide(s)?\b/gi, "consumer protection guide$1");
+}
+
+function normalizePublishedPostSlug(value: string | undefined): string {
+  return (value ?? "")
+    .trim()
+    .replace(/^https?:\/\/[^/]+/i, "")
+    .replace(/^\/?blog\//i, "")
+    .replace(/^\/+|\/+$/g, "");
+}
+
+function extractFirstJsonObject(value: string): string | null {
+  const start = value.indexOf("{");
+  if (start < 0) return null;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (let index = start; index < value.length; index++) {
+    const char = value[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') quoted = true;
+    else if (char === "{") depth++;
+    else if (char === "}" && --depth === 0) return value.slice(start, index + 1);
+  }
+  return null;
+}
+
+function parseSeoIntelResponse<T extends { analysis?: string }>(response: string): T {
+  const candidate = extractFirstJsonObject(response);
+  if (!candidate) return { analysis: response } as T;
+  try {
+    return JSON.parse(candidate) as T;
+  } catch {
+    try {
+      return JSON.parse(candidate.replace(/[\r\n]+/g, " ")) as T;
+    } catch {
+      return { analysis: response } as T;
+    }
+  }
+}
+
+// ─── Main Execution ─────────────────────────────────────────────────────────
+
+export async function runSeoIntel(
+  triggerType: "cron" | "manual" | "directive" | "event" = "cron",
+  triggeredBy: string = "system"
+): Promise<AgentThinkResult> {
+  const context = await startRun("seo_intel", triggerType, triggeredBy);
+
+  try {
+    // 1. Gather state. If the scheduled scorecard missed its window, SEO Intel
+    // refreshes the verified GSC source itself before making any ranking or
+    // conversion decision. It never falls back to invented SEO measurements.
+    let seoState = await gatherSeoState();
+    let measurementRefreshNote = "";
+    if (!seoState.hasCurrentMeasurements) {
+      try {
+        const refreshed = await refreshGscPageMetrics();
+        seoState = await gatherSeoState();
+        measurementRefreshNote = `\n\n═══ LIVE MEASUREMENT REFRESH ═══\nSearch Console page metrics were refreshed for ${refreshed.rows} canonical pages (${refreshed.clicks} clicks, ${refreshed.impressions} impressions) before this analysis.`;
+      } catch (refreshError: any) {
+        measurementRefreshNote = `\n\n═══ LIVE MEASUREMENT REFRESH FAILED ═══\n${refreshError?.message || "Unknown Search Console refresh error"}. Do not make ranking or revenue claims until this source is restored.`;
+      }
+    }
+
+    // 2. Check inbox
+    const inbox = await getUnreadMessages("seo_intel");
+    const inboxSummary = inbox.length > 0
+      ? `\n\n═══ INBOX (${inbox.length} messages) ═══\n${inbox.map(m =>
+          `FROM: ${m.fromAgent} | TYPE: ${m.type} | SUBJECT: ${m.subject}\n${m.body?.substring(0, 400)}`
+        ).join("\n---\n")}`
+      : "";
+
+    // 3. Think
+    const response = await agentLLM({
+      agentSlug: "seo_intel",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        {
+          role: "user",
+          content: `CURRENT SEO STATE:\n${seoState.content}${measurementRefreshNote}${inboxSummary}\n\nAnalyze the SEO data. Calculate revenue impact only when CURRENT SEO STATE contains fresh measurements. Prioritize by money, not vanity metrics. Create content directives or optimize existing posts only when the measurement-integrity rules permit them.`,
+        },
+      ],
+      context,
+      temperature: 0.25,
+      // Qwen3.7 Flash uses reasoning tokens before its visible JSON. Give it the
+      // tested 4K budget and let the resilient parser handle its plain JSON
+      // response rather than requesting provider-enforced JSON mode, which has
+      // returned empty content for this model route.
+      maxTokens: 4096,
+    });
+
+    // 4. Parse
+    let parsed: {
+      analysis?: string;
+      topOpportunities?: Array<{
+        keyword: string;
+        currentPosition: number;
+        impressions: number;
+        estimatedMonthlyLeads: number;
+        estimatedMonthlyRevenue: string;
+        action: string;
+        priority: string;
+      }>;
+      threats?: Array<{ issue: string; affectedPages: string[]; impact: string; fix: string }>;
+      actions?: Array<{ priority: string; title: string; description: string; actionType: string }>;
+      contentDirectives?: Array<{
+        toAgent: string;
+        keyword: string;
+        title: string;
+        secondaryKeywords: string[];
+        wordCount: number;
+        urgency: string;
+        revenueJustification: string;
+        specificSections: string[];
+        internalLinks: string[];
+      }>;
+      optimizeExisting?: Array<{
+        postSlug: string;
+        keyword: string;
+        metaTitle?: string;
+        metaDescription?: string;
+        seoImprovements?: string;
+        priority?: string;
+      }>;
+      messages?: Array<{ toAgent: string; type: string; subject: string; body: string }>;
+    } = {};
+
+    parsed = parseSeoIntelResponse<typeof parsed>(response);
+
+    // Prevent absent or stale Search Console data from becoming invented
+    // rankings, keyword gaps, revenue forecasts, or automatic rewrites.
+    if (!seoState.hasCurrentMeasurements) {
+      parsed.topOpportunities = [];
+      parsed.contentDirectives = [];
+      parsed.optimizeExisting = [];
+      parsed.actions = [{
+        priority: "p1",
+        title: "Refresh verified Google Search Console measurements",
+        description: "SEO Intel cannot make ranking-based recommendations because current page-level Search Console measurements are unavailable or stale. Run the authenticated GSC refresh and rerun this audit.",
+        actionType: "gsc_data_sync",
+      }];
+      parsed.analysis = "Current Search Console measurements are unavailable or stale. No ranking, traffic, revenue, or optimization claim was made; a data-refresh blocker was recorded instead.";
+    }
+
+    const db = await getDb();
+
+    // 5. Create actions
+    for (const action of (parsed.actions || [])) {
+      await createAction({
+        agentSlug: "seo_intel",
+        priority: (action.priority as any) || "p3",
+        title: action.title,
+        description: action.description,
+        actionType: action.actionType || "content_gap",
+        requiresApproval: 0,
+      });
+      context.actionsCreated++;
+    }
+
+    // 6. Send content directives as structured messages to Content Agent
+    for (const directive of (parsed.contentDirectives || [])) {
+      const body = `CONTENT DIRECTIVE FROM SEO INTEL\n\nPrimary Keyword: ${directive.keyword}\nSuggested Title: ${directive.title}\nSecondary Keywords: ${directive.secondaryKeywords?.join(", ")}\nTarget Word Count: ${directive.wordCount || 2500}\nUrgency: ${directive.urgency}\n\nRevenue Justification:\n${directive.revenueJustification}\n\nRequired Sections:\n${directive.specificSections?.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n")}\n\nInternal Links to Include:\n${directive.internalLinks?.join("\n")}`;
+
+      await sendMessage({
+        fromAgent: "seo_intel",
+        toAgent: "content",
+        type: "directive",
+        priority: (directive.urgency as any) || "p2",
+        subject: `[SEO DIRECTIVE] Write: "${directive.title}"`,
+        body,
+      });
+      context.messagesCreated++;
+
+      // Also add to content pipeline
+      if (db) {
+        await db.insert(contentPipeline).values({
+          title: directive.title,
+          slug: directive.keyword.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          contentType: "blog_article",
+          stage: "idea",
+          targetKeyword: directive.keyword,
+          secondaryKeywords: JSON.stringify(directive.secondaryKeywords || []),
+          wordCount: directive.wordCount || 2500,
+          requestedBy: "seo_intel",
+          assignedTo: "content",
+          revenueJustification: directive.revenueJustification,
+        }).onDuplicateKeyUpdate({ set: { updatedAt: new Date() } });
+      }
+    }
+
+    // 7. Optimize existing posts — write SEO-improved drafts to BlogStudio
+    if (db && (parsed.optimizeExisting || []).length > 0) {
+      for (const opt of (parsed.optimizeExisting || []).slice(0, 2)) {
+        try {
+          const postSlug = normalizePublishedPostSlug(opt.postSlug);
+          // Fetch the existing post content
+          const [dbPost] = await db.select({
+            id: blogPosts.id,
+            title: blogPosts.title,
+            slug: blogPosts.slug,
+            content: blogPosts.content,
+            metaTitle: blogPosts.metaTitle,
+            metaDescription: blogPosts.metaDescription,
+          }).from(blogPosts)
+            .where(eq(blogPosts.slug, postSlug))
+            .limit(1);
+
+          const staticPost = staticBlogPosts.find((candidate) => candidate.slug === postSlug);
+          const post = dbPost ? {
+            ...dbPost,
+            sourceContent: dbPost.content || "",
+          } : staticPost ? {
+            id: null,
+            title: staticPost.title,
+            slug: staticPost.slug,
+            content: "",
+            metaTitle: staticPost.metaTitle,
+            metaDescription: staticPost.metaDescription,
+            sourceContent: JSON.stringify(staticPost.content),
+          } : null;
+
+          if (!post) {
+            await createAction({
+              agentSlug: "seo_intel",
+              priority: "p2",
+              title: `[SEO EXECUTION BLOCKED] Published post not found: ${postSlug || "empty slug"}`,
+              description: `SEO Intel proposed "${opt.postSlug}" for optimization, but that slug is not in the current published-post inventory. No draft was generated; the next cycle must use an exact supplied slug.`,
+              actionType: "technical_fix",
+              requiresApproval: 0,
+            });
+            context.actionsCreated++;
+            console.log(`[SEO Intel] Post not found: ${opt.postSlug}`);
+            continue;
+          }
+
+          // Generate optimized version
+          const optimizeResponse = await agentLLM({
+            agentSlug: "seo_intel",
+            messages: [
+              { role: "system", content: SEO_OPTIMIZE_PROMPT },
+              {
+                role: "user",
+                content: `TARGET KEYWORD: "${opt.keyword}"\n\nSEO IMPROVEMENTS NEEDED:\n${opt.seoImprovements || "Improve title, meta, add FAQ, strengthen CTAs"}\n\nCURRENT ARTICLE TITLE: ${post.title}\nCURRENT META TITLE: ${post.metaTitle || "none"}\nCURRENT META DESC: ${post.metaDescription || "none"}\n\nCURRENT CONTENT (first 6000 chars):\n${post.sourceContent.substring(0, 6000)}\n\nOptimize this article for the target keyword. Keep the same topic but make it rank higher. Return safe semantic HTML, not Markdown.`,
+              },
+            ],
+            context,
+            temperature: 0.3,
+            maxTokens: 8000,
+          });
+
+          let optimized: {
+            title?: string;
+            metaTitle?: string;
+            metaDescription?: string;
+            content?: string;
+            excerpt?: string;
+            faqItems?: Array<{ question: string; answer: string }>;
+          } = {};
+
+          try {
+            const jsonMatch = optimizeResponse.match(/\{[\s\S]*\}/);
+            optimized = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+          } catch {
+            console.log(`[SEO Intel] Failed to parse optimization response for ${opt.postSlug}`);
+            continue;
+          }
+
+          if (!optimized.content) {
+            console.log(`[SEO Intel] No content generated for ${opt.postSlug}`);
+            continue;
+          }
+
+          optimized = {
+            ...optimized,
+            title: normalizeSeoDraftLanguage(optimized.title),
+            metaTitle: normalizeSeoDraftLanguage(optimized.metaTitle),
+            metaDescription: normalizeSeoDraftLanguage(optimized.metaDescription),
+            excerpt: normalizeSeoDraftLanguage(optimized.excerpt),
+            content: normalizeSeoDraftLanguage(optimized.content),
+          };
+
+          // Save to BlogStudio drafts
+          const draftName = `SEO Optimization — ${opt.keyword} — ${new Date().toLocaleDateString()}`;
+          const [existingDraft] = await db.select({ id: blogDrafts.id })
+            .from(blogDrafts)
+            .where(and(
+              eq(blogDrafts.postSlug, postSlug),
+              eq(blogDrafts.name, draftName)
+            ))
+            .limit(1);
+
+          const faqJson = optimized.faqItems ? JSON.stringify(optimized.faqItems) : undefined;
+
+          if (existingDraft) {
+            await db.update(blogDrafts).set({
+              title: optimized.title || post.title,
+              content: optimized.content,
+              metaTitle: optimized.metaTitle || opt.metaTitle,
+              metaDescription: optimized.metaDescription || opt.metaDescription,
+              excerpt: optimized.excerpt,
+              targetKeyword: opt.keyword,
+              updatedAt: new Date(),
+            }).where(eq(blogDrafts.id, existingDraft.id));
+          } else {
+            await db.insert(blogDrafts).values({
+              postSlug,
+              name: draftName,
+              title: optimized.title || post.title,
+              content: optimized.content,
+              metaTitle: optimized.metaTitle || opt.metaTitle,
+              metaDescription: optimized.metaDescription || opt.metaDescription,
+              excerpt: optimized.excerpt,
+              targetKeyword: opt.keyword,
+            });
+          }
+
+          context.actionsCreated++;
+
+          // Notify editor that a SEO-optimized draft is ready
+          await sendMessage({
+            fromAgent: "seo_intel",
+            toAgent: "editor",
+            type: "directive",
+            priority: (opt.priority as any) || "p2",
+            subject: `[SEO DRAFT READY] "${post.title}" optimized for "${opt.keyword}"`,
+            body: `SEO Intel has written an optimized draft for: "${post.title}"\n\nTarget keyword: ${opt.keyword}\nPost slug: ${opt.postSlug}\nDraft name: ${draftName}\n\nChanges made:\n${opt.seoImprovements || "Improved title, meta, added FAQ, strengthened CTAs"}\n\nNew meta title: ${optimized.metaTitle || opt.metaTitle || "see draft"}\nNew meta description: ${optimized.metaDescription || opt.metaDescription || "see draft"}\n\nPlease review in BlogStudio → Drafts and approve for publishing.`,
+          });
+          context.messagesCreated++;
+
+          console.log(`[SEO Intel] ✅ SEO optimization draft saved for: ${opt.postSlug}`);
+        } catch (optErr: any) {
+          console.error(`[SEO Intel] Failed to optimize ${opt.postSlug}:`, optErr.message);
+        }
+      }
+    }
+
+    // 8. Send general messages
+    for (const msg of (parsed.messages || [])) {
+      await sendMessage({
+        fromAgent: "seo_intel",
+        toAgent: msg.toAgent as any,
+        type: (msg.type as any) || "report",
+        priority: "p3",
+        subject: msg.subject,
+        body: msg.body,
+      });
+      context.messagesCreated++;
+    }
+
+    // 9. Mark inbox read
+    for (const m of inbox) {
+      await markMessageActedOn(m.id);
+    }
+
+    const summary = parsed.analysis || "SEO analysis cycle completed";
+    await completeRun(context, summary);
+    return { summary, actionsCreated: context.actionsCreated, messagesCreated: context.messagesCreated };
+
+  } catch (error: any) {
+    await completeRun(context, `Error: ${error.message}`, "failed", error.message);
+    throw error;
+  }
+}
+
+// ─── SEO State Gathering ──────────────────────────────────────────────────
+
+async function gatherSeoState(): Promise<{ content: string; hasCurrentMeasurements: boolean }> {
+  const db = await getDb();
+  if (!db) {
+    return {
+      content: "Database unavailable. Do not make ranking, traffic, revenue, or optimization claims.",
+      hasCurrentMeasurements: false,
+    };
+  }
+
+  // Tracked pages sorted by impressions
+  const pages = await db.select().from(seoPages)
+    .orderBy(desc(seoPages.gscImpressions))
+    .limit(30);
+
+  // Recent SEO changes
+  const changes = await db.select().from(seoChangeLog)
+    .orderBy(desc(seoChangeLog.createdAt))
+    .limit(15);
+
+  // Published blog posts
+  const posts = await db.select({
+    id: blogPosts.id,
+    title: blogPosts.title,
+    slug: blogPosts.slug,
+    publishedAt: blogPosts.publishedAt,
+  }).from(blogPosts)
+    .where(eq(blogPosts.published, 1))
+    .orderBy(desc(blogPosts.publishedAt))
+    .limit(30);
+
+  // Active content pipeline
+  const pipeline = await db.select().from(contentPipeline)
+    .orderBy(desc(contentPipeline.updatedAt))
+    .limit(20);
+
+  const currentMeasurementCutoff = Date.now() - 72 * 60 * 60 * 1000;
+  const hasCurrentMeasurements = pages.some((page) => {
+    const checkedAt = page.gscLastChecked?.getTime() ?? 0;
+    return checkedAt >= currentMeasurementCutoff && Number(page.gscImpressions ?? 0) > 0;
+  });
+  const measurementGuidance = hasCurrentMeasurements
+    ? "Fresh page-level Google Search Console measurements are available. Use only these supplied figures and exact published slugs."
+    : "No fresh page-level Google Search Console measurements are available. Do not make ranking, traffic, revenue, keyword-gap, or automatic optimization claims; request a verified GSC refresh instead.";
+
+  return {
+    hasCurrentMeasurements,
+    content: `
+═══ TRACKED PAGES (${pages.length}) ═══
+${pages.slice(0, 15).map(p =>
+  `  ${p.url}: pos ${p.gscAvgPosition ?? "?"} | ${p.gscImpressions ?? 0} impr | ${p.gscClicks ?? 0} clicks`
+).join("\n") || "  No pages tracked yet"}
+
+═══ RECENT SEO CHANGES (${changes.length}) ═══
+${changes.slice(0, 8).map(c =>
+  `  [${c.changeType}] ${c.title}: ${c.description?.substring(0, 100)}`
+  + (c.impactMeasured ? ` | Impact: ${(c.impactScore ?? 0) > 0 ? "+" : ""}${c.impactScore ?? 0} (${(c.impressionsDelta ?? 0) > 0 ? "+" : ""}${c.impressionsDelta ?? 0} impr, ${(c.clicksDelta ?? 0) > 0 ? "+" : ""}${c.clicksDelta ?? 0} clicks)` : " | Impact: not yet measured")
+).join("\n") || "  No changes tracked yet"}
+
+═══ PUBLISHED ARTICLES (${posts.length} total) ═══
+${posts.slice(0, 20).map(p => `  /blog/${p.slug}`).join("\n")}
+
+═══ CONTENT PIPELINE (${pipeline.length} items) ═══
+${pipeline.slice(0, 10).map(p =>
+  `  [${p.stage}] "${p.title}" | kw: ${p.targetKeyword || "none"} | requested by: ${p.requestedBy || "?"}`
+).join("\n") || "  Empty pipeline"}
+
+═══ MEASUREMENT INTEGRITY ═══
+${measurementGuidance}
+
+═══ CITY PAGES AVAILABLE FOR INTERNAL LINKING ═══
+  /cancel-solar-contract/phoenix-az
+  /cancel-solar-contract/houston-tx
+  /cancel-solar-contract/dallas-tx
+  /cancel-solar-contract/austin-tx
+  /cancel-solar-contract/san-antonio-tx
+  /cancel-solar-contract/los-angeles-ca
+  /cancel-solar-contract/san-diego-ca
+  /cancel-solar-contract/las-vegas-nv
+  /cancel-solar-contract/denver-co
+  /cancel-solar-contract/miami-fl
+
+═══ MONEY HUBS TO LINK (prefer these over cities) ═══
+  /free-cancellation-letter
+  /calculator
+  /compare
+  /solar-contract-laws/texas
+  /solar-contract-laws/california
+  /solar-contract-laws/arizona
+  /blog/sunrun-solar-contract-cancellation-2026
+  /blog/goodleap-solar-loan-cancellation-hidden-fees-2026
+  /blog/how-to-cancel-sunnova-solar-contract-2026
+  /blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026
+  /blog/adt-solar-complaints
+  /blog/tesla-solar-solarcity-complaints-cancel-2026`,
+  };
+}
