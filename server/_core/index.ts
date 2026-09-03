@@ -18,6 +18,7 @@ import { automationRunHandler } from "../scheduled/automationRun";
 import { agentRunHandler } from "../scheduled/agentRun";
 import { attorneyDiscoveryHandler } from "../scheduled/attorneyDiscovery";
 import { attorneySourceRefreshHandler } from "../scheduled/attorneySourceRefresh";
+import { justiaAttorneyDiscoveryHandler } from "../scheduled/justiaAttorneyDiscovery";
 import { seoScorecardHandler } from "../scheduled/seoScorecard";
 import { managerQaReportHandler } from "../scheduled/managerQaReport";
 import { actionExecutorHandler } from "../scheduled/actionExecutor";
@@ -150,7 +151,7 @@ async function startServer() {
     }
   });
 
-  // ─── Scheduled / Heartbeat handlers ─────────────────────────────────────────
+  // ─── Scheduled / Heartbeat handlers ───────────────────────────────────────
   // MUST be registered before the tRPC middleware and Vite fallthrough
   // Journey tracking endpoint (public, fire-and-forget)
   registerJourneyEndpoint(app);
@@ -160,6 +161,7 @@ async function startServer() {
   app.post("/api/scheduled/automation-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), automationRunHandler);
   app.post("/api/scheduled/agent-run", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }), agentRunHandler);
   app.post("/api/scheduled/attorney-discovery", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), attorneyDiscoveryHandler);
+  app.post("/api/scheduled/justia-attorney-discovery", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), justiaAttorneyDiscoveryHandler);
   app.post("/api/scheduled/attorney-source-refresh", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), attorneySourceRefreshHandler);
   app.post("/api/scheduled/seo-scorecard", rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }), seoScorecardHandler);
   app.post("/api/scheduled/manager-qa-report", rateLimit({ windowMs: 60_000, limit: 5, standardHeaders: true, legacyHeaders: false }), managerQaReportHandler);

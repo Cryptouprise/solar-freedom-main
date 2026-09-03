@@ -103,4 +103,17 @@ describe("agent schedule health", () => {
     const unregistered = buildAgentScheduleHealth([], [], now);
     expect(unregistered.find((state) => state.slug === "action_executor")?.state).toBe("missing");
   });
+
+  it("watches the Justia attorney-discovery DST pair", () => {
+    const now = Date.parse("2026-09-03T08:10:00Z");
+    const healthy = buildAgentScheduleHealth(
+      [],
+      [{ name: "agent-attorney-discovery-mountain-2-dst", isEnable: true, lastExecutedAt: "2026-09-03T08:00:00Z" }],
+      now,
+    );
+    expect(healthy.find((state) => state.slug === "attorney_discovery")?.state).toBe("scheduled");
+
+    const unregistered = buildAgentScheduleHealth([], [], now);
+    expect(unregistered.find((state) => state.slug === "attorney_discovery")?.state).toBe("missing");
+  });
 });

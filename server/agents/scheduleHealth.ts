@@ -29,6 +29,7 @@ const EXPECTED_AGENT_SLUGS = Object.keys(AGENT_CRON_CONFIGS);
  */
 const SUPPORT_JOBS: Array<{ slug: string; jobName: string }> = [
   { slug: "action_executor", jobName: "agent-action-executor" },
+  { slug: "attorney_discovery", jobName: "agent-attorney-discovery-mountain-2-dst" },
 ];
 
 /**
@@ -38,12 +39,20 @@ const SUPPORT_JOBS: Array<{ slug: string; jobName: string }> = [
  */
 const MANAGER_JOB_NAMES = ["agent-manager-mountain-8-dst", "agent-manager-mountain-8-standard"];
 
+const ATTORNEY_DISCOVERY_JOB_NAMES = [
+  "agent-attorney-discovery-mountain-2-dst",
+  "agent-attorney-discovery-mountain-2-standard",
+];
+
 export const MONITORED_JOBS: Array<{ slug: string; jobNames: string[] }> = [
   ...EXPECTED_AGENT_SLUGS.map((slug) => ({
     slug,
     jobNames: slug === "manager" ? MANAGER_JOB_NAMES : [`agent-${slug}`],
   })),
-  ...SUPPORT_JOBS.map((job) => ({ slug: job.slug, jobNames: [job.jobName] })),
+  ...SUPPORT_JOBS.map((job) => ({
+    slug: job.slug,
+    jobNames: job.slug === "attorney_discovery" ? ATTORNEY_DISCOVERY_JOB_NAMES : [job.jobName],
+  })),
 ];
 const STALE_AGENT_RUN_MS = 36 * 60 * 60 * 1000;
 const STALE_GSC_MEASUREMENT_MS = 72 * 60 * 60 * 1000;
