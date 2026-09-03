@@ -72,6 +72,29 @@ const DAILY_MANAGER_JOBS: HeartbeatJob[] = [
 ];
 
 /**
+ * One rotating state's Justia consumer-law listing at 2:00 AM America/Denver.
+ * UTC-only Heartbeat plus an in-callback guard, same DST pair as Manager.
+ */
+const ATTORNEY_RESEARCH_JOBS: HeartbeatJob[] = [
+  {
+    name: "agent-attorney-research-mountain-2-dst",
+    cron: "0 0 8 * * *",
+    path: "/api/scheduled/attorney-research",
+    method: "POST",
+    payload: { scheduleMode: "mountain_2" },
+    description: "Justia attorney research — 2:00 AM America/Denver during daylight time; callback time-zone guard enabled",
+  },
+  {
+    name: "agent-attorney-research-mountain-2-standard",
+    cron: "0 0 9 * * *",
+    path: "/api/scheduled/attorney-research",
+    method: "POST",
+    payload: { scheduleMode: "mountain_2" },
+    description: "Justia attorney research — 2:00 AM America/Denver during standard time; callback time-zone guard enabled",
+  },
+];
+
+/**
  * Drains the action queue after the analysis workers have had time to file
  * their recommendations. Without this, actions with a typed executor would sit
  * at "queued" until someone opened the Command Center and clicked each one.
@@ -104,7 +127,7 @@ const WORKER_JOBS: HeartbeatJob[] = (Object.entries(AGENT_CRON_CONFIGS) as [Agen
  * be reconciled against it in a test — a job registered here but not monitored
  * there is invisible when it stalls, which is how the Manager went unwatched.
  */
-export const DESIRED_AGENT_JOBS = [...DAILY_MANAGER_JOBS, ...WORKER_JOBS, ...EXECUTOR_JOBS];
+export const DESIRED_AGENT_JOBS = [...DAILY_MANAGER_JOBS, ...WORKER_JOBS, ...EXECUTOR_JOBS, ...ATTORNEY_RESEARCH_JOBS];
 
 /** List all project-owned agent schedules. */
 export async function listAgentCrons(userSession = "") {

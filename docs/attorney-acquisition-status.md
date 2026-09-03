@@ -1,30 +1,35 @@
 # Attorney Partner Acquisition Status
 
-**Updated:** August 25, 2026
+**Updated:** September 3, 2026
 
-## Completed Prospect Pool
+## What is actually running
 
-The Attorney Pipeline now contains **100 public-business prospects** for potential Solar Freedom attorney partnerships. Every record has completed a source-evidence review and remains in a research or review state; no firm has been contacted, enrolled, called, texted, or sent a LinkedIn message by the system.
+The attorney prospect pool still contains the existing public-business cards. No firm has been emailed, enrolled, called, texted, or sent a LinkedIn message by the system.
 
-| Measure | Current count |
-|---|---:|
-| Total prospects | 100 |
-| Completed quality reviews | 100 |
-| Public phone numbers | 98 |
-| Public emails displayed by a source | 46 |
-| Named public contacts | 91 |
-| LinkedIn lookup links | 100 |
-| Direct-solar priority prospects | 7 |
-| Review tier | 39 |
-| Defer tier | 54 |
-| Outreach messages sent | 0 |
+Google Maps research is exhausted and is no longer the producer. Discovery is a public Justia consumer-law listing fetch:
 
-## Quality Method
+- One rotating state per run
+- URL shape: `https://www.justia.com/lawyers/consumer-law/{state}/`
+- Saves `firmName`, `state`, `sourceUrl`, plus website/phone/city only if they are on the card
+- `discoveredVia: justia_public_directory`
+- Dedupe on (`firmName`, `state`)
+- Max 8 cards
+- Empty or blocked pages insert zero rows and write a blocked receipt
+- No Firecrawl, no Maps, no invented emails
 
-Prospects were accepted only after a public source directly supported a relevant practice signal. The ranking gate places a firm into the **priority** queue only when it has a direct solar-practice signal, a score of at least 65, and a public website or phone route. Consumer-protection firms without direct solar evidence remain in the review or defer tiers until a human verifies solar-case intake and commercial interest.
+Money Maker `research_firm` actions and admin **Run research** both call this producer.
 
-The priority queue is visible at **`/admin/attorneys`** and shows the named contact where publicly identified, public phone/email where displayed, a direct evidence link, a LinkedIn lookup link, and a review-only LinkedIn introduction draft. Drafts require owner approval and final manual confirmation before any message is sent.
+## Nightly schedule (code, not yet live until this ships)
 
-## Remaining Constraint
+Heartbeat DST pair, 2:00 AM America/Denver, same guard pattern as Manager:
 
-The deployed nightly attorney-discovery callback is ready, but a new recurring research schedule could not be registered from this collaboration session. The previous Google Maps research provider also reported usage exhaustion. The existing pool is complete; future overnight growth requires an approved data-provider capacity and schedule registration. The system records these conditions explicitly rather than fabricating prospects or silent failures.
+| Job | UTC cron | Window |
+|---|---|---|
+| `agent-attorney-research-mountain-2-dst` | `0 0 8 * * *` | 2:00 AM MDT |
+| `agent-attorney-research-mountain-2-standard` | `0 0 9 * * *` | 2:00 AM MST |
+
+Path: `/api/scheduled/attorney-research`. After merge, reconcile Heartbeat from admin so the pair is created. Do not treat the schedule as live until that reconcile succeeds.
+
+## Remaining constraint
+
+This producer fills research cards only. It does not score partnership-readiness, send outreach, or collect invoices. Florida and Nevada **SEO pages** stay quarantined; those states may still appear in attorney rotation because that is a marketplace source, not a ranking URL.
