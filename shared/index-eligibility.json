@@ -1,6 +1,6 @@
 {
   "asOf": "2026-09-03",
-  "method": "Preserve URLs with verified 90-day Search Console demand or a unique core-site function; hold thin template URLs noindex until original, source-backed value is added. 2026-09-03: re-indexed six unique company hubs and TX/CA/AZ state-law pages that are not in trustQuarantine. Do not restore the ~276 thin city pages from the July spam-penalty recovery.",
+  "method": "Preserve URLs with verified 90-day Search Console demand or a unique core-site function; hold thin template URLs noindex until original, source-backed value is added. 2026-09-03: index TX/CA/AZ state-law pages and unique tools (letter/calculator/compare). Company hubs stay redirected to existing blogs. Do not restore the ~276 thin city pages from the July spam-penalty recovery. Florida and Nevada stay in trustQuarantine.",
   "citySlugs": [
     "hartford-ct",
     "phoenix-az",
@@ -33,14 +33,7 @@
     "california",
     "texas"
   ],
-  "companySlugs": [
-    "sunrun",
-    "goodleap",
-    "sunnova",
-    "freedom-forever",
-    "adt-solar",
-    "tesla-solar"
-  ],
+  "companySlugs": [],
   "blogSlugs": [
     "adt-solar-complaints",
     "bakersfield-solar-not-worth-it",
