@@ -16,6 +16,7 @@
  * These tests compare the pairs directly. They are cheap, need no build, and
  * each one fails loudly the next time the two halves drift apart.
  */
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -142,6 +143,35 @@ describe("scheduled jobs reconcile with schedule monitoring", () => {
     const routes = fs.readFileSync(path.resolve(ROOT, "server/_core/index.ts"), "utf-8");
     for (const job of DESIRED_AGENT_JOBS) {
       expect(routes).toContain(`"${job.path}"`);
+    }
+  });
+});
+
+describe("off-site publishing targets reconcile with index eligibility", () => {
+  /**
+   * The Medium brief generator hands anchor targets to a human (or a browser
+   * agent) who pastes them into an off-site article. A target that has gone
+   * noindex or started redirecting is invisible there — the link just quietly
+   * stops counting. Running the generator's own self-check here means the
+   * eligibility list and the off-site link map can never drift apart unnoticed.
+   */
+  it("emits no Medium link target that is not index-eligible", () => {
+    const script = path.resolve(ROOT, "scripts/medium-publish-brief.mjs");
+    expect(fs.existsSync(script)).toBe(true);
+    // --list runs assertAllTargetsPublishable() and exits non-zero on drift.
+    expect(() => execFileSync(process.execPath, [script, "--list"], { encoding: "utf8" })).not.toThrow();
+  });
+
+  it("refuses a slug that is noindex, redirecting or quarantined", () => {
+    const script = path.resolve(ROOT, "scripts/medium-publish-brief.mjs");
+    for (const slug of [
+      "solar-lease-cancellation", // never index-eligible
+      "solar-escalator-clause-what-it-is-how-to-fight", // 301s
+      "cancel-solar-contract-houston-tx", // trust quarantine
+    ]) {
+      expect(() =>
+        execFileSync(process.execPath, [script, slug], { encoding: "utf8", stdio: "pipe" }),
+      ).toThrow();
     }
   });
 });

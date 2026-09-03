@@ -25,7 +25,9 @@
     "smoke:production": "node scripts/production-smoke.mjs",
     "submit:indexnow": "node scripts/submit-indexnow.mjs",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
-    "seo:linkgraph": "node scripts/verify-link-graph.mjs"
+    "seo:linkgraph": "node scripts/verify-link-graph.mjs",
+    "medium:queue": "node scripts/medium-publish-brief.mjs --list",
+    "medium:brief": "node scripts/medium-publish-brief.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
