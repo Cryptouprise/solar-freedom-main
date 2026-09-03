@@ -8,15 +8,25 @@ function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), "utf8");
 }
 
+function readPrerender() {
+  const stub = read("scripts/prerender.mjs");
+  if (stub.includes("prerender.p1.txt")) {
+    return ["prerender.p1.txt", "prerender.p2.txt", "prerender.p3.txt", "prerender.p4.txt"]
+      .map(name => read(`scripts/${name}`))
+      .join("");
+  }
+  return stub;
+}
+
 function reject(relativePath, patterns) {
-  const source = read(relativePath);
+  const source = relativePath === "scripts/prerender.mjs" ? readPrerender() : read(relativePath);
   for (const pattern of patterns) {
     if (pattern.test(source)) failures.push(`${relativePath}: forbidden pattern ${pattern}`);
   }
 }
 
 function requirePattern(relativePath, patterns) {
-  const source = read(relativePath);
+  const source = relativePath === "scripts/prerender.mjs" ? readPrerender() : read(relativePath);
   for (const pattern of patterns) {
     if (!pattern.test(source)) failures.push(`${relativePath}: missing governance control ${pattern}`);
   }
