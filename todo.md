@@ -1247,3 +1247,4 @@
 - [x] Add content self-QA and editor-feedback revision loops so rejected drafts receive targeted revisions before owner review
 - [ ] Build owner-friendly clickable review, approve, publish, technical verification, and post-publication measurement states for content work
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option
+- [x] Maintain one plain-English owner-facing operating map that explains live systems, outputs, failures, ownership, and the prioritized repair queue
