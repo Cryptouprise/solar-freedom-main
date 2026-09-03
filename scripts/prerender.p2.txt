@@ -92,15 +92,15 @@ function loadBlogData() {
 }
 
 // ─── City-specific meta overrides for high-opportunity pages ─────────────────
-// ─── Build meta map ───────────────────────────────────────────────────────────
+// ─── Build meta map ───────────────────────────────────────────
 function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   const map = {};
 
   // Homepage
   map["/"] = {
-    title: "Solar Contract Review and Document Help | Solar Freedom",
+    title: "Cancel Your Solar Contract | Solar Freedom",
     description:
-      "Organize your solar agreement, financing records, notices, bills, production data, service history, company status, and home-sale requirements for individual review.",
+      "Stuck in a solar lease, loan, or PPA? See which records to gather and what options may apply. Individual review. Solar Freedom is not a law firm.",
     canonical: `${BASE_URL}/`,
     faq: HOME_FAQS,
   };
@@ -112,9 +112,9 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       ? `${city.name}, ${city.stateCode}`
       : city.name;
     map[urlPath] = {
-      title: `Cancel Solar Contract in ${cityLabel} | Solar Freedom`,
+      title: `Cancel a Solar Contract in ${cityLabel} | Solar Freedom`,
       description: fitMetaDescription(
-        `Review solar contract terms and consumer resources for ${cityLabel}. Options and timing depend on your agreement, facts, and jurisdiction.`
+        `Solar contract records and consumer resources for ${cityLabel}. Options and timing depend on the agreement, facts, and jurisdiction.`
       ),
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
@@ -202,13 +202,13 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   const staticPages = [
     {
       path: "/blog",
-      title: "Solar Contract Help Blog | Solar Freedom",
+      title: "Solar Contract Guides: Cancel, Dispute, Sell | Solar Freedom",
       desc: "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner.",
     },
     {
       path: "/how-it-works",
       title: "How Solar Contract Cancellation Works | Solar Freedom",
-      desc: "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
+      desc: "See how Solar Freedom reviews solar contracts, gathers records, and prepares an individual case review. Not a law firm. Outcomes depend on the documents and facts.",
     },
     {
       path: "/solar-contract-help",
@@ -218,7 +218,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     {
       path: "/solar-panel-scam",
       title: "Solar Panel Scam Warning Signs | Solar Freedom",
-      desc: "Learn the solar panel scam warning signs, from fake tax credit promises to hidden loan fees and liens. Free solar contract review.",
+      desc: "Learn common solar-sales warning signs and which records to keep.",
     },
     {
       path: "/solar-companies",
@@ -284,7 +284,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   return map;
 }
 
-// ─── Build lightweight shell HTML ────────────────────────────────────────────
+// ─── Build lightweight shell HTML ────────────────────────────────
 // Instead of copying the full 381 KB index.html into every directory,
 // generate a minimal shell that has the correct meta tags + references to
 // the hashed JS/CSS assets. This keeps each file ~3 KB instead of 381 KB,
@@ -390,6 +390,7 @@ const HUB_LINKS = [
   ["/solar-companies", "Solar company profiles"],
   ["/free-cancellation-letter", "Cancellation letter templates"],
   ["/calculator", "Cancellation calculator"],
+  ["/compare", "Compare solar companies"],
 ];
 
 /**
