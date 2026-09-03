@@ -45,7 +45,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
 
   const map: Record<string, MetaEntry> = {};
 
-  // ─── Static pages ────────────────────────────────────────────
+  // ─── Static pages ────────────────────────────────────────────────────────
   const staticPages: Record<string, { title: string; description: string }> = {
     "/": {
       title: "Cancel Your Solar Contract | Solar Freedom",
@@ -139,3 +139,19 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Compare cancellation issues, complaint themes, and documents to gather for major solar companies before requesting an individual case review.",
     },
   };
+
+  for (const [path, meta] of Object.entries(staticPages)) {
+    map[path] = { ...meta, canonical: BASE_URL + path };
+  }
+
+  // ─── Company cancel pages ─────────────────────────────────────────────
+  for (const company of companies) {
+    const path = `/cancel-${company.slug}-solar-contract`;
+    const desc = `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`;
+    map[path] = {
+      title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
+      description: desc,
+      canonical: BASE_URL + path,
+      noindex: !isCompanyIndexed(company.slug),
+    };
+  }
