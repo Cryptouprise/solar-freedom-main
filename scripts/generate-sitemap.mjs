@@ -48,7 +48,7 @@ function decodeStringLiteralValue(value) {
     .replace(/\\\\/g, "\\");
 }
 
-// ─── Load data files ──────────────────────────────────────────
+// ─── Load data files ──────────────────────────────────────────────────────────
 function loadData() {
   const citiesFile = fs.readFileSync(
     path.resolve(ROOT, "client/src/data/cities.ts"),
@@ -116,7 +116,7 @@ function loadData() {
   };
 }
 
-// ─── Build URL entries ────────────────────────────────────────
+// ─── Build URL entries ────────────────────────────────────────────────────────
 function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
   const entries = [];
 
@@ -202,7 +202,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
   return entries;
 }
 
-// ─── Generate XML ─────────────────────────────────────────────
+// ─── Generate XML ─────────────────────────────────────────────────────────────
 function generateXml(entries) {
   const urls = entries
     .map(
@@ -220,7 +220,7 @@ ${urls}
 </urlset>`;
 }
 
-// ─── Main ─────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────────────────────
 const { cityEntries, companyEntries, stateEntries, blogSlugs } = loadData();
 const entries = buildEntries(
   cityEntries,
