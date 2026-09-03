@@ -1238,3 +1238,4 @@
 - [x] Add hover tooltips with exact CTR and average-position values for each verified trend point
 - [x] Refine the Outcomes chart loading-to-data transition so the visual change is smooth rather than abrupt
 - [x] Run an independent operational audit of every admin agent, including Money Maker, and surface specific working, blocked, and repair-needed states
+- [ ] Stabilize Money Maker’s repeated built-in model timeouts with a tested fallback and durable failed-run receipt
