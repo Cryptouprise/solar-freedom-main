@@ -672,8 +672,8 @@ export const agentRouter = router({
     .input(z.object({ states: z.array(z.string()).min(1).max(5) }))
     .mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
-      const { executeAttorneyResearch } = await import("./agents/attorneyResearch");
-      return executeAttorneyResearch(input.states);
+      const { executeJustiaAttorneyResearch } = await import("./justiaAttorneyResearch");
+      return executeJustiaAttorneyResearch(input.states, { maxPagesPerState: 2, maxSaves: 80 });
     }),
 
   /** Return the persistent 30-day evidence trail for an agent. */
