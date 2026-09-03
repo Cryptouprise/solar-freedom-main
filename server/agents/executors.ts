@@ -42,7 +42,7 @@ import {
 } from "../../client/src/data/indexEligibility";
 import { PUBLIC_PATH_REDIRECTS } from "../seo-redirects";
 
-// ─── Hard limits ──────────────────────────────────────────────────────────────
+// ─── Hard limits ────────────────────────────────────────────
 // These are structural, not stylistic. A patch outside them is rejected.
 
 export const EXECUTOR_LIMITS = {
@@ -79,7 +79,7 @@ export function findBannedCopy(value: string): string[] {
   return BANNED_COPY_PATTERNS.filter((rule) => rule.pattern.test(value)).map((rule) => rule.label);
 }
 
-// ─── Outcome types ────────────────────────────────────────────────────────────
+// ─── Outcome types ───────────────────────────────────────────
 
 export type RollbackPlan = {
   kind: "blog_post_fields";
@@ -121,7 +121,7 @@ function blocked(reason: string): ExecutionOutcome {
   return { status: "blocked", reason };
 }
 
-// ─── Target resolution ────────────────────────────────────────────────────────
+// ─── Target resolution ───────────────────────────────────────
 
 /** Pull a /blog/<slug> target out of the action payload or its prose. */
 export function resolveBlogSlug(ctx: ExecutorContext): string | null {
@@ -185,7 +185,7 @@ export async function resolveTarget(ctx: ExecutorContext): Promise<ResolvedTarge
   return { slug, pagePath, post };
 }
 
-// ─── Model patch helper ───────────────────────────────────────────────────────
+// ─── Model patch helper ─────────────────────────────────────
 
 /**
  * Providers occasionally emit raw control characters inside JSON strings. Parse
@@ -238,7 +238,7 @@ function textOf(html: string): string {
   return cheerio.load(html, undefined, false).root().text().replace(/\s+/g, " ").trim();
 }
 
-// ─── Executor: metadata rewrite ───────────────────────────────────────────────
+// ─── Executor: metadata rewrite ───────────────────────────────
 // Covers meta_rewrite, meta_fix and title_optimization. Rewrites the title tag
 // and meta description of an already-published, index-eligible page.
 
@@ -321,7 +321,7 @@ async function executeMetadataRewrite(ctx: ExecutorContext): Promise<ExecutionOu
   };
 }
 
-// ─── Executor: internal links ─────────────────────────────────────────────────
+// ─── Executor: internal links ─────────────────────────────────
 // Covers internal_link and interlink_injection. Wraps phrases that already exist
 // in the page body with contextual links to other live, index-eligible pages.
 
@@ -463,7 +463,7 @@ async function executeInternalLinks(ctx: ExecutorContext): Promise<ExecutionOutc
   };
 }
 
-// ─── Executor: FAQ / schema ───────────────────────────────────────────────────
+// ─── Executor: FAQ / schema ───────────────────────────────────
 // Covers faq_addition and schema_markup. Appends FAQ entries, which drive both
 // the rendered FAQ section and the FAQPage JSON-LD (server/seo-meta.ts).
 
@@ -559,15 +559,15 @@ async function executeFaqAddition(ctx: ExecutorContext): Promise<ExecutionOutcom
   };
 }
 
-// ─── Executor: attorney research (pre-existing behaviour) ─────────────────────
+// ─── Executor: attorney research (pre-existing behaviour) ─────────────────
 
 async function executeResearchFirm(ctx: ExecutorContext): Promise<ExecutionOutcome> {
-  const { executeAttorneyResearch } = await import("./attorneyResearch");
+  const { executeJustiaAttorneyResearch } = await import("../justiaAttorneyResearch");
   const states =
     Array.isArray(ctx.payload.states) && ctx.payload.states.length
       ? (ctx.payload.states as string[]).slice(0, 5)
       : ["California", "Texas", "Florida"];
-  const result = await executeAttorneyResearch(states);
+  const result = await executeJustiaAttorneyResearch(states, { maxPagesPerState: 1, maxSaves: 40 });
   const isBlocked =
     typeof result === "object" && result !== null && (result as { status?: string }).status === "blocked";
   if (isBlocked) {
@@ -585,7 +585,7 @@ async function executeResearchFirm(ctx: ExecutorContext): Promise<ExecutionOutco
   };
 }
 
-// ─── Registry ─────────────────────────────────────────────────────────────────
+// ─── Registry ─────────────────────────────────────────────────
 
 const META_EXECUTOR: ActionExecutor = {
   label: "Rewrite title tag and meta description",
@@ -657,7 +657,7 @@ export function describeUnexecutable(actionType: string): string {
   );
 }
 
-// ─── Single-action execution ──────────────────────────────────────────────────
+// ─── Single-action execution ──────────────────────────────
 
 export type ExecutionReport = {
   actionId: number;
@@ -783,7 +783,7 @@ export async function executeQueuedAction(actionId: number, actor: string): Prom
   }
 }
 
-// ─── Batch execution ──────────────────────────────────────────────────────────
+// ─── Batch execution ──────────────────────────────────────
 
 export type BatchReport = {
   considered: number;
@@ -847,7 +847,7 @@ export async function runQueuedActionExecutions(options?: {
   };
 }
 
-// ─── Rollback ─────────────────────────────────────────────────────────────────
+// ─── Rollback ─────────────────────────────────────────────
 
 /** Restore the exact prior field values stored on a completed action. */
 export async function revertExecutedAction(actionId: number, actor: string): Promise<{ summary: string }> {
