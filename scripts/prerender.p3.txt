@@ -1,0 +1,389 @@
+  for (let index = 0; index < urlPath.length; index += 1) {
+    hash = (hash * 31 + urlPath.charCodeAt(index)) % 100000;
+  }
+  const start = hash % items.length;
+  return Array.from({ length: Math.min(count, items.length) }, (_value, offset) =>
+    items[(start + offset) % items.length]
+  );
+}
+
+const HOME_LINK = ["/", "Solar Freedom home"];
+
+/** A destination is linkable only if it is live, indexable and not redirecting. */
+function isLinkableTarget(pagePath) {
+  if (REDIRECT_SOURCE_PATHS.has(pagePath)) return false;
+  if (QUARANTINED_LINK_PATHS.has(pagePath)) return false;
+  if (RETIRED_PUBLIC_PATHS.has(pagePath)) return false;
+  if (pagePath.startsWith("/blog/")) {
+    return INDEXED_BLOG_SLUGS.has(pagePath.slice("/blog/".length));
+  }
+  if (pagePath.startsWith("/cancel-solar-contract/")) {
+    return INDEXED_CITY_SLUGS.has(pagePath.slice("/cancel-solar-contract/".length));
+  }
+  return true;
+}
+
+const STOP_TOKENS = new Set([
+  "solar", "contract", "the", "and", "for", "with", "your", "you", "how", "what",
+  "can", "get", "out", "of", "to", "a", "in", "is", "it", "2026", "cancel",
+]);
+
+function slugTokens(slug) {
+  return new Set(slug.split("-").filter(token => token.length > 2 && !STOP_TOKENS.has(token)));
+}
+
+/**
+ * Build the link graph once, after the content data is loaded. Everything the
+ * per-page builder needs is precomputed here so prerendering stays linear.
+ */
+function buildLinkIndex({ cityEntries, blogEntries }) {
+  const blogs = Object.entries(blogEntries)
+    .filter(([slug]) => isLinkableTarget(`/blog/${slug}`))
+    .map(([slug, data]) => ({
+      slug,
+      path: `/blog/${slug}`,
+      label: stripBrand(data.title),
+      tokens: slugTokens(slug),
+      related: (data.relatedSlugs || []).filter(related => isLinkableTarget(`/blog/${related}`)),
+    }));
+
+  const cities = cityEntries
+    .filter(city => isLinkableTarget(`/cancel-solar-contract/${city.slug}`))
+    .map(city => ({
+      slug: city.slug,
+      path: `/cancel-solar-contract/${city.slug}`,
+      label: `Cancel a solar contract in ${city.name}, ${city.stateCode || city.state}`,
+      state: city.stateCode || city.state,
+      tokens: slugTokens(city.slug),
+    }));
+
+  const citiesByState = new Map();
+  for (const city of cities) {
+    if (!citiesByState.has(city.state)) citiesByState.set(city.state, []);
+    citiesByState.get(city.state).push(city);
+  }
+
+  LINK_INDEX = { blogs, cities, citiesByState };
+  return LINK_INDEX;
+}
+
+/** Rank other articles by curated relatedness first, then shared slug topic tokens. */
+function relatedArticles(article, limit) {
+  const others = LINK_INDEX.blogs.filter(candidate => candidate.slug !== article.slug);
+  const curated = article.related
+    .map(slug => others.find(candidate => candidate.slug === slug))
+    .filter(Boolean);
+
+  const scored = others
+    .filter(candidate => !curated.includes(candidate))
+    .map(candidate => {
+      let score = 0;
+      for (const token of candidate.tokens) if (article.tokens.has(token)) score += 1;
+      return { candidate, score };
+    })
+    .filter(entry => entry.score > 0)
+    .sort((a, b) => b.score - a.score || a.candidate.slug.localeCompare(b.candidate.slug))
+    .map(entry => entry.candidate);
+
+  return [...curated, ...scored].slice(0, limit);
+}
+
+/** Cities whose slug shares a place token with the article, e.g. a city guide. */
+function citiesForArticle(article, limit) {
+  return LINK_INDEX.cities
+    .filter(city => [...city.tokens].some(token => article.tokens.has(token)))
+    .slice(0, limit);
+}
+
+function buildLinkPairs(urlPath) {
+  if (!LINK_INDEX) return [];
+  const pageType = classifyPath(urlPath);
+  const pairs = [];
+
+  if (urlPath === "/") {
+    pairs.push(...HUB_LINKS);
+    pairs.push(["/blog", "All solar contract guides"]);
+    pairs.push(...LINK_INDEX.blogs.slice(0, 6).map(blog => [blog.path, blog.label]));
+    pairs.push(...LINK_INDEX.cities.slice(0, 8).map(city => [city.path, city.label]));
+    return pairs;
+  }
+
+  if (pageType === "blog_index") {
+    // The blog hub is the crawl entry point for articles: link to all of them.
+    pairs.push(HOME_LINK);
+    pairs.push(...LINK_INDEX.blogs.map(blog => [blog.path, blog.label]));
+    pairs.push(...HUB_LINKS.slice(0, 3));
+    return pairs;
+  }
+
+  if (pageType === "blog_post") {
+    const slug = urlPath.slice("/blog/".length);
+    const article = LINK_INDEX.blogs.find(blog => blog.slug === slug);
+    if (article) {
+      pairs.push(...relatedArticles(article, 5).map(blog => [blog.path, blog.label]));
+      pairs.push(...citiesForArticle(article, 2).map(city => [city.path, city.label]));
+    }
+    pairs.push(["/blog", "All solar contract guides"]);
+    pairs.push(...rotate(HUB_LINKS, urlPath, 3));
+    pairs.push(HOME_LINK);
+    return pairs;
+  }
+
+  if (pageType === "city_page") {
+    const slug = urlPath.slice("/cancel-solar-contract/".length);
+    const city = LINK_INDEX.cities.find(entry => entry.slug === slug);
+    if (city) {
+      // Same-state neighbours first — this is what gives city pages inbound links.
+      const sameState = (LINK_INDEX.citiesByState.get(city.state) || [])
+        .filter(entry => entry.slug !== city.slug)
+        .slice(0, 3);
+      // Ring selection over the full city list: each city links to the ones
+      // following it, wrapping around, so the graph is a cycle and no city is
+      // left without inbound links.
+      const ordered = LINK_INDEX.cities;
+      const position = ordered.findIndex(entry => entry.slug === city.slug);
+      const ring = [];
+      for (let step = 1; ring.length < 4 - sameState.length && step < ordered.length; step += 1) {
+        const candidate = ordered[(position + step) % ordered.length];
+        if (candidate.slug !== city.slug && !sameState.includes(candidate)) ring.push(candidate);
+      }
+      pairs.push(...[...sameState, ...ring].map(entry => [entry.path, entry.label]));
+    }
+    pairs.push(...rotate(LINK_INDEX.blogs, urlPath, 3).map(blog => [blog.path, blog.label]));
+    pairs.push(...rotate(HUB_LINKS, urlPath, 2));
+    pairs.push(HOME_LINK);
+    return pairs;
+  }
+
+  // Static, service, company and state pages: home first so the per-page cap
+  // can never trim it, then the hub cluster, guides and cities.
+  pairs.push(HOME_LINK);
+  pairs.push(...HUB_LINKS.filter(([href]) => href !== urlPath));
+  pairs.push(...rotate(LINK_INDEX.blogs, urlPath, 4).map(blog => [blog.path, blog.label]));
+  pairs.push(...rotate(LINK_INDEX.cities, urlPath, 2).map(city => [city.path, city.label]));
+  pairs.push(["/blog", "All solar contract guides"]);
+  return pairs;
+}
+
+function buildInternalLinks(urlPath) {
+  const seen = new Set([urlPath]);
+  const pairs = buildLinkPairs(urlPath)
+    .filter(([href]) => isLinkableTarget(href))
+    .filter(([href]) => {
+      if (seen.has(href)) return false;
+      seen.add(href);
+      return true;
+    });
+
+  // The blog hub carries the whole article index; every other page stays compact.
+  const cap = urlPath === "/blog" ? 60 : urlPath === "/" ? 24 : 12;
+
+  return pairs
+    .slice(0, cap)
+    .map(([href, label]) => `<li><a href="${href}">${escapeHtml(label)}</a></li>`)
+    .join("\n");
+}
+
+function buildSchemaBlocks(meta, urlPath, pageType) {
+  const pageName = stripBrand(meta.title);
+  const organizationId = `${BASE_URL}/#organization`;
+  const websiteId = `${BASE_URL}/#website`;
+  const blocks = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${meta.canonical}#webpage`,
+      url: meta.canonical,
+      name: pageName,
+      description: meta.description,
+      isPartOf: {
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+        publisher: { "@id": organizationId },
+      },
+      inLanguage: "en-US",
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: `${BASE_URL}/`,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: pageType === "blog_post" ? "Blog" : pageName,
+          item: pageType === "blog_post" ? `${BASE_URL}/blog` : meta.canonical,
+        },
+        ...(pageType === "blog_post"
+          ? [
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: pageName,
+                item: meta.canonical,
+              },
+            ]
+          : []),
+      ],
+    },
+  ];
+
+  if (urlPath === "/") {
+    blocks.push(
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": organizationId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+        logo: { "@type": "ImageObject", url: `${BASE_URL}/favicon.ico` },
+        description: "Solar Freedom publishes educational solar-contract guides and provides intake for fact-specific document reviews.",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+        publisher: { "@id": organizationId },
+        inLanguage: "en-US",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "@id": `${BASE_URL}/#contract-review-service`,
+        name: "Solar Contract Document Review",
+        provider: { "@id": organizationId },
+        description: "Fact-specific intake and document review for solar agreements, financing records, notices, bills, production records, service history, and home-sale requirements.",
+        serviceType: "Solar contract document review",
+        areaServed: { "@type": "Country", name: "United States" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          description: "Initial intake review offered at no charge",
+        },
+      }
+    );
+  }
+
+  if (pageType === "blog_post") {
+    const article = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: pageName,
+      description: meta.description,
+      mainEntityOfPage: { "@type": "WebPage", "@id": `${meta.canonical}#webpage` },
+      url: meta.canonical,
+      author: {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+      },
+      publisher: {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: "Solar Freedom",
+        url: BASE_URL,
+      },
+      citation: Array.isArray(meta.citations) && meta.citations.length ? meta.citations : undefined,
+      inLanguage: "en-US",
+      isAccessibleForFree: true,
+    };
+    if (meta.datePublished) article.datePublished = meta.datePublished;
+    if (meta.dateModified) article.dateModified = meta.dateModified;
+    blocks.push(article);
+  }
+
+  // FAQPage — strong answer-engine (AEO) signal. Only emitted when the page
+  // ships real question/answer pairs from the blog data.
+  if (Array.isArray(meta.faq) && meta.faq.length > 0) {
+    blocks.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: meta.faq.slice(0, 10).map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
+    });
+  }
+
+  return JSON.stringify(blocks).replace(/</g, "\\u003c");
+}
+
+function buildCityUniqueContent(meta, urlPath) {
+  const cd = meta.cityData;
+  if (!cd) return '';
+  const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';
+  const stateName = cd.state || cd.stateCode || 'your state';
+  const population = cd.population ? `${cd.population} residents` : 'a local homeowner population';
+  const solarActivity = cd.solarActivity || 'active';
+  const stateLaw = cd.stateLaw ? escapeHtml(cd.stateLaw) : '';
+  const companies = (cd.companies || [])
+    .map(company => `<li>${escapeHtml(company)}</li>`)
+    .join('');
+
+  return `
+      <h2>Solar contract questions in ${escapeHtml(cityName)}</h2>
+      <p>${escapeHtml(cityName)} is a ${escapeHtml(solarActivity.toLowerCase())} solar market in ${escapeHtml(stateName)}, with an estimated ${escapeHtml(population)}. If a solar agreement, production promise, billing issue, or transfer requirement is causing concern, start with the signed documents and the facts specific to the installation rather than relying on a general online answer.</p>
+      <p>Solar Freedom’s ${escapeHtml(cityName)} resource is designed to help homeowners organize the information that may matter in a contract review. It does not determine whether a company, lender, salesperson, or agreement violated any law, and it does not replace advice from a qualified professional.</p>
+
+      <h2>What to gather before requesting help</h2>
+      <ul>
+        <li>The signed contract, financing agreement, lease, PPA, and all addenda or change orders.</li>
+        <li>Sales proposals, promised-production estimates, utility bills, monitoring records, and any relevant inspection or permit documents.</li>
+        <li>Emails, text messages, advertisements, and notes describing what was represented before the agreement was signed.</li>
+        <li>Any correspondence about cancellation, system performance, billing, repair, a lien, a home sale, or a proposed transfer.</li>
+      </ul>
+
+      <h2>${escapeHtml(stateName)} consumer-law reference</h2>
+      ${stateLaw ? `<p>The state-law reference associated with this location is <strong>${stateLaw}</strong>. Whether a statute applies, whether a deadline exists, and what options may be available depend on the actual agreement and facts. Review the official statutory text and seek appropriate professional guidance before acting.</p>` : `<p>Consumer-protection rules and contract remedies vary by state and by the facts of the transaction. Review the dedicated ${escapeHtml(stateName)} law resource for a starting point.</p>`}
+
+      <h2>Companies researched in this location</h2>
+      <p>The following names are included in Solar Freedom’s research library for ${escapeHtml(cityName)}. Their appearance here is not a statement that they currently operate in the city or that any individual has a claim against them.</p>
+      <dl>
+        <dt>City</dt><dd>${escapeHtml(cityName)}</dd>
+        <dt>State</dt><dd>${escapeHtml(stateName)}</dd>
+        <dt>Market activity</dt><dd>${escapeHtml(solarActivity)}</dd>
+      </dl>
+      ${companies ? `<ul>${companies}</ul>` : ''}
+
+      <h2>Practical next step</h2>
+      <p>Keep a written timeline of the sale, installation, billing, and service events. A fact-specific review can help identify which questions to raise, what documents are missing, and whether a local or state-level resource may be relevant.</p>`;
+}
+
+function buildCompanyUniqueContent(meta) {
+  const cd = meta.companyData;
+  if (!cd) return '';
+  const companyName = meta.title.replace(/Cancel\s+|\s+Solar Contract.*/gi, '').trim() || 'this company';
+  const complaintsText = (cd.topComplaints || [])
+    .map(complaint => `<li>${escapeHtml(complaint)}</li>`)
+    .join('');
+  const groundsText = (cd.cancellationGrounds || [])
+    .map(ground => `<li>${escapeHtml(ground)}</li>`)
+    .join('');
+  const knownIssuesText = cd.knownIssues?.length
+    ? cd.knownIssues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
+    : "";
+  const lawsuitsText = cd.lawsuits?.length
+    ? cd.lawsuits.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')
+    : "";
+
+  return `
+      <h2>About ${escapeHtml(companyName)}</h2>
+      ${cd.summary ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(cd.summary))}</p>` : ''}
+      ${complaintsText ? `<h2>Complaints listed on this page</h2><ul>${complaintsText}</ul>` : ''}
+      ${knownIssuesText ? `<h2>Issues listed on this page</h2><ul>${knownIssuesText}</ul>` : ''}
+      ${groundsText ? `<h2>Cancellation grounds listed on this page</h2><ul>${groundsText}</ul>` : ''}
