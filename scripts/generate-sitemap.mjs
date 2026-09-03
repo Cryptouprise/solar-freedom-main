@@ -18,7 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const BASE_URL = "https://breakyoursolarcontract.com";
 
-// ─── Shared evidence-backed index eligibility ────────────────────────────
+// ─── Shared evidence-backed index eligibility ────────────────────────────────
 const indexEligibility = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/index-eligibility.json"), "utf-8")
 );
@@ -48,7 +48,7 @@ function decodeStringLiteralValue(value) {
     .replace(/\\\\/g, "\\");
 }
 
-// ─── Load data files ────────────────────────────────────────────────────────
+// ─── Load data files ──────────────────────────────────────────
 function loadData() {
   const citiesFile = fs.readFileSync(
     path.resolve(ROOT, "client/src/data/cities.ts"),
@@ -116,7 +116,7 @@ function loadData() {
   };
 }
 
-// ─── Build URL entries ──────────────────────────────────────────────────────
+// ─── Build URL entries ────────────────────────────────────────
 function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
   const entries = [];
 
@@ -202,7 +202,7 @@ function buildEntries(cityEntries, companyEntries, stateEntries, blogSlugs) {
   return entries;
 }
 
-// ─── Generate XML ─────────────────────────────────────────────────────────
+// ─── Generate XML ─────────────────────────────────────────────
 function generateXml(entries) {
   const urls = entries
     .map(
@@ -220,7 +220,7 @@ ${urls}
 </urlset>`;
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────
 const { cityEntries, companyEntries, stateEntries, blogSlugs } = loadData();
 const entries = buildEntries(
   cityEntries,
