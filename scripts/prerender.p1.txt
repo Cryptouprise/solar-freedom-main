@@ -54,7 +54,7 @@ const HOME_FAQS = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/home-faq.json"), "utf-8")
 );
 
-// ─── Load city/company/state data ────────────────────────────────────────
+// ─── Load city/company/state data ────────────────────────────────────────────
 async function loadData() {
   const citiesFile = fs.readFileSync(
     path.resolve(ROOT, "client/src/data/cities.ts"),
