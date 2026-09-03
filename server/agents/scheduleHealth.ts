@@ -27,8 +27,15 @@ const EXPECTED_AGENT_SLUGS = Object.keys(AGENT_CRON_CONFIGS);
  * executor is the only path that applies queued SEO actions to live pages, so a
  * silent stall there stops every ranking change without stopping any agent.
  */
-const SUPPORT_JOBS: Array<{ slug: string; jobName: string }> = [
-  { slug: "action_executor", jobName: "agent-action-executor" },
+const SUPPORT_JOBS: Array<{ slug: string; jobNames: string[] }> = [
+  { slug: "action_executor", jobNames: ["agent-action-executor"] },
+  {
+    slug: "attorney_research",
+    jobNames: [
+      "agent-attorney-research-mountain-2-dst",
+      "agent-attorney-research-mountain-2-standard",
+    ],
+  },
 ];
 
 /**
@@ -43,7 +50,7 @@ export const MONITORED_JOBS: Array<{ slug: string; jobNames: string[] }> = [
     slug,
     jobNames: slug === "manager" ? MANAGER_JOB_NAMES : [`agent-${slug}`],
   })),
-  ...SUPPORT_JOBS.map((job) => ({ slug: job.slug, jobNames: [job.jobName] })),
+  ...SUPPORT_JOBS.map((job) => ({ slug: job.slug, jobNames: job.jobNames })),
 ];
 const STALE_AGENT_RUN_MS = 36 * 60 * 60 * 1000;
 const STALE_GSC_MEASUREMENT_MS = 72 * 60 * 60 * 1000;
