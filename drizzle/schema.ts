@@ -147,6 +147,26 @@ export const seoScorecardSnapshots = mysqlTable("seoScorecardSnapshots", {
 export type SeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferSelect;
 export type InsertSeoScorecardSnapshot = typeof seoScorecardSnapshots.$inferInsert;
 
+/**
+ * Immutable Search Console index-coverage snapshots. Site-wide counts and the
+ * article-only inspection state are kept separately so the dashboard never
+ * mislabels total indexed URLs as indexed articles.
+ */
+export const seoIndexCoverageSnapshots = mysqlTable("seoIndexCoverageSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  capturedAt: timestamp("capturedAt").defaultNow().notNull(),
+  source: varchar("source", { length: 100 }).notNull(),
+  indexedUrlCount: int("indexedUrlCount").notNull(),
+  notIndexedUrlCount: int("notIndexedUrlCount").notNull(),
+  trackedArticleCount: int("trackedArticleCount").notNull(),
+  articleIndexedCount: int("articleIndexedCount"),
+  articleInspectionStatus: mysqlEnum("articleInspectionStatus", ["verified", "unavailable", "partial"])
+    .notNull(),
+  notes: text("notes"),
+});
+
+export type SeoIndexCoverageSnapshot = typeof seoIndexCoverageSnapshots.$inferSelect;
+
 /** Verified daily Search Console page-level measurements used by the Outcomes trend filter. */
 export const seoPageMetricSnapshots = mysqlTable("seoPageMetricSnapshots", {
   id: int("id").autoincrement().primaryKey(),

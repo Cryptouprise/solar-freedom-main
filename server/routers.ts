@@ -1,11 +1,11 @@
 import { COOKIE_NAME, SITE_CONFIG_DEFAULTS } from "@shared/const";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
-import { blogPosts, seoPageMetricSnapshots, seoScorecardSnapshots } from "../drizzle/schema";
+import { blogPosts, seoIndexCoverageSnapshots, seoPageMetricSnapshots, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
 import {
   getLeads,
   insertExitIntentCapture,
@@ -322,13 +322,30 @@ export const appRouter = router({
           .orderBy(desc(seoPageMetricSnapshots.capturedAt))
           .limit(3_000);
         const posts = await db.select({ slug: blogPosts.slug, targetKeyword: blogPosts.targetKeyword }).from(blogPosts);
+        const [latestIndexCoverage] = await db
+          .select()
+          .from(seoIndexCoverageSnapshots)
+          .orderBy(desc(seoIndexCoverageSnapshots.capturedAt))
+          .limit(1);
+        const priorityPages = await db
+          .select({
+            url: seoPages.url,
+            slug: seoPages.slug,
+            clicks: seoPages.gscClicks,
+            impressions: seoPages.gscImpressions,
+            avgPosition: seoPages.gscAvgPosition,
+          })
+          .from(seoPages)
+          .where(eq(seoPages.pageType, "blog"))
+          .orderBy(desc(seoPages.gscImpressions))
+          .limit(3);
         const keywordByPageSlug = new Map(posts.map((post) => [`blog/${post.slug}`, post.targetKeyword || null]));
         const pageTrendOptions = Array.from(new Map(pageMetrics.map((metric) => [metric.pageSlug, {
           pageSlug: metric.pageSlug,
           pageUrl: metric.pageUrl,
           targetKeyword: keywordByPageSlug.get(metric.pageSlug) || null,
         }])).values()).sort((a, b) => a.pageSlug.localeCompare(b.pageSlug));
-        return { snapshots, pageMetrics, pageTrendOptions, measurementReady: snapshots.length > 0 };
+        return { snapshots, pageMetrics, pageTrendOptions, indexCoverage: latestIndexCoverage || null, priorityPages, measurementReady: snapshots.length > 0 };
       }),
   }),
 

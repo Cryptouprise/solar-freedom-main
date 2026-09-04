@@ -26,6 +26,54 @@ function MetricCard({ label, value, sub, tone = "default" }: { label: string; va
   );
 }
 
+function IndexCoverageStrategyWidget({ coverage, priorityPages }: {
+  coverage: {
+    capturedAt: Date | string;
+    source: string;
+    indexedUrlCount: number;
+    notIndexedUrlCount: number;
+    trackedArticleCount: number;
+    articleIndexedCount: number | null;
+    articleInspectionStatus: "verified" | "unavailable" | "partial";
+    notes: string | null;
+  } | null | undefined;
+  priorityPages: Array<{ url: string; slug: string; clicks: number | null; impressions: number | null; avgPosition: string | null }>;
+}) {
+  const pageLabel = (page: { slug: string }) => page.slug.replace(/^blog\//, "").replace(/-/g, " ");
+  const indexedArticleLabel = coverage?.articleInspectionStatus === "verified"
+    ? `${coverage.articleIndexedCount ?? 0}`
+    : "Verification unavailable";
+
+  return (
+    <section className="rounded-xl border border-cyan-400/20 bg-cyan-400/[0.035] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-mono uppercase tracking-[0.16em] text-cyan-200">Two-week SEO control panel</p>
+          <h2 className="mt-1 text-lg font-semibold text-white">Index coverage and the next three moves</h2>
+          <p className="mt-1 max-w-3xl text-sm text-gray-400">The index total is scope-labeled. Strategy cards require an implementation receipt before they count as work.</p>
+        </div>
+        {coverage && <span className="shrink-0 text-xs font-mono text-gray-500">Captured {formatDate(coverage.capturedAt)}</span>}
+      </div>
+
+      {coverage ? (
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-lg border border-cyan-300/15 bg-black/20 p-4"><p className="text-xs uppercase tracking-wider text-gray-400">Indexed site URLs</p><p className="mt-1 text-3xl font-bold text-cyan-100">{coverage.indexedUrlCount.toLocaleString()}</p><p className="mt-1 text-xs text-gray-500">All URL types · {coverage.source}</p></div>
+          <div className="rounded-lg border border-white/10 bg-black/20 p-4"><p className="text-xs uppercase tracking-wider text-gray-400">Tracked articles</p><p className="mt-1 text-3xl font-bold text-white">{coverage.trackedArticleCount.toLocaleString()}</p><p className="mt-1 text-xs text-gray-500">Published blog URLs in the article audit</p></div>
+          <div className={`rounded-lg border bg-black/20 p-4 ${coverage.articleInspectionStatus === "verified" ? "border-emerald-400/25" : "border-amber-400/25"}`}><p className="text-xs uppercase tracking-wider text-gray-400">Indexed articles</p><p className={`mt-1 text-xl font-bold ${coverage.articleInspectionStatus === "verified" ? "text-emerald-200" : "text-amber-200"}`}>{indexedArticleLabel}</p><p className="mt-1 text-xs text-gray-500">{coverage.articleInspectionStatus === "verified" ? "Per-article inspection verified" : "Not inferred from site-wide totals"}</p></div>
+        </div>
+      ) : <div className="mt-4 rounded-lg border border-dashed border-amber-400/30 bg-black/20 p-4 text-sm text-amber-100">Index coverage has not been captured yet. The dashboard will not estimate an indexed-article count.</div>}
+
+      <div className="mt-5 grid gap-3 xl:grid-cols-3">
+        <article className="rounded-lg border border-amber-400/20 bg-black/20 p-4"><div className="flex items-center justify-between"><span className="text-xs font-mono text-amber-200">01 · CAPTURE DEMAND</span><span className="rounded bg-amber-400/10 px-2 py-1 text-[10px] font-mono text-amber-100">CTR</span></div><h3 className="mt-3 font-semibold text-white">Publish snippet fixes near page one</h3><p className="mt-2 text-sm leading-6 text-gray-400">Approve metadata updates for the highest-impression Sunrun, GoodLeap, and pre-installation pages, then verify live metadata and canonicals before measuring CTR.</p><p className="mt-3 text-xs text-amber-100">Target: 3.0%, 3.0%, and 2.5% CTR respectively.</p></article>
+        <article className="rounded-lg border border-violet-400/20 bg-black/20 p-4"><div className="flex items-center justify-between"><span className="text-xs font-mono text-violet-200">02 · IMPROVE RANK</span><span className="rounded bg-violet-400/10 px-2 py-1 text-[10px] font-mono text-violet-100">CONTENT</span></div><h3 className="mt-3 font-semibold text-white">Finish the same pages before new topics</h3><p className="mt-2 text-sm leading-6 text-gray-400">Add decision-stage sections, 4–6 factual FAQs with valid schema, and contextual links from live relevant pages through Content QA, Editor, owner approval, and technical verification.</p><p className="mt-3 text-xs text-violet-100">Target: median position improvement of two places.</p></article>
+        <article className="rounded-lg border border-emerald-400/20 bg-black/20 p-4"><div className="flex items-center justify-between"><span className="text-xs font-mono text-emerald-200">03 · BOOK THE REVIEW</span><span className="rounded bg-emerald-400/10 px-2 py-1 text-[10px] font-mono text-emerald-100">APPOINTMENTS</span></div><h3 className="mt-3 font-semibold text-white">Prove the 15-minute review path</h3><p className="mt-2 text-sm leading-6 text-gray-400">Make booking the primary CTA, preserve page and session source in the calendar flow, and require a signed GoHighLevel appointment receipt.</p><p className="mt-3 text-xs text-emerald-100">Target: 100% booking-event capture and one verified booking in 14 days.</p></article>
+      </div>
+
+      {priorityPages.length > 0 && <div className="mt-4 rounded-lg border border-white/[0.08] bg-black/20 p-3"><p className="text-xs font-mono uppercase tracking-wider text-gray-500">Current high-impression pages</p><div className="mt-2 grid gap-2 md:grid-cols-3">{priorityPages.map((page) => <div key={page.url} className="rounded bg-white/[0.03] px-3 py-2"><p className="line-clamp-1 text-xs text-gray-200" title={pageLabel(page)}>{pageLabel(page)}</p><p className="mt-1 text-[11px] text-gray-500">{Number(page.impressions || 0).toLocaleString()} impressions · {Number(page.clicks || 0).toLocaleString()} clicks · position {page.avgPosition || "—"}</p></div>)}</div></div>}
+    </section>
+  );
+}
+
 function SeoTrendChart({ snapshots, pageMetrics, options, loading = false }: { snapshots: Array<{ capturedAt: Date | string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; pageMetrics: Array<{ capturedAt: Date | string; pageSlug: string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; options: Array<{ pageSlug: string; pageUrl: string; targetKeyword: string | null }>; loading?: boolean }) {
   const [selection, setSelection] = useState("all");
   if (loading) {
@@ -116,6 +164,7 @@ export default function OutcomeScorecard() {
               <MetricCard label="Durable leads" value={latest.durableLeads} sub="Website form submissions persisted to first-party storage" tone={latest.durableLeads > 0 ? "success" : "warning"} />
               <MetricCard label="Booked appointments" value={latest.bookedAppointments} sub="GoHighLevel appointment-booked events only" tone={latest.bookedAppointments > 0 ? "success" : "warning"} />
             </div>
+            <IndexCoverageStrategyWidget coverage={data.indexCoverage} priorityPages={data.priorityPages || []} />
             <section className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h2 className="text-sm font-semibold text-white">What to act on</h2>
               <p className="mt-1 text-sm text-gray-400">Latest verified snapshot: {formatDate(latest.capturedAt)}. Zero is a recorded zero only after the source event feed is active; unavailable sources remain visibly blocked.</p>

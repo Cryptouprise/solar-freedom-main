@@ -204,6 +204,13 @@
       "when": 1788271837138,
       "tag": "0028_greedy_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1788488323738,
+      "tag": "0029_wild_absorbing_man",
+      "breakpoints": true
     }
   ]
 }
