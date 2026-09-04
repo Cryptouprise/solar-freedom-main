@@ -183,11 +183,14 @@ describe("internal link destinations", () => {
     for (const slug of redirectedBlogSlugs) expect(targets).not.toContain(`/blog/${slug}`);
   });
 
-  it("never offers a city path that 301s, such as houston-tx", () => {
-    expect(indexEligibility.citySlugs).toContain("houston-tx");
-    expect(Object.keys(seoRedirects.public)).toContain("/cancel-solar-contract/houston-tx");
-    expect(targets).not.toContain("/cancel-solar-contract/houston-tx");
+  it("never offers a redirected public path as a destination", () => {
     for (const path of Object.keys(seoRedirects.public)) expect(targets).not.toContain(path);
+  });
+
+  it("offers houston-tx as a live city destination after un-redirect", () => {
+    expect(indexEligibility.citySlugs).toContain("houston-tx");
+    expect(Object.keys(seoRedirects.public)).not.toContain("/cancel-solar-contract/houston-tx");
+    expect(targets).toContain("/cancel-solar-contract/houston-tx");
   });
 
   it("includes both blog and city destinations", () => {
@@ -203,21 +206,21 @@ describe("internal link destinations", () => {
 
 describe("provider output parsing", () => {
   it("parses a plain JSON object", () => {
-    expect(parseJsonObject('{"metaTitle":"A better title"}')).toEqual({ metaTitle: "A better title" });
+    expect(parseJsonObject('{\"metaTitle\":\"A better title\"}')).toEqual({ metaTitle: "A better title" });
   });
 
   it("recovers an object wrapped in prose or a markdown fence", () => {
-    expect(parseJsonObject('Here you go:\n```json\n{"metaTitle":"Ok"}\n```')).toEqual({ metaTitle: "Ok" });
+    expect(parseJsonObject('Here you go:\n```json\n{\"metaTitle\":\"Ok\"}\n```')).toEqual({ metaTitle: "Ok" });
   });
 
   it("recovers when a provider emits a raw line break inside a JSON string", () => {
-    const parsed = parseJsonObject('{"metaDescription":"Line one\nline two"}');
+    const parsed = parseJsonObject('{\"metaDescription\":\"Line one\nline two\"}');
     expect(parsed?.metaDescription).toBe("Line one line two");
   });
 
   it("returns null for unusable output instead of guessing", () => {
     expect(parseJsonObject("no json here")).toBeNull();
-    expect(parseJsonObject('["an","array"]')).toBeNull();
+    expect(parseJsonObject('[\"an\",\"array\"]')).toBeNull();
   });
 });
 

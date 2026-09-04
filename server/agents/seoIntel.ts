@@ -74,6 +74,7 @@ SEO RECOVERY PRIORITIES:
 EXECUTION SAFETY:
 - For optimizeExisting, copy a slug exactly from the supplied PUBLISHED ARTICLES list.
 - Never invent a future-dated, old, or /blog-prefixed slug. If no supplied post is a fit, return an empty optimizeExisting list.
+- Only link city URLs from the supplied CITY PAGES list. Never invent Jacksonville, Tampa, Orlando, or other non-allowlisted city pages. Do not restore thin city templates. Florida and Nevada state-law pages stay quarantined. Company hubs 301 to blogs — link the blogs, not /cancel-*-solar-contract hubs. Daily content should deepen Sunrun/GoodLeap/Sunnova blogs, TX/CA/AZ law pages, letter, calculator, and compare.
 
 COMPACT OUTPUT LIMITS:
 - analysis: at most 80 words.
@@ -227,7 +228,7 @@ function parseSeoIntelResponse<T extends { analysis?: string }>(response: string
   }
 }
 
-// ─── Main Execution ───────────────────────────────────────────────────────────
+// ─── Main Execution ─────────────────────────────────────────────────────────
 
 export async function runSeoIntel(
   triggerType: "cron" | "manual" | "directive" | "event" = "cron",
@@ -348,7 +349,7 @@ export async function runSeoIntel(
 
     // 6. Send content directives as structured messages to Content Agent
     for (const directive of (parsed.contentDirectives || [])) {
-      const body = `CONTENT DIRECTIVE FROM SEO INTEL\n\nPrimary Keyword: ${directive.keyword}\nSuggested Title: ${directive.title}\nSecondary Keywords: ${directive.secondaryKeywords?.join(", ")}\nTarget Word Count: ${directive.wordCount || 2500}\nUrgency: ${directive.urgency}\n\nRevenue Justification:\n${directive.revenueJustification}\n\nRequired Sections:\n${directive.specificSections?.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\nInternal Links to Include:\n${directive.internalLinks?.join("\n")}`;
+      const body = `CONTENT DIRECTIVE FROM SEO INTEL\n\nPrimary Keyword: ${directive.keyword}\nSuggested Title: ${directive.title}\nSecondary Keywords: ${directive.secondaryKeywords?.join(", ")}\nTarget Word Count: ${directive.wordCount || 2500}\nUrgency: ${directive.urgency}\n\nRevenue Justification:\n${directive.revenueJustification}\n\nRequired Sections:\n${directive.specificSections?.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n")}\n\nInternal Links to Include:\n${directive.internalLinks?.join("\n")}`;
 
       await sendMessage({
         fromAgent: "seo_intel",
@@ -551,7 +552,7 @@ export async function runSeoIntel(
   }
 }
 
-// ─── SEO State Gathering ──────────────────────────────────────────────────────
+// ─── SEO State Gathering ──────────────────────────────────────────────────
 
 async function gatherSeoState(): Promise<{ content: string; hasCurrentMeasurements: boolean }> {
   const db = await getDb();
@@ -624,14 +625,28 @@ ${measurementGuidance}
 
 ═══ CITY PAGES AVAILABLE FOR INTERNAL LINKING ═══
   /cancel-solar-contract/phoenix-az
-  /blog/cancel-solar-contract-houston-tx
+  /cancel-solar-contract/houston-tx
   /cancel-solar-contract/dallas-tx
+  /cancel-solar-contract/austin-tx
+  /cancel-solar-contract/san-antonio-tx
   /cancel-solar-contract/los-angeles-ca
+  /cancel-solar-contract/san-diego-ca
   /cancel-solar-contract/las-vegas-nv
   /cancel-solar-contract/denver-co
-  /cancel-solar-contract/san-antonio-tx
-  /cancel-solar-contract/jacksonville-fl
-  /cancel-solar-contract/tampa-fl
-  /cancel-solar-contract/orlando-fl`,
+  /cancel-solar-contract/miami-fl
+
+═══ MONEY HUBS TO LINK (prefer these over cities) ═══
+  /free-cancellation-letter
+  /calculator
+  /compare
+  /solar-contract-laws/texas
+  /solar-contract-laws/california
+  /solar-contract-laws/arizona
+  /blog/sunrun-solar-contract-cancellation-2026
+  /blog/goodleap-solar-loan-cancellation-hidden-fees-2026
+  /blog/how-to-cancel-sunnova-solar-contract-2026
+  /blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026
+  /blog/adt-solar-complaints
+  /blog/tesla-solar-solarcity-complaints-cancel-2026`,
   };
 }

@@ -88,12 +88,21 @@ INTERNAL LINKING REQUIREMENTS:
 - Link to 2 city pages relevant to the article's geography
 - Link to homepage with anchor text "solar contract help"
 
-CITY PAGES FOR INTERNAL LINKING:
-/cancel-solar-contract/phoenix-az | /blog/cancel-solar-contract-houston-tx
-/cancel-solar-contract/dallas-tx | /cancel-solar-contract/los-angeles-ca
-/cancel-solar-contract/las-vegas-nv | /cancel-solar-contract/denver-co
-/cancel-solar-contract/san-antonio-tx | /cancel-solar-contract/jacksonville-fl
-/cancel-solar-contract/tampa-fl | /cancel-solar-contract/orlando-fl
+CITY PAGES FOR INTERNAL LINKING (ALLOWLIST ONLY):
+/cancel-solar-contract/phoenix-az | /cancel-solar-contract/houston-tx
+/cancel-solar-contract/dallas-tx | /cancel-solar-contract/austin-tx
+/cancel-solar-contract/san-antonio-tx | /cancel-solar-contract/los-angeles-ca
+/cancel-solar-contract/san-diego-ca | /cancel-solar-contract/las-vegas-nv
+/cancel-solar-contract/denver-co | /cancel-solar-contract/miami-fl
+HARD RULE: never contentType city_page; never invent Jacksonville/Tampa/Orlando; never restore ~276 thin cities.
+MONEY HUBS TO LINK: /free-cancellation-letter /calculator /compare /solar-contract-laws/texas /solar-contract-laws/california /solar-contract-laws/arizona
+COMPANY BLOGS TO LINK (not 301 company hubs):
+/blog/sunrun-solar-contract-cancellation-2026
+/blog/goodleap-solar-loan-cancellation-hidden-fees-2026
+/blog/how-to-cancel-sunnova-solar-contract-2026
+/blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026
+/blog/adt-solar-complaints
+/blog/tesla-solar-solarcity-complaints-cancel-2026
 
 WHEN WRITING FULL DRAFTS:
 - Write the complete article, not just an outline
@@ -254,7 +263,6 @@ export async function runContentAgent(
     } = {};
 
     try {
-      // Find the outermost JSON object by tracking brace depth
       const firstBrace = response.indexOf('{');
       if (firstBrace !== -1) {
         let depth = 0;
@@ -279,11 +287,9 @@ export async function runContentAgent(
 
     const db = await getDb();
 
-    // 5. Create/update content pipeline items
     if (db) {
       for (const item of (parsed.contentItems || [])) {
         const selfQa = assessDraftReadiness(item.draft);
-        // Check if already exists
         const [existing] = await db.select({ id: contentPipeline.id })
           .from(contentPipeline)
           .where(eq(contentPipeline.targetKeyword, item.targetKeyword))
@@ -291,7 +297,6 @@ export async function runContentAgent(
 
         const briefJson = item.contentBrief ? JSON.stringify(item.contentBrief) : undefined;
         if (existing) {
-          // Update with new draft if we have one
           await db.update(contentPipeline).set({
             outline: item.outline || undefined,
             draft: item.draft || undefined,
@@ -328,7 +333,6 @@ export async function runContentAgent(
         }
         context.actionsCreated++;
 
-        // Save to BlogStudio drafts if we have a full draft
         if (item.draft && db) {
           const draftBriefJson = item.contentBrief ? JSON.stringify(item.contentBrief) : undefined;
           const [existingDraft] = await db.select({ id: blogDrafts.id })
@@ -356,7 +360,6 @@ export async function runContentAgent(
           }
         }
 
-        // Notify Editor only after a deterministic completeness and CTA preflight.
         if (item.draft && selfQa.passed) {
           await sendMessage({
             fromAgent: "content",
@@ -378,7 +381,6 @@ export async function runContentAgent(
       }
     }
 
-    // 6. Send other messages
     for (const msg of (parsed.messages || [])) {
       await sendMessage({
         fromAgent: "content",
@@ -391,12 +393,10 @@ export async function runContentAgent(
       context.messagesCreated++;
     }
 
-    // 7. Mark inbox read
     for (const m of inbox) {
       await markMessageActedOn(m.id);
     }
 
-    // 8. Record goal outcomes
     const draftsWritten = (parsed.contentItems || []).filter(i => i.draft).length;
     const outlinesCreated = (parsed.contentItems || []).filter(i => !i.draft).length;
     const totalEstLeads = (parsed.contentItems || []).reduce((s, i) => s + (i.estimatedLeadsPerMonth || 0), 0);
@@ -409,7 +409,6 @@ export async function runContentAgent(
       notes: parsed.analysis,
     });
 
-    // 9. Update memory
     await setMemory("content", "last_run_date", new Date().toISOString().slice(0, 10));
     await setMemory("content", "drafts_written_today", String(draftsWritten));
     if (draftsWritten > 0) {
@@ -443,8 +442,6 @@ export async function runContentAgent(
   }
 }
 
-// ─── Content State Gathering ──────────────────────────────────────────────────
-
 async function gatherContentState(): Promise<string> {
   const db = await getDb();
   if (!db) return "Database unavailable";
@@ -468,7 +465,6 @@ async function gatherContentState(): Promise<string> {
     return acc;
   }, {} as Record<string, number>);
 
-  // Find items ready for drafting
   const readyToDraft = pipeline.filter(p => p.stage === "outlined" || p.stage === "researching");
   const awaitingReview = pipeline.filter(p => p.stage === "draft_complete");
   const revisionNeeded = pipeline.filter(p => p.stage === "revision_needed");
@@ -494,12 +490,13 @@ ${revisionNeeded.map(p =>
 ${posts.slice(0, 25).map(p => `  /blog/${p.slug}`).join("\n")}
 
 ═══ KNOWN CONTENT GAPS (priority order) ═══
-  P1: "cancel sunrun contract california" — 234 impr, pos 31 — NO ARTICLE
-  P1: California solar cancellation hub page — no state-level CA page exists
-  P2: "how to get out of sunrun contract" — 160 impr, pos 17.5 — optimize existing
-  P2: "sunrun cancellation" — 130 impr, pos 30.8 — needs dedicated article
-  P2: "cancel sunrun before installation" — 119 impr, pos 15.6 — rescission rights angle
-  P3: "solar company went bankrupt" — common fear, no article
-  P3: "solar contract transfer to new owner" — home sale blocker, high pain
-  P3: "goodleap TILA violations" — legal angle, high authority signal`;
+  CA/TX/AZ state-law pages EXIST at /solar-contract-laws/california, /solar-contract-laws/texas, /solar-contract-laws/arizona. Do not say "no state-level CA page exists".
+  P1: Deepen Sunrun/GoodLeap/Sunnova company blogs (not new city pages)
+  P1: Deepen TX/CA/AZ law pages and money hubs /free-cancellation-letter, /calculator, /compare
+  P2: "how to get out of sunrun contract" — optimize existing Sunrun blog
+  P2: "sunrun cancellation" — deepen existing Sunrun cancellation article
+  P2: "cancel sunrun before installation" — rescission rights angle on existing hubs
+  P3: Deepen /blog/solar-installer-out-of-business (company-went-bankrupt fear)
+  P3: Deepen selling-house / transfer coverage on existing hubs
+  P3: Deepen GoodLeap TILA / hidden-fee blog — do not create new city pages`;
 }
