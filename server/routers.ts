@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
-import { blogPosts, seoIndexCoverageSnapshots, seoPageMetricSnapshots, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
+import { blogPosts, ghlPipelineEvents, seoIndexCoverageSnapshots, seoPageMetricSnapshots, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
 import {
   getLeads,
   insertExitIntentCapture,
@@ -339,13 +339,19 @@ export const appRouter = router({
           .where(eq(seoPages.pageType, "blog"))
           .orderBy(desc(seoPages.gscImpressions))
           .limit(3);
+        const appointmentEvents = await db
+          .select({ occurredAt: ghlPipelineEvents.occurredAt, externalEventId: ghlPipelineEvents.externalEventId })
+          .from(ghlPipelineEvents)
+          .where(eq(ghlPipelineEvents.eventType, "appointment_booked"))
+          .orderBy(desc(ghlPipelineEvents.occurredAt))
+          .limit(500);
         const keywordByPageSlug = new Map(posts.map((post) => [`blog/${post.slug}`, post.targetKeyword || null]));
         const pageTrendOptions = Array.from(new Map(pageMetrics.map((metric) => [metric.pageSlug, {
           pageSlug: metric.pageSlug,
           pageUrl: metric.pageUrl,
           targetKeyword: keywordByPageSlug.get(metric.pageSlug) || null,
         }])).values()).sort((a, b) => a.pageSlug.localeCompare(b.pageSlug));
-        return { snapshots, pageMetrics, pageTrendOptions, indexCoverage: latestIndexCoverage || null, priorityPages, measurementReady: snapshots.length > 0 };
+        return { snapshots, pageMetrics, pageTrendOptions, indexCoverage: latestIndexCoverage || null, priorityPages, appointmentEvents, measurementReady: snapshots.length > 0 };
       }),
   }),
 

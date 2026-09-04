@@ -74,6 +74,19 @@ function IndexCoverageStrategyWidget({ coverage, priorityPages }: {
   );
 }
 
+function AppointmentTrendChart({ events, loading = false }: { events: Array<{ occurredAt: Date | string; externalEventId: string | null }>; loading?: boolean }) {
+  if (loading) return <section className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.035] p-5" aria-busy="true"><div className="h-4 w-56 animate-pulse rounded bg-white/10" /><div className="mt-3 h-3 w-80 animate-pulse rounded bg-white/[0.06]" /><div className="mt-5 h-52 animate-pulse rounded-lg border border-white/[0.06] bg-black/20" /></section>;
+  const now = new Date();
+  const start = new Date(now); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - 13);
+  const days = Array.from({ length: 14 }, (_, index) => { const date = new Date(start); date.setDate(start.getDate() + index); return date; });
+  const bookedByDay = new Map<string, number>();
+  events.forEach((event) => { const date = new Date(event.occurredAt); if (!Number.isNaN(date.getTime())) { const key = date.toISOString().slice(0, 10); bookedByDay.set(key, (bookedByDay.get(key) || 0) + 1); } });
+  let cumulative = 0;
+  const points = days.map((date) => { const key = date.toISOString().slice(0, 10); cumulative += bookedByDay.get(key) || 0; return { date: formatDate(date).replace(/, \d{4}$/, ""), bookings: bookedByDay.get(key) || 0, cumulative }; });
+  const verifiedEvents = points.reduce((total, point) => total + point.bookings, 0);
+  return <section className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.035] p-5"><div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-mono uppercase tracking-[0.16em] text-emerald-200">Conversion signal</p><h2 className="mt-1 text-lg font-semibold text-white">14-day appointment progress</h2><p className="mt-1 text-sm text-gray-400">Refreshes while open from the recorded GoHighLevel <code className="text-emerald-100">appointment_booked</code> feed. Cumulative verified bookings only.</p></div><span className={`mt-1 rounded px-2 py-1 text-xs font-mono ${verifiedEvents > 0 ? "bg-emerald-400/10 text-emerald-100" : "bg-amber-400/10 text-amber-100"}`}>{verifiedEvents} verified in 14 days</span></div>{verifiedEvents === 0 ? <div className="mt-4 rounded-lg border border-dashed border-amber-400/30 bg-black/20 px-4 py-6 text-sm text-amber-100">No <code>appointment_booked</code> events have been received in this window. The dashboard records zero rather than estimating conversion.</div> : <div className="chart-data-fade mt-4 h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={points} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}><CartesianGrid stroke="#ffffff12" vertical={false} /><XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} /><YAxis allowDecimals={false} tick={{ fill: "#6ee7b7", fontSize: 11 }} tickLine={false} axisLine={false} width={30} /><Tooltip contentStyle={{ background: "#101217", border: "1px solid #ffffff20", borderRadius: 8 }} labelStyle={{ color: "#e2e8f0" }} formatter={(value: number, name: string) => [Number(value), name === "cumulative" ? "Cumulative bookings" : "Booked that day"]} /><Line type="stepAfter" dataKey="cumulative" name="cumulative" stroke="#34d399" strokeWidth={3} dot={{ r: 3, fill: "#34d399" }} activeDot={{ r: 6 }} isAnimationActive animationDuration={650} animationEasing="ease-out" /></LineChart></ResponsiveContainer></div>}</section>;
+}
+
 function SeoTrendChart({ snapshots, pageMetrics, options, loading = false }: { snapshots: Array<{ capturedAt: Date | string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; pageMetrics: Array<{ capturedAt: Date | string; pageSlug: string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; options: Array<{ pageSlug: string; pageUrl: string; targetKeyword: string | null }>; loading?: boolean }) {
   const [selection, setSelection] = useState("all");
   if (loading) {
@@ -100,7 +113,7 @@ export default function OutcomeScorecard() {
   const { user } = useAuth();
   const { data, isLoading, error, refetch } = trpc.performance.dailyScorecard.useQuery(
     { limit: 30 },
-    { enabled: !!user && user.role === "admin", staleTime: 60_000 }
+    { enabled: !!user && user.role === "admin", staleTime: 30_000, refetchInterval: 30_000 }
   );
   const seoRuns = trpc.agents.runs.useQuery({ agentSlug: "seo_intel", limit: 5 }, { enabled: !!user && user.role === "admin", staleTime: 60_000 });
   const seoActions = trpc.agents.actions.useQuery({ agentSlug: "seo_intel", limit: 8 }, { enabled: !!user && user.role === "admin", staleTime: 60_000 });
@@ -165,6 +178,7 @@ export default function OutcomeScorecard() {
               <MetricCard label="Booked appointments" value={latest.bookedAppointments} sub="GoHighLevel appointment-booked events only" tone={latest.bookedAppointments > 0 ? "success" : "warning"} />
             </div>
             <IndexCoverageStrategyWidget coverage={data.indexCoverage} priorityPages={data.priorityPages || []} />
+            <AppointmentTrendChart events={data.appointmentEvents || []} loading={isLoading} />
             <section className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h2 className="text-sm font-semibold text-white">What to act on</h2>
               <p className="mt-1 text-sm text-gray-400">Latest verified snapshot: {formatDate(latest.capturedAt)}. Zero is a recorded zero only after the source event feed is active; unavailable sources remain visibly blocked.</p>
