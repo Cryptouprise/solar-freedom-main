@@ -167,6 +167,7 @@ export default function BlogStudio() {
   const [showDraftPanel, setShowDraftPanel] = useState(false);
   const [draftName, setDraftName] = useState("");
   const [savingDraft, setSavingDraft] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   // UI state
   const [activePanel, setActivePanel] = useState<"ai" | "seo" | "media" | "podcast" | "video">("ai");
@@ -317,6 +318,18 @@ export default function BlogStudio() {
     } catch (err) {
       toast.error("Failed to save post");
     }
+  };
+
+  const handleApproveAndPublish = async () => {
+    if (!selectedPostId || !selectedSlug || !editor) return;
+    if (!confirm(`Approve and publish this article now? It will become publicly visible at /blog/${selectedSlug}.`)) return;
+    setPublishing(true);
+    try {
+      await updatePost.mutateAsync({ slug: selectedSlug, title, metaTitle, metaDescription, heroImage, excerpt, content: editor.getHTML(), published: 1 } as any);
+      setPublished(true); setIsDirty(false); setLastAutosaved(new Date());
+      toast.success("Approved and published. The public article has been updated.");
+    } catch { toast.error("Publishing failed. No public change was confirmed."); }
+    finally { setPublishing(false); }
   };
 
   // ─── Draft management ────────────────────────────────────────────────────────
@@ -659,6 +672,10 @@ export default function BlogStudio() {
             >
               {updatePost.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1" />}
               Save
+            </Button>
+            <Button size="sm" onClick={handleApproveAndPublish} disabled={!selectedPostId || publishing} className="bg-green-600 hover:bg-green-500 text-white font-bold text-xs" title="Publishes this reviewed article to its public blog URL">
+              {publishing ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Globe className="w-3.5 h-3.5 mr-1" />}
+              Approve & Publish
             </Button>
           </div>
         </div>

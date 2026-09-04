@@ -475,45 +475,22 @@ function loadBlogData() {
     "blog-articles-batch12.ts",
     "blog-articles-batch13.ts",
     "blog-articles-batch14.ts",
-    // ADD NEW BATCH FILES HERE when created
   ];
-
   const blogEntries = {};
-
   for (const filename of blogFiles) {
     const filePath = path.resolve(ROOT, "client/src/data", filename);
     if (!fs.existsSync(filePath)) continue;
     const content = fs.readFileSync(filePath, "utf-8");
-
     for (const entry of collectSlugChunks(content)) {
       const { slug, chunk } = entry;
-      if (!slug || slug.includes("${") || slug.length <= 5 || blogEntries[slug])
-        continue;
-
-      const title =
-        findStringProp(chunk, "metaTitle")?.value ||
-        findStringProp(chunk, "title")?.value ||
-        "";
-      const description =
-        findStringProp(chunk, "metaDescription")?.value ||
-        findStringProp(chunk, "excerpt")?.value ||
-        "";
-
+      if (!slug || slug.includes("${") || slug.length <= 5 || blogEntries[slug]) continue;
+      const title = findStringProp(chunk, "metaTitle")?.value || findStringProp(chunk, "title")?.value || "";
+      const description = findStringProp(chunk, "metaDescription")?.value || findStringProp(chunk, "excerpt")?.value || "";
       const cleanTitle = cleanBlogTitle(slug, title);
-      const cleanDescription = cleanBlogDescription(
-        slug,
-        description,
-        cleanTitle
-      );
+      const cleanDescription = cleanBlogDescription(slug, description, cleanTitle);
       const faq = parseFaqItems(chunk);
-      const publishDate =
-        findStringProp(chunk, "publishDate")?.value ||
-        findStringProp(chunk, "datePublished")?.value ||
-        "";
-      const updatedDate =
-        findStringProp(chunk, "updatedDate")?.value ||
-        findStringProp(chunk, "dateModified")?.value ||
-        "";
+      const publishDate = findStringProp(chunk, "publishDate")?.value || findStringProp(chunk, "datePublished")?.value || "";
+      const updatedDate = findStringProp(chunk, "updatedDate")?.value || findStringProp(chunk, "dateModified")?.value || "";
       blogEntries[slug] = {
         title: `${cleanTitle} | Solar Freedom`,
         description: cleanDescription,
@@ -528,64 +505,39 @@ function loadBlogData() {
       };
     }
   }
-
   const seenDescriptions = new Map();
   for (const [slug, data] of Object.entries(blogEntries)) {
     const key = data.description.toLowerCase();
     if (seenDescriptions.has(key)) {
       const plainTitle = data.title.replace(/\s+\|\s+Solar Freedom$/i, "");
-      data.description = fitMetaDescription(
-        `${data.description} This ${plainTitle} guide explains the specific documents, risks, and cancellation options to review.`
-      );
+      data.description = fitMetaDescription(`${data.description} This ${plainTitle} guide explains the specific documents, risks, and cancellation options to review.`);
     } else {
       seenDescriptions.set(key, slug);
     }
   }
-
   return blogEntries;
 }
 
-// ─── City-specific meta overrides for high-opportunity pages ─────────────────
-// ─── Build meta map ───────────────────────────────────────────────────────────
 function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   const map = {};
-
-  // Homepage
   map["/"] = {
-    title: "Solar Contract Review and Document Help | Solar Freedom",
-    description:
-      "Organize your solar agreement, financing records, notices, bills, production data, service history, company status, and home-sale requirements for individual review.",
+    title: "Cancel Your Solar Contract | Solar Freedom",
+    description: "Stuck in a solar lease, loan, or PPA? See which records to gather and what options may apply. Individual review. Solar Freedom is not a law firm.",
     canonical: `${BASE_URL}/`,
     faq: HOME_FAQS,
   };
-
-  // City pages — 303 pages
   for (const city of cityEntries) {
     const urlPath = `/cancel-solar-contract/${city.slug}`;
-    const cityLabel = city.stateCode
-      ? `${city.name}, ${city.stateCode}`
-      : city.name;
+    const cityLabel = city.stateCode ? `${city.name}, ${city.stateCode}` : city.name;
     map[urlPath] = {
-      title: `Cancel Solar Contract in ${cityLabel} | Solar Freedom`,
-      description: fitMetaDescription(
-        `Review solar contract terms and consumer resources for ${cityLabel}. Options and timing depend on your agreement, facts, and jurisdiction.`
-      ),
+      title: `Cancel a Solar Contract in ${cityLabel} | Solar Freedom`,
+      description: fitMetaDescription(`Solar contract records and consumer resources for ${cityLabel}. Options and timing depend on the agreement, facts, and jurisdiction.`),
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
       geo: { city: city.name, region: city.stateCode || undefined },
-      // Rich fields for unique prerender content
-      cityData: {
-        state: city.state,
-        stateCode: city.stateCode,
-        stateLaw: city.stateLaw,
-        population: city.population,
-        solarActivity: city.solarActivity,
-        companies: city.companies,
-      },
+      cityData: { state: city.state, stateCode: city.stateCode, stateLaw: city.stateLaw, population: city.population, solarActivity: city.solarActivity, companies: city.companies },
     };
   }
-
-  // Company pages
   for (const company of companyEntries) {
     const urlPath = `/cancel-${company.slug}-solar-contract`;
     map[urlPath] = {
@@ -593,26 +545,12 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       description: `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`,
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_COMPANY_SLUGS.has(company.slug),
-      // Rich fields for unique prerender content
-      companyData: {
-        status: company.status,
-        complaintCount: company.complaintCount,
-        bbRating: company.bbRating,
-        summary: company.summary,
-        topComplaints: company.topComplaints,
-        cancellationGrounds: company.cancellationGrounds,
-        knownIssues: company.knownIssues,
-        lawsuits: company.lawsuits,
-      },
+      companyData: { status: company.status, complaintCount: company.complaintCount, bbRating: company.bbRating, summary: company.summary, topComplaints: company.topComplaints, cancellationGrounds: company.cancellationGrounds, knownIssues: company.knownIssues, lawsuits: company.lawsuits },
     };
   }
-
-  // State law pages — 51 pages (use per-state metaTitle/metaDescription if available)
   for (const state of stateEntries) {
     const urlPath = `/solar-contract-laws/${state.slug}`;
-    const title = state.metaTitle
-      ? `${state.metaTitle} | Solar Freedom`
-      : `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`;
+    const title = state.metaTitle ? `${state.metaTitle} | Solar Freedom` : `${state.state} Solar Contract Laws | Your Rights | Solar Freedom`;
     const description = `Review solar-contract consumer information for ${state.state}, including records to gather and official sources to verify. Options depend on facts and current law.`;
     map[urlPath] = {
       title,
@@ -620,21 +558,10 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_STATE_SLUGS.has(state.slug),
       geo: { region: state.state },
-      stateData: {
-        state: state.state,
-        heroHook: state.heroHook,
-        heroSubhook: state.heroSubhook,
-        primaryStatute: state.primaryStatute,
-        primaryStatuteTitle: state.primaryStatuteTitle,
-        coolingOffNote: state.coolingOffNote,
-        contentSections: state.contentSections,
-        faq: state.faq,
-      },
+      stateData: { state: state.state, heroHook: state.heroHook, heroSubhook: state.heroSubhook, primaryStatute: state.primaryStatute, primaryStatuteTitle: state.primaryStatuteTitle, coolingOffNote: state.coolingOffNote, contentSections: state.contentSections, faq: state.faq },
       faq: state.faq,
     };
   }
-
-  // Blog posts — ALL 100+ posts
   for (const [slug, data] of Object.entries(blogEntries)) {
     const urlPath = `/blog/${slug}`;
     map[urlPath] = {
@@ -651,118 +578,36 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       category: data.category,
     };
   }
-
-  // Static pages
   const staticPages = [
-    {
-      path: "/blog",
-      title: "Solar Contract Help Blog | Solar Freedom",
-      desc: "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner.",
-    },
-    {
-      path: "/how-it-works",
-      title: "How Solar Contract Cancellation Works | Solar Freedom",
-      desc: "Learn how Solar Freedom reviews solar contracts, finds legal issues, and helps homeowners pursue cancellation, loan reduction, or lien release.",
-    },
-    {
-      path: "/solar-contract-help",
-      title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom",
-      desc: "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review.",
-    },
-    {
-      path: "/solar-panel-scam",
-      title: "Solar Panel Scam Warning Signs | Solar Freedom",
-      desc: "Learn the solar panel scam warning signs, from fake tax credit promises to hidden loan fees and liens. Free solar contract review.",
-    },
-    {
-      path: "/solar-companies",
-      title: "Solar Company Complaints & Cancellation Guide | Solar Freedom",
-      desc: "Compare complaints and cancellation options for Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and more.",
-    },
-    {
-      path: "/solar-lien-removal",
-      title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom",
-      desc: "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
-    },
-    {
-      path: "/solar-loan-help",
-      title: "Solar Loan Help | Fight Predatory Solar Loans | Solar Freedom",
-      desc: "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law.",
-    },
-    {
-      path: "/selling-house-with-solar",
-      title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
-      desc: "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment.",
-    },
-    {
-      path: "/solar-exit-options",
-      title: "Solar Exit Options | How to Get Out of a Solar Contract",
-      desc: "Compare possible solar-contract paths and the documents, limits, and risks to review before deciding what to do next.",
-    },
-    {
-      path: "/solar-contract-laws",
-      title: "Solar Contract Laws by State | Your Legal Rights | Solar Freedom",
-      desc: "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
-    },
-    {
-      path: "/sitemap",
-      title: "Site Directory | Solar Freedom",
-      desc: "Browse Solar Freedom resources by topic, solar company, and location.",
-      noindex: true,
-    },
-    {
-      path: "/free-cancellation-letter",
-      title: "Free Solar Contract Cancellation Letter | Solar Freedom",
-      desc: "Download solar contract cancellation letter templates for cooling-off, pre-installation, and post-installation situations. Review your documents before sending anything.",
-    },
-    {
-      path: "/calculator",
-      title: "Solar Contract Cancellation Calculator | Solar Freedom",
-      desc: "Estimate remaining payments, escalator growth, and buyout questions on a solar lease, PPA, or loan. Results are informational, not a quote or legal advice.",
-    },
-    {
-      path: "/compare",
-      title: "Compare Solar Company Contract Issues | Solar Freedom",
-      desc: "Compare cancellation issues, complaint themes, and documents to gather for major solar companies before requesting an individual case review.",
-    },
+    { path: "/blog", title: "Solar Contract Guides: Cancel, Dispute, Sell | Solar Freedom", desc: "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner." },
+    { path: "/how-it-works", title: "How Solar Contract Cancellation Works | Solar Freedom", desc: "See how Solar Freedom reviews solar contracts, gathers records, and prepares an individual case review. Not a law firm. Outcomes depend on the documents and facts." },
+    { path: "/solar-contract-help", title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom", desc: "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review." },
+    { path: "/solar-panel-scam", title: "Solar Panel Scam Warning Signs | Solar Freedom", desc: "Learn common solar-sales warning signs and which records to keep." },
+    { path: "/solar-companies", title: "Solar Company Complaints & Cancellation Guide | Solar Freedom", desc: "Compare complaints and cancellation options for Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and more." },
+    { path: "/solar-lien-removal", title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom", desc: "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review." },
+    { path: "/solar-loan-help", title: "Solar Loan Help | Fight Predatory Solar Loans | Solar Freedom", desc: "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law." },
+    { path: "/selling-house-with-solar", title: "Selling a House With Solar Panels & a Loan | Solar Freedom", desc: "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment." },
+    { path: "/solar-exit-options", title: "Solar Exit Options | How to Get Out of a Solar Contract", desc: "Compare possible solar-contract paths and the documents, limits, and risks to review before deciding what to do next." },
+    { path: "/solar-contract-laws", title: "Solar Contract Laws by State | Your Legal Rights | Solar Freedom", desc: "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights." },
+    { path: "/sitemap", title: "Site Directory | Solar Freedom", desc: "Browse Solar Freedom resources by topic, solar company, and location.", noindex: true },
+    { path: "/free-cancellation-letter", title: "Free Solar Contract Cancellation Letter | Solar Freedom", desc: "Download solar contract cancellation letter templates for cooling-off, pre-installation, and post-installation situations. Review your documents before sending anything." },
+    { path: "/calculator", title: "Solar Contract Cancellation Calculator | Solar Freedom", desc: "Estimate remaining payments, escalator growth, and buyout questions on a solar lease, PPA, or loan. Results are informational, not a quote or legal advice." },
+    { path: "/compare", title: "Compare Solar Company Contract Issues | Solar Freedom", desc: "Compare cancellation issues, complaint themes, and documents to gather for major solar companies before requesting an individual case review." },
   ];
   for (const p of staticPages) {
-    map[p.path] = {
-      title: p.title,
-      description: p.desc,
-      canonical: `${BASE_URL}${p.path}`,
-      noindex: p.noindex,
-    };
+    map[p.path] = { title: p.title, description: p.desc, canonical: `${BASE_URL}${p.path}`, noindex: p.noindex };
   }
-
   return map;
 }
 
-// ─── Build lightweight shell HTML ────────────────────────────────────────────
-// Instead of copying the full 381 KB index.html into every directory,
-// generate a minimal shell that has the correct meta tags + references to
-// the hashed JS/CSS assets. This keeps each file ~3 KB instead of 381 KB,
-// reducing the total dist from 121 MB to under 6 MB so deployment doesn't time out.
 function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 const unsupportedFirstPartyClaimPatterns = [
-  /3,000\+/i,
-  /Our attorneys/i,
-  /Success Rate/i,
-  /Homeowners (?:Helped|Freed)/i,
-  /Avg\. Resolution Time/i,
-  /Results in 30[–-]90 days/i,
-  /within 24 hours/i,
-  /licensed counsel/i,
-  /nationwide coverage/i,
-  /limited number of new cases/i,
-  /Contract cancelled\. No more payments/i,
+  /3,000\+/i, /Our attorneys/i, /Success Rate/i, /Homeowners (?:Helped|Freed)/i, /Avg\. Resolution Time/i,
+  /Results in 30[–-]90 days/i, /within 24 hours/i, /licensed counsel/i, /nationwide coverage/i,
+  /limited number of new cases/i, /Contract cancelled\. No more payments/i,
   /(?:Solar Freedom|\bwe\b|\bour (?:team|attorneys)\b)[^.!?]{0,160}(?:no upfront cost|contingency basis|all 50 states)/i,
 ];
 
@@ -773,32 +618,16 @@ function suppressUnverifiedFirstPartyClaims(input) {
 }
 
 function stripBrand(title) {
-  return title
-    .replace(/\s+\|\s+Solar Freedom$/i, "")
-    .replace(/\s+—\s+Solar Freedom$/i, "")
-    .replace(/\s+â€”\s+Solar Freedom$/i, "")
-    .trim();
+  return title.replace(/\s+\|\s+Solar Freedom$/i, "").replace(/\s+—\s+Solar Freedom$/i, "").replace(/\s+â€”\s+Solar Freedom$/i, "").trim();
 }
 
 function fitMetaTitle(title) {
-  const normalized = String(title ?? "")
-    .replace(/\s+/g, " ")
-    .trim();
+  const normalized = String(title ?? "").replace(/\s+/g, " ").trim();
   if (normalized.length <= 70) return normalized;
-
   const withoutBrand = stripBrand(normalized);
   if (withoutBrand.length <= 70) return withoutBrand;
-
-  const tightened = withoutBrand
-    .replace(/\s+\((?:2026|2026 Guide|Complete Guide)\)/gi, "")
-    .replace(/\s+[\u2013\u2014-]\s+(?:Free Case Review|Legal Help|Solar Freedom).*$/i, "")
-    // For state law pages: trim '& Your Legal...' and similar suffixes
-    .replace(/\s+&(?:amp;)?\s+Your\s+Legal.*$/i, "")
-    .replace(/:\s+[A-Z][^,]+,\s+[A-Z][^&]+&.*$/, "")
-    .trim();
+  const tightened = withoutBrand.replace(/\s+\((?:2026|2026 Guide|Complete Guide)\)/gi, "").replace(/\s+[–—-]\s+(?:Free Case Review|Legal Help|Solar Freedom).*$/i, "").replace(/\s+&(?:amp;)?\s+Your\s+Legal.*$/i, "").replace(/:\s+[A-Z][^,]+,\s+[A-Z][^&]+&.*$/, "").trim();
   if (tightened.length <= 70) return tightened;
-
-  // Hard truncate at word boundary at 67 chars
   return `${tightened.slice(0, 67).replace(/\s+\S*$/, "")}...`;
 }
 
@@ -807,31 +636,12 @@ function classifyPath(urlPath) {
   if (urlPath.startsWith("/blog/")) return "blog_post";
   if (urlPath.startsWith("/cancel-solar-contract/")) return "city_page";
   if (urlPath.startsWith("/solar-contract-laws/")) return "state_law";
-  if (urlPath.startsWith("/cancel-") && urlPath.endsWith("-solar-contract"))
-    return "company_page";
+  if (urlPath.startsWith("/cancel-") && urlPath.endsWith("-solar-contract")) return "company_page";
   return "service_page";
 }
 
-/**
- * Crawlable internal link graph.
- *
- * The previous implementation emitted the same hardcoded 8 links on every page,
- * with per-page overrides for only 10 articles. The result was a site-wide link
- * graph roughly 15 URLs wide: no page linked to the homepage, no page linked to
- * any city page, and /blog linked to 8 of its own articles. Deep pages were
- * discoverable only through sitemap.xml, which suppresses both crawl frequency
- * and the internal PageRank those pages need to climb.
- *
- * The graph is now derived from the real content data, per page type, and every
- * destination is checked for index eligibility, redirects and quarantine — a
- * link to a noindex or redirecting URL is worse than no link at all.
- */
 let LINK_INDEX = null;
-
-const QUARANTINED_LINK_PATHS = new Set(
-  (indexEligibility.trustQuarantine?.paths ?? []).map(entry => entry.path)
-);
-
+const QUARANTINED_LINK_PATHS = new Set((indexEligibility.trustQuarantine?.paths ?? []).map(entry => entry.path));
 const HUB_LINKS = [
   ["/solar-contract-help", "Solar contract help"],
   ["/solar-exit-options", "Solar exit options"],
@@ -844,14 +654,9 @@ const HUB_LINKS = [
   ["/solar-companies", "Solar company profiles"],
   ["/free-cancellation-letter", "Cancellation letter templates"],
   ["/calculator", "Cancellation calculator"],
+  ["/compare", "Compare solar companies"],
 ];
 
-/**
- * Deterministic rotation. Taking a fixed slice of a shared list means the first
- * few entries collect every inbound link and the tail collects none — the exact
- * failure the old hardcoded block had. Rotating by page spreads inbound links
- * across the whole set while keeping the build reproducible.
- */
 function rotate(items, urlPath, count) {
   if (!items.length || count <= 0) return [];
   let hash = 0;
@@ -1326,6 +1131,222 @@ function buildBlogUniqueContent(meta) {
     <section class="editorial-method"><h2>Editorial method</h2><p>Solar Freedom publishes educational contract-navigation content. Articles are checked for source accuracy, clear separation between general information and individual advice, current official procedures, and unsupported outcome claims. We do not claim attorney review unless a named reviewer and review date are displayed. This article is not legal advice.</p></section>`;
 }
 
+function buildServiceUniqueContent(urlPath) {
+  const pages = {
+    "/how-it-works": `      <h2>How a Solar Freedom review actually proceeds</h2>
+      <p>Solar Freedom is not a law firm. The process is an intake and document review, not a promise that any agreement will end. After you request an individual review, a specialist collects the files that identify the seller, installer, lender, servicer, and any UCC or title filing. Those names are often different companies, and mixing them up is one of the most common reasons a homeowner spends weeks on the wrong phone tree.</p>
+      <p>Intake is a structured questionnaire: contract type (lease, loan, or PPA), install status, billing problems, sales statements, and whether a home sale or refinance is pending. Document collection comes next. Issue spotting is limited to what the papers actually say compared with what was represented. Referral or further review, if it happens, depends on those facts and the jurisdiction. No step predicts cancellation, loan reduction, or lien release.</p>
+      <h2>Records to gather before intake</h2>
+      <ul>
+        <li>The signed agreement, every addendum, and any Notice of Cancellation.</li>
+        <li>Loan, lease, or PPA disclosures, current statements, and payoff or buyout quotes in writing.</li>
+        <li>The proposal, production estimate, utility bills, and monitoring exports.</li>
+        <li>Permit, inspection, interconnection, and permission-to-operate records.</li>
+        <li>Emails, texts, ads, and notes describing what was said before signing.</li>
+        <li>Service tickets, warranty claims, and any UCC-1 or title documents.</li>
+      </ul>
+      <p>How-it-works is the map, not the destination. Related topics on this site include solar contract help, exit options, loan questions, lien filings, and selling a house with solar. Company-specific complaint themes live in the blog, including Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, and Tesla guides. City pages cover only the published allowlist; Florida and Nevada state-law pages are not currently published as indexable resources.</p>
+      <p>Outcomes depend on the agreement, the documents, the facts, and current law. Request an individual review if you want a specialist to organize the file with you. Do not stop payments, remove equipment, or sign a release based only on this page.</p>
+
+      <h2>What intake is not</h2>
+      <p>Intake does not create an attorney-client relationship and does not start a lawsuit. It is a records conversation. A specialist may flag missing pages, mismatched legal names, or a deadline that appears on a notice you already have. Those flags are questions for you and, if you choose, for a qualified professional you retain separately. Solar Freedom can prepare an individual case review from the documents you provide. It cannot promise how a company, lender, or court will respond. If a referral is discussed, it is because the file appears to need a type of review this site does not perform, not because a result has been predicted.</p>`,
+    "/solar-contract-help": `      <h2>Lease, loan, and PPA are different problems</h2>
+      <p>Solar contract help starts by naming the product. A lease or PPA usually means a third party owns the equipment. A loan usually means you own the system and owe a lender. Mixing those structures leads people to demand the wrong remedy from the wrong company. Solar Freedom is not a law firm; this page explains records and consumer resources, not a predetermined legal theory.</p>
+      <p>Cooling-off rules, if they apply at all, typically concern how and where the sale occurred and whether a required notice was delivered. They are short and fact-specific. Post-install questions look different: performance, billing, transfer on sale, UCC fixture filings, and written termination clauses. None of those automatically unwind an agreement. Whether any path is available depends on the contract, the facts, and the jurisdiction.</p>
+      <h2>Records that separate the parties</h2>
+      <ul>
+        <li>The sales contract versus the financing agreement versus the installation work order.</li>
+        <li>Legal names on each document, not just brand names used at the kitchen table.</li>
+        <li>UCC-1 fixture filings, PACE assessments, or other title records if any exist.</li>
+        <li>Dated cancellation notices, rescission forms, and proof of how they were sent.</li>
+        <li>Production data, utility bills, and the original savings or output estimate.</li>
+        <li>Correspondence about defects, billing, transfer, or a requested buyout.</li>
+      </ul>
+      <p>Use this hub together with how it works, exit options, loan help, and lien-removal notes. Company blogs (Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, Tesla) describe installer- or lender-specific complaint patterns. Do not treat a company hub URL as live; those paths 301 to the blogs.</p>
+      <p>If you want a specialist to sort the file, request an individual review. Bring the documents listed above. Options and timing depend on the agreement and current law, and this site does not determine whether any particular homeowner has a claim.</p>
+
+      <h2>UCC filings belong in the same folder as the contract</h2>
+      <p>Homeowners often discover a fixture filing only when a title company emails. That filing may track a lease, a PPA, or a loan, and the secured party on the form may not be the salesperson you remember. Keep the UCC printout next to the financing agreement so a reviewer can see whether the collateral description matches the equipment and whether any termination or subordination language exists. Treating the filing as an automatic defect, or ignoring it until the week of closing, both create avoidable delay. An individual review can help sort the stack; it does not by itself terminate a filing.</p>`,
+    "/solar-panel-scam": `      <h2>Sales claims that deserve a paper trail</h2>
+      <p>Door-to-door solar pitches often mix true program names with statements that never appear in the signed file. Common warning signs include savings figures that are not in the contract, dealer fees that were described as a discount, verbal production guarantees, tax-credit claims that assume facts about your tax situation, and pressure to sign the same day. A warning sign is not a verdict. It is a reason to keep records and compare the pitch with the writing.</p>
+      <p>Production guarantees that live only in a slide deck or a text thread are especially important to preserve. So are statements that the panels are free, that a utility or government program is sponsoring the visit, or that a home sale will be simple. Solar Freedom is not a law firm and does not decide whether a statement was deceptive. The work here is to help you assemble what was said, what was signed, and which consumer agencies accept complaints.</p>
+      <h2>Records to keep when a pitch felt off</h2>
+      <ul>
+        <li>The proposal, iPad screenshots, mailers, and any savings or production chart.</li>
+        <li>The signed contract, financing disclosures, and every addendum.</li>
+        <li>Notes of verbal statements, including dates, names, and who was present.</li>
+        <li>Utility bills from before and after activation, plus monitoring exports.</li>
+        <li>Proof of how you signed (in home, at an event, online) and any cancellation form.</li>
+        <li>Later emails that walk back, restate, or contradict the original pitch.</li>
+      </ul>
+      <p>Complaint channels such as a state attorney general or the CFPB create a dated record; they do not themselves end a contract. Related reading on this site includes the attorney-general complaint guide, contract help, exit options, and company blogs. Request an individual review if you want help organizing the comparison between the pitch and the papers. Options depend on the agreement, the facts, and the jurisdiction.</p>
+
+      <h2>Verbal versus written is a filing system, not a slogan</h2>
+      <p>Keep a two-column note: what was said, and where it appears in the signed set. If a production number, tax-credit story, or dealer-fee explanation exists only in the left column, preserve the source (text, voicemail, witness, screenshot) without editing it. Consumer agencies and any later reviewer will ask for that comparison. Do not inflate the left column with conclusions such as fraud; stick to quotations and dates. Request an individual review when the columns disagree and you want help assembling the packet. Whether a mismatch matters legally depends on the agreement, the facts, and the jurisdiction.</p>`,
+    "/solar-exit-options": `      <h2>Possible paths, all qualified</h2>
+      <p>People search for a single exit. In practice, several different procedures may be relevant, and none of them applies to every homeowner. A rescission or cooling-off window, if one existed, is usually short and tied to how the sale was made. A contractual buyout or prepayment is a math-and-paper exercise, not a penalty you must accept without reading the schedule. Transfer on sale depends on the company process and the buyer. A complaint to an attorney general or the CFPB may create a record. Negotiation with the named party may or may not change terms. All of those are "may," not "will."</p>
+      <p>Solar Freedom is not a law firm. This hub exists so you can see the menu and the documents each item usually requires. Stopping payment, removing equipment, or signing a release because a blog post sounded confident can create separate credit, safety, and contract problems. Individual review looks at which path, if any, is even on the table for your file.</p>
+      <h2>Records that match each path</h2>
+      <ul>
+        <li>Notice of Cancellation, contract date, signing location, and delivery proof.</li>
+        <li>Buyout or prepayment schedule, current payoff quote, and who issued it.</li>
+        <li>Transfer, assumption, or home-sale addenda and any buyer credit requirements.</li>
+        <li>Service, production, and billing disputes with written company responses.</li>
+        <li>UCC, title, HOA, and lender letters if a sale or refinance is underway.</li>
+        <li>Copies of any AG, CFPB, FTC, or contractor-board filings you already sent.</li>
+      </ul>
+      <p>Pair this page with how it works, contract help, the letter templates, and the calculator. Company-specific blogs (Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, Tesla) discuss patterns that may appear in those files. Request an individual review to map your documents to the paths that could apply. Timing and availability depend on the agreement, facts, and jurisdiction.</p>
+
+      <h2>Order of operations matters</h2>
+      <p>Collect the contract and the current account status before sending a demand, posting a review, or changing payment behavior. If a short statutory or contractual notice period might still apply, the calendar and the delivery method come first. If the system is already installed, production and billing records usually belong in the same envelope as any buyout quote. Complaint portals can run in parallel with a document review, but they are not a substitute for reading the termination clause. Request an individual review if you need a specialist to sequence those steps against your dates. Sequence and options still depend on the papers you actually signed.</p>`,
+    "/solar-lien-removal": `      <h2>UCC-1 fixture filings are not the same as a mortgage</h2>
+      <p>Many solar leases and some loans are accompanied by a UCC-1 fixture filing. That filing is a notice that personal property is attached to real estate. It is not automatically a mortgage, and it is not automatically illegal. It can still create friction: a title company flags it, a refinance underwriter asks questions, or a buyer wants it released. Whether a filing can be terminated, subordinated, or left in place depends on the security agreement, the account status, and state filing rules.</p>
+      <p>Payoff versus dispute is a separate fork. Paying a quoted amount to obtain a termination statement is one process. Challenging whether the filing was authorized or continues after a transfer is another. Solar Freedom is not a law firm and does not file UCC terminations for you. This page helps you identify the filer, the debtor name, the collateral description, and the documents a reviewer would need.</p>
+      <h2>Records for a filing review</h2>
+      <ul>
+        <li>The UCC-1 itself (file number, office, debtor, secured party, collateral).</li>
+        <li>The security agreement, lease, or PPA that supposedly authorized the filing.</li>
+        <li>Current account status, payoff quotes, and any promised release language.</li>
+        <li>Title commitment, refinance conditions, and HOA or buyer objections.</li>
+        <li>Assignment records if the original solar company sold the contract.</li>
+        <li>Photos and serial numbers if the equipment description does not match the roof.</li>
+      </ul>
+      <p>Related hubs include selling a house with solar, loan help, and exit options. Company blogs may note how a particular brand handled transfers after a bankruptcy or acquisition. Request an individual review if a filing is blocking a closing and you need the file organized. Whether a release is available depends on the documents and the facts; this page does not determine that a lien is invalid.</p>
+
+      <h2>Refinance and sale friction is a process problem</h2>
+      <p>Underwriters and title desks work from checklists. They typically want a recorded termination, a subordination, or a payoff-through-escrow letter from the secured party named on the filing. A blog post that says solar liens are easy to remove will not satisfy that checklist. Start by confirming the file number and the current assignee, then request the company's written release conditions. If those conditions look inconsistent with the security agreement, that inconsistency is a records issue for review. It is not, by itself, a determination that the filing must be deleted. Request an individual review when a closing date is driving the timeline.</p>`,
+    "/solar-loan-help": `      <h2>Dealer fees, TILA paperwork, and who actually holds the loan</h2>
+      <p>Point-of-sale solar loans often involve three actors: the installer who sold the system, a lender or platform that funded it, and a servicer who sends the bills. GoodLeap and Sunlight Financial appear in many homeowner files on this site as examples of that split, not as the only lenders in the market. A dealer fee, if one exists, may be built into the amount financed. Whether it was disclosed in a way that matters is a document question under the Truth in Lending Act and the actual forms you signed. This page does not decide that any particular fee is unlawful.</p>
+      <p>The installer going quiet does not by itself retire the loan. Servicer vs installer is the first sorting task. Solar Freedom is not a law firm. Loan help here means gathering the note, the disclosure statement, the installer contract, and the current servicer identity so an individual review can see which party controls which issue.</p>
+      <h2>Records for a solar-loan file</h2>
+      <ul>
+        <li>Promissory note, TILA disclosure, itemization of amount financed, and any dealer-fee line.</li>
+        <li>Installer contract and the proposal that stated the cash price versus financed price.</li>
+        <li>Account statements, payment history, and the current servicer or lender name.</li>
+        <li>Notices of assignment, sale of the loan, or a change in billing address.</li>
+        <li>Completion certificates, PTO, and any installer warranty that the lender said you still have.</li>
+        <li>Credit-report entries if the tradeline name does not match the brand you remember.</li>
+      </ul>
+      <p>Read this hub with exit options, contract help, and the GoodLeap or Sunlight blog guides already on the site. Request an individual review if the disclosure packet and the sales pitch do not line up and you want the file organized. Options depend on the documents, the facts, and applicable law. Do not withhold payment solely because of a general article.</p>
+
+      <h2>Read the itemization before arguing about the APR</h2>
+      <p>Many disputes that sound like interest-rate complaints are actually questions about what was financed. If a dealer fee, add-on product, or prepaid amount sits inside the principal, the APR line and the cash-price conversation can both look wrong without either one being a complete story. Pull the itemization, the installer invoice, and the sales proposal into one packet. GoodLeap and Sunlight files on this site often turn on that packet, which is why they are mentioned only as examples already documented here. Request an individual review if those three documents do not tell the same price story. No review can change a number the servicer has not put in writing.</p>`,
+    "/selling-house-with-solar": `      <h2>Transfer, buyer credit, payoff, HOA, and appraisal</h2>
+      <p>A home sale with solar is several checklists at once. If the system is leased or on a PPA, the buyer may need to assume the agreement, meet credit requirements, and wait on the solar company. If the system is loan-financed, the question is often payoff versus remaining personal debt. Appraisers and buyers treat owned equipment differently from leased equipment. HOA rules may add architectural or transfer conditions that never appeared in the sales pitch.</p>
+      <p>UCC filings and title exceptions can delay closing even when the panels work. Solar Freedom is not a law firm and does not run escrow. This hub exists so sellers can start collecting the packets that listing agents, title companies, and buyers actually request, then request an individual review if the solar file is the thing blocking a date.</p>
+      <h2>Records buyers and title usually ask for</h2>
+      <ul>
+        <li>The full solar contract, financing agreement, and current account statement.</li>
+        <li>Written transfer or assumption instructions and any buyer credit criteria.</li>
+        <li>A current payoff or buyout quote with an expiration date.</li>
+        <li>UCC, PACE, or other title documents and any promised release conditions.</li>
+        <li>HOA approval letters, architectural guidelines, and roof-warranty status.</li>
+        <li>Production data, remaining warranty, and intercept or monitoring login details.</li>
+      </ul>
+      <p>Pair this page with lien-removal notes, loan help, and the Tesla or Sunrun blogs if those brands are on the contract. City pages on the allowlist can add local context, but they do not replace the documents. Request an individual review when a listing or closing is pending and the solar file is incomplete. What a buyer will accept, and what a company will transfer, depends on the agreement and the facts.</p>
+
+      <h2>Give listing and title more lead time than the solar company advertised</h2>
+      <p>Assumption packages, buyer credit checks, and UCC releases often take longer than a standard inspection period. Start the written transfer or payoff request when you list, not when you are under contract. Tell the listing agent whether the system is owned, leased, or on a PPA so the listing remarks do not overpromise. If an HOA or an appraiser asks for production history, export it before the rush. Request an individual review when the solar company, the lender, and the title desk are each asking for a different packet. Coordination is not the same thing as a legal conclusion that the agreement must be unwound before closing.</p>`,
+    "/solar-contract-laws": `      <h2>Published state-law pages versus unpublished states</h2>
+      <p>Consumer rules for home-solicitation sales, contractor registration, and financing disclosures vary by state. Solar Freedom currently publishes indexable state-law pages for Texas, California, and Arizona. Other states, including Florida and Nevada, are not currently published as indexable law pages and stay quarantined. This hub is a directory and a records checklist, not a 50-state encyclopedia and not legal advice. Solar Freedom is not a law firm.</p>
+      <p>Even on a published state page, statutes change and facts control. A cooling-off period that applies to one in-home sale may not apply to an online signing. A contractor-registration rule may not govern a separate lender. Read the official text and the signed file together. Do not treat a neighboring city's experience as your state's rule, and do not restore thin city templates that are not on the live allowlist.</p>
+      <h2>Records to bring to a state-law reading</h2>
+      <ul>
+        <li>The signed contract, financing disclosures, and Notice of Cancellation if one exists.</li>
+        <li>Where and how you signed, and whether a salesperson was in the home.</li>
+        <li>Contractor, installer, and lender legal names for registration or licensing lookups.</li>
+        <li>Dates of sale, funding, installation, and first billing.</li>
+        <li>Any state-agency complaint you already filed and the agency response.</li>
+        <li>The current official statute or regulation printout you are relying on, with retrieval date.</li>
+      </ul>
+      <p>Use the Texas, California, and Arizona law pages when those are your jurisdiction. For other states, start with the contract, official consumer agencies, and an individual review rather than an unpublished template. City pages on the allowlist (including Miami as a city page) are not substitutes for a quarantined state-law URL. Request an individual review if you need help matching documents to the published resources. Options depend on current law and the facts of the agreement.</p>
+
+      <h2>Official sources beat summaries</h2>
+      <p>When you use a published Texas, California, or Arizona page on this site, treat it as a map to statutes, agencies, and document lists. Verify the current official text before relying on any summary, including ours. For states that are not published here, use the state attorney general consumer page, contractor licensing lookup, and the federal cooling-off materials if the sale channel might be covered. Do not invent a Florida or Nevada law URL, and do not treat a Miami or Las Vegas city page as a stand-in for a quarantined state-law article. Request an individual review if you want help lining your documents up with the published pages that actually exist.</p>`,
+    "/solar-companies": `      <h2>Company research lives on the blogs, not on hub URLs</h2>
+      <p>Homeowners often type a brand plus "cancel" and land on a generated company path. On this site, those company hubs 301 to existing blogs. Use the blog guides for Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, and Tesla rather than /cancel-*-solar-contract URLs. The blogs are where complaint themes, acquisition timelines, and document checklists are maintained. Solar Freedom is not a law firm, and a brand page is not a finding that any company broke the law in your case.</p>
+      <p>Status changes (bankruptcy, acquisition, rebrand) are especially easy to mix up. ADT exiting residential solar, Tesla servicing SolarCity-era accounts, or a lender remaining after an installer closes are separate facts. The signed names still control who bills you and who answers warranty tickets. Compare the blog for that brand with your own papers before assuming the public story matches your account.</p>
+      <h2>Records that identify the real parties</h2>
+      <ul>
+        <li>Every legal name on the sales, install, and financing documents.</li>
+        <li>Current servicer letters, portal logins, and payment coupon addresses.</li>
+        <li>Acquisition, bankruptcy, or assignment notices you received.</li>
+        <li>Warranty providers for equipment versus workmanship.</li>
+        <li>BBB, CFPB, or AG complaint numbers if you already filed.</li>
+        <li>Dates of install, PTO, and any service outage that followed a company change.</li>
+      </ul>
+      <p>The compare page and this companies hub are indexes. Deep detail is in the named blogs and in how-it-works, contract help, and loan help. Request an individual review if you cannot tell which entity owns the contract versus the equipment. What happens next depends on those documents, the facts, and the jurisdiction.</p>
+
+      <h2>How to read a company blog without over-copying it onto your file</h2>
+      <p>A Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, or Tesla article may describe complaint themes that appear in public records or in documents other homeowners have shared. Your file can differ on contract type, install year, and which entity was assigned the account. Use the blog to learn which questions to ask and which records to pull, then answer those questions from your papers. The compare page can sit beside the blogs if you are trying to tell two brands apart. Request an individual review when the blog's party map does not match the names on your statements. Matching names is a fact task, not a prediction of any company's liability.</p>`,
+    "/blog": `      <h2>How to use the solar contract guides</h2>
+      <p>The blog is the long-form library: cancellation procedures, company complaint files, document checklists, and consumer-agency walkthroughs. It is not a substitute for reading your own agreement. Articles are educational. Solar Freedom is not a law firm, and a guide that describes a process used in some files does not mean the same process applies to yours. Start with the article that matches the brand or the problem, then gather the records that article lists before requesting an individual review.</p>
+      <p>Guides are grouped loosely around getting out of a contract, disputing sales or billing issues, and selling or refinancing with solar still attached. Company pieces (Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, Tesla, Blue Raven, Complete Solaria) sit beside issue pieces (rescission, installer out of business, attorney-general complaints). City allowlist pages and the Texas, California, and Arizona law pages are linked from relevant posts when those locations are in scope. Thin city URLs and quarantined state-law pages are not restored here.</p>
+      <h2>Records that make a guide usable</h2>
+      <ul>
+        <li>The contract type and the legal names, so you open the matching company guide.</li>
+        <li>Install status and dates, so you do not use a cooling-off article on a five-year-old system.</li>
+        <li>Billing, production, and service history if the dispute is performance or charges.</li>
+        <li>Title, UCC, and listing documents if the issue is a sale or refinance.</li>
+        <li>Copies of complaints already filed with an AG, CFPB, FTC, or contractor board.</li>
+        <li>A one-page timeline you can set next to any article checklist.</li>
+      </ul>
+      <p>From the blog index you can move into how it works, exit options, the letter templates, the calculator, and compare. Request an individual review when you have the file together and want a specialist to read it with you. Nothing in these guides predicts a result; options depend on the agreement, the facts, and the jurisdiction.</p>
+
+      <h2>Editorial limits you will see in the articles</h2>
+      <p>Posts are checked for source accuracy, for a line between general information and individual advice, and for unsupported first-party claims. If a description was withheld, it is because automated trust filters caught language this site is not allowed to publish without evidence. Prefer articles that list documents and official procedures over articles that sound like a certain outcome. When you finish a guide, the next step is still your file: names, dates, and notices. Request an individual review from the article that most closely matches that file. The library will keep growing, but thin city revival and unpublished state-law pages are not part of that growth.</p>`,
+    "/free-cancellation-letter": `      <h2>Templates are starting points, not magic words</h2>
+      <p>A cancellation letter is a record of what you asked, when you asked, and which contract you pointed to. It is not a court order and it is not a guarantee that the named company will agree. Solar Freedom offers templates for cooling-off, pre-installation, and post-installation situations so you can see the kinds of facts a letter usually includes. You still have to match the template to the actual notice requirements in your agreement and, if a federal or state cooling-off rule might apply, to that rule's delivery instructions.</p>
+      <p>Sending the wrong letter, to the wrong address, without the contract number or without proof of delivery, is a common stall. Filling a template with claims the documents do not support can also create problems later. Solar Freedom is not a law firm. Review the documents before you send anything, and do not treat a downloaded paragraph as legal advice.</p>
+      <h2>Records to attach or quote</h2>
+      <ul>
+        <li>The exact legal names, addresses, and notice clauses from the contract.</li>
+        <li>Account numbers, install address, and the dated signature page.</li>
+        <li>The Notice of Cancellation form if the sale came with one.</li>
+        <li>Proof of how and when you will send the letter (mail, email, portal).</li>
+        <li>A short timeline of sale, funding, install, and any prior written requests.</li>
+        <li>Copies of the financing agreement if the letter also goes to a lender or servicer.</li>
+      </ul>
+      <p>Use this page with how it works, exit options, and the attorney-general complaint guide. Request an individual review if you are unsure which template, if any, fits the file. Whether a letter has legal effect depends on the agreement, the facts, the method of delivery, and current law.</p>
+
+      <h2>Delivery proof is part of the letter</h2>
+      <p>Keep a complete copy of what you sent, including attachments, and a receipt, tracking record, email header, or portal confirmation. A phone call that is not followed by writing is usually a weak record. If the contract names a specific address or method, follow that method even if a generic template suggests email. If more than one company is on the file, send the correctly addressed version to each named notice party rather than one blended letter. Request an individual review if you cannot tell which notice clause controls. Sending a letter is a documentation step; it does not by itself end billing or a UCC filing.</p>`,
+    "/calculator": `      <h2>What the calculator estimates and what it does not</h2>
+      <p>The cancellation calculator is an arithmetic helper. It can illustrate remaining payments, how an escalator grows a lease or PPA over time, and how a stated buyout compares with the payment stream. It is not a quote, not an appraisal, and not legal advice. Inputs that are wrong (term, escalator, current payment, buyout schedule) produce numbers that are merely tidy. Solar Freedom is not a law firm, and a calculated figure does not mean a company will accept it.</p>
+      <p>Use the tool after you have the actual statement and the contract schedule in hand. Then compare the output with a written payoff or buyout from the named party. If those numbers diverge, that gap is a records issue for an individual review, not a reason to assume the contract is unenforceable.</p>
+      <h2>Records that make an estimate honest</h2>
+      <ul>
+        <li>Current monthly payment, due date, and whether it has already escalated.</li>
+        <li>Original term, remaining term, and the escalator percentage if any.</li>
+        <li>The buyout or prepayment table from the contract, not a sales verbal.</li>
+        <li>A written quote from the company or servicer, with a date.</li>
+        <li>Utility bills and production data if you are comparing carrying cost with usage.</li>
+        <li>Loan payoff versus lease buyout, clearly labeled so you do not mix them.</li>
+      </ul>
+      <p>Read the calculator beside exit options, loan help, and selling-a-house notes. Request an individual review if you want a specialist to compare your inputs with the documents. Results are informational. Options and any real payoff amount depend on the agreement and the servicer's written figures.</p>
+
+      <h2>Escalators and remaining term are easy to mistype</h2>
+      <p>A 2.9 percent annual escalator, if that is what your lease or PPA actually says, compounds. Entering the first-year payment as if it were still the current payment will understate the remaining stream. Entering a loan as if it had an escalator will overstate it. Check the anniversary date and the current invoice before you trust a chart. Then export or screenshot the calculator inputs so a reviewer can see what you assumed. Request an individual review if the company's written buyout and the calculator disagree by more than rounding. Disagreement is a prompt to re-read the schedule, not a finding that either number is unlawful.</p>`,
+    "/compare": `      <h2>Comparing brands without treating hubs as live pages</h2>
+      <p>The compare page is for complaint themes, document differences, and the questions that repeat across Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, Tesla, and similar files. It is not a ranking of which company is easiest to leave. Company hub URLs on this domain 301 to blogs; compare should send readers to those blogs and to the records each brand's file usually requires. Solar Freedom is not a law firm, and a side-by-side layout does not mean two homeowners have the same options.</p>
+      <p>Useful comparison dimensions include contract type (lease, loan, PPA), who owns the equipment, who bills you now, whether a UCC filing exists, and whether an acquisition or bankruptcy changed the service path. Those dimensions come from paperwork, not from brand reputation. If a column on this page disagrees with your contract, the contract wins.</p>
+      <h2>Records for a brand-to-brand comparison</h2>
+      <ul>
+        <li>Your contract type and the legal names of seller, installer, lender, and servicer.</li>
+        <li>Current billing entity versus the name on the original signature page.</li>
+        <li>Warranty, monitoring, and equipment-manufacturer contacts.</li>
+        <li>Any UCC, title, or HOA friction you have already been told about.</li>
+        <li>Written transfer, buyout, or dispute procedures from your company, not a generic chart.</li>
+        <li>The matching blog guide for your brand, printed or saved with your file.</li>
+      </ul>
+      <p>Move from compare into the relevant blog, then how it works, contract help, or loan help. Request an individual review if you want the comparison done against your documents rather than against a table. What applies to you depends on the agreement, the facts, and the jurisdiction.</p>
+
+      <h2>Do not compare live blogs to redirected hubs</h2>
+      <p>If an old bookmark still points at a company hub path, follow the 301 to the blog and compare from there. Linking both the hub and the blog in the same article wastes crawl budget and confuses readers. The same rule applies to city URLs: only the allowlisted city pages should be used, and Florida cities that are not on that list should not be invented for comparison tables. Request an individual review if you are trying to compare your contract to a brand column and the paperwork does not fit any column cleanly. Misfit is common; it is a reason to read the file, not to force a label.</p>`,
+  };
+  return pages[urlPath] || '';
+}
+
 function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta);
   const pageType = classifyPath(urlPath);
   const h1 = stripBrand(meta.title);
@@ -1349,15 +1370,14 @@ function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta
   } else if (pageType === 'state_law') {
     uniqueBody = buildStateUniqueContent(meta);
   } else {
-    // Service pages: brief unique intro
-    uniqueBody = '';
+    uniqueBody = buildServiceUniqueContent(urlPath);
   }
 
   return `
   <div id="root">
     <main class="seo-prerender" data-page-type="${pageType}" style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 960px; margin: 0 auto; padding: 32px 20px; color: #111827;">
       <p style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f97316; font-weight: 700;">Solar Freedom ${escapeHtml(contextLabel)}</p>
-      ${urlPath === "/" ? `<h2>${escapeHtml(h1)}</h2>` : `<h1>${escapeHtml(h1)}</h1>`}
+      <h1>${escapeHtml(h1)}</h1>
       ${sourceDescription}
       ${uniqueBody}
       <nav aria-label="Related Solar Freedom resources">

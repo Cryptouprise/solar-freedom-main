@@ -1246,6 +1246,7 @@
 - [x] Make editor reject/revision directives mandatory Content-agent work against the same article before a new topic can be selected
 - [x] Add content self-QA and editor-feedback revision loops so rejected drafts receive targeted revisions before owner review
 - [ ] Build owner-friendly clickable review, approve, publish, technical verification, and post-publication measurement states for content work
+- [x] Add a one-click Approve & Publish control for quality-approved SEO content with an explicit public URL and durable receipt
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option
 - [x] Maintain one plain-English owner-facing operating map that explains live systems, outputs, failures, ownership, and the prioritized repair queue
 - [x] Verify and merge GitHub PR #46, synchronize the managed project, and validate the resulting preview
