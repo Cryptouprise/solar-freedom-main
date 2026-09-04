@@ -1248,6 +1248,6 @@
 - [ ] Build owner-friendly clickable review, approve, publish, technical verification, and post-publication measurement states for content work
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option
 - [x] Maintain one plain-English owner-facing operating map that explains live systems, outputs, failures, ownership, and the prioritized repair queue
-- [ ] Verify and merge GitHub PR #46, synchronize the managed project, and validate the resulting preview
-- [ ] Decide and implement the safe Houston SEO policy in PR #46: retain and improve a valuable page, or retire it with a relevant redirect and no stale agent targets
-- [ ] Recheck the revised PR #46 at its latest commit for required CI, Houston routing, and Content/SEO agent file integrity
+- [x] Verify and merge GitHub PR #46, synchronize the managed project, and validate the resulting preview
+- [x] Decide and implement the safe Houston SEO policy in PR #46: retain and improve a valuable page, or retire it with a relevant redirect and no stale agent targets
+- [x] Recheck the revised PR #46 at its latest commit for required CI, Houston routing, and Content/SEO agent file integrity
