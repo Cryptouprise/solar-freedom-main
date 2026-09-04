@@ -1250,6 +1250,7 @@
 - [x] Produce a source-verified exact indexed-article count and ranked two-week SEO, traffic, and appointment-growth plan with daily measurement thresholds
 - [x] Add an Outcomes dashboard widget that shows verified index coverage, article-index verification status, and the top three two-week SEO strategies
 - [x] Add a 14-day source-verified appointment-progress chart to Outcomes with explicit no-data states and automatic in-page refresh
+- [x] Add appointment-chart tooltips that show each day’s verified appointments alongside clicks, impressions, CTR, and average position
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option
 - [x] Maintain one plain-English owner-facing operating map that explains live systems, outputs, failures, ownership, and the prioritized repair queue
 - [x] Verify and merge GitHub PR #46, synchronize the managed project, and validate the resulting preview
