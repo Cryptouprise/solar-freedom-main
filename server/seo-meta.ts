@@ -28,6 +28,7 @@ import { blogPosts } from "../client/src/data/blog";
 import { INDEXED_CITY_SLUGS } from "../client/src/data/indexed-cities";
 import { isCanonicalBlogIndexed, isCompanyIndexed, isStateIndexed } from "../client/src/data/indexEligibility";
 import { sanitizeStoredHtml } from "./security/html";  // server/security/html.ts
+import { findDuplicateCityMeta, generateCityMeta } from "./cityMeta";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -261,16 +262,23 @@ export function buildMetaMap(): Record<string, MetaEntry> {
     },
   };
 
+  const cityMetaEntries: Array<{ slug: string; title: string; description: string }> = [];
   for (const city of cities) {
     const path = `/cancel-solar-contract/${city.slug}`;
     const override = cityMetaOverrides[city.slug];
+    const generated = generateCityMeta(city);
+    const title = override?.title ?? generated.title;
+    const description = override?.description ?? generated.description;
+    cityMetaEntries.push({ slug: city.slug, title, description });
     map[path] = {
-      title: override?.title ?? `Cancel Solar Contract in ${city.name}, ${city.stateCode} | Solar Freedom`,
-      description: override?.description ?? `Review solar contract terms and consumer resources for ${city.name}, ${city.stateCode}. Options and timing depend on your agreement, facts, and jurisdiction.`,
+      title,
+      description,
       canonical: BASE_URL + path,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
     };
   }
+  const cityMetaIssues = findDuplicateCityMeta(cityMetaEntries);
+  if (cityMetaIssues.length) throw new Error(`[SEO] City metadata uniqueness check failed: ${cityMetaIssues.join("; ")}`);
 
   // ─── State law pages ──────────────────────────────────────────────────────
   for (const law of stateLaws) {
