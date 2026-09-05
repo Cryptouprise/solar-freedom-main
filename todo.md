@@ -1255,6 +1255,7 @@
 - [ ] Reconcile city sitemap inclusion against intentional noindex policy and actual Google coverage in one owner-facing report
 - [ ] Build a safe SEO Intel, Content, and Editor workflow that creates source-backed unique-local rewrite packages for the 25 index-eligible city pages without auto-publishing or expanding index eligibility
 - [x] Generate and validate unique title and meta-description pairs for every index-eligible city page to prevent future duplication
+- [x] Create and integrate location-specific hero imagery for each index-eligible city page with deterministic fallbacks and no index-policy expansion
 - [x] Verify and merge GitHub PR #47, synchronize the managed project, and validate the resulting preview
 - [ ] Audit all city pages for current index status, intentional noindex policy, and duplicated/template content before changing the city SEO strategy
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option

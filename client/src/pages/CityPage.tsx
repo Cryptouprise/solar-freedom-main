@@ -21,6 +21,7 @@ import { useParams, Link } from "wouter";
 import { getCityBySlug, cities as CITIES } from "@/data/cities";
 import { isCityIndexed } from "@/data/indexed-cities";
 import { getCityContentDepthAll as getCityContentDepth } from "@/data/city-content-depth-all";
+import { getCityHero } from "@/data/city-heroes";
 import { stateLaws } from "@/data/state-laws";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
@@ -256,6 +257,7 @@ function RecoveredCityPage({
   recovery: PublishedCityRecovery;
 }) {
   const path = `/cancel-solar-contract/${city.slug}`;
+  const heroImage = getCityHero(city.slug);
   const publishedDate = recovery.publishedAt
     ? new Date(recovery.publishedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
     : null;
@@ -301,8 +303,17 @@ function RecoveredCityPage({
       </nav>
 
       <main>
-        <header className="border-b border-white/10 bg-gradient-to-br from-zinc-950 to-zinc-900">
-          <div className="container max-w-5xl py-16 md:py-24">
+        <header className="relative overflow-hidden border-b border-white/10 bg-zinc-950">
+          <img
+            src={heroImage}
+            alt={`Solar contract support resources for ${city.name}, ${city.state}`}
+            className="absolute inset-0 h-full w-full object-cover opacity-45"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/35" />
+          <div className="container relative z-10 max-w-5xl py-16 md:py-24">
             <p className="mb-4 text-xs font-mono uppercase tracking-[0.2em] text-amber-400">
               Source-backed local guide · {city.name}, {city.state}
             </p>
@@ -391,6 +402,7 @@ export default function CityPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
   const city = getCityBySlug(slug);
+  const heroImage = getCityHero(slug);
   const depth = getCityContentDepth(slug);
   const { data: publishedRecovery } = trpc.cityRecovery.published.useQuery(
     { slug },
@@ -503,7 +515,7 @@ export default function CityPage() {
       <section className="relative min-h-[60vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={HERO_BG}
+            src={heroImage}
             alt={`Solar contract cancellation resources for ${city.name}, ${city.state}`}
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.25)" }}
