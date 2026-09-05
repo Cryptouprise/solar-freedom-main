@@ -30,6 +30,25 @@ import StickyMobileBar from "@/components/StickyMobileBar";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
+type PublishedCityRecovery = {
+  id: number;
+  publishedAt: Date | string | null;
+  payload: {
+    title: string;
+    metaTitle: string;
+    metaDescription: string;
+    heroHeading: string;
+    heroCopy: string;
+    sections: Array<{ heading: string; body: string }>;
+    faq: Array<{ question: string; answer: string }>;
+    sources: Array<{ label: string; url: string }>;
+    internalLinks: Array<{ label: string; url: string }>;
+    ctaHeading: string;
+    ctaCopy: string;
+    targetKeyword: string;
+  };
+};
+
 // Infographic CDN URLs
 const IMG_HIDDEN_FEE = "/manus-storage/infographic-hidden-fee-lie_973f1439.png";
 const IMG_TOP_COMPANIES = "/manus-storage/infographic-top-complaints-tx_62037137.png";
@@ -229,19 +248,163 @@ function CityForm({ city, state }: { city: string; state: string }) {
   );
 }
 
+function RecoveredCityPage({
+  city,
+  recovery,
+}: {
+  city: NonNullable<ReturnType<typeof getCityBySlug>>;
+  recovery: PublishedCityRecovery;
+}) {
+  const path = `/cancel-solar-contract/${city.slug}`;
+  const publishedDate = recovery.publishedAt
+    ? new Date(recovery.publishedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+    : null;
+  const schemas = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: recovery.payload.title,
+      description: recovery.payload.metaDescription,
+      url: `https://breakyoursolarcontract.com${path}`,
+      dateModified: recovery.publishedAt ? new Date(recovery.publishedAt).toISOString() : undefined,
+      inLanguage: "en-US",
+      about: { "@type": "Place", name: `${city.name}, ${city.state}` },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: recovery.payload.faq.map(item => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://breakyoursolarcontract.com" },
+        { "@type": "ListItem", position: 2, name: recovery.payload.title, item: `https://breakyoursolarcontract.com${path}` },
+      ],
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0D0F14] text-white">
+      <StickyMobileBar />
+      <SchemaInjector schemas={schemas} />
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0D0F14]/95 backdrop-blur">
+        <div className="container flex h-16 items-center justify-between">
+          <Link href="/" className="font-display text-lg tracking-wider text-white">SOLAR FREEDOM</Link>
+          <a href="#city-review" className="rounded bg-amber-500 px-5 py-2 text-sm font-bold text-black">REQUEST A CASE REVIEW</a>
+        </div>
+      </nav>
+
+      <main>
+        <header className="border-b border-white/10 bg-gradient-to-br from-zinc-950 to-zinc-900">
+          <div className="container max-w-5xl py-16 md:py-24">
+            <p className="mb-4 text-xs font-mono uppercase tracking-[0.2em] text-amber-400">
+              Source-backed local guide · {city.name}, {city.state}
+            </p>
+            <h1 className="max-w-4xl font-display text-4xl leading-tight md:text-6xl">{recovery.payload.heroHeading}</h1>
+            <p className="mt-6 max-w-3xl text-lg leading-relaxed text-zinc-300">{recovery.payload.heroCopy}</p>
+            <div className="mt-6 flex flex-wrap gap-3 text-xs text-zinc-500">
+              {publishedDate && <span>Verified update: {publishedDate}</span>}
+              <span>Educational information—not legal advice</span>
+            </div>
+          </div>
+        </header>
+
+        <div className="container grid max-w-6xl gap-12 py-14 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <article className="min-w-0">
+            <div className="space-y-12">
+              {recovery.payload.sections.map((section, index) => (
+                <section key={`${section.heading}-${index}`}>
+                  <h2 className="font-display text-3xl text-white">{section.heading}</h2>
+                  {section.body.split(/\n{2,}/).map((paragraph, paragraphIndex) => (
+                    <p key={paragraphIndex} className="mt-4 whitespace-pre-line text-[1.05rem] leading-8 text-zinc-300">
+                      {paragraph}
+                    </p>
+                  ))}
+                </section>
+              ))}
+            </div>
+
+            <section className="mt-14 border-t border-white/10 pt-10">
+              <h2 className="font-display text-3xl">Official sources and verification</h2>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                Rules, procedures, and company information can change. Check these sources and the written agreement before acting.
+              </p>
+              <ul className="mt-6 space-y-3">
+                {recovery.payload.sources.map(source => (
+                  <li key={source.url}>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline underline-offset-4 hover:text-amber-300">
+                      {source.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="mt-14 border-t border-white/10 pt-10">
+              <h2 className="font-display text-3xl">Frequently asked questions</h2>
+              <div className="mt-6 space-y-4">
+                {recovery.payload.faq.map((item, index) => (
+                  <details key={`${item.question}-${index}`} className="rounded-xl border border-white/10 bg-white/5 p-5" open={index === 0}>
+                    <summary className="cursor-pointer font-semibold text-white">{item.question}</summary>
+                    <p className="mt-3 leading-relaxed text-zinc-300">{item.answer}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+
+            <nav className="mt-14 border-t border-white/10 pt-10" aria-label="Related resources">
+              <h2 className="font-display text-3xl">Related solar contract resources</h2>
+              <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                {recovery.payload.internalLinks.map(link => (
+                  <li key={link.url}>
+                    <Link href={link.url} className="block rounded-lg border border-white/10 p-4 text-amber-400 hover:border-amber-500/40">
+                      {link.label} →
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </article>
+
+          <aside id="city-review" className="lg:sticky lg:top-24 lg:self-start">
+            <div className="rounded-2xl border border-amber-500/30 bg-zinc-900 p-6">
+              <h2 className="font-display text-2xl">{recovery.payload.ctaHeading}</h2>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-300">{recovery.payload.ctaCopy}</p>
+              <div className="mt-6">
+                <CityForm city={city.name} state={city.state} />
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  );
+}
+
 export default function CityPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
   const city = getCityBySlug(slug);
   const depth = getCityContentDepth(slug);
+  const { data: publishedRecovery } = trpc.cityRecovery.published.useQuery(
+    { slug },
+    { enabled: Boolean(slug && city), staleTime: 5 * 60 * 1000 },
+  );
+  const recovery = publishedRecovery as PublishedCityRecovery | null | undefined;
 
   useSeoMeta({
-    title: city
+    title: recovery?.payload.metaTitle ?? (city
       ? `Cancel Solar Contract in ${city.name}, ${city.state} | Solar Freedom`
-      : 'Cancel Solar Contract | Solar Freedom',
-    description: city
+      : 'Cancel Solar Contract | Solar Freedom'),
+    description: recovery?.payload.metaDescription ?? (city
       ? `Exposed: How solar companies are trapping ${city.name}, ${city.state} homeowners with hidden fees and broken promises. Find out if you qualify to cancel your contract.`
-      : 'Review solar contract terms and consumer resources. Options depend on your agreement, facts, and jurisdiction.',
+      : 'Review solar contract terms and consumer resources. Options depend on your agreement, facts, and jurisdiction.'),
     canonical: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
     noindex: !isCityIndexed(slug),
   });
@@ -259,6 +422,10 @@ export default function CityPage() {
         </div>
       </div>
     );
+  }
+
+  if (recovery) {
+    return <RecoveredCityPage city={city} recovery={recovery} />;
   }
 
   const faqItems = [

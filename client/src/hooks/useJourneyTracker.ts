@@ -92,14 +92,7 @@ export function useJourneyTracker() {
 
   // Track page views — fires when location changes
   useEffect(() => {
-    const prevPage = pageEnterTime.current;
     const enterTime = Date.now();
-    const prevScrollDepth = maxScrollDepth.current;
-
-    // Send the previous page's exit event (except on first load)
-    if (prevPage !== enterTime) {
-      // Already handled by the cleanup below
-    }
 
     pageEnterTime.current = enterTime;
     maxScrollDepth.current = 0;
@@ -121,7 +114,7 @@ export function useJourneyTracker() {
         sessionId: sessionId.current,
         page: location,
         timeOnPageMs,
-        scrollDepthPct: prevScrollDepth,
+        scrollDepthPct: maxScrollDepth.current,
       });
     };
   }, [location]);

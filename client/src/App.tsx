@@ -44,6 +44,7 @@ const AdminHome = lazy(() => import("@/pages/admin/AdminHome"));
 const GHLDashboard = lazy(() => import("@/pages/admin/GHLDashboard"));
 const OutcomeScorecard = lazy(() => import("@/pages/admin/OutcomeScorecard"));
 const RevenueIntel = lazy(() => import("@/pages/admin/RevenueIntel"));
+const CityRecovery = lazy(() => import("@/pages/admin/CityRecovery"));
 const AttorneyPipeline = lazy(() => import("@/pages/admin/AttorneyPipeline"));
 const MediaHub = lazy(() => import("@/pages/MediaHub"));
 const SitemapPage = lazy(() => import("@/pages/SitemapPage"));
@@ -147,6 +148,7 @@ function Router() {
           <Route path={"/admin/ghl"} component={GHLDashboard} />
           <Route path={"/admin/outcomes"} component={OutcomeScorecard} />
           <Route path={"/admin/revenue-intel"} component={RevenueIntel} />
+          <Route path={"/admin/city-recovery"} component={CityRecovery} />
           <Route path={"/admin/attorneys"} component={AttorneyPipeline} />
           <Route path={"/youtube"} component={YouTubeLanding} />
           <Route path={"/yt"} component={YouTubeLanding} />

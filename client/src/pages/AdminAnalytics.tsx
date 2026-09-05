@@ -150,6 +150,11 @@ export default function AdminAnalytics() {
                 <StatCard label="Phone Clicks" value={data.summary.phoneClicks} />
                 <StatCard label="Leads Generated" value={data.summary.generateLeads} highlight />
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                <StatCard label="Engagement Rate" value={`${(data.summary.engagementRate * 100).toFixed(1)}%`} />
+                <StatCard label="Bounce Rate" value={`${(data.summary.bounceRate * 100).toFixed(1)}%`} />
+                <StatCard label="Avg. Session" value={`${Math.round(data.summary.averageSessionDuration)}s`} />
+              </div>
             </section>
 
             {/* Daily Traffic Chart */}
@@ -230,6 +235,9 @@ export default function AdminAnalytics() {
                       <th className="text-left px-4 py-3 font-mono text-xs text-gray-400 uppercase tracking-wider">Page</th>
                       <th className="text-right px-4 py-3 font-mono text-xs text-gray-400 uppercase tracking-wider">Views</th>
                       <th className="text-right px-4 py-3 font-mono text-xs text-gray-400 uppercase tracking-wider">Sessions</th>
+                      <th className="text-right px-4 py-3 font-mono text-xs text-gray-400 uppercase tracking-wider">Engaged</th>
+                      <th className="text-right px-4 py-3 font-mono text-xs text-gray-400 uppercase tracking-wider">Bounce</th>
+                      <th className="text-right px-4 py-3 font-mono text-xs text-gray-400 uppercase tracking-wider">Avg. time</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -240,6 +248,9 @@ export default function AdminAnalytics() {
                         </td>
                         <td className="px-4 py-2.5 text-right font-mono text-xs text-white">{page.views}</td>
                         <td className="px-4 py-2.5 text-right font-mono text-xs text-gray-400">{page.sessions}</td>
+                        <td className="px-4 py-2.5 text-right font-mono text-xs text-emerald-400">{(page.engagementRate * 100).toFixed(1)}%</td>
+                        <td className="px-4 py-2.5 text-right font-mono text-xs text-amber-400">{(page.bounceRate * 100).toFixed(1)}%</td>
+                        <td className="px-4 py-2.5 text-right font-mono text-xs text-gray-400">{Math.round(page.averageSessionDuration)}s</td>
                       </tr>
                     ))}
                   </tbody>

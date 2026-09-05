@@ -26,6 +26,7 @@ import { agentRouter } from "./agentRouter";
 import { ghlRouter } from "./ghlRouter";
 import { journeyRouter } from "./journeyRouter";
 import { revenueIntelRouter } from "./revenueIntelRouter";
+import { cityRecoveryRouter } from "./cityRecoveryRouter";
 import { getGA4Report } from "./ga4";
 import { runSeoScorecard } from "./scheduled/seoScorecard";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
@@ -86,6 +87,7 @@ export const appRouter = router({
   ghl: ghlRouter,
   journey: journeyRouter,
   revenueIntel: revenueIntelRouter,
+  cityRecovery: cityRecoveryRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -68,6 +68,7 @@ const NAV_SECTIONS = [
     section: "SEO",
     items: [
       { label: "SEO Command Center", href: "/seo-command-center", icon: Target, description: "SEO tasks & strategy" },
+      { label: "City Recovery", href: "/admin/city-recovery", icon: TrendingUp, description: "Governed local page recovery" },
       { label: "Backlinks", href: "/admin/press-releases#backlinks", icon: Link2, description: "Link acquisition tracker" },
     ],
   },

@@ -3,7 +3,8 @@ import fs from "fs";
 import path from "path";
 import * as cheerio from "cheerio";
 import { getDbBlogPost, getDbBlogPostStatus, getDbBlogPosts } from "./db";
-import { applyDbOverlayToPrerendered, renderDbBlogPost } from "./seo-meta";
+import { applyCityRecoveryOverlay, applyDbOverlayToPrerendered, renderDbBlogPost } from "./seo-meta";
+import { getPublishedCityRecovery } from "./cityRecovery";
 import { rateLimit } from "express-rate-limit";
 import { isLegacyBlogSlug } from "./seo-redirects";
 import indexEligibility from "../shared/index-eligibility.json";
@@ -37,6 +38,7 @@ export const CLIENT_ONLY_ROUTES = new Set([
   "/admin/ghl",
   "/admin/outcomes",
   "/admin/revenue-intel",
+  "/admin/city-recovery",
   "/admin/attorneys",
 ]);
 
@@ -277,6 +279,17 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
             // A database problem must never take down a page that already has
             // good prerendered HTML. Serve the file unchanged.
             console.warn(`[SEO] DB overlay skipped for ${pagePath}:`, error);
+          }
+        }
+      }
+      if (pagePath.startsWith("/cancel-solar-contract/")) {
+        const slug = pagePath.slice("/cancel-solar-contract/".length);
+        if (slug && !slug.includes("/")) {
+          try {
+            const recovery = await getPublishedCityRecovery(slug);
+            if (recovery) markup = applyCityRecoveryOverlay(markup, pagePath, recovery);
+          } catch (error) {
+            console.warn(`[SEO] City recovery overlay skipped for ${pagePath}:`, error);
           }
         }
       }
