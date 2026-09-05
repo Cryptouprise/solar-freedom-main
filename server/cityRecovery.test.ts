@@ -43,9 +43,9 @@ function payload(overrides: Partial<CityRecoveryPayload> = {}): CityRecoveryPayl
 describe("city recovery governance", () => {
   it("limits recovery to canonical allowlisted city URLs", () => {
     expect(isRecoverableCitySlug("phoenix-az")).toBe(true);
-    expect(isRecoverableCitySlug("houston-tx")).toBe(false);
+    expect(isRecoverableCitySlug("houston-tx")).toBe(true);
     expect(isRecoverableCitySlug("made-up-city")).toBe(false);
-    expect(recoverableCities()).toHaveLength(24);
+    expect(recoverableCities()).toHaveLength(25);
   });
 
   it("blocks Texas-only language on non-Texas pages", async () => {
@@ -72,11 +72,11 @@ describe("city recovery governance", () => {
   it("blocks redirected or ineligible internal links", async () => {
     const qa = await evaluateCityRecovery("phoenix-az", payload({
       internalLinks: [
-        { label: "Houston page", url: "/cancel-solar-contract/houston-tx" },
+        { label: "Orlando page", url: "/cancel-solar-contract/orlando-fl" },
         { label: "Solar loan help", url: "/solar-loan-help" },
       ],
     }));
     expect(qa.passed).toBe(false);
-    expect(qa.blockers.some(item => item.includes("/cancel-solar-contract/houston-tx"))).toBe(true);
+    expect(qa.blockers.some(item => item.includes("/cancel-solar-contract/orlando-fl"))).toBe(true);
   });
 });
