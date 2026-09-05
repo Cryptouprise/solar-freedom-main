@@ -66,6 +66,9 @@ export interface GA4Summary {
   newUsers: number;
   pageViews: number;
   eventCount: number;
+  engagementRate: number;
+  bounceRate: number;
+  averageSessionDuration: number;
   ctaClicks: number;
   formSubmits: number;
   generateLeads: number;
@@ -89,6 +92,9 @@ export interface GA4PageRow {
   path: string;
   views: number;
   sessions: number;
+  engagementRate: number;
+  bounceRate: number;
+  averageSessionDuration: number;
 }
 
 export interface GA4EventRow {
@@ -128,6 +134,9 @@ export async function getGA4Report(
           { name: "newUsers" },
           { name: "screenPageViews" },
           { name: "eventCount" },
+          { name: "engagementRate" },
+          { name: "bounceRate" },
+          { name: "averageSessionDuration" },
         ],
       }),
       // Daily breakdown
@@ -152,7 +161,13 @@ export async function getGA4Report(
       runReport({
         dateRanges: dateRange,
         dimensions: [{ name: "pagePath" }],
-        metrics: [{ name: "screenPageViews" }, { name: "sessions" }],
+        metrics: [
+          { name: "screenPageViews" },
+          { name: "sessions" },
+          { name: "engagementRate" },
+          { name: "bounceRate" },
+          { name: "averageSessionDuration" },
+        ],
         orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
         limit: 15,
       }),
@@ -183,6 +198,9 @@ export async function getGA4Report(
     newUsers: mv(2),
     pageViews: mv(3),
     eventCount: mv(4),
+    engagementRate: parseFloat(summaryRow?.metricValues[5]?.value ?? "0"),
+    bounceRate: parseFloat(summaryRow?.metricValues[6]?.value ?? "0"),
+    averageSessionDuration: parseFloat(summaryRow?.metricValues[7]?.value ?? "0"),
     ctaClicks: eventsMap["cta_click"] ?? 0,
     formSubmits: eventsMap["form_submit"] ?? 0,
     generateLeads: eventsMap["generate_lead"] ?? 0,
@@ -206,6 +224,9 @@ export async function getGA4Report(
     path: row.dimensionValues[0].value,
     views: parseInt(row.metricValues[0].value),
     sessions: parseInt(row.metricValues[1].value),
+    engagementRate: parseFloat(row.metricValues[2].value),
+    bounceRate: parseFloat(row.metricValues[3].value),
+    averageSessionDuration: parseFloat(row.metricValues[4].value),
   }));
 
   const events: GA4EventRow[] = (eventsRes.rows ?? []).map((row) => ({
