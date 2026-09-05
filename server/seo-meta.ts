@@ -678,6 +678,88 @@ export function applyDbOverlayToPrerendered(
   return $.html();
 }
 
+export function applyCityRecoveryOverlay(
+  html: string,
+  pagePath: string,
+  recovery: {
+    publishedAt?: Date | string | null;
+    payload: {
+      title: string;
+      metaTitle: string;
+      metaDescription: string;
+      heroHeading: string;
+      heroCopy: string;
+      sections: Array<{ heading: string; body: string }>;
+      faq: Array<{ question: string; answer: string }>;
+      sources: Array<{ label: string; url: string }>;
+      internalLinks: Array<{ label: string; url: string }>;
+      ctaHeading: string;
+      ctaCopy: string;
+    };
+  },
+): string {
+  const $ = cheerio.load(html);
+  const main = $("main.seo-prerender");
+  if (!main.length) return html;
+
+  const { payload } = recovery;
+  const canonical = `${BASE_URL}${pagePath}`;
+  $("title").text(payload.metaTitle);
+  $('meta[name="description"]').attr("content", payload.metaDescription);
+  $('meta[property="og:title"], meta[name="twitter:title"]').attr("content", payload.metaTitle);
+  $('meta[property="og:description"], meta[name="twitter:description"]').attr("content", payload.metaDescription);
+  $('meta[property="og:url"]').attr("content", canonical);
+  $('link[rel="canonical"]').attr("href", canonical);
+
+  const body = [
+    `<header><p>Source-backed local guide</p><h1>${escapeHtml(payload.heroHeading)}</h1><p>${escapeHtml(payload.heroCopy)}</p></header>`,
+    ...payload.sections.map(section =>
+      `<section><h2>${escapeHtml(section.heading)}</h2>${section.body
+        .split(/\n{2,}/)
+        .map(paragraph => `<p>${escapeHtml(paragraph)}</p>`)
+        .join("")}</section>`
+    ),
+    `<section aria-labelledby="city-sources"><h2 id="city-sources">Official sources and verification</h2><p>Rules and procedures can change. Verify current information before acting.</p><ul>${payload.sources
+      .map(source => `<li><a href="${escapeHtml(source.url)}" rel="noopener noreferrer">${escapeHtml(source.label)}</a></li>`)
+      .join("")}</ul></section>`,
+    `<section aria-labelledby="city-faq"><h2 id="city-faq">Frequently asked questions</h2>${payload.faq
+      .map(item => `<h3>${escapeHtml(item.question)}</h3><p>${escapeHtml(item.answer)}</p>`)
+      .join("")}</section>`,
+    `<nav aria-label="Related solar contract resources"><h2>Related resources</h2><ul>${payload.internalLinks
+      .map(link => `<li><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a></li>`)
+      .join("")}</ul></nav>`,
+    `<section><h2>${escapeHtml(payload.ctaHeading)}</h2><p>${escapeHtml(payload.ctaCopy)}</p><p><a href="${canonical}#city-review">Request a case review</a></p></section>`,
+    "<p>Educational information—not legal advice.</p>",
+  ].join("");
+  main.html(body).attr("data-recovery-published", "true");
+
+  $('script[type="application/ld+json"]').remove();
+  const schemas = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: payload.title,
+      description: payload.metaDescription,
+      url: canonical,
+      dateModified: recovery.publishedAt ? new Date(recovery.publishedAt).toISOString() : undefined,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: payload.faq.map(item => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
+    },
+  ];
+  $("head").append(
+    `<script type="application/ld+json">${JSON.stringify(schemas).replace(/</g, "\\u003c")}</script>`
+  );
+
+  return $.html();
+}
+
 function safeJsonParse(value: string): unknown {
   try {
     return JSON.parse(value);

@@ -14,7 +14,8 @@
  * 8. Runs again at 8:30pm to close out the day, record outcomes, write lessons
  *
  * DECISION AUTHORITY:
- * - Content publishing: EXECUTE immediately if Editor approved (SEO ≥ 75, E-E-A-T ≥ 70)
+ * - Blog publishing: EXECUTE immediately if Editor approved (SEO ≥ 75, E-E-A-T ≥ 70)
+ * - City-page publishing: NEVER execute; only an authenticated owner action may publish
  * - Agent re-triggering: EXECUTE if an agent failed or missed its goal
  * - Revenue actions < $5K: EXECUTE directly
  * - Revenue actions > $5K: ESCALATE to Chase with specific plan
@@ -108,11 +109,15 @@ EXAMPLES OF GOOD GOALS:
 - Revenue Intel: "Identify top 5 posts by revenue impact potential | Target: 5 posts with predicted $ impact > $500 | Directive: Analyze GSC + lead data, model CTA improvement impact"
 
 DECISION AUTHORITY — EXECUTE THESE WITHOUT ASKING:
-- Approve content for publishing (Editor approved + SEO ≥ 75)
+- Approve non-city content for publishing (Editor approved + SEO ≥ 75)
 - Re-trigger a failed agent
 - Send directives to agents
 - Create revenue actions < $5K
 - Update blog post metadata (title, meta, CTAs)
+
+CITY PAGE SAFETY:
+- NEVER publish, reject, hold, or change the stage of a city_page pipeline item.
+- City pages use the separate deterministic City Page Recovery workflow and require an authenticated owner action.
 
 ESCALATE TO CHASE (create P1 action, requiresApproval=1):
 - Any revenue action > $5,000
@@ -218,7 +223,10 @@ export async function runManagerAgent(
     // 4. Get content awaiting publish decision
     const db = await getDb();
     const awaitingPublish = db ? await db.select().from(contentPipeline)
-      .where(eq(contentPipeline.stage, "approved"))
+      .where(and(
+        eq(contentPipeline.stage, "approved"),
+        sql`${contentPipeline.contentType} <> 'city_page'`,
+      ))
       .orderBy(desc(contentPipeline.updatedAt))
       .limit(5) : [];
     const publishContext = awaitingPublish.length > 0
@@ -322,6 +330,11 @@ export async function runManagerAgent(
     if (db) {
       for (const pub of (parsed.publishApprovals || [])) {
         if (!pub.pipelineId) continue;
+        const [pipelineItem] = await db.select({ contentType: contentPipeline.contentType })
+          .from(contentPipeline)
+          .where(eq(contentPipeline.id, pub.pipelineId))
+          .limit(1);
+        if (!pipelineItem || pipelineItem.contentType === "city_page") continue;
         if (pub.decision === "publish") {
           await db.update(contentPipeline).set({
             stage: "published",
