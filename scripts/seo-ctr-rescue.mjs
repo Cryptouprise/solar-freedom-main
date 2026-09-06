@@ -1,16 +1,15 @@
 /**
  * SEO CTR Rescue Agent
  *
- * The May 2026 audit found the site's #1 problem is NOT rankings — it is
- * click-through rate. Many pages rank on page 1 (position < 10) but earn a
- * <1% CTR because their title/description in search results are weak.
+ * Uses a fresh, property-matched, hash-verified Search Console snapshot to find
+ * low-CTR pages worth reviewing. Low CTR alone does not establish its cause or
+ * guarantee that new titles will improve clicks.
  *
  * This agent:
  *   1. Reads Google Search Console performance (gsc_all_pages.json or
  *      gsc_report.csv).
  *   2. Finds "CTR rescue" candidates: enough impressions to matter, a position
- *      good enough that the only thing missing is the click, and a CTR below a
- *      target threshold.
+ *      within the configured range, and a CTR below a target threshold.
  *   3. Optionally drafts improved <title> + meta description variants via
  *      OpenRouter (when OPENROUTER_API_KEY is set). Without a key it still emits
  *      the prioritized queue so a human can rewrite the copy.

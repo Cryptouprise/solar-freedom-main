@@ -24,6 +24,7 @@ import { insertLead, insertExitIntentCapture, markLeadGhlSent } from "./db";
 
 // ─── Helpers to create a minimal tRPC caller ──────────────────────────────────
 import { appRouter } from "./routers";
+import { CALLBACK_SCOPE, HOME_FORM_VARIANTS } from "../shared/homeExperiment";
 
 const createCaller = appRouter.createCaller;
 
@@ -231,6 +232,7 @@ describe("leads.quickCallback", () => {
 
     const result = await caller.leads.quickCallback({
       phone: "9049214971",
+      callbackConsent: true,
       name: "Grace Hopper",
       sourcePage: "/blog/example",
       sourceUrl: "https://example.com/blog/example",
@@ -257,6 +259,7 @@ describe("leads.quickCallback", () => {
     await expect(
       caller.leads.quickCallback({
         phone: "5551234567",
+        callbackConsent: true,
       })
     ).resolves.toEqual({
       success: true,
@@ -266,6 +269,71 @@ describe("leads.quickCallback", () => {
       crmMarkerPending: false,
       syncWarning: null,
       leadId: 42,
+    });
+
+  });
+
+    it.each([undefined, false])("blocks missing or declined callback consent (%s) before persistence and CRM", async (callbackConsent) => {
+      const caller = createCaller(makePublicCtx());
+      await expect(caller.leads.quickCallback({ phone: "5551234567", callbackConsent } as any)).rejects.toThrow();
+      expect(insertLead).not.toHaveBeenCalled();
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it("preserves the short variant and callback-only consent in durable storage and CRM", async () => {
+      const caller = createCaller(makePublicCtx());
+      await caller.leads.quickCallback({
+        phone: "5551234567", callbackConsent: true, formName: HOME_FORM_VARIANTS[1], sourcePage: "/",
+      });
+      expect(insertLead).toHaveBeenCalledWith(expect.objectContaining({
+        formName: HOME_FORM_VARIANTS[1], intent: CALLBACK_SCOPE, sourcePage: "/", ghlWebhookSent: 0,
+      }));
+      const options = vi.mocked(fetch).mock.calls[0][1]!;
+      expect(options.headers).toMatchObject({ "Idempotency-Key": "sf-lead-42" });
+      expect(JSON.parse(options.body as string)).toMatchObject({
+        form_name: HOME_FORM_VARIANTS[1], consent_scope: CALLBACK_SCOPE, website_lead_id: "42",
+        marketing_consent: "0", callback_request: "1", trigger_sms_confirmation: "0",
+      });
+      expect(JSON.parse(options.body as string)).not.toHaveProperty("sms_confirmation_message");
+    });
+
+    it("keeps a callback saved once when CRM delivery fails", async () => {
+      vi.mocked(fetch).mockRejectedValueOnce(new Error("offline"));
+      const result = await createCaller(makePublicCtx()).leads.quickCallback({
+        phone: "5551234567", callbackConsent: true, formName: HOME_FORM_VARIANTS[1],
+      });
+      expect(result).toMatchObject({ persisted: true, success: true, crmSent: false, crmPending: true });
+      expect(insertLead).toHaveBeenCalledOnce();
+      expect(markLeadGhlSent).not.toHaveBeenCalled();
+    });
+
+    it("does not send callback data when persistence fails", async () => {
+      vi.mocked(insertLead).mockResolvedValueOnce(null);
+      const result = await createCaller(makePublicCtx()).leads.quickCallback({
+        phone: "5551234567", callbackConsent: true, formName: HOME_FORM_VARIANTS[1],
+      });
+      expect(result.persisted).toBe(false);
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  describe("homepage control consent and attribution", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      vi.mocked(fetch).mockResolvedValue({ ok: true } as Response);
+    });
+    const input = { firstName: "Test", lastName: "Visitor", email: "test@example.com", phone: "5551234567", formName: HOME_FORM_VARIANTS[0] };
+    it.each([undefined, false])("rejects control without explicit callback consent (%s)", async callbackConsent => {
+      await expect(createCaller(makePublicCtx()).leads.submit({ ...input, callbackConsent })).rejects.toThrow();
+      expect(insertLead).not.toHaveBeenCalled();
+      expect(fetch).not.toHaveBeenCalled();
+    });
+    it("saves the original control form and sends matching scoped attribution", async () => {
+      await createCaller(makePublicCtx()).leads.submit({ ...input, callbackConsent: true, sessionId: "sf_test" });
+      expect(insertLead).toHaveBeenCalledWith(expect.objectContaining({ formName: HOME_FORM_VARIANTS[0], intent: CALLBACK_SCOPE }));
+      expect(vi.mocked(insertLead).mock.calls[0][0]).not.toHaveProperty("callbackConsent");
+      expect(JSON.parse(vi.mocked(fetch).mock.calls[0][1]!.body as string)).toMatchObject({
+        form_name: HOME_FORM_VARIANTS[0], website_lead_id: "42", session_id: "sf_test",
+        consent_scope: CALLBACK_SCOPE, marketing_consent: "0", trigger_sms_confirmation: "0",
+      });
     });
   });
 });

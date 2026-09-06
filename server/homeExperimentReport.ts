@@ -85,12 +85,19 @@ export async function getHomeExperimentReport() {
   return calculateHomeExperiment(leadRows, exposures, links, events);
 }
 
-/** A signed CRM receipt is independent of mutable browser session-to-lead links. */
+export class UnknownWebsiteLeadError extends Error {
+  constructor() {
+    super("Unknown website lead ID");
+    this.name = "UnknownWebsiteLeadError";
+  }
+}
+
+/** An authenticated CRM receipt is independent of mutable browser session-to-lead links. */
 export async function recordCrmContactLink(leadId: number, ghlContactId: string) {
   const db = await getDb();
   if (!db) throw new Error("CRM attribution storage unavailable");
   const [lead] = await db.select({ id: leads.id }).from(leads).where(eq(leads.id, leadId)).limit(1);
-  if (!lead) throw new Error("Unknown website lead ID");
+  if (!lead) throw new UnknownWebsiteLeadError();
   const detail = JSON.stringify({ ghlContactId });
   const [existing] = await db.select({ id: leadJourneyEvents.id }).from(leadJourneyEvents)
     .where(and(eq(leadJourneyEvents.leadId, leadId), eq(leadJourneyEvents.eventType, "crm_contact_link"), eq(leadJourneyEvents.detail, detail))).limit(1);

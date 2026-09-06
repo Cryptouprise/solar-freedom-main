@@ -2,7 +2,7 @@ import { createHash, timingSafeEqual } from "crypto";
 import type { Express } from "express";
 import { rateLimit } from "express-rate-limit";
 import { getGhlPipelineEventByExternalId, insertGhlPipelineEvent } from "./journeyDb";
-import { recordCrmContactLink } from "./homeExperimentReport";
+import { recordCrmContactLink, UnknownWebsiteLeadError } from "./homeExperimentReport";
 
 const ALLOWED_EVENT_TYPES = new Set([
   "appointment_booked",
@@ -175,8 +175,17 @@ export function registerGhlLifecycleWebhook(app: Express) {
         return;
       }
 
+      let normalized: GhlLifecycleEvent;
       try {
-        const { websiteLeadId, ...event } = normalizeGhlLifecyclePayload(req.body);
+        normalized = normalizeGhlLifecyclePayload(req.body);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Invalid lifecycle event";
+        res.status(400).json({ error: message });
+        return;
+      }
+
+      try {
+        const { websiteLeadId, ...event } = normalized;
         if (websiteLeadId) await recordCrmContactLink(websiteLeadId, event.ghlContactId);
         const existing = await getGhlPipelineEventByExternalId(event.externalEventId);
         if (existing) {
@@ -191,8 +200,11 @@ export function registerGhlLifecycleWebhook(app: Express) {
         }
         res.status(202).json({ ok: true, deduplicated: false, eventId });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Invalid lifecycle event";
-        res.status(400).json({ error: message });
+        if (error instanceof UnknownWebsiteLeadError) {
+          res.status(400).json({ error: "Unknown website lead ID" });
+          return;
+        }
+        res.status(503).json({ error: "CRM event storage is unavailable" });
       }
     }
   );
