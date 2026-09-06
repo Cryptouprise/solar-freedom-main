@@ -141,7 +141,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     { path: "/compare", title: "Compare Solar Company Contract Issues | Solar Freedom", desc: "Compare cancellation issues, complaint themes, and documents to gather for major solar companies before requesting an individual case review." },
   ];
   for (const p of staticPages) {
-    map[p.path] = { title: p.title, description: p.desc, canonical: `${BASE_URL}${p.path}`, noindex: p.noindex };
+    map[p.path] = { title: p.title, description: p.desc, ...PRIORITY_PAGE_META[p.path], canonical: `${BASE_URL}${p.path}`, noindex: p.noindex };
   }
   return map;
 }

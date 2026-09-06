@@ -22,6 +22,7 @@ const SECRET_MARKERS = [
 function parseArgs(argv) {
   const args = {
     baseUrl: process.env.PRODUCTION_SMOKE_BASE_URL || DEFAULT_BASE_URL,
+    canonicalBase: process.env.PRODUCTION_SMOKE_CANONICAL_BASE,
     timeoutMs: Number(process.env.PRODUCTION_SMOKE_TIMEOUT_MS || DEFAULT_TIMEOUT_MS),
     skipAssets: false,
     json: false,
@@ -31,6 +32,7 @@ function parseArgs(argv) {
     const argument = argv[index];
     const next = argv[index + 1];
     if (argument === "--base" && next) args.baseUrl = next;
+    if (argument === "--canonical-base" && next) args.canonicalBase = next;
     if (argument === "--timeout-ms" && next) args.timeoutMs = Number(next);
     if (argument === "--skip-assets") args.skipAssets = true;
     if (argument === "--json") args.json = true;
@@ -42,6 +44,7 @@ function parseArgs(argv) {
   base.search = "";
   base.hash = "";
   args.baseUrl = base.toString().replace(/\/$/, "");
+  args.canonicalBase = args.canonicalBase ? new URL(args.canonicalBase).origin : args.baseUrl;
   args.timeoutMs = Math.max(1_000, Math.floor(args.timeoutMs || DEFAULT_TIMEOUT_MS));
   return args;
 }
@@ -140,6 +143,7 @@ async function scanAssets(baseUrl, entrySources, timeoutMs) {
 }
 
 async function run(args) {
+  const canonicalBase = args.canonicalBase || args.baseUrl;
   const checks = [];
   const responses = {};
   const get = async (name, pathname) => {
@@ -157,22 +161,26 @@ async function run(args) {
   if (home) {
     const facts = htmlFacts(home.body);
     check(checks, "home_http_200", home.status === 200, `HTTP ${home.status}`);
-    check(checks, "home_canonical", facts.canonical === `${args.baseUrl}/`, facts.canonical || "missing");
+    check(checks, "home_canonical", facts.canonical === `${canonicalBase}/`, facts.canonical || "missing");
     check(checks, "home_indexable", !/noindex/i.test(facts.robots || ""), facts.robots || "robots meta absent");
     check(checks, "home_source_content", facts.words >= 100, `${facts.words} source-visible words`);
   }
 
   const knownRoutes = [
     ["known_blog", "/blog/how-to-get-out-of-a-solar-contract"],
-    ["canonical_scam_blog", "/blog/solar-panel-scam-signs-and-solutions"],
+    ["canonical_scam_resource", "/solar-panel-scam"],
     ["known_city", "/cancel-solar-contract/dallas-tx"],
+    ["loan_help", "/solar-loan-help"],
+    ["lien_removal", "/solar-lien-removal"],
+    ["home_sale", "/selling-house-with-solar"],
   ];
   for (const [name, pathname] of knownRoutes) {
     const response = await get(`${name}_request`, pathname);
     if (!response) continue;
     const facts = htmlFacts(response.body);
     check(checks, `${name}_http_200`, response.status === 200, `HTTP ${response.status}`);
-    check(checks, `${name}_canonical`, facts.canonical === `${args.baseUrl}${pathname}`, facts.canonical || "missing");
+    check(checks, `${name}_canonical`, facts.canonical === `${canonicalBase}${pathname}`, facts.canonical || "missing");
+    check(checks, `${name}_indexable`, !/noindex/i.test(`${facts.robots || ""} ${response.headers["x-robots-tag"] || ""}`), "no noindex directive");
     check(checks, `${name}_h1`, Boolean(facts.h1), facts.h1 ? "present" : "missing");
     check(checks, `${name}_source_content`, facts.words >= 100, `${facts.words} source-visible words`);
   }
@@ -180,7 +188,7 @@ async function run(args) {
   const legacyBlog = await get("legacy_blog_redirect_request", "/blog/solar-panel-scam-signs-what-to-do");
   if (legacyBlog) {
     check(checks, "legacy_blog_redirects", legacyBlog.status === 301, `HTTP ${legacyBlog.status}`);
-    check(checks, "legacy_blog_redirect_target", legacyBlog.headers.location === "/blog/solar-panel-scam-signs-and-solutions", legacyBlog.headers.location || "missing");
+    check(checks, "legacy_blog_redirect_target", legacyBlog.headers.location === "/solar-panel-scam", legacyBlog.headers.location || "missing");
   }
 
   const notFoundPath = `/__production_smoke_not_found__-${Date.now().toString(36)}`;
@@ -197,7 +205,7 @@ async function run(args) {
   if (admin) {
     const facts = htmlFacts(admin.body);
     const xRobots = admin.headers["x-robots-tag"] || "";
-    const expectedAdminCanonical = `${args.baseUrl}/admin/content`;
+    const expectedAdminCanonical = `${canonicalBase}/admin/content`;
     check(checks, "admin_http_200", admin.status === 200, `HTTP ${admin.status}`);
     check(checks, "admin_noindex", /noindex/i.test(`${xRobots} ${facts.robots || ""}`), xRobots || facts.robots || "missing");
     check(
@@ -216,15 +224,18 @@ async function run(args) {
   const robots = await get("robots_request", "/robots.txt");
   if (robots) {
     check(checks, "robots_http_200", robots.status === 200, `HTTP ${robots.status}`);
-    check(checks, "robots_sitemap", new RegExp(`Sitemap:\\s*${args.baseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\/sitemap\\.xml`, "i").test(robots.body), "canonical sitemap directive");
+    check(checks, "robots_sitemap", new RegExp(`Sitemap:\\s*${canonicalBase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\/sitemap\\.xml`, "i").test(robots.body), "canonical sitemap directive");
   }
 
   const sitemap = await get("sitemap_request", "/sitemap.xml");
   if (sitemap) {
-    const urlCount = (sitemap.body.match(/<url>/g) || []).length;
+    const $ = cheerio.load(sitemap.body, { xmlMode: true });
+    const locations = $("url > loc").map((_i, el) => $(el).text().trim()).get();
+    const expected = ["/", ...knownRoutes.map(([, pathname]) => pathname)];
     check(checks, "sitemap_http_200", sitemap.status === 200, `HTTP ${sitemap.status}`);
-    check(checks, "sitemap_inventory", urlCount >= 250, `${urlCount} focused URLs`);
-    check(checks, "sitemap_excludes_redirected_blog", !sitemap.body.includes(`${args.baseUrl}/blog/solar-panel-scam-signs-what-to-do`), "redirected blog URL excluded");
+    check(checks, "sitemap_inventory", expected.every(pathname => locations.includes(`${canonicalBase}${pathname}`)), `${locations.length} URLs; required priority routes present`);
+    check(checks, "sitemap_unique_urls", new Set(locations).size === locations.length, "no duplicate sitemap entries");
+    check(checks, "sitemap_excludes_redirected_blog", !sitemap.body.includes(`${canonicalBase}/blog/solar-panel-scam-signs-what-to-do`), "redirected blog URL excluded");
   }
 
   let assets = null;

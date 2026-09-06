@@ -26,6 +26,39 @@ function MetricCard({ label, value, sub, tone = "default" }: { label: string; va
   );
 }
 
+function HomeIntakeExperiment({ enabled }: { enabled: boolean }) {
+  const experiment = trpc.performance.homeExperiment.useQuery(undefined, { enabled, staleTime: 30_000 });
+  const delivery = trpc.performance.crmDeliveryHealth.useQuery(undefined, { enabled, staleTime: 30_000 });
+  const rate = (value: number | null) => value === null ? "—" : `${(value * 100).toFixed(1)}%`;
+  return <section className="rounded-xl border border-amber-400/20 bg-white/5 p-5 space-y-4">
+    <div>
+      <h2 className="text-lg font-semibold text-white">Homepage intake experiment · v1</h2>
+      <p className="text-sm text-gray-400">Stable 50/50 assignment: five-step intake vs. short callback. All-time cohort; no winner declared. Review qualified, booked, and closed-won outcomes—not form submissions alone.</p>
+    </div>
+    {experiment.isLoading ? <p className="text-sm text-gray-400">Loading experiment evidence…</p> : experiment.error || !experiment.data ? <p className="text-sm text-amber-100">Experiment measurement unavailable; no zeroes inferred.</p> : <>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm text-gray-300">
+          <thead><tr className="text-xs text-gray-400">{["Original form", "Exposed sessions", "Saved leads", "CRM linked", "Qualified", "Ever booked", "Closed won", "Closed lost"].map(label => <th key={label} className="p-2">{label}</th>)}</tr></thead>
+          <tbody>{experiment.data.rows.map(row => <tr key={row.formName} className="border-t border-white/10">
+            <td className="p-2 font-mono text-xs">{row.formName}</td><td className="p-2">{row.exposedSessions}</td><td className="p-2">{row.leads}</td><td className="p-2">{row.linkedLeads}</td>
+            <td className="p-2">{row.qualified} ({rate(row.qualifiedRate)})</td><td className="p-2">{row.booked} ({rate(row.bookedRate)})</td><td className="p-2">{row.closedWon} ({rate(row.closedWonRate)})</td><td className="p-2">{row.closedLost}</td>
+          </tr>)}</tbody>
+        </table>
+      </div>
+      <p className="text-xs text-gray-400">Rates use saved leads as denominator. Outcome counts are distinct CRM contacts, credited to their earliest linked experiment lead and only for events after intake. “Ever booked” includes later cancellations; won does not imply qualification. Repeated receipts cannot inflate counts. Unlinked or conflicting contacts are not credited. No sample-size or statistical-confidence claim is made.</p>
+      <p className="text-xs text-amber-100">Setup: preserve <code>website_lead_id</code> and <code>form_name</code> in CRM; return <code>website_lead_id</code>, contact ID, unique event ID, and occurrence time through the authenticated lifecycle webhook. Qualification requires <code>qualified</code> or an exact “Qualified” stage event. Do not enroll callback requests in marketing or SMS workflows. Browser exposure may be undercounted when storage or tracking is blocked.</p>
+    </>}
+    <div className="border-t border-white/10 pt-4">
+      <h3 className="font-semibold text-white">CRM delivery health · manual recovery only</h3>
+      {delivery.isLoading ? <p className="text-sm text-gray-400">Loading delivery markers…</p> : delivery.error || !delivery.data ? <p className="text-sm text-amber-100">Delivery health unavailable.</p> : <>
+        <p className="mt-1 text-sm text-gray-300">{delivery.data.pendingCount} unconfirmed deliveries · oldest {formatDate(delivery.data.oldestAt)} · webhook {delivery.data.webhookConfigured ? "configured" : "not configured"}</p>
+        <p className="mt-2 text-xs text-gray-400">Saved leads remain successful even if CRM delivery fails. An unsent marker can also mean an acknowledgement or marker-write failure: check CRM first. Preview up to 25 with <code>node scripts/resend-missed-leads.mjs</code>. Sending requires explicit flags and receiver deduplication by <code>website_lead_id</code>; no retry automation is enabled.</p>
+        {delivery.data.pending.length > 0 && <ul className="mt-2 space-y-1 text-xs text-gray-400">{delivery.data.pending.map(lead => <li key={lead.id}>Lead #{lead.id} · {lead.formName || "unattributed"} · {formatDate(lead.createdAt)}</li>)}</ul>}
+      </>}
+    </div>
+  </section>;
+}
+
 function IndexCoverageStrategyWidget({ coverage, priorityPages }: {
   coverage: {
     capturedAt: Date | string;
@@ -151,6 +184,7 @@ export default function OutcomeScorecard() {
 
         {isLoading && <p className="pt-4 text-center font-mono text-sm text-gray-400">Loading scorecard…</p>}
         {error && <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">The scorecard could not be loaded. It will not substitute zeroes for unavailable data.</p>}
+        <HomeIntakeExperiment enabled={!!user && user.role === "admin"} />
 
         {!error && <SeoTrendChart snapshots={data?.snapshots || []} pageMetrics={data?.pageMetrics || []} options={data?.pageTrendOptions || []} loading={isLoading} />}
 

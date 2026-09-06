@@ -78,6 +78,7 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
   const [showBooking, setShowBooking] = useState(false);
   const [fallbackName, setFallbackName] = useState("");
   const [fallbackPhone, setFallbackPhone] = useState("");
+  const [callbackConsent, setCallbackConsent] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState(() => ({
@@ -138,13 +139,14 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
 
   const handleQuickCallback = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fallbackPhone.trim()) return;
+    if (!fallbackPhone.trim() || !callbackConsent) return;
     setSubmissionError("");
     const page = window.location.pathname;
     try {
       const result = await quickCallback.mutateAsync({
         name: fallbackName.trim() || undefined,
         phone: fallbackPhone.trim(),
+        callbackConsent,
         formName: "youtube_landing_callback",
         sourcePage: page,
         sourceUrl: window.location.href,
@@ -218,8 +220,12 @@ function MultiStepForm({ onScrollToTop }: { onScrollToTop: () => void }) {
             className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm" />
           <input type="tel" value={fallbackPhone} onChange={(e) => setFallbackPhone(e.target.value)} placeholder="Phone number" required
             className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm" />
-          <button type="submit" disabled={quickCallback.isPending || !fallbackPhone.trim()} className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40">
-            {quickCallback.isPending ? "REQUESTING..." : "REQUEST A CALL BACK IN 60 SECONDS →"}
+          <label className="flex items-start gap-2 text-xs text-gray-300">
+            <input type="checkbox" required checked={callbackConsent} onChange={(e) => setCallbackConsent(e.target.checked)} className="mt-1 accent-amber-500" />
+            <span>I request a call from Solar Freedom about my solar contract. This permits only my requested callback, not marketing calls, texts, or emails.</span>
+          </label>
+          <button type="submit" disabled={quickCallback.isPending || !fallbackPhone.trim() || !callbackConsent} className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40">
+            {quickCallback.isPending ? "REQUESTING..." : "REQUEST A CALL BACK →"}
           </button>
           {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
         </form>

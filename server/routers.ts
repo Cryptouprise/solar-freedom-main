@@ -32,6 +32,8 @@ import { runSeoScorecard } from "./scheduled/seoScorecard";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
 import { enforcePublicMutationLimit } from "./security/rateLimit";
 import { isAllowedPressReleaseSetting, PRESS_RELEASE_OPERATIONAL_KEYS } from "./security/configPolicy";
+import { CALLBACK_SCOPE, isHomeFormVariant } from "../shared/homeExperiment";
+import { getHomeExperimentReport, getCrmDeliveryHealth } from "./homeExperimentReport";
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
 async function sendToGHL(payload: Record<string, string | undefined>) {
@@ -40,7 +42,10 @@ async function sendToGHL(payload: Record<string, string | undefined>) {
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(payload.website_lead_id ? { "Idempotency-Key": `sf-lead-${payload.website_lead_id}` } : {}),
+      },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(5_000),
     });
@@ -119,13 +124,20 @@ export const appRouter = router({
           sourcePage: z.string().max(500).optional(),
           sourceUrl: z.string().max(2_000).optional(),
           sessionId: z.string().max(100).optional(), // journey tracking session
+          callbackConsent: z.boolean().optional(),
+        }).refine(input => !isHomeFormVariant(input.formName) || input.callbackConsent === true, {
+          message: "Explicit callback consent is required",
+          path: ["callbackConsent"],
         })
       )
       .mutation(async ({ ctx, input }) => {
         enforcePublicMutationLimit(ctx.req, "lead-submit");
         // 1. Persist to database
+        const { callbackConsent, sessionId, ...leadInput } = input;
+        const callbackOnly = isHomeFormVariant(input.formName);
         const leadId = await insertLead({
-          ...input,
+          ...leadInput,
+          intent: callbackOnly ? CALLBACK_SCOPE : input.intent,
           formName: input.formName ?? "main_contact_form",
           status: "new",
           ghlWebhookSent: 0,
@@ -165,16 +177,21 @@ export const appRouter = router({
           intent: input.intent,
           source: input.sourcePage ?? "solar-freedom",
           form_name: input.formName ?? "main_contact_form",
+          website_lead_id: String(leadId),
+          session_id: input.sessionId,
+          consent_scope: callbackOnly ? CALLBACK_SCOPE : undefined,
+          callback_request: callbackOnly ? "1" : undefined,
+          marketing_consent: callbackOnly ? "0" : undefined,
           "contact.first_name": input.firstName,
-          trigger_sms_confirmation: "1",
-          sms_confirmation_message: buildSmsConfirmation(input.firstName),
+          trigger_sms_confirmation: callbackOnly ? "0" : "1",
+          sms_confirmation_message: callbackOnly ? undefined : buildSmsConfirmation(input.firstName),
         });
 
         // 3. Record delivery without turning bookkeeping failure into lead failure.
         const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
 
         // 4. Distribute to law firm partners (fire-and-forget — never block the response).
-        import("./leadDistribution")
+        if (!callbackOnly) import("./leadDistribution")
           .then(({ distributeLeadToFirms }) => distributeLeadToFirms(leadId))
           .catch((err) => console.error("[LeadDistribution] Failed to distribute lead:", err));
 
@@ -201,6 +218,8 @@ export const appRouter = router({
           sourcePage: z.string().max(500).optional(),
           sourceUrl: z.string().max(2_000).optional(),
           formName: z.string().max(200).optional(),
+          sessionId: z.string().max(64).optional(),
+          callbackConsent: z.literal(true),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -214,7 +233,7 @@ export const appRouter = router({
           phone: input.phone,
           email: null,
           formName: input.formName ?? "quick_callback_request",
-          intent: input.intent,
+          intent: CALLBACK_SCOPE,
           sourcePage: input.sourcePage ?? "unknown",
           sourceUrl: input.sourceUrl,
           status: "new",
@@ -234,6 +253,12 @@ export const appRouter = router({
           } as const;
         }
 
+        if (input.sessionId) {
+          import("./journeyDb")
+            .then(({ linkSessionToLead }) => linkSessionToLead(input.sessionId!, leadId, new Date()))
+            .catch(() => console.error("[Journey] Callback session link failed", { leadId }));
+        }
+
         const ghlSuccess = await sendToGHL({
           phone: input.phone,
           first_name: firstName || "Website",
@@ -241,16 +266,17 @@ export const appRouter = router({
           full_name: input.name?.trim() || "Website Visitor",
           source: input.sourcePage ?? "solar-freedom",
           form_name: input.formName ?? "quick_callback_request",
+          website_lead_id: String(leadId),
+          session_id: input.sessionId,
+          consent_scope: CALLBACK_SCOPE,
+          marketing_consent: "0",
           intent: input.intent,
           callback_request: "1",
-          callback_priority: "high",
           callback_follow_up_required: "1",
-          callback_follow_up_deadline_minutes: "5",
           callback_follow_up_reason: input.intent
             ? `intent:${input.intent}`
             : "quick_callback_request",
-          trigger_sms_confirmation: "1",
-          sms_confirmation_message: buildSmsConfirmation(firstName),
+          trigger_sms_confirmation: "0",
         });
 
         const crmMarker = await recordGhlDelivery(leadId, ghlSuccess);
@@ -303,6 +329,14 @@ export const appRouter = router({
 
   // ── Outcome scorecard: clicks → leads → appointments ───────────────────────
   performance: router({
+    homeExperiment: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      return getHomeExperimentReport();
+    }),
+    crmDeliveryHealth: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Forbidden");
+      return getCrmDeliveryHealth();
+    }),
     runDailyScorecard: protectedProcedure.mutation(async ({ ctx }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
       return runSeoScorecard();

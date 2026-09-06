@@ -53,6 +53,12 @@ const REDIRECT_SOURCE_PATHS = new Set([
 const HOME_FAQS = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/home-faq.json"), "utf-8")
 );
+const PRIORITY_PAGE_META = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/priority-page-meta.json"), "utf-8")
+);
+const SERVICE_GUIDANCE = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/service-guidance.json"), "utf-8")
+);
 
 // ─── Load city/company/state data ────────────────────────────────────────────
 async function loadData() {
@@ -595,7 +601,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     { path: "/compare", title: "Compare Solar Company Contract Issues | Solar Freedom", desc: "Compare cancellation issues, complaint themes, and documents to gather for major solar companies before requesting an individual case review." },
   ];
   for (const p of staticPages) {
-    map[p.path] = { title: p.title, description: p.desc, canonical: `${BASE_URL}${p.path}`, noindex: p.noindex };
+    map[p.path] = { title: p.title, description: p.desc, ...PRIORITY_PAGE_META[p.path], canonical: `${BASE_URL}${p.path}`, noindex: p.noindex };
   }
   return map;
 }
@@ -1347,6 +1353,31 @@ function buildServiceUniqueContent(urlPath) {
   return pages[urlPath] || '';
 }
 
+function buildServiceReviewGuidance(meta, urlPath) {
+  const intent = {
+    "/solar-loan-help": "loan",
+    "/solar-lien-removal": "lien",
+    "/selling-house-with-solar": "sale",
+  }[urlPath] || (classifyPath(urlPath) === "company_page" ? "company" : null);
+  if (!intent) return "";
+  const guidance = SERVICE_GUIDANCE.intents[intent];
+  const companyName = stripBrand(meta.title).replace(/^Cancel /, "").replace(/ Solar Contract$/, "");
+  const list = (items) => items.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+  return `<section aria-label="Prepare for an individual review">
+    <h2>${escapeHtml(guidance.heading.replace("{companyName}", companyName))}</h2>
+    <p>${escapeHtml(guidance.introduction)}</p>
+    <h3>Who this review is for</h3><p>${escapeHtml(guidance.eligibility)}</p>
+    <h3>Documents to gather</h3><ul>${list(guidance.records)}</ul>
+    <h3>Costs and written terms</h3><p>${escapeHtml(guidance.fees)}</p>
+    <h3>Important limitations</h3><p>${escapeHtml(guidance.limitations)}</p>
+    <h3>Next steps</h3><ol>${list(guidance.nextSteps)}</ol>
+    <p>${escapeHtml(SERVICE_GUIDANCE.disclosure)}</p>
+    <nav aria-label="Related review resources"><ul>${guidance.links.map(link =>
+      `<li><a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a></li>`
+    ).join("")}</ul></nav>
+  </section>`;
+}
+
 function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta);
   const pageType = classifyPath(urlPath);
   const h1 = stripBrand(meta.title);
@@ -1380,6 +1411,7 @@ function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta
       <h1>${escapeHtml(h1)}</h1>
       ${sourceDescription}
       ${uniqueBody}
+      ${buildServiceReviewGuidance(meta, urlPath)}
       <nav aria-label="Related Solar Freedom resources">
         <h2>Related Solar Contract Resources</h2>
         <ul>

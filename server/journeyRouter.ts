@@ -21,11 +21,12 @@ import {
 import { getDb } from "./db";
 import { leads } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { HOME_EXPERIMENT, isHomeFormVariant } from "../shared/homeExperiment";
 
 // ─── REST endpoint (public, fire-and-forget) ──────────────────────────────────
 
 const eventSchema = z.object({
-  type: z.enum(["session_start", "pageview", "page_exit", "form_start", "form_submit", "click_cta", "exit_intent"]),
+  type: z.enum(["session_start", "pageview", "page_exit", "form_start", "form_submit", "click_cta", "exit_intent", "experiment_exposure"]),
   sessionId: z.string().min(1).max(100),
   page: z.string().max(500).optional(),
   pageTitle: z.string().max(300).optional(),
@@ -54,7 +55,20 @@ export function registerJourneyEndpoint(app: Express) {
 
       const data = parsed.data;
 
-      if (data.type === "session_start") {
+      if (data.type === "experiment_exposure") {
+        let detail;
+        try { detail = JSON.parse(data.detail ?? "{}"); } catch { detail = null; }
+        if (detail?.experimentId !== HOME_EXPERIMENT || !isHomeFormVariant(detail?.formName) || data.page !== "/") {
+          res.status(400).json({ error: "Invalid experiment exposure" });
+          return;
+        }
+        await insertJourneyEvent({
+          sessionId: data.sessionId,
+          eventType: "experiment_exposure",
+          page: "/",
+          detail: JSON.stringify({ experimentId: HOME_EXPERIMENT, formName: detail.formName }),
+        });
+      } else if (data.type === "session_start") {
         // Create or update the session record
         await upsertLeadSession({
           sessionId: data.sessionId,

@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "crypto";
 import type { Express } from "express";
 import { rateLimit } from "express-rate-limit";
 import { getGhlPipelineEventByExternalId, insertGhlPipelineEvent } from "./journeyDb";
+import { recordCrmContactLink } from "./homeExperimentReport";
 
 const ALLOWED_EVENT_TYPES = new Set([
   "appointment_booked",
@@ -13,9 +14,11 @@ const ALLOWED_EVENT_TYPES = new Set([
   "won",
   "lost",
   "payment_received",
+  "qualified",
 ]);
 
 export type GhlLifecycleEvent = {
+  websiteLeadId?: number;
   externalEventId: string;
   ghlContactId: string;
   ghlOpportunityId?: string;
@@ -106,6 +109,11 @@ export function normalizeGhlLifecyclePayload(payload: unknown): GhlLifecycleEven
       ?? nestedString(appointment, ["eventType", "event_type", "status", "type"], 80)
       ?? nestedString(opportunity, ["eventType", "event_type", "status"], 80)
   );
+  const rawLeadId = record.website_lead_id ?? record.websiteLeadId;
+  const websiteLeadId = rawLeadId === undefined ? undefined : Number(rawLeadId);
+  if (websiteLeadId !== undefined && (!Number.isSafeInteger(websiteLeadId) || websiteLeadId <= 0)) {
+    throw new Error("Invalid website lead ID");
+  }
   const occurredAt = parseOccurredAt(
     record.occurredAt ?? record.occurred_at ?? record.timestamp ?? record.createdAt
       ?? record.startTime ?? record.start_time ?? appointment.startTime ?? appointment.start_time ?? opportunity.updatedAt
@@ -123,6 +131,7 @@ export function normalizeGhlLifecyclePayload(payload: unknown): GhlLifecycleEven
   const monetaryValue = typeof amount === "number" || typeof amount === "string" ? String(amount).slice(0, 20) : undefined;
 
   return {
+    websiteLeadId,
     externalEventId,
     ghlContactId,
     ghlOpportunityId: ghlOpportunityId ?? appointmentId,
@@ -167,7 +176,8 @@ export function registerGhlLifecycleWebhook(app: Express) {
       }
 
       try {
-        const event = normalizeGhlLifecyclePayload(req.body);
+        const { websiteLeadId, ...event } = normalizeGhlLifecyclePayload(req.body);
+        if (websiteLeadId) await recordCrmContactLink(websiteLeadId, event.ghlContactId);
         const existing = await getGhlPipelineEventByExternalId(event.externalEventId);
         if (existing) {
           res.status(200).json({ ok: true, deduplicated: true, eventId: existing.id });

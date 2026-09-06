@@ -146,7 +146,7 @@ export async function updateLeadStatus(
  */
 export async function markLeadGhlSent(id: number) {
   const db = await getDb();
-  if (!db) return;
+  if (!db) throw new Error("CRM delivery marker storage unavailable");
 
   await db.update(leads).set({ ghlWebhookSent: 1 }).where(eq(leads.id, id));
 }

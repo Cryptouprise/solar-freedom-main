@@ -222,6 +222,12 @@ ${urls}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const { cityEntries, companyEntries, stateEntries, blogSlugs } = loadData();
+// Route discovery needs slugs, not the full article library on every page load.
+fs.writeFileSync(
+  path.resolve(ROOT, "shared/blog-route-slugs.json"),
+  `${JSON.stringify(blogSlugs.sort(), null, 2)}\n`,
+  "utf-8"
+);
 const entries = buildEntries(
   cityEntries,
   companyEntries,

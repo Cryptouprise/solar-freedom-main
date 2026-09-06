@@ -24,6 +24,18 @@
 - [ ] Resubmit sitemap in Google Search Console: https://search.google.com/search-console/sitemaps?resource_id=sc-domain:breakyoursolarcontract.com
 - [ ] Resubmit sitemap in Bing Webmaster Tools: https://www.bing.com/webmasters/sitemaps?siteUrl=https://www.breakyoursolarcontract.com/
 
+### Existing-Traffic Growth Checks
+- [ ] Refresh Search Console with `pnpm seo:gsc:refresh`, then run `pnpm seo:ctr --no-ai`. Credentials must be supplied through the runtime secret manager, never committed. The queue rejects missing, stale, truncated, wrong-property, or modified snapshots; an empty blocked queue is not evidence of no demand.
+- [ ] When using custom exports, supply matching `--gsc-json`, `--gsc-csv`, and `--gsc-metadata` paths. Metadata hashes must describe those exact files. AI copy drafting is opt-in, requires review, and does not publish changes.
+- [ ] Compare clicks and CTR over comparable Search Console periods before and after a snippet change; inspect query intent before attributing a change to copy. Average position alone does not explain CTR.
+- [ ] Keep priority service snippets synchronized through `/home/runner/work/solar-freedom-main/solar-freedom-main/shared/priority-page-meta.json`. Shared preparation and referral disclosures live in `/home/runner/work/solar-freedom-main/solar-freedom-main/shared/service-guidance.json` and are rendered in both the React pages and initial HTML.
+- [ ] Run `pnpm smoke:production`. For a local production build, run `pnpm smoke:production --base http://localhost:3000 --canonical-base https://breakyoursolarcontract.com --skip-assets`. Passing checks prove source delivery and directives, **not actual Google indexing**; verify the priority URLs in owner-authorized Search Console URL Inspection.
+- [ ] Measure homepage and service-page mobile loading, layout stability, and interactions after deployment. Local measurements are not field Core Web Vitals, especially when remote fonts, images, or tracking requests cannot load.
+- [ ] The existing sitemap generator also regenerates `/home/runner/work/solar-freedom-main/solar-freedom-main/shared/blog-route-slugs.json`. Keep that manifest in sync when article slugs change; route discovery must not download full article bodies on every homepage visit.
+- [ ] Publish testimonials or outcomes only with documented evidence and permission. Verify fees, business/referral role, and any professional engagement terms. Request relevant editorial mentions manually; do not buy links or invent endorsements.
+
+Fresh Search Console/CRM credentials, owner-level URL Inspection, permissioned outcome evidence, and external outreach are deployment/operator requirements; code changes cannot establish those facts.
+
 ---
 
 ## Domain Configuration Notes
@@ -44,18 +56,12 @@
 
 | File | Location | URLs | Purpose |
 |---|---|---|---|
-| `sitemap.xml` | `/client/public/sitemap.xml` | 487 | All pages |
+| `sitemap.xml` | `/home/runner/work/solar-freedom-main/solar-freedom-main/client/public/sitemap.xml` | Generated | Eligible canonical pages, excluding redirects and quarantined URLs |
 | `image-sitemap.xml` | `/client/public/image-sitemap.xml` | 68 | Blog hero images + homepage CDN images |
 
 Both sitemaps are referenced in `robots.txt` and submitted to Google and Bing.
 
-**Sitemap URL breakdown:**
-- Homepage + core service pages: ~10
-- City pages (`/cancel-solar-contract/{slug}`): 301
-- Company pages (`/solar-companies/{slug}`): 15
-- State law pages (`/solar-contract-laws/{slug}`): 53
-- Blog posts (`/blog/{slug}`): ~118
-- Solar Fraud Report + other standalone pages: ~5
+**Sitemap inventory:** Use the generator output and the current shared index-eligibility and redirect ledgers, not a historical URL-count target. A focused sitemap may deliberately omit many existing routes. Do not restore excluded URLs merely to increase the count.
 
 ---
 
@@ -97,7 +103,7 @@ Both sitemaps are referenced in `robots.txt` and submitted to Google and Bing.
 
 - **State law pages** lack structured schema (`LegalService` or `Article`). Adding schema to all 53 would improve rich result eligibility.
 - **Bing verification** was completed via GSC import. If Bing ever shows "unauthorized," go to Bing Webmaster Tools → Configuration → Ownership Verification → HTML Meta Tag and click Verify (meta tag is already in `client/index.html`).
-- **Company-targeted blog posts** (30–50 more) are the highest-ROI content expansion. Each post should target `[Company Name] solar contract cancel` and link to the corresponding company page.
+- **Company-targeted content:** Improve existing canonical guides using fresh search evidence before expanding the inventory. Internal links should point directly to canonical resources, not redirected company hubs.
 - **Image sitemap** only covers blog hero images. If new CDN images are added to city or company pages, update `client/public/image-sitemap.xml`.
 
 ---

@@ -17,6 +17,7 @@ import { SchemaInjector } from '@/components/SchemaInjector';
 import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { trackPhoneClick } from '@/lib/analytics';
 import { hasVerifiedQuoteEvidence, suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from '@shared/contentGovernance';
+import { getRelatedServiceLinks } from '@shared/serviceGuidance';
 
 const SITE_URL = 'https://breakyoursolarcontract.com';
 const ORGANIZATION_ENTITY = {
@@ -141,6 +142,20 @@ function VisibleFaq({ items }: { items: FaqItem[] }) {
         ))}
       </div>
     </section>
+  );
+}
+
+function RelatedServiceLinks({ slug }: { slug: string }) {
+  const links = getRelatedServiceLinks(slug);
+  if (!links.length) return null;
+  return (
+    <nav aria-label="Related service guidance" className="mt-10 rounded-xl border border-white/10 p-6">
+      <h2 className="text-xl font-bold text-white mb-3">Put this guide into practice</h2>
+      <p className="text-zinc-400 text-sm mb-4">Review the records, possible costs, and limits relevant to your situation before requesting help.</p>
+      <ul className="space-y-3">{links.map(link => (
+        <li key={link.href}><Link href={link.href} className="text-amber-400 hover:text-amber-300 underline underline-offset-4">{link.label}</Link></li>
+      ))}</ul>
+    </nav>
   );
 }
 
@@ -637,6 +652,7 @@ export default function BlogPost() {
 
               <SourceList citations={dbCitations} />
               <VisibleFaq items={faq} />
+              <RelatedServiceLinks slug={slug} />
 
               {/* Final CTA */}
               <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
@@ -899,6 +915,7 @@ export default function BlogPost() {
 
           <SourceList citations={staticCitations} />
           <VisibleFaq items={post.faq ?? []} />
+          <RelatedServiceLinks slug={post.slug} />
 
           {/* Final CTA */}
           <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">

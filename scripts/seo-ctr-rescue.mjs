@@ -29,8 +29,8 @@
  */
 import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { readGscMeasurementGate } from "./lib/gsc-core.mjs";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { evaluateGscFreshness, verifyGscOutputHashes } from "./lib/gsc-core.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -51,15 +51,15 @@ function parseArgs(argv) {
     base: (process.env.SEO_CTR_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, ""),
     gscJson: process.env.SEO_CTR_GSC_JSON || DEFAULT_GSC_JSON,
     gscCsv: process.env.SEO_CTR_GSC_CSV || DEFAULT_GSC_CSV,
-    gscStatus: path.resolve(ROOT, process.env.SEO_GSC_STATUS_JSON || "reports/seo-agent/gsc-status.json"),
-    requireFreshGsc: process.env.SEO_GSC_REQUIRE_FRESH === "true",
+    gscMetadata: path.resolve(ROOT, process.env.GSC_METADATA_JSON || "gsc_data_metadata.json"),
+    property: process.env.GSC_PROPERTY_URL || "sc-domain:breakyoursolarcontract.com",
     outJson: process.env.SEO_CTR_OUT_JSON || DEFAULT_OUT_JSON,
     outMd: process.env.SEO_CTR_OUT_MD || DEFAULT_OUT_MD,
     limit: Number(process.env.SEO_CTR_LIMIT || 25),
     minImpressions: Number(process.env.SEO_CTR_MIN_IMPRESSIONS || 20),
     maxCtr: Number(process.env.SEO_CTR_MAX_CTR || 1.5), // percent
     maxPosition: Number(process.env.SEO_CTR_MAX_POSITION || 20),
-    ai: process.env.SEO_CTR_AI === "true" || Boolean(process.env.OPENROUTER_API_KEY),
+    ai: process.env.SEO_CTR_AI === "true",
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -68,7 +68,8 @@ function parseArgs(argv) {
     if (arg === "--base" && next) args.base = next.replace(/\/$/, "");
     if (arg === "--gsc-json" && next) args.gscJson = path.resolve(ROOT, next);
     if (arg === "--gsc-csv" && next) args.gscCsv = path.resolve(ROOT, next);
-    if (arg === "--gsc-status" && next) args.gscStatus = path.resolve(ROOT, next);
+    if (arg === "--gsc-metadata" && next) args.gscMetadata = path.resolve(ROOT, next);
+    if (arg === "--property" && next) args.property = next;
     if (arg === "--out-json" && next) args.outJson = path.resolve(ROOT, next);
     if (arg === "--out-md" && next) args.outMd = path.resolve(ROOT, next);
     if (arg === "--limit" && next) args.limit = Number(next);
@@ -100,12 +101,18 @@ async function readText(filePath) {
 }
 
 // Normalize GSC rows from either the JSON export or the CSV export.
-async function loadPerformance(args) {
+export async function loadPerformance(args, { rootDir = ROOT, now = new Date() } = {}) {
   const rows = [];
-  const gate = await readGscMeasurementGate({
-    statusPath: args.gscStatus,
-    requireFresh: args.requireFreshGsc,
-  });
+  const metadata = await readJson(args.gscMetadata);
+  const gate = evaluateGscFreshness(metadata, { now });
+  gate.reasons.push(...await verifyGscOutputHashes(metadata, { rootDir }));
+  if (metadata?.property !== args.property) gate.reasons.push("property_mismatch");
+  if (
+    path.resolve(rootDir, metadata?.outputs?.json || "") !== path.resolve(args.gscJson) ||
+    path.resolve(rootDir, metadata?.outputs?.csv || "") !== path.resolve(args.gscCsv)
+  ) gate.reasons.push("snapshot_path_mismatch");
+  gate.usable = gate.reasons.length === 0;
+  if (!gate.usable && gate.state === "fresh") gate.state = "unavailable";
   if (!gate.usable) return { rows, gate };
 
   const json = await readJson(args.gscJson);
@@ -170,10 +177,15 @@ function scoreCandidate(row) {
   return row.impressions * (1 + positionFactor);
 }
 
-function selectCandidates(rows, args) {
+export function selectCandidates(rows, args) {
   return rows
     .filter(
       (r) =>
+        isCandidateUrl(r.url, args.base) &&
+        [r.impressions, r.clicks, r.ctr, r.position].every(Number.isFinite) &&
+        r.clicks >= 0 &&
+        r.clicks <= r.impressions &&
+        r.ctr >= 0 &&
         r.impressions >= args.minImpressions &&
         r.ctr <= args.maxCtr &&
         r.position > 0 &&
@@ -184,11 +196,22 @@ function selectCandidates(rows, args) {
     .slice(0, args.limit);
 }
 
+function isCandidateUrl(value, base) {
+  try {
+    const url = new URL(value);
+    return url.origin === new URL(base).origin &&
+      !url.search && !url.hash && !url.username && !url.password &&
+      !/^\/(?:admin|api)(?:\/|$)/.test(url.pathname);
+  } catch {
+    return false;
+  }
+}
+
 async function draftCopyWithOpenRouter(candidate, apiKey) {
   const topic = topicFromUrl(candidate.url);
   const prompt = `You are an SEO copywriter for breakyoursolarcontract.com, a legal resource that helps homeowners cancel solar contracts, leases, PPAs, and loans.
 
-A page is ranking at Google position ${candidate.position.toFixed(1)} with ${candidate.impressions} impressions but only a ${candidate.ctr.toFixed(2)}% click-through rate. The copy in search results is not compelling enough.
+A page has average Google position ${candidate.position.toFixed(1)}, ${candidate.impressions} impressions and ${candidate.ctr.toFixed(2)}% click-through rate. Suggest copy to test; these metrics alone do not establish why CTR is low.
 
 Page topic (from URL): ${topic}
 URL: ${candidate.url}
@@ -307,6 +330,7 @@ async function main() {
   };
 
   await fs.mkdir(path.dirname(args.outJson), { recursive: true });
+  await fs.mkdir(path.dirname(args.outMd), { recursive: true });
   await fs.writeFile(args.outJson, JSON.stringify(payload, null, 2), "utf-8");
   await fs.writeFile(args.outMd, buildMarkdown(candidates, args, aiRequested, measurementGate), "utf-8");
 
@@ -317,7 +341,9 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error("[CTR Rescue] Failed:", err);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  main().catch((err) => {
+    console.error("[CTR Rescue] Failed:", err);
+    process.exit(1);
+  });
+}

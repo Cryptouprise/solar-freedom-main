@@ -9,6 +9,7 @@ import { getLoginUrl } from "./const";
 import "./index.css";
 import { cities } from "./data/cities";
 import { companies } from "./data/companies";
+import blogRouteSlugs from "@shared/blog-route-slugs.json";
 
 // Register known routes for the Manus runtime without making the initial JS bundle
 // parse the full city/company/blog content library before the app becomes usable.
@@ -44,9 +45,7 @@ if (typeof window !== 'undefined') {
     registerRoute(`/cancel-${company.slug}-solar-contract`)
   );
 
-  void import("./data/blog").then((blogModule) => {
-    blogModule.blogPosts.forEach((post) => registerRoute(`/blog/${post.slug}`));
-  });
+  blogRouteSlugs.forEach((slug) => registerRoute(`/blog/${slug}`));
 }
 
 const queryClient = new QueryClient();

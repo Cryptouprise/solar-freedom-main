@@ -12,6 +12,7 @@ import { Link, useLocation } from "wouter";
 import { getCompanyBySlug, companies as COMPANIES, getRelatedCompanies } from "@/data/companies";
 import { isCompanyIndexed } from "@/data/indexEligibility";
 import TopicClusterWidget from "@/components/TopicClusterWidget";
+import ServiceReviewGuidance from "@/components/ServiceReviewGuidance";
 import StickyMobileBar from "@/components/StickyMobileBar";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trpc } from "@/lib/trpc";
@@ -183,7 +184,7 @@ export default function CompanyPage() {
 
   useSeoMeta({
     title: company
-      ? `Cancel ${company.name} Solar Contract | Get Out Now | Solar Freedom`
+      ? `Cancel ${company.name} Solar Contract | Solar Freedom`
       : 'Cancel Solar Contract | Solar Freedom',
     description: company
       ? `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`
@@ -340,6 +341,8 @@ export default function CompanyPage() {
           </div>
         </div>
       </div>
+
+      <ServiceReviewGuidance intent="company" companyName={company.name} />
 
       {/* MAIN CONTENT + FORM */}
       <section className="py-20 lg:py-28">

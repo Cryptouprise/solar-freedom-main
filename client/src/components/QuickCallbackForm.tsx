@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission, trackCTAClick } from "@/lib/analytics";
+import { getExperimentSessionId } from "@/lib/homeExperiment";
+import { CALLBACK_CONSENT_TEXT } from "@shared/homeExperiment";
 
 interface QuickCallbackFormProps {
   formName: string;
@@ -31,6 +33,7 @@ export default function QuickCallbackForm({
 }: QuickCallbackFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [callbackConsent, setCallbackConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const callbackMutation = trpc.leads.quickCallback.useMutation();
@@ -61,7 +64,7 @@ export default function QuickCallbackForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim()) return;
+    if (!phone.trim() || !callbackConsent || callbackMutation.isPending) return;
     setSubmissionError("");
     const page = typeof window !== "undefined" ? window.location.pathname : "unknown";
     try {
@@ -70,6 +73,8 @@ export default function QuickCallbackForm({
         phone: phone.trim(),
         intent: intentTag,
         formName,
+        callbackConsent,
+        sessionId: getExperimentSessionId(),
         sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
         sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
       });
@@ -89,10 +94,9 @@ export default function QuickCallbackForm({
       <div className={`rounded-xl border border-green-500/30 bg-green-500/10 p-4 ${className}`}>
         <div className="text-green-400 font-bold text-sm mb-2">✅ Callback requested!</div>
         <p className="text-zinc-300 text-xs mb-3">
-          We'll call you shortly. Want to lock in a specific time?
+          Your callback request was saved. Solar Freedom will review it and try to reach you by phone. Availability and response times vary; no outcome or attorney-client relationship is guaranteed.
         </p>
-        {/* Always show the GHL calendar after submit — no showSchedule gate needed */}
-        <div className="rounded-lg overflow-hidden border border-amber-500/20">
+        {showSchedule && <div className="rounded-lg overflow-hidden border border-amber-500/20">
           <iframe
             src={calendarUrl}
             width="100%"
@@ -101,7 +105,7 @@ export default function QuickCallbackForm({
             title="Book a free consultation"
             className="block"
           />
-        </div>
+        </div>}
       </div>
     );
   }
@@ -120,6 +124,8 @@ export default function QuickCallbackForm({
         {showName && (
           <input
             type="text"
+            aria-label="Your name (optional)"
+            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name (optional)"
@@ -129,6 +135,8 @@ export default function QuickCallbackForm({
         )}
         <input
           type="tel"
+          aria-label="Best phone number"
+          autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Best phone number"
@@ -136,9 +144,13 @@ export default function QuickCallbackForm({
           className="w-full px-3 py-2.5 rounded-lg text-white text-sm outline-none focus:ring-2 focus:ring-amber-500/40"
           style={{ background: "oklch(0.18 0.012 265)", border: "1px solid oklch(0.3 0.01 265)" }}
         />
+        <label className="flex items-start gap-2 text-xs leading-relaxed text-zinc-300">
+          <input type="checkbox" required checked={callbackConsent} onChange={(e) => setCallbackConsent(e.target.checked)} className="mt-1 accent-amber-500" />
+          <span>{CALLBACK_CONSENT_TEXT}</span>
+        </label>
         <button
           type="submit"
-          disabled={callbackMutation.isPending || !phone.trim()}
+          disabled={callbackMutation.isPending || !phone.trim() || !callbackConsent}
           className="w-full py-2.5 rounded-lg font-black text-black text-xs uppercase tracking-wider transition-all hover:brightness-110 disabled:opacity-50"
           style={{ background: "linear-gradient(135deg, oklch(0.72 0.19 50), oklch(0.65 0.21 40))" }}
         >

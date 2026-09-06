@@ -1,0 +1,94 @@
+{
+  "disclosure": "Solar Freedom provides consumer information and referral services; it is not a law firm. Submitting information does not create an attorney-client relationship or guarantee a referral, representation, a result, or a response time. Any legal advice or representation requires an individual agreement with an attorney.",
+  "reviewFees": "The advertised free initial review is not a promise of free legal work or free cancellation. Before any paid service begins, ask who will provide it and obtain written scope, fees, expenses, and engagement terms. Availability and terms require individual confirmation.",
+  "intents": {
+    "company": {
+      "heading": "Before requesting a {companyName} contract review",
+      "introduction": "Start with the agreement you signed, not the brand name alone. The seller, installer, system owner, lender, and current servicer may be different businesses with different obligations.",
+      "eligibility": "Homeowners can prepare a review of a purchase or financed installation by identifying the property state, signing date, installation status, and disputed promise. A company complaint or a high bill alone does not establish a right to cancel. Lease and PPA questions involve different ownership and transfer terms; confirm whether a referral is available before relying on this intake.",
+      "records": [
+        "The complete signed installation agreement, loan or lease/PPA, amendments, and cancellation notices.",
+        "The written proposal, savings estimates, messages with the salesperson, and a dated summary of what happened.",
+        "Recent solar and utility bills, production records, repair requests, and the current servicer's correspondence."
+      ],
+      "fees": "The advertised free initial review is not a promise of free legal work or free cancellation. Before any paid service begins, ask who will provide it and obtain written scope, fees, expenses, and engagement terms. Availability and terms require individual confirmation. Contractual cancellation charges, an outstanding loan balance, or third-party expenses may still apply.",
+      "limitations": "Installer closure, missed savings estimates, or a complaint against the same company does not automatically end your contract or loan. Cancellation rights and deadlines depend on the transaction and state. An intake submission does not send a cancellation notice or pause a deadline.",
+      "nextSteps": [
+        "Identify each contracting party and check the agreement's notice address and cancellation procedure.",
+        "Keep copies of any written request and delivery evidence. Seek timely advice from an attorney for a disputed deadline; do not wait for an intake response.",
+        "Summarize the issue and the outcome you are requesting in the review form. Confirm who would handle any further work before proceeding."
+      ],
+      "links": [
+        { "href": "/blog/how-to-get-out-of-a-solar-contract", "label": "Compare solar agreement types and written exit options" },
+        { "href": "/solar-loan-help", "label": "Solar loan documents, payment disputes, and payoff questions" },
+        { "href": "/selling-house-with-solar", "label": "Prepare solar payoff and title records for a home sale" }
+      ]
+    },
+    "loan": {
+      "heading": "Prepare for a solar loan review",
+      "introduction": "A financed solar purchase can create separate installation and repayment obligations. Review the loan itself alongside the sales agreement before deciding what to dispute.",
+      "eligibility": "This intake is intended for homeowners with purchased or financed systems who have questions about payments, disclosures, servicing, or payoff. Have your lender or current servicer name ready. A lease or power purchase agreement is not a purchase loan; a PACE assessment also needs a separate title and tax-record review. Intake is not a determination of legal eligibility.",
+      "records": [
+        "The signed loan agreement, Truth in Lending disclosures, payment schedule, and any payment-change or reamortization notice.",
+        "The installation contract, cash-price and financed-price proposals, and written tax-credit or savings representations.",
+        "Statements, payment history, a dated itemized payoff quote, and copies of disputes and responses."
+      ],
+      "fees": "The advertised free initial review is not a promise of free legal work or free cancellation. Before any paid service begins, ask who will provide it and obtain written scope, fees, expenses, and engagement terms. Availability and terms require individual confirmation. Ask separately about accrued interest, payoff charges, and any professional costs; a review does not reduce the amount owed.",
+      "limitations": "A disappointing system or installer bankruptcy does not automatically cancel a separate loan. Not every disclosure issue creates a rescission right. Do not stop payments based on this page or a pending complaint: late charges, credit reporting, and collection may continue.",
+      "nextSteps": [
+        "Compare the disputed payment or balance with the written schedule and identify the specific discrepancy.",
+        "Use the servicer's published dispute process, keep a copy, and ask for a written explanation. A CFPB complaint is another consumer channel, not a ruling that cancels debt.",
+        "Submit a short summary for initial review. If collection, litigation, or a cancellation deadline is pending, seek timely individual legal advice instead of waiting."
+      ],
+      "links": [
+        { "href": "/solar-lien-removal", "label": "Identify a solar lien or UCC filing and review release requirements" },
+        { "href": "/selling-house-with-solar", "label": "Prepare solar payoff and title records for a home sale" },
+        { "href": "/blog/goodleap-solar-loan-cancellation-hidden-fees-2026", "label": "GoodLeap loan and payoff review guide" },
+        { "href": "https://www.consumerfinance.gov/complaint/", "label": "CFPB: Submit a financial product or service complaint" }
+      ]
+    },
+    "lien": {
+      "heading": "Identify the filing before seeking solar lien removal",
+      "introduction": "A UCC filing, fixture filing, property mortgage, PACE assessment, and contractor lien are not interchangeable. The recorded document determines which party and release procedure to investigate.",
+      "eligibility": "This review is for homeowners who see a solar-related entry on title, a tax assessment, or a lender's closing requirements. If you do not know the filing type, obtain the actual record rather than guessing. A title entry does not by itself establish that the filing is improper or removable without payment.",
+      "records": [
+        "The current title report and complete recorded filing, including the recording office, instrument number, date, and named secured party.",
+        "The loan or assessment agreement, recent tax bills if PACE is involved, payoff statements, and any previous release or termination.",
+        "The buyer's or refinancing lender's written title requirements and the proposed closing date."
+      ],
+      "fees": "The advertised free initial review is not a promise of free legal work or free cancellation. Before any paid service begins, ask who will provide it and obtain written scope, fees, expenses, and engagement terms. Availability and terms require individual confirmation. A payoff or settlement, recording charges, title-service fees, and legal expenses may be separate costs. Request an itemized estimate from each provider.",
+      "limitations": "Releasing a filing does not necessarily forgive the underlying debt. A UCC interest in equipment is not automatically a mortgage on the home. Do not file a termination merely because you dispute the debt; authorization and legal requirements must be checked. No release or closing date can be guaranteed.",
+      "nextSteps": [
+        "Ask the title professional to identify the filing and explain what the transaction requires: release, termination, subordination, or other documentation.",
+        "Ask the named creditor or servicer for written payoff and release instructions. An attorney can assess a disputed or unauthorized filing.",
+        "After any resolution, have the title professional confirm the required document was properly recorded or filed and accepted by the lender."
+      ],
+      "links": [
+        { "href": "/selling-house-with-solar", "label": "Prepare solar payoff and title records for a home sale" },
+        { "href": "/solar-loan-help", "label": "Solar loan documents, payment disputes, and payoff questions" }
+      ]
+    },
+    "sale": {
+      "heading": "Plan the solar part of your home sale",
+      "introduction": "Discuss the solar agreement with your real estate agent and title or escrow professional early. Ownership, debt, and the buyer's mortgage requirements are separate questions.",
+      "eligibility": "This intake focuses on solar purchases and purchase loans, including a payoff or title issue affecting a sale. It is not a lease/PPA transfer service. If a third party owns the system, ask that provider about its written transfer or buyout procedure. A pending sale does not establish eligibility for debt reduction.",
+      "records": [
+        "The solar purchase and financing agreements, current balance, and a payoff quote with an expiration date.",
+        "The title report, any UCC or PACE records, and the buyer's lender's written conditions.",
+        "The proposed closing date, sale contract deadlines, and written lender requirements for assumption or release."
+      ],
+      "fees": "The advertised free initial review is not a promise of free legal work or free cancellation. Before any paid service begins, ask who will provide it and obtain written scope, fees, expenses, and engagement terms. Availability and terms require individual confirmation. The sale may also involve loan payoff, accrued interest, permitted transfer or processing charges, recording costs, or professional fees. Confirm who pays each item before agreeing to closing terms.",
+      "limitations": "A buyer is not required to assume your loan; assumption needs the necessary written approvals. Neither a sale nor removal of panels automatically ends repayment duties. A settlement may be refused, and an intake review cannot guarantee a clear title, preserved equity, or an on-time closing.",
+      "nextSteps": [
+        "Ask the servicer whether payoff or assumption is permitted and obtain dated written figures and instructions.",
+        "Have the title or escrow professional reconcile those instructions with the buyer's lender requirements; raise any shortfall before the closing deadline.",
+        "If you dispute the agreement or cannot meet the required payoff, request an individual review promptly and discuss timing alternatives with your transaction professionals."
+      ],
+      "links": [
+        { "href": "/solar-lien-removal", "label": "Identify a solar lien or UCC filing and review release requirements" },
+        { "href": "/solar-loan-help", "label": "Solar loan documents, payment disputes, and payoff questions" },
+        { "href": "/blog/selling-house-with-solar-loan", "label": "Home-sale guide for a financed solar system" }
+      ]
+    }
+  }
+}

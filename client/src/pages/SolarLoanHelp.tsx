@@ -14,6 +14,7 @@ import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
 import StickyMobileBar from "@/components/StickyMobileBar";
+import ServiceReviewGuidance from "@/components/ServiceReviewGuidance";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import {
   AlertTriangle, CheckCircle, FileText, ArrowRight,
@@ -88,7 +89,7 @@ function LoanHelpForm() {
 
   const handleOption = (field: string, value: string) => {
     setForm(f => ({ ...f, [field]: value }));
-    if (step < steps.length - 1) setStep(s => s + 1);
+    if (step < steps.length) setStep(s => s + 1);
   };
 
   const submitLead = trpc.leads.submit.useMutation();
@@ -134,8 +135,8 @@ function LoanHelpForm() {
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
             <CheckCircle className="w-8 h-8 text-amber-400" />
           </div>
-          <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
-          <p className="text-slate-400 mb-4">Grace will reach out within minutes to review your solar loan situation.</p>
+          <h3 className="font-display text-2xl text-white mb-2">Review Requested</h3>
+          <p className="text-slate-400 mb-4">Your solar loan review request was submitted. You can request a callback time in the booking window or call us using the number below. A callback or appointment is not confirmed by this submission; response time and availability vary.</p>
           <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
             <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
           </a>
@@ -200,7 +201,7 @@ function LoanHelpForm() {
           Get My Free Loan Review →
         </button>
         {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
-        <p className="text-center text-xs text-slate-500">No obligation. We respond within minutes.</p>
+        <p className="text-center text-xs text-slate-500">No obligation. Paid services require separate written terms.</p>
       </div>
     </form>
   );
@@ -331,7 +332,7 @@ export default function SolarLoanHelp() {
                 You bought solar panels with a loan — Mosaic, GoodLeap, PACE, or another lender. Now the payment is too high, the system doesn't perform, or you can't sell your home because of the debt.
               </p>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
-                <strong className="text-white">We help homeowners challenge, reduce, and escape solar loans</strong> — using consumer protection law, TILA violations, and direct lender negotiation.
+                <strong className="text-white">Prepare your solar loan questions for an individual review</strong> — Solar Freedom provides consumer information and referrals, not legal representation.
               </p>
 
               <div className="flex flex-wrap gap-3 mb-8">
@@ -373,7 +374,7 @@ export default function SolarLoanHelp() {
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
                 HOW SOLAR LOANS GO WRONG
               </h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Most solar loan disputes involve one or more of these violations — and each one gives you legal leverage.</p>
+              <p className="text-slate-400 max-w-2xl mx-auto">These issues may warrant a document review. A concern is not, by itself, proof of a legal violation.</p>
             </div>
           </Reveal>
 
@@ -382,17 +383,17 @@ export default function SolarLoanHelp() {
               {
                 icon: <FileText className="w-6 h-6" />,
                 title: "TILA Violations",
-                body: "The Truth in Lending Act requires lenders to clearly disclose APR, total cost, and all fees. Many solar lenders bury dealer fees and origination costs, violating TILA. This can give you grounds to rescind the loan.",
+                body: "Compare the APR, finance charge, amount financed, and payment schedule in your disclosures with the agreement and statements. An attorney can assess whether applicable disclosure rules were met and whether any remedy is available.",
               },
               {
                 icon: <DollarSign className="w-6 h-6" />,
                 title: "Undisclosed Dealer Fees",
-                body: "Solar installers often receive 'dealer fees' from lenders — sometimes 20–30% of the loan amount — without telling you. This inflates your loan balance and violates disclosure requirements.",
+                body: "Compare written cash-price and financed-price proposals. Ask for an explanation of any difference; a higher financed price does not by itself establish an unlawful fee.",
               },
               {
                 icon: <Zap className="w-6 h-6" />,
                 title: "Misrepresented Savings",
-                body: "Salespeople routinely promise specific monthly savings that never materialize. If the savings projections were materially false and you relied on them, this constitutes fraud or misrepresentation.",
+                body: "Preserve the written savings estimate and compare it with utility bills and production data. Weather, rates, usage, and system performance can affect savings; individual review is needed to assess a misleading sales claim.",
               },
               {
                 icon: <Scale className="w-6 h-6" />,
@@ -402,7 +403,7 @@ export default function SolarLoanHelp() {
               {
                 icon: <AlertTriangle className="w-6 h-6" />,
                 title: "Failure to Provide Right of Rescission",
-                body: "For loans secured by your home, federal law requires a 3-day right to cancel. Many solar lenders fail to properly provide this notice — which can extend your rescission rights significantly.",
+                body: "Some transactions secured by a principal dwelling carry federal rescission rights, subject to exceptions and deadlines. Do not assume that every solar loan or UCC filing qualifies; have the actual security agreement and notices reviewed promptly.",
               },
               {
                 icon: <XCircle className="w-6 h-6" />,
@@ -423,6 +424,8 @@ export default function SolarLoanHelp() {
           </div>
         </div>
       </section>
+
+      <ServiceReviewGuidance intent="loan" />
 
       {/* ── Lender-Specific Info ── */}
       <section className="py-20 max-w-7xl mx-auto px-6">
@@ -473,10 +476,10 @@ export default function SolarLoanHelp() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: "Loan Cancellation", desc: "If legal violations exist in your loan origination, we may be able to challenge the loan entirely — reducing or eliminating the balance.", icon: <XCircle className="w-5 h-5" />, best: "TILA violations, misrepresentation" },
-              { title: "Reduced Payoff", desc: "We negotiate directly with your lender for a settlement below the full balance — especially effective when you're selling your home.", icon: <DollarSign className="w-5 h-5" />, best: "Home sale, financial hardship" },
-              { title: "Rate Modification", desc: "If your interest rate was misrepresented or is unconscionably high, we work to get it modified to a fair rate through negotiation or legal action.", icon: <Scale className="w-5 h-5" />, best: "High APR, dealer fee issues" },
-              { title: "Lien Removal", desc: "For PACE and secured loans, we work to remove the lien from your title so you can sell or refinance without the solar debt blocking the deal.", icon: <CheckCircle className="w-5 h-5" />, best: "PACE loans, home sale" },
+              { title: "Loan Review", desc: "An attorney can assess whether the agreement and facts support a legal challenge. A review does not establish a right to cancellation.", icon: <XCircle className="w-5 h-5" />, best: "Disclosure or sales concerns" },
+              { title: "Payoff Request", desc: "Request an itemized payoff from the servicer. A lender may consider a settlement request but is not required to reduce the balance.", icon: <DollarSign className="w-5 h-5" />, best: "Home sale, financial hardship" },
+              { title: "Modification Inquiry", desc: "Ask the servicer whether hardship or modification programs apply and obtain written terms before accepting a change.", icon: <Scale className="w-5 h-5" />, best: "Payment affordability" },
+              { title: "Title Review", desc: "Have a title professional identify any solar filing and required release documents. A filing's release may still require payment.", icon: <CheckCircle className="w-5 h-5" />, best: "PACE loans, home sale" },
             ].map(({ title, desc, icon, best }, i) => (
               <Reveal key={title} delay={i * 0.1}>
                 <div className="rounded-xl p-6 h-full" style={{ background: "oklch(0.12 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
@@ -538,7 +541,7 @@ export default function SolarLoanHelp() {
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
               YOUR SOLAR LOAN MAY<br />HAVE VIOLATIONS
             </h2>
-            <p className="text-slate-400 mb-8 text-lg">Most homeowners don't know what's in their loan documents. A free review takes 15 minutes and could save you thousands — or get you out entirely.</p>
+            <p className="text-slate-400 mb-8 text-lg">Gather your agreement, statements, and written concerns for an initial review. Available next steps depend on your records, jurisdiction, and any separate engagement terms.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="tel:9049214971" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-base transition-all hover:opacity-90"
                 style={{ background: "#f97316", color: "#0D0F14" }}>
@@ -551,7 +554,7 @@ export default function SolarLoanHelp() {
             </div>
             <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
               <Clock className="w-4 h-4" />
-              <span>We respond within minutes during business hours</span>
+              <span>Response time and review availability vary</span>
             </div>
           </Reveal>
         </div>

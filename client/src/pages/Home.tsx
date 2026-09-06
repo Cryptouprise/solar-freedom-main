@@ -15,12 +15,14 @@ import { companies as COMPANY_PAGES, CompanyData } from "@/data/companies";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import BookingModal from "@/components/BookingModal";
 import { trackPhoneClick, trackCTAClick, initScrollTracking, recordLeadSubmission } from "@/lib/analytics";
-import { getSessionId } from "@/hooks/useJourneyTracker";
 import { trpc } from "@/lib/trpc";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import OutcomesSection from "@/components/OutcomesSection";
 import homeFaqs from "@shared/home-faq.json";
+import QuickCallbackForm from "@/components/QuickCallbackForm";
+import { getHomeFormVariant, getExperimentSessionId, recordHomeExposure } from "@/lib/homeExperiment";
+import { CALLBACK_CONSENT_TEXT, HOME_FORM_VARIANTS, type HomeFormVariant } from "@shared/homeExperiment";
 
 // ─── Image CDN URLs ────────────────────────────────────────────────────────────
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -86,12 +88,10 @@ const ISSUES = [
 
 const PAYMENT_RANGES = ["Under $100", "$100–$150", "$150–$200", "$200–$250", "Over $250"];
 
-function MultiStepForm() {
+function MultiStepForm({ formName }: { formName: HomeFormVariant }) {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
-  const [fallbackName, setFallbackName] = useState("");
-  const [fallbackPhone, setFallbackPhone] = useState("");
   const [submissionError, setSubmissionError] = useState("");
   const { contactInfo, updateContactInfo } = useContactInfo();
   const [form, setForm] = useState(() => ({
@@ -112,7 +112,6 @@ function MultiStepForm() {
   const progress = ((step) / totalSteps) * 100;
 
   const submitLead = trpc.leads.submit.useMutation();
-  const quickCallback = trpc.leads.quickCallback.useMutation();
 
   const update = (key: string, val: string | boolean) => {
     setForm((f) => ({ ...f, [key]: val }));
@@ -124,6 +123,7 @@ function MultiStepForm() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (!form.agree || submitLead.isPending) return;
     setSubmissionError("");
     try {
       // Submit via tRPC — persists to DB and forwards to GHL webhook server-side
@@ -137,48 +137,22 @@ function MultiStepForm() {
         contractType: form.payment,
         monthlyPayment: form.paying,
         intent: form.intent,
-        formName: "Solar Freedom Contact Form",
+        formName,
+        callbackConsent: form.agree,
         sourcePage: window.location.pathname,
         sourceUrl: window.location.href,
-        sessionId: getSessionId() || undefined,
+        sessionId: getExperimentSessionId(),
       });
-      if (!recordLeadSubmission(result, "main_contact_form", window.location.pathname)) {
+      if (!recordLeadSubmission(result, formName, window.location.pathname)) {
         setSubmissionError("We couldn't save your request. Please try again.");
         return;
       }
     } catch {
-      recordLeadSubmission(null, "main_contact_form", window.location.pathname);
+      recordLeadSubmission(null, formName, window.location.pathname);
       setSubmissionError("We couldn't save your request. Please try again.");
       return;
     }
     setSubmitted(true);
-    // Show booking modal after brief delay so success state is visible first
-    setTimeout(() => setShowBooking(true), 1200);
-  };
-
-  const handleQuickCallback = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!fallbackPhone.trim()) return;
-    setSubmissionError("");
-    try {
-      const result = await quickCallback.mutateAsync({
-        name: fallbackName.trim() || undefined,
-        phone: fallbackPhone.trim(),
-        formName: "main_form_step1_callback_fallback",
-        sourcePage: window.location.pathname,
-        sourceUrl: window.location.href,
-      });
-      if (!recordLeadSubmission(result, "main_form_step1_callback_fallback", window.location.pathname)) {
-        setSubmissionError("We couldn't save your callback request. Please try again.");
-        return;
-      }
-    } catch {
-      recordLeadSubmission(null, "main_form_step1_callback_fallback", window.location.pathname);
-      setSubmissionError("We couldn't save your callback request. Please try again.");
-      return;
-    }
-    setSubmitted(true);
-    setTimeout(() => setShowBooking(true), 1200);
   };
 
   if (submitted) {
@@ -196,7 +170,7 @@ function MultiStepForm() {
           </div>
           <h3 className="font-display text-4xl text-white mb-3">YOU'RE IN THE QUEUE</h3>
           <p className="text-gray-300 text-lg mb-2">Your information was submitted for review. Response time and availability vary.</p>
-          <p className="text-gray-500 text-sm font-mono mb-6">Case #{Math.floor(Math.random() * 90000) + 10000} — {new Date().toLocaleDateString()}</p>
+          <p className="text-gray-500 text-sm mb-6">Solar Freedom will try to reach you by phone about your request. Submitting does not create an attorney-client relationship.</p>
           <button
             onClick={() => setShowBooking(true)}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-black text-black text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
@@ -217,37 +191,6 @@ function MultiStepForm() {
   const stepContent = [
     // Step 0 — paying?
     <div key="s0" className="space-y-4">
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
-        <div className="text-amber-400 text-xs font-mono uppercase tracking-wider mb-1">Prefer phone-first?</div>
-        <div className="text-white font-semibold text-sm mb-3">Request a case review callback.</div>
-        <form onSubmit={handleQuickCallback} className="space-y-2.5">
-          <input
-            type="text"
-            value={fallbackName}
-            onChange={(e) => setFallbackName(e.target.value)}
-            placeholder="Your name (optional)"
-            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
-          />
-          <input
-            type="tel"
-            value={fallbackPhone}
-            onChange={(e) => setFallbackPhone(e.target.value)}
-            placeholder="Phone number"
-            required
-            className="w-full p-3 rounded border border-white/10 bg-white/5 text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none transition-colors text-sm"
-          />
-          <button
-            type="submit"
-            disabled={quickCallback.isPending || !fallbackPhone.trim()}
-            className="w-full btn-amber py-3 rounded text-sm font-bold disabled:opacity-40"
-          >
-            {quickCallback.isPending ? "REQUESTING..." : "REQUEST MY CASE REVIEW CALL →"}
-          </button>
-          {submissionError && (
-            <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>
-          )}
-        </form>
-      </div>
       <h3 className="font-display text-3xl text-white">ARE YOU CURRENTLY PAYING ON A SOLAR CONTRACT?</h3>
       <div className="grid grid-cols-2 gap-3">
         {["Yes", "No — but I signed one", "Not sure"].map((opt) => (
@@ -422,8 +365,7 @@ function MultiStepForm() {
           className="mt-1 accent-amber-500 w-4 h-4 flex-shrink-0"
         />
         <span className="text-gray-400 text-xs leading-relaxed">
-          By submitting, I agree to be contacted by Solar Freedom via phone, text, and email including automated technology regarding my solar contract review. Reply STOP to opt out.{" "}
-          Consent is not a condition of purchase. Message and data rates may apply.
+          {CALLBACK_CONSENT_TEXT}
         </span>
       </label>
       <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-4">
@@ -728,8 +670,23 @@ const HOME_FAQS = homeFaqs;
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const formRef = useRef<HTMLDivElement>(null);
+  const [formVariant, setFormVariant] = useState<HomeFormVariant | null>(null);
+  const exposureRecorded = useRef(false);
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
 
+  useEffect(() => { setFormVariant(getHomeFormVariant()); }, []);
+  useEffect(() => {
+    const element = formRef.current;
+    if (!element || !formVariant) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || exposureRecorded.current) return;
+      exposureRecorded.current = true;
+      recordHomeExposure(formVariant);
+      observer.disconnect();
+    }, { threshold: 0.25 });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [formVariant]);
   useEffect(() => {
     const cleanup = initScrollTracking("home");
     return cleanup;
@@ -903,7 +860,7 @@ export default function Home() {
               <button onClick={() => scrollToForm("hero_get_free_review")} className="btn-amber btn-amber-pulse px-8 py-5 rounded text-lg font-bold">
                 REQUEST MY CASE REVIEW →
               </button>
-              <a href={phoneHref} onClick={() => trackPhoneClick("hero_phone", phoneDigits)} className="px-8 py-5 rounded text-lg font-semibold border border-white/20 text-white hover:bg-white/8 transition-colors text-center">
+              <a href={phoneHref} onClick={() => trackPhoneClick("hero_phone", phoneDigits)} className="px-3 py-5 text-sm font-semibold text-gray-300 hover:text-white underline text-center">
                 📞 Call {phoneDisplay}
               </a>
             </motion.div>
@@ -1026,9 +983,13 @@ export default function Home() {
                     INDIVIDUAL CASE REVIEW
                   </div>
                   <h3 className="font-display text-white text-2xl sm:text-3xl leading-tight mb-1">START A DOCUMENT-BASED REVIEW OF YOUR SOLAR CONTRACT</h3>
-                  <p className="text-gray-300 text-sm font-semibold">Options and outcomes depend on your agreement, facts, and jurisdiction.</p>
+                  <p className="text-gray-300 text-sm font-semibold">Request a call from Solar Freedom to explain your situation and discuss records needed for review. Response times vary. No guaranteed result, timeline, or attorney-client relationship.</p>
                 </div>
-                <MultiStepForm />
+                {formVariant === HOME_FORM_VARIANTS[1] ? (
+                  <QuickCallbackForm formName={formVariant} title="REQUEST MY CASE REVIEW CALL" subtitle="Your phone number is required; your name is optional. A callback is the next step, not a legal determination." buttonLabel="Request my case review call" />
+                ) : formVariant ? <MultiStepForm formName={formVariant} /> : (
+                  <p className="text-gray-300 text-sm" aria-live="polite">Loading request form… You can also call {phoneDisplay}.</p>
+                )}
               </div>
             </Reveal>
           </div>

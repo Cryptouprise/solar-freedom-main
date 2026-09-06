@@ -3,6 +3,7 @@
 // Also updates og:title, og:description, og:url, og:type, canonical URL, and robots directive.
 
 import { useEffect } from "react";
+import priorityPageMeta from "@shared/priority-page-meta.json";
 
 interface SeoMeta {
   title: string;
@@ -19,6 +20,11 @@ const DEFAULT_OG_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
 export function useSeoMeta({ title, description, canonical, ogImage, ogType, noindex }: SeoMeta) {
+  const priorityMeta = Object.entries(priorityPageMeta).find(
+    ([path]) => canonical === `https://breakyoursolarcontract.com${path}`
+  )?.[1];
+  title = priorityMeta?.title ?? title;
+  description = priorityMeta?.description ?? description;
   useEffect(() => {
     // Title
     document.title = title;

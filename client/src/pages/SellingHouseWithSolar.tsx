@@ -14,6 +14,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { SchemaInjector } from "@/components/SchemaInjector";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import StickyMobileBar from "@/components/StickyMobileBar";
+import ServiceReviewGuidance from "@/components/ServiceReviewGuidance";
 import BookingModal from "@/components/BookingModal";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import {
@@ -80,7 +81,7 @@ function SellForm() {
 
   const handleOption = (field: string, value: string) => {
     setForm(f => ({ ...f, [field]: value }));
-    if (step < steps.length - 1) setStep(s => s + 1);
+    if (step < steps.length) setStep(s => s + 1);
   };
 
   const submitLead = trpc.leads.submit.useMutation();
@@ -128,8 +129,8 @@ function SellForm() {
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "oklch(0.72 0.19 50 / 20%)", border: "2px solid #f97316" }}>
             <CheckCircle className="w-8 h-8 text-amber-400" />
           </div>
-          <h3 className="font-display text-2xl text-white mb-2">We're On It</h3>
-          <p className="text-slate-400 mb-4">Grace will reach out within minutes to discuss your options for closing the sale.</p>
+          <h3 className="font-display text-2xl text-white mb-2">Review Requested</h3>
+          <p className="text-slate-400 mb-4">Your home-sale review request was submitted. You can request a callback time in the booking window or call us using the number below. A callback or appointment is not confirmed by this submission; response time and availability vary.</p>
           <a href="tel:9049214971" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:text-amber-300 transition-colors">
             <Phone className="w-4 h-4" /> Call Now: (904) 921-4971
           </a>
@@ -197,7 +198,7 @@ function SellForm() {
           Get My Free Case Review →
         </button>
         {submissionError && <p role="alert" className="text-red-400 text-sm text-center">{submissionError}</p>}
-        <p className="text-center text-xs text-slate-500">No obligation. We respond within minutes.</p>
+        <p className="text-center text-xs text-slate-500">No obligation. Paid services require separate written terms.</p>
       </div>
     </form>
   );
@@ -302,7 +303,7 @@ export default function SellingHouseWithSolar() {
                 You bought solar panels. Now you're trying to sell your home — and the solar loan is blocking the deal. The buyer's lender won't approve it. The title has a lien. The buyer won't assume the debt.
               </p>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
-                <strong className="text-white">We help homeowners with solar loans close their sale</strong> — by negotiating payoffs, challenging improper liens, and clearing title.
+                <strong className="text-white">Prepare your solar loan and title questions before closing</strong> — Solar Freedom provides consumer information and referrals, not title services or legal representation.
               </p>
 
               <div className="flex flex-wrap gap-3 mb-8">
@@ -341,9 +342,9 @@ export default function SellingHouseWithSolar() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { stat: "1 in 3", label: "Solar home sales fall through due to financing issues" },
-              { stat: "$25K+", label: "Average remaining solar loan balance at time of sale" },
-              { stat: "47%", label: "Of buyers refuse to assume seller's solar loan" },
+              { stat: "Payoff", label: "Request a dated, itemized quote from the servicer" },
+              { stat: "Title", label: "Identify recorded solar filings before closing" },
+              { stat: "Approval", label: "Confirm any assumption terms with the lender" },
               { stat: "Free", label: "Initial case review — know your options before you decide" },
             ].map(({ stat, label }) => (
               <div key={stat}>
@@ -354,6 +355,8 @@ export default function SellingHouseWithSolar() {
           </div>
         </div>
       </section>
+
+      <ServiceReviewGuidance intent="sale" />
 
       {/* ── The Problem Explained ── */}
       <section className="py-20 max-w-7xl mx-auto px-6">
@@ -372,21 +375,21 @@ export default function SellingHouseWithSolar() {
               icon: <Scale className="w-6 h-6" />,
               title: "PACE / Secured Loan Lien",
               problem: "PACE loans (Property Assessed Clean Energy) and some solar loans are secured by your home. They appear as a lien on your property title — just like a mortgage. Most buyers' lenders require all liens to be cleared before they'll fund.",
-              solution: "We negotiate payoff amounts, challenge improper lien placements, and work with title companies to clear the path to closing.",
+              solution: "Ask your title professional what release is required and obtain creditor instructions. An attorney can assess a disputed filing.",
               severity: "HIGH",
             },
             {
               icon: <DollarSign className="w-6 h-6" />,
               title: "Unsecured Loan — Buyer Refuses",
               problem: "Even if your solar loan doesn't appear on title, buyers often refuse to purchase a home with solar debt attached. They don't want the financial obligation, and their lender may require it paid off anyway.",
-              solution: "We help you negotiate a reduced payoff with the solar lender, or challenge the loan terms if you were misled during the original sale.",
+              solution: "Review the repayment agreement and ask the servicer about payoff or hardship options. A sale does not automatically transfer your debt to the buyer.",
               severity: "MEDIUM",
             },
             {
               icon: <FileText className="w-6 h-6" />,
               title: "Loan Assumption Complications",
               problem: "Some solar loans are technically assumable — but the buyer must qualify with the lender, and most buyers simply refuse. This leaves sellers stuck paying off the full balance from sale proceeds.",
-              solution: "We review your loan documents for assumption rights, negotiate with lenders, and explore legal grounds to reduce or eliminate the balance.",
+              solution: "Confirm assumption rights, buyer qualification, and written approval requirements with the lender before treating a transfer as available.",
               severity: "MEDIUM",
             },
           ].map(({ icon, title, problem, solution, severity }) => (
@@ -421,18 +424,18 @@ export default function SellingHouseWithSolar() {
           <Reveal>
             <div className="text-center mb-14">
               <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-                HOW WE HELP YOU CLOSE
+                PREPARING FOR YOUR CLOSING
               </h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">From initial review to cleared title — here's our process for getting you to closing day.</p>
+              <p className="text-slate-400 max-w-2xl mx-auto">Use this checklist with your servicer, title professional, and any attorney you engage. No closing date or payoff reduction is guaranteed.</p>
             </div>
           </Reveal>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { step: "01", title: "Free Case Review", body: "We review your solar loan documents, title report, and sale situation to identify exactly what's blocking your closing and what options you have.", icon: <FileText className="w-5 h-5" /> },
-              { step: "02", title: "Identify Legal Grounds", body: "Many solar loans contain TILA violations, misrepresentation, or improper lien placements that give you leverage to negotiate a reduced payoff or full cancellation.", icon: <Scale className="w-5 h-5" /> },
-              { step: "03", title: "Negotiate With Lender", body: "We work directly with your solar lender — Mosaic, GoodLeap, Sunlight Financial, or others — to negotiate a payoff that doesn't wipe out your equity.", icon: <DollarSign className="w-5 h-5" /> },
-              { step: "04", title: "Clear Title & Close", body: "Once the lien is resolved or the loan is settled, we coordinate with your title company to clear the path so you can close on schedule.", icon: <CheckCircle className="w-5 h-5" /> },
+              { step: "01", title: "Gather Records", body: "Prepare your loan documents, title report, payoff quote, and proposed closing date. Initial intake can help identify your question and whether a referral is available.", icon: <FileText className="w-5 h-5" /> },
+              { step: "02", title: "Review Disputes", body: "If you dispute the loan or a filing, seek individual legal advice about the evidence, available remedies, and deadlines.", icon: <Scale className="w-5 h-5" /> },
+              { step: "03", title: "Confirm Lender Terms", body: "Obtain written payoff or assumption instructions. If you request a settlement, do not assume the lender will approve a reduction.", icon: <DollarSign className="w-5 h-5" /> },
+              { step: "04", title: "Verify Closing Requirements", body: "Have your title or escrow professional confirm that releases, approvals, and funding conditions are satisfied before proceeding.", icon: <CheckCircle className="w-5 h-5" /> },
             ].map(({ step, title, body, icon }, i) => (
               <Reveal key={step} delay={i * 0.1}>
                 <div className="relative rounded-xl p-6" style={{ background: "oklch(0.13 0.01 260)", border: "1px solid oklch(1 0 0 / 10%)" }}>
@@ -454,19 +457,19 @@ export default function SellingHouseWithSolar() {
         <Reveal>
           <div className="text-center mb-12">
             <h2 className="font-display text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.03em" }}>
-              SOLAR LENDERS WE DEAL WITH
+              IDENTIFY YOUR CURRENT SOLAR SERVICER
             </h2>
-            <p className="text-slate-400 max-w-xl mx-auto">We have experience negotiating with every major solar loan provider in the country.</p>
+            <p className="text-slate-400 max-w-xl mx-auto">Check your latest statement for the current servicer. These names are examples, not a claim of affiliation or an available settlement.</p>
           </div>
         </Reveal>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[
-            { name: "Mosaic Solar Loans", note: "Most common — often negotiable" },
+            { name: "Mosaic Solar Loans", note: "Verify the current servicer" },
             { name: "GoodLeap", note: "Formerly Loanpal" },
-            { name: "Sunlight Financial", note: "Now Pineapple Energy" },
-            { name: "Service Finance", note: "Wells Fargo backed" },
-            { name: "GreenSky", note: "Goldman Sachs portfolio" },
+            { name: "Sunlight Financial", note: "Check your latest statement" },
+            { name: "Service Finance", note: "Check your loan agreement" },
+            { name: "GreenSky", note: "Confirm account contact details" },
             { name: "PACE / HERO Loans", note: "Property-secured liens" },
             { name: "Dividend Finance", note: "Common in CA, TX, FL" },
             { name: "Other Lenders", note: "All lenders considered" },
@@ -506,11 +509,11 @@ export default function SellingHouseWithSolar() {
               },
               {
                 q: "What if I can't afford to pay off the solar loan at closing?",
-                a: "This is exactly where we help. We negotiate directly with solar lenders for reduced payoff amounts, challenge loan terms if there were misrepresentations during the sale, and in some cases can get the balance reduced significantly — or eliminated entirely if legal grounds exist."
+                a: "Ask the servicer about available hardship or settlement options and discuss the shortfall with your transaction professionals before closing. A lender can refuse a reduction. If you dispute the loan, an attorney can assess the evidence and possible remedies; Solar Freedom provides information and referrals."
               },
               {
                 q: "How long does it take to resolve a solar loan for a home sale?",
-                a: "Timeline depends on the lender and complexity. Simple payoff negotiations can be resolved in 2–4 weeks. Legal challenges to improper liens may take longer. We work to match your closing timeline whenever possible."
+                a: "Timing depends on the servicer, title requirements, and whether there is a dispute. Request current estimates from the responsible professionals and raise closing deadlines early. An initial review does not guarantee resolution or extend a sale contract deadline."
               },
               {
                 q: "Do you help with solar leases?",
@@ -593,7 +596,7 @@ export default function SellingHouseWithSolar() {
             </div>
             <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
               <Clock className="w-4 h-4" />
-              <span>We respond within minutes during business hours</span>
+              <span>Response time and review availability vary</span>
             </div>
           </Reveal>
         </div>

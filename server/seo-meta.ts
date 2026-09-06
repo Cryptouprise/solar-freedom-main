@@ -29,6 +29,7 @@ import { INDEXED_CITY_SLUGS } from "../client/src/data/indexed-cities";
 import { isCanonicalBlogIndexed, isCompanyIndexed, isStateIndexed } from "../client/src/data/indexEligibility";
 import { sanitizeStoredHtml } from "./security/html";  // server/security/html.ts
 import { findDuplicateCityMeta, generateCityMeta } from "./cityMeta";
+import priorityPageMeta from "../shared/priority-page-meta.json";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -142,7 +143,11 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   };
 
   for (const [path, meta] of Object.entries(staticPages)) {
-    map[path] = { ...meta, canonical: BASE_URL + path };
+    map[path] = {
+      ...meta,
+      ...priorityPageMeta[path as keyof typeof priorityPageMeta],
+      canonical: BASE_URL + path,
+    };
   }
 
   // ─── Company cancel pages ─────────────────────────────────────────────────
