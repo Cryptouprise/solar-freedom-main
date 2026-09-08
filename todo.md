@@ -1257,6 +1257,7 @@
 - [x] Generate and validate unique title and meta-description pairs for every index-eligible city page to prevent future duplication
 - [x] Create and integrate location-specific hero imagery for each index-eligible city page with deterministic fallbacks and no index-policy expansion
 - [ ] Verify, merge, synchronize, and validate GitHub PRs #49, #50, #51, and #52 in safe dependency order
+- [x] Document the exact live behavior, safeguards, and limitations of merged PRs #49 through #52 for the owner
 - [x] Verify and merge GitHub PR #47, synchronize the managed project, and validate the resulting preview
 - [ ] Audit all city pages for current index status, intentional noindex policy, and duplicated/template content before changing the city SEO strategy
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option
