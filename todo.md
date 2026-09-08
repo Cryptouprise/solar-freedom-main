@@ -1263,6 +1263,7 @@
 - [x] Replace ambiguous Agent Command Center status-only views with evidence-first run, action, queue, cost, and approval receipts that explain exactly what happened and what the owner can do next
 - [x] Reconcile the Phoenix city page against its Post Editor record and establish a clear live/static/DB source-of-truth indicator for all city-page editing workflows
 - [x] Audit and reconcile queued SEO execution evidence plus dated lead snapshot counts so Actions, Outcomes, and Leads state exact work results and defensible lead definitions
+- [x] Reconcile missing Action Executor and Attorney Research schedules so eligible queued SEO work and approved attorney research do not remain blocked by absent background jobs
 - [x] Verify and merge GitHub PR #47, synchronize the managed project, and validate the resulting preview
 - [ ] Audit all city pages for current index status, intentional noindex policy, and duplicated/template content before changing the city SEO strategy
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option
