@@ -65,6 +65,7 @@ export const batch9BlogPosts: BlogPost[] = [
       { type: "warning", content: "Do not stop paying, disable equipment, remove panels, sign a release, or agree to new terms based only on general internet guidance. Those actions can have contract, property, safety, and credit consequences." },
       { type: "h2", content: "Where can you contact Sunrun or report a problem?" },
       { type: "p", content: "Sunrun's official [customer-support page](https://www.sunrun.com/contact-us) currently lists 855-478-6786 for existing customers. For a financial-product complaint, the [CFPB complaint portal](https://www.consumerfinance.gov/complaint/) may be relevant. The FTC accepts fraud reports at [ReportFraud.ftc.gov](https://reportfraud.ftc.gov/), and state attorneys general maintain consumer-complaint channels. Filing a complaint does not itself cancel a contract." },
+            { type: "p", content: "Related pages on this site: the [free cancellation letter](/free-cancellation-letter), the [payment calculator](/calculator), [compare exit options](/compare), and the [Texas](/solar-contract-laws/texas), [California](/solar-contract-laws/california), and [Arizona](/solar-contract-laws/arizona) contract-law pages. For a financed system, see [how to cancel a GoodLeap solar loan](/blog/goodleap-solar-loan-cancellation-hidden-fees-2026)." },
       { type: "h2", content: "Bottom line" },
       { type: "p", content: "For the fastest accurate answer, assemble the agreement, cancellation notice, proposal, communications, bills, production data, and service record. Then compare the written options with current information from Sunrun and obtain qualified review for any disputed legal or credit issue." },
     ],
@@ -196,7 +197,7 @@ export const batch9BlogPosts: BlogPost[] = [
     heroAlt: "Homeowner comparing a GoodLeap solar loan agreement with account records",
     ctaText: "Review Your GoodLeap Documents",
     ctaSubtext: "Organize the loan agreement, solar proposal, payoff quote, payment history, and installer records for a fact-specific review.",
-    relatedSlugs: ["how-to-get-out-of-a-solar-contract", "cancel-solar-loan-or-lease-early", "solar-payments-too-high-help", "solar-contract-rescission-rights", "sell-house-with-solar-panels"],
+    relatedSlugs: ["how-to-get-out-of-a-solar-contract", "solar-payment-shock-help", "selling-house-with-solar-loan", "solar-contract-rescission-rights", "sell-house-with-solar-panels", "sunrun-solar-contract-cancellation-2026"],
     faq: [
       { q: "Can I cancel a GoodLeap solar loan?", a: "There is no universal cancellation process after funding. Review whether you are seeking to cancel an unfunded application, pay off a funded loan, dispute loan terms, or resolve a separate problem with the installer. Each path uses different documents and procedures." },
       { q: "Does GoodLeap charge a prepayment penalty?", a: "GoodLeap's current FAQ says it does not assess a fee or penalty for prepayments. Confirm that statement against your signed agreement and request a current payoff quote before relying on it for a transaction." },
@@ -232,7 +233,7 @@ export const batch9BlogPosts: BlogPost[] = [
         "Have a qualified consumer attorney review material disclosure discrepancies."
       ] },
       { type: "h2", content: "Why can a GoodLeap payment change after the introductory period?" },
-      { type: "p", content: "GoodLeap says some solar loans were structured with lower payments for the first 18 months and then re-amortize based on how much principal was paid down. The exact date, amount, and calculation must come from the account's documents. A projected tax credit is not the same as a guaranteed cash refund, and tax eligibility is individual." },
+      { type: "p", content: "GoodLeap says some solar loans were structured with lower payments for the first 18 months and then re-amortize based on how much principal was paid down. The exact date, amount, and calculation must come from the account's documents. A projected tax credit is not a cash refund, and tax eligibility is individual." },
       { type: "h2", content: "What happens when you sell a home with a GoodLeap loan?" },
       { type: "p", content: "GoodLeap's FAQ identifies two paths: pay the remaining balance from sale proceeds, or ask the buyer to apply to assume the loan. An assumption is subject to GoodLeap underwriting and approval; if it is declined, GoodLeap says the loan generally must be paid off as part of the sale. Start before closing and involve the title or escrow professional." },
       { type: "p", content: "GoodLeap describes its UCC-1 filing as a security interest in the solar equipment, not the home, while noting that a fixture filing can appear in property records. For a sale or refinance, obtain the exact recorded document and current instructions rather than relying on a generic description." },
@@ -241,6 +242,7 @@ export const batch9BlogPosts: BlogPost[] = [
       { type: "warning", content: "Do not stop payments, ignore collection notices, or promise a payoff at a home closing without checking the agreement and current quote. Those steps can affect credit, collections, and the sale timeline." },
       { type: "h2", content: "Where can you contact GoodLeap or file a complaint?" },
       { type: "p", content: "GoodLeap's [contact page](https://www.goodleap.com/contact-us) currently lists 1-800-345-9372 and customerservice@goodleapsupport.com for account support. GoodLeap also publishes an internal [consumer complaint channel](https://www.goodleap.com/complaints). The [CFPB complaint portal](https://www.consumerfinance.gov/complaint/) accepts complaints about eligible financial products, and the FTC accepts fraud reports at [ReportFraud.ftc.gov](https://reportfraud.ftc.gov/)." },
+            { type: "p", content: "Related pages on this site: the [free cancellation letter](/free-cancellation-letter), the [payment calculator](/calculator), [compare exit options](/compare), and the [Texas](/solar-contract-laws/texas), [California](/solar-contract-laws/california), and [Arizona](/solar-contract-laws/arizona) contract-law pages. For a lease or PPA, see [how to cancel a Sunrun contract](/blog/sunrun-solar-contract-cancellation-2026)." },
       { type: "h2", content: "Bottom line" },
       { type: "p", content: "The fastest useful review compares five things: the installation cash price, amount financed, disclosures, payment schedule, and current payoff quote. Add the home-sale or installer records if those issues apply, and seek qualified review before taking any step that could create a default or waive a claim." },
     ],
