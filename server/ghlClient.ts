@@ -133,6 +133,11 @@ export interface GhlAppointment {
   assignedUserId?: string;
 }
 
+interface GhlCalendar {
+  id: string;
+  name?: string;
+}
+
 // ─── API Methods ──────────────────────────────────────────────────────────────
 
 /**
@@ -280,13 +285,23 @@ export async function getAppointments(opts: {
   endDate?: string;
   limit?: number;
 } = {}): Promise<{ appointments: GhlAppointment[] }> {
+  const calendars = await ghlFetch<{ calendars?: GhlCalendar[] }>(`/calendars/?locationId=${GHL_LOCATION_ID}`);
+  const calendarId = calendars.calendars?.[0]?.id;
+  if (!calendarId) throw new Error("GHL has no readable calendar for this location");
+  const start = opts.startDate ? new Date(opts.startDate) : new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  const end = opts.endDate ? new Date(opts.endDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
+    throw new Error("Invalid GoHighLevel appointment date range");
+  }
   const params = new URLSearchParams({
     locationId: GHL_LOCATION_ID,
     limit: String(opts.limit ?? 25),
-    ...(opts.startDate ? { startDate: opts.startDate } : {}),
-    ...(opts.endDate ? { endDate: opts.endDate } : {}),
+    calendarId,
+    startTime: String(start.getTime()),
+    endTime: String(end.getTime()),
   });
-  return ghlFetch<{ appointments: GhlAppointment[] }>(`/calendars/events?${params}`);
+  const response = await ghlFetch<{ events?: GhlAppointment[]; appointments?: GhlAppointment[] }>(`/calendars/events?${params}`);
+  return { appointments: response.appointments ?? response.events ?? [] };
 }
 
 /**

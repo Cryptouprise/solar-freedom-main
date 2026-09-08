@@ -526,6 +526,10 @@ export const appRouter = router({
         relatedSlugs: z.string().optional(),
         faqItems: z.string().optional(),
         canonicalUrl: z.string().optional(),
+        videoUrl: z.string().url().max(2_000).optional(),
+        videoTitle: z.string().max(500).optional(),
+        videoDescription: z.string().max(10_000).optional(),
+        videoThumbnail: z.string().url().max(2_000).optional(),
         published: z.number().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -827,6 +831,24 @@ Return ONLY valid JSON:
         const key = `blog-images/${Date.now()}-${safeImageStem(input.filename)}.${image.extension}`;
         const { url } = await storagePut(key, image.buffer, image.mimeType);
         return { url, key };
+      }),
+
+    /** Upload a directly hosted article video. Limited to common browser-safe formats. */
+    uploadVideo: protectedProcedure
+      .input(z.object({
+        filename: z.string().min(1).max(180),
+        contentType: z.enum(["video/mp4", "video/webm", "video/quicktime"]),
+        base64: z.string().min(4).max(70_000_000),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new Error("Forbidden");
+        const buffer = Buffer.from(input.base64, "base64");
+        const maxBytes = 50 * 1024 * 1024;
+        if (!buffer.length || buffer.length > maxBytes) throw new Error("Video must be between 1 byte and 50 MB");
+        const extensions: Record<string, string> = { "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov" };
+        const key = `blog-videos/${Date.now()}-${safeImageStem(input.filename)}.${extensions[input.contentType]}`;
+        const { url } = await storagePut(key, buffer, input.contentType);
+        return { url, key, bytes: buffer.length };
       }),
   }),
 

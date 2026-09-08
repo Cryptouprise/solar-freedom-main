@@ -442,6 +442,10 @@ export async function updateBlogPost(
     relatedSlugs: string;
     faqItems: string;
     canonicalUrl: string;
+    videoUrl: string;
+    videoTitle: string;
+    videoDescription: string;
+    videoThumbnail: string;
     published: number;
   }>
 ) {
@@ -479,6 +483,10 @@ export async function updateBlogPost(
       relatedSlugs: safeData.relatedSlugs ?? base.relatedSlugs,
       faqItems: safeData.faqItems ?? base.faqItems,
       canonicalUrl: safeData.canonicalUrl ?? base.canonicalUrl,
+      videoUrl: safeData.videoUrl,
+      videoTitle: safeData.videoTitle,
+      videoDescription: safeData.videoDescription,
+      videoThumbnail: safeData.videoThumbnail,
       published: safeData.published ?? 1,
       publishedAt: new Date(),
     });

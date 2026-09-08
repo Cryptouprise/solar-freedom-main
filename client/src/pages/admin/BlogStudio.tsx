@@ -136,6 +136,7 @@ export default function BlogStudio() {
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
   const [videoThumbnail, setVideoThumbnail] = useState("");
+  const [videoUploading, setVideoUploading] = useState(false);
 
   // AI state
   const [aiModel, setAiModel] = useState("openrouter/owl-alpha");
@@ -175,6 +176,7 @@ export default function BlogStudio() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const autosaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // tRPC
@@ -186,6 +188,7 @@ export default function BlogStudio() {
   const fixSeoMutation = trpc.fixSeo.fixSeoTo100.useMutation();
   const generateImageMutation = trpc.blogStudio.generateImage.useMutation();
   const uploadImageMutation = trpc.content.uploadImage.useMutation();
+  const uploadVideoMutation = trpc.content.uploadVideo.useMutation();
   const saveDraftMutation = trpc.blogDrafts.save.useMutation();
   const deleteDraftMutation = trpc.blogDrafts.delete.useMutation();
   const utils = trpc.useUtils();
@@ -310,6 +313,10 @@ export default function BlogStudio() {
         heroImage,
         excerpt,
         content: editor.getHTML(),
+        videoUrl: videoUrl || undefined,
+        videoTitle: videoTitle || undefined,
+        videoDescription: videoDescription || undefined,
+        videoThumbnail: videoThumbnail || undefined,
         published: published ? 1 : 0,
       } as any);
       setIsDirty(false);
@@ -325,7 +332,7 @@ export default function BlogStudio() {
     if (!confirm(`Approve and publish this article now? It will become publicly visible at /blog/${selectedSlug}.`)) return;
     setPublishing(true);
     try {
-      await updatePost.mutateAsync({ slug: selectedSlug, title, metaTitle, metaDescription, heroImage, excerpt, content: editor.getHTML(), published: 1 } as any);
+      await updatePost.mutateAsync({ slug: selectedSlug, title, metaTitle, metaDescription, heroImage, excerpt, content: editor.getHTML(), videoUrl: videoUrl || undefined, videoTitle: videoTitle || undefined, videoDescription: videoDescription || undefined, videoThumbnail: videoThumbnail || undefined, published: 1 } as any);
       setPublished(true); setIsDirty(false); setLastAutosaved(new Date());
       toast.success("Approved and published. The public article has been updated.");
     } catch { toast.error("Publishing failed. No public change was confirmed."); }
@@ -585,6 +592,26 @@ export default function BlogStudio() {
     if (!editor || !safeUrl) return;
     editor.commands.setImage({ src: safeUrl });
     setIsDirty(true);
+  };
+
+  const handleVideoFileUpload = async (file: File) => {
+    if (!file) return;
+    const allowed = ["video/mp4", "video/webm", "video/quicktime"];
+    if (!allowed.includes(file.type)) { toast.error("Use an MP4, WebM, or MOV video file."); return; }
+    if (file.size > 50 * 1024 * 1024) { toast.error("Video must be 50 MB or smaller."); return; }
+    setVideoUploading(true);
+    try {
+      const base64 = (await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      }));
+      const result = await uploadVideoMutation.mutateAsync({ filename: file.name, contentType: file.type as "video/mp4" | "video/webm" | "video/quicktime", base64 });
+      setVideoUrl(result.url); if (!videoTitle) setVideoTitle(file.name.replace(/\.[^.]+$/, "")); setIsDirty(true);
+      toast.success("Video uploaded. Save or Approve & Publish to attach it to this article.");
+    } catch (error: any) { toast.error(error?.message || "Video upload failed"); }
+    finally { setVideoUploading(false); }
   };
 
   const wordCount = editor ? editor.state.doc.textContent.split(/\s+/).filter(Boolean).length : 0;
@@ -1399,6 +1426,12 @@ export default function BlogStudio() {
                     <Input value={videoUrl} onChange={e => { setVideoUrl(e.target.value); setIsDirty(true); }}
                       className="bg-white/5 border-white/10 text-white text-sm font-mono" placeholder="YouTube, Vimeo, or direct video URL..." />
                     <p className="text-gray-600 text-xs mt-1">YouTube: paste the full URL (e.g. https://youtube.com/watch?v=...)</p>
+                    <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) void handleVideoFileUpload(file); e.currentTarget.value = ""; }} />
+                    <Button type="button" variant="outline" size="sm" onClick={() => videoInputRef.current?.click()} disabled={videoUploading} className="mt-2 border-amber-500/40 text-amber-300 hover:bg-amber-500/10 text-xs">
+                      {videoUploading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Upload className="w-3.5 h-3.5 mr-1" />}
+                      {videoUploading ? "Uploading video…" : "Upload video file"}
+                    </Button>
+                    <p className="text-gray-600 text-[11px] mt-1">MP4, WebM, or MOV · maximum 50 MB · video is attached after Save or Approve & Publish.</p>
                   </div>
                   <div>
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Thumbnail URL</label>
