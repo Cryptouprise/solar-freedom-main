@@ -6,9 +6,9 @@ import type { BlogPost } from './blog';
 export const batch9BlogPosts: BlogPost[] = [
   {
     slug: "sunrun-solar-contract-cancellation-2026",
-    title: "How to Cancel a Sunrun Contract: Before or After Installation",
-    metaTitle: "How to Cancel a Sunrun Contract: Your Options",
-    metaDescription: "Trying to cancel a Sunrun contract? Review the agreement, timing, written notice, post-installation options, fees, home-sale transfer, and official contacts.",
+    title: "How to Get Out of a Sunrun Contract",
+    metaTitle: "How to Get Out of a Sunrun Contract",
+    metaDescription: "How to cancel a Sunrun contract before or after installation, what the cancellation fee depends on, and how to send written notice. Options depend on the agreement.",
     category: "Contract Help",
     readTime: "9 min read",
     publishDate: "August 16, 2026",
@@ -186,9 +186,9 @@ export const batch9BlogPosts: BlogPost[] = [
 
   {
     slug: "goodleap-solar-loan-cancellation-hidden-fees-2026",
-    title: "How to Cancel a GoodLeap Solar Loan: Payoff, Fees and Home Sale",
-    metaTitle: "Cancel a GoodLeap Solar Loan: Payoff, Fees & Sale",
-    metaDescription: "Review a GoodLeap solar loan before payoff or cancellation: agreement documents, payment changes, prepayment policy, UCC-1, home-sale assumption, and complaints.",
+    title: "How to Cancel a GoodLeap Solar Loan",
+    metaTitle: "How to Cancel a GoodLeap Solar Loan",
+    metaDescription: "How to get out of a GoodLeap solar loan: cancel-loan questions, payoff, fees, and what the signed loan says. This is not a GoodLeap login.",
     category: "Contract Help",
     readTime: "9 min read",
     publishDate: "August 16, 2026",
