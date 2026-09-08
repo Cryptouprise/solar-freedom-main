@@ -196,6 +196,7 @@ export default function BlogStudio() {
   // Get the slug for the selected post
   const selectedPost = (posts as any[]).find((p: any) => p.id === selectedPostId);
   const selectedSlug = selectedPost?.slug;
+  const suggestedTargetKeyword = selectedSlug?.replace(/-/g, " ").trim() || title.trim();
 
   const { data: postData } = trpc.content.getAdminPost.useQuery(
     { slug: selectedSlug! },
@@ -482,14 +483,16 @@ export default function BlogStudio() {
   // ─── SEO analysis ────────────────────────────────────────────────────────────
   const handleAnalyzeSeo = async () => {
     if (!editor) return;
+    const effectiveKeyword = targetKeyword.trim() || selectedSlug?.replace(/-/g, " ").trim() || title.trim();
     setSeoLoading(true);
     try {
       const result = await analyzeSeo.mutateAsync({
         title,
         content: editor?.getHTML() ?? "",
-        targetKeyword: targetKeyword || undefined,
+        targetKeyword: effectiveKeyword || undefined,
         slug,
       });
+      if (!targetKeyword.trim() && effectiveKeyword) setTargetKeyword(effectiveKeyword);
       setSeoData(result);
     } catch (err: any) {
       toast.error(err.message || "SEO analysis failed");
@@ -501,10 +504,12 @@ export default function BlogStudio() {
   // ─── Fix SEO to 100 ──────────────────────────────────────────────────────────
   const handleFixSeoTo100 = async () => {
     if (!editor || !selectedPostId) return;
-    if (!targetKeyword.trim()) {
-      toast.error("Set a target keyword first (in the SEO panel)");
+    const effectiveKeyword = targetKeyword.trim() || selectedSlug?.replace(/-/g, " ").trim() || title.trim();
+    if (!effectiveKeyword) {
+      toast.error("Select an article first so I can suggest its target keyword.");
       return;
     }
+    if (!targetKeyword.trim()) setTargetKeyword(effectiveKeyword);
     setFixSeoLoading(true);
     setFixSeoChanges(null);
     setFixSeoStep("Analyzing content...");
@@ -516,7 +521,7 @@ export default function BlogStudio() {
         content: editor.getHTML(),
         metaTitle: metaTitle || undefined,
         metaDescription: metaDescription || undefined,
-        targetKeyword,
+        targetKeyword: effectiveKeyword,
         model: "openrouter/owl-alpha",
       });
       // Apply fixes to editor
@@ -1163,8 +1168,13 @@ export default function BlogStudio() {
                     title="Auto-fix all SEO issues: keyword density, headings, internal links, meta, FAQ, CTA"
                   >
                     {fixSeoLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
-                    Fix SEO to 100
+                    Fix This Post
                   </Button>
+                </div>
+                <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs">
+                  <span className="font-semibold text-amber-300">Target keyword: </span>
+                  <span className="text-gray-300">{targetKeyword || suggestedTargetKeyword || "Select an article to begin"}</span>
+                  {!targetKeyword && selectedPostId && <span className="block mt-1 text-gray-500">Suggested from this article’s URL. You can change it in Post Settings & Meta, but Fix This Post will work now.</span>}
                 </div>
                 {fixSeoLoading && fixSeoStep && (
                   <div className="flex items-center gap-2 text-xs text-amber-400 font-mono">
