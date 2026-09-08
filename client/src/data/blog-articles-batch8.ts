@@ -663,9 +663,9 @@ export const blogArticlesBatch8: BlogPost[] = [
   },
   {
     slug: "blue-raven-solar-complaints",
-    title: "Blue Raven Solar Complaints: Status, Support and Contract Help",
-    metaTitle: "Blue Raven Solar Complaints: Status & Support",
-    metaDescription: "Is Blue Raven Solar still in business? Check the SunPower acquisition timeline, project date, warranty route, lender, support number, records, and complaint options.",
+    title: "Blue Raven Solar Reviews: Still in Business?",
+    metaTitle: "Blue Raven Solar Reviews: Still in Business?",
+    metaDescription: "Blue Raven Solar reviews, customer service, and whether they are still in business. SunPower's FAQ lists 800-377-4480. Verify the number there before you call.",
     category: "Company Guide",
     readTime: "8 min read",
     publishDate: "August 16, 2026",
@@ -676,6 +676,8 @@ export const blogArticlesBatch8: BlogPost[] = [
     ctaSubtext: "Organize the agreement, project date, lender, warranty, production data, and service history for a fact-specific review.",
     content: [
       { type: "p", content: "Direct answer: the Blue Raven name remains in use, but the correct support and responsibility path depends on the project date. SunPower's current acquisition FAQ says Complete Solar purchased certain Blue Raven assets from the former SunPower Corporation bankruptcy estate and obtained the right to operate under the Blue Raven name." },
+      { type: "h2", content: "Blue Raven Solar reviews: what people are actually asking" },
+      { type: "p", content: "Most Blue Raven Solar reviews searches are not asking for a star score. They are asking whether the company is still in business, who answers customer service, and what happened to an older contract. This page answers those questions from the project date, the signed agreement, and SunPower's current acquisition FAQ. It does not invent customer reviews, a lawsuit, or a local office." },
       { type: "callout", content: "SunPower's FAQ says the asset purchaser did not assume ownership, benefits, or liabilities for Blue Raven or other SunPower projects completed on or before September 30, 2024. That statement makes the completion date and legal names in your documents essential." },
       { type: "h2", content: "Is Blue Raven Solar still in business?" },
       { type: "p", content: "The current [SunPower acquisition FAQ](https://us.sunpower.com/acquisition-announcement) says Complete Solar purchased selected Blue Raven assets and the right to continue operating a solar sales and installation business under the Blue Raven name. This is different from saying that the buyer assumed every historic project, warranty, debt, or customer obligation." },
