@@ -8,7 +8,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import StickyMobileBar from "./components/StickyMobileBar";
-import CallbackWidget from "./components/CallbackWidget";
 import DesktopCallButton from "./components/DesktopCallButton";
 import { trackPageView } from "./lib/analytics";
 import { useJourneyTracker } from "./hooks/useJourneyTracker";
@@ -179,7 +178,6 @@ function App() {
           <ExitIntentPopup />
           <StickyMobileBar />
           <DesktopCallButton />
-          <CallbackWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
