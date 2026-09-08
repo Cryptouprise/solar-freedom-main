@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
-import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, lt, lte, sql } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
 import { getDb } from "../db";
@@ -10,11 +10,10 @@ import { refreshGscPageMetrics } from "../gscRefresh";
 import { comparisonDelta } from "../scorecardComparisons";
 import { buildAuthorityScorecardAlerts, buildLeadScorecardAlerts } from "../scorecardLeadHealth";
 
-async function readLeadScorecard(now = new Date()) {
+async function readLeadScorecard(periodStart: string, periodEnd: string) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable for lead scorecard.");
-  const currentStart = new Date(now);
-  currentStart.setDate(currentStart.getDate() - 28);
+  const { currentStart, currentEndExclusive } = scorecardConversionWindow(periodStart, periodEnd);
   const priorStart = new Date(currentStart);
   priorStart.setDate(priorStart.getDate() - 28);
 
@@ -29,14 +28,14 @@ async function readLeadScorecard(now = new Date()) {
     currentAppointments,
     priorAppointments,
   ] = await Promise.all([
-    db.select({ value: count() }).from(leads).where(gte(leads.createdAt, currentStart)),
+    db.select({ value: count() }).from(leads).where(and(gte(leads.createdAt, currentStart), lt(leads.createdAt, currentEndExclusive))),
     db.select({ value: count() }).from(leads).where(sql`${leads.createdAt} >= ${priorStart} AND ${leads.createdAt} < ${currentStart}`),
-    db.select({ value: count() }).from(leads).where(and(gte(leads.createdAt, currentStart), eq(leads.ghlWebhookSent, 1))),
+    db.select({ value: count() }).from(leads).where(and(gte(leads.createdAt, currentStart), lt(leads.createdAt, currentEndExclusive), eq(leads.ghlWebhookSent, 1))),
     db.select({ value: count() }).from(leads).where(sql`${leads.createdAt} >= ${priorStart} AND ${leads.createdAt} < ${currentStart} AND ${leads.ghlWebhookSent} = 1`),
-    db.select({ value: count() }).from(leadDeliveries).where(gte(leadDeliveries.deliveredAt, currentStart)),
+    db.select({ value: count() }).from(leadDeliveries).where(and(gte(leadDeliveries.deliveredAt, currentStart), lt(leadDeliveries.deliveredAt, currentEndExclusive))),
     db.select({ value: count() }).from(leadDeliveries).where(sql`${leadDeliveries.deliveredAt} >= ${priorStart} AND ${leadDeliveries.deliveredAt} < ${currentStart}`),
     db.select({ value: count() }).from(lawFirms).where(eq(lawFirms.status, "active")),
-    db.select({ value: count() }).from(ghlPipelineEvents).where(sql`${ghlPipelineEvents.eventType} = 'appointment_booked' AND ${ghlPipelineEvents.occurredAt} >= ${currentStart}`),
+    db.select({ value: count() }).from(ghlPipelineEvents).where(sql`${ghlPipelineEvents.eventType} = 'appointment_booked' AND ${ghlPipelineEvents.occurredAt} >= ${currentStart} AND ${ghlPipelineEvents.occurredAt} < ${currentEndExclusive}`),
     db.select({ value: count() }).from(ghlPipelineEvents).where(sql`${ghlPipelineEvents.eventType} = 'appointment_booked' AND ${ghlPipelineEvents.occurredAt} >= ${priorStart} AND ${ghlPipelineEvents.occurredAt} < ${currentStart}`),
   ]);
 
@@ -144,15 +143,22 @@ export function scorecardConversionWindowEnd(periodEnd: string) {
   return new Date(`${periodEnd}T23:59:59.999Z`);
 }
 
+/** Produces a half-open interval that matches the displayed inclusive GSC period exactly. */
+export function scorecardConversionWindow(periodStart: string, periodEnd: string) {
+  const currentStart = new Date(`${periodStart}T00:00:00.000Z`);
+  const currentEndExclusive = new Date(`${periodEnd}T00:00:00.000Z`);
+  currentEndExclusive.setUTCDate(currentEndExclusive.getUTCDate() + 1);
+  return { currentStart, currentEndExclusive };
+}
+
 /** Runs one complete verified scorecard cycle for either a scheduled callback or an explicit admin baseline refresh. */
 export async function runSeoScorecard(now = new Date()) {
   // Search Console data ends a few days before the current date. Align all
-  // conversion counts to that same dated 28-day window so the scorecard never
+  // conversion counts to that exact dated 28-day window so the scorecard never
   // compares organic metrics ending on one date with leads ending on another.
   const scorecard = await refreshGscPageMetrics(now);
-  const conversionWindowEnd = scorecardConversionWindowEnd(scorecard.endDate);
   const [leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([
-    readLeadScorecard(conversionWindowEnd),
+    readLeadScorecard(scorecard.startDate, scorecard.endDate),
     readVerifiedBacklinkCount(),
     readTechnicalGeoReadiness(),
   ]);

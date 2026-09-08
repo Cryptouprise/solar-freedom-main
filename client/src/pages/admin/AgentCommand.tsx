@@ -58,6 +58,8 @@ const AGENT_META: Record<string, { name: string; icon: typeof Brain; color: stri
   manager: { name: "Manager", icon: Crown, color: "text-amber-400", role: "Oversight & Final Approval" },
   infra: { name: "Infrastructure", icon: Server, color: "text-cyan-400", role: "System Health, Costs & Backlinks" },
   revenue_intel: { name: "Revenue Intel", icon: BarChart3, color: "text-emerald-400", role: "GSC Analysis, Lead Prediction, ROI Ranking" },
+  action_executor: { name: "Action Executor", icon: Zap, color: "text-blue-300", role: "Applies typed, approved SEO changes" },
+  attorney_research: { name: "Attorney Research", icon: Search, color: "text-cyan-300", role: "Evidence-backed attorney discovery" },
 };
 
 // ─── Priority Badge ───────────────────────────────────────────────────────────
@@ -299,14 +301,18 @@ function OwnerView() {
               <p className="text-gray-500 text-sm">No runs yet. Click "Run Full System Cycle" to start.</p>
             ) : (
               recentRuns.slice(0, 6).map((run: any) => (
-                <div key={run.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-                  <div className="flex items-center gap-2">
-                    <StatusBadge status={run.status} />
-                    <span className="text-xs text-gray-300">{AGENT_META[run.agentSlug]?.name || run.agentSlug}</span>
+                <div key={run.id} className="py-2 border-b border-white/5 last:border-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <StatusBadge status={run.status} />
+                      <span className="text-xs text-gray-300 truncate">{AGENT_META[run.agentSlug]?.name || run.agentSlug}</span>
+                    </div>
+                    <span className="text-xs text-gray-500 shrink-0">
+                      {run.durationMs ? `${(run.durationMs / 1000).toFixed(1)}s` : "—"}
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {run.durationMs ? `${(run.durationMs / 1000).toFixed(1)}s` : "—"}
-                  </span>
+                  <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-gray-500" title={run.summary || "No execution summary was recorded."}>{run.summary || "No execution summary was recorded."}</p>
+                  <p className="mt-1 text-[10px] text-gray-600">Created {run.actionsCreated ?? 0} action{run.actionsCreated === 1 ? "" : "s"} · {run.messagesCreated ?? 0} message{run.messagesCreated === 1 ? "" : "s"} · Full receipt in the agent tab.</p>
                 </div>
               ))
             )}
@@ -325,12 +331,13 @@ function OwnerView() {
               <p className="text-gray-500 text-sm">No actions queued. Agents will populate this after running.</p>
             ) : (
               actions.slice(0, 6).map((action: any) => (
-                <div key={action.id} className="py-1.5 border-b border-white/5 last:border-0">
+                <div key={action.id} className="py-2 border-b border-white/5 last:border-0">
                   <div className="flex items-center gap-2">
                     <PriorityBadge priority={action.priority} />
                     <span className="text-xs text-gray-300 truncate flex-1">{action.title}</span>
                     <StatusBadge status={action.status} />
                   </div>
+                  <p className="mt-1 pl-9 text-[10px] leading-relaxed text-gray-600">{nextActionStep(action, false)}</p>
                 </div>
               ))
             )}
@@ -354,8 +361,19 @@ function hasRollback(result: unknown): boolean {
   }
 }
 
+function nextActionStep(action: any, canExecute: boolean): string {
+  if (action.status === "completed") return "Completed. Review the saved evidence below; use Revert only when it is available.";
+  if (action.status === "failed") return "Failed. Read the execution issue below before retrying or dismissing it.";
+  if (action.status === "blocked") return "Blocked. No public change was made; resolve the listed dependency first.";
+  if (action.status === "rejected") return "Dismissed. This item will not run unless a new action is created.";
+  if (action.requiresApproval && action.status !== "approved") return "Needs approval before a supported execution can run.";
+  if (canExecute) return "Ready to run a typed, logged change. Its saved result will appear below this action.";
+  return "Recommendation only. It has not changed a page, published content, or contacted anyone.";
+}
+
 function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[] }) {
   const utils = trpc.useUtils();
+  const [executionReceipts, setExecutionReceipts] = useState<Record<number, string>>({});
   const dismiss = trpc.agents.dismissAction.useMutation({
     onSuccess: () => utils.agents.actions.invalidate(),
   });
@@ -366,12 +384,14 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
   const executableTypes = new Set((coverage?.executable ?? []).map((entry) => entry.actionType));
 
   const execute = trpc.agents.executeAction.useMutation({
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       utils.agents.actions.invalidate();
       utils.agents.chatThreads.invalidate();
-      if (response.status === "blocked") {
-        window.alert(`This action did not change anything.\n\n${response.summary}`);
-      }
+      utils.agents.overview.invalidate();
+      setExecutionReceipts((current) => ({
+        ...current,
+        [variables.actionId]: response.summary || "Execution finished. Refreshing the saved receipt…",
+      }));
     },
     onError: (error) => window.alert(`Action could not run: ${error.message}`),
   });
@@ -422,10 +442,19 @@ function ActionQueue({ agentSlug, actions }: { agentSlug: string; actions: any[]
                 {action.description || ACTION_EXPLANATIONS[action.actionType]}
               </p>
             )}
+            <div className="rounded-md border border-cyan-500/15 bg-cyan-500/5 px-2 py-1.5 text-[11px] leading-relaxed text-cyan-100">
+              <span className="font-semibold">What happens next: </span>
+              {nextActionStep(action, executableTypes.has(action.actionType))}
+            </div>
             {(action.result || action.errorMessage) && (
               <div className={`rounded-md px-2 py-1.5 text-[11px] leading-relaxed whitespace-pre-wrap ${action.errorMessage ? "bg-red-500/5 text-red-200 border border-red-500/15" : "bg-emerald-500/5 text-emerald-100 border border-emerald-500/15"}`}>
                 <span className="font-semibold">{action.errorMessage ? "Execution issue: " : "Execution evidence: "}</span>
                 {action.errorMessage || action.result}
+              </div>
+            )}
+            {executionReceipts[action.id] && !action.result && !action.errorMessage && (
+              <div className="rounded-md border border-blue-500/20 bg-blue-500/5 px-2 py-1.5 text-[11px] leading-relaxed text-blue-100">
+                <span className="font-semibold">Run receipt: </span>{executionReceipts[action.id]}
               </div>
             )}
             {/* Date + action type */}
@@ -529,11 +558,22 @@ const AGENT_SUGGESTED_PROMPTS: Record<string, string[]> = {
 };
 
 function AgentDetailView({ slug }: { slug: string }) {
-  const { data: agent } = trpc.agents.get.useQuery({ slug: slug as any });
-  const { data: runs } = trpc.agents.runs.useQuery({ agentSlug: slug as any, limit: 10 });
-  const { data: actions } = trpc.agents.actions.useQuery({ agentSlug: slug as any, limit: 20 });
-  const { data: threadEntries = [] } = trpc.agents.chatThreads.useQuery({ agentSlug: slug as any, limit: 30 });
-  const trigger = trpc.agents.trigger.useMutation();
+  const { data: agent, refetch: refetchAgent } = trpc.agents.get.useQuery({ slug: slug as any });
+  const { data: runs, refetch: refetchRuns } = trpc.agents.runs.useQuery({ agentSlug: slug as any, limit: 10 });
+  const { data: actions, refetch: refetchActions } = trpc.agents.actions.useQuery({ agentSlug: slug as any, limit: 20 });
+  const { data: threadEntries = [], refetch: refetchThreads } = trpc.agents.chatThreads.useQuery({ agentSlug: slug as any, limit: 30 });
+  const [lastRunReceipt, setLastRunReceipt] = useState<{ summary: string; actionsCreated: number; messagesCreated: number } | null>(null);
+  const trigger = trpc.agents.trigger.useMutation({
+    onSuccess: async (result) => {
+      setLastRunReceipt({
+        summary: result.summary || "Run completed without a summary.",
+        actionsCreated: result.actionsCreated ?? 0,
+        messagesCreated: result.messagesCreated ?? 0,
+      });
+      await Promise.all([refetchAgent(), refetchRuns(), refetchActions(), refetchThreads()]);
+    },
+    onError: (error) => setLastRunReceipt({ summary: `Run failed: ${error.message}`, actionsCreated: 0, messagesCreated: 0 }),
+  });
   const chatMutation = trpc.agents.chat.useMutation();
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
 
@@ -598,6 +638,14 @@ function AgentDetailView({ slug }: { slug: string }) {
         </div>
       )}
 
+      {lastRunReceipt && (
+        <div className="rounded-lg border border-cyan-500/25 bg-cyan-500/5 px-4 py-3 text-sm">
+          <p className="font-semibold text-cyan-100">Latest manual run receipt</p>
+          <p className="mt-1 text-xs leading-relaxed text-cyan-50/90">{lastRunReceipt.summary}</p>
+          <p className="mt-2 text-[11px] text-cyan-200/80">Created: {lastRunReceipt.actionsCreated} action{lastRunReceipt.actionsCreated === 1 ? "" : "s"} · {lastRunReceipt.messagesCreated} internal message{lastRunReceipt.messagesCreated === 1 ? "" : "s"}. Creation is not publication; see each action’s receipt below.</p>
+        </div>
+      )}
+
       {/* Run History */}
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-2">
@@ -613,7 +661,7 @@ function AgentDetailView({ slug }: { slug: string }) {
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-500 shrink-0">
                   <span>{run.durationMs ? `${(run.durationMs / 1000).toFixed(1)}s` : "—"}</span>
-                  <span>${run.costUsd ? parseFloat(String(run.costUsd)).toFixed(4) : "0"}</span>
+                  <span title="Model cost reported by the execution provider">{Number(run.costUsd ?? 0) > 0 ? `$${parseFloat(String(run.costUsd)).toFixed(4)}` : "cost not recorded"}</span>
                 </div>
               </div>
               {run.startedAt && (
@@ -701,10 +749,14 @@ function MessagesView() {
               <span className="text-xs text-gray-500">→</span>
               <span className="text-xs font-mono text-blue-400">{msg.toAgent}</span>
               <Badge variant="outline" className="text-[10px] h-4">{msg.type}</Badge>
-              {!msg.actedOn && <span className="w-2 h-2 rounded-full bg-amber-400" />}
+              {msg.status !== "acted_on" && msg.status !== "expired" && <span className="w-2 h-2 rounded-full bg-amber-400" />}
             </div>
             <div className="text-xs text-gray-300 font-medium">{msg.subject}</div>
-            {msg.body && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{msg.body}</p>}
+            {msg.body && <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{msg.body}</p>}
+            <p className="mt-1 text-[10px] text-gray-600">
+              {msg.status === "acted_on" ? "Outcome recorded by the receiving agent." : msg.type === "approved" ? "Approval message only — inspect the related action or draft for actual execution." : "Awaiting the receiving agent’s action or acknowledgement."}
+              {msg.createdAt ? ` · ${new Date(msg.createdAt).toLocaleString()}` : ""}
+            </p>
           </div>
         ))}
         {(!messages || messages.length === 0) && (

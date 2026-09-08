@@ -190,9 +190,15 @@ export default function OutcomeScorecard() {
               <MetricCard label="Organic impressions" value={latest.impressions} sub={`${latest.pageRows} ranking pages · same 28-day window`} tone={latest.impressions > 0 ? "success" : "warning"} />
               <MetricCard label="Organic CTR" value={`${Number(latest.ctrPercent || 0).toFixed(2)}%`} sub="Clicks ÷ impressions · same 28-day window" tone={Number(latest.ctrPercent || 0) >= 2 ? "success" : "warning"} />
               <MetricCard label="Average position" value={Number(latest.avgPosition || 0).toFixed(2)} sub="Impression-weighted · same 28-day window; lower is better" tone={Number(latest.avgPosition || 0) > 10 ? "warning" : "success"} />
-              <MetricCard label="Durable leads" value={latest.durableLeads} sub={`${latest.periodStart} to ${latest.periodEnd} · first-party submissions`} tone={latest.durableLeads > 0 ? "success" : "warning"} />
+              <MetricCard label="Rolling durable leads" value={latest.durableLeads} sub={`${latest.periodStart} to ${latest.periodEnd} · first-party form submissions, not same-day leads, calls, or clicks`} tone={latest.durableLeads > 0 ? "success" : "warning"} />
               <MetricCard label="Booked appointments" value={data.appointmentFeed?.receivingLifecycleEvents ? latest.bookedAppointments : "Feed unavailable"} sub={data.appointmentFeed?.receivingLifecycleEvents ? `${latest.periodStart} to ${latest.periodEnd} · GHL appointment events` : "No GHL lifecycle event has reached first-party storage"} tone={data.appointmentFeed?.receivingLifecycleEvents && latest.bookedAppointments > 0 ? "success" : "warning"} />
             </div>
+            {data.latestLeadReconciliation && (
+              <div className={`rounded-lg border px-4 py-3 text-sm ${data.latestLeadReconciliation.state === "reconciled" ? "border-emerald-400/20 bg-emerald-400/[0.05] text-emerald-100" : "border-amber-400/30 bg-amber-400/[0.08] text-amber-100"}`}>
+                <p className="font-semibold">Lead reconciliation for {data.latestLeadReconciliation.periodStart} through {data.latestLeadReconciliation.periodEnd}</p>
+                <p className="mt-1 text-xs leading-relaxed">Snapshot recorded {data.latestLeadReconciliation.snapshotLeadCount} durable form records at capture time; the current first-party database contains {data.latestLeadReconciliation.currentLeadCount} records in the same window. {data.latestLeadReconciliation.state === "reconciled" ? "The stored snapshot matches current records." : "Counts changed after the snapshot or historical records were adjusted. This is an audit signal, not a claim of extra leads today."}</p>
+              </div>
+            )}
             <IndexCoverageStrategyWidget coverage={data.indexCoverage} priorityPages={data.priorityPages || []} />
             <AppointmentTrendChart events={data.appointmentEvents || []} snapshots={data.snapshots || []} feedReceivingLifecycleEvents={data.appointmentFeed?.receivingLifecycleEvents ?? false} loading={isLoading} />
             <section className="rounded-xl border border-white/10 bg-white/5 p-5">
@@ -221,7 +227,7 @@ export default function OutcomeScorecard() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] text-left text-sm">
                   <thead className="bg-black/20 text-xs uppercase tracking-wider text-gray-400">
-                    <tr><th className="px-5 py-3">Captured</th><th className="px-5 py-3">28-day period covered</th><th className="px-5 py-3">Organic clicks</th><th className="px-5 py-3">Impressions</th><th className="px-5 py-3">CTR</th><th className="px-5 py-3">Avg. position</th><th className="px-5 py-3">Leads</th><th className="px-5 py-3">Appointments</th><th className="px-5 py-3">Technical audit</th></tr>
+                    <tr><th className="px-5 py-3">Captured</th><th className="px-5 py-3">28-day period covered</th><th className="px-5 py-3">Organic clicks</th><th className="px-5 py-3">Impressions</th><th className="px-5 py-3">CTR</th><th className="px-5 py-3">Avg. position</th><th className="px-5 py-3">Rolling durable leads<br /><span className="normal-case text-[10px] text-gray-500">not leads received that day</span></th><th className="px-5 py-3">Appointments</th><th className="px-5 py-3">Technical audit</th></tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {dailySnapshots.map((row) => (
@@ -232,7 +238,7 @@ export default function OutcomeScorecard() {
                         <td className="px-5 py-3">{row.impressions.toLocaleString()}</td>
                         <td className="px-5 py-3">{Number(row.ctrPercent || 0).toFixed(2)}%</td>
                         <td className="px-5 py-3">{Number(row.avgPosition || 0).toFixed(2)}</td>
-                        <td className="px-5 py-3">{row.durableLeads.toLocaleString()}</td>
+                        <td className="px-5 py-3" title={`At capture time: ${row.durableLeads.toLocaleString()} distinct first-party form records created during ${row.periodStart} through ${row.periodEnd}. This excludes calls and clicks and is not a same-day count.`}>{row.durableLeads.toLocaleString()}<span className="mt-1 block text-[10px] text-gray-500">rolling form records</span></td>
                         <td className="px-5 py-3">{data.appointmentFeed?.receivingLifecycleEvents ? row.bookedAppointments.toLocaleString() : "Feed unavailable"}</td>
                         <td className="px-5 py-3">{row.geoReadiness > 0 ? `${row.geoReadiness}%` : "Needs audit"}</td>
                       </tr>

@@ -4,6 +4,7 @@ import { blogPosts, companies, exitIntentCaptures, InsertExitIntentCapture, Inse
 import { sanitizeStoredHtml } from "./security/html";
 import { ENV } from './_core/env';
 import { blogPosts as staticBlogPosts, type BlogPost as StaticBlogPost } from "../client/src/data/blog";
+import { isLegacyBlogSlug } from "./seo-redirects";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -385,9 +386,10 @@ export async function getAllBlogPostsAdmin(limit = 200, offset = 0) {
     .limit(limit)
     .offset(offset);
 
-  const dbSlugs = new Set(rows.map((row) => row.slug));
+  const visibleRows = rows.filter((row) => !isLegacyBlogSlug(row.slug));
+  const dbSlugs = new Set(visibleRows.map((row) => row.slug));
   const staticRows = staticBlogPosts
-    .filter((post) => !dbSlugs.has(post.slug))
+    .filter((post) => !dbSlugs.has(post.slug) && !isLegacyBlogSlug(post.slug))
     .map((post, index) => ({
       id: -(index + 1),
       slug: post.slug,
@@ -397,13 +399,17 @@ export async function getAllBlogPostsAdmin(limit = 200, offset = 0) {
       publishedAt: null,
     }));
 
-  return [...rows, ...staticRows].slice(0, limit);
+  return [...visibleRows, ...staticRows].slice(0, limit);
 }
 
 /**
  * Get a single blog post by slug for admin editing (includes drafts).
  */
 export async function getAdminBlogPost(slug: string) {
+  // A redirected city-slug blog is not an editable blog source. Its canonical
+  // city page is governed in City Recovery, which prevents two editors from
+  // presenting unrelated title, excerpt, and hero data for one public URL.
+  if (isLegacyBlogSlug(slug)) return null;
   const db = await getDb();
   if (!db) return null;
 
@@ -439,6 +445,9 @@ export async function updateBlogPost(
     published: number;
   }>
 ) {
+  if (isLegacyBlogSlug(slug)) {
+    throw new Error("This retired blog URL redirects to its canonical page and must be edited in City Recovery.");
+  }
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 

@@ -350,6 +350,31 @@ export const appRouter = router({
         const [appointmentFeedCount] = await db
           .select({ value: count() })
           .from(ghlPipelineEvents);
+        const latestSnapshot = snapshots[0] || null;
+        let latestLeadReconciliation: null | {
+          snapshotLeadCount: number;
+          currentLeadCount: number;
+          periodStart: string;
+          periodEnd: string;
+          state: "reconciled" | "drift_detected";
+        } = null;
+        if (latestSnapshot) {
+          const windowStart = new Date(`${latestSnapshot.periodStart}T00:00:00.000Z`);
+          const windowEndExclusive = new Date(`${latestSnapshot.periodEnd}T00:00:00.000Z`);
+          windowEndExclusive.setUTCDate(windowEndExclusive.getUTCDate() + 1);
+          const [currentLeadCount] = await db
+            .select({ value: count() })
+            .from(leads)
+            .where(and(gte(leads.createdAt, windowStart), lt(leads.createdAt, windowEndExclusive)));
+          const currentLeadValue = Number(currentLeadCount?.value ?? 0);
+          latestLeadReconciliation = {
+            snapshotLeadCount: latestSnapshot.durableLeads,
+            currentLeadCount: currentLeadValue,
+            periodStart: latestSnapshot.periodStart,
+            periodEnd: latestSnapshot.periodEnd,
+            state: currentLeadValue === latestSnapshot.durableLeads ? "reconciled" : "drift_detected",
+          };
+        }
         const keywordByPageSlug = new Map(posts.map((post) => [`blog/${post.slug}`, post.targetKeyword || null]));
         const pageTrendOptions = Array.from(new Map(pageMetrics.map((metric) => [metric.pageSlug, {
           pageSlug: metric.pageSlug,
@@ -364,6 +389,7 @@ export const appRouter = router({
           priorityPages,
           appointmentEvents,
           appointmentFeed: { receivingLifecycleEvents: Number(appointmentFeedCount?.value ?? 0) > 0 },
+          latestLeadReconciliation,
           measurementReady: snapshots.length > 0,
         };
       }),

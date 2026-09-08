@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -373,14 +373,12 @@ export default function PostEditor() {
     setSaved(false);
   }, [editor]);
 
-  // When postData changes (after selecting a slug), load it
-  useState(() => {
+  // Keep every visible field synchronized with the selected post. The prior
+  // one-time useState initializer left title/excerpt/hero values from a
+  // previous selection visible while a different post was loading.
+  useEffect(() => {
     if (postData) loadPost(postData);
-  });
-
-  if (postData && editor && editor.isEmpty && postData.content) {
-    loadPost(postData);
-  }
+  }, [postData, loadPost]);
 
   // Hero image upload
   const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -478,6 +476,10 @@ export default function PostEditor() {
                 className="pl-9 bg-white/5 border-white/10 text-white placeholder-gray-600 text-sm h-9"
               />
             </div>
+            <p className="mt-3 text-[11px] leading-relaxed text-gray-500">
+              This editor manages <span className="text-gray-300">/blog/</span> posts only. City landing pages use
+              <a href="/admin/city-recovery" className="ml-1 text-amber-400 hover:underline">City Recovery</a> so their live route, metadata, and hero stay aligned.
+            </p>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
             {filteredPosts.length === 0 && (
@@ -528,6 +530,21 @@ export default function PostEditor() {
           ) : postLoading ? (
             <div className="flex-1 flex items-center justify-center">
               <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+            </div>
+          ) : !postData ? (
+            <div className="flex-1 flex items-center justify-center p-8">
+              <Card className="max-w-xl bg-[#111318] border-amber-500/20">
+                <CardHeader>
+                  <CardTitle className="text-white text-lg">This is not an editable blog source</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm leading-relaxed text-gray-400">
+                  <p>This slug is retired or redirects to a canonical public page. It is intentionally excluded from Post Editor so an unrelated title, excerpt, or hero cannot be mistaken for the live page.</p>
+                  <div className="flex flex-wrap gap-3">
+                    <a href="/admin/city-recovery" className="text-amber-400 hover:underline">Open City Recovery</a>
+                    <button type="button" onClick={() => setSelectedSlug(null)} className="text-gray-300 hover:text-white">Choose another blog post</button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto">
