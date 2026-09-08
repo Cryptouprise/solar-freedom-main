@@ -64,6 +64,7 @@ export default function AdminLeads() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [timeWindow, setTimeWindow] = useState<"28d" | "7d" | "all">("28d");
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -85,8 +86,15 @@ export default function AdminLeads() {
     },
   });
 
+  const windowedLeads = useMemo(() => {
+    if (timeWindow === "all") return leads;
+    const start = new Date();
+    start.setUTCDate(start.getUTCDate() - (timeWindow === "7d" ? 7 : 28));
+    return leads.filter((lead) => new Date(lead.createdAt) >= start);
+  }, [leads, timeWindow]);
+
   const filtered = useMemo(() => {
-    return leads.filter((lead) => {
+    return windowedLeads.filter((lead) => {
       const q = search.toLowerCase();
       const matchSearch =
         !q ||
@@ -99,29 +107,29 @@ export default function AdminLeads() {
       const matchSource = sourceFilter === "all" || lead.sourcePage === sourceFilter;
       return matchSearch && matchStatus && matchSource;
     });
-  }, [leads, search, statusFilter, sourceFilter]);
+  }, [windowedLeads, search, statusFilter, sourceFilter]);
 
   // Stats
   const stats = useMemo(() => {
-    const total = leads.length;
-    const newLeads = leads.filter((l) => l.status === "new").length;
-    const contacted = leads.filter((l) => l.status === "contacted").length;
-    const qualified = leads.filter((l) => l.status === "qualified").length;
-    const won = leads.filter((l) => l.status === "closed_won").length;
-    const ghlSynced = leads.filter((l) => l.ghlWebhookSent === 1).length;
+    const total = windowedLeads.length;
+    const newLeads = windowedLeads.filter((l) => l.status === "new").length;
+    const contacted = windowedLeads.filter((l) => l.status === "contacted").length;
+    const qualified = windowedLeads.filter((l) => l.status === "qualified").length;
+    const won = windowedLeads.filter((l) => l.status === "closed_won").length;
+    const ghlSynced = windowedLeads.filter((l) => l.ghlWebhookSent === 1).length;
     return { total, newLeads, contacted, qualified, won, ghlSynced };
-  }, [leads]);
+  }, [windowedLeads]);
 
   // Unique source pages for filter
   const sourcePagesOptions = useMemo(() => {
-    const pages = new Set(leads.map((l) => l.sourcePage).filter(Boolean));
+    const pages = new Set(windowedLeads.map((l) => l.sourcePage).filter(Boolean));
     return Array.from(pages) as string[];
-  }, [leads]);
+  }, [windowedLeads]);
 
   // Auth is handled by AdminLayout
 
   return (
-    <AdminLayout title="Leads" subtitle="All form submissions and lead activity">
+    <AdminLayout title="Leads" subtitle="First-party form submissions and CRM delivery status">
       {/* Toast notification */}
       {toastMsg && (
         <div className="fixed bottom-4 right-4 z-50 bg-amber-500 text-black font-medium px-4 py-2 rounded-lg shadow-lg text-sm">
@@ -165,6 +173,10 @@ export default function AdminLeads() {
               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-amber-500/50"
             />
           </div>
+          <Select value={timeWindow} onValueChange={(value) => setTimeWindow(value as "28d" | "7d" | "all")}>
+            <SelectTrigger className="w-full sm:w-44 bg-white/5 border-white/10 text-white"><SelectValue placeholder="Date window" /></SelectTrigger>
+            <SelectContent className="bg-[#1a1d24] border-white/10"><SelectItem value="28d">Last 28 days</SelectItem><SelectItem value="7d">Last 7 days</SelectItem><SelectItem value="all">All time</SelectItem></SelectContent>
+          </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-44 bg-white/5 border-white/10 text-white">
               <SelectValue placeholder="All Statuses" />
@@ -191,7 +203,7 @@ export default function AdminLeads() {
 
         {/* Results count */}
         <div className="text-sm text-gray-500 font-mono">
-          Showing {filtered.length} of {leads.length} leads
+          Showing {filtered.length} of {windowedLeads.length} leads in {timeWindow === "28d" ? "the last 28 days" : timeWindow === "7d" ? "the last 7 days" : "all time"}. The Outcomes scorecard uses a separately labeled Search Console-aligned 28-day window.
         </div>
 
         {/* Table */}

@@ -14,6 +14,7 @@
  */
 
 import { GoogleAuth } from "google-auth-library";
+import { resolveGa4DateWindow } from "./analyticsWindow";
 
 const GA4_API_BASE = "https://analyticsdata.googleapis.com/v1beta";
 const PROPERTY_ID = process.env.GA4_PROPERTY_ID ?? "530239045";
@@ -109,6 +110,8 @@ export interface GA4FullReport {
   topPages: GA4PageRow[];
   events: GA4EventRow[];
   dateRange: string;
+  dateRangeStart: string | null;
+  dateRangeEnd: string | null;
 }
 
 /**
@@ -234,12 +237,16 @@ export async function getGA4Report(
     count: parseInt(row.metricValues[0].value),
   }));
 
+  const { start: dateRangeStart, end: dateRangeEnd } = resolveGa4DateWindow(daily);
+
   return {
     summary,
     daily,
     channels,
     topPages,
     events,
-    dateRange: `${startDate} → ${endDate}`,
+    dateRange: dateRangeStart && dateRangeEnd ? `${dateRangeStart} through ${dateRangeEnd}` : `${startDate} → ${endDate}`,
+    dateRangeStart,
+    dateRangeEnd,
   };
 }

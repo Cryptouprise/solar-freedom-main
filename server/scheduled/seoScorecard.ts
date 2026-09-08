@@ -139,11 +139,20 @@ async function readTechnicalGeoReadiness() {
   return { total, score: total > 0 ? Math.round((ready / total) * 100) : 0 };
 }
 
+/** Converts the inclusive Search Console period end into the matching conversion-window cutoff. */
+export function scorecardConversionWindowEnd(periodEnd: string) {
+  return new Date(`${periodEnd}T23:59:59.999Z`);
+}
+
 /** Runs one complete verified scorecard cycle for either a scheduled callback or an explicit admin baseline refresh. */
 export async function runSeoScorecard(now = new Date()) {
-  const [scorecard, leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([
-    refreshGscPageMetrics(now),
-    readLeadScorecard(now),
+  // Search Console data ends a few days before the current date. Align all
+  // conversion counts to that same dated 28-day window so the scorecard never
+  // compares organic metrics ending on one date with leads ending on another.
+  const scorecard = await refreshGscPageMetrics(now);
+  const conversionWindowEnd = scorecardConversionWindowEnd(scorecard.endDate);
+  const [leadScorecard, verifiedBacklinks, geoCoverage] = await Promise.all([
+    readLeadScorecard(conversionWindowEnd),
     readVerifiedBacklinkCount(),
     readTechnicalGeoReadiness(),
   ]);

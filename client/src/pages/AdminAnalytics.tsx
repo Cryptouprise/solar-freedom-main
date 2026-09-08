@@ -14,10 +14,10 @@ import {
   Line,
 } from "recharts";
 
-type Range = "7daysAgo" | "30daysAgo" | "90daysAgo";
+type Range = "6daysAgo" | "30daysAgo" | "90daysAgo";
 
 const RANGE_LABELS: Record<Range, string> = {
-  "7daysAgo": "Last 7 Days",
+  "6daysAgo": "Last 7 Days",
   "30daysAgo": "Last 30 Days",
   "90daysAgo": "Last 90 Days",
 };
@@ -66,7 +66,7 @@ function formatDate(d: string) {
 
 export default function AdminAnalytics() {
   const { user, loading } = useAuth();
-  const [range, setRange] = useState<Range>("7daysAgo");
+  const [range, setRange] = useState<Range>("6daysAgo");
 
   const { data, isLoading, error, refetch } = trpc.analytics.report.useQuery(
     { range },
@@ -81,7 +81,7 @@ export default function AdminAnalytics() {
       : "0.00";
 
   return (
-    <AdminLayout title="Analytics" subtitle="Live GA4 traffic data for breakyoursolarcontract.com">
+    <AdminLayout title="Analytics" subtitle="GA4 traffic and event telemetry; compare durable submissions in Leads or Outcomes">
       <div className="p-6">
         {/* Range + Refresh controls */}
         <div className="flex items-center gap-3 mb-6">
@@ -128,7 +128,7 @@ export default function AdminAnalytics() {
             {/* Summary Stats */}
             <section>
               <h2 className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-4">
-                Overview — {RANGE_LABELS[range]}
+                Overview — {data.dateRange} · GA4 events only
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
                 <div className="col-span-2 md:col-span-2">
@@ -141,14 +141,15 @@ export default function AdminAnalytics() {
                   <StatCard label="Page Views" value={data.summary.pageViews} />
                 </div>
                 <div className="col-span-2 md:col-span-2">
-                  <StatCard label="Conversion Rate" value={`${conversionRate}%`} sub={`${data.summary.generateLeads} leads`} highlight />
+                  <StatCard label="GA4 lead-event rate" value={`${conversionRate}%`} sub={`${data.summary.generateLeads} generate_lead events`} highlight />
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                 <StatCard label="CTA Clicks" value={data.summary.ctaClicks} />
                 <StatCard label="Form Starts" value={data.summary.formSubmits} />
                 <StatCard label="Phone Clicks" value={data.summary.phoneClicks} />
-                <StatCard label="Leads Generated" value={data.summary.generateLeads} highlight />
+                <StatCard label="GA4 Lead Events" value={data.summary.generateLeads} highlight />
+                <StatCard label="Durable Leads" value={data.firstPartyLeadReconciliation?.durableLeadCount ?? "Unavailable"} sub="First-party stored submissions" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
                 <StatCard label="Engagement Rate" value={`${(data.summary.engagementRate * 100).toFixed(1)}%`} />
@@ -260,9 +261,10 @@ export default function AdminAnalytics() {
 
             {/* Footer */}
             <div className="text-center text-xs font-mono text-gray-600 pt-4 border-t border-white/5">
-              Data source: Google Analytics 4 — Property 530239045 — breakyoursolarcontract.com
+              GA4 telemetry: Google Analytics 4 — Property 530239045 — breakyoursolarcontract.com
               <br />
-              Range: {data.dateRange} · Pulled live via GA4 Data API
+              Exact GA4 range: {data.dateRange} · Pulled live via GA4 Data API
+              {data.firstPartyLeadReconciliation && <><br />First-party reconciliation: {data.firstPartyLeadReconciliation.durableLeadCount} durable lead records from {data.firstPartyLeadReconciliation.windowStart} through {data.firstPartyLeadReconciliation.windowEnd}. GA4 events and lead records are intentionally not treated as the same metric.</>}
             </div>
           </>
         )}

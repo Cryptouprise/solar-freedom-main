@@ -11,6 +11,13 @@ function formatDate(value: Date | string | null | undefined) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+function formatDateTime(value: Date | string | null | undefined) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+}
+
 function MetricCard({ label, value, sub, tone = "default" }: { label: string; value: number | string; sub: string; tone?: "default" | "warning" | "success" }) {
   const tones = {
     default: "border-white/10 bg-white/5 text-white",
@@ -74,7 +81,7 @@ function IndexCoverageStrategyWidget({ coverage, priorityPages }: {
   );
 }
 
-function AppointmentTrendChart({ events, snapshots, loading = false }: { events: Array<{ occurredAt: Date | string; externalEventId: string | null }>; snapshots: Array<{ capturedAt: Date | string; clicks: number; impressions: number; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; loading?: boolean }) {
+function AppointmentTrendChart({ events, snapshots, feedReceivingLifecycleEvents, loading = false }: { events: Array<{ occurredAt: Date | string; externalEventId: string | null }>; snapshots: Array<{ capturedAt: Date | string; clicks: number; impressions: number; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; feedReceivingLifecycleEvents: boolean; loading?: boolean }) {
   if (loading) return <section className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.035] p-5" aria-busy="true"><div className="h-4 w-56 animate-pulse rounded bg-white/10" /><div className="mt-3 h-3 w-80 animate-pulse rounded bg-white/[0.06]" /><div className="mt-5 h-52 animate-pulse rounded-lg border border-white/[0.06] bg-black/20" /></section>;
   const now = new Date();
   const start = new Date(now); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - 13);
@@ -87,7 +94,7 @@ function AppointmentTrendChart({ events, snapshots, loading = false }: { events:
   const points = days.map((date) => { const key = date.toISOString().slice(0, 10); const snapshot = snapshotByDay.get(key); cumulative += bookedByDay.get(key) || 0; return { date: formatDate(date).replace(/, \d{4}$/, ""), bookings: bookedByDay.get(key) || 0, cumulative, clicks: snapshot?.clicks ?? null, impressions: snapshot?.impressions ?? null, ctr: snapshot ? Number(snapshot.ctrPercent || 0) : null, position: snapshot ? Number(snapshot.avgPosition || 0) : null }; });
   const verifiedEvents = points.reduce((total, point) => total + point.bookings, 0);
   const AppointmentTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ payload: (typeof points)[number] }>; label?: string }) => { const point = payload?.[0]?.payload; if (!active || !point) return null; return <div className="rounded-lg border border-white/20 bg-[#101217] px-3 py-2 text-xs shadow-xl"><p className="font-medium text-white">{label}</p><p className="mt-1 text-emerald-200">Booked: {point.bookings} · cumulative: {point.cumulative}</p>{point.clicks === null ? <p className="mt-1 text-amber-100">No verified SEO snapshot for this date</p> : <><p className="mt-1 text-cyan-100">Organic clicks: {point.clicks.toLocaleString()} · impressions: {point.impressions?.toLocaleString()}</p><p className="text-violet-200">CTR: {point.ctr?.toFixed(2)}% · avg. position: {point.position?.toFixed(2)}</p></>}</div>; };
-  return <section className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.035] p-5"><div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-mono uppercase tracking-[0.16em] text-emerald-200">Conversion signal</p><h2 className="mt-1 text-lg font-semibold text-white">14-day appointment progress</h2><p className="mt-1 text-sm text-gray-400">Hover a date for verified appointments plus organic traffic and ranking context.</p></div><span className={`mt-1 rounded px-2 py-1 text-xs font-mono ${verifiedEvents > 0 ? "bg-emerald-400/10 text-emerald-100" : "bg-amber-400/10 text-amber-100"}`}>{verifiedEvents} verified in 14 days</span></div><div className="chart-data-fade mt-4 h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={points} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}><CartesianGrid stroke="#ffffff12" vertical={false} /><XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} /><YAxis allowDecimals={false} tick={{ fill: "#6ee7b7", fontSize: 11 }} tickLine={false} axisLine={false} width={30} /><Tooltip content={<AppointmentTooltip />} /><Line type="stepAfter" dataKey="cumulative" name="cumulative" stroke="#34d399" strokeWidth={3} dot={{ r: 3, fill: "#34d399" }} activeDot={{ r: 6 }} isAnimationActive animationDuration={650} animationEasing="ease-out" /></LineChart></ResponsiveContainer></div>{verifiedEvents === 0 && <p className="mt-3 text-xs text-amber-100">No <code>appointment_booked</code> events in this window. The zero line is recorded data, not an estimate.</p>}</section>;
+  return <section className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.035] p-5"><div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-mono uppercase tracking-[0.16em] text-emerald-200">Conversion signal</p><h2 className="mt-1 text-lg font-semibold text-white">14-day appointment progress</h2><p className="mt-1 text-sm text-gray-400">Hover a date for verified appointments plus organic traffic and ranking context.</p></div><span className={`mt-1 rounded px-2 py-1 text-xs font-mono ${verifiedEvents > 0 ? "bg-emerald-400/10 text-emerald-100" : "bg-amber-400/10 text-amber-100"}`}>{feedReceivingLifecycleEvents ? `${verifiedEvents} verified in 14 days` : "GHL feed not receiving events"}</span></div><div className="chart-data-fade mt-4 h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={points} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}><CartesianGrid stroke="#ffffff12" vertical={false} /><XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} /><YAxis allowDecimals={false} tick={{ fill: "#6ee7b7", fontSize: 11 }} tickLine={false} axisLine={false} width={30} /><Tooltip content={<AppointmentTooltip />} /><Line type="stepAfter" dataKey="cumulative" name="cumulative" stroke="#34d399" strokeWidth={3} dot={{ r: 3, fill: "#34d399" }} activeDot={{ r: 6 }} isAnimationActive animationDuration={650} animationEasing="ease-out" /></LineChart></ResponsiveContainer></div>{!feedReceivingLifecycleEvents ? <p className="mt-3 text-xs text-amber-100">No GoHighLevel lifecycle event has ever reached first-party storage. Appointment results are unavailable—not a proven zero—until the inbound appointment feed is connected.</p> : verifiedEvents === 0 && <p className="mt-3 text-xs text-amber-100">The appointment feed is connected, but no <code>appointment_booked</code> events were recorded in this 14-day window.</p>}</section>;
 }
 
 function SeoTrendChart({ snapshots, pageMetrics, options, loading = false }: { snapshots: Array<{ capturedAt: Date | string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; pageMetrics: Array<{ capturedAt: Date | string; pageSlug: string; ctrPercent?: number | string | null; avgPosition?: number | string | null }>; options: Array<{ pageSlug: string; pageUrl: string; targetKeyword: string | null }>; loading?: boolean }) {
@@ -124,6 +131,12 @@ export default function OutcomeScorecard() {
     onSuccess: () => { void refetch(); },
   });
   const latest = data?.snapshots?.[0];
+  const latestSnapshotByUtcDay = new Map<string, NonNullable<typeof data>["snapshots"][number]>();
+  (data?.snapshots || []).slice().reverse().forEach((snapshot) => {
+    const captured = new Date(snapshot.capturedAt);
+    if (!Number.isNaN(captured.getTime())) latestSnapshotByUtcDay.set(captured.toISOString().slice(0, 10), snapshot);
+  });
+  const dailySnapshots = Array.from(latestSnapshotByUtcDay.values()).reverse();
 
   return (
     <AdminLayout title="Outcome Scorecard" subtitle="Organic clicks → views → durable leads → booked appointments">
@@ -173,22 +186,22 @@ export default function OutcomeScorecard() {
         {latest && (
           <>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <MetricCard label="Organic clicks" value={latest.clicks} sub={`${latest.periodStart} to ${latest.periodEnd} · Search Console`} tone={latest.clicks > 0 ? "success" : "warning"} />
-              <MetricCard label="Organic views" value={latest.impressions} sub={`${latest.pageRows} ranking pages · Search Console impressions`} tone={latest.impressions > 0 ? "success" : "warning"} />
-              <MetricCard label="Organic CTR" value={`${Number(latest.ctrPercent || 0).toFixed(2)}%`} sub="Clicks divided by Search Console impressions" tone={Number(latest.ctrPercent || 0) >= 2 ? "success" : "warning"} />
-              <MetricCard label="Average position" value={Number(latest.avgPosition || 0).toFixed(2)} sub="Impression-weighted Search Console position; lower is better" tone={Number(latest.avgPosition || 0) > 10 ? "warning" : "success"} />
-              <MetricCard label="Durable leads" value={latest.durableLeads} sub="Website form submissions persisted to first-party storage" tone={latest.durableLeads > 0 ? "success" : "warning"} />
-              <MetricCard label="Booked appointments" value={latest.bookedAppointments} sub="GoHighLevel appointment-booked events only" tone={latest.bookedAppointments > 0 ? "success" : "warning"} />
+              <MetricCard label="Organic clicks" value={latest.clicks} sub={`${latest.periodStart} to ${latest.periodEnd} · 28-day Search Console window`} tone={latest.clicks > 0 ? "success" : "warning"} />
+              <MetricCard label="Organic impressions" value={latest.impressions} sub={`${latest.pageRows} ranking pages · same 28-day window`} tone={latest.impressions > 0 ? "success" : "warning"} />
+              <MetricCard label="Organic CTR" value={`${Number(latest.ctrPercent || 0).toFixed(2)}%`} sub="Clicks ÷ impressions · same 28-day window" tone={Number(latest.ctrPercent || 0) >= 2 ? "success" : "warning"} />
+              <MetricCard label="Average position" value={Number(latest.avgPosition || 0).toFixed(2)} sub="Impression-weighted · same 28-day window; lower is better" tone={Number(latest.avgPosition || 0) > 10 ? "warning" : "success"} />
+              <MetricCard label="Durable leads" value={latest.durableLeads} sub={`${latest.periodStart} to ${latest.periodEnd} · first-party submissions`} tone={latest.durableLeads > 0 ? "success" : "warning"} />
+              <MetricCard label="Booked appointments" value={data.appointmentFeed?.receivingLifecycleEvents ? latest.bookedAppointments : "Feed unavailable"} sub={data.appointmentFeed?.receivingLifecycleEvents ? `${latest.periodStart} to ${latest.periodEnd} · GHL appointment events` : "No GHL lifecycle event has reached first-party storage"} tone={data.appointmentFeed?.receivingLifecycleEvents && latest.bookedAppointments > 0 ? "success" : "warning"} />
             </div>
             <IndexCoverageStrategyWidget coverage={data.indexCoverage} priorityPages={data.priorityPages || []} />
-            <AppointmentTrendChart events={data.appointmentEvents || []} snapshots={data.snapshots || []} loading={isLoading} />
+            <AppointmentTrendChart events={data.appointmentEvents || []} snapshots={data.snapshots || []} feedReceivingLifecycleEvents={data.appointmentFeed?.receivingLifecycleEvents ?? false} loading={isLoading} />
             <section className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h2 className="text-sm font-semibold text-white">What to act on</h2>
-              <p className="mt-1 text-sm text-gray-400">Latest verified snapshot: {formatDate(latest.capturedAt)}. Zero is a recorded zero only after the source event feed is active; unavailable sources remain visibly blocked.</p>
+              <p className="mt-1 text-sm text-gray-400">Latest verified capture: {formatDateTime(latest.capturedAt)}. Every headline metric above uses the same dated 28-day window. This is a rolling-window scorecard, not a claim that its lead total happened today.</p>
               <div className="mt-4 grid gap-3 md:grid-cols-3 text-sm">
                 <div className="rounded-lg bg-black/20 p-3"><span className="text-gray-400">CRM deliveries</span><p className="mt-1 text-lg font-semibold text-white">{latest.crmDeliveries.toLocaleString()}</p></div>
                 <div className="rounded-lg bg-black/20 p-3"><span className="text-gray-400">Verified backlinks</span><p className="mt-1 text-lg font-semibold text-white">{latest.verifiedBacklinks.toLocaleString()}</p></div>
-                <div className="rounded-lg bg-black/20 p-3"><span className="text-gray-400">Technical GEO readiness</span><p className="mt-1 text-lg font-semibold text-white">{latest.geoReadiness}%</p></div>
+                <div className="rounded-lg bg-black/20 p-3"><span className="text-gray-400">Technical inventory readiness</span><p className="mt-1 text-lg font-semibold text-white">{latest.geoReadiness > 0 ? `${latest.geoReadiness}%` : "Needs audit"}</p><p className="mt-1 text-xs text-gray-500">Canonical + schema + sitemap coverage; not generative-search traffic.</p></div>
               </div>
             </section>
 
@@ -204,23 +217,24 @@ export default function OutcomeScorecard() {
             </section>
 
             <section className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-              <header className="border-b border-white/10 px-5 py-4"><h2 className="text-sm font-semibold text-white">Recent verified snapshots</h2></header>
+              <header className="border-b border-white/10 px-5 py-4"><h2 className="text-sm font-semibold text-white">Recent verified snapshots</h2><p className="mt-1 text-xs text-gray-500">One latest capture per UTC day. Every row is a rolling 28-day window ending on the displayed period end—not leads or appointments generated only that day.</p></header>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] text-left text-sm">
                   <thead className="bg-black/20 text-xs uppercase tracking-wider text-gray-400">
-                    <tr><th className="px-5 py-3">Captured</th><th className="px-5 py-3">Organic clicks</th><th className="px-5 py-3">Views</th><th className="px-5 py-3">CTR</th><th className="px-5 py-3">Avg. position</th><th className="px-5 py-3">Leads</th><th className="px-5 py-3">Appointments</th><th className="px-5 py-3">GEO</th></tr>
+                    <tr><th className="px-5 py-3">Captured</th><th className="px-5 py-3">28-day period covered</th><th className="px-5 py-3">Organic clicks</th><th className="px-5 py-3">Impressions</th><th className="px-5 py-3">CTR</th><th className="px-5 py-3">Avg. position</th><th className="px-5 py-3">Leads</th><th className="px-5 py-3">Appointments</th><th className="px-5 py-3">Technical audit</th></tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {data.snapshots.map((row) => (
+                    {dailySnapshots.map((row) => (
                       <tr key={row.id} className="text-gray-200">
-                        <td className="px-5 py-3 text-gray-400">{formatDate(row.capturedAt)}</td>
+                        <td className="px-5 py-3 text-gray-400" title={formatDateTime(row.capturedAt)}>{formatDate(row.capturedAt)}</td>
+                        <td className="px-5 py-3 text-gray-400 whitespace-nowrap">{row.periodStart} → {row.periodEnd}</td>
                         <td className="px-5 py-3 font-medium">{row.clicks.toLocaleString()}</td>
                         <td className="px-5 py-3">{row.impressions.toLocaleString()}</td>
                         <td className="px-5 py-3">{Number(row.ctrPercent || 0).toFixed(2)}%</td>
                         <td className="px-5 py-3">{Number(row.avgPosition || 0).toFixed(2)}</td>
                         <td className="px-5 py-3">{row.durableLeads.toLocaleString()}</td>
-                        <td className="px-5 py-3">{row.bookedAppointments.toLocaleString()}</td>
-                        <td className="px-5 py-3">{row.geoReadiness}%</td>
+                        <td className="px-5 py-3">{data.appointmentFeed?.receivingLifecycleEvents ? row.bookedAppointments.toLocaleString() : "Feed unavailable"}</td>
+                        <td className="px-5 py-3">{row.geoReadiness > 0 ? `${row.geoReadiness}%` : "Needs audit"}</td>
                       </tr>
                     ))}
                   </tbody>

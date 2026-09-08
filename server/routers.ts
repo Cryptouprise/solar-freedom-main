@@ -1,11 +1,11 @@
 import { COOKIE_NAME, SITE_CONFIG_DEFAULTS } from "@shared/const";
-import { desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, gte, lt } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
-import { blogPosts, ghlPipelineEvents, seoIndexCoverageSnapshots, seoPageMetricSnapshots, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
+import { blogPosts, ghlPipelineEvents, leads, seoIndexCoverageSnapshots, seoPageMetricSnapshots, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
 import {
   getLeads,
   insertExitIntentCapture,
@@ -347,13 +347,25 @@ export const appRouter = router({
           .where(eq(ghlPipelineEvents.eventType, "appointment_booked"))
           .orderBy(desc(ghlPipelineEvents.occurredAt))
           .limit(500);
+        const [appointmentFeedCount] = await db
+          .select({ value: count() })
+          .from(ghlPipelineEvents);
         const keywordByPageSlug = new Map(posts.map((post) => [`blog/${post.slug}`, post.targetKeyword || null]));
         const pageTrendOptions = Array.from(new Map(pageMetrics.map((metric) => [metric.pageSlug, {
           pageSlug: metric.pageSlug,
           pageUrl: metric.pageUrl,
           targetKeyword: keywordByPageSlug.get(metric.pageSlug) || null,
         }])).values()).sort((a, b) => a.pageSlug.localeCompare(b.pageSlug));
-        return { snapshots, pageMetrics, pageTrendOptions, indexCoverage: latestIndexCoverage || null, priorityPages, appointmentEvents, measurementReady: snapshots.length > 0 };
+        return {
+          snapshots,
+          pageMetrics,
+          pageTrendOptions,
+          indexCoverage: latestIndexCoverage || null,
+          priorityPages,
+          appointmentEvents,
+          appointmentFeed: { receivingLifecycleEvents: Number(appointmentFeedCount?.value ?? 0) > 0 },
+          measurementReady: snapshots.length > 0,
+        };
       }),
   }),
 
@@ -366,12 +378,32 @@ export const appRouter = router({
     report: protectedProcedure
       .input(
         z.object({
-          range: z.enum(["7daysAgo", "30daysAgo", "90daysAgo"]).default("7daysAgo"),
+          range: z.enum(["6daysAgo", "30daysAgo", "90daysAgo"]).default("6daysAgo"),
         })
       )
       .query(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        return getGA4Report(input.range, "today");
+        const report = await getGA4Report(input.range, "today");
+        const db = await getDb();
+        if (!db || !report.dateRangeStart || !report.dateRangeEnd) {
+          return { ...report, firstPartyLeadReconciliation: null };
+        }
+        const windowStart = new Date(`${report.dateRangeStart}T00:00:00.000Z`);
+        const windowEndExclusive = new Date(`${report.dateRangeEnd}T00:00:00.000Z`);
+        windowEndExclusive.setUTCDate(windowEndExclusive.getUTCDate() + 1);
+        const [durableLeadCount] = await db
+          .select({ value: count() })
+          .from(leads)
+          .where(and(gte(leads.createdAt, windowStart), lt(leads.createdAt, windowEndExclusive)));
+        return {
+          ...report,
+          firstPartyLeadReconciliation: {
+            durableLeadCount: Number(durableLeadCount?.value ?? 0),
+            windowStart: report.dateRangeStart,
+            windowEnd: report.dateRangeEnd,
+            definition: "Rows successfully persisted in first-party lead storage; not GA4 events.",
+          },
+        };
       }),
   }),
 
