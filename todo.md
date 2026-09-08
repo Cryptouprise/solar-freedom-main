@@ -1266,6 +1266,10 @@
 - [x] Reconcile missing Action Executor and Attorney Research schedules so eligible queued SEO work and approved attorney research do not remain blocked by absent background jobs
 - [ ] Use the existing GoHighLevel access to retrieve and reconcile real appointment records into the Outcomes dashboard before relying on an inbound lifecycle webhook
 - [x] Add a Blog Studio video upload control that stores a selected video safely, attaches it to the current article, previews it, and preserves the video when publishing
+- [ ] Repair and verify the visible self-service Blog Studio video upload/replacement control for a selected article, including the Tesla second-media slot
+- [x] Verify and document Blog Studio support for YouTube, Vimeo, and direct-video embedding; repair the editor-to-public-renderer gap
+- [x] Render saved YouTube, Vimeo, and uploaded-video attachments securely on public BlogPost pages and remove the local Tesla MP4 workaround
+- [ ] Verify, merge, synchronize, and validate GitHub PR #54 without losing the appointment and Blog Studio video improvements
 - [x] Verify and merge GitHub PR #47, synchronize the managed project, and validate the resulting preview
 - [ ] Audit all city pages for current index status, intentional noindex policy, and duplicated/template content before changing the city SEO strategy
 - [ ] Encode the conversion brief: problem recognition, empathetic explanation, viable next step, no-obligation 15–20 minute case-review call, and chat option

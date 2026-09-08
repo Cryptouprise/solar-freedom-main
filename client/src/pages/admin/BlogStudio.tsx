@@ -702,7 +702,7 @@ export default function BlogStudio() {
             </Button>
             <Button size="sm" onClick={handleApproveAndPublish} disabled={!selectedPostId || publishing} className="bg-green-600 hover:bg-green-500 text-white font-bold text-xs" title="Publishes this reviewed article to its public blog URL">
               {publishing ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Globe className="w-3.5 h-3.5 mr-1" />}
-              Approve & Publish
+              {videoUrl ? "Save & Attach Video" : "Save"}
             </Button>
           </div>
         </div>
@@ -1413,7 +1413,21 @@ export default function BlogStudio() {
                   <Video className="w-4 h-4 text-amber-400" />
                   <span className="text-white text-sm font-medium">Vlog / Video</span>
                 </div>
-                <p className="text-gray-500 text-xs">Attach a video to this blog post. Supports YouTube, Vimeo, or direct video URLs.</p>
+                <p className="text-gray-500 text-xs">Attach a video to this blog post. Upload a file or paste a YouTube, Vimeo, or direct video URL. The video is saved with this article when you click Save or Approve & Publish.</p>
+
+                {!selectedPostId && (
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+                    <p className="text-amber-300 text-xs font-semibold">Step 1 — Select the article above</p>
+                    <p className="text-gray-400 text-xs mt-1">Choose the post you want to update first. Then return to this Video tab to upload and attach the file.</p>
+                  </div>
+                )}
+
+                {selectedPostId && (
+                  <div className="rounded-lg border border-green-500/25 bg-green-500/5 p-3">
+                    <p className="text-green-300 text-xs font-semibold">Ready to attach video</p>
+                    <p className="text-gray-400 text-xs mt-1 truncate">Article: {title || selectedSlug}</p>
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   <div>
@@ -1427,11 +1441,11 @@ export default function BlogStudio() {
                       className="bg-white/5 border-white/10 text-white text-sm font-mono" placeholder="YouTube, Vimeo, or direct video URL..." />
                     <p className="text-gray-600 text-xs mt-1">YouTube: paste the full URL (e.g. https://youtube.com/watch?v=...)</p>
                     <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) void handleVideoFileUpload(file); e.currentTarget.value = ""; }} />
-                    <Button type="button" variant="outline" size="sm" onClick={() => videoInputRef.current?.click()} disabled={videoUploading} className="mt-2 border-amber-500/40 text-amber-300 hover:bg-amber-500/10 text-xs">
+                    <Button type="button" variant="outline" onClick={() => videoInputRef.current?.click()} disabled={videoUploading || !selectedPostId} className="mt-3 w-full border-amber-500/50 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20 hover:text-amber-100 font-semibold text-sm">
                       {videoUploading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Upload className="w-3.5 h-3.5 mr-1" />}
-                      {videoUploading ? "Uploading video…" : "Upload video file"}
+                      {videoUploading ? "Uploading video…" : selectedPostId ? "Upload & attach video file" : "Select an article to upload a video"}
                     </Button>
-                    <p className="text-gray-600 text-[11px] mt-1">MP4, WebM, or MOV · maximum 50 MB · video is attached after Save or Approve & Publish.</p>
+                    <p className="text-gray-600 text-[11px] mt-1">MP4, WebM, or MOV · maximum 50 MB · upload → preview → Save & Attach Video → Approve & Publish when ready.</p>
                   </div>
                   <div>
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-1">Thumbnail URL</label>
@@ -1450,7 +1464,7 @@ export default function BlogStudio() {
                   <div className="border-t border-white/10 pt-4">
                     <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block mb-2">Preview</label>
                     {safeVideoUrl
-                      ? <p className="text-xs text-gray-400 break-all">Validated video URL: {safeVideoUrl}</p>
+                      ? <div className="space-y-2"><video src={safeVideoUrl} controls playsInline preload="metadata" className="w-full rounded-lg border border-white/10 bg-black" /><p className="text-xs text-gray-500 break-all">Attached video: {safeVideoUrl}</p></div>
                       : <p className="text-red-400 text-xs">Enter a valid HTTP(S) media URL.</p>}
                   </div>
                 )}

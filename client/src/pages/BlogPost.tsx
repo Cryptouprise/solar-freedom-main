@@ -166,6 +166,22 @@ function SourceList({ citations }: { citations: string[] }) {
   );
 }
 
+function ArticleVideoAttachment({ url, title, description, thumbnail }: { url?: string | null; title?: string | null; description?: string | null; thumbnail?: string | null }) {
+  if (!url || !/^https?:\/\//i.test(url)) return null;
+  let parsed: URL;
+  try { parsed = new URL(url); } catch { return null; }
+  const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+  const youtubeId = host === "youtu.be" ? parsed.pathname.slice(1) : host.endsWith("youtube.com") ? parsed.searchParams.get("v") ?? parsed.pathname.match(/\/(?:embed|shorts)\/([^/?]+)/)?.[1] : null;
+  const vimeoId = host.endsWith("vimeo.com") ? parsed.pathname.match(/\/(\d+)(?:$|\/)/)?.[1] : null;
+  const safeTitle = title?.trim() || "Video";
+  return <section className="my-10 overflow-hidden rounded-2xl border border-amber-500/30 bg-zinc-900" aria-label={safeTitle}>
+    {youtubeId ? <div className="aspect-video"><iframe className="h-full w-full" src={`https://www.youtube-nocookie.com/embed/${youtubeId}`} title={safeTitle} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
+      : vimeoId ? <div className="aspect-video"><iframe className="h-full w-full" src={`https://player.vimeo.com/video/${vimeoId}`} title={safeTitle} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen /></div>
+      : <video src={url} poster={thumbnail && /^https?:\/\//i.test(thumbnail) ? thumbnail : undefined} controls playsInline preload="metadata" className="w-full bg-black" />}
+    {(title || description) && <div className="px-5 py-4"><h2 className="text-white font-bold">{safeTitle}</h2>{description && <p className="mt-1 text-sm text-zinc-400">{description}</p>}</div>}
+  </section>;
+}
+
 function EditorialMethod() {
   return (
     <section className="px-6 py-12 border-t border-white/10">
@@ -328,20 +344,6 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
       <p className="text-zinc-600 text-xs mt-3 font-mono">Request a review. Options depend on your agreement, facts, and jurisdiction.</p>
     </div>
   );
-}
-
-const TESLA_LEASE_DUP_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/blog-images/cancel-tesla-solar-lease-1785286013577.jpg";
-
-function replaceSecondTeslaLeaseImage(html: string): string {
-  const first = html.indexOf(TESLA_LEASE_DUP_IMAGE);
-  if (first < 0) return html;
-  const second = html.indexOf(TESLA_LEASE_DUP_IMAGE, first + TESLA_LEASE_DUP_IMAGE.length);
-  if (second < 0) return html;
-  const start = html.lastIndexOf("<img", second);
-  const end = html.indexOf(">", second);
-  if (start < 0 || end < 0) return html;
-  const video = '<video src="/videos/cancel-tesla-solar-lease.mp4" controls playsinline preload="metadata" style="width:100%;border-radius:12px"></video>';
-  return html.slice(0, start) + video + html.slice(end + 1);
 }
 
 function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
@@ -640,10 +642,17 @@ export default function BlogPost() {
 
               <DoIQualifyQuiz />
 
+              <ArticleVideoAttachment
+                url={(dbPost as any).videoUrl}
+                title={(dbPost as any).videoTitle}
+                description={(dbPost as any).videoDescription}
+                thumbnail={(dbPost as any).videoThumbnail}
+              />
+
               {/* HTML content from database with inline CTA cadence */}
               <div className="article-content space-y-0">
                 {renderDbContentWithInlineCtas(
-                  slug === "cancel-tesla-solar-lease" ? replaceSecondTeslaLeaseImage(dbHtmlContent) : dbHtmlContent,
+                  dbHtmlContent,
                   "Still Paying on a Solar Contract?",
                   "Request an individual review. Options depend on your agreement, facts, and jurisdiction."
                 )}
