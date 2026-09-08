@@ -330,6 +330,20 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
   );
 }
 
+const TESLA_LEASE_DUP_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/blog-images/cancel-tesla-solar-lease-1785286013577.jpg";
+
+function replaceSecondTeslaLeaseImage(html: string): string {
+  const first = html.indexOf(TESLA_LEASE_DUP_IMAGE);
+  if (first < 0) return html;
+  const second = html.indexOf(TESLA_LEASE_DUP_IMAGE, first + TESLA_LEASE_DUP_IMAGE.length);
+  if (second < 0) return html;
+  const start = html.lastIndexOf("<img", second);
+  const end = html.indexOf(">", second);
+  if (start < 0 || end < 0) return html;
+  const video = '<video src="/videos/cancel-tesla-solar-lease.mp4" controls playsinline preload="metadata" style="width:100%;border-radius:12px"></video>';
+  return html.slice(0, start) + video + html.slice(end + 1);
+}
+
 function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
   content = suppressUnverifiedFirstPartyClaims(suppressUnverifiedQuoteMarkup(content));
   const sections: ReactElement[] = [];
@@ -629,7 +643,7 @@ export default function BlogPost() {
               {/* HTML content from database with inline CTA cadence */}
               <div className="article-content space-y-0">
                 {renderDbContentWithInlineCtas(
-                  dbHtmlContent,
+                  slug === "cancel-tesla-solar-lease" ? replaceSecondTeslaLeaseImage(dbHtmlContent) : dbHtmlContent,
                   "Still Paying on a Solar Contract?",
                   "Request an individual review. Options depend on your agreement, facts, and jurisdiction."
                 )}
