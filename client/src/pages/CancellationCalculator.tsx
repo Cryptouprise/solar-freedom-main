@@ -51,60 +51,58 @@ function calculateResult(state: CalcState): CalcResult {
   // FTC Cooling-Off / TILA rescission
   if (state.signedWhere === "home") {
     score += 25;
-    grounds.push("FTC Cooling-Off Rule (signed in your home — 3-day right to cancel)");
+    grounds.push("Home solicitation: check whether a written cancellation notice was provided.");
   }
   if (state.disclosedRescission === "no") {
     score += 30;
-    grounds.push("TILA right of rescission not disclosed — extends cancellation window to 3 years");
+    grounds.push("Right-to-cancel disclosure: check whether the agreement includes the written notice.");
   }
 
   // Dealer fee / TILA violation
   if (state.dealerFeeDisclosed === "no" && (state.contractType === "loan" || state.contractType === "both")) {
     score += 25;
-    grounds.push("Undisclosed dealer fee — TILA violation and fraudulent misrepresentation");
+    grounds.push("Dealer fee: check the financing paperwork for a markup that was not explained.");
   }
 
   // System not working
   if (state.systemWorking === "no" || state.systemWorking === "partial") {
     score += 20;
-    grounds.push("System failure / underperformance — breach of contract and misrepresentation");
+    grounds.push("Performance: compare the proposal estimate to monitoring or utility records.");
   }
 
   // Escalator clause
   if (state.escalatorClause === "yes") {
     score += 15;
-    grounds.push("Undisclosed escalator clause — payments increase 2.9% annually without clear disclosure");
+    grounds.push("Annual increase: check whether the rate in the signed agreement matches what was explained.");
   }
 
   // Company-specific grounds
   const bankruptCompanies = ["pink-energy", "sunnova", "sungevity", "adt-solar", "sunpower"];
   if (bankruptCompanies.includes(state.company)) {
     score += 20;
-    grounds.push(`${state.company === "pink-energy" ? "Pink Energy" : state.company === "sunnova" ? "Sunnova" : state.company === "sungevity" ? "Sungevity" : state.company === "adt-solar" ? "ADT Solar" : "SunPower"} bankruptcy / business failure — inability to perform contractual obligations`);
+    grounds.push(`${state.company === "pink-energy" ? "Pink Energy" : state.company === "sunnova" ? "Sunnova" : state.company === "sungevity" ? "Sungevity" : state.company === "adt-solar" ? "ADT Solar" : "SunPower"} status: confirm who still services the system and who collects payments.`);
   }
 
   // Issue type
   if (state.issueType === "misled") {
     score += 15;
-    grounds.push("Fraudulent misrepresentation during sales process — state UDAP violations");
+    grounds.push("Sales claims: gather the proposal, texts, and what was promised versus the signed terms.");
   } else if (state.issueType === "cant-sell") {
     score += 10;
-    grounds.push("Solar lien blocking home sale — grounds for contract modification or cancellation");
+    grounds.push("Home sale: gather the lien, transfer, and buyout paperwork.");
   } else if (state.issueType === "company-gone") {
     score += 15;
-    grounds.push("Installer out of business — grounds for loan cancellation under TILA");
+    grounds.push("Installer out of business: gather warranty and lender documents and confirm who still collects.");
   }
 
   // Cap at 100
   score = Math.min(score, 100);
 
-  // Estimated savings
-  const savingsLow = Math.round(totalRemaining * 0.3);
-  const savingsHigh = Math.round(totalRemaining * 0.85);
+  // Remaining payments from the answers entered. Not a savings promise.
   const estimatedSavings =
     totalRemaining > 0
-      ? `$${savingsLow.toLocaleString()} – $${savingsHigh.toLocaleString()}`
-      : "Depends on contract terms";
+      ? `$${Math.round(totalRemaining).toLocaleString()} remaining`
+      : "Add payment and years to see remaining payments";
 
   // Urgency
   let urgency: "high" | "medium" | "low" = "low";
@@ -117,25 +115,25 @@ function calculateResult(state: CalcState): CalcResult {
   let recommendedAction = "";
 
   if (score >= 70) {
-    headline = "STRONG CANCELLATION CASE";
+    headline = "SEVERAL DOCUMENTS TO CHECK";
     subtext =
-      "Based on your answers, you have multiple strong legal grounds to cancel or significantly reduce your solar contract. You should speak with a case specialist immediately.";
-    recommendedAction = "Get a free case review — your situation qualifies for immediate action.";
+      "Your answers point to several items worth checking in the signed agreement, proposal, and payment records. That is a document review, not a finding that you can cancel.";
+    recommendedAction = "Use the cancellation letter to send a written request, then book a review of the actual documents.";
   } else if (score >= 45) {
-    headline = "SOLID GROUNDS TO CHALLENGE";
+    headline = "WORTH A DOCUMENT REVIEW";
     subtext =
-      "You have meaningful legal grounds to challenge your solar contract. A case review can determine whether full cancellation, loan reduction, or a negotiated settlement is the best path.";
-    recommendedAction = "Request a free case review to understand your specific options.";
+      "A few answers suggest terms worth comparing to what was promised. Options depend on the agreement, the facts, and the state. Nothing here is a legal conclusion.";
+    recommendedAction = "Start with the written cancellation letter, then have the signed documents reviewed.";
   } else if (score >= 20) {
-    headline = "POSSIBLE GROUNDS — REVIEW NEEDED";
+    headline = "CHECK THE PAPERWORK";
     subtext =
-      "Your situation has some potential grounds for relief, but the strength depends on details in your contract documents. A case review can identify any violations that aren't obvious from the surface.";
-    recommendedAction = "Get a free contract review to uncover any hidden violations.";
+      "The answers do not show a clear path by themselves. The signed contract, proposal, and lender paperwork decide what is actually available.";
+    recommendedAction = "Pull the contract and the original proposal, then use the letter if you want a written request on file.";
   } else {
-    headline = "LIMITED GROUNDS — BUT REVIEW IS FREE";
+    headline = "NO SCORE REPLACES THE CONTRACT";
     subtext =
-      "Based on your answers, your case may be more complex. However, many violations are buried in contract language — a free review often uncovers grounds that aren't visible without legal analysis.";
-    recommendedAction = "A free case review costs nothing and may reveal options you don't know about.";
+      "These answers do not show an obvious issue. That does not mean there is no option, and it does not mean there is one. Read the agreement before deciding.";
+    recommendedAction = "The calculator cannot tell you that you qualify. The letter and a document review are the next step if you want one.";
   }
 
   return {
@@ -152,9 +150,9 @@ function calculateResult(state: CalcState): CalcResult {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function CancellationCalculator() {
   useSeoMeta({
-    title: "Solar Contract Cancellation Calculator — Estimate Your Grounds & Savings | Solar Freedom",
+    title: "Solar Contract Cancellation Calculator — What to Check | Solar Freedom",
     description:
-      "Free interactive calculator: enter your solar contract details and instantly see your cancellation strength score, legal grounds, and estimated savings. Takes 60 seconds.",
+      "Answer a few questions about your solar agreement and see which documents to gather before a review. Not a cancellation finding and not legal advice.",
     canonical: "https://breakyoursolarcontract.com/calculator",
   });
 
@@ -345,7 +343,7 @@ export default function CancellationCalculator() {
               CALCULATOR
             </h1>
             <p className="text-gray-300 text-lg max-w-xl mx-auto">
-              Answer 10 questions about your solar contract and instantly see your cancellation strength score, legal grounds, and estimated savings.
+              Answer 10 questions about your solar agreement and see which documents to gather. This is not a cancellation finding and not legal advice.
             </p>
           </div>
         )}
@@ -431,7 +429,7 @@ export default function CancellationCalculator() {
             {/* Score Card */}
             <div className={`bg-gradient-to-br ${scoreBg(result.score)} border rounded-xl p-8 text-center`}>
               <div className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-3">
-                Your Cancellation Strength Score
+                Document-check score
               </div>
               <div className={`font-display text-8xl ${scoreColor(result.score)} mb-2`}>
                 {result.score}
@@ -446,18 +444,18 @@ export default function CancellationCalculator() {
             {/* Estimated Savings */}
             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
               <div className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-1">
-                Estimated Potential Savings
+                Remaining payments from your answers
               </div>
               <div className="font-display text-4xl text-amber-400">{result.estimatedSavings}</div>
               <p className="text-gray-400 text-sm mt-2">
-                Based on your remaining contract value. Actual savings depend on specific legal grounds and negotiation outcome.
+                This is the payment and years you entered, multiplied out. It is not an estimate of what you will save.
               </p>
             </div>
 
             {/* Legal Grounds */}
             {result.grounds.length > 0 && (
               <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h3 className="font-display text-xl text-white mb-4">Your Potential Legal Grounds</h3>
+                <h3 className="font-display text-xl text-white mb-4">What to check in the documents</h3>
                 <div className="space-y-3">
                   {result.grounds.map((ground, i) => (
                     <div key={i} className="flex items-start gap-3">
@@ -475,22 +473,22 @@ export default function CancellationCalculator() {
 
             {/* CTA */}
             <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/40 rounded-xl p-8 text-center">
-              <h3 className="font-display text-3xl text-white mb-3">GET YOUR FREE CASE REVIEW</h3>
+              <h3 className="font-display text-3xl text-white mb-3">NEXT STEP: WRITE IT DOWN</h3>
               <p className="text-gray-300 mb-6">{result.recommendedAction}</p>
               <Link
-                href="/#get-help"
+                href="/free-cancellation-letter"
                 className="inline-block bg-amber-500 hover:bg-amber-400 text-black font-bold px-10 py-4 rounded-lg transition-all duration-200 hover:scale-105 text-lg uppercase tracking-wider"
               >
-                Start My Free Review →
+                Get the cancellation letter
               </Link>
               <p className="text-gray-500 text-xs mt-4 font-mono">
-                No obligation · No upfront cost · Results in 24–48 hours
+                The letter is a written request. It does not cancel the agreement by itself.
               </p>
             </div>
 
             {/* Disclaimer */}
             <p className="text-gray-600 text-xs text-center leading-relaxed">
-              This calculator provides an estimate based on common legal grounds and is not legal advice. Results vary based on your specific contract, state laws, and individual circumstances. A free case review with a qualified professional will provide a definitive assessment.
+              This calculator only sorts the answers you typed. It is not legal advice and it does not say you can cancel. Options depend on the signed agreement, the facts, and the state.
             </p>
 
             {/* Restart */}
@@ -512,10 +510,10 @@ export default function CancellationCalculator() {
             <div className="border-t border-white/10 pt-8">
               <h2 className="font-display text-2xl text-white mb-4">How the Calculator Works</h2>
               <p className="mb-4">
-                This calculator evaluates your solar contract against the most common legal grounds for cancellation: the FTC Cooling-Off Rule, TILA right of rescission, undisclosed dealer fees, escalator clause violations, and installer fraud or bankruptcy. Each factor is weighted based on its legal strength and the likelihood of a successful outcome.
+                This calculator compares your answers to documents that are worth gathering: a home-solicitation cancellation notice, a right-to-cancel disclosure, dealer-fee paperwork, an annual increase clause, and who still services the system. It does not weigh the likelihood of any outcome.
               </p>
               <p>
-                The score is not a guarantee — it is an estimate based on the information you provide. Many violations are buried in contract language that requires a professional review to identify. A score of 0 does not mean you have no options; it means the most common grounds may not apply based on your answers.
+                The score is not a finding. A low score does not mean you have no options, and a high score does not mean you can cancel. The signed agreement decides that.
               </p>
             </div>
 
@@ -523,9 +521,9 @@ export default function CancellationCalculator() {
               <h2 className="font-display text-2xl text-white mb-4">What the Score Means</h2>
               <div className="grid md:grid-cols-3 gap-4">
                 {[
-                  { range: "60 – 100", label: "Strong Case", color: "border-amber-500/40 bg-amber-500/10", textColor: "text-amber-400", desc: "Multiple strong legal grounds. Immediate action recommended." },
-                  { range: "35 – 59", label: "Solid Grounds", color: "border-yellow-500/40 bg-yellow-500/10", textColor: "text-yellow-400", desc: "Meaningful grounds to challenge. Case review will clarify options." },
-                  { range: "0 – 34", label: "Review Needed", color: "border-gray-500/40 bg-gray-500/10", textColor: "text-gray-300", desc: "Grounds may be hidden in contract language. Free review recommended." },
+                  { range: "60 – 100", label: "Several items", color: "border-amber-500/40 bg-amber-500/10", textColor: "text-amber-400", desc: "Several documents to compare. Not a finding that you can cancel." },
+                  { range: "35 – 59", label: "Compare paperwork", color: "border-yellow-500/40 bg-yellow-500/10", textColor: "text-yellow-400", desc: "A few answers are worth checking against the signed agreement." },
+                  { range: "0 – 34", label: "Read the contract", color: "border-gray-500/40 bg-gray-500/10", textColor: "text-gray-300", desc: "The answers alone do not show an issue. Read the signed agreement." },
                 ].map((tier) => (
                   <div key={tier.range} className={`border rounded-lg p-4 ${tier.color}`}>
                     <div className={`font-display text-2xl ${tier.textColor} mb-1`}>{tier.range}</div>
@@ -542,9 +540,9 @@ export default function CancellationCalculator() {
                 {[
                   { title: "FTC Cooling-Off Rule", body: "Federal law gives you 3 business days to cancel any contract signed in your home. If the salesperson did not give you a written notice of this right, the cancellation window may extend significantly." },
                   { title: "TILA Right of Rescission", body: "The Truth in Lending Act gives you 3 business days to rescind a loan secured by your home. If this right was not properly disclosed, the window extends to 3 years from the date of signing." },
-                  { title: "Undisclosed Dealer Fees", body: "Solar lenders (GoodLeap, Mosaic, Sunlight Financial) pay installers a 'dealer fee' — a markup of $7,000–$15,000 that is added to your loan without clear disclosure. This is a TILA violation and may constitute fraud." },
+                  { title: "Dealer fees", body: "Some solar loans include a dealer fee, a markup paid to the installer. Check the financing paperwork to see whether that fee was explained before you signed." },
                   { title: "Escalator Clauses", body: "Many Sunrun and SunPower leases include annual payment escalators of 2.9%. If this was not clearly disclosed, it may constitute misrepresentation under your state's consumer protection laws." },
-                  { title: "Installer Bankruptcy", body: "If your installer went out of business (Pink Energy, Sunnova, ADT Solar, SunPower), the lender's continued collection of payments may be challenged under TILA and state UDAP statutes." },
+                  { title: "Installer no longer operating", body: "If the installer is no longer operating, confirm who still services the system and who still collects the payments. That status does not by itself cancel the loan or lease." },
                 ].map((item) => (
                   <div key={item.title} className="border border-white/10 rounded-lg p-4">
                     <h3 className="font-semibold text-white mb-2">{item.title}</h3>
