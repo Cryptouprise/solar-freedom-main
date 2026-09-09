@@ -82,11 +82,12 @@ Verified wins, no content capturing the demand. No incumbent agency to displace.
 
 ## Do not contact
 
-- **Hendershot Cowart P.C.** (TX) — defense-side — represents installers/lenders, do not contact
+- **Hendershot Cowart P.C.** (TX) — wrong side — represents installers, lenders or solar developers, do not contact
 - **Texas RioGrande Legal Aid (TRLA) - Consumer Protection Team** (TX) — legal aid / nonprofit — no marketing budget, intelligence only
 - **Arizona Senior Citizens Law Project (ASCLP)** (AZ) — legal aid / nonprofit — no marketing budget, intelligence only
-- **Lang Thal King & Hanson PC** (AZ) — defense-side — represents installers/lenders, do not contact
-- **Righi Fitch Law Group** (AZ) — defense-side — represents installers/lenders, do not contact
+- **Rose Law Group, pc** (AZ) — wrong side — represents installers, lenders or solar developers, do not contact
+- **Lang Thal King & Hanson PC** (AZ) — wrong side — represents installers, lenders or solar developers, do not contact
+- **Righi Fitch Law Group** (AZ) — wrong side — represents installers, lenders or solar developers, do not contact
 - **Lone Star Legal Aid** (TX) — legal aid / nonprofit — no marketing budget, intelligence only
 - **Legal Aid of NorthWest Texas** (TX) — legal aid / nonprofit — no marketing budget, intelligence only
 

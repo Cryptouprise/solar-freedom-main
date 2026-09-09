@@ -124,7 +124,16 @@ for (const f of master.firms) {
   // Some firms publish an email but obfuscate it against harvesters. It is
   // genuinely published and renders to any human visitor, but the obfuscation
   // signals a preference worth respecting - flag it so a human decides.
-  f.email_obfuscated = /obfuscat|cloudflare|hex.?encod|entity.?encod|decoded/i.test(str(c.notes));
+  // Agents often write "no obfuscation was encountered", which contains every
+  // keyword while meaning the opposite. Check for the denial before the claim.
+  const _n = str(c.notes);
+  // Remove negated clauses first ("no obfuscation was encountered"), then look
+  // for a claim in what remains. A note can legitimately contain both.
+  const _stripped = _n.replace(
+    /\b(?:no|none|not|neither|nor|without|zero)\b[^.;]{0,90}(?:[.;]|$)/gi,
+    " ",
+  );
+  f.email_obfuscated = /\b(?:obfuscat\w*|hex[- ]?encoded|entity[- ]?encoded|decoded|anti-?spambot|cfemail)\b/i.test(_stripped);
 
   // Prefer a direct line to the decision maker; fall back to the best inbox.
   const best = dmEmail || (found[0] ? found[0].email : "");

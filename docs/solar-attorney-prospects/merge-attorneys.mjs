@@ -329,10 +329,17 @@ for (const f of merged.values()) {
   // would never buy homeowner-side services. Some lanes recorded the defense
   // posture only in prose, so check both.
   const blob = [f.firm_name, ...f.evidence, ...f.service_fit].join(" ");
+  // "Wrong side of the v." is broader than defense litigation. A firm doing
+  // developer-side or utility-scale solar work represents the industry, not
+  // homeowners — it would never buy homeowner-side services either.
   const defensePose =
     f.side === "defense" ||
     /\bdefend(?:s|ing)?\b[^.]{0,60}\b(?:contractor|installer|lender|solar compan|credit union)/i.test(blob) ||
-    /\bsolar business defense\b/i.test(blob);
+    /\bsolar business defense\b/i.test(blob) ||
+    /\b(?:developer|industry)[-\s]side\b/i.test(blob) ||
+    /\brepresent(?:s|ing)?\b[^.]{0,40}\b(?:solar compan|the solar industry|installers|off-?takers)/i.test(blob) ||
+    /\boff-?takers?\b/i.test(blob) ||
+    /\butility[-\s]scale solar\b/i.test(blob);
   if (defensePose) {
     f.side = "defense";
     score -= 25;
@@ -360,7 +367,7 @@ for (const f of merged.values()) {
     ? "X"
     : f.score >= 70 ? "A" : f.score >= 50 ? "B" : "C";
   f.exclude_reason = defensePose
-    ? "defense-side — represents installers/lenders, do not contact"
+    ? "wrong side — represents installers, lenders or solar developers, do not contact"
     : f.not_a_buyer
       ? "legal aid / nonprofit — no marketing budget, intelligence only"
       : "";
