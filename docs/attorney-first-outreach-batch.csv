@@ -1,0 +1,3 @@
+first_name,company_name,email,city,state,website,source_url,score,quality_confidence,personalization_note,status
+Timothy,Counxel Legal Firm,request@counxel.com,Queen Creek,Arizona,https://counxel.com/,https://counxel.com/areas-we-serve/solar-contract-litigation-queen-creek/,100,100,"Public solar-contract-litigation service page; ask whether the firm is open to reviewing qualified Arizona solar-contract matters.",ready_for_human_review
+Jesse,Thaler Law,info@law714.com,Huntington Beach,California,https://www.thalerlaw.pro,https://www.thalerlaw.pro/huntington-beach-construction-and-solar-panel-fraud-lawyer/,70,70,"Public construction and solar-panel-fraud service page; ask whether the firm accepts qualified California solar-fraud referrals.",ready_for_human_review
