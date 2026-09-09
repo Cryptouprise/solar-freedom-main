@@ -1,0 +1,290 @@
+[
+  {
+    "firm_name": "The Law Office of Macy D. Hanson, PLLC",
+    "website": "https://www.macyhanson.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Macy D. Hanson",
+      "title": "Litigator and Business Attorney (owner)",
+      "email": "",
+      "source_url": "https://www.macyhanson.com/attorney/"
+    },
+    "decision_maker_rationale": "solo firm, owner/founder decides everything",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://www.macyhanson.com/contact",
+    "phone": "(769) 567-1934",
+    "pages_checked": [
+      "https://www.macyhanson.com/contact",
+      "https://www.macyhanson.com/about",
+      "https://www.macyhanson.com",
+      "https://www.macyhanson.com/attorney/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address published on any page checked, including the attorney bio page. Contact page has a web form (fields: subject, name, email, phone, case description) with no visible destination address."
+  },
+  {
+    "firm_name": "Law Office of David Valdez Jr.",
+    "website": "https://www.valdezlegal.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "David Valdez Jr.",
+      "title": "Attorney (owner)",
+      "email": "",
+      "source_url": "https://www.valdezlegal.com/attorneys"
+    },
+    "decision_maker_rationale": "solo firm, founder decides everything",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://www.valdezlegal.com/contact",
+    "phone": "(310) 559-4529",
+    "pages_checked": [
+      "https://www.valdezlegal.com/contact",
+      "https://www.valdezlegal.com/about",
+      "https://www.valdezlegal.com",
+      "https://www.valdezlegal.com/our-attorneys",
+      "https://www.valdezlegal.com/attorneys"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere checked. Fax also listed: (310) 559-4532. Firm confirms via bio page it is a 1-attorney practice. /about and /our-attorneys returned 404."
+  },
+  {
+    "firm_name": "Arnell Law PLLC",
+    "website": "arnelllaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "site inaccessible, could not confirm - worklist shows 2 attorneys (Chris Arnell, Marcus L. Fifer), Chris Arnell (name partner) would be the likely candidate if site becomes reachable",
+    "attorney_headcount": "",
+    "contact_form_url": "",
+    "phone": "",
+    "pages_checked": [
+      "https://www.arnelllaw.com/contact",
+      "https://www.arnelllaw.com/about",
+      "https://www.arnelllaw.com",
+      "https://www.arnelllaw.com/attorneys",
+      "https://www.arnelllaw.com/practice/solar-panel-fraud"
+    ],
+    "fetch_blocked": true,
+    "notes": "Every page attempted (homepage, contact, about, attorneys, solar practice page) returned HTTP 403 Forbidden - consistent with bot/WAF protection blocking automated fetches. No content could be read."
+  },
+  {
+    "firm_name": "Lundy LLP",
+    "website": "https://lundyllp.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Matthew E. Lundy",
+      "title": "Partner",
+      "email": "",
+      "source_url": "https://lundyllp.com/attorney/matthew-e-lundy/"
+    },
+    "decision_maker_rationale": "no explicit 'managing partner' title published; Matthew E. Lundy is the most prominent active partner (listed first, most featured) at this mid-size firm",
+    "attorney_headcount": "8",
+    "contact_form_url": "https://lundyllp.com/contact-us/",
+    "phone": "+1 337-439-0707",
+    "pages_checked": [
+      "https://lundyllp.com/contact",
+      "https://lundyllp.com",
+      "https://lundyllp.com/about/",
+      "https://lundyllp.com/contact-us/",
+      "https://lundyllp.com/attorney/matthew-e-lundy/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address published on any of 5 pages checked, including Matthew Lundy's individual bio page. Headcount of 8 includes 7 partners plus Hunter Lundy (Of Counsel); one attorney (Jackey South) is listed 'In Memoriam' and excluded from active headcount."
+  },
+  {
+    "firm_name": "Kelly Guzzo, PLC",
+    "website": "https://www.kellyguzzo.com",
+    "emails_found": [
+      {
+        "email": "kkelly@kellyguzzo.com",
+        "belongs_to": "attorney name (Kristi C. Kelly)",
+        "source_url": "https://www.kellyguzzo.com/attorneys/kristi-c-kelly/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Kristi C. Kelly",
+      "title": "Attorney (name partner - firm is 'Kelly Guzzo, PLC')",
+      "email": "kkelly@kellyguzzo.com",
+      "source_url": "https://www.kellyguzzo.com/attorneys/kristi-c-kelly/"
+    },
+    "decision_maker_rationale": "name partner at a mid-size firm (6 attorneys); no dedicated marketing/administrator role found published, and her direct email is published",
+    "attorney_headcount": "6",
+    "contact_form_url": "https://www.kellyguzzo.com/contact-us/",
+    "phone": "703-424-7570",
+    "pages_checked": [
+      "https://www.kellyguzzo.com/contact",
+      "https://www.kellyguzzo.com/attorneys",
+      "https://www.kellyguzzo.com/attorneys/kristi-c-kelly/",
+      "https://www.kellyguzzo.com/about"
+    ],
+    "fetch_blocked": false,
+    "notes": "Direct partner email found on her individual bio page (not on the team/contact pages). Multi-office firm: Fairfax VA, Baltimore MD, Washington DC, Honolulu HI. Her bio does not use a formal title like 'founding partner' - just identifies her as a consumer protection/credit attorney. /about returned 404."
+  },
+  {
+    "firm_name": "Law Offices of Gary R. DeFilippo, PC",
+    "website": "https://www.garydefilippo.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Gary R. DeFilippo",
+      "title": "Attorney (solo practitioner)",
+      "email": "",
+      "source_url": "https://www.garydefilippo.com"
+    },
+    "decision_maker_rationale": "solo firm, founder decides everything",
+    "attorney_headcount": "1",
+    "contact_form_url": "",
+    "phone": "",
+    "pages_checked": [
+      "https://www.garydefilippo.com/contact",
+      "https://www.garydefilippo.com/about",
+      "https://www.garydefilippo.com",
+      "https://www.garydefilippo.com/contact-us",
+      "https://www.garydefilippo.com/contact/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Site is a minimalist single-page personal site (About/Contact are on-page anchor sections, not real subpages - hence the /contact, /about etc. URLs 404/403'd while the homepage itself loaded fine with real content). No email, phone, or contact form found anywhere; contact section only lists 'Staten Island, NY US'. He is also listed as President of ParolePreparationServices.com."
+  },
+  {
+    "firm_name": "Freeman & Fuson Trial Lawyers",
+    "website": "https://www.fusonlaw.com",
+    "emails_found": [
+      {
+        "email": "mark@freemanfuson.com",
+        "belongs_to": "attorney name (Mark T. Freeman, Founding Partner)",
+        "source_url": "https://www.fusonlaw.com/lawyers/mark-t-freeman-esq"
+      },
+      {
+        "email": "joe@freemanfuson.com",
+        "belongs_to": "attorney name (Joseph W. Fuson, Founding Partner)",
+        "source_url": "https://www.fusonlaw.com/lawyers/joseph-w-fuson-esq"
+      }
+    ],
+    "decision_maker": {
+      "name": "Mark T. Freeman, Esq.",
+      "title": "Founding Partner",
+      "email": "mark@freemanfuson.com",
+      "source_url": "https://www.fusonlaw.com/lawyers/mark-t-freeman-esq"
+    },
+    "decision_maker_rationale": "co-founding partner at a mid-size firm (6 attorneys) with a directly published email address",
+    "attorney_headcount": "6",
+    "contact_form_url": "https://www.fusonlaw.com/contact-us",
+    "phone": "(615) 298-7272",
+    "pages_checked": [
+      "https://www.fusonlaw.com/contact",
+      "https://www.fusonlaw.com/attorneys",
+      "https://www.fusonlaw.com",
+      "https://www.fusonlaw.com/lawyers/mark-t-freeman-esq",
+      "https://www.fusonlaw.com/lawyers/joseph-w-fuson-esq",
+      "https://www.fusonlaw.com/our-team",
+      "https://www.fusonlaw.com/team"
+    ],
+    "fetch_blocked": false,
+    "notes": "Both founding partners have direct published emails on their individual attorney bio pages (main /contact-us page itself had no visible email). 6 attorneys hold 'Esq.' (Freeman, Fuson, Carolanne R. King, Marissa Knight, Nickolas I. Schulenberg, Katy Haggard); several other named staff are non-attorney support roles. Second office in Franklin, TN (by appointment)."
+  },
+  {
+    "firm_name": "Robinson & Henry, P.C.",
+    "website": "https://www.robinsonandhenry.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Daniel Chandler",
+      "title": "Partner & Director of Operations",
+      "email": "",
+      "source_url": "https://www.robinsonandhenry.com/team/"
+    },
+    "decision_maker_rationale": "large firm (11+ attorneys); no dedicated marketing director/CMO/business development lead found published, so recording the closest operations-leadership title actually published",
+    "attorney_headcount": "11+ (team page is paginated across 7 pages; exact total not shown)",
+    "contact_form_url": "https://www.robinsonandhenry.com/contact/",
+    "phone": "(303) 688-0944",
+    "pages_checked": [
+      "https://www.robinsonandhenry.com/contact/",
+      "https://www.robinsonandhenry.com/about-us/",
+      "https://www.robinsonandhenry.com/team/",
+      "https://www.robinsonandhenry.com/careers/",
+      "https://www.robinsonandhenry.com/leadership/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address published on any page checked. Contact page directs visitors to online appointment scheduling/chat rather than a static form. 8 physical office locations across Colorado's Front Range, each with its own phone number. No named founder, CEO, or single managing partner found on the About Us page. /leadership/ returned 404."
+  },
+  {
+    "firm_name": "Elam & Burke, P.A.",
+    "website": "https://www.elamburke.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "site inaccessible, could not confirm - worklist shows 4 attorneys, so likely small/mid firm where a managing/founding partner would decide",
+    "attorney_headcount": "",
+    "contact_form_url": "",
+    "phone": "",
+    "pages_checked": [
+      "https://www.elamburke.com/contact",
+      "https://www.elamburke.com",
+      "https://www.elamburke.com/attorneys"
+    ],
+    "fetch_blocked": true,
+    "notes": "Every page attempted returned a bot-verification challenge page ('One moment, please... Please wait while your request is being verified...') instead of real content. No content could be read."
+  },
+  {
+    "firm_name": "Morrison, Sherwood, Wilson & Deola, PLLP",
+    "website": "https://www.mswdlaw.com/",
+    "emails_found": [
+      {
+        "email": "info@mswdlaw.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://www.mswdlaw.com/contact-us"
+      },
+      {
+        "email": "john@mswdlaw.com",
+        "belongs_to": "attorney name (John Morrison, Partner)",
+        "source_url": "https://www.mswdlaw.com/attorneys"
+      }
+    ],
+    "decision_maker": {
+      "name": "John Morrison",
+      "title": "Partner",
+      "email": "john@mswdlaw.com",
+      "source_url": "https://www.mswdlaw.com/attorneys"
+    },
+    "decision_maker_rationale": "listed first among the firm's partners and the firm's namesake at this mid-size firm (8 attorneys); direct email published",
+    "attorney_headcount": "8",
+    "contact_form_url": "https://www.mswdlaw.com/contact-us",
+    "phone": "(406) 442-3261",
+    "pages_checked": [
+      "https://www.mswdlaw.com/contact",
+      "https://www.mswdlaw.com",
+      "https://www.mswdlaw.com/attorneys",
+      "https://www.mswdlaw.com/contact-us"
+    ],
+    "fetch_blocked": false,
+    "notes": "info@mswdlaw.com is explicitly designated on-site for job/resume inquiries, not general contact - useful as a fallback route only. John Morrison's direct email (john@mswdlaw.com) is the better outreach target. 8 attorneys = 7 partners (John Morrison, David K. W. Wilson Jr., Lin Deola, Brian J. Miller, Rob Farris-Olsen, Scott Peterson, Anne Sherwood) + 1 Of Counsel (Frederick F. Sherwood)."
+  },
+  {
+    "firm_name": "Wittels McInturff Palikovic",
+    "website": "https://www.wittelslaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Steven L. Wittels",
+      "title": "Founding Partner",
+      "email": "",
+      "source_url": "https://www.wittelslaw.com/team"
+    },
+    "decision_maker_rationale": "founding partner at a mid-size firm (7 attorneys)",
+    "attorney_headcount": "7",
+    "contact_form_url": "https://wittelslaw.com/contact-us",
+    "phone": "(914) 319-9945",
+    "pages_checked": [
+      "https://www.wittelslaw.com/contact",
+      "https://www.wittelslaw.com",
+      "https://www.wittelslaw.com/team",
+      "https://wittelslaw.com/steven"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published on the team page or on Steven Wittels' individual bio page (/steven). Team roster: Steven L. Wittels (Founding Partner), J. Burkett McInturff (Partner), Tiasha Palikovic (Partner), Jessica Hunter (Counsel), Ethan D. Roman (Counsel), Daniel J. Brenner (Senior Associate), Daniel Kieselstein (Senior Associate)."
+  }
+]

@@ -1,0 +1,326 @@
+[
+  {
+    "firm_name": "Arnell Law PLLC",
+    "website": "https://www.texassolarpanelfraud.com/",
+    "emails_found": [
+      {
+        "email": "Chris@arnelllaw.com",
+        "belongs_to": "Chris Arnell (attorney)",
+        "source_url": "https://www.texassolarpanelfraud.com/free-consultation/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Chris Arnell",
+      "title": "Trial Attorney",
+      "email": "Chris@arnelllaw.com",
+      "source_url": "https://www.texassolarpanelfraud.com/free-consultation/"
+    },
+    "decision_maker_rationale": "Solo/small firm; his name matches the firm name (Arnell Law PLLC) and he is the principal attorney — no marketing staff found.",
+    "attorney_headcount": "1 (for Arnell Law PLLC specifically)",
+    "contact_form_url": "https://portal.arnelllaw.com/intake",
+    "phone": "(972) 516-4385",
+    "pages_checked": [
+      "https://www.texassolarpanelfraud.com/",
+      "https://www.texassolarpanelfraud.com/meet-the-attorneys/",
+      "https://www.texassolarpanelfraud.com/free-consultation/",
+      "https://www.arnelllaw.com"
+    ],
+    "fetch_blocked": false,
+    "notes": "www.arnelllaw.com (the firm's own domain) returned HTTP 403 Forbidden — likely bot-blocked; all data instead came from the working marketing microsite texassolarpanelfraud.com, which is co-branded with a separate firm, Marcus L. Fifer Law, PLLC (attorney Marcus Fifer, phone 512-522-9585 / 512-487-0324, no email found for him). No formal title such as 'founding partner' is published for Chris Arnell; the site describes both attorneys jointly only as 'Texas trial lawyers.'"
+  },
+  {
+    "firm_name": "Law Offices of Ali Taheripour",
+    "website": "https://www.taheripourlaw.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Ali Taheripour",
+      "title": "Founding Attorney",
+      "email": "",
+      "source_url": "https://www.taheripourlaw.com/about-us/ali-taheripour/"
+    },
+    "decision_maker_rationale": "Solo/small firm (3 attorneys) — founding attorney decides on marketing spend.",
+    "attorney_headcount": "3",
+    "contact_form_url": "https://www.taheripourlaw.com/contact-us/",
+    "phone": "(818) 629-1121",
+    "pages_checked": [
+      "https://www.taheripourlaw.com/",
+      "https://www.taheripourlaw.com/contact-us/",
+      "https://www.taheripourlaw.com/about-us/",
+      "https://www.taheripourlaw.com/about-us/ali-taheripour/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No published email found anywhere checked, including the founder's own bio page fetched directly. Contact page has an embedded contact form (no separate URL). Two offices: Woodland Hills and Encino, CA."
+  },
+  {
+    "firm_name": "Thrift McLemore",
+    "website": "https://thriftlegal.com",
+    "emails_found": [
+      {
+        "email": "info@thriftlegal.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://thriftlegal.com/contact/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Craig Thrift",
+      "title": "Attorney",
+      "email": "",
+      "source_url": "https://thriftlegal.com/team/craig-thrift/"
+    },
+    "decision_maker_rationale": "Co-founder (firm name derives from his and co-founder Ryan McLemore's surnames); no dedicated marketing/BD or firm-administrator role was found despite a 24-attorney headcount, so a founding partner is the fallback.",
+    "attorney_headcount": "24",
+    "contact_form_url": "https://thriftlegal.com/contact/",
+    "phone": "(678) 882-0830",
+    "pages_checked": [
+      "https://thriftlegal.com",
+      "https://thriftlegal.com/contact/",
+      "https://thriftlegal.com/our-team/",
+      "https://thriftlegal.com/team/craig-thrift/",
+      "https://thriftlegal.com/team/ (404)"
+    ],
+    "fetch_blocked": false,
+    "notes": "Co-founders are Craig Thrift and Ryan McLemore (confirmed via the firm's own bio page at thriftlegal.com/team/craig-thrift/, surfaced through web search). Neither founder's bio page publishes a personal email or an explicit 'managing/founding partner' title — Craig Thrift's own page lists him simply as 'Attorney.' info@thriftlegal.com is the best verified contact route."
+  },
+  {
+    "firm_name": "Newsome Law, P.A. (also operating/known as Newsome Melton, P.A.)",
+    "website": "https://www.newsomelaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "C. Richard Newsome",
+      "title": "Senior Partner",
+      "email": "",
+      "source_url": "https://www.newsomelaw.com"
+    },
+    "decision_maker_rationale": "Founder of the firm; the site appears to be a small practice built around him — he is the only attorney found on any page checked.",
+    "attorney_headcount": "",
+    "contact_form_url": "https://www.newsomelaw.com/contact-us/",
+    "phone": "(407) 648-5977",
+    "pages_checked": [
+      "https://www.newsomelaw.com",
+      "https://www.newsomelaw.com/contact-us/",
+      "https://www.newsomelaw.com/attorneys/",
+      "https://www.newsomelaw.com/about/",
+      "https://www.newsomelaw.com/about/rich-newsome/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address found anywhere on the site (homepage, contact page, attorneys page, about page, and the founder's own bio page were all checked directly). Amy L. Judkins, listed in the worklist as a second attorney, does not appear anywhere on the current site and may no longer be with the firm. Site emphasizes a small caseload ('just a handful of cases at any given time')."
+  },
+  {
+    "firm_name": "Milberg Coleman Bryson Phillips Grossman, PLLC",
+    "website": "https://milberg.com",
+    "emails_found": [
+      {
+        "email": "dataprivacy@milberg.com",
+        "belongs_to": "general inbox (privacy/data requests)",
+        "source_url": "https://milberg.com"
+      },
+      {
+        "email": "wmolina@milberg.com",
+        "belongs_to": "Wadner Molina, Human Resources Director",
+        "source_url": "https://milberg.com/our-staff/"
+      },
+      {
+        "email": "cmarcial@milberg.com",
+        "belongs_to": "staff member (name on page not matched with confidence)",
+        "source_url": "https://milberg.com/our-staff/"
+      },
+      {
+        "email": "dlevine@milberg.com",
+        "belongs_to": "staff member (name on page not matched with confidence)",
+        "source_url": "https://milberg.com/our-staff/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Naomi Fantauzzi",
+      "title": "Campaign Manager",
+      "email": "",
+      "source_url": "https://milberg.com/our-staff/"
+    },
+    "decision_maker_rationale": "Large national firm with many offices — 'Campaign Manager' is the closest published role to marketing/case-acquisition leadership at this mass-tort firm, so preferred over guessing at a managing partner; no direct email is published for her specifically.",
+    "attorney_headcount": "",
+    "contact_form_url": "https://milberg.com/contact-us/",
+    "phone": "1.866.252.0878",
+    "pages_checked": [
+      "https://milberg.com",
+      "https://milberg.com/about-us/",
+      "https://milberg.com/contact-us/",
+      "https://milberg.com/our-staff/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Large multi-office national plaintiffs' firm ('50+ years' of combined firm history claimed); total attorney count not explicitly stated on any page checked. Staff page lists a Campaign Manager (Naomi Fantauzzi, marketing-adjacent) and an HR Director (Wadner Molina, email confirmed) but no Marketing Director/CMO title. Two additional staff emails appear on the staff page but could not be confidently attributed to named individuals in the extracted content."
+  },
+  {
+    "firm_name": "Consumer Litigation Associates",
+    "website": "https://clalegal.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Leonard A. Bennett",
+      "title": "Founding Partner",
+      "email": "",
+      "source_url": "https://clalegal.com/our-team/leonard-a-bennett/"
+    },
+    "decision_maker_rationale": "Founding partner of a 7-attorney firm — decides on marketing spend.",
+    "attorney_headcount": "7",
+    "contact_form_url": "https://clalegal.com/contact-us/",
+    "phone": "(757) 930-3660",
+    "pages_checked": [
+      "https://clalegal.com/",
+      "https://clalegal.com/our-team/",
+      "https://clalegal.com/contact-us/",
+      "https://clalegal.com/our-team/leonard-a-bennett/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere on the firm's own site, including on Leonard Bennett's own bio page (checked directly and it explicitly showed no email). Third-party data-broker sites (ZoomInfo, etc.) suggested an email via general web search, but since it was never actually seen on a fetched page it is excluded per the no-guessing rule. Contact form only."
+  },
+  {
+    "firm_name": "Law Offices Of SRIS, P.C.",
+    "website": "https://srislawyer.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Mr. Sris (Atchuthan Sriskandarajah)",
+      "title": "Founder, CEO & Principal Attorney",
+      "email": "",
+      "source_url": "https://srislawyer.com/mr-sris-former-prosecutor-va-criminal-defense-lawyer/"
+    },
+    "decision_maker_rationale": "Owner/founder/CEO of the firm — explicitly the top decision-maker regardless of the firm's size (~19 attorneys).",
+    "attorney_headcount": "19",
+    "contact_form_url": "https://srislawyer.com/contact-us/",
+    "phone": "(888) 437-7747",
+    "pages_checked": [
+      "https://srislawyer.com",
+      "https://srislawyer.com/contact-us/",
+      "https://srislawyer.com/our-team/",
+      "https://srislawyer.com/mr-sris-former-prosecutor-va-criminal-defense-lawyer/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere on the site, including on the founder's own bio page (checked directly). Web search surfaced conflicting, unverifiable email guesses from data-broker sites (different domains, masked addresses); none were confirmed on an actual fetched page, so excluded. Firm also operates a Colombia practice (sriscounsel.com) and a separate NY/NJ site (srislaw.com), not checked."
+  },
+  {
+    "firm_name": "Bursor & Fisher, P.A.",
+    "website": "https://www.bursor.com",
+    "emails_found": [
+      {
+        "email": "scott@bursor.com",
+        "belongs_to": "Scott A. Bursor, President",
+        "source_url": "https://www.bursor.com/team/scott-a-bursor/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Scott A. Bursor",
+      "title": "President",
+      "email": "scott@bursor.com",
+      "source_url": "https://www.bursor.com/team/scott-a-bursor/"
+    },
+    "decision_maker_rationale": "No dedicated marketing/BD/client-services role found despite ~41 attorneys; the firm's President is the senior-most named leader and has a verified direct email.",
+    "attorney_headcount": "~41 (5 Partners, 4 Managing Partners, 1 President, 3 Counsel, 28 Associates per team page; plus ~15 non-attorney legal staff)",
+    "contact_form_url": "https://www.bursor.com/contact/",
+    "phone": "305-330-5512",
+    "pages_checked": [
+      "https://www.bursor.com",
+      "https://www.bursor.com/contact/",
+      "https://www.bursor.com/team/",
+      "https://www.bursor.com/team/scott-a-bursor/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Direct email for the firm's President found and verified on his own bio page."
+  },
+  {
+    "firm_name": "Francis Mailman Soumilas, P.C.",
+    "website": "https://www.consumerlawfirm.com",
+    "emails_found": [
+      {
+        "email": "jfrancis@consumerlawfirm.com",
+        "belongs_to": "James A. Francis, co-founder",
+        "source_url": "https://www.consumerlawfirm.com/james-a-francis/"
+      },
+      {
+        "email": "mmailman@consumerlawfirm.com",
+        "belongs_to": "Mark D. Mailman, co-founder",
+        "source_url": "https://www.consumerlawfirm.com/attorneys.htm"
+      },
+      {
+        "email": "jsoumilas@consumerlawfirm.com",
+        "belongs_to": "John Soumilas, co-founder",
+        "source_url": "https://www.consumerlawfirm.com/attorneys.htm"
+      }
+    ],
+    "decision_maker": {
+      "name": "James A. Francis",
+      "title": "Co-Founder",
+      "email": "jfrancis@consumerlawfirm.com",
+      "source_url": "https://www.consumerlawfirm.com/james-a-francis/"
+    },
+    "decision_maker_rationale": "Mid-size firm (14 attorneys); a co-founder with a verified direct email — no separate marketing/BD role was found, so a founding partner is the right contact.",
+    "attorney_headcount": "14",
+    "contact_form_url": "https://www.consumerlawfirm.com/casereview.php",
+    "phone": "1-877-735-8600",
+    "pages_checked": [
+      "https://www.consumerlawfirm.com",
+      "https://www.consumerlawfirm.com/attorneys.htm",
+      "https://www.consumerlawfirm.com/james-a-francis/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Strong result: three named co-founders' direct work emails are published on the firm's own site (each was literally read on a fetched page — jfrancis's was independently confirmed twice, on both the attorneys listing and his own bio page)."
+  },
+  {
+    "firm_name": "Motley Rice LLC",
+    "website": "https://www.motleyrice.com",
+    "emails_found": [
+      {
+        "email": "communications@motleyrice.com",
+        "belongs_to": "marketing/communications inbox",
+        "source_url": "https://www.motleyrice.com/connect"
+      }
+    ],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "Large firm ('more than 100 attorneys') — no named Marketing Director/CMO/Business Development lead was published on any page checked; the communications inbox is the best available published marketing-adjacent contact.",
+    "attorney_headcount": "100+ (site states 'more than 100 attorneys')",
+    "contact_form_url": "https://www.motleyrice.com/connect",
+    "phone": "1.800.768.4026",
+    "pages_checked": [
+      "https://www.motleyrice.com",
+      "https://www.motleyrice.com/connect",
+      "https://www.motleyrice.com/about",
+      "https://www.motleyrice.com/about/leadership (404)",
+      "https://www.motleyrice.com/about/firm-overview (404)"
+    ],
+    "fetch_blocked": false,
+    "notes": "communications@motleyrice.com is explicitly presented on-site as the media/communications contact — the closest published marketing-relevant channel — but no individual name is attached to it. Attempts to find a leadership/marketing-team page returned 404s."
+  },
+  {
+    "firm_name": "Zimmerman Reed LLP",
+    "website": "https://www.zimmreed.com",
+    "emails_found": [
+      {
+        "email": "Lindsey.Carr@zimmreed.com",
+        "belongs_to": "HR/recruiting contact",
+        "source_url": "https://www.zimmreed.com/careers/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Derek Dixon",
+      "title": "Marketing Manager",
+      "email": "",
+      "source_url": "https://www.zimmreed.com/people/derek-dixon/"
+    },
+    "decision_maker_rationale": "Dedicated Marketing Manager found on staff — preferred per instructions over the firm's three Managing Partners for this 25-attorney firm.",
+    "attorney_headcount": "25",
+    "contact_form_url": "https://www.zimmreed.com/contact-us/",
+    "phone": "877-500-8780",
+    "pages_checked": [
+      "https://www.zimmreed.com",
+      "https://www.zimmreed.com/contact-us/",
+      "https://www.zimmreed.com/people/",
+      "https://www.zimmreed.com/people/derek-dixon/",
+      "https://www.zimmreed.com/about/",
+      "https://www.zimmreed.com/careers/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Named Marketing Manager (Derek Dixon) confirmed via his own bio page (title and phone shown), but no email is published for him specifically. The only verified email on the domain is an HR/recruiting contact (Lindsey Carr) on the careers page — included for completeness but she is not the marketing decision-maker. Three Managing Partners are also named on the people page: June Pineda Hoidal, Caleb L. H. Marker, and J. Gordon Rudd, Jr."
+  }
+]

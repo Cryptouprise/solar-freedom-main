@@ -1,0 +1,302 @@
+[
+  {
+    "firm_name": "KGS Law Group PLLC (Kinard, Garcia & Saldaña)",
+    "website": "https://www.kgslawpllc.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Brandon Kinard",
+      "title": "Partner",
+      "email": "",
+      "source_url": "https://www.kgslawpllc.com/team/brandon-kinard/"
+    },
+    "decision_maker_rationale": "Small firm (5 attorneys); no marketing role published. Brandon Kinard is one of three co-founding, co-equal partners named in the firm's own name (Kinard, Garcia & Saldaña) — the site does not distinguish a single managing partner among them.",
+    "attorney_headcount": "5",
+    "contact_form_url": "https://www.kgslawpllc.com/contact-us/",
+    "phone": "(281) 962-7772",
+    "pages_checked": [
+      "https://www.kgslawpllc.com/",
+      "https://www.kgslawpllc.com/contact-us/",
+      "https://www.kgslawpllc.com/about-us/",
+      "https://www.kgslawpllc.com/attorneys/",
+      "https://www.kgslawpllc.com/team/brandon-kinard/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere on the site, including on individual attorney bio pages. 3 partners (Kinard, Garcia, Saldaña) + 2 associates (Alexander Menchaca, Hector Salinas) = 5 attorneys."
+  },
+  {
+    "firm_name": "Kneupper & Covey PC",
+    "website": "https://kneuppercovey.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Kevin Kneupper",
+      "title": "Co-founder / Partner",
+      "email": "",
+      "source_url": "https://kneuppercovey.com/attorneys/kevin-kneupper/"
+    },
+    "decision_maker_rationale": "Mid-size firm (9 attorneys); no marketing role published. Kevin Kneupper is a co-founding partner (co-founded with A. Cyclone Covey, who is an equally valid alternate contact).",
+    "attorney_headcount": "9",
+    "contact_form_url": "https://kneuppercovey.com/contact/",
+    "phone": "657-845-3100",
+    "pages_checked": [
+      "https://kneuppercovey.com",
+      "https://kneuppercovey.com/contact/",
+      "https://kneuppercovey.com/about/",
+      "https://kneuppercovey.com/about-us/",
+      "https://kneuppercovey.com/attorneys/kevin-kneupper/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere; site directs all inquiries to a contact form. Firm co-founded by Kevin Kneupper and A. Cyclone Covey with 7 additional attorneys."
+  },
+  {
+    "firm_name": "Vargas Gonzalez Delombard, LLP",
+    "website": "https://vargasgonzalez.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Michael Ellis",
+      "title": "Director of Business Development",
+      "email": "",
+      "source_url": "https://vargasgonzalez.com/our-team/michael-ellis/"
+    },
+    "decision_maker_rationale": "Firm has a dedicated, named Director of Business Development on its team page — preferred over the four named partners per the marketing/BD-contact-first rule.",
+    "attorney_headcount": "7",
+    "contact_form_url": "https://vargasgonzalez.com/contact/",
+    "phone": "(407) 794-3056",
+    "pages_checked": [
+      "https://vargasgonzalez.com",
+      "https://vargasgonzalez.com/contact/",
+      "https://vargasgonzalez.com/about-us/",
+      "https://vargasgonzalez.com/our-team/",
+      "https://vargasgonzalez.com/partners/",
+      "https://vargasgonzalez.com/our-team/michael-ellis/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere, including on Michael Ellis's own bio page. Multi-office firm (FL, TX, CO, NY, IL, MO) with 4 named partners (Vargas, Gonzalez, Delombard, Ortiz) plus additional attorneys (George Zeckler, James Yerby, Jacob Flint). Worklist-supplied attorney Joseph Glace was not found on the current team page — possible personnel change since the worklist was compiled."
+  },
+  {
+    "firm_name": "Hofer Hagan LLP",
+    "website": "https://www.hoferhagan.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Steve Hofer",
+      "title": "",
+      "email": "",
+      "source_url": "https://www.hoferhagan.com/our-attorneys/"
+    },
+    "decision_maker_rationale": "Small firm (3 attorneys); site does not publish individual titles, but Steve Hofer is one of the two named founding partners in the firm name (Hofer Hagan) and thus the presumed decision-maker along with Keith Hagan.",
+    "attorney_headcount": "3",
+    "contact_form_url": "https://www.hoferhagan.com/contact/",
+    "phone": "(317) 349-0887",
+    "pages_checked": [
+      "https://www.hoferhagan.com/",
+      "https://www.hoferhagan.com/contact/",
+      "https://www.hoferhagan.com/about/",
+      "https://www.hoferhagan.com/our-attorneys/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published. Site lists three attorneys (Steve Hofer, Keith Hagan, Mike Sommerkamp) by name only, with no titles given for any of them, so could not confirm a single 'managing' partner."
+  },
+  {
+    "firm_name": "California Consumer Attorneys, APC",
+    "website": "https://www.californiaconsumerattorneys.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Christopher T. Smith",
+      "title": "",
+      "email": "",
+      "source_url": "https://www.californiaconsumerattorneys.com/about-us"
+    },
+    "decision_maker_rationale": "Solo firm — Christopher T. Smith is the only named attorney anywhere on the site.",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://www.californiaconsumerattorneys.com/contact-us",
+    "phone": "",
+    "pages_checked": [
+      "https://www.californiaconsumerattorneys.com/",
+      "https://www.californiaconsumerattorneys.com/about-us",
+      "https://www.californiaconsumerattorneys.com/solar",
+      "https://www.californiaconsumerattorneys.com/contact-us"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email or phone number published anywhere on the site; only a reCAPTCHA-gated contact form was found. No title given for Christopher T. Smith."
+  },
+  {
+    "firm_name": "Connelly Law",
+    "website": "https://www.connellylaw.com/",
+    "emails_found": [
+      {"email": "rj@connellylaw.com", "belongs_to": "RJ Connelly III (Managing Attorney)", "source_url": "https://www.connellylaw.com/ourteam"},
+      {"email": "jconnelly@connellylaw.com", "belongs_to": "Jennifer Connelly (Office Manager)", "source_url": "https://www.connellylaw.com/ourteam"},
+      {"email": "adrake@connellylaw.com", "belongs_to": "Alycia Drake (Fiduciary Operations Manager)", "source_url": "https://www.connellylaw.com/ourteam"}
+    ],
+    "decision_maker": {
+      "name": "RJ Connelly III",
+      "title": "Managing Attorney / Certified Elder Law Attorney",
+      "email": "rj@connellylaw.com",
+      "source_url": "https://www.connellylaw.com/ourteam"
+    },
+    "decision_maker_rationale": "Solo-attorney firm — RJ Connelly III is the firm's only attorney and its published Managing Attorney, with a directly published email address.",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://www.connellylaw.com/connellylaw",
+    "phone": "401-724-9400",
+    "pages_checked": [
+      "https://www.connellylaw.com/",
+      "https://www.connellylaw.com/post/shining-light-on-solar-panel-companies-protecting-elderly-homeowners",
+      "https://www.connellylaw.com/ourteam",
+      "https://www.connellylaw.com/connellylaw",
+      "https://www.connellylaw.com/rjconnellycertifiedelderlawattroeny"
+    ],
+    "fetch_blocked": false,
+    "notes": "Best contact in this batch: a direct published email for the firm's managing attorney/owner, confirmed verbatim (mailto:rj@connellylaw.com) via two independent fetches of the team page. Team page also lists an Office Manager (Jennifer Connelly) as an alternate admin/marketing-adjacent contact with her own published email."
+  },
+  {
+    "firm_name": "Law Office of Wayne Goralski",
+    "website": "https://www.waynegoralski.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Wayne Roger Goralski",
+      "title": "Owner / Attorney",
+      "email": "",
+      "source_url": "https://www.waynegoralski.com/attorneys/"
+    },
+    "decision_maker_rationale": "Solo firm — Wayne Roger Goralski is the sole owner/attorney and decides everything.",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://www.waynegoralski.com/contact-us/",
+    "phone": "713-859-0863",
+    "pages_checked": [
+      "https://www.waynegoralski.com",
+      "https://www.waynegoralski.com/contact-us/",
+      "https://www.waynegoralski.com/attorneys/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published; site explicitly notes 'Email Wayne Roger Goralski' links through to a contact form rather than a mailto: link. Two contact form variants found: a general one and an attorney-specific one (?attorney=Wayne+Roger+Goralski)."
+  },
+  {
+    "firm_name": "Carney Bates & Pulliam, PLLC",
+    "website": "https://www.cbplaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Allen Carney",
+      "title": "Partner",
+      "email": "",
+      "source_url": "https://www.cbplaw.com/attorneys/allen-carney/"
+    },
+    "decision_maker_rationale": "Mid-size firm (10 attorneys); no marketing role published. Allen Carney is the first-named founding partner, matching the firm name order (Carney, Bates & Pulliam).",
+    "attorney_headcount": "10",
+    "contact_form_url": "https://www.cbplaw.com/contact",
+    "phone": "(501) 312-8500",
+    "pages_checked": [
+      "https://www.cbplaw.com",
+      "https://www.cbplaw.com/contact",
+      "https://www.cbplaw.com/attorneys",
+      "https://www.cbplaw.com/about-us/",
+      "https://www.cbplaw.com/attorneys/allen-carney/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published for any of the 10 listed attorneys (6 partners, 2 of counsel, 2 associates). The /contact page fetch returned only header/navigation content with no visible form or contact details, so the form's presence could not be fully confirmed."
+  },
+  {
+    "firm_name": "DannLaw (The Dann Law Firm)",
+    "website": "https://dannlaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Brian Flick",
+      "title": "Managing Partner",
+      "email": "",
+      "source_url": "https://dannlaw.com/our-team/brian-flick/"
+    },
+    "decision_maker_rationale": "Firm publishes an explicit 'Managing Partner' title for Brian Flick (distinct from Marc Dann's 'Founding Partner' title); no marketing/BD role was found despite the firm's larger multi-office size.",
+    "attorney_headcount": "12",
+    "contact_form_url": "https://dannlaw.com/contact/",
+    "phone": "216-373-0539",
+    "pages_checked": [
+      "https://dannlaw.com",
+      "https://dannlaw.com/contact/",
+      "https://dannlaw.com/attorneys/",
+      "https://dannlaw.com/our-team/brian-flick/",
+      "https://dannlaw.com/our-team/marc-dann/",
+      "https://dannlaw.com/our-team/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published for any attorney. Firm's /attorneys/ page lists ~12 attorneys (across OH/KY/NJ offices); homepage lists additional support staff names not confirmed as attorneys."
+  },
+  {
+    "firm_name": "Kimmel & Silverman, P.C.",
+    "website": "https://www.creditlaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Craig Thor Kimmel",
+      "title": "Founder/Partner",
+      "email": "",
+      "source_url": "https://creditlaw.com/craig-thor-kimmel/"
+    },
+    "decision_maker_rationale": "Firm states it has 15 attorneys (mid-size); no marketing role published. Craig Thor Kimmel is co-founding partner, listed first in the firm name (Robert M. Silverman, the other co-founder, is an equally valid alternate contact).",
+    "attorney_headcount": "15",
+    "contact_form_url": "https://creditlaw.com/contact-us/",
+    "phone": "1-800-668-3247",
+    "pages_checked": [
+      "https://www.creditlaw.com",
+      "https://www.creditlaw.com/contact-us/",
+      "https://www.creditlaw.com/attorneys/",
+      "https://creditlaw.com/our-team/",
+      "https://creditlaw.com/craig-thor-kimmel/",
+      "https://creditlaw.com/contact-us/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere. Firm states it 'employs a team of 15 tenacious consumer attorneys licensed in 22 states,' though only 5 are individually named/profiled on the team page. Site's canonical domain is creditlaw.com (www.creditlaw.com and creditlawcom.wordpress.com both 301-redirect there)."
+  },
+  {
+    "firm_name": "Simon Law PC",
+    "website": "https://www.simonlawpc.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "John G. Simon",
+      "title": "Managing Partner / Attorney",
+      "email": "",
+      "source_url": "https://www.simonlawpc.com/meet-our-attorneys/john-g-simon/"
+    },
+    "decision_maker_rationale": "Firm publishes an explicit 'Managing Partner' title for John G. Simon (the only attorney on the team page with a title beyond 'Attorney'); no marketing/BD role was found.",
+    "attorney_headcount": "16",
+    "contact_form_url": "https://www.simonlawpc.com/contact/",
+    "phone": "(314) 241-2929",
+    "pages_checked": [
+      "https://www.simonlawpc.com",
+      "https://www.simonlawpc.com/contact/",
+      "https://www.simonlawpc.com/meet-our-attorneys/",
+      "https://www.simonlawpc.com/about/",
+      "https://www.simonlawpc.com/meet-our-attorneys/john-g-simon/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published for any of the 16 listed attorneys, including on the managing partner's own bio page."
+  },
+  {
+    "firm_name": "Modrall Sperling",
+    "website": "https://www.modrall.com/",
+    "emails_found": [
+      {"email": "contact@modrall.com", "belongs_to": "general inbox", "source_url": "https://www.modrall.com/contact/"},
+      {"email": "jennifer.anderson@modrall.com", "belongs_to": "Jennifer G. Anderson, Shareholder", "source_url": "https://www.modrall.com/new-mexico-lawyers-attorneys/"},
+      {"email": "sonya.burke@modrall.com", "belongs_to": "Sonya R. Burke, Shareholder", "source_url": "https://www.modrall.com/new-mexico-lawyers-attorneys/"},
+      {"email": "susan.miller@modrall.com", "belongs_to": "Susan E. Miller, Shareholder", "source_url": "https://www.modrall.com/new-mexico-lawyers-attorneys/"}
+    ],
+    "decision_maker": {
+      "name": "Scott D. Cocker",
+      "title": "Executive Director",
+      "email": "",
+      "source_url": "https://www.modrall.com/2020/11/02/modrall-sperling-welcomes-new-executive-director-scott-d-cocker/"
+    },
+    "decision_maker_rationale": "Large firm (70+ attorneys); no marketing-director/CMO/BD/client-services title was found after a targeted search, so the firm's published Executive Director — the operations-leadership role most likely to own a marketing vendor decision — is the closest match.",
+    "attorney_headcount": "70+",
+    "contact_form_url": "https://www.modrall.com/contact/contact-form/",
+    "phone": "505.848.1800",
+    "pages_checked": [
+      "https://www.modrall.com/",
+      "https://www.modrall.com/contact/",
+      "https://www.modrall.com/new-mexico-lawyers-attorneys/",
+      "https://www.modrall.com/who-we-are/about-the-firm/",
+      "https://www.modrall.com/who-we-are/",
+      "https://www.modrall.com/?s=marketing+director",
+      "https://www.modrall.com/?s=executive+director",
+      "https://www.modrall.com/?s=Scott+Cocker",
+      "https://www.modrall.com/2020/11/02/modrall-sperling-welcomes-new-executive-director-scott-d-cocker/"
+    ],
+    "fetch_blocked": false,
+    "notes": "General inbox (contact@modrall.com) and several individual attorney emails follow a firstname.lastname@modrall.com pattern that is directly published via mailto links on the attorney directory — confirmed by literal read, not inferred. Scott D. Cocker's Executive Director title is confirmed only via a November 2020 firm press release still live on the site; could not verify from the site whether he still holds the role today (no more-recent leadership page found, and LinkedIn is off-limits per instructions) — treat as dated. No individual email was found for Cocker himself, and one was deliberately not constructed from the firm's visible pattern per the no-guessing rule."
+  }
+]

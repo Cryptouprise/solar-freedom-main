@@ -1,0 +1,344 @@
+[
+  {
+    "firm_name": "Prevost Law Firm PC",
+    "website": "https://www.prevostlawfirm.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Neal Prevost",
+      "title": "Trial Attorney (head/principal attorney)",
+      "email": "",
+      "source_url": "https://www.prevostlawfirm.com/about"
+    },
+    "decision_maker_rationale": "Solo/small firm (2 attorneys: Neal Prevost, Tessa Bromley); Neal Prevost is the firm's principal attorney and decides everything",
+    "attorney_headcount": "2",
+    "contact_form_url": "https://www.prevostlawfirm.com/ (multi-step \"No-Cost Claim Review\" form embedded on homepage and linked pages)",
+    "phone": "(855) 584-3576",
+    "pages_checked": [
+      "https://www.prevostlawfirm.com/",
+      "https://www.prevostlawfirm.com/contact",
+      "https://www.prevostlawfirm.com/about",
+      "https://www.prevostlawfirm.com/our-team"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere on the site (checked raw HTML for mailto: links too - none exist). Site is built entirely around a multi-step lead-intake form ('No-Cost Claim Review'); that form is the only contact route besides phone. Tessa Bromley is listed as Senior Attorney (second attorney at the firm)."
+  },
+  {
+    "firm_name": "Connor Law, PC",
+    "website": "https://connor.law",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Andrew Connor",
+      "title": "Founding Attorney",
+      "email": "",
+      "source_url": "https://connor.law/andrew-connor"
+    },
+    "decision_maker_rationale": "Solo firm (1 attorney); founder decides everything",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://connor.law/contact",
+    "phone": "843-606-1578",
+    "pages_checked": [
+      "https://connor.law",
+      "https://connor.law/contact",
+      "https://connor.law/andrew-connor",
+      "https://connor.law/practice-areas/solar-panel-fraud/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published on homepage, contact page, his bio page, or the solar-fraud practice page (verified via raw HTML - no mailto: links). Contact form on /contact is titled 'Tell Us About Your Timeshare' - firm's primary practice appears to be timeshare exit, with solar fraud as a secondary practice area."
+  },
+  {
+    "firm_name": "LS Carlson Law",
+    "website": "https://www.lscarlsonlaw.com/",
+    "emails_found": [
+      {
+        "email": "info@lscarlsonlaw.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://www.lscarlsonlaw.com/contact"
+      },
+      {
+        "email": "lcarlson@lscarlsonlaw.com",
+        "belongs_to": "attorney name - Luke S. Carlson, Founder & CEO",
+        "source_url": "https://www.lscarlsonlaw.com/team/luke-carlson"
+      },
+      {
+        "email": "mstreit@lscarlsonlaw.com",
+        "belongs_to": "staff - Mollie Streit, Director of Client Services",
+        "source_url": "https://www.lscarlsonlaw.com/team/mollie-streit"
+      }
+    ],
+    "decision_maker": {
+      "name": "Mollie Streit",
+      "title": "Director of Client Services",
+      "email": "mstreit@lscarlsonlaw.com",
+      "source_url": "https://www.lscarlsonlaw.com/team/mollie-streit"
+    },
+    "decision_maker_rationale": "32-attorney larger firm; no marketing director/CMO/BD role found on site, but a Director of Client Services exists (an explicitly acceptable role for larger firms) with a published direct email",
+    "attorney_headcount": "32",
+    "contact_form_url": "https://www.lscarlsonlaw.com/contact",
+    "phone": "(949) 421-3030",
+    "pages_checked": [
+      "https://www.lscarlsonlaw.com/",
+      "https://www.lscarlsonlaw.com/contact",
+      "https://www.lscarlsonlaw.com/team",
+      "https://www.lscarlsonlaw.com/team/luke-carlson",
+      "https://www.lscarlsonlaw.com/team/mollie-streit"
+    ],
+    "fetch_blocked": false,
+    "notes": "Large HOA-litigation firm (2 managing partners, 6 partners, 13 senior associates, 11 associates = 32 attorneys). Prefer named marketing/BD contact was not found - closest is Julia Melnick, Director of Administration, and Wayne Teats, Director of Billing Services (titles seen on team roster but their individual emails were not confirmed). Founder & CEO Luke Carlson (lcarlson@lscarlsonlaw.com) is a strong alternate contact if a higher-authority approver is wanted."
+  },
+  {
+    "firm_name": "Conn Law, PC",
+    "website": "https://connlawpc.com/",
+    "emails_found": [
+      {
+        "email": "elliot@connlawpc.com",
+        "belongs_to": "attorney name - Elliot Conn, Founder",
+        "source_url": "https://connlawpc.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Elliot Conn",
+      "title": "Founder",
+      "email": "elliot@connlawpc.com",
+      "source_url": "https://connlawpc.com/"
+    },
+    "decision_maker_rationale": "Small firm (3 attorneys); founder is the decision-maker and has a published direct email",
+    "attorney_headcount": "3",
+    "contact_form_url": "https://connlawpc.com/contact",
+    "phone": "1-877-421-9759",
+    "pages_checked": [
+      "https://connlawpc.com/",
+      "https://connlawpc.com/contact",
+      "https://connlawpc.com/about",
+      "https://connlawpc.com/our-attorneys",
+      "https://connlawpc.com/attorneys/elliot-conn/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Elliot Conn's email was published in the homepage's own JSON-LD schema.org structured data ('founder': {'name':'Elliot Conn','email':'elliot@connlawpc.com'}) - exact characters read directly from the page's source. /contact, /about, /our-attorneys and the attorney bio page were all blocked by a bot-check (redirects to /.well-known/sgcaptcha/) even though the homepage itself loaded fine, so this firm is only partially fetch-blocked. Two offices: San Francisco (415-417-2780) and Los Angeles (213-224-9200)."
+  },
+  {
+    "firm_name": "Lueddeke Law Firm",
+    "website": "https://www.newjerseyconsumerlaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Ronald L. Lueddeke",
+      "title": "Founder and Director",
+      "email": "",
+      "source_url": "https://www.newjerseyconsumerlaw.com/team/ronald-l-lueddeke/"
+    },
+    "decision_maker_rationale": "Small firm (3 attorneys, all named Lueddeke); founder decides everything",
+    "attorney_headcount": "3",
+    "contact_form_url": "https://www.newjerseyconsumerlaw.com/contact/",
+    "phone": "732.449.2884",
+    "pages_checked": [
+      "https://www.newjerseyconsumerlaw.com",
+      "https://www.newjerseyconsumerlaw.com/contact",
+      "https://www.newjerseyconsumerlaw.com/about",
+      "https://www.newjerseyconsumerlaw.com/team/ronald-l-lueddeke/",
+      "https://www.newjerseyconsumerlaw.com/team/karri-lueddeke/",
+      "https://www.newjerseyconsumerlaw.com/team/ronald-l-lueddeke-jr/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email found on any of the 6 pages checked, including all three attorney bio pages (verified via raw-HTML mailto: search - none exist). Contact form at /contact/ lets the sender pick which of the 3 attorneys (Ronald L. Lueddeke, Karri Lueddeke, or Ronald L. Lueddeke Jr.) the inquiry is for."
+  },
+  {
+    "firm_name": "Amaro Law Firm",
+    "website": "https://amarolawfirm.com",
+    "emails_found": [
+      {
+        "email": "info@amarolawfirm.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://amarolawfirm.com"
+      }
+    ],
+    "decision_maker": {
+      "name": "R. James Amaro",
+      "title": "Attorney & Founder",
+      "email": "",
+      "source_url": "https://amarolawfirm.com/attorneys/r-james-amaro/"
+    },
+    "decision_maker_rationale": "Mid-size firm (~15 attorneys); no dedicated marketing/BD/operations role found published on site; eponymous founder is the fallback decision-maker",
+    "attorney_headcount": "15",
+    "contact_form_url": "https://amarolawfirm.com/contact",
+    "phone": "+1-866-445-5645",
+    "pages_checked": [
+      "https://amarolawfirm.com",
+      "https://amarolawfirm.com/contact",
+      "https://amarolawfirm.com/about",
+      "https://amarolawfirm.com/attorneys/r-james-amaro/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Site is a JS single-page app - /contact and /about serve the same shell as the homepage, so distinct per-page content could not be verified separately, but the general contact email/phone come from sitewide schema.org markup. This is actually a larger firm than the worklist entry suggested: site lists 15 named attorneys (Anna McMullen, Antonio Olvera, Brian Crockett (of counsel), Caleb McVicker, Chris Gadoury, Christina Barefield, David Miller, Dirk Lloyd Gustafson, Enrique Rojas, Matt Elwell, Nicholas Monroe, R. James Amaro, Steven Hooker, Will McMillan, Zachary D. Norris (of counsel)), not just R. James Amaro. No personal email found for Amaro himself, only the firm's general inbox."
+  },
+  {
+    "firm_name": "Bailey Law Firm",
+    "website": "https://baileylawfirmaz.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Jenna Bailey",
+      "title": "Founder and Lead Trial Attorney",
+      "email": "",
+      "source_url": "https://baileylawfirmaz.com/our-team/jenna-bailey/"
+    },
+    "decision_maker_rationale": "Small firm (4 attorneys); founder decides everything",
+    "attorney_headcount": "4",
+    "contact_form_url": "https://baileylawfirmaz.com/contact-us/",
+    "phone": "480-302-7881",
+    "pages_checked": [
+      "https://baileylawfirmaz.com",
+      "https://baileylawfirmaz.com/contact",
+      "https://baileylawfirmaz.com/about",
+      "https://baileylawfirmaz.com/our-team",
+      "https://baileylawfirmaz.com/our-team/jenna-bailey/",
+      "https://baileylawfirmaz.com/contact-us/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email found on any page checked (verified via raw-HTML mailto: search - none exist). Team of 9 disambiguated by title: attorneys are Jenna Bailey (Founder/Lead Trial Attorney), Thomas Bailey (Attorney), Alexandra G. Van Duffelen (Personal Injury Attorney), Allison Rains (Attorney); the rest are non-attorney staff - John Murphy (Personal Injury Paralegal), Jennifer Depoorter (Litigation Paralegal), Marisela Cuevas (Managing Litigation Paralegal), Hazel Artus (Paralegal), Val Valenzuela (Office Assistant). Two contact/booking forms exist: /contact-us/ and /book-case-review/."
+  },
+  {
+    "firm_name": "Wright Commercial Litigation, PLLC",
+    "website": "https://jwrightlaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Jason E. Wright",
+      "title": "Attorney (sole practitioner, eponymous owner of the firm)",
+      "email": "",
+      "source_url": "https://jwrightlaw.com/about"
+    },
+    "decision_maker_rationale": "Solo practice (1 attorney); sole owner decides everything",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://jwrightlaw.com/contact",
+    "phone": "469.270.7819",
+    "pages_checked": [
+      "https://jwrightlaw.com",
+      "https://jwrightlaw.com/contact",
+      "https://jwrightlaw.com/about"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere checked (verified via raw-HTML mailto: search - none exist). Site does not use the literal word 'founder'/'owner' for Jason Wright, but he is the only attorney at a firm bearing his name, so he is the de facto sole decision-maker."
+  },
+  {
+    "firm_name": "Chimicles Schwartz Kriner & Donaldson-Smith LLP",
+    "website": "https://www.chimicles.com",
+    "emails_found": [
+      {
+        "email": "Nick@chimicles.com",
+        "belongs_to": "attorney name - Nicholas E. Chimicles, Partner",
+        "source_url": "https://chimicles.com/nicholas-e-chimicles/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Nicholas E. Chimicles",
+      "title": "Partner",
+      "email": "Nick@chimicles.com",
+      "source_url": "https://chimicles.com/nicholas-e-chimicles/"
+    },
+    "decision_maker_rationale": "17-attorney mid/upper-size firm; no dedicated marketing/BD role found published on site; Chimicles is the firm's senior name partner (first name in the firm's own name) with a published direct email",
+    "attorney_headcount": "17",
+    "contact_form_url": "https://chimicles.com/contact-us/",
+    "phone": "866-399-2487 (toll free); 610-642-8500 (Haverford, PA office); 302-656-2500 (Wilmington, DE office)",
+    "pages_checked": [
+      "https://www.chimicles.com",
+      "https://www.chimicles.com/contact",
+      "https://www.chimicles.com/attorneys",
+      "https://chimicles.com/nicholas-e-chimicles/",
+      "https://chimicles.com/our-people/"
+    ],
+    "fetch_blocked": false,
+    "notes": "8 partners (Nicholas E. Chimicles, Robert J. Kriner Jr., Steven A. Schwartz, Kimberly Donaldson Smith, Timothy N. Mathews, Scott M. Tucker, Beena M. McDonald, Zachary P. Beatty), 3 of counsel/senior counsel, 6 associates = 17 attorneys. www.chimicles.com redirects/canonicalizes to chimicles.com (no www) for content pages. Site's own /attorneys URL 404s; real path is /our-people/. Only Nicholas Chimicles's direct email was confirmed via mailto: link on his own bio page; no marketing/BD-specific role found among staff."
+  },
+  {
+    "firm_name": "Gustafson Gluek PLLC",
+    "website": "https://www.gustafsongluek.com",
+    "emails_found": [
+      {
+        "email": "info@gustafsongluek.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://www.gustafsongluek.com/contact"
+      },
+      {
+        "email": "csmith@gustafsongluek.com",
+        "belongs_to": "attorney name - Catherine Smith (listed under \"Our Attorneys\")",
+        "source_url": "https://www.gustafsongluek.com/contact"
+      },
+      {
+        "email": "tgrill@gustafsongluek.com",
+        "belongs_to": "staff - Tracey Grill, Office Manager",
+        "source_url": "https://www.gustafsongluek.com/contact"
+      },
+      {
+        "email": "dgustafson@gustafsongluek.com",
+        "belongs_to": "attorney name - Daniel Gustafson, Founding Member",
+        "source_url": "https://www.gustafsongluek.com/daniel-gustafson"
+      }
+    ],
+    "decision_maker": {
+      "name": "Daniel Gustafson",
+      "title": "Founding Member",
+      "email": "dgustafson@gustafsongluek.com",
+      "source_url": "https://www.gustafsongluek.com/daniel-gustafson"
+    },
+    "decision_maker_rationale": "23-attorney larger firm; no marketing director/CMO/BD/client-services title found published on site, so falls back to the founding partner per sizing rules; Tracey Grill (Office Manager, tgrill@gustafsongluek.com) is a strong alternate operations contact who 'oversees the Firm's overall operations' per her own bio",
+    "attorney_headcount": "23",
+    "contact_form_url": "https://www.gustafsongluek.com/contact",
+    "phone": "612-333-8844",
+    "pages_checked": [
+      "https://www.gustafsongluek.com",
+      "https://www.gustafsongluek.com/contact",
+      "https://www.gustafsongluek.com/attorneys",
+      "https://www.gustafsongluek.com/team",
+      "https://www.gustafsongluek.com/daniel-gustafson",
+      "https://www.gustafsongluek.com/tracey-grill",
+      "https://www.gustafsongluek.com/catherine-smith"
+    ],
+    "fetch_blocked": false,
+    "notes": "Team page lists 23 attorneys and 12 non-attorney \"Our Professionals\" staff. The contact page explicitly names Cathy Smith and Tracey Grill as the people to email for urgent matters, which is an unusually direct, named contact route. Tracey Grill's bio explicitly states she is 'Office Manager... overseeing the Firm's overall operations, including finance, human resources, facilities management, and the supervision of office staff' - functionally the closest thing this firm has to an operations/administrator contact, and worth trying alongside the founder."
+  },
+  {
+    "firm_name": "Racine Olson, PLLP",
+    "website": "https://www.racinelaw.net/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "13-attorney mid-size firm publishes 11 partners with no managing partner or administrator publicly designated; naming one would be a guess, so left blank - see notes for the full partner list to choose from",
+    "attorney_headcount": "13",
+    "contact_form_url": "https://www.racinelaw.net/contact",
+    "phone": "877.232.6101 (toll free); 208.232.6101 (Pocatello office)",
+    "pages_checked": [
+      "https://www.racinelaw.net/",
+      "https://www.racinelaw.net/contact",
+      "https://www.racinelaw.net/attorneys",
+      "https://www.racinelaw.net/our-attorneys",
+      "https://www.racinelaw.net/idaho-attorneys",
+      "https://www.racinelaw.net/attorney-profiles.html"
+    ],
+    "fetch_blocked": false,
+    "notes": "Site is a JS-rendered app; raw HTML has almost no text, so page comprehension relied on a rendering fetch rather than raw-HTML grep alone (no email was found either way, and no mailto: links exist in the raw HTML). Firm founded in the 1940s by Lou Racine, now deceased/inactive - no current partner carries the Racine or Olson surname. Current attorneys per site: Partners - Richard J. Blok, Thomas J. Budge, Lane V. Erickson, Patrick N. George, Daniel C. Green, Fred J. Lewis, Rachel A. Miller, Heidi Buck Morrison, Stephen J. Muhonen, Nathan Palmer, Scott J. Smith; Of Counsel - Dave Bagley; Associate - Ashley Perry. None is labeled managing partner on the site, so a named decision-maker could not be confirmed without guessing."
+  },
+  {
+    "firm_name": "DeConcini McDonald Yetwin & Lacy, P.C.",
+    "website": "https://www.deconcinimcdonald.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "Site could not be read (bot-checked), so no decision-maker could be verified",
+    "attorney_headcount": "",
+    "contact_form_url": "",
+    "phone": "",
+    "pages_checked": [
+      "https://www.deconcinimcdonald.com/",
+      "https://www.deconcinimcdonald.com/contact",
+      "https://www.deconcinimcdonald.com/attorneys",
+      "https://deconcinimcdonald.com/"
+    ],
+    "fetch_blocked": true,
+    "notes": "Every URL tried (with and without www, via both a direct fetch and a rendering fetch) returned an immediate redirect to /.well-known/sgcaptcha/ - a bot-check wall - with no page content. Nothing on this firm could be independently verified, so all fields are left blank per instructions rather than reusing the worklist's pre-existing attorney names (Ryan D. O'Neal, James M. Susa, Jody A. Corrales, Clayton R. Kramer) as if confirmed."
+  }
+]

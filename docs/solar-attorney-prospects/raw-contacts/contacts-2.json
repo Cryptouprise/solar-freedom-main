@@ -1,0 +1,340 @@
+[
+  {
+    "firm_name": "Kemnitzer, Barron & Krieg, LLP",
+    "website": "https://www.kbklegal.com",
+    "emails_found": [
+      {
+        "email": "kristin@kbklegal.com",
+        "belongs_to": "Kristin Kemnitzer, Managing Partner",
+        "source_url": "https://www.kbklegal.com/lawyers/kristin-kemnitzer/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Kristin Kemnitzer",
+      "title": "Managing Partner",
+      "email": "kristin@kbklegal.com",
+      "source_url": "https://www.kbklegal.com/lawyers/kristin-kemnitzer/"
+    },
+    "decision_maker_rationale": "Mid-size firm (6 attorneys); Managing Partner has a direct published email and no dedicated marketing role exists at the firm",
+    "attorney_headcount": "6",
+    "contact_form_url": "https://www.kbklegal.com/contact-us/",
+    "phone": "(800) 520-4525",
+    "pages_checked": [
+      "https://www.kbklegal.com",
+      "https://www.kbklegal.com/contact-us/",
+      "https://www.kbklegal.com/who-we-are/",
+      "https://www.kbklegal.com/lawyers/",
+      "https://www.kbklegal.com/lawyers/kristin-kemnitzer/",
+      "https://www.kbklegal.com/lawyers/bryan-kemnitzer/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Bryan Kemnitzer is a retired founding partner (no email listed for him). No general/info email is published anywhere on the site; only Kristin Kemnitzer's bio page shows a direct email."
+  },
+  {
+    "firm_name": "Holland Law Firm, PC",
+    "website": "https://www.hollandlawfirm.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Peter A. Holland",
+      "title": "Founder",
+      "email": "",
+      "source_url": "https://www.hollandlawfirm.com/attorney/peter-a-holland/"
+    },
+    "decision_maker_rationale": "Small firm (4 attorneys); founded and led by Peter A. Holland, who decides on marketing",
+    "attorney_headcount": "4",
+    "contact_form_url": "https://www.hollandlawfirm.com/contact/",
+    "phone": "410-280-6133",
+    "pages_checked": [
+      "https://www.hollandlawfirm.com/",
+      "https://www.hollandlawfirm.com/contact/",
+      "https://www.hollandlawfirm.com/meet-the-team/",
+      "https://www.hollandlawfirm.com/sitemap.xml",
+      "https://www.hollandlawfirm.com/person-sitemap.xml",
+      "https://www.hollandlawfirm.com/attorney/peter-a-holland/",
+      "https://www.hollandlawfirm.com/attorney/derek-a-hills/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address published anywhere on the site for any attorney or staff member. Site explicitly tells visitors to use their personal (not work) email when contacting, but never shows the firm's own address. Derek A. Hills (Of Counsel) is the attorney tied to solar panel fraud work; no title beyond 'Of Counsel' and no email found for him either."
+  },
+  {
+    "firm_name": "Treinen Law Office",
+    "website": "https://treinenlawoffice.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Rob Treinen",
+      "title": "Attorney",
+      "email": "",
+      "source_url": "https://treinenlawoffice.com/attorney-rob-treinen/"
+    },
+    "decision_maker_rationale": "Solo practice; sole attorney and owner decides everything",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://treinenlawoffice.com/contact/",
+    "phone": "505-247-1980",
+    "pages_checked": [
+      "https://treinenlawoffice.com/",
+      "https://treinenlawoffice.com/contact/",
+      "https://treinenlawoffice.com/attorney-rob-treinen/",
+      "https://treinenlawoffice.com/about-our-firm/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere on the site; only phone number and a contact form are offered."
+  },
+  {
+    "firm_name": "Dunivan Law, PA",
+    "website": "https://dunivanlaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Bryant Dunivan",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "Solo practice bearing his name; sole owner/founder decides, but no formal title string was published to quote",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://calendly.com/bryantdunivanjr/consult",
+    "phone": "813.252.0239",
+    "pages_checked": [
+      "https://dunivanlaw.com",
+      "https://dunivanlaw.com/contact",
+      "https://dunivanlaw.com/about"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere on the site. Instead of a traditional contact form, the site uses a Calendly consultation-booking link as its real contact route. Page describes Bryant Dunivan only as a 'Tampa Real Estate and Debt Lawyer,' with no formal title such as Founder/Owner published, so title left blank per instructions."
+  },
+  {
+    "firm_name": "Guerra LLP",
+    "website": "https://guerrallp.com",
+    "emails_found": [
+      {
+        "email": "fguerra@guerrallp.com",
+        "belongs_to": "Francisco \"Frank\" Guerra IV, Capital Partner / Managing Partner of San Antonio office",
+        "source_url": "https://guerrallp.com/attorneys/francisco-frank-guerra"
+      }
+    ],
+    "decision_maker": {
+      "name": "Francisco \"Frank\" Guerra IV",
+      "title": "Capital Partner; Managing Partner of the San Antonio office (since 2001)",
+      "email": "fguerra@guerrallp.com",
+      "source_url": "https://guerrallp.com/attorneys/francisco-frank-guerra"
+    },
+    "decision_maker_rationale": "Large firm (~34 attorneys); no marketing director, CMO, BD lead, or client services director found anywhere on the site, so the managing/capital partner is the best-identified decision maker, and he has a direct published email",
+    "attorney_headcount": "34",
+    "contact_form_url": "",
+    "phone": "210-447-0500",
+    "pages_checked": [
+      "https://guerrallp.com",
+      "https://guerrallp.com/contact",
+      "https://guerrallp.com/about-us",
+      "https://guerrallp.com/our-office",
+      "https://guerrallp.com/sitemap.xml",
+      "https://guerrallp.com/attorneys/francisco-frank-guerra"
+    ],
+    "fetch_blocked": false,
+    "notes": "No traditional contact form found on the /contact page -- the site instead offers live chat and click-to-call. No dedicated marketing/business-development/client-services role identified on About Us or Our Office pages despite the firm's size."
+  },
+  {
+    "firm_name": "Nagel Rice LLP",
+    "website": "https://nagelrice.com/",
+    "emails_found": [
+      {
+        "email": "bnagel@nagelrice.com",
+        "belongs_to": "Bruce H. Nagel, Partner",
+        "source_url": "https://nagelrice.com/attorneys/bruce-h-nagel/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Bruce H. Nagel",
+      "title": "Partner",
+      "email": "bnagel@nagelrice.com",
+      "source_url": "https://nagelrice.com/attorneys/bruce-h-nagel/"
+    },
+    "decision_maker_rationale": "Mid-size firm (15 attorneys); Bruce Nagel is a name partner of the firm with a direct published email, and no dedicated marketing role was found",
+    "attorney_headcount": "15",
+    "contact_form_url": "https://nagelrice.com/contact/",
+    "phone": "973.618.0400",
+    "pages_checked": [
+      "https://nagelrice.com/",
+      "https://nagelrice.com/contact/",
+      "https://nagelrice.com/attorneys/",
+      "https://nagelrice.com/attorneys/bruce-h-nagel/",
+      "https://nagelrice.com/attorneys/lisa-considine/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Lisa Considine (the attorney originally associated with this firm's solar-fraud content) is listed only as 'Counsel,' with no email published for her."
+  },
+  {
+    "firm_name": "Baker Law Group, PLLC",
+    "website": "https://jbakerlawgroup.com/",
+    "emails_found": [
+      {
+        "email": "info@jbakerlawgroup.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://jbakerlawgroup.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Jereme Baker",
+      "title": "Founder & Managing Member",
+      "email": "",
+      "source_url": "https://jbakerlawgroup.com/about/"
+    },
+    "decision_maker_rationale": "Large multi-state firm (~30 attorneys); no marketing director/CMO/BD lead title was found, so the founder & managing member is the next best decision maker; the firm also has a Chief Operating Officer who may share marketing/ops decisions",
+    "attorney_headcount": "30",
+    "contact_form_url": "https://jbakerlawgroup.com/contact/",
+    "phone": "(303) 862-4564",
+    "pages_checked": [
+      "https://jbakerlawgroup.com/",
+      "https://jbakerlawgroup.com/contact/",
+      "https://jbakerlawgroup.com/fort-collins-civil-litigation-attorney/",
+      "https://jbakerlawgroup.com/about/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Tyler Gurnee (named in the worklist) is 'Member & Practice Leader of Litigation,' not the top decision maker. Firm has a Chief Operating Officer, Heather Cooper, who is worth noting as a secondary contact for marketing/operations spend, but no email is published for either her or Jereme Baker. Only general inbox info@jbakerlawgroup.com is published."
+  },
+  {
+    "firm_name": "Zaytoun Law Firm",
+    "website": "https://zaytounlaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Robert Zaytoun",
+      "title": "Principal (in Zaytoun & Ballew)",
+      "email": "",
+      "source_url": "https://zaytounlaw.com/attorney-profiles/robert-zaytoun/"
+    },
+    "decision_maker_rationale": "Small firm; Robert Zaytoun is the only attorney with a published bio page and is described as principal, so he is the likely decision maker",
+    "attorney_headcount": "",
+    "contact_form_url": "https://zaytounlaw.com/contact-zaytoun-law/",
+    "phone": "(910) 599-4833",
+    "pages_checked": [
+      "https://zaytounlaw.com",
+      "https://zaytounlaw.com/contact/",
+      "https://zaytounlaw.com/attorney-profiles/",
+      "https://zaytounlaw.com/attorney-profiles/robert-zaytoun/",
+      "https://zaytounlaw.com/attorney-profiles/charles-mccotter/",
+      "https://zaytounlaw.com/sitemap.xml",
+      "https://zaytounlaw.com/page-sitemap1.xml"
+    ],
+    "fetch_blocked": false,
+    "notes": "Charles McCotter (also named in worklist) has no working profile page on the current site (404) and no sitemap entry, so headcount could not be confirmed from the site itself. Site states 'We don't advertise. We believe in growth through personal relationships' -- worth flagging as a harder sell. No email published anywhere."
+  },
+  {
+    "firm_name": "Christensen Young & Associates",
+    "website": "https://www.christensenyounglaw.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Steven Christensen",
+      "title": "Managing partner and shareholder",
+      "email": "",
+      "source_url": "https://www.christensenyounglaw.com/attorneys/steven-christensen/"
+    },
+    "decision_maker_rationale": "Small firm (2 attorneys); explicitly published as managing partner and shareholder",
+    "attorney_headcount": "2",
+    "contact_form_url": "https://www.christensenyounglaw.com/contact/",
+    "phone": "(801) 676-6447",
+    "pages_checked": [
+      "https://www.christensenyounglaw.com/",
+      "https://www.christensenyounglaw.com/contact-us/",
+      "https://www.christensenyounglaw.com/attorneys/",
+      "https://www.christensenyounglaw.com/contact/",
+      "https://www.christensenyounglaw.com/attorneys/steven-christensen/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere on the site for either Steven or Cameron Christensen; only phone, fax, and a contact form are offered."
+  },
+  {
+    "firm_name": "Hutchison & Steffen",
+    "website": "https://www.hutchlegal.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Mark A. Hutchison",
+      "title": "Founding Partner",
+      "email": "",
+      "source_url": "https://www.hutchlegal.com/about-the-firm-2/"
+    },
+    "decision_maker_rationale": "Large firm (~55 attorneys); no marketing director, CMO, BD lead, or client services director found on the site, so a co-founder is the best-identified decision maker, though no email could be found for him",
+    "attorney_headcount": "55",
+    "contact_form_url": "https://hutchlegal.com/contact/",
+    "phone": "702.385.2500",
+    "pages_checked": [
+      "https://www.hutchlegal.com/",
+      "https://www.hutchlegal.com/contact/",
+      "https://www.hutchlegal.com/attorneys/",
+      "https://hutchlegal.com/attorney/mark-a-hutchison/",
+      "https://www.hutchlegal.com/about-the-firm-2/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Site states firm was 'Founded in 1996 by Mark A. Hutchison and John T. Steffen.' No individual email addresses are published anywhere on the site, including the contact form's 60+ attorney selection list. No marketing/BD role identified despite the firm's size."
+  },
+  {
+    "firm_name": "Shapiro Haber & Urmy LLP",
+    "website": "https://www.shulaw.com",
+    "emails_found": [
+      {
+        "email": "tshapiro@shulaw.com",
+        "belongs_to": "Thomas G. Shapiro, Founding Partner Emeritus",
+        "source_url": "https://www.shulaw.com/attorneys/Thomas+G.+/Shapiro/"
+      },
+      {
+        "email": "ehaber@shulaw.com",
+        "belongs_to": "Edward F. Haber, Partner",
+        "source_url": "https://www.shulaw.com/attorneys/Edward+F.+/Haber/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Edward F. Haber",
+      "title": "Partner",
+      "email": "ehaber@shulaw.com",
+      "source_url": "https://www.shulaw.com/attorneys/Edward+F.+/Haber/"
+    },
+    "decision_maker_rationale": "Mid-size firm (6 attorneys); no managing partner is explicitly named, and founding partner Thomas Shapiro is listed as 'Emeritus' (semi-retired), so active partner Edward Haber -- who has a direct published email -- is the more likely live decision maker",
+    "attorney_headcount": "6",
+    "contact_form_url": "https://www.shulaw.com/submit.php",
+    "phone": "617-439-3939",
+    "pages_checked": [
+      "https://www.shulaw.com",
+      "https://www.shulaw.com/contact/",
+      "https://www.shulaw.com/attorneys/",
+      "https://www.shulaw.com/attorneys/Thomas+G.+/Shapiro/",
+      "https://www.shulaw.com/attorneys/Edward+F.+/Haber/",
+      "https://www.shulaw.com/About-Us/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Two direct partner emails found. Thomas G. Shapiro (name partner) is titled 'Founding Partner Emeritus,' suggesting reduced day-to-day role, hence flagging Edward Haber instead. Both emails are provided in emails_found for completeness."
+  },
+  {
+    "firm_name": "Long Reimer Winegar LLP",
+    "website": "http://lrw-law.com/",
+    "emails_found": [
+      {
+        "email": "creimer@lrw-law.com",
+        "belongs_to": "Christopher M. Reimer, Partner",
+        "source_url": "https://lrw-law.com/attorneys/christopher-m-reimer/"
+      },
+      {
+        "email": "nwinegar@lrw-law.com",
+        "belongs_to": "Natalie K. Winegar, Managing Partner",
+        "source_url": "https://lrw-law.com/attorneys/natalie-k-winegar/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Natalie K. Winegar",
+      "title": "Managing Partner",
+      "email": "nwinegar@lrw-law.com",
+      "source_url": "https://lrw-law.com/attorneys/natalie-k-winegar/"
+    },
+    "decision_maker_rationale": "Large firm (22 attorneys); explicitly published as Managing Partner of the firm, with a direct email -- preferred over the merely-named partner Christopher Reimer",
+    "attorney_headcount": "22",
+    "contact_form_url": "https://lrw-law.com/contact/",
+    "phone": "",
+    "pages_checked": [
+      "http://lrw-law.com/",
+      "http://lrw-law.com/contact/",
+      "http://lrw-law.com/attorneys/",
+      "https://lrw-law.com/attorneys/christopher-m-reimer/",
+      "https://lrw-law.com/about/",
+      "https://lrw-law.com/attorneys/natalie-k-winegar/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No firm-wide phone number was published on the pages checked (homepage/contact/about); the firm instead lists six separate office locations (Cheyenne, Jackson, Evanston, Park City, Denver, Casper), each presumably with its own number, which were not individually fetched. Strong contact: named Managing Partner with a direct email."
+  }
+]

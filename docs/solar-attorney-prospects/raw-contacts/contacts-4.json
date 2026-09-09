@@ -1,0 +1,324 @@
+[
+  {
+    "firm_name": "Palker Law Firm",
+    "website": "https://palkerlaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Jason Palker",
+      "title": "Owner & Principal Attorney",
+      "email": "",
+      "source_url": "https://palkerlaw.com/attorneys/jason-palker/"
+    },
+    "decision_maker_rationale": "Small firm (4 attorneys) — founder/principal attorney and firm namesake decides everything.",
+    "attorney_headcount": "4",
+    "contact_form_url": "https://palkerlaw.com/contact/",
+    "phone": "(956) 320-0270",
+    "pages_checked": [
+      "https://palkerlaw.com/contact/",
+      "https://palkerlaw.com/",
+      "https://palkerlaw.com/about/",
+      "https://palkerlaw.com/attorneys/",
+      "https://palkerlaw.com/attorneys/jason-palker/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address published anywhere on the site (contact, homepage footer, attorneys index, and Jason Palker's own bio page all checked) — only a lead-capture contact form. /about/ 404s; the firm uses /attorneys/ instead."
+  },
+  {
+    "firm_name": "Kohl & Cook Law Firm LLC",
+    "website": "https://www.kohlcook.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Sean M. Kohl, Esq.",
+      "title": "Partner",
+      "email": "",
+      "source_url": "https://www.kohlcook.com/our-team/"
+    },
+    "decision_maker_rationale": "Mid-size firm (~12 attorneys); no marketing or administrator role is published, so the eponymous founding partner is the reasonable contact. Co-name partner Timothy J. Cook is an equally valid alternate — both are listed under 'Partners' with no further seniority distinction.",
+    "attorney_headcount": "12 (3 partners, 2 attorneys, 7 associate attorneys per the Our Team page)",
+    "contact_form_url": "https://www.kohlcook.com/contact-us/",
+    "phone": "614-763-5111 (Worthington); 937-637-1755 (Dayton)",
+    "pages_checked": [
+      "https://www.kohlcook.com/contact/",
+      "https://www.kohlcook.com/",
+      "https://www.kohlcook.com/attorneys/",
+      "https://www.kohlcook.com/our-team/",
+      "https://www.kohlcook.com/timothy-cook/",
+      "https://www.kohlcook.com/sean-m-kohl/",
+      "https://www.kohlcook.com/about/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published anywhere, including both named partners' individual bio pages; every page routes inquiries through a reCAPTCHA-protected consultation form."
+  },
+  {
+    "firm_name": "Watkins Firm, APC",
+    "website": "https://watkinsfirm.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Daniel W. Watkins",
+      "title": "Founding Partner",
+      "email": "",
+      "source_url": "https://watkinsfirm.com/about/"
+    },
+    "decision_maker_rationale": "Founding partner and firm namesake; no marketing or business-development title found anywhere on the site.",
+    "attorney_headcount": "10 listed on the team page; only 2 titles individually confirmed (Chris Popov = Of Counsel, Nancy Correa = Transaction Business Attorney) — list may mix attorneys and staff, not fully verified",
+    "contact_form_url": "https://watkinsfirm.com/contact/",
+    "phone": "(858) 535-1511",
+    "pages_checked": [
+      "https://watkinsfirm.com/contact/",
+      "https://watkinsfirm.com/",
+      "https://watkinsfirm.com/about/",
+      "https://watkinsfirm.com/staff/daniel-w-watkins/",
+      "https://watkinsfirm.com/our-team/",
+      "https://watkinsfirm.com/staff/chris-popov/",
+      "https://watkinsfirm.com/staff/nancy-correa/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email published on any page checked, including the founder's own bio page. /our-team/ 404s; team roster actually lives on the homepage with bio pages under /staff/."
+  },
+  {
+    "firm_name": "Ingber Law Group (Law Office of Jason Ingber)",
+    "website": "https://jasoningber.com",
+    "emails_found": [
+      {
+        "email": "ji@jasoningber.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://jasoningber.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Jason Ingber",
+      "title": "",
+      "email": "ji@jasoningber.com",
+      "source_url": "https://jasoningber.com/"
+    },
+    "decision_maker_rationale": "Solo practice — the firm is literally 'Law Office of Jason Ingber'; he is the sole named attorney and decides everything.",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://jasoningber.com/",
+    "phone": "(213) 805-8373",
+    "pages_checked": [
+      "https://jasoningber.com/contact/",
+      "https://jasoningber.com/",
+      "https://jasoningber.com/about/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Email was published via Cloudflare email-obfuscation (data-cfemail hex encoding) in the footer's 'E mail' block, not a plain mailto link — decoded from the exact bytes present in the fetched page's raw HTML using the standard, deterministic, reversible Cloudflare algorithm (the same thing a browser does for a human reader), not inferred or pattern-guessed. No individual bio/about page exists (both /contact/ and /about/ 404); no explicit job title (e.g. 'Founder') appears anywhere on the site, only descriptive text ('Led by Jason Ingber, a seasoned trial lawyer')."
+  },
+  {
+    "firm_name": "Counxel Legal Firm",
+    "website": "https://counxel.com/",
+    "emails_found": [
+      {
+        "email": "request@counxel.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://counxel.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Cassandra Torres",
+      "title": "Marketing/Outreach Coordinator",
+      "email": "request@counxel.com",
+      "source_url": "https://counxel.com/team/cassandra-torres/"
+    },
+    "decision_maker_rationale": "Firm has a dedicated Marketing/Outreach Coordinator on staff — preferred over the managing partner per instructions. Note: every team member's email link (including hers) routes to the same general inbox, request@counxel.com; no personal address is published for her specifically.",
+    "attorney_headcount": "7 (Timothy Coons - Managing Partner/Attorney; Cameron Mitchell, Aaron Ludwig, Andrew Morrow - Partner/Attorney; Andrew Meier, John Harris - Attorney; David Baake - Of Counsel)",
+    "contact_form_url": "https://counxel.com/contact/",
+    "phone": "(480) 744-6621",
+    "pages_checked": [
+      "https://counxel.com/contact/",
+      "https://counxel.com/",
+      "https://counxel.com/about-us/",
+      "https://counxel.com/meet-our-team/",
+      "https://counxel.com/team/cassandra-torres/"
+    ],
+    "fetch_blocked": false,
+    "notes": "The WebFetch tool hit a Cloudflare 'verifying you are human' interstitial on this domain, but a direct fetch with a standard browser user-agent succeeded (HTTP 200) and returned full real content — not actually blocked. If firm prefers the attorney track instead, Managing Partner is Timothy Coons (https://counxel.com/team/timothy-coons/). Firm also has a 'Law Firm Manager/Director' (Porsha Brown) as another possible operations contact."
+  },
+  {
+    "firm_name": "Jacqueline A. Salcines, P.A.",
+    "website": "https://salcineslaw.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Jacqueline A. Salcines",
+      "title": "Founder and Principal Attorney",
+      "email": "",
+      "source_url": "https://salcineslaw.com/our-team/"
+    },
+    "decision_maker_rationale": "Solo practice (the firm is her own P.A.); she is the sole named attorney and founder.",
+    "attorney_headcount": "1",
+    "contact_form_url": "https://salcineslaw.com/contact-us/",
+    "phone": "(305) 669-5280",
+    "pages_checked": [
+      "https://salcineslaw.com/contact/",
+      "https://salcineslaw.com/",
+      "https://salcineslaw.com/about/",
+      "https://salcineslaw.com/our-team/",
+      "https://salcineslaw.com/contact-us/",
+      "https://salcineslaw.com/team_post/jacqueline-a-salcines-esq/"
+    ],
+    "fetch_blocked": false,
+    "notes": "The WebFetch tool hit a Cloudflare 'verifying you are human' interstitial on this domain, but a direct fetch with a standard browser user-agent succeeded and returned full real content — not actually blocked. (/contact/ and /about/ also 404 as those exact slugs don't exist; correct paths are /contact-us/ and /our-team/.) Title 'Founder and Principal Attorney' comes from the page's own schema.org structured data. No email address published anywhere checked."
+  },
+  {
+    "firm_name": "Mushkatel, Gobbato & Kile, PLLC",
+    "website": "https://www.phoenixlawteam.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Zachary Mushkatel",
+      "title": "Managing Partner",
+      "email": "",
+      "source_url": "https://www.phoenixlawteam.com/attorneys/zachary-mushkatel/"
+    },
+    "decision_maker_rationale": "Mid-size firm (7 attorneys); title 'Managing Partner' is explicitly published for Zachary Mushkatel (page structured data) and he is the firm's lead namesake.",
+    "attorney_headcount": "7 (Zachary Mushkatel, Heather Baker-Mushkatel, Matthew Gobbato, Jordan Brunner, Emily Kile, Chace Phillips, Logan Todd)",
+    "contact_form_url": "https://www.phoenixlawteam.com/contact/",
+    "phone": "(623) 889-0691 Sun City; (480) 348-1590 Scottsdale; (623) 213-7276 Surprise",
+    "pages_checked": [
+      "https://www.phoenixlawteam.com/contact/",
+      "https://www.phoenixlawteam.com/",
+      "https://www.phoenixlawteam.com/attorneys/",
+      "https://www.phoenixlawteam.com/attorneys/zachary-mushkatel/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address published on any page checked (contact, home, attorneys index, or Zachary Mushkatel's own bio page) — double-checked against raw HTML; no mailto: or obfuscated email markup present anywhere."
+  },
+  {
+    "firm_name": "Kazerouni Law Group, APC",
+    "website": "https://www.kazlg.com/",
+    "emails_found": [
+      {
+        "email": "ak@kazlg.com",
+        "belongs_to": "attorney name (Abbas Kazerounian, Esq.)",
+        "source_url": "https://www.kazlg.com/attorneys/abbas-kazerounian-esq/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Abbas Kazerounian, Esq.",
+      "title": "Partner",
+      "email": "ak@kazlg.com",
+      "source_url": "https://www.kazlg.com/attorneys/abbas-kazerounian-esq/"
+    },
+    "decision_maker_rationale": "Large multi-office firm (23 attorneys across 11 offices) with no marketing/CMO/business-development role found on site; Abbas Kazerounian is the firm's founding/lead-named partner with a verified direct email.",
+    "attorney_headcount": "23 (per firm's own About/Attorneys roster — larger than the 6 in the worklist; offices in Costa Mesa, San Diego, Phoenix, St. George, Las Vegas, Minneapolis, Chicago, Dallas, Seattle, NYC, and Marlton NJ)",
+    "contact_form_url": "https://www.kazlg.com/contact/",
+    "phone": "800-400-6808 main; 602-265-3332 Phoenix office; 949-860-7377 direct line for Abbas Kazerounian",
+    "pages_checked": [
+      "https://www.kazlg.com/contact/",
+      "https://www.kazlg.com/",
+      "https://www.kazlg.com/about-us/",
+      "https://www.kazlg.com/about/",
+      "https://www.kazlg.com/attorneys/abbas-kazerounian/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Best find in this batch: verified direct partner email (mailto:ak@kazlg.com) and direct phone confirmed in raw HTML, not just a tool summary. This attorney's address follows a firstinitial+lastname@kazlg.com pattern, but per instructions no other attorney's email was guessed from that pattern — only ak@kazlg.com was actually read on a fetched page."
+  },
+  {
+    "firm_name": "Edelman, Combs, Latturner & Goodwin, LLC",
+    "website": "https://www.edcombs.com",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "Daniel A. Edelman",
+      "title": "",
+      "email": "",
+      "source_url": "https://www.edcombs.com/attorneys/"
+    },
+    "decision_maker_rationale": "Firm's first-named, founding attorney (the firm is 'Edelman, Combs, Latturner & Goodwin'); no explicit title or marketing role is published anywhere on the site.",
+    "attorney_headcount": "6 (Daniel A. Edelman, Tara L. Goodwin, Julie Clark, Alexandra Huzyk, Madeline Brashear, Caileen M. Crecco)",
+    "contact_form_url": "https://www.edcombs.com/contact-us/",
+    "phone": "(312) 626-3585",
+    "pages_checked": [
+      "https://www.edcombs.com/contact/",
+      "https://www.edcombs.com/",
+      "https://www.edcombs.com/attorneys/",
+      "https://www.edcombs.com/attorneys/daniel-a-edelman/",
+      "https://www.edcombs.com/contact-us/",
+      "https://www.edcombs.com/about-us/"
+    ],
+    "fetch_blocked": false,
+    "notes": "No email address published on any page checked. Daniel A. Edelman's bio describes decades in private practice but assigns him no current formal title — leaving title blank rather than assuming 'Founder' or 'Managing Partner' since neither word appears on the site."
+  },
+  {
+    "firm_name": "Marquis Aurbach Chtd.",
+    "website": "https://www.maclaw.com/",
+    "emails_found": [],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "",
+    "attorney_headcount": "",
+    "contact_form_url": "",
+    "phone": "",
+    "pages_checked": [
+      "https://www.maclaw.com/contact/",
+      "https://www.maclaw.com/",
+      "https://www.maclaw.com/attorneys/"
+    ],
+    "fetch_blocked": true,
+    "notes": "Entire site sits behind an active Cloudflare Turnstile JS challenge ('Just a moment...' interstitial, cf-mitigated: challenge response header, HTTP 403) on every URL tried, including the bare homepage. Confirmed blocked via both the WebFetch tool and a direct curl request with a full browser user-agent — neither could get past the challenge. No content of any kind, not even a phone number, could be verified."
+  },
+  {
+    "firm_name": "Sommers Schwartz, P.C.",
+    "website": "https://www.sommerspc.com",
+    "emails_found": [
+      {
+        "email": "jbourgon@sommerspc.com",
+        "belongs_to": "attorney name (Joseph H. Bourgon)",
+        "source_url": "https://www.sommerspc.com/people/joseph-h-bourgon/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Joseph H. Bourgon",
+      "title": "Senior Shareholder/CEO",
+      "email": "jbourgon@sommerspc.com",
+      "source_url": "https://www.sommerspc.com/people/joseph-h-bourgon/"
+    },
+    "decision_maker_rationale": "Large multi-office firm (~21-30 attorneys/shareholders); no dedicated marketing/CMO title was found, but the firm's own CEO is identified by name with a verified direct email and direct phone — a stronger contact than a generic managing partner.",
+    "attorney_headcount": "~21-30 (attorney/shareholder directory paginated 'page 1 of 3' at ~10 per page; offices in Southfield MI, Detroit MI, Kalamazoo MI, Los Angeles CA, and Decatur GA)",
+    "contact_form_url": "https://www.sommerspc.com/contact-us/",
+    "phone": "(800) 783-0989 toll-free; (248) 355-0300 main office; (248) 746-4074 direct line for Joseph Bourgon",
+    "pages_checked": [
+      "https://www.sommerspc.com/contact/",
+      "https://www.sommerspc.com/",
+      "https://www.sommerspc.com/attorneys/",
+      "https://www.sommerspc.com/people/",
+      "https://www.sommerspc.com/about/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Best find in this batch: the firm's CEO by name, with a verified direct email and direct phone line, confirmed in raw HTML (an HTML-entity-obfuscated mailto link, decoded character-for-character — not a guess). Every attorney on the people page uses a consistent firstinitial+lastname@sommerspc.com pattern, but per instructions none of the other attorneys' addresses were recorded since only Bourgon's was actually fetched and decoded."
+  },
+  {
+    "firm_name": "Sutin, Thayer & Browne",
+    "website": "https://www.sutinfirm.com/",
+    "emails_found": [
+      {
+        "email": "emb@sutinfirm.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://www.sutinfirm.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "20-attorney firm at the edge of mid/large size, but no leadership titles (managing partner, president, shareholder) or marketing/BD role are published anywhere on the site — the roster pages list all 20 lawyers by name only, with no designations, so no individual decision-maker could be confidently identified.",
+    "attorney_headcount": "20 (per /lawyers and /professionals pages)",
+    "contact_form_url": "https://www.sutinfirm.com/contact-us",
+    "phone": "(505) 883-2500",
+    "pages_checked": [
+      "https://www.sutinfirm.com/contact/",
+      "https://www.sutinfirm.com/",
+      "https://www.sutinfirm.com/attorneys/",
+      "https://www.sutinfirm.com/contact-us",
+      "https://www.sutinfirm.com/lawyers",
+      "https://www.sutinfirm.com/our-law-firm",
+      "https://www.sutinfirm.com/professionals",
+      "https://www.sutinfirm.com/lawyers/john-w-l-bower"
+    ],
+    "fetch_blocked": false,
+    "notes": "Squarespace site. General firm email emb@sutinfirm.com found in the page's embedded schema.org/Organization JSON-LD (literal characters read from page source, not a guess), likely a firm administrator's mailbox since the initials don't match any of the 20 listed attorneys' names. No individual attorney titles or emails are published on the roster pages, and an individual bio-page URL pattern could not be determined (a guessed slug 404'd, so it was not pursued further). Site has an 'In Memoriam' nav item, suggesting the firm's namesake founders (Sutin, Thayer, Browne) are no longer among the active attorneys listed."
+  }
+]
