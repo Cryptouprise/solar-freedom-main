@@ -1,0 +1,443 @@
+[
+  {
+    "firm_name": "Prevost Law Firm PC",
+    "attorney_names": ["Neal Prevost", "Tessa Bromley"],
+    "city": "McKinney",
+    "state": "TX",
+    "states_licensed": ["TX", "NC"],
+    "website": "https://prevostlawfirm.com/",
+    "solar_page_url": "https://blog.prevostlawfirm.com/",
+    "email": "",
+    "phone": "(855) 584-3576",
+    "contact_path": "Phone intake line (855) 584-3576; 'Get a No-Cost Claim Review' form on the blog; consultation scheduling at prevostlawfirm.com/schedule-consultation. No public email found.",
+    "content_channels": ["blog", "podcast", "press"],
+    "content_examples": [
+      "https://blog.prevostlawfirm.com/when-solar-goes-wrong-harmon-solar-podcast/",
+      "https://blog.prevostlawfirm.com/how-does-the-ucc-lien-work/",
+      "https://blog.prevostlawfirm.com/class-action-lawsuit-not-allowed-solar-panel-lawsuits/",
+      "https://blog.prevostlawfirm.com/solar-panel-attorney/",
+      "https://blog.prevostlawfirm.com/lawyer-for-suing-a-solar-company/"
+    ],
+    "content_recency": "active",
+    "content_quality_note": "This firm is built entirely around solar litigation, not a bolt-on practice area -- tagline is 'The Law Firm Solely Focused on Solar Panel Lawsuits.' The blog spans at least 9 archive pages of posts mixing client-story case studies, legal-education pieces (UCC liens, the Holder Rule, class-action mechanics) and media collaborations (Harmon Solar Podcast, Aug 6 2025; a referenced CBS News collaboration post). Exact publish dates were not exposed on the listing pages I fetched, but the volume, current case-count claims ('4,100+ Solar Homeowners,' '5,100+ Active Arbitrations') and live media tie-ins indicate an actively maintained content engine, not a stale legacy page.",
+    "solar_evidence": "Dedicated solar-only litigation blog (blog.prevostlawfirm.com) with dozens of posts on UCC liens, the Holder Rule, class-action limits, and named client case stories; founder Neal Prevost appeared on the Harmon Solar Podcast (Aug 6, 2025) discussing solar industry fraud and the Holder Rule.",
+    "source_urls": [
+      "https://blog.prevostlawfirm.com/",
+      "https://prevostlawfirm.com/about",
+      "https://blog.prevostlawfirm.com/when-solar-goes-wrong-harmon-solar-podcast/",
+      "https://blog.prevostlawfirm.com/author/alisonreevesco/"
+    ],
+    "buyer_warmth": "hot",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "Flitter Milz, P.C.",
+    "attorney_names": ["Cary L. Flitter", "Andy Milz", "Jody López-Jacobs"],
+    "city": "Narberth",
+    "state": "PA",
+    "states_licensed": ["PA", "NJ", "NY"],
+    "website": "https://www.consumerslaw.com/",
+    "solar_page_url": "https://www.consumerslaw.com/solar-panel-fraud",
+    "email": "consumers@ConsumersLaw.com",
+    "phone": "888-668-1225",
+    "contact_path": "Toll-free intake 888-668-1225; published email consumers@ConsumersLaw.com; offices in Narberth PA, Cherry Hill NJ, Rye Brook NY, of-counsel in Scranton PA.",
+    "content_channels": ["blog", "press"],
+    "content_examples": [
+      "https://www.consumerslaw.com/blog/solar-fraud-attorney-andy-milz-appears-on-npr-news/",
+      "https://www.consumerslaw.com/solar-panel-fraud",
+      "https://www.consumerslaw.com/blog/tag/solar-panel-sales-fraud/"
+    ],
+    "content_recency": "stale",
+    "content_quality_note": "Deepest historical archive found in this research -- 10 dedicated solar posts running Sept 2020 through an Aug 5, 2025 update, plus national media placements (NPR interview, a CNET feature quoting Andy Milz on 4 financial red flags). The firm's general blog cadence through 2026 has shifted to repossession/e-signature/robocall topics with no new solar-tagged post since the Aug 2025 update, so the solar content specifically sits just outside the 12-month active window even though the firm clearly has real subject-matter authority and press credibility.",
+    "solar_evidence": "Dedicated 'Solar Panel Fraud' practice page plus a 10-post solar-tagged blog archive (2020-2025); Andy Milz interviewed by NPR News (post dated Aug/Sept 2024) and quoted in a CNET consumer-warning piece on solar red flags (updated Aug 5, 2025).",
+    "source_urls": [
+      "https://www.consumerslaw.com/solar-panel-fraud",
+      "https://www.consumerslaw.com/blog/tag/solar-panel-sales-fraud/",
+      "https://www.consumerslaw.com/blog/"
+    ],
+    "buyer_warmth": "warm",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "Bennett Legal (Charles Bennett Law, PLLC)",
+    "attorney_names": ["Charles A. Bennett"],
+    "city": "Dallas",
+    "state": "TX",
+    "states_licensed": ["TX"],
+    "website": "https://bennettlegal.com/",
+    "solar_page_url": "https://bennettlegal.com/solar-contract-review/",
+    "email": "",
+    "phone": "(972) 972-4969",
+    "contact_path": "Phone (972) 972-4969 and a free-consultation intake form on bennettlegal.com. No public email found.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://bennettlegal.com/solar-contract-review/",
+      "https://bennettlegal.com/ucc-lien-solar-panels-kill-home-sale-refinance/",
+      "https://bennettlegal.com/solar-company-ucc-lien-without-consent/",
+      "https://bennettlegal.com/how-to-get-out-of-a-solar-loan-you-didnt-agree-to/",
+      "https://bennettlegal.com/how-to-get-out-of-a-solar-panel-contract/",
+      "https://bennettlegal.com/solar-panel-lawyer-fort-worth/"
+    ],
+    "content_recency": "active",
+    "content_quality_note": "Genuinely deep, well-organized content hub: a dedicated 'Solar Contract Resource Center,' lender-specific pages (GoodLeap, Sunlight Financial), UCC-lien explainers, and a named case result ($170,000+ recovery in a Sunlight Financial matter -- loan cancellation, lien release, credit repair, $58,000 paid directly to the client). The UCC-lien article carries a confirmed byline date of Sept 22, 2025, updated Nov 4, 2025 -- inside the active window. Primary practice is personal injury ('$35M Won in 2025' on the homepage), so solar is a secondary but clearly well-resourced vertical.",
+    "solar_evidence": "Multi-page solar practice hub authored by Charles A. Bennett covering contract review, UCC liens (dated Sept 22, 2025 / updated Nov 4, 2025), lender-specific guidance, and a publicly cited $170,000+ case result against Sunlight Financial.",
+    "source_urls": [
+      "https://bennettlegal.com/solar-contract-review/",
+      "https://bennettlegal.com/ucc-lien-solar-panels-kill-home-sale-refinance/"
+    ],
+    "buyer_warmth": "hot",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "Vargas Gonzalez Delombard, LLP",
+    "attorney_names": ["Andrew Vargas", "Louis Gonzalez", "Rene Delombard", "Michael Ortiz", "George J. Zeckler", "Joseph Glace"],
+    "city": "Winter Park",
+    "state": "FL",
+    "states_licensed": ["FL", "TX", "CO", "NY", "IL", "MO"],
+    "website": "https://vargasgonzalez.com/",
+    "solar_page_url": "https://vargasgonzalez.com/solar-panel-lawsuits/",
+    "email": "",
+    "phone": "(407) 794-3056",
+    "contact_path": "Separate phone lines per office (FL, TX, CO, NY, IL, MO) listed on the site. No public email found.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://vargasgonzalez.com/solar-panel-lawsuits/",
+      "https://vargasgonzalez.com/orlando/solar-panel-lawsuits/",
+      "https://vargasgonzalez.com/new-york/solar-panel-lawsuits/",
+      "https://vargasgonzalez.com/dallas/solar-panel-lawsuits/"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Substantial geographic build-out -- separate solar-panel-lawsuit landing pages for at least Orlando, South FL, Dallas, New York, and more -- naming specific class actions against Generac, Better Earth, Lumio HX, and Vision Solar with case-level detail. That scale of city-by-city page production signals real SEO investment. No publish/update dates were visible on the pages themselves, so I could not confirm activity within the last 12 months; the referenced litigation (Vision Solar, Better Earth) is 2022-2023 vintage at the most recent confirmed reference.",
+    "solar_evidence": "Dedicated solar-panel-lawsuit pages across 6+ metro/state markets detailing named class actions against Generac Power Systems, Better Earth Inc., Lumio HX, and Vision Solar LLC.",
+    "source_urls": [
+      "https://vargasgonzalez.com/solar-panel-lawsuits/",
+      "https://vargasgonzalez.com/orlando/solar-panel-lawsuits/"
+    ],
+    "buyer_warmth": "warm",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "The Moster Law Firm",
+    "attorney_names": ["Charles A. Moster"],
+    "city": "Lubbock",
+    "state": "TX",
+    "states_licensed": ["TX"],
+    "website": "https://www.themosterlawfirm.com/",
+    "solar_page_url": "https://www.themosterlawfirm.com/solar-panel-lawyers/",
+    "email": "jcrites@themosterlawfirm.com",
+    "phone": "806-412-5150",
+    "contact_path": "Phone 806-412-5150; published email jcrites@themosterlawfirm.com; free consultation offer.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://www.themosterlawfirm.com/solar-panel-lawyers/",
+      "https://www.themosterlawfirm.com/solar-panel-scams-and-solar-fraud/",
+      "https://www.themosterlawfirm.com/texas-energy/solar-energy/"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Real, Texas-focused DTPA fraud practice with multiple distinct solar pages (a general fraud page, a scams page, and an energy-industry-specific page) and a referenced blog post titled 'The Solar Three-Step Fraud.' No dates were visible on the pages I fetched, so recency could not be confirmed, but the multi-page structure indicates deliberate, ongoing investment rather than a single bolt-on page.",
+    "solar_evidence": "Multiple dedicated solar fraud/DTPA pages, including a specific 'Solar Three-Step Fraud' blog post, serving homeowners across Dallas, Houston, Austin, Lubbock, Amarillo, Abilene, Wichita Falls, and Midland/Odessa, TX.",
+    "source_urls": [
+      "https://www.themosterlawfirm.com/solar-panel-lawyers/"
+    ],
+    "buyer_warmth": "warm",
+    "confidence": "medium"
+  },
+  {
+    "firm_name": "Kemnitzer, Barron & Krieg, LLP",
+    "attorney_names": [],
+    "city": "San Francisco",
+    "state": "CA",
+    "states_licensed": ["CA"],
+    "website": "https://www.kbklegal.com/",
+    "solar_page_url": "https://www.kbklegal.com/practice-areas/solar-panel-and-door-to-door-sales-scams/",
+    "email": "",
+    "phone": "(415) 632-1900",
+    "contact_path": "Phone (regional numbers for SF, Sacramento, LA, Tiburon offices) and an intake form for solar/home-improvement complaints. No public email found.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://www.kbklegal.com/practice-areas/solar-panel-and-door-to-door-sales-scams/",
+      "https://www.kbklegal.com/blog/"
+    ],
+    "content_recency": "active",
+    "content_quality_note": "Strongest litigation track record found in this research -- the firm states it has 'Obtained Over $300 Million in Debt Relief' for consumers and names GreenSky, SunRun, Vivint and a dozen-plus other solar/financing companies as opposing parties. Their blog posted five separate solar-litigation win write-ups on May 30, 2026 alone (defeating motions from Enerbank, Service Finance Company, Sunnova x2, and an appellate win over GoodLeap/Solgen) -- inside the active 12-month window and reflecting genuine, current courtroom activity rather than just marketing copy. Individual attorney bylines were not surfaced on the pages fetched.",
+    "solar_evidence": "Practice page citing $300M+ in consumer debt relief against solar/financing companies (GreenSky, SunRun, Vivint, and others); blog posted five dated solar-litigation win summaries on May 30, 2026 covering Enerbank, Service Finance Company, Sunnova (x2), and a GoodLeap/Solgen appellate win.",
+    "source_urls": [
+      "https://www.kbklegal.com/practice-areas/solar-panel-and-door-to-door-sales-scams/",
+      "https://www.kbklegal.com/blog/"
+    ],
+    "buyer_warmth": "hot",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "The Law Office of Macy D. Hanson, PLLC",
+    "attorney_names": ["Macy D. Hanson"],
+    "city": "Madison",
+    "state": "MS",
+    "states_licensed": ["MS"],
+    "website": "https://www.macyhanson.com/",
+    "solar_page_url": "https://www.macyhanson.com/blog/you-can-sue-your-solar-lender-for-what-your-solar-company-did-wrong/",
+    "email": "",
+    "phone": "(769) 567-1934",
+    "contact_path": "Phone (769) 567-1934 and a free-consultation request form on macyhanson.com. No public email found.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://www.macyhanson.com/blog/you-can-sue-your-solar-lender-for-what-your-solar-company-did-wrong/"
+    ],
+    "content_recency": "active",
+    "content_quality_note": "Small firm publishing a genuinely regular, near-monthly solar-litigation content series: confirmed dated posts running Oct 31, 2025, May 27, 2026, Jun 24, 2026, Jul 22, 2026, and Aug 17, 2026 (titles include 'Red Flags and Scams to Avoid,' 'How to Choose an Experienced Solar Litigation Attorney,' and 'What's Happening in Solar Litigation' updates). This is the single most consistent, most recent publishing cadence found in this research -- a small firm clearly treating solar content as an ongoing editorial program, not a one-off page.",
+    "solar_evidence": "Five confirmed dated solar-litigation blog posts from Oct 2025 through Aug 2026 on a near-monthly cadence, including 'You Can Sue Your Solar Lender for What Your Solar Company Did Wrong' (Oct 31, 2025).",
+    "source_urls": [
+      "https://www.macyhanson.com/blog/you-can-sue-your-solar-lender-for-what-your-solar-company-did-wrong/"
+    ],
+    "buyer_warmth": "hot",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "Stonegate Law, LLC",
+    "attorney_names": ["Dennis Donovan"],
+    "city": "Canton",
+    "state": "OH",
+    "states_licensed": ["NJ"],
+    "website": "https://stonegatelawfirm.com/",
+    "solar_page_url": "https://stonegatelawfirm.com/practice-areas/solar-contract-cancellation/",
+    "email": "hello@stonegatelawfirm.com",
+    "phone": "(918) 203-6401",
+    "contact_path": "Phone (918) 203-6401; email hello@stonegatelawfirm.com.",
+    "content_channels": ["blog", "press"],
+    "content_examples": [
+      "https://stonegatelawfirm.com/practice-areas/solar-contract-cancellation/",
+      "https://www.abnewswire.com/pressreleases/stonegate-law-expert-warns-of-increasing-solar-panel-scams_714645.html"
+    ],
+    "content_recency": "stale",
+    "content_quality_note": "Named attorney Dennis Donovan (NJ bar #007742004) is quoted as a solar-scam expert in a syndicated ABNewswire press release (Sept 26, 2024) -- a genuine earned-media placement, not just a firm blog post -- but that is now roughly two years old and no more-recent dated solar content was found. The practice-area page itself is live and current but undated, and explicitly positions the firm against non-lawyer 'solar cancellation services' -- notable given other sources name Donovan as in-house counsel to at least one such referral operation (Solar Relief Center), worth knowing for pitch context.",
+    "solar_evidence": "Dedicated 'Solar Contract Cancellation' practice-area page; attorney Dennis Donovan quoted by name in an ABNewswire press release (Sept 26, 2024) warning consumers about increasing solar panel scams.",
+    "source_urls": [
+      "https://stonegatelawfirm.com/practice-areas/solar-contract-cancellation/",
+      "https://www.abnewswire.com/pressreleases/stonegate-law-expert-warns-of-increasing-solar-panel-scams_714645.html"
+    ],
+    "buyer_warmth": "warm",
+    "confidence": "medium"
+  },
+  {
+    "firm_name": "Law Office of David Valdez Jr.",
+    "attorney_names": ["David Valdez Jr."],
+    "city": "Culver City",
+    "state": "CA",
+    "states_licensed": ["CA"],
+    "website": "https://www.valdezlegal.com/",
+    "solar_page_url": "https://www.valdezlegal.com/practice-areas/solar-panel-fraud",
+    "email": "",
+    "phone": "(310) 559-4529",
+    "contact_path": "Phone (310) 559-4529; bilingual English/Spanish intake; free case evaluation offered.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://www.valdezlegal.com/practice-areas/solar-panel-fraud"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Single dedicated practice-area page (California-only practice) covering deceptive advertising, PACE loan disputes, and abandoned/underperforming installations. No dated blog posts, video, or press were found -- reads as a solid but static SEO page rather than an ongoing content program.",
+    "solar_evidence": "Dedicated 'Solar Panel Fraud' practice-area page describing PACE loan disputes and deceptive-sale claims, explicitly limited to California cases.",
+    "source_urls": [
+      "https://www.valdezlegal.com/practice-areas/solar-panel-fraud"
+    ],
+    "buyer_warmth": "cool",
+    "confidence": "medium"
+  },
+  {
+    "firm_name": "Thrift McLemore",
+    "attorney_names": [],
+    "city": "Atlanta",
+    "state": "GA",
+    "states_licensed": ["GA", "FL"],
+    "website": "https://thriftlegal.com/",
+    "solar_page_url": "https://thriftlegal.com/practice-areas/solar-panel-fraud/",
+    "email": "",
+    "phone": "(678) 882-0830",
+    "contact_path": "Phone (678) 882-0830; fax (678) 623-5872; contact form on thriftlegal.com.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://thriftlegal.com/practice-areas/solar-panel-fraud/"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Established, well-credentialed firm (Super Lawyers, AV Preeminent, Martindale-Hubbell Client Champion Platinum) with a dedicated solar fraud page covering Georgia's 3-day cancellation window and sales-tactic red flags. No individual attorney byline, date, or additional solar-specific posts were found beyond this single page, so this looks like one practice-area page rather than an active content program.",
+    "solar_evidence": "Dedicated solar panel fraud practice-area page covering Georgia's cooling-off period and deceptive-sales red flags.",
+    "source_urls": [
+      "https://thriftlegal.com/practice-areas/solar-panel-fraud/"
+    ],
+    "buyer_warmth": "cool",
+    "confidence": "medium"
+  },
+  {
+    "firm_name": "Joshua Horton Law (Energy Consumer Law Group, PLLC)",
+    "attorney_names": ["Joshua S. Horton", "Jeffrey Vivo"],
+    "city": "",
+    "state": "FL",
+    "states_licensed": ["FL", "DC"],
+    "website": "https://joshuahortonlaw.com/",
+    "solar_page_url": "https://joshuahortonlaw.com/areas-of-practice/solar-panel-fraud-lawyer-scam/",
+    "email": "solar@joshuahortonlaw.com",
+    "phone": "(561) 440-5211",
+    "contact_path": "Phone (561) 440-5211; general email info@joshuahortonlaw.com; solar-specific intake email solar@joshuahortonlaw.com. No street address published on the site's contact page.",
+    "content_channels": ["blog", "press"],
+    "content_examples": [
+      "https://joshuahortonlaw.com/areas-of-practice/solar-panel-fraud-lawyer-scam/",
+      "https://joshuahortonlaw.com/news/press/"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Strongest 'quoted as an expert in consumer journalism' evidence found in this research: Horton was interviewed by CBS12 (WPEC) for a Palm Beach County investigative piece on solar lender fraud (Vision Solar / Dividend Solar Finance, published Feb 9, 2024), saying lenders 'seem to be' a 'catalyst' for the fraud. He has since co-founded a second, purpose-built entity -- Energy Consumer Law Group, PLLC -- specifically to represent homeowners in residential solar, PACE, and solar-financing disputes, plus set up a dedicated solar@ intake email. That degree of structural investment (a second firm entity, a dedicated email) is a strong buying signal even though I could not confirm a publish date on the practice page itself or pin down exactly when ECLG was formed, and no street address is published.",
+    "solar_evidence": "Dedicated solar fraud practice page with its own intake email (solar@joshuahortonlaw.com); attorney Josh Horton quoted by name in a CBS12/WPEC investigative news segment on solar lender fraud (Feb 9, 2024); co-founded Energy Consumer Law Group, PLLC specifically for residential solar/PACE financing disputes.",
+    "source_urls": [
+      "https://joshuahortonlaw.com/areas-of-practice/solar-panel-fraud-lawyer-scam/",
+      "https://cbs12.com/news/local/vision-solar-i-team-dividend-solar-finance-funding-fraud-solar-lenders-under-scrutiny-florida-attorney-general-lawsuit-fifth-third-bank-neda-yarnall-donna-colli-josh-horton-dividend-finance-solar-loan-victim-support-group-palm-beach-florida-february-2024",
+      "https://joshuahortonlaw.com/contact/"
+    ],
+    "buyer_warmth": "warm",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "Kneupper & Covey PC",
+    "attorney_names": ["Kevin Kneupper", "A. Cyclone Covey"],
+    "city": "Alpharetta",
+    "state": "GA",
+    "states_licensed": ["CA", "GA", "TX", "WA", "NY", "PA", "HI"],
+    "website": "https://kneuppercovey.com/",
+    "solar_page_url": "https://kneuppercovey.com/do-you-have-a-dispute-with-a-solar-panel-installer/",
+    "email": "",
+    "phone": "657-845-3100",
+    "contact_path": "Phone 657-845-3100 and a contact form at kneuppercovey.com. No public email found.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://kneuppercovey.com/do-you-have-a-dispute-with-a-solar-panel-installer/"
+    ],
+    "content_recency": "active",
+    "content_quality_note": "General consumer-rights firm (not solar-exclusive) but licensed across 7 states, which is unusually broad reach. Their solar dispute article was originally published Oct 5, 2021 and is explicitly marked last-updated April 30, 2026 -- inside the active 12-month window, a good sign the firm is still maintaining and refreshing this content rather than leaving it to rot, even though solar is one of many consumer topics they cover.",
+    "solar_evidence": "Article 'Do you have a dispute with a solar panel installer?' covering warranty failures, fraudulent billing, roof damage, and FDCPA claims -- originally published Oct 5, 2021, last updated April 30, 2026.",
+    "source_urls": [
+      "https://kneuppercovey.com/do-you-have-a-dispute-with-a-solar-panel-installer/"
+    ],
+    "buyer_warmth": "warm",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "Consumer Advocacy Law Group",
+    "attorney_names": ["Scott Elkind"],
+    "city": "Las Vegas",
+    "state": "NV",
+    "states_licensed": [],
+    "website": "https://consumeradvocacylaw.com/",
+    "solar_page_url": "https://consumeradvocacylaw.com/blog/",
+    "email": "clientservices@consumeradvocacylaw.com",
+    "phone": "(888) 478-2618",
+    "contact_path": "New-inquiry phone (888) 478-2618, current-client line (702) 560-4573, published email clientservices@consumeradvocacylaw.com.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://consumeradvocacylaw.com/blog/"
+    ],
+    "content_recency": "active",
+    "content_quality_note": "Very active, near-monthly solar-specific blog cadence confirmed directly on the blog index: 'The Legal Grounds for Challenging Problematic Solar Contracts' (Aug 28, 2026), 'Solar Contracts and Home Financing/Sales' (Jul 7, 2026), 'Differences Between a Solar Lease and Power Production Agreement,' 'When You Should be Speaking to a Solar Panel Relief Law Firm,' and 'Why Solar Companies Go Bankrupt' (all Jun 30, 2026), plus three more from April 2026 -- nine solar-specific dated posts inside the active window. Worth noting for pitch context: this firm is also named elsewhere as the attorney partner behind at least one solar-cancellation lead-gen/marketing site (Solar Cancellation Resource Center), confirming they already spend real money on solar-related marketing infrastructure.",
+    "solar_evidence": "Nine dated, solar-specific blog posts published April-August 2026 on the firm's own blog, covering contract challenges, lease-vs-PPA distinctions, UCC filings, bankruptcy risk, and the Holder Rule.",
+    "source_urls": [
+      "https://consumeradvocacylaw.com/blog/"
+    ],
+    "buyer_warmth": "hot",
+    "confidence": "high"
+  },
+  {
+    "firm_name": "Kohl & Cook Law Firm LLC",
+    "attorney_names": [],
+    "city": "Worthington",
+    "state": "OH",
+    "states_licensed": ["OH"],
+    "website": "https://www.kohlcook.com/",
+    "solar_page_url": "https://www.kohlcook.com/ohio-consumer-fraud-victims-sue-solar-panel-company/",
+    "email": "",
+    "phone": "614-763-5111",
+    "contact_path": "Phone 614-763-5111 (Worthington) or 937-637-1755 (Dayton).",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://www.kohlcook.com/ohio-consumer-fraud-victims-sue-solar-panel-company/"
+    ],
+    "content_recency": "stale",
+    "content_quality_note": "Real Ohio consumer-protection firm covering a specific, well-documented case (13 Ohio families suing Power Home Solar/Pink Energy under the Ohio Consumer Sales Practices Act), with a related second post referenced ('Can Ohio Homeowners Sue Over Defective Solar Panel Installations?'). The only dated example found is Jan 25, 2023 -- well outside the 12-month active window -- and no evidence of newer solar content was found, so this reads as a firm that covered solar during a specific case rather than an ongoing beat.",
+    "solar_evidence": "Blog post (Jan 25, 2023) detailing a 13-family Ohio Consumer Sales Practices Act suit against Power Home Solar/Pink Energy.",
+    "source_urls": [
+      "https://www.kohlcook.com/ohio-consumer-fraud-victims-sue-solar-panel-company/"
+    ],
+    "buyer_warmth": "cool",
+    "confidence": "medium"
+  },
+  {
+    "firm_name": "Palker Law Firm",
+    "attorney_names": ["Jason Palker", "Victor Gonzalez", "Cyndi Y. Cantu", "Raul De La Garza"],
+    "city": "Edinburg",
+    "state": "TX",
+    "states_licensed": ["TX"],
+    "website": "https://palkerlaw.com/",
+    "solar_page_url": "https://palkerlaw.com/areas/solar-panel-lawyers/",
+    "email": "",
+    "phone": "(956) 320-0270",
+    "contact_path": "Phone (956) 320-0270; contingency-fee arrangement; virtual consultations offered statewide.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://palkerlaw.com/areas/solar-panel-lawyers/",
+      "https://palkerlaw.com/blog/texas-solar-energy-homeowners/",
+      "https://palkerlaw.com/blog/solar-panel-scam-victim/",
+      "https://palkerlaw.com/blog/misleading-solar-companies/"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Rio Grande Valley firm with a dedicated solar practice page plus at least three distinct solar blog posts found ('Why You Need a Specialized Solar Panel Lawyer in Texas,' '5 Steps Victims of Solar Panel Scams in Texas Should Take,' 'Texas Homeowners vs. Misleading Solar Companies') -- enough volume to show real intent, though publish dates could not be confirmed on the page I fetched.",
+    "solar_evidence": "Dedicated 'Solar Panel Lawyers' page plus at least three named solar-fraud blog posts covering DTPA claims, victim next-steps, and misleading-savings claims.",
+    "source_urls": [
+      "https://palkerlaw.com/areas/solar-panel-lawyers/"
+    ],
+    "buyer_warmth": "warm",
+    "confidence": "medium"
+  },
+  {
+    "firm_name": "Law Offices of Ali Taheripour",
+    "attorney_names": ["Ali Taheripour"],
+    "city": "Woodland Hills",
+    "state": "CA",
+    "states_licensed": ["CA"],
+    "website": "https://www.taheripourlaw.com/",
+    "solar_page_url": "https://www.taheripourlaw.com/business-litigation/solar-panel-disputes/",
+    "email": "",
+    "phone": "(818) 629-1121",
+    "contact_path": "Phone (818) 629-1121 and an online contact form.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://www.taheripourlaw.com/business-litigation/solar-panel-disputes/"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Business-litigation firm with one dedicated solar-disputes page covering contract breaches, installation errors, and product defects for both consumer and business-side clients (the firm notes it also represents 'manufacturers, and solar energy providers,' so this isn't purely a homeowner-side practice). No dates, additional posts, video, or press found -- a single generic SEO page rather than an active content program.",
+    "solar_evidence": "Dedicated 'Solar Panel Disputes' page under the firm's Business Litigation practice, covering contract breach, installation-error, and product-defect claims.",
+    "source_urls": [
+      "https://www.taheripourlaw.com/business-litigation/solar-panel-disputes/"
+    ],
+    "buyer_warmth": "cool",
+    "confidence": "low"
+  },
+  {
+    "firm_name": "KGS Law Group PLLC",
+    "attorney_names": [],
+    "city": "Houston",
+    "state": "TX",
+    "states_licensed": ["TX"],
+    "website": "https://www.kgslawpllc.com/",
+    "solar_page_url": "https://www.kgslawpllc.com/houston-solar-panel-lawyer/",
+    "email": "",
+    "phone": "(281) 962-7772",
+    "contact_path": "Phone (281) 962-7772.",
+    "content_channels": ["blog"],
+    "content_examples": [
+      "https://www.kgslawpllc.com/houston-solar-panel-lawyer/"
+    ],
+    "content_recency": "unknown",
+    "content_quality_note": "Single city-specific solar fraud page citing Tex. Bus. & Com. Code Section 27.01 and the Texas DTPA. No individual attorney byline, date, or additional solar content found beyond this one page -- the thinnest content footprint of the firms in this list, included mainly for completeness and geographic coverage.",
+    "solar_evidence": "Single 'Houston Solar Panel Lawyer' page describing common fraud tactics and applicable Texas statutory fraud/DTPA claims.",
+    "source_urls": [
+      "https://www.kgslawpllc.com/houston-solar-panel-lawyer/"
+    ],
+    "buyer_warmth": "cool",
+    "confidence": "low"
+  }
+]
