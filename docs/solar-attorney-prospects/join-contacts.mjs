@@ -40,6 +40,16 @@ function normName(raw) {
   return s;
 }
 
+/** Registrable-ish domain from a URL, for comparing an email domain to the site. */
+function normDomain(url) {
+  if (!url) return "";
+  try { return new URL(String(url).trim()).hostname.toLowerCase().replace(/^www\./, ""); }
+  catch {
+    const m = String(url).toLowerCase().match(/([a-z0-9-]+\.[a-z]{2,})(?:\/|$)/);
+    return m ? m[1] : "";
+  }
+}
+
 // A real address, not a placeholder or an image filename.
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const JUNK_RE = /^(example|test|your|name|email|someone|user|noreply|no-reply|donotreply)@|@(example|test|domain|yourfirm|email)\./i;
@@ -79,7 +89,7 @@ const master = JSON.parse(readFileSync(MASTER, "utf8"));
 
 // ------------------------------------------------------------------ join
 
-let enriched = 0, newEmails = 0, dmFound = 0, blocked = 0;
+let enriched = 0, newEmails = 0, dmFound = 0, blocked = 0, corrected = 0;
 
 for (const f of master.firms) {
   const c = byName.get(normName(f.firm_name));
@@ -118,7 +128,33 @@ for (const f of master.firms) {
 
   // Prefer a direct line to the decision maker; fall back to the best inbox.
   const best = dmEmail || (found[0] ? found[0].email : "");
-  if (best && !f.email) { f.email = best; newEmails++; }
+  const onFile = str(f.email).toLowerCase();
+
+  if (best && !onFile) {
+    f.email = best;
+    newEmails++;
+  } else if (best && onFile) {
+    const seen = found.some((e) => e.email === onFile) || dmEmail === onFile;
+    if (seen) {
+      f.email_status = "verified_on_site";
+      // A direct line to the decision maker beats a general inbox we already had.
+      if (dmEmail && dmEmail !== onFile) { f.email_superseded = onFile; f.email = dmEmail; }
+    } else {
+      // The address on file was NOT found anywhere on the site this pass, and
+      // the site does publish others. Trust what is actually on the page.
+      const domOf = (e) => str(e).split("@")[1] || "";
+      const site = normDomain(f.website);
+      const onFileDomainMismatch = site && domOf(onFile) && !site.endsWith(domOf(onFile)) && !domOf(onFile).endsWith(site);
+      f.email_superseded = onFile;
+      f.email = best;
+      f.email_status = onFileDomainMismatch
+        ? "corrected — on-file address used a domain that is not the firm's site"
+        : "corrected — on-file address was not published anywhere on the site";
+      corrected++;
+    }
+  } else if (onFile) {
+    f.email_status = found.length || dmEmail ? "on_file" : "on_file — could not re-verify, no emails published on site";
+  }
   f.contact_email = f.email || "";
   f.email_type = dmEmail
     ? "decision_maker_direct"
@@ -149,7 +185,7 @@ const PIPE_COLS = [
   "source_url", "score", "quality_confidence", "personalization_note", "status",
   "contact_name", "contact_title", "email_type", "attorney_headcount",
   "contact_form_url", "phone", "tier", "opportunity_type", "contact_rationale",
-  "email_obfuscated", "contact_note",
+  "email_status", "email_superseded", "email_obfuscated", "contact_note",
 ];
 const rows = sendable.map((f) => ({
   first_name: (f.contact_name || f.attorney_names[0] || "").split(/\s+/)[0] || "",
@@ -172,6 +208,8 @@ const rows = sendable.map((f) => ({
   tier: f.tier,
   opportunity_type: f.opportunity_type,
   contact_rationale: f.contact_rationale || "",
+  email_status: f.email_status || "",
+  email_superseded: f.email_superseded || "",
   email_obfuscated: f.email_obfuscated ? "yes - consider calling instead" : "",
   contact_note: f.contact_note || "",
 }));
@@ -225,6 +263,7 @@ console.log(`invalid emails dropped:  ${dropped}`);
 console.log("");
 console.log(`NEW emails found:        ${newEmails}`);
 console.log(`named decision makers:   ${dmFound}`);
+console.log(`WRONG emails corrected:  ${corrected}`);
 console.log("");
 console.log(`contactable firms:       ${contactable.length}`);
 console.log(`  with a real email:     ${tally((f) => isRealEmail(f.email))}`);

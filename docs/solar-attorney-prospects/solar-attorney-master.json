@@ -126,7 +126,21 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "2 (Charles A. Bennett, Founder; Richard Faulkner, Of Counsel)",
+      "contact_form_url": "https://bennettlegal.com/contact/",
+      "all_emails": [
+        "info@bennettlegal.com"
+      ],
+      "contact_name": "Charles A. Bennett",
+      "contact_title": "Founder",
+      "contact_rationale": "solo/small firm (1-5 attorneys) - founding partner is the marketing spend decision-maker",
+      "contact_source": "https://bennettlegal.com/charles-bennett/",
+      "contact_note": "No direct/personal email published anywhere checked (contact, team, and founder bio pages); only the general info@bennettlegal.com inbox appears in mailto links and page text. No application/ld+json Person schema with an email was found.",
+      "email_obfuscated": false,
+      "email_status": "verified_on_site",
+      "contact_email": "info@bennettlegal.com",
+      "email_type": "general"
     },
     {
       "firm_name": "Consumer Advocacy Law Group",
@@ -494,7 +508,21 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "17 (per the firm's own bio copy: \"the Firm's 17 attorneys\"); site lists ~25+ named attorneys/staff across 7 Texas offices (Dallas, Houston, Austin, Midland, Lubbock, Amarillo, Abilene) — larger than the 1-attorney worklist entry suggests",
+      "contact_form_url": "https://www.themosterlawfirm.com/contact-us/",
+      "all_emails": [
+        "jcrites@themosterlawfirm.com"
+      ],
+      "contact_name": "Charles A. Moster",
+      "contact_title": "Founder & Managing Partner",
+      "contact_rationale": "Founder and Managing Partner, named as such on the firm's own Principals page; sole controlling principal of the firm",
+      "contact_source": "https://www.themosterlawfirm.com/charles-moster/",
+      "contact_note": "Firm is larger than the worklist implies (17+ attorneys across multiple TX offices, not 1). Only a single shared contact address (jcrites@themosterlawfirm.com) is published sitewide, rendered as a malformed href (href=\"http://jcrites@themosterlawfirm.com\", not a real mailto:) on every page's phone/email icon -- same address already on file as current_email. No individual attorney direct emails found on any bio page, including Charles Moster's own. No marketing/BD/client-services title found anywhere on the site.",
+      "email_obfuscated": false,
+      "email_status": "verified_on_site",
+      "contact_email": "jcrites@themosterlawfirm.com",
+      "email_type": "general"
     },
     {
       "firm_name": "Defiant Law",
@@ -569,7 +597,22 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "1 named attorney found (Estefan Encarnación)",
+      "contact_form_url": "https://www.defiant-law.com/contact",
+      "all_emails": [
+        "frontdesk@defiant-law.com",
+        "info@defiant-law.com"
+      ],
+      "contact_name": "Estefan Encarnación",
+      "contact_title": "Founder",
+      "contact_rationale": "solo/small firm - identified as founder in the firm's own schema.org LegalService markup",
+      "contact_source": "https://www.defiant-law.com/about",
+      "contact_note": "Estefan Encarnacion's title as 'founder' comes from application/ld+json schema.org markup on /about and /contact (not visibly rendered as a title elsewhere on the page) - this counts as published per instructions but is worth noting. No personal/direct email found for him; only frontdesk@ and info@ general inboxes appear as mailto links.",
+      "email_obfuscated": false,
+      "email_status": "verified_on_site",
+      "contact_email": "frontdesk@defiant-law.com",
+      "email_type": "general"
     },
     {
       "firm_name": "Flitter Milz, P.C.",
@@ -851,7 +894,8 @@
       "contact_note": "Bryan Kemnitzer is a retired founding partner (no email listed for him). No general/info email is published anywhere on the site; only Kristin Kemnitzer's bio page shows a direct email.",
       "email_obfuscated": false,
       "contact_email": "kristin@kbklegal.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "KGS Law Group PLLC (Kinard, Garcia & Saldaña)",
@@ -1001,7 +1045,21 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "1 (solo practice)",
+      "contact_form_url": "https://www.letonalaw.com/contact-us/",
+      "all_emails": [
+        "info@letonalaw.com"
+      ],
+      "contact_name": "Balam O. Letona",
+      "contact_title": "Attorney (sole practitioner; the firm is named \"Law Office of Balam O. Letona\")",
+      "contact_rationale": "Solo practice bearing his own name; he is the firm's only attorney and owner",
+      "contact_source": "https://www.letonalaw.com/about/",
+      "contact_note": "No individual/personal email published for Balam Letona; only the shared info@letonalaw.com address appears sitewide via mailto: link (matches current_email on file). No obfuscation encountered. No formal title beyond 'Attorney'/'Mr. Letona' is published.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "contact_email": "info@letonalaw.com",
+      "email_type": "general"
     },
     {
       "firm_name": "Mubarak, Sherif & Oladipo, PLLC (MSO Law)",
@@ -1014,7 +1072,7 @@
       ],
       "website": "https://mso.law",
       "solar_page_url": "https://mso.law/practice-areas/solar-panel-disputes-attorney-in-florida/",
-      "email": "info@mso.law",
+      "email": "mmubarak@mso.law",
       "phone": "(888) 797-7669",
       "contact_path": "Phone and email published on site; also secondary number (866) 749-3125 and a contact form",
       "solar_directness": "direct",
@@ -1056,7 +1114,25 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "3 (Mohammad Mubarak - co-founder, Mohammad Sherif - co-founder, A. Abidemi Oladipo - partner)",
+      "contact_form_url": "https://mso.law/contact/",
+      "all_emails": [
+        "mmubarak@mso.law",
+        "msherif@mso.law",
+        "aoladipo@mso.law",
+        "info@mso.law"
+      ],
+      "contact_name": "Mohammad Mubarak",
+      "contact_title": "Esq., Co-Founder / Partner (Personal Injury & Property Loss Attorney)",
+      "contact_rationale": "small firm (3 named partners); listed first in the firm name and confirmed as one of the firm's two founders per the firm-overview page text",
+      "contact_source": "https://mso.law/lawyer/mohammad-mubarak-esq/",
+      "contact_note": "All three attorney bio pages publish direct personal emails as plain mailto: links (no obfuscation). Firm-overview page text names Sherif and Mubarak as 'the firm's two founders' - Oladipo appears to be a partner but not explicitly called a co-founder. Either Mubarak or Sherif would be a reasonable decision-maker contact; both have verified direct emails.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "email_superseded": "info@mso.law",
+      "contact_email": "mmubarak@mso.law",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "Palker Law Firm",
@@ -1533,7 +1609,19 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "2 (Dennis Donovan - Founder/Managing Attorney; Matthew Barnes - Of Counsel), plus 8 paralegals/case managers listed",
+      "contact_form_url": "https://stonegatelawfirm.com/contact-us/",
+      "all_emails": [],
+      "contact_name": "Dennis Donovan",
+      "contact_title": "Founder / Managing Attorney",
+      "contact_rationale": "Explicitly listed as \"Founder / Managing Attorney\" on the firm's Our Team page; sole attorney-owner of a 2-attorney firm",
+      "contact_source": "https://stonegatelawfirm.com/our-team/",
+      "contact_note": "No email address (plain text, mailto:, or Cloudflare-obfuscated) appears anywhere in the raw HTML of the homepage, about-us, our-team, or contact-us pages -- the site relies entirely on a contact form and phone number. The current_email on file (hello@stonegatelawfirm.com) could not be independently re-verified in the fetched HTML, so it is not listed under emails_found.",
+      "email_obfuscated": true,
+      "email_status": "on_file — could not re-verify, no emails published on site",
+      "contact_email": "hello@stonegatelawfirm.com",
+      "email_type": ""
     },
     {
       "firm_name": "Connor Law, PC",
@@ -1700,7 +1788,7 @@
       ],
       "website": "https://hollingtonlawfirm.com/",
       "solar_page_url": "https://hollingtonlawfirm.com/articles/solar-panel-scams-in-colorado",
-      "email": "info@hollawfirm.com",
+      "email": "info@hollingtonlawfirm.com",
       "phone": "(303) 276-2647",
       "contact_path": "Phone (303) 276-2647 and email info@hollawfirm.com both published on-page.",
       "solar_directness": "direct",
@@ -1738,7 +1826,22 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "1 attorney (W. Neal Hollington); Keri Hanson is listed as a paralegal, not an attorney",
+      "contact_form_url": "https://hollingtonlawfirm.com/contact",
+      "all_emails": [
+        "info@hollingtonlawfirm.com"
+      ],
+      "contact_name": "W. Neal Hollington",
+      "contact_title": "Founder and Lead Attorney",
+      "contact_rationale": "solo/small firm - explicitly named 'the firm's founder and lead attorney' on the About page",
+      "contact_source": "https://hollingtonlawfirm.com/about-the-firm",
+      "contact_note": "Worklist's current_email (info@hollawfirm.com) does not match what the live site publishes; site's actual mailto is info@hollingtonlawfirm.com, recorded here instead. No personal/direct email found for Hollington or Hanson on their bio pages - only the general inbox. Keri Hanson is a paralegal (not an attorney/DM candidate).",
+      "email_obfuscated": false,
+      "email_superseded": "info@hollawfirm.com",
+      "email_status": "corrected — on-file address used a domain that is not the firm's site",
+      "contact_email": "info@hollingtonlawfirm.com",
+      "email_type": "general"
     },
     {
       "firm_name": "Kneupper & Covey PC",
@@ -2174,7 +2277,8 @@
       "contact_note": "Large HOA-litigation firm (2 managing partners, 6 partners, 13 senior associates, 11 associates = 32 attorneys). Prefer named marketing/BD contact was not found - closest is Julia Melnick, Director of Administration, and Wayne Teats, Director of Billing Services (titles seen on team roster but their individual emails were not confirmed). Founder & CEO Luke Carlson (lcarlson@lscarlsonlaw.com) is a strong alternate contact if a higher-authority approver is wanted.",
       "email_obfuscated": false,
       "contact_email": "mstreit@lscarlsonlaw.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Marrs Griebel Law, LTD",
@@ -2698,7 +2802,21 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "1 (solo practice)",
+      "contact_form_url": "https://www.riverslaw.net/about-us",
+      "all_emails": [
+        "noel@riverslaw.net"
+      ],
+      "contact_name": "Noel Rivers",
+      "contact_title": "Esq. (sole attorney/owner of the eponymous firm)",
+      "contact_rationale": "Sole named attorney of an eponymous solo firm; only possible decision-maker",
+      "contact_source": "https://www.riverslaw.net/about-us",
+      "contact_note": "Personal direct email (noel@riverslaw.net) published via a real mailto: link on the About Us page -- matches current_email on file, confirming it as her direct/personal address rather than a generic info@ inbox. No obfuscation. Wix-hosted site; unrelated sentry.wixpress.com addresses in the raw HTML are error-tracking artifacts, not contact emails, and were excluded.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "contact_email": "noel@riverslaw.net",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "Thrift McLemore",
@@ -2773,7 +2891,8 @@
       "contact_note": "Co-founders are Craig Thrift and Ryan McLemore (confirmed via the firm's own bio page at thriftlegal.com/team/craig-thrift/, surfaced through web search). Neither founder's bio page publishes a personal email or an explicit 'managing/founding partner' title — Craig Thrift's own page lists him simply as 'Attorney.' info@thriftlegal.com is the best verified contact route.",
       "email_obfuscated": false,
       "contact_email": "info@thriftlegal.com",
-      "email_type": "general"
+      "email_type": "general",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Conn Law, PC",
@@ -2843,7 +2962,8 @@
       "contact_note": "Elliot Conn's email was published in the homepage's own JSON-LD schema.org structured data ('founder': {'name':'Elliot Conn','email':'elliot@connlawpc.com'}) - exact characters read directly from the page's source. /contact, /about, /our-attorneys and the attorney bio page were all blocked by a bot-check (redirects to /.well-known/sgcaptcha/) even though the homepage itself loaded fine, so this firm is only partially fetch-blocked. Two offices: San Francisco (415-417-2780) and Los Angeles (213-224-9200).",
       "email_obfuscated": false,
       "contact_email": "elliot@connlawpc.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Dunivan Law, PA",
@@ -3041,7 +3161,8 @@
       "contact_note": "Email was published via Cloudflare email-obfuscation (data-cfemail hex encoding) in the footer's 'E mail' block, not a plain mailto link — decoded from the exact bytes present in the fetched page's raw HTML using the standard, deterministic, reversible Cloudflare algorithm (the same thing a browser does for a human reader), not inferred or pattern-guessed. No individual bio/about page exists (both /contact/ and /about/ 404); no explicit job title (e.g. 'Founder') appears anywhere on the site, only descriptive text ('Led by Jason Ingber, a seasoned trial lawyer').",
       "email_obfuscated": true,
       "contact_email": "ji@jasoningber.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Lundy LLP",
@@ -3247,7 +3368,23 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "~23 (attorneys listing page has 23 individual bio links)",
+      "contact_form_url": "https://www.sgtlaw.com/contact",
+      "all_emails": [
+        "info@sgtlaw.com",
+        "mediarequests@sgtlaw.com",
+        "settlements@sgtlaw.com"
+      ],
+      "contact_name": "Richard A. Silver",
+      "contact_title": "Partner",
+      "contact_rationale": "firm has ~23 attorneys (20+) but no marketing director/CMO/BD/client-services role was found published anywhere on the site; fell back to a named partner - the firm's own About text lists 'our named partners' as Richard Silver, David S. Golub, and Ernie Teitell (in that order), all titled simply 'Partner' with no managing-partner designation found",
+      "contact_source": "https://www.sgtlaw.com/firm",
+      "contact_note": "No individual attorney has a published direct email - every bio page and the contact page only expose info@sgtlaw.com (in one spot HTML-entity-encoded as &#105;&#110;f&#111;&#64;s&#103;&#116;l&#97;&#119;.com, which decodes to the same info@sgtlaw.com already found in plain mailto links elsewhere, so no new address was revealed). No managing partner, firm administrator, or marketing/BD role publicly named; three co-equal named partners (Silver, Golub, Teitell) share top billing. Ian W. Sloss and David Golub are alternative name-partner contacts if preferred.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "contact_email": "info@sgtlaw.com",
+      "email_type": "general"
     },
     {
       "firm_name": "Jeeves Law Group",
@@ -3482,7 +3619,22 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "118+ attorneys firmwide (large national firm with offices in Philadelphia, Minneapolis, Washington DC, San Diego, and Canada -- Minneapolis, the worklist's listed city, is only one of several offices)",
+      "contact_form_url": "https://bergermontague.com/contact-us/",
+      "all_emails": [
+        "info@bergermontague.com",
+        "emdrake@bergermontague.com"
+      ],
+      "contact_name": "Amy Wall-Monte",
+      "contact_title": "Marketing Director",
+      "contact_rationale": "Firm-wide Marketing Director at a 118+ attorney national plaintiffs' firm -- explicitly the marketing role, preferred per the sizing rule over an individual litigating attorney",
+      "contact_source": "https://bergermontague.com/staff/amy-wall-monte/",
+      "contact_note": "Berger Montague is a large national firm (118+ attorneys across 5+ offices), not a small Minneapolis outfit as the worklist headcount implies. Found a genuine Marketing Director, Amy Wall-Monte -- her staff card and individual bio page both publish her contact as the shared info@bergermontague.com rather than a personal address, alongside her own direct phone (215-875-3021). E. Michelle Drake (the attorney named in the worklist) is an Executive Shareholder in the Minneapolis office with her own confirmed direct email (emdrake@bergermontague.com) and phone (612-594-5933), included as a fallback attorney contact. No obfuscation encountered.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "contact_email": "info@bergermontague.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "Guerra LLP",
@@ -3552,7 +3704,8 @@
       "contact_note": "No traditional contact form found on the /contact page -- the site instead offers live chat and click-to-call. No dedicated marketing/business-development/client-services role identified on About Us or Our Office pages despite the firm's size.",
       "email_obfuscated": false,
       "contact_email": "fguerra@guerrallp.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Young Morphis Bach & Taylor, LLP",
@@ -3567,7 +3720,7 @@
       ],
       "website": "https://www.hickorylaw.com",
       "solar_page_url": "https://www.hickorylaw.com/page/pinkenergy",
-      "email": "lawyers@hickorylaw.com",
+      "email": "jimmys@hickorylaw.com",
       "phone": "(828) 322-4663",
       "contact_path": "Firm-wide email and phone published on site",
       "solar_directness": "adjacent",
@@ -3606,7 +3759,24 @@
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "10 total team members per site's own schema markup: 6 Partners (Paul E. Culpepper, Jordan L. Faulkner, Kevin C. McIntosh, Jimmy R. Summerlin Jr., Timothy D. Swanson, Terry M. Taylor), 1 Attorney (John W. Crone III), 3 Associates (Claude S. Abernethy IV, Julia J. Eurey, Belinda Setzer)",
+      "contact_form_url": "https://www.hickorylaw.com/contact",
+      "all_emails": [
+        "jimmys@hickorylaw.com",
+        "terryt@hickorylaw.com",
+        "lawyers@hickorylaw.com"
+      ],
+      "contact_name": "Jimmy R. Summerlin Jr.",
+      "contact_title": "Partner",
+      "contact_rationale": "mid-size firm (10 team members per site); no managing-partner/administrator/marketing role publicly designated among the 6 co-equal partners, so selected the partner specifically named in the worklist's attorney list, who also has a verified direct email",
+      "contact_source": "https://www.hickorylaw.com/team/jimmy-r-summerlin-jr",
+      "contact_note": "Full staff roster with jobTitle for each person came from application/ld+json AboutPage/employee schema on the /about (=/team) page, not from visible page text. Direct plain mailto emails found for both Summerlin and Taylor (no obfuscation). Terry M. Taylor (terryt@hickorylaw.com) is an equally valid alternate contact - also a named partner matching the firm name.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "email_superseded": "lawyers@hickorylaw.com",
+      "contact_email": "jimmys@hickorylaw.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "California Consumer Attorneys, APC",
@@ -3745,7 +3915,8 @@
       "contact_note": "The WebFetch tool hit a Cloudflare 'verifying you are human' interstitial on this domain, but a direct fetch with a standard browser user-agent succeeded (HTTP 200) and returned full real content — not actually blocked. If firm prefers the attorney track instead, Managing Partner is Timothy Coons (https://counxel.com/team/timothy-coons/). Firm also has a 'Law Firm Manager/Director' (Porsha Brown) as another possible operations contact.",
       "email_obfuscated": true,
       "contact_email": "request@counxel.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Rose Law Group, pc",
@@ -3921,7 +4092,8 @@
       "contact_note": "Direct partner email found on her individual bio page (not on the team/contact pages). Multi-office firm: Fairfax VA, Baltimore MD, Washington DC, Honolulu HI. Her bio does not use a formal title like 'founding partner' - just identifies her as a consumer protection/credit attorney. /about returned 404.",
       "email_obfuscated": false,
       "contact_email": "kkelly@kellyguzzo.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Milberg Coleman Bryson Phillips Grossman, PLLC",
@@ -3990,7 +4162,8 @@
       "contact_note": "Large multi-office national plaintiffs' firm ('50+ years' of combined firm history claimed); total attorney count not explicitly stated on any page checked. Staff page lists a Campaign Manager (Naomi Fantauzzi, marketing-adjacent) and an HR Director (Wadner Molina, email confirmed) but no Marketing Director/CMO title. Two additional staff emails appear on the staff page but could not be confidently attributed to named individuals in the extracted content.",
       "email_obfuscated": false,
       "contact_email": "dataprivacy@milberg.com",
-      "email_type": "general"
+      "email_type": "general",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Amaro Law Firm",
@@ -4063,7 +4236,8 @@
       "contact_note": "Site is a JS single-page app - /contact and /about serve the same shell as the homepage, so distinct per-page content could not be verified separately, but the general contact email/phone come from sitewide schema.org markup. This is actually a larger firm than the worklist entry suggested: site lists 15 named attorneys (Anna McMullen, Antonio Olvera, Brian Crockett (of counsel), Caleb McVicker, Chris Gadoury, Christina Barefield, David Miller, Dirk Lloyd Gustafson, Enrique Rojas, Matt Elwell, Nicholas Monroe, R. James Amaro, Steven Hooker, Will McMillan, Zachary D. Norris (of counsel)), not just R. James Amaro. No personal email found for Amaro himself, only the firm's general inbox.",
       "email_obfuscated": false,
       "contact_email": "info@amarolawfirm.com",
-      "email_type": "general"
+      "email_type": "general",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Edwards Sutarwalla Samani LLP",
@@ -4119,7 +4293,23 @@
       "tier": "B",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "8 (George Edwards III, Murtaza Sutarwalla, Zeshaan Samani, David McNeal, Auriana Siplin, Serkan Aykut, Mansoor Broachwala, Murtaza Doctor)",
+      "contact_form_url": "https://esslawpartners.com/contact-us/",
+      "all_emails": [
+        "george@esslawpartners.com",
+        "murtaza@esslawpartners.com",
+        "zeshaan@esslawpartners.com"
+      ],
+      "contact_name": "George Edwards III",
+      "contact_title": "Founder & Partner",
+      "contact_rationale": "One of three co-founding partners (Edwards, Sutarwalla, Samani); no single partner is designated \"managing partner\" so the firm's namesake senior partner (also already the address on file) is used",
+      "contact_source": "https://esslawpartners.com/george-edwards-iii/",
+      "contact_note": "All three named partners (Edwards, Sutarwalla, Samani) have personal firstname@esslawpartners.com addresses published directly on their own bio pages via mailto: links -- none carries a distinguishing 'managing partner' title, all three are titled simply 'Partner'/founder. No marketing/BD/operations role found; firm has 8 attorneys total. No obfuscation.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "contact_email": "george@esslawpartners.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "Nagel Rice LLP",
@@ -4189,7 +4379,8 @@
       "contact_note": "Lisa Considine (the attorney originally associated with this firm's solar-fraud content) is listed only as 'Counsel,' with no email published for her.",
       "email_obfuscated": false,
       "contact_email": "bnagel@nagelrice.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Connelly Law",
@@ -4261,7 +4452,8 @@
       "contact_note": "Best contact in this batch: a direct published email for the firm's managing attorney/owner, confirmed verbatim (mailto:rj@connellylaw.com) via two independent fetches of the team page. Team page also lists an Office Manager (Jennifer Connelly) as an alternate admin/marketing-adjacent contact with her own published email.",
       "email_obfuscated": false,
       "contact_email": "rj@connellylaw.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Jacqueline A. Salcines, P.A.",
@@ -4449,7 +4641,21 @@
       "tier": "B",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "8 total: 5 Partners (D. Lamar Hawkins, Karen Bentley, Mark A. Hanson, Sam Saks, Scott T. Jensen), 1 Attorney (Cameron Cox), 2 Of Counsel (Gary Smith - retired, Shad M. Brown)",
+      "contact_form_url": "https://guidant.law/contact-us/",
+      "all_emails": [
+        "admin@guidant.law"
+      ],
+      "contact_name": "D. Lamar Hawkins",
+      "contact_title": "Partner, Focused on Commercial and Personal Bankruptcy, Negotiations",
+      "contact_rationale": "mid-size firm (8 attorneys); no managing partner, firm administrator, operations manager, or marketing/BD role is published anywhere on the site - all 5 named partners (Hawkins, Bentley, Hanson, Saks, Jensen) share the identical unqualified 'Partner' title with no seniority distinction found, so this is one reasonable pick among equals, not a confirmed managing partner",
+      "contact_source": "https://guidant.law/attorney-overview/d-lamar-hawkins/",
+      "contact_note": "OBFUSCATION: the contact page's email is Cloudflare hex-encoded (data-cfemail=\"9afbfef7f3f4dafdeff3fefbf4eeb4f6fbed\") rather than a plain mailto link; decoded it to admin@guidant.law, which matches the general inbox already on file - a human may want to call instead of email given the firm actively deters scraping. None of the 8 individual attorney bio pages publish any email (no mailto, no cfemail) - only the general contact page has one (obfuscated). Sam Saks is notable as President of the State Bar of Arizona (2025-) if a more senior-sounding contact is preferred, though still titled 'Partner' at this firm.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "contact_email": "admin@guidant.law",
+      "email_type": "general"
     },
     {
       "firm_name": "Brent S. Snyder Law",
@@ -4641,7 +4847,7 @@
       ],
       "website": "https://go-lawyers.com",
       "solar_page_url": "",
-      "email": "info@go-lawyers.com",
+      "email": "will@go-lawyers.com",
       "phone": "(864) 516-2222",
       "contact_path": "Firm email and phone published on site",
       "solar_directness": "adjacent",
@@ -4680,7 +4886,24 @@
       "tier": "C",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "2 (William Grove, Matthew Ozment)",
+      "contact_form_url": "https://go-lawyers.com/contact-us/",
+      "all_emails": [
+        "will@go-lawyers.com",
+        "matt@go-lawyers.com",
+        "info@go-lawyers.com"
+      ],
+      "contact_name": "William Grove",
+      "contact_title": "Attorney at Law / Co-Founder (bio: he led the Greenville County Public Defender's office \"until opening Grove Ozment, LLC\")",
+      "contact_rationale": "Co-founder and name partner of a 2-attorney firm, listed first in the firm name",
+      "contact_source": "https://go-lawyers.com/william-grove/",
+      "contact_note": "Both name partners publish personal direct emails and direct-dial phone extensions on their own bio pages (will@ and matt@go-lawyers.com). Matthew Ozment's bio explicitly says \"co-founding Grove Ozment\"; William Grove's bio says he ran the Public Defender's office \"until opening Grove Ozment, LLC.\" No marketing/ops role found (2-attorney firm). No obfuscation.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "email_superseded": "info@go-lawyers.com",
+      "contact_email": "will@go-lawyers.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "King Simmons, P.C.",
@@ -4737,7 +4960,31 @@
       "tier": "C",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "4 attorneys (Lawrence T. King, Lindsey O. Simmons, Karen Berhow, John M. Towle - Towle has no bio page/email found)",
+      "contact_form_url": "https://www.kingsimmons.com/contact",
+      "all_emails": [
+        "lsimmons@kingsimmons.com",
+        "lking@kingsimmons.com",
+        "kberhow@kingsimmons.com",
+        "intakeclerk@kingsimmons.com",
+        "kyeager@kingsimmons.com",
+        "bnorris@kingsimmons.com",
+        "kgiles@kingsimmons.com",
+        "kjett@kingsimmons.com",
+        "morr@kingsimmons.com",
+        "rkaetzel@kingsimmons.com",
+        "breynolds@kingsimmons.com"
+      ],
+      "contact_name": "Lindsey O. Simmons",
+      "contact_title": "Named Partner (Attorney)",
+      "contact_rationale": "small firm (4 attorneys) - Simmons is one of the two name partners (King Simmons, P.C.); her direct email is also the address the worklist already had on file as the firm's working contact, suggesting she is the active point of contact",
+      "contact_source": "https://www.kingsimmons.com/lindsey-o-simmons",
+      "contact_note": "No explicit 'managing partner' or 'founder' title found published for King or Simmons - both are simply named attorneys/name-partners; Simmons chosen on the strength that her personal email is the one already circulating as the firm's working contact. Kelsie Yeager (Bookkeeper & Office Manager, kyeager@kingsimmons.com) is a legitimate operations-role alternate if a non-attorney contact is preferred. John M. Towle (listed in the worklist) has no discoverable bio page or email on the current site. This is a Wix site with heavy client-side rendering; some content may not be fully captured by static HTML fetch.",
+      "email_obfuscated": false,
+      "email_status": "verified_on_site",
+      "contact_email": "lsimmons@kingsimmons.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "McMillan & Black, PLLC",
@@ -4935,7 +5182,8 @@
       "contact_note": "Tyler Gurnee (named in the worklist) is 'Member & Practice Leader of Litigation,' not the top decision maker. Firm has a Chief Operating Officer, Heather Cooper, who is worth noting as a secondary contact for marketing/operations spend, but no email is published for either her or Jereme Baker. Only general inbox info@jbakerlawgroup.com is published.",
       "email_obfuscated": false,
       "contact_email": "info@jbakerlawgroup.com",
-      "email_type": "general"
+      "email_type": "general",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Law Office of Wayne Goralski",
@@ -5204,7 +5452,8 @@
       "contact_note": "Both founding partners have direct published emails on their individual attorney bio pages (main /contact-us page itself had no visible email). 6 attorneys hold 'Esq.' (Freeman, Fuson, Carolanne R. King, Marissa Knight, Nickolas I. Schulenberg, Katy Haggard); several other named staff are non-attorney support roles. Second office in Franklin, TN (by appointment).",
       "email_obfuscated": false,
       "contact_email": "mark@freemanfuson.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Keegan & Baker, LLP",
@@ -5221,7 +5470,7 @@
       ],
       "website": "https://www.keeganbaker.com/",
       "solar_page_url": "",
-      "email": "info@keeganbaker.com",
+      "email": "pkeegan@keeganbaker.com",
       "phone": "(858) 558-9400",
       "contact_path": "Email info@keeganbaker.com; phone (858) 558-9400 (San Diego) or (760) 929-9303 (Carlsbad).",
       "solar_directness": "adjacent",
@@ -5261,7 +5510,25 @@
       "tier": "C",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "3 (Patrick N. Keegan, Jason E. Baker, John J. Weber)",
+      "contact_form_url": "https://www.keeganbaker.com/contact-law-firm/",
+      "all_emails": [
+        "pkeegan@keeganbaker.com",
+        "jbaker@keeganbaker.com",
+        "jweber@keeganbaker.com",
+        "info@keeganbaker.com"
+      ],
+      "contact_name": "Patrick N. Keegan",
+      "contact_title": "Co-Founder and Managing Partner",
+      "contact_rationale": "His own bio page explicitly states he is \"the co-founder and managing partner of Keegan & Baker, LLP\" -- exact title match for a 3-attorney firm",
+      "contact_source": "https://www.keeganbaker.com/patrick-n-keegan/",
+      "contact_note": "Clean, explicit match: Patrick N. Keegan's own bio page states he is 'the co-founder and managing partner of Keegan & Baker, LLP' with a direct-dial phone and personal email. All three named attorneys have personal firstinitial+last@keeganbaker.com addresses published via mailto: on their own bio pages. No obfuscation.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "email_superseded": "info@keeganbaker.com",
+      "contact_email": "pkeegan@keeganbaker.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "Law Offices Of SRIS, P.C.",
@@ -5384,7 +5651,22 @@
       "tier": "C",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "28 (per the dedicated /about/our-attorneys/ listing page)",
+      "contact_form_url": "https://resolvelawgroup.com/contact/",
+      "all_emails": [
+        "stuart@resolvelawgroup.com",
+        "info@resolvelawgroup.com"
+      ],
+      "contact_name": "Allen Jones III",
+      "contact_title": "Founder (per site's schema.org LegalService/Organization markup)",
+      "contact_rationale": "large firm (28 attorneys listed) with no marketing director/CMO/BD/client-services role found published anywhere on the site; fell back to the person the site's own structured data names as founder",
+      "contact_source": "https://resolvelawgroup.com/staff_attorney/allen-jones/",
+      "contact_note": "IMPORTANT AMBIGUITY: pricelawgroup.com 301-redirects to resolvelawgroup.com, and on first fetch resolvelawgroup.com served a 5-second JS auto-refresh 'One moment, please...' interstitial (anti-bot) rather than real content - a second fetch (or one with a persisted cookie jar) got through to real HTML, so fetch_blocked is set true to flag that this firm's real site needs a retry/cookie-jar technique, not a one-shot curl. The site's application/ld+json (repeated identically across multiple attorney pages, including oddly referencing 'Blitz Law Group' in one description field, suggesting a reused/templated schema block) names 'Allen Jones III' as founder - however, the same schema's organization-level email is 'stuart@resolvelawgroup.com', which by name plausibly belongs to Stuart Price, the attorney whose name is literally in 'Price Law Group.' Given the schema is templated/possibly unreliable, a human should sanity-check whether Allen Jones III or Stuart Price is the right addressee before sending. Neither has a personal email confirmed beyond the ambiguous org-level stuart@ address, which was NOT attributed to Allen Jones III in emails_found since the name doesn't match him.",
+      "email_obfuscated": false,
+      "email_status": "verified_on_site",
+      "contact_email": "info@resolvelawgroup.com",
+      "email_type": "attorney"
     },
     {
       "firm_name": "Wright Commercial Litigation, PLLC",
@@ -5758,7 +6040,7 @@
       ],
       "website": "https://www.mmmb.com",
       "solar_page_url": "",
-      "email": "info@mmmb.com",
+      "email": "murray@mmmb.com",
       "phone": "614-488-0400",
       "contact_path": "Phone and email published on homepage",
       "solar_directness": "adjacent",
@@ -5797,7 +6079,29 @@
       "tier": "C",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "7 (Joseph F. Murray, Brian K. Murphy, Geoffrey J. Moul, Brian A. Basil, Jennifer L. Fate, JB Hadden, Jonathan P. Misny)",
+      "contact_form_url": "https://www.mmmb.com (embedded contact form)",
+      "all_emails": [
+        "murray@mmmb.com",
+        "murphy@mmmb.com",
+        "moul@mmmb.com",
+        "basil@mmmb.com",
+        "fate@mmmb.com",
+        "hadden@mmmb.com",
+        "misny@mmmb.com",
+        "info@mmmb.com"
+      ],
+      "contact_name": "Joseph F. Murray",
+      "contact_title": "Co-Founder (per his own bio: \"Before co-founding our firm...\"); no formal title labels are published on the team page for any attorney",
+      "contact_rationale": "Listed first in the firm's own name and confirmed as a co-founder in his bio; no attorney is distinctly labeled managing partner, so the first-named founder is the best-supported proxy",
+      "contact_source": "https://www.mmmb.com/our-team",
+      "contact_note": "All 7 attorneys' personal emails and direct-dial + mobile phone numbers are published together on the /our-team page (Wix-hosted). No one carries a distinct 'managing partner' label -- all four name partners (Murray, Murphy, Moul, Basil) describe themselves identically as co-founders. No obfuscation. Unrelated sentry.wixpress.com addresses in the raw HTML are error-tracking artifacts and were excluded.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "email_superseded": "info@mmmb.com",
+      "contact_email": "murray@mmmb.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "Zonies Law LLC",
@@ -5813,7 +6117,7 @@
       "states_licensed": [],
       "website": "https://www.zonieslaw.com/",
       "solar_page_url": "",
-      "email": "info@zonieslaw.com",
+      "email": "jzonies@zonieslaw.com",
       "phone": "720-464-5300",
       "contact_path": "Phone 720-464-5300 or toll-free 1-866-730-6438; email info@zonieslaw.com.",
       "solar_directness": "adjacent",
@@ -5852,7 +6156,26 @@
       "tier": "C",
       "exclude_reason": "",
       "already_known": false,
-      "reachable": "email"
+      "reachable": "email",
+      "attorney_headcount": "1 attorney (Joe Zonies, Founder). The worklist listed Shea Shaver, Lisa Randolph, and Jenelle Cox as 'attorneys' but their published titles on the site are Mass Tort Manager, Nurse Paralegal, and Legal Assistant respectively - none are attorneys",
+      "contact_form_url": "https://www.zonieslaw.com/contact",
+      "all_emails": [
+        "jzonies@zonieslaw.com",
+        "info@zonieslaw.com",
+        "sshaver@zonieslaw.com",
+        "lisa@zonieslaw.com",
+        "jcox@zonieslaw.com"
+      ],
+      "contact_name": "Joe Zonies",
+      "contact_title": "Founder",
+      "contact_rationale": "solo/small firm - Joe Zonies is the only attorney on the team page and is explicitly titled 'Founder,' with the bio text stating 'Joseph Zonies is the founding member of Zonies Law LLC'",
+      "contact_source": "https://www.zonieslaw.com/our-people/joe-zonies",
+      "contact_note": "OBFUSCATION: every individual staff email on this site (including the founder's) is hidden behind a Joomla anti-spambot JavaScript 'cloak' that HTML-entity-encodes the address and writes it into the page only via document.getElementById(...).innerHTML at runtime - a static/summarizer view would show only 'This email address is being protected from spambots.' All four addresses above were decoded from that entity-encoded JS (e.g. 'jz&#111;n&#105;&#101;s' + '&#64;' + 'z&#111;n&#105;&#101;sl&#97;w' + '&#46;' + 'c&#111;m' -> jzonies@zonieslaw.com); the characters were genuinely published, but this is a deliberate anti-scraping measure, so a human should decide whether to email or call the direct line instead (866-730-6438). Joe Zonies' direct phone is also listed on his bio page.",
+      "email_obfuscated": true,
+      "email_status": "verified_on_site",
+      "email_superseded": "info@zonieslaw.com",
+      "contact_email": "jzonies@zonieslaw.com",
+      "email_type": "decision_maker_direct"
     },
     {
       "firm_name": "Kazerouni Law Group, APC",
@@ -5922,7 +6245,8 @@
       "contact_note": "Best find in this batch: verified direct partner email (mailto:ak@kazlg.com) and direct phone confirmed in raw HTML, not just a tool summary. This attorney's address follows a firstinitial+lastname@kazlg.com pattern, but per instructions no other attorney's email was guessed from that pattern — only ak@kazlg.com was actually read on a fetched page.",
       "email_obfuscated": false,
       "contact_email": "ak@kazlg.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Robinson & Henry, P.C.",
@@ -6119,7 +6443,8 @@
       "contact_note": "Direct email for the firm's President found and verified on his own bio page.",
       "email_obfuscated": false,
       "contact_email": "scott@bursor.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Chimicles Schwartz Kriner & Donaldson-Smith LLP",
@@ -6190,7 +6515,8 @@
       "contact_note": "8 partners (Nicholas E. Chimicles, Robert J. Kriner Jr., Steven A. Schwartz, Kimberly Donaldson Smith, Timothy N. Mathews, Scott M. Tucker, Beena M. McDonald, Zachary P. Beatty), 3 of counsel/senior counsel, 6 associates = 17 attorneys. www.chimicles.com redirects/canonicalizes to chimicles.com (no www) for content pages. Site's own /attorneys URL 404s; real path is /our-people/. Only Nicholas Chimicles's direct email was confirmed via mailto: link on his own bio page; no marketing/BD-specific role found among staff.",
       "email_obfuscated": false,
       "contact_email": "nick@chimicles.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Christensen Young & Associates",
@@ -6526,7 +6852,8 @@
       "contact_note": "Strong result: three named co-founders' direct work emails are published on the firm's own site (each was literally read on a fetched page — jfrancis's was independently confirmed twice, on both the attorneys listing and his own bio page).",
       "email_obfuscated": false,
       "contact_email": "jfrancis@consumerlawfirm.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Gustafson Gluek PLLC",
@@ -6594,7 +6921,8 @@
       "contact_note": "Team page lists 23 attorneys and 12 non-attorney \"Our Professionals\" staff. The contact page explicitly names Cathy Smith and Tracey Grill as the people to email for urgent matters, which is an unusually direct, named contact route. Tracey Grill's bio explicitly states she is 'Office Manager... overseeing the Firm's overall operations, including finance, human resources, facilities management, and the supervision of office staff' - functionally the closest thing this firm has to an operations/administrator contact, and worth trying alongside the founder.",
       "email_obfuscated": false,
       "contact_email": "dgustafson@gustafsongluek.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Hutchison & Steffen",
@@ -6869,7 +7197,8 @@
       "contact_note": "info@mswdlaw.com is explicitly designated on-site for job/resume inquiries, not general contact - useful as a fallback route only. John Morrison's direct email (john@mswdlaw.com) is the better outreach target. 8 attorneys = 7 partners (John Morrison, David K. W. Wilson Jr., Lin Deola, Brian J. Miller, Rob Farris-Olsen, Scott Peterson, Anne Sherwood) + 1 Of Counsel (Frederick F. Sherwood).",
       "email_obfuscated": false,
       "contact_email": "john@mswdlaw.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Motley Rice LLC",
@@ -6939,7 +7268,8 @@
       "contact_note": "communications@motleyrice.com is explicitly presented on-site as the media/communications contact — the closest published marketing-relevant channel — but no individual name is attached to it. Attempts to find a leadership/marketing-team page returned 404s.",
       "email_obfuscated": false,
       "contact_email": "communications@motleyrice.com",
-      "email_type": "marketing"
+      "email_type": "marketing",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Racine Olson, PLLP",
@@ -7072,7 +7402,8 @@
       "contact_note": "Two direct partner emails found. Thomas G. Shapiro (name partner) is titled 'Founding Partner Emeritus,' suggesting reduced day-to-day role, hence flagging Edward Haber instead. Both emails are provided in emails_found for completeness.",
       "email_obfuscated": false,
       "contact_email": "ehaber@shulaw.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Simon Law PC",
@@ -7210,7 +7541,8 @@
       "contact_note": "Best find in this batch: the firm's CEO by name, with a verified direct email and direct phone line, confirmed in raw HTML (an HTML-entity-obfuscated mailto link, decoded character-for-character — not a guess). Every attorney on the people page uses a consistent firstinitial+lastname@sommerspc.com pattern, but per instructions none of the other attorneys' addresses were recorded since only Bourgon's was actually fetched and decoded.",
       "email_obfuscated": true,
       "contact_email": "jbourgon@sommerspc.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Wittels McInturff Palikovic",
@@ -7342,7 +7674,8 @@
       "contact_note": "Named Marketing Manager (Derek Dixon) confirmed via his own bio page (title and phone shown), but no email is published for him specifically. The only verified email on the domain is an HR/recruiting contact (Lindsey Carr) on the careers page — included for completeness but she is not the marketing decision-maker. Three Managing Partners are also named on the people page: June Pineda Hoidal, Caleb L. H. Marker, and J. Gordon Rudd, Jr.",
       "email_obfuscated": false,
       "contact_email": "lindsey.carr@zimmreed.com",
-      "email_type": "general"
+      "email_type": "general",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "DeConcini McDonald Yetwin & Lacy, P.C.",
@@ -7479,7 +7812,8 @@
       "contact_note": "No firm-wide phone number was published on the pages checked (homepage/contact/about); the firm instead lists six separate office locations (Cheyenne, Jackson, Evanston, Park City, Denver, Casper), each presumably with its own number, which were not individually fetched. Strong contact: named Managing Partner with a direct email.",
       "email_obfuscated": false,
       "contact_email": "nwinegar@lrw-law.com",
-      "email_type": "decision_maker_direct"
+      "email_type": "decision_maker_direct",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Modrall Sperling",
@@ -7545,7 +7879,8 @@
       "contact_note": "General inbox (contact@modrall.com) and several individual attorney emails follow a firstname.lastname@modrall.com pattern that is directly published via mailto links on the attorney directory — confirmed by literal read, not inferred. Scott D. Cocker's Executive Director title is confirmed only via a November 2020 firm press release still live on the site; could not verify from the site whether he still holds the role today (no more-recent leadership page found, and LinkedIn is off-limits per instructions) — treat as dated. No individual email was found for Cocker himself, and one was deliberately not constructed from the firm's visible pattern per the no-guessing rule.",
       "email_obfuscated": false,
       "contact_email": "contact@modrall.com",
-      "email_type": "general"
+      "email_type": "general",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Sutin, Thayer & Browne",
@@ -7608,7 +7943,8 @@
       "contact_note": "Squarespace site. General firm email emb@sutinfirm.com found in the page's embedded schema.org/Organization JSON-LD (literal characters read from page source, not a guess), likely a firm administrator's mailbox since the initials don't match any of the 20 listed attorneys' names. No individual attorney titles or emails are published on the roster pages, and an individual bio-page URL pattern could not be determined (a guessed slug 404'd, so it was not pursued further). Site has an 'In Memoriam' nav item, suggesting the firm's namesake founders (Sutin, Thayer, Browne) are no longer among the active attorneys listed.",
       "email_obfuscated": false,
       "contact_email": "emb@sutinfirm.com",
-      "email_type": "general"
+      "email_type": "general",
+      "email_status": "verified_on_site"
     },
     {
       "firm_name": "Hendershot Cowart P.C.",
@@ -8030,5 +8366,5 @@
       "reachable": "phone"
     }
   ],
-  "enriched_at": "2026-09-09T18:19:03.150Z"
+  "enriched_at": "2026-09-09T18:34:25.806Z"
 }

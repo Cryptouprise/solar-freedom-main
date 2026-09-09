@@ -1,0 +1,175 @@
+[
+  {
+    "firm_name": "Bennett Legal (Charles Bennett Law, PLLC d/b/a Bennett Legal)",
+    "website": "https://bennettlegal.com",
+    "emails_found": [
+      {"email": "info@bennettlegal.com", "belongs_to": "general inbox", "source_url": "https://bennettlegal.com/contact/"}
+    ],
+    "decision_maker": {"name": "Charles A. Bennett", "title": "Founder", "email": "", "source_url": "https://bennettlegal.com/charles-bennett/"},
+    "decision_maker_rationale": "solo/small firm (1-5 attorneys) - founding partner is the marketing spend decision-maker",
+    "attorney_headcount": "2 (Charles A. Bennett, Founder; Richard Faulkner, Of Counsel)",
+    "contact_form_url": "https://bennettlegal.com/contact/",
+    "phone": "(972) 972-4969",
+    "pages_checked": ["https://bennettlegal.com/contact/", "https://bennettlegal.com/", "https://bennettlegal.com/team/", "https://bennettlegal.com/charles-bennett/"],
+    "fetch_blocked": false,
+    "notes": "No direct/personal email published anywhere checked (contact, team, and founder bio pages); only the general info@bennettlegal.com inbox appears in mailto links and page text. No application/ld+json Person schema with an email was found."
+  },
+  {
+    "firm_name": "Defiant Law",
+    "website": "https://www.defiant-law.com",
+    "emails_found": [
+      {"email": "frontdesk@defiant-law.com", "belongs_to": "general inbox", "source_url": "https://www.defiant-law.com/contact"},
+      {"email": "info@defiant-law.com", "belongs_to": "general inbox", "source_url": "https://www.defiant-law.com/about"}
+    ],
+    "decision_maker": {"name": "Estefan Encarnación", "title": "Founder", "email": "", "source_url": "https://www.defiant-law.com/about"},
+    "decision_maker_rationale": "solo/small firm - identified as founder in the firm's own schema.org LegalService markup",
+    "attorney_headcount": "1 named attorney found (Estefan Encarnación)",
+    "contact_form_url": "https://www.defiant-law.com/contact",
+    "phone": "(909) 581-4351",
+    "pages_checked": ["https://www.defiant-law.com/", "https://www.defiant-law.com/contact", "https://www.defiant-law.com/about"],
+    "fetch_blocked": false,
+    "notes": "Estefan Encarnacion's title as 'founder' comes from application/ld+json schema.org markup on /about and /contact (not visibly rendered as a title elsewhere on the page) - this counts as published per instructions but is worth noting. No personal/direct email found for him; only frontdesk@ and info@ general inboxes appear as mailto links."
+  },
+  {
+    "firm_name": "Mubarak, Sherif & Oladipo, PLLC (MSO Law)",
+    "website": "https://mso.law",
+    "emails_found": [
+      {"email": "info@mso.law", "belongs_to": "general inbox", "source_url": "https://mso.law/contact/"},
+      {"email": "mmubarak@mso.law", "belongs_to": "attorney name (Mohammad Mubarak, Esq., co-founder)", "source_url": "https://mso.law/lawyer/mohammad-mubarak-esq/"},
+      {"email": "msherif@mso.law", "belongs_to": "attorney name (Mohammad Sherif, Esq., co-founder)", "source_url": "https://mso.law/lawyer/mohammad-sherif-esq/"},
+      {"email": "aoladipo@mso.law", "belongs_to": "attorney name (A. Abidemi Oladipo, Esq., partner)", "source_url": "https://mso.law/lawyer/a-abidemi-oladipo-esq/"}
+    ],
+    "decision_maker": {"name": "Mohammad Mubarak", "title": "Esq., Co-Founder / Partner (Personal Injury & Property Loss Attorney)", "email": "mmubarak@mso.law", "source_url": "https://mso.law/lawyer/mohammad-mubarak-esq/"},
+    "decision_maker_rationale": "small firm (3 named partners); listed first in the firm name and confirmed as one of the firm's two founders per the firm-overview page text",
+    "attorney_headcount": "3 (Mohammad Mubarak - co-founder, Mohammad Sherif - co-founder, A. Abidemi Oladipo - partner)",
+    "contact_form_url": "https://mso.law/contact/",
+    "phone": "(866) 749-3125",
+    "pages_checked": ["https://mso.law/", "https://mso.law/contact/", "https://mso.law/firm-overview/", "https://mso.law/lawyer/", "https://mso.law/lawyer/mohammad-mubarak-esq/", "https://mso.law/lawyer/mohammad-sherif-esq/", "https://mso.law/lawyer/a-abidemi-oladipo-esq/"],
+    "fetch_blocked": false,
+    "notes": "All three attorney bio pages publish direct personal emails as plain mailto: links (no obfuscation). Firm-overview page text names Sherif and Mubarak as 'the firm's two founders' - Oladipo appears to be a partner but not explicitly called a co-founder. Either Mubarak or Sherif would be a reasonable decision-maker contact; both have verified direct emails."
+  },
+  {
+    "firm_name": "Hollington Law Firm, LLC",
+    "website": "https://hollingtonlawfirm.com/",
+    "emails_found": [
+      {"email": "info@hollingtonlawfirm.com", "belongs_to": "general inbox", "source_url": "https://hollingtonlawfirm.com/contact"}
+    ],
+    "decision_maker": {"name": "W. Neal Hollington", "title": "Founder and Lead Attorney", "email": "", "source_url": "https://hollingtonlawfirm.com/about-the-firm"},
+    "decision_maker_rationale": "solo/small firm - explicitly named 'the firm's founder and lead attorney' on the About page",
+    "attorney_headcount": "1 attorney (W. Neal Hollington); Keri Hanson is listed as a paralegal, not an attorney",
+    "contact_form_url": "https://hollingtonlawfirm.com/contact",
+    "phone": "(303) 276-2647",
+    "pages_checked": ["https://hollingtonlawfirm.com/", "https://hollingtonlawfirm.com/contact", "https://hollingtonlawfirm.com/about-the-firm", "https://hollingtonlawfirm.com/attorneys/w-neal-hollington", "https://hollingtonlawfirm.com/staff/keri-hanson"],
+    "fetch_blocked": false,
+    "notes": "Worklist's current_email (info@hollawfirm.com) does not match what the live site publishes; site's actual mailto is info@hollingtonlawfirm.com, recorded here instead. No personal/direct email found for Hollington or Hanson on their bio pages - only the general inbox. Keri Hanson is a paralegal (not an attorney/DM candidate)."
+  },
+  {
+    "firm_name": "Silver Golub & Teitell LLP",
+    "website": "https://www.sgtlaw.com",
+    "emails_found": [
+      {"email": "info@sgtlaw.com", "belongs_to": "general inbox", "source_url": "https://www.sgtlaw.com/contact"},
+      {"email": "mediarequests@sgtlaw.com", "belongs_to": "general inbox (media)", "source_url": "https://www.sgtlaw.com/contact"},
+      {"email": "settlements@sgtlaw.com", "belongs_to": "general inbox (settlements)", "source_url": "https://www.sgtlaw.com/contact"}
+    ],
+    "decision_maker": {"name": "Richard A. Silver", "title": "Partner", "email": "", "source_url": "https://www.sgtlaw.com/firm"},
+    "decision_maker_rationale": "firm has ~23 attorneys (20+) but no marketing director/CMO/BD/client-services role was found published anywhere on the site; fell back to a named partner - the firm's own About text lists 'our named partners' as Richard Silver, David S. Golub, and Ernie Teitell (in that order), all titled simply 'Partner' with no managing-partner designation found",
+    "attorney_headcount": "~23 (attorneys listing page has 23 individual bio links)",
+    "contact_form_url": "https://www.sgtlaw.com/contact",
+    "phone": "(203) 325-4491",
+    "pages_checked": ["https://www.sgtlaw.com/", "https://www.sgtlaw.com/contact", "https://www.sgtlaw.com/attorneys", "https://www.sgtlaw.com/firm", "https://www.sgtlaw.com/attorneys/david-s-golub", "https://www.sgtlaw.com/attorneys/richard-a-silver", "https://www.sgtlaw.com/attorneys/ian-sloss"],
+    "fetch_blocked": false,
+    "notes": "No individual attorney has a published direct email - every bio page and the contact page only expose info@sgtlaw.com (in one spot HTML-entity-encoded as &#105;&#110;f&#111;&#64;s&#103;&#116;l&#97;&#119;.com, which decodes to the same info@sgtlaw.com already found in plain mailto links elsewhere, so no new address was revealed). No managing partner, firm administrator, or marketing/BD role publicly named; three co-equal named partners (Silver, Golub, Teitell) share top billing. Ian W. Sloss and David Golub are alternative name-partner contacts if preferred."
+  },
+  {
+    "firm_name": "Young Morphis Bach & Taylor, LLP",
+    "website": "https://www.hickorylaw.com",
+    "emails_found": [
+      {"email": "lawyers@hickorylaw.com", "belongs_to": "general inbox", "source_url": "https://www.hickorylaw.com/contact"},
+      {"email": "jimmys@hickorylaw.com", "belongs_to": "attorney name (Jimmy R. Summerlin Jr., Partner)", "source_url": "https://www.hickorylaw.com/team/jimmy-r-summerlin-jr"},
+      {"email": "terryt@hickorylaw.com", "belongs_to": "attorney name (Terry M. Taylor, Partner)", "source_url": "https://www.hickorylaw.com/team/terry-m-taylor"}
+    ],
+    "decision_maker": {"name": "Jimmy R. Summerlin Jr.", "title": "Partner", "email": "jimmys@hickorylaw.com", "source_url": "https://www.hickorylaw.com/team/jimmy-r-summerlin-jr"},
+    "decision_maker_rationale": "mid-size firm (10 team members per site); no managing-partner/administrator/marketing role publicly designated among the 6 co-equal partners, so selected the partner specifically named in the worklist's attorney list, who also has a verified direct email",
+    "attorney_headcount": "10 total team members per site's own schema markup: 6 Partners (Paul E. Culpepper, Jordan L. Faulkner, Kevin C. McIntosh, Jimmy R. Summerlin Jr., Timothy D. Swanson, Terry M. Taylor), 1 Attorney (John W. Crone III), 3 Associates (Claude S. Abernethy IV, Julia J. Eurey, Belinda Setzer)",
+    "contact_form_url": "https://www.hickorylaw.com/contact",
+    "phone": "(828) 322-4663",
+    "pages_checked": ["https://www.hickorylaw.com/", "https://www.hickorylaw.com/contact", "https://www.hickorylaw.com/about", "https://www.hickorylaw.com/team/jimmy-r-summerlin-jr", "https://www.hickorylaw.com/team/terry-m-taylor"],
+    "fetch_blocked": false,
+    "notes": "Full staff roster with jobTitle for each person came from application/ld+json AboutPage/employee schema on the /about (=/team) page, not from visible page text. Direct plain mailto emails found for both Summerlin and Taylor (no obfuscation). Terry M. Taylor (terryt@hickorylaw.com) is an equally valid alternate contact - also a named partner matching the firm name."
+  },
+  {
+    "firm_name": "Guidant Law, PLC",
+    "website": "https://guidant.law/",
+    "emails_found": [
+      {"email": "admin@guidant.law", "belongs_to": "general inbox", "source_url": "https://guidant.law/contact-us/"}
+    ],
+    "decision_maker": {"name": "D. Lamar Hawkins", "title": "Partner, Focused on Commercial and Personal Bankruptcy, Negotiations", "email": "", "source_url": "https://guidant.law/attorney-overview/d-lamar-hawkins/"},
+    "decision_maker_rationale": "mid-size firm (8 attorneys); no managing partner, firm administrator, operations manager, or marketing/BD role is published anywhere on the site - all 5 named partners (Hawkins, Bentley, Hanson, Saks, Jensen) share the identical unqualified 'Partner' title with no seniority distinction found, so this is one reasonable pick among equals, not a confirmed managing partner",
+    "attorney_headcount": "8 total: 5 Partners (D. Lamar Hawkins, Karen Bentley, Mark A. Hanson, Sam Saks, Scott T. Jensen), 1 Attorney (Cameron Cox), 2 Of Counsel (Gary Smith - retired, Shad M. Brown)",
+    "contact_form_url": "https://guidant.law/contact-us/",
+    "phone": "(602) 888-9229",
+    "pages_checked": ["https://guidant.law/", "https://guidant.law/contact-us/", "https://guidant.law/about-guidant/", "https://guidant.law/attorney-overview/", "https://guidant.law/attorney-overview/cameron-cox/", "https://guidant.law/attorney-overview/d-lamar-hawkins/", "https://guidant.law/attorney-overview/karen-bentley/", "https://guidant.law/attorney-overview/mark-a-hanson/", "https://guidant.law/attorney-overview/sam-saks/", "https://guidant.law/attorney-overview/scott-t-jensen/", "https://guidant.law/attorney-overview/gary-smith/", "https://guidant.law/attorney-overview/shad-m-brown/"],
+    "fetch_blocked": false,
+    "notes": "OBFUSCATION: the contact page's email is Cloudflare hex-encoded (data-cfemail=\"9afbfef7f3f4dafdeff3fefbf4eeb4f6fbed\") rather than a plain mailto link; decoded it to admin@guidant.law, which matches the general inbox already on file - a human may want to call instead of email given the firm actively deters scraping. None of the 8 individual attorney bio pages publish any email (no mailto, no cfemail) - only the general contact page has one (obfuscated). Sam Saks is notable as President of the State Bar of Arizona (2025-) if a more senior-sounding contact is preferred, though still titled 'Partner' at this firm."
+  },
+  {
+    "firm_name": "King Simmons, P.C.",
+    "website": "https://kingsimmons.com",
+    "emails_found": [
+      {"email": "lsimmons@kingsimmons.com", "belongs_to": "attorney name (Lindsey O. Simmons, named partner)", "source_url": "https://www.kingsimmons.com/lindsey-o-simmons"},
+      {"email": "lking@kingsimmons.com", "belongs_to": "attorney name (Lawrence T. King, named partner)", "source_url": "https://www.kingsimmons.com/lawrence-t-king-1"},
+      {"email": "kberhow@kingsimmons.com", "belongs_to": "attorney name (Karen Berhow)", "source_url": "https://www.kingsimmons.com/karen-berhow"},
+      {"email": "kyeager@kingsimmons.com", "belongs_to": "staff (Kelsie Yeager, Bookkeeper & Office Manager)", "source_url": "https://www.kingsimmons.com/about-us"},
+      {"email": "bnorris@kingsimmons.com", "belongs_to": "staff (Branson Norris, Paralegal)", "source_url": "https://www.kingsimmons.com/about-us"},
+      {"email": "kgiles@kingsimmons.com", "belongs_to": "staff (Kelsey Giles, Paralegal)", "source_url": "https://www.kingsimmons.com/about-us"},
+      {"email": "kjett@kingsimmons.com", "belongs_to": "staff (Paralegal)", "source_url": "https://www.kingsimmons.com/about-us"},
+      {"email": "morr@kingsimmons.com", "belongs_to": "staff (Orr, Paralegal)", "source_url": "https://www.kingsimmons.com/about-us"},
+      {"email": "rkaetzel@kingsimmons.com", "belongs_to": "staff (Robin Kaetzel, Paralegal)", "source_url": "https://www.kingsimmons.com/about-us"},
+      {"email": "breynolds@kingsimmons.com", "belongs_to": "staff", "source_url": "https://www.kingsimmons.com/about-us"},
+      {"email": "intakeclerk@kingsimmons.com", "belongs_to": "intake", "source_url": "https://www.kingsimmons.com/about-us"}
+    ],
+    "decision_maker": {"name": "Lindsey O. Simmons", "title": "Named Partner (Attorney)", "email": "lsimmons@kingsimmons.com", "source_url": "https://www.kingsimmons.com/lindsey-o-simmons"},
+    "decision_maker_rationale": "small firm (4 attorneys) - Simmons is one of the two name partners (King Simmons, P.C.); her direct email is also the address the worklist already had on file as the firm's working contact, suggesting she is the active point of contact",
+    "attorney_headcount": "4 attorneys (Lawrence T. King, Lindsey O. Simmons, Karen Berhow, John M. Towle - Towle has no bio page/email found)",
+    "contact_form_url": "https://www.kingsimmons.com/contact",
+    "phone": "(205) 349-2000",
+    "pages_checked": ["https://kingsimmons.com/", "https://kingsimmons.com/contact", "https://www.kingsimmons.com/about-us", "https://www.kingsimmons.com/lawrence-t-king-1", "https://www.kingsimmons.com/lindsey-o-simmons", "https://www.kingsimmons.com/karen-berhow"],
+    "fetch_blocked": false,
+    "notes": "No explicit 'managing partner' or 'founder' title found published for King or Simmons - both are simply named attorneys/name-partners; Simmons chosen on the strength that her personal email is the one already circulating as the firm's working contact. Kelsie Yeager (Bookkeeper & Office Manager, kyeager@kingsimmons.com) is a legitimate operations-role alternate if a non-attorney contact is preferred. John M. Towle (listed in the worklist) has no discoverable bio page or email on the current site. This is a Wix site with heavy client-side rendering; some content may not be fully captured by static HTML fetch."
+  },
+  {
+    "firm_name": "Price Law Group (Resolve Law Group, APC)",
+    "website": "https://pricelawgroup.com/",
+    "emails_found": [
+      {"email": "info@resolvelawgroup.com", "belongs_to": "general inbox", "source_url": "https://resolvelawgroup.com/contact/"},
+      {"email": "stuart@resolvelawgroup.com", "belongs_to": "organization-level contact email in schema.org markup, name matches attorney Stuart Price", "source_url": "https://resolvelawgroup.com/staff_attorney/stuart-price/"}
+    ],
+    "decision_maker": {"name": "Allen Jones III", "title": "Founder (per site's schema.org LegalService/Organization markup)", "email": "", "source_url": "https://resolvelawgroup.com/staff_attorney/allen-jones/"},
+    "decision_maker_rationale": "large firm (28 attorneys listed) with no marketing director/CMO/BD/client-services role found published anywhere on the site; fell back to the person the site's own structured data names as founder",
+    "attorney_headcount": "28 (per the dedicated /about/our-attorneys/ listing page)",
+    "contact_form_url": "https://resolvelawgroup.com/contact/",
+    "phone": "(866) 210-1722",
+    "pages_checked": ["https://pricelawgroup.com/ (redirects to resolvelawgroup.com)", "https://resolvelawgroup.com/", "https://resolvelawgroup.com/contact/", "https://resolvelawgroup.com/about/", "https://resolvelawgroup.com/about/our-attorneys/", "https://resolvelawgroup.com/staff_attorney/stuart-price/", "https://resolvelawgroup.com/staff_attorney/allen-jones/"],
+    "fetch_blocked": false,
+    "notes": "IMPORTANT AMBIGUITY: pricelawgroup.com 301-redirects to resolvelawgroup.com, and on first fetch resolvelawgroup.com served a 5-second JS auto-refresh 'One moment, please...' interstitial (anti-bot) rather than real content - a second fetch (or one with a persisted cookie jar) got through to real HTML, so fetch_blocked is set true to flag that this firm's real site needs a retry/cookie-jar technique, not a one-shot curl. The site's application/ld+json (repeated identically across multiple attorney pages, including oddly referencing 'Blitz Law Group' in one description field, suggesting a reused/templated schema block) names 'Allen Jones III' as founder - however, the same schema's organization-level email is 'stuart@resolvelawgroup.com', which by name plausibly belongs to Stuart Price, the attorney whose name is literally in 'Price Law Group.' Given the schema is templated/possibly unreliable, a human should sanity-check whether Allen Jones III or Stuart Price is the right addressee before sending. Neither has a personal email confirmed beyond the ambiguous org-level stuart@ address, which was NOT attributed to Allen Jones III in emails_found since the name doesn't match him."
+  },
+  {
+    "firm_name": "Zonies Law LLC",
+    "website": "https://www.zonieslaw.com/",
+    "emails_found": [
+      {"email": "info@zonieslaw.com", "belongs_to": "general inbox", "source_url": "https://www.zonieslaw.com/"},
+      {"email": "jzonies@zonieslaw.com", "belongs_to": "attorney name (Joe Zonies, Founder)", "source_url": "https://www.zonieslaw.com/our-people/joe-zonies"},
+      {"email": "sshaver@zonieslaw.com", "belongs_to": "staff (Shea Shaver, Mass Tort Manager)", "source_url": "https://www.zonieslaw.com/our-people/shea-shaver"},
+      {"email": "lisa@zonieslaw.com", "belongs_to": "staff (Lisa Randolph, Nurse Paralegal)", "source_url": "https://www.zonieslaw.com/our-people/lisa-randolph"},
+      {"email": "jcox@zonieslaw.com", "belongs_to": "staff (Jenelle Cox, Legal Assistant)", "source_url": "https://www.zonieslaw.com/our-people/jenelle-cox"}
+    ],
+    "decision_maker": {"name": "Joe Zonies", "title": "Founder", "email": "jzonies@zonieslaw.com", "source_url": "https://www.zonieslaw.com/our-people/joe-zonies"},
+    "decision_maker_rationale": "solo/small firm - Joe Zonies is the only attorney on the team page and is explicitly titled 'Founder,' with the bio text stating 'Joseph Zonies is the founding member of Zonies Law LLC'",
+    "attorney_headcount": "1 attorney (Joe Zonies, Founder). The worklist listed Shea Shaver, Lisa Randolph, and Jenelle Cox as 'attorneys' but their published titles on the site are Mass Tort Manager, Nurse Paralegal, and Legal Assistant respectively - none are attorneys",
+    "contact_form_url": "https://www.zonieslaw.com/contact",
+    "phone": "866-730-6438",
+    "pages_checked": ["https://www.zonieslaw.com/", "https://www.zonieslaw.com/our-people", "https://www.zonieslaw.com/our-people/joe-zonies", "https://www.zonieslaw.com/our-people/shea-shaver", "https://www.zonieslaw.com/our-people/lisa-randolph", "https://www.zonieslaw.com/our-people/jenelle-cox"],
+    "fetch_blocked": false,
+    "notes": "OBFUSCATION: every individual staff email on this site (including the founder's) is hidden behind a Joomla anti-spambot JavaScript 'cloak' that HTML-entity-encodes the address and writes it into the page only via document.getElementById(...).innerHTML at runtime - a static/summarizer view would show only 'This email address is being protected from spambots.' All four addresses above were decoded from that entity-encoded JS (e.g. 'jz&#111;n&#105;&#101;s' + '&#64;' + 'z&#111;n&#105;&#101;sl&#97;w' + '&#46;' + 'c&#111;m' -> jzonies@zonieslaw.com); the characters were genuinely published, but this is a deliberate anti-scraping measure, so a human should decide whether to email or call the direct line instead (866-730-6438). Joe Zonies' direct phone is also listed on his bio page."
+  }
+]

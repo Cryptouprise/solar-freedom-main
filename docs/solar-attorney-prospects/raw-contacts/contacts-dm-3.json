@@ -1,0 +1,436 @@
+[
+  {
+    "firm_name": "Silberman Law Firm, PLLC",
+    "website": "https://silblawfirm.com",
+    "emails_found": [
+      {
+        "email": "info@silblawfirm.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://silblawfirm.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Philip Silberman",
+      "title": "CEO and Firm Owner",
+      "email": "",
+      "source_url": "https://silblawfirm.com/attorneys/"
+    },
+    "decision_maker_rationale": "Firm CEO and owner as published on the attorneys page — ultimate authority on marketing spend at a firm he owns.",
+    "attorney_headcount": "15 (per the site's /attorneys/ page; the worklist listed 5). Chris Heald is listed as “Managing Attorney, COO” — a secondary operations contact.",
+    "contact_form_url": "https://silblawfirm.com/contact/",
+    "phone": "214-307-2840 (Dallas office)",
+    "pages_checked": [
+      "https://silblawfirm.com/",
+      "https://silblawfirm.com/contact",
+      "https://silblawfirm.com/attorneys",
+      "https://silblawfirm.com/about (404)",
+      "https://silblawfirm.com/our-attorneys (404)",
+      "https://silblawfirm.com/team (404)",
+      "https://silblawfirm.com/our-team (404)",
+      "https://silblawfirm.com/about-us (404)",
+      "https://silblawfirm.com/page-sitemap.xml"
+    ],
+    "fetch_blocked": false,
+    "notes": "All attorney bios (including Philip Silberman and Chris Heald) are inline on one /attorneys/ page in an accordion widget — no individual bio URLs and no personal/direct emails published anywhere on the site (confirmed via sitemap: no per-attorney pages exist). Only info@silblawfirm.com appears in mailto links or ld+json across home/contact/attorneys pages."
+  },
+  {
+    "firm_name": "Joshua Horton Law",
+    "website": "https://joshuahortonlaw.com",
+    "emails_found": [
+      {
+        "email": "info@joshuahortonlaw.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://joshuahortonlaw.com/"
+      },
+      {
+        "email": "solar@joshuahortonlaw.com",
+        "belongs_to": "intake (dedicated solar-fraud case intake address)",
+        "source_url": "https://joshuahortonlaw.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Joshua S. Horton",
+      "title": "Founder",
+      "email": "",
+      "source_url": "https://joshuahortonlaw.com/about"
+    },
+    "decision_maker_rationale": "Solo practice; sole named attorney, explicitly credited as “Founder of the Joshua Horton Law Firm” in a testimonial attribution on the About page.",
+    "attorney_headcount": "1 (solo practice). Jeffrey Vivo is named on the homepage as co-forming a separate, newly announced entity, “Energy Consumer Law Group, PLLC” (Aug 2026) — not part of Joshua Horton Law itself.",
+    "contact_form_url": "https://joshuahortonlaw.com/contact",
+    "phone": "561-440-5211",
+    "pages_checked": [
+      "https://joshuahortonlaw.com/",
+      "https://joshuahortonlaw.com/contact",
+      "https://joshuahortonlaw.com/about",
+      "https://joshuahortonlaw.com/about-us (404)",
+      "https://joshuahortonlaw.com/attorneys (404)",
+      "https://joshuahortonlaw.com/our-attorneys (404)",
+      "https://joshuahortonlaw.com/team (404)",
+      "https://joshuahortonlaw.com/our-team (404)"
+    ],
+    "fetch_blocked": false,
+    "notes": "Firm publishes a dedicated solar@joshuahortonlaw.com inbox specifically for solar-fraud case intake, separate from general info@ — notable given this outreach's topic. No personal/direct email for Joshua Horton himself was found; ld+json Organization markup only lists the firm phone, no email."
+  },
+  {
+    "firm_name": "The Martinez Law Firm, P.A.",
+    "website": "https://themartinezfirm.com",
+    "emails_found": [
+      {
+        "email": "dmartinez@themartinezfirm.com",
+        "belongs_to": "attorney name (Daniel Martinez, founder)",
+        "source_url": "https://themartinezfirm.com/about-martinez-law-firm/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Daniel Martinez",
+      "title": "Founder",
+      "email": "dmartinez@themartinezfirm.com",
+      "source_url": "https://themartinezfirm.com/about-martinez-law-firm/"
+    },
+    "decision_maker_rationale": "Solo founder and only named attorney at the firm; confirmed via schema.org founder markup and his own bio page.",
+    "attorney_headcount": "1 (solo practice)",
+    "contact_form_url": "https://themartinezfirm.com/contact",
+    "phone": "786-536-5221",
+    "pages_checked": [
+      "https://themartinezfirm.com/",
+      "https://themartinezfirm.com/contact (HTTP 500)",
+      "https://themartinezfirm.com/about"
+    ],
+    "fetch_blocked": false,
+    "notes": "dmartinez@themartinezfirm.com (matches the address already on file) is independently confirmed via a live mailto link and schema.org “founder” Person markup naming Daniel Martinez on the About page. The /contact page returned an HTTP 500 server error on fetch (not a bot block); /and / /about loaded fine with the same confirmed address."
+  },
+  {
+    "firm_name": "The Diaz Law Firm, P.A.",
+    "website": "https://thediazlawfirm.com",
+    "emails_found": [
+      {
+        "email": "jose@thediazlawfirm.com",
+        "belongs_to": "attorney name (Jose O. Diaz, Esq., founder)",
+        "source_url": "https://thediazlawfirm.com/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Jose O. Diaz, Esq.",
+      "title": "Founder",
+      "email": "jose@thediazlawfirm.com",
+      "source_url": "https://thediazlawfirm.com/"
+    },
+    "decision_maker_rationale": "Solo founder and only named attorney at the firm; confirmed via schema.org founder markup and on-page byline.",
+    "attorney_headcount": "1 (solo practice)",
+    "contact_form_url": "https://thediazlawfirm.com/contact",
+    "phone": "+1-305-271-7766",
+    "pages_checked": [
+      "https://thediazlawfirm.com/",
+      "https://thediazlawfirm.com/contact",
+      "https://thediazlawfirm.com/about (404)",
+      "https://thediazlawfirm.com/about-us (404)",
+      "https://thediazlawfirm.com/attorneys (404)",
+      "https://thediazlawfirm.com/our-attorneys (404)",
+      "https://thediazlawfirm.com/team (404)",
+      "https://thediazlawfirm.com/our-team (404)"
+    ],
+    "fetch_blocked": false,
+    "notes": "jose@thediazlawfirm.com (matches the address already on file) confirmed via mailto link and schema.org Attorney/founder markup: \"founder\": {\"@type\": \"Person\", \"name\": \"Jose O. Diaz, Esq.\"}. Page also displays “Jose O. Diaz, Esq. — Founder” as visible on-page text."
+  },
+  {
+    "firm_name": "Turner & Turner, P.A.",
+    "website": "https://tandtlaw.net",
+    "emails_found": [
+      {
+        "email": "info@tandtlaw.net",
+        "belongs_to": "general inbox",
+        "source_url": "https://tandtlaw.net/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Todd Turner",
+      "title": "Attorney at Law | Partner",
+      "email": "",
+      "source_url": "https://tandtlaw.net/aboutus/"
+    },
+    "decision_maker_rationale": "Co-name partner; site gives no distinguishing “managing partner” title between the two partners (both are “Attorney at Law | Partner”) — Todd Turner is listed first and his stated practice focus (consumer cases, class actions/arbitration) is the closest fit to solar-contract outreach.",
+    "attorney_headcount": "2 (Todd Turner and Dan Turner, both Partners — matches worklist)",
+    "contact_form_url": "https://tandtlaw.net/contact/",
+    "phone": "(870) 246-9844",
+    "pages_checked": [
+      "https://tandtlaw.net/",
+      "https://tandtlaw.net/contact",
+      "https://tandtlaw.net/about (redirects/serves aboutus content)",
+      "https://tandtlaw.net/aboutus/",
+      "https://tandtlaw.net/our-attorneys (404)",
+      "https://tandtlaw.net/team (404)",
+      "https://tandtlaw.net/our-team (404)",
+      "https://tandtlaw.net/about-us (404)",
+      "https://tandtlaw.net/wp-sitemap-posts-page-1.xml"
+    ],
+    "fetch_blocked": false,
+    "notes": "No individual direct emails published for either partner — only the general info@tandtlaw.net inbox appears in mailto links anywhere on the site (confirmed via WordPress sitemap: no individual attorney bio pages exist, only one combined /aboutus/ page). Dan Turner holds the identical title (Attorney at Law | Partner) and is an equally valid alternate contact."
+  },
+  {
+    "firm_name": "Terms.Law (Sergei Tokmakov)",
+    "website": "https://terms.law/",
+    "emails_found": [
+      {
+        "email": "owner@terms.law",
+        "belongs_to": "attorney name (Sergei Tokmakov, Esq. — solo owner)",
+        "source_url": "https://terms.law/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Sergei Tokmakov, Esq.",
+      "title": "Attorney",
+      "email": "owner@terms.law",
+      "source_url": "https://terms.law/"
+    },
+    "decision_maker_rationale": "Sole practitioner and owner of the practice — the only attorney at the firm.",
+    "attorney_headcount": "1 (solo practice)",
+    "contact_form_url": "https://terms.law/",
+    "phone": "",
+    "pages_checked": [
+      "https://terms.law/",
+      "https://terms.law/contact (same SPA content as home)",
+      "https://terms.law/about (same SPA content as home)",
+      "https://terms.law/about-us (same SPA content as home)",
+      "https://terms.law/team (404)"
+    ],
+    "fetch_blocked": false,
+    "notes": "owner@terms.law is confirmed as Sergei Tokmakov's own direct email via schema.org Attorney JSON-LD markup embedded in the page (\"@type\":\"Attorney\", \"name\":\"Sergei Tokmakov, Esq.\", \"jobTitle\":\"Attorney\", \"email\":\"owner@terms.law\") — not merely a generic alias, though the mailbox name itself reads as role-based. Site is a single-page app; /contact, /about and /about-us all return identical homepage content. No phone number found in fetched content."
+  },
+  {
+    "firm_name": "Duffy & Young LLC",
+    "website": "https://duffyandyoung.com",
+    "emails_found": [
+      {
+        "email": "info@duffyandyoung.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://duffyandyoung.com/"
+      },
+      {
+        "email": "bduffy@duffyandyoung.com",
+        "belongs_to": "attorney name (Brian Duffy, Shareholder)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "ryoung@duffyandyoung.com",
+        "belongs_to": "attorney name (Rutledge Young, Shareholder)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "jmoore@duffyandyoung.com",
+        "belongs_to": "attorney name (Julie Moore, Shareholder)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "pwooten@duffyandyoung.com",
+        "belongs_to": "attorney name (Patrick Wooten, Shareholder)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "jlinton@duffyandyoung.com",
+        "belongs_to": "attorney name (John Linton, Special Counsel)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "mhubbell@duffyandyoung.com",
+        "belongs_to": "attorney name (Matt Hubbell, Special Counsel)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "bmckie@duffyandyoung.com",
+        "belongs_to": "attorney name (Blake McKie, Principal)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "rwehrman@duffyandyoung.com",
+        "belongs_to": "attorney name (Rob Wehrman, Principal)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "wdaniel@duffyandyoung.com",
+        "belongs_to": "attorney name (Wilson Daniel, Associate)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "mjepertinger@duffyandyoung.com",
+        "belongs_to": "attorney name (Matt Jepertinger, Associate)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      },
+      {
+        "email": "mjohnson@duffyandyoung.com",
+        "belongs_to": "attorney name (Margaret Johnson, Associate)",
+        "source_url": "https://duffyandyoung.com/attorneys/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Brian Duffy",
+      "title": "Shareholder",
+      "email": "bduffy@duffyandyoung.com",
+      "source_url": "https://duffyandyoung.com/our-attorneys/brian-duffy/"
+    },
+    "decision_maker_rationale": "Founding/name partner — the firm bears his name — and a Shareholder; listed first among the firm's four Shareholders.",
+    "attorney_headcount": "11 (per the site's /attorneys/ page: 4 Shareholders, 2 Special Counsel, 2 Principals, 3 Associates — worklist listed 5)",
+    "contact_form_url": "https://duffyandyoung.com/contact",
+    "phone": "+1-843-720-2044",
+    "pages_checked": [
+      "https://duffyandyoung.com/",
+      "https://duffyandyoung.com/contact",
+      "https://duffyandyoung.com/about",
+      "https://duffyandyoung.com/about-us",
+      "https://duffyandyoung.com/attorneys",
+      "https://duffyandyoung.com/our-attorneys",
+      "https://duffyandyoung.com/team (404)",
+      "https://duffyandyoung.com/our-team (404)"
+    ],
+    "fetch_blocked": false,
+    "notes": "Rich data source: every attorney's direct email is published as a clickable mailto link right on the /attorneys/ listing page (pattern: [first-initial][lastname]@duffyandyoung.com), no obfuscation. Co-name-partner Rutledge Young (ryoung@duffyandyoung.com, also “Shareholder”) is an equally valid alternate primary contact. A boilerplate legal disclaimer on the site names Julie Moore as “the lawyer responsible for the content of this website,” which may make her a reasonable alternate contact for a marketing pitch as well."
+  },
+  {
+    "firm_name": "Clarkson & Associates, LLC",
+    "website": "https://www.clarksonlegal.com/",
+    "emails_found": [
+      {
+        "email": "info@clarksonlegal.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://www.clarksonlegal.com/"
+      },
+      {
+        "email": "mheinz@clarksonlegal.com",
+        "belongs_to": "Michelle Heinz, Legal Assistant / bookkeeper (not an attorney or marketing role)",
+        "source_url": "https://www.clarksonlegal.com/our-firm"
+      }
+    ],
+    "decision_maker": {
+      "name": "Barry E. Clarkson",
+      "title": "Founding Member and Managing Partner",
+      "email": "",
+      "source_url": "https://www.clarksonlegal.com/our-firm"
+    },
+    "decision_maker_rationale": "Explicitly published on the firm's team page as “a founding member and the current managing attorney” (Managing Partner) of the firm.",
+    "attorney_headcount": "3 (Barry E. Clarkson, Matthew D. Spring, Scott B. Beckstrom — matches worklist)",
+    "contact_form_url": "https://www.clarksonlegal.com/Contact-us",
+    "phone": "(435) 634-1940",
+    "pages_checked": [
+      "https://www.clarksonlegal.com/",
+      "https://www.clarksonlegal.com/Contact-us",
+      "https://www.clarksonlegal.com/about",
+      "https://www.clarksonlegal.com/our-firm",
+      "https://www.clarksonlegal.com/contact (404, wrong case)",
+      "https://www.clarksonlegal.com/attorneys (404)",
+      "https://www.clarksonlegal.com/team (404)"
+    ],
+    "fetch_blocked": false,
+    "notes": "The only personal email published anywhere on the site is mheinz@clarksonlegal.com, belonging to Michelle Heinz, described on the team page as the firm's “legal assistant and bookkeeper extraordinaire” — NOT an attorney or marketing/operations role, so not recommended as the marketing decision-maker despite being the address currently on file. No direct email found for managing partner Barry E. Clarkson or the two associate attorneys. Site is hosted on Hibu's website platform (cdn.hibuwebsites.com)."
+  },
+  {
+    "firm_name": "Marcus & Zelman, LLC",
+    "website": "https://www.marcuszelman.com",
+    "emails_found": [
+      {
+        "email": "info@marcuszelman.com",
+        "belongs_to": "general inbox",
+        "source_url": "https://www.marcuszelman.com/"
+      },
+      {
+        "email": "ari@marcuszelman.com",
+        "belongs_to": "attorney name (Ari Marcus, Managing Partner & Attorney)",
+        "source_url": "https://marcuszelman.com/ari-marcus/"
+      },
+      {
+        "email": "yzelman@marcuszelman.com",
+        "belongs_to": "attorney name (Yitzchak Zelman, Managing Partner & Attorney)",
+        "source_url": "https://marcuszelman.com/yitzchak-zelman/"
+      },
+      {
+        "email": "dexter@marcuszelman.com",
+        "belongs_to": "attorney/staff name (Dexter Ryan Suarez)",
+        "source_url": "https://marcuszelman.com/dexter-ryan-suarez/"
+      },
+      {
+        "email": "heather@marcuszelman.com",
+        "belongs_to": "attorney/staff name (Heather Missry)",
+        "source_url": "https://marcuszelman.com/heather-missry/"
+      },
+      {
+        "email": "joseph@marcuszelman.com",
+        "belongs_to": "attorney/staff name (Joseph Kanee)",
+        "source_url": "https://marcuszelman.com/joseph-kanee/"
+      },
+      {
+        "email": "kevin@marcuszelman.com",
+        "belongs_to": "attorney/staff name (Kevin Crick)",
+        "source_url": "https://marcuszelman.com/kevin-crick/"
+      },
+      {
+        "email": "lori@marcuszelman.com",
+        "belongs_to": "attorney/staff name (Lori Lynn Clifton)",
+        "source_url": "https://marcuszelman.com/lori-lynn-clifton/"
+      },
+      {
+        "email": "shani@marcuszelman.com",
+        "belongs_to": "attorney/staff name (Shani Marcus)",
+        "source_url": "https://marcuszelman.com/shani-marcus/"
+      }
+    ],
+    "decision_maker": {
+      "name": "Ari Marcus",
+      "title": "Managing Partner & Attorney",
+      "email": "ari@marcuszelman.com",
+      "source_url": "https://marcuszelman.com/ari-marcus/"
+    },
+    "decision_maker_rationale": "Co-founding name partner explicitly titled “Managing Partner & Attorney” on his own bio page; listed first in the firm name and his bio text credits him with having “built” the firm.",
+    "attorney_headcount": "Firm site lists individual bio pages for at least 8 team members, including two co-managing partners (worklist listed 2: Ari Marcus, Yitzchak Zelman)",
+    "contact_form_url": "https://www.marcuszelman.com/contact",
+    "phone": "(732) 695-3282",
+    "pages_checked": [
+      "https://www.marcuszelman.com/",
+      "https://www.marcuszelman.com/contact",
+      "https://www.marcuszelman.com/about",
+      "https://www.marcuszelman.com/about-us",
+      "https://www.marcuszelman.com/team",
+      "https://www.marcuszelman.com/our-team",
+      "https://marcuszelman.com/ari-marcus/",
+      "https://marcuszelman.com/yitzchak-zelman/",
+      "https://marcuszelman.com/about-marcus-zelman/"
+    ],
+    "fetch_blocked": false,
+    "notes": "Co-managing partner Yitzchak Zelman (yzelman@marcuszelman.com) holds the identical title “Managing Partner & Attorney” with his own directly published email and is an equally valid alternate primary contact. Note: a firm-wide team-directory widget embedded on other pages lists his address as “yitzchak@marcuszelman.com”, but the mailto link on his own bio page (the more authoritative, individually-controlled source) uses “yzelman@marcuszelman.com” — recorded the latter. No obfuscation encountered; all addresses are plain mailto links."
+  },
+  {
+    "firm_name": "Motley Rice LLC",
+    "website": "https://www.motleyrice.com",
+    "emails_found": [
+      {
+        "email": "communications@motleyrice.com",
+        "belongs_to": "general inbox / media contact",
+        "source_url": "https://www.motleyrice.com/contact"
+      }
+    ],
+    "decision_maker": {
+      "name": "",
+      "title": "",
+      "email": "",
+      "source_url": ""
+    },
+    "decision_maker_rationale": "No current, named marketing/BD/communications leader or managing partner is published anywhere on the site — left blank rather than guess.",
+    "attorney_headcount": "100+ (per the firm's About page: “With more than 100 attorneys...”)",
+    "contact_form_url": "https://www.motleyrice.com/contact",
+    "phone": "1.800.768.4026",
+    "pages_checked": [
+      "https://www.motleyrice.com/",
+      "https://www.motleyrice.com/contact",
+      "https://www.motleyrice.com/about",
+      "https://www.motleyrice.com/attorneys",
+      "https://www.motleyrice.com/news",
+      "https://www.motleyrice.com/press-coverage",
+      "https://www.motleyrice.com/connect",
+      "https://www.motleyrice.com/leadership (404)",
+      "https://www.motleyrice.com/firm (404)",
+      "https://www.motleyrice.com/team (404)",
+      "https://www.motleyrice.com/about-us (404)",
+      "https://www.motleyrice.com/our-attorneys (404)",
+      "https://www.motleyrice.com/sitemap.xml"
+    ],
+    "fetch_blocked": false,
+    "notes": "Large national plaintiffs' firm (100+ attorneys) that deliberately routes ALL press and marketing inquiries through a general communications@motleyrice.com inbox with no named individual on its dedicated “Media Contact” block. Firm's own About page states co-founder Joe Rice's dates as “(1954-2026)” — i.e., per the firm's own site he died earlier this year — and co-founder Ron Motley died in 2013, so no current top-level firm leader could be verified as still active. One historical find, NOT used as the decision maker: a firm press release dated March 2012 (still live at /news/legal-marketing-association-recognized) quotes “Alicia Ward, Motley Rice Director of Marketing and Communications” and names her department colleagues (Melissa Allan, Angie Brown, Jenny Gunn, Mary Henderson, Jon Knowles, Gina Veldman). This is roughly 14 years stale and should not be treated as current staffing without independent verification — flagging for human review rather than presenting as a live contact."
+  }
+]
