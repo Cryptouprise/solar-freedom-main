@@ -16,6 +16,12 @@ Use `docs/attorney-first-outreach-batch.csv`. It contains the two approved-for-r
 
 > Do not send to the remaining 59 public-email records as a bulk blast. Review the public source, recipient, and personalized message first. The first two records were selected because they have the clearest verified solar-practice evidence and higher confidence scores.
 
+## Expanded review batch
+
+Use `docs/attorney-verify-before-send-batch.csv` for the next nine prospects. These records have public business emails and moderate-to-high evidence confidence, but they remain in the `researching` stage. They are **not ready for a blind campaign import**. Open the supplied source URL, confirm the practice fit, then change `campaign_status` to `approved_for_import` for each one you personally approve.
+
+This provides an 11-person reviewed launch universe: two ready-to-send records plus nine fast-review records. A further 13 public-email records meet the same evidence-confidence threshold but are not included in the first expanded review set; 37 other public-email records are held because their evidence, fit, or readiness is weaker.
+
 ## Instantly status
 
 An **Instantly** connector exists in the project configuration but is currently **disabled**. No Instantly sending path is active from the Solar Freedom app today. The app does not automatically send attorney outreach.

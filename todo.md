@@ -1270,6 +1270,7 @@
 - [x] Verify and document Blog Studio support for YouTube, Vimeo, and direct-video embedding; repair the editor-to-public-renderer gap
 - [x] Render saved YouTube, Vimeo, and uploaded-video attachments securely on public BlogPost pages and remove the local Tesla MP4 workaround
 - [x] Prepare a verified human-reviewed attorney outreach batch with public-email counts, Instantly integration status, and a safe first-campaign launch process
+- [x] Prepare a larger attorney outreach export that separates ready-to-send public-email prospects from verify-before-send prospects
 - [ ] Publish and verify the live Blog Studio Video tab and public article renderer so the self-service video workflow is visibly usable
 - [x] Remove Blog Studio’s Fix to 100 target-keyword dead-end by auto-selecting the selected post’s keyword or offering a one-step suggested keyword action
 - [ ] Verify, merge, synchronize, and validate GitHub PR #54 without losing the appointment and Blog Studio video improvements
