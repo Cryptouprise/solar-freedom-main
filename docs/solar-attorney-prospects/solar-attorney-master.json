@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-09T14:24:24.132Z",
+  "generated": "2026-09-09T14:31:36.305Z",
   "count": 116,
   "firms": [
     {
@@ -211,6 +211,7 @@
       "evidence": [
         "Actively litigating and arbitrating against Solar Mosaic on behalf of homeowners; firm-cited reporting states it is handling roughly 3,000 active homeowner cases with trials/arbitrations proceeding in fall 2025.",
         "Entire firm is branded a 'Solar Law Firm.' Homepage: helps homeowners 'pursue up to triple the amount of your actual damages' under state deceptive-trade-practices statutes and can 'cancel or significantly reduce loans for loss of warranty, cancel loans for non-working systems, remove the solar lien from the house, and recover some or all of what you've paid into the loan.' Firm states it is 'licensed in Texas and North Carolina... and Arbitration in 46 states.' Independently, Texas Standard (public radio) profiled Prevost with the quote: 'He's probably the number one solar lawyer in the United States, definitely in Texas. In just a year, he has already built up 2,100 cases.'",
+        "Dedicated post states: 'Freedom Forever filed for Chapter 11 bankruptcy protection in April 2026 in the U.S. Bankruptcy Court for the District of Delaware,' and instructs homeowners to 'Document Everything,' 'File Formal Complaints' with the BBB/state AG, 'Notify Your Finance Company' asserting FTC Holder Rule rights, and 'Consult with an Experienced Consumer Protection Attorney.' A companion page ('Thinking About Freedom Forever Solar? June 2026 Update') exists at a separate URL. The firm's own XML sitemap shows both pages with lastmod 2026-06-17.",
         "The firm's entire homepage is branded 'Prevost Law Firm | Solar Law Firm' and calls itself 'The Largest Law Firm for Solar Panel Lawsuits,' stating: 'Our firm focuses exclusively on helping homeowners take legal action against solar companies and lenders.' Cites a case example of a $73,590 loan cancelled with a $28,493 refund. Attorney is licensed in Texas and North Carolina and states court/arbitration admission in 46 states.",
         "Dedicated blog (blog.prevostlawfirm.com) with a specific 'Power Home Solar Collapse: A Guide for Pink Energy Customers on Warranty Claims and Lawsuits' post, plus separate posts titled 'Titan Solar Lawsuit & Bankruptcy Update', 'SunPower Bankruptcy', 'Sunnova Energy Files for Bankruptcy', 'ADT Solar Review', and 'Freedom Forever Files Chapter 11 Bankruptcy', each giving homeowners legal-options guidance",
         "Dedicated solar-only litigation blog (blog.prevostlawfirm.com) with dozens of posts on UCC liens, the Holder Rule, class-action limits, and named client case stories; founder Neal Prevost appeared on the Harmon Solar Podcast (Aug 6, 2025) discussing solar industry fraud and the Holder Rule.",
@@ -219,10 +220,11 @@
       "evidence_types": [
         "firm_website",
         "dedicated_microsite",
+        "landing_page",
         "news_coverage"
       ],
       "legal_theories": [],
-      "trigger_event": "Pink Energy / PowerHome Solar Chapter 7 bankruptcy (2022); also runs dedicated content on the Titan Solar Power shutdown, SunPower Chapter 11, Sunnova bankruptcy, ADT Solar wind-down, and the 2026 Freedom Forever Chapter 11",
+      "trigger_event": "Freedom Forever Ch11",
       "source_urls": [
         "https://www.prevostlawfirm.com/",
         "https://prevostlawfirm.com/",
@@ -230,6 +232,9 @@
         "https://blog.prevostlawfirm.com/",
         "https://texasstandard.org/stories/texas-solar-panel-sales-scams-mckinney-lawyer/",
         "https://dentonrc.com/news/the_watchdog/the-watchdog-rooftop-solar-in-texas-faces-reckoning-over-sales-tactics/article_e8a07eef-4f3b-4b9e-930b-0573862c7f8d.html",
+        "https://blog.prevostlawfirm.com/freedom-forever-files-chapter-11-bankruptcy/",
+        "https://blog.prevostlawfirm.com/freedom-forever-solar/",
+        "https://blog.prevostlawfirm.com/post-sitemap.xml",
         "https://blog.prevostlawfirm.com/power-home-solar/",
         "https://prevostlawfirm.com",
         "https://blog.prevostlawfirm.com/when-solar-goes-wrong-harmon-solar-podcast/",
@@ -238,6 +243,7 @@
       "content_footprint": [
         "Extensive: dedicated blog subdomain (blog.prevostlawfirm.com) plus a separate bankruptcy-focused blog subdomain, multiple named client case-study narratives, media coverage cited from CBS, Dallas News, WGN-TV and Voyage Dallas, and a dedicated FAQ resource section. One of the most content-heavy solar litigation firms found in this research.",
         "Very strong, solar-exclusive: separate blog subdomain (blog.prevostlawfirm.com) with 100+ visible posts across four labeled categories (FAQ - 57 articles, Lender & Installer Updates - 52, Solar Education - 48, Prevost Client Stories - 31); YouTube-thumbnail video content embedded in posts; a client testimonials page; a podcast guest appearance ('When Solar Goes Wrong: Neal Prevost on Harmon Solar Podcast'); named client success stories with dollar figures (e.g. a $73,590 loan cancellation).",
+        "Dedicated blog subdomain (blog.prevostlawfirm.com) running a large library of solar-installer-collapse posts (Pink Energy, Titan Solar, SunPower, Sunnova, ADT Solar, plus two Freedom Forever posts and a separate Sunrun customer-reviews page) as recurring rapid-response content.",
         "Dedicated blog on a separate subdomain (blog.prevostlawfirm.com) with a 'Solar Articles' section, plus FAQ pages for both solar and bankruptcy matters. The entire firm brand is built around solar litigation.",
         "Extensive dedicated solar-litigation blog covering nearly every major collapse in this brief, plus a 'Prevost Client Stories' section of homeowner case narratives",
         "active blog (blog.prevostlawfirm.com) with recurring solar lawsuit/company-bankruptcy updates (e.g. Solar Titan, Freedom Forever), dedicated solar practice site, sustained local press coverage including Dallas Morning News Watchdog column"
@@ -248,6 +254,7 @@
         "podcast_guest_appearance",
         "testimonials_page",
         "faq_library",
+        "landing pages",
         "podcast",
         "press"
       ],
@@ -263,12 +270,14 @@
       "seo_weakness": "The large content library lives on a separate blog SUBDOMAIN (blog.prevostlawfirm.com) rather than the root domain, which fragments domain authority between prevostlawfirm.com and the blog; no attorney email is published anywhere; only two attorneys are named firm-wide despite the volume of cases claimed (2,000+), which may undersell staffing depth to a prospective AI answer engine or referral source.",
       "service_fit": [
         "AI_search_visibility -- the firm already out-produces every other DFW solar firm on raw content volume (150+ categorized posts), but that volume sits on a fragmenting blog subdomain; consolidating/interlinking it and adding structured FAQ schema would let an already-dominant content library actually surface in AI-generated answers instead of just classic search.",
+        "intake_automation, because the firm's highest-intent Freedom Forever pages route every visitor through one generic form with no click-to-call or chat option observed",
         "content_production (already publishes recurring lawsuit-update posts, a natural base to scale with AI-assisted content)"
       ],
       "confidence": "high",
       "lanes": [
         "litigation",
         "tx-dfw",
+        "tx-freedomforever",
         "solar-practice",
         "bankruptcy-ag",
         "content-footprint",
@@ -278,7 +287,7 @@
       "not_a_buyer": false,
       "raw_score": 110,
       "score": 100,
-      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; corroborated by 6 lanes +10; website +5; phone +5; Texas priority +10; hot buyer +10",
+      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; corroborated by 7 lanes +10; website +5; phone +5; Texas priority +10; hot buyer +10",
       "tier": "A",
       "exclude_reason": "",
       "already_known": true,
@@ -310,13 +319,14 @@
         "Firm publishes one litigation explainer article, 'Cases Against Solar Panel Companies in Texas,' walking homeowners through fraud/misrepresentation, DTPA, and breach-of-contract claims against solar companies ('Homeowners often report that the sales representatives made exaggerated claims about the savings from solar panels'). However, solar is NOT listed as one of the firm's named practice areas in site navigation (Business Law, Probate, Real Estate, Construction, Litigation) -- this is a general commercial-litigation firm with real Dallas AND Fort Worth offices that has written about solar as one litigation topic among many, not a dedicated solar practice.",
         "Two firm blog posts cover solar litigation directly: 'Understanding Legal Actions Against Solar Panel Companies in Texas' (fraud/misrepresentation, DTPA claims under Tex. Bus. & Com. Code Sec. 17.41 et seq., breach of contract) and 'Are Solar Panels a Good Deal?' (cites Italian Cowboy Partners, Ltd. v. Prudential Ins. Co. of America, 341 S.W.3d 323 (Tex. 2011) for the proposition that fraudulent-inducement claims can survive non-reliance/merger clauses). The firm separately runs a wrongful-lien-removal practice relevant to the UCC fixture filings solar lenders commonly record.",
         "Firm published a detailed litigation article, 'Understanding Legal Actions Against Solar Panel Companies in Texas,' covering DTPA and other consumer claims available against solar companies, stating: 'Many homeowners have found that their investment in solar panels did not yield the expected savings, leading them to question their legal options.' However, solar is NOT listed as a formal practice area in the firm's main navigation (Business Law, Probate, Real Estate, Construction Law, Litigation) -- this is a one-off article, not a promoted service line.",
+        "Firm-authored litigation page states: 'Texas homeowners misled by solar panel companies have legal recourse through fraud, deceptive trade practices, and breach of contract claims.' The page discusses the general pattern of Texas residential solar complaints under the DTPA but does not name Freedom Forever, CAM Solar, Sunrun, Lone Star Solar Services, or the Paxton CID specifically, and no publish/update date was found on the page.",
         "Litigation article covers three claim types for solar consumer disputes: 'Fraud and Misrepresentation,' 'Deceptive Trade Practices' under the Texas DTPA, and breach of contract, specifically noting that 'non-reliance and merger clauses attempt to protect the seller from verbal promises made outside the written contract' but are 'not always enforceable' against misleading sales statements."
       ],
       "evidence_types": [
         "practice_area_page"
       ],
       "legal_theories": [],
-      "trigger_event": "",
+      "trigger_event": "other",
       "source_urls": [
         "https://silblawfirm.com/litigation/understanding-legal-actions-against-solar-panel-companies-in-texas/",
         "https://silblawfirm.com/locations/dallas/",
@@ -330,6 +340,7 @@
         "Firm-wide blog exists but is general-litigation focused (recent posts on summary judgments, fraudulent inducement in commercial leases, commercial tenant lockouts) -- the solar article is a one-off, not part of a recurring solar content series. Firm also runs a 'Weekly Docket Podcast' (via Buzzsprout) that is general-litigation focused, not solar-specific.",
         "Very strong multi-channel presence: active blog, a YouTube channel (@SilbermanLawFirm), a 'Weekly Docket' podcast on Buzzsprout, TikTok, LinkedIn, Instagram, Facebook and Twitter.",
         "One detailed long-form article on solar litigation; firm also runs a general 'Weekly Docket Podcast' (via Buzzsprout) covering business/real estate/litigation topics broadly, not solar-specific; no dedicated solar practice page exists in the main navigation across the firm's 7 Texas offices.",
+        "Single litigation-practice page on solar panel company disputes; firm operates 7 Texas offices (Houston, Dallas, Fort Worth, Austin, San Antonio, Corpus Christi, Beaumont) giving it broad in-state reach not yet reflected in solar-specific content volume.",
         "dedicated litigation article on solar; blog; 7-office statewide presence is the broadest metro coverage of any single firm found"
       ],
       "content_channels": [
@@ -339,7 +350,8 @@
         "TikTok",
         "social media",
         "blog/litigation articles",
-        "podcast (Weekly Docket -- general topics, not solar-specific)"
+        "podcast (Weekly Docket -- general topics, not solar-specific)",
+        "practice area page"
       ],
       "content_examples": [],
       "content_recency": "",
@@ -349,6 +361,7 @@
         "content_production -- the firm has the credibility infrastructure (two DFW offices, active litigation team, existing blog cadence) to support a genuine solar-exit practice page but currently has only a single orphaned article; building out a real practice area (FAQ, case criteria, DTPA explainer, intake path) would be the highest-leverage first step before any visibility or lead-gen work.",
         "content_production - this firm has the widest verified Gulf Coast office footprint found in this research (Houston + Beaumont + Corpus Christi) and real multi-channel media savvy, but no dedicated solar hub to consolidate it around.",
         "AI_search_visibility -- firm has genuine litigation capability and one solid piece of solar content, but it isn't structured or promoted as a practice area, so it likely doesn't surface for solar-specific search or AI-answer queries",
+        "content_production, because the firm has the DTPA subject-matter authority and statewide footprint to own these branded searches but has not yet published anything naming the four companies",
         "AI_search_visibility (7-metro footprint is the strongest single-firm candidate in TX for consolidated AI/GEO search strategy)"
       ],
       "confidence": "high",
@@ -356,13 +369,14 @@
         "tx-dfw",
         "tx-houston-gulf",
         "tx-central-south",
+        "tx-freedomforever",
         "texas"
       ],
       "opportunity_type": "warm_buyer",
       "not_a_buyer": false,
       "raw_score": 110,
       "score": 100,
-      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; public email +10; corroborated by 4 lanes +10; website +5; phone +5; Texas priority +10",
+      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; public email +10; corroborated by 5 lanes +10; website +5; phone +5; Texas priority +10",
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
@@ -392,6 +406,7 @@
         "Dedicated solar practice page states the firm addresses situations where 'solar panel installers can bind them into fraudulent contracts and leases' and warns homeowners about false promises regarding 'savings on their electric bill or substantial tax rebates.' A separate /texas-energy/solar-energy/ landing page and a blog post titled 'The Solar Three-Step Fraud' reinforce this as a named practice focus.",
         "Firm runs two dedicated solar pages -- 'Solar Panel Lawyers' and 'Solar Panel Scams & Fraud' -- describing representation of homeowners for 'deficient and fraudulent installation of solar energy panels,' pursuing breach of contract, fraud, and DTPA claims. CBS Austin reporting (read directly) states: 'Texas attorney Charles Moster has 88 clients in lawsuits against various solar panel companies and lenders.' Firm's Spanish-language practice pages ('El Bufete de Abogados...', 'El Grupo de Derecho Mercantil Bilingüe') confirm bilingual service. This same firm also has verified West Texas branch offices in Lubbock and Midland/Odessa -- see separate entry in this dataset.",
         "Same firm and same solar practice as the firm's Austin entry in this dataset (dedicated 'Solar Panel Lawyers' / 'Solar Panel Scams & Fraud' pages; attorney Charles Moster reported to have '88 clients in lawsuits against various solar panel companies and lenders' per CBS Austin). This entry exists to flag that the firm maintains two separately-addressed, verified physical branch offices in West Texas (Lubbock and Midland/Odessa) -- a real, uncommon local presence in a region most solar-fraud firms serve only remotely.",
+        "Blog post 'Solar Company Went Out of Business? No Problem,' published July 30, 2026 and updated August 10, 2026, states: 'A company filing bankruptcy does not automatically erase the liability of individuals who committed or directed deceptive conduct,' addressing DTPA claims that survive an installer's bankruptcy. The post does not name Freedom Forever, CAM Solar, Sunrun, or Lone Star Solar Services specifically.",
         "Page titled 'Solar Panel Lawyers | We Fight Solar Panel Scams & Fraud' stating: 'We go after solar panel companies for breach of contract, fraud, deceptive trade practices, and more.' Blog includes a solar-specific post, 'The Solar Three-Step Fraud.'",
         "Multiple dedicated solar fraud/DTPA pages, including a specific 'Solar Three-Step Fraud' blog post, serving homeowners across Dallas, Houston, Austin, Lubbock, Amarillo, Abilene, Wichita Falls, and Midland/Odessa, TX.",
         "Solar practice page states the firm represents homeowners regarding 'deficient and fraudulent installation of solar energy panels,' pursuing 'breach of contract, fraud, misrepresentation, deceptive trade practices' claims and DTPA 'recovery of treble damages,' covering false promises about 'installation costs, utility buyback programs, tax rebates, financing terms.'"
@@ -401,7 +416,7 @@
         "practice_area_page"
       ],
       "legal_theories": [],
-      "trigger_event": "",
+      "trigger_event": "other",
       "source_urls": [
         "https://www.themosterlawfirm.com/solar-panel-lawyers/",
         "https://www.themosterlawfirm.com/texas-energy/solar-energy/",
@@ -409,7 +424,8 @@
         "https://www.themosterlawfirm.com/solar-panel-scams-and-solar-fraud/",
         "https://www.themosterlawfirm.com/locations/",
         "https://www.themosterlawfirm.com/contact/",
-        "https://cbsaustin.com/news/local/texans-file-growing-number-of-complaints-against-solar-companies"
+        "https://cbsaustin.com/news/local/texans-file-growing-number-of-complaints-against-solar-companies",
+        "https://www.themosterlawfirm.com/solar-company-went-out-of-business-no-problem/"
       ],
       "content_footprint": [
         "Active blog with recent solar fraud posts, social media presence (Facebook, YouTube, Instagram, Twitter/X), and a client review section; firm operates offices across eight Texas cities.",
@@ -417,6 +433,7 @@
         "Active blog with solar-specific posts (e.g. 'The Solar Three-Step Fraud'); YouTube channel featuring KPRC Houston TV media interviews with founder Charles Moster; active Facebook, Instagram and Twitter presence; a 'Client Reviews' testimonials page.",
         "Two dedicated solar practice pages plus a blog post titled 'The Solar Three-Step Fraud'; active YouTube channel and Facebook/Instagram/Twitter accounts (no solar-specific videos confirmed); independently quoted by CBS Austin/KXAN solar investigations citing 88 active solar clients.",
         "Same statewide solar content as the Austin office (see that entry) -- no Lubbock- or Midland/Odessa-specific solar copy, case examples, or local proof points exist despite two real local offices.",
+        "Actively maintained blog (firm's page-sitemap shows lastmod 2026-09-08, the day before this research) with at least one dedicated solar-installer-bankruptcy post; firm has 5 Texas office locations.",
         "Blog with solar-specific posts (e.g. 'The Solar Three-Step Fraud'); 5 Texas office location pages; separate solar practice page also exists at /solar-panel-lawyers/.",
         "dedicated solar practice page; 8 physical TX offices is the widest brick-and-mortar footprint found in this research; broad multi-practice-area firm site"
       ],
@@ -444,6 +461,7 @@
         "AI_search_visibility - the firm already has real content and TV media authority (KPRC interviews) but no FAQ/schema markup to help that authority surface in AI answer engines.",
         "content_production -- firm has proven case volume (88 clients, press coverage) but zero localized Austin content beyond the generic statewide solar pages",
         "AI_search_visibility -- two real West Texas offices with no localized content are very unlikely to surface for 'solar lawyer Lubbock' or 'solar lawyer Midland' in AI-search results, despite being one of the only firms with actual local offices there",
+        "content_production, because one update naming the four 2026 trigger companies would let an already-fresh, on-topic post capture branded search and AI-citation traffic it is currently missing",
         "AI_search_visibility (8 physical TX offices need consistent local/AI-search presence in every metro); intake_automation (multi-office intake likely fragmented)"
       ],
       "confidence": "high",
@@ -452,6 +470,7 @@
         "tx-dfw",
         "tx-houston-gulf",
         "tx-central-south",
+        "tx-freedomforever",
         "solar-practice",
         "content-footprint",
         "texas"
@@ -460,7 +479,7 @@
       "not_a_buyer": false,
       "raw_score": 110,
       "score": 100,
-      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; public email +10; corroborated by 7 lanes +10; website +5; phone +5; Texas priority +10",
+      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; public email +10; corroborated by 8 lanes +10; website +5; phone +5; Texas priority +10",
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
@@ -638,7 +657,7 @@
         "Joshua Horton",
         "Jeffrey Vivo"
       ],
-      "city": "",
+      "city": "Jupiter",
       "state": "FL",
       "metro": "West Palm Beach",
       "states_licensed": [
@@ -655,20 +674,24 @@
       "evidence": [
         "Represents homeowners against Dividend Finance, citing an active case (Khan v. Affordable Solar Roof & Air LLC and Dividend Finance Inc.) and discussing the Minnesota AG action against Dividend; blog also references Solar Mosaic, Fifth Third Bank and Vision Solar. Uses a dedicated solar@ intake email, and references forming an 'Energy Consumer Law Group.'",
         "Firm publishes a dedicated solar-fraud intake email and states: \"Attorney Horton is not only trained to identify possible misleading, fraudulent and deceptive undertakings, but to fight against any fraudulent acts committed by solar companies.\"",
+        "Post published April 22, 2026 (one week after the filing) states: 'In April 2026, Freedom Forever filed for Chapter 11 bankruptcy protection in the United States Bankruptcy Court for the District of Delaware,' with liabilities of '$500 million and $1 billion, set against assets valued at only $100 million to $500 million,' and names Mosaic Funding as owed 'approximately $114 million.' It also states 'the Texas Attorney General's Office has initiated investigations into what are characterized as fraudulent and deceptive sales practices,' and warns 'the window for filing proofs of claim or asserting statutory rights may be limited.'",
         "Firm has launched a dedicated sub-brand, the 'Energy Consumer Law Group,' focused specifically on 'consumer protection for the clean-energy marketplace,' with its own solar intake email. Published a ~2,000-word article covering solar fraud patterns and referencing the DC Solar billion-dollar fraud prosecution.",
         "Dedicated article 'Sunnova Bankruptcy and the Solar Industry Crisis: What It Means for You' describing the TEP Developer Chapter 11 filing, ~$500M estimated liabilities, and framing it as part of a pattern where solar financing debt shifts to homeowners; firm maintains a solar-specific intake email address",
         "Dedicated solar fraud practice page with its own intake email (solar@joshuahortonlaw.com); attorney Josh Horton quoted by name in a CBS12/WPEC investigative news segment on solar lender fraud (Feb 9, 2024); co-founded Energy Consumer Law Group, PLLC specifically for residential solar/PACE financing disputes."
       ],
       "evidence_types": [
         "firm_website",
-        "practice_area_page"
+        "practice_area_page",
+        "landing_page"
       ],
       "legal_theories": [],
-      "trigger_event": "Sunnova Energy (Sunnova TEP Developer LLC) Chapter 11 bankruptcy, filed June 2025 in Texas, following cancellation of a $2.92B DOE loan guarantee",
+      "trigger_event": "Freedom Forever Ch11",
       "source_urls": [
         "https://joshuahortonlaw.com/legal-against-dividend-finance-in-the-minnesota-attorney-generals-lawsuit-class-action-lawsuit/",
         "https://joshuahortonlaw.com/auto-draft/",
         "https://joshuahortonlaw.com/contact/",
+        "https://joshuahortonlaw.com/when-the-sun-sets-on-a-promisefreedom-forevers-bankruptcy-andwhat-homeowners-must-know/",
+        "https://joshuahortonlaw.com/post-sitemap.xml",
         "https://joshuahortonlaw.com/areas-of-practice/solar-panel-fraud-lawyer-scam/",
         "https://joshuahortonlaw.com/sunnova-bankruptcy-solar-industry-crisis-what-it-means-for-you/",
         "https://joshuahortonlaw.com/",
@@ -677,6 +700,7 @@
       "content_footprint": [
         "Active blog with multiple solar-specific posts (e.g. on the DC Solar prosecution, Freedom Forever's bankruptcy) and a dedicated solar-intake email address, indicating a deliberate solar content push.",
         "dedicated solar practice page and dedicated solar-only intake email address, suggesting meaningful case volume; no blog/YouTube confirmed",
+        "Solo/small practice running a multi-year library of solar-bankruptcy response posts under its 'Energy Consumer Law Group' brand (Sunnova, Solar Mosaic, Vision Solar, an investigative 'solar contract exit scams' piece, and the Freedom Forever post), each turned around within days to weeks of the triggering news.",
         "Dedicated solar sub-brand (Energy Consumer Law Group), solar-specific intake form and email, long-form solar fraud guide",
         "Dedicated solar bankruptcy blog post and a dedicated solar@ intake address, suggesting an active solar client-acquisition funnel"
       ],
@@ -690,14 +714,16 @@
       ],
       "content_recency": "unknown",
       "buyer_warmth": "warm",
-      "seo_weakness": "",
+      "seo_weakness": "The Freedom Forever post's own URL slug is malformed ('when-the-sun-sets-on-a-promisefreedom-forevers-bankruptcy-andwhat-homeowners-must-know' is missing separators between 'promise' and 'freedom' and between 'and' and 'what'), a basic technical-SEO defect that likely weakens how the URL and title are parsed by search and AI crawlers.",
       "service_fit": [
-        "intake_automation (dedicated solar@ inbox implies manual intake triage that could be automated) and AI_search_visibility"
+        "intake_automation (dedicated solar@ inbox implies manual intake triage that could be automated) and AI_search_visibility",
+        "AI_search_visibility, because a solo firm publishing this fast on the right topics is still competing for the same branded queries as multi-office firms, and a malformed URL slug is actively working against it"
       ],
       "confidence": "high",
       "lanes": [
         "litigation",
         "southeast",
+        "tx-freedomforever",
         "holder-rule",
         "bankruptcy-ag",
         "content-footprint"
@@ -706,7 +732,7 @@
       "not_a_buyer": false,
       "raw_score": 100,
       "score": 100,
-      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; public email +10; corroborated by 5 lanes +10; website +5; phone +5",
+      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; public email +10; corroborated by 6 lanes +10; website +5; phone +5",
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
@@ -1020,6 +1046,7 @@
       "side": "plaintiff",
       "evidence": [
         "Dedicated 'Solar Panel Lawyers' practice-area page states the firm has 'a track record of getting clients out of their solar contracts and getting their money back,' covering property damage, installation defects, contract disputes, and insurance claims tied to solar equipment; firm reports recovering over $25 million for clients across all practice areas in 3 years, on a contingency (no upfront cost) basis. Full Spanish-language site mirror (palkerlaw.com/es/) confirmed with its own 'Abogados de paneles solares' section. San Angelo location page confirmed live with 'Solar Panel Lawyers' listed in its practice-area navigation (though without San Angelo-specific solar copy).",
+        "Firm runs three separate solar posts built on the Texas DTPA theory: 'Texas Homeowners vs. Misleading Solar Companies,' a 'solar-panel-scam-victim' post, and a 'texas-solar-energy-homeowners' post, stating homeowners can pursue 'treble damages for deceptive trade practices' and that 'homeowners are often promised substantial reductions in their electricity bills, but the reality can be starkly different.' None of the three posts name Freedom Forever, CAM Solar, Sunrun, or Lone Star Solar Services, and no publish dates were found on the posts themselves, though the firm's blog sitemap file shows a lastmod of 2026-08-25.",
         "Blog post 'Texas Homeowners vs. Misleading Solar Companies' addressing false advertising, misleading guarantees, and failure-to-deliver claims, framed under the Texas Deceptive Trade Practices Act (DTPA)",
         "Dedicated 'Solar Panel Lawyers' page plus at least three named solar-fraud blog posts covering DTPA claims, victim next-steps, and misleading-savings claims.",
         "Solar page states: 'If you have been swindled by deceitful solar promises, let Palker Law Firm's experienced litigators fight for you. We have a track record of getting clients out of their solar contracts and getting their money back,' covering property damage claims, installation issues, and contract disputes."
@@ -1029,17 +1056,20 @@
         "firm_website"
       ],
       "legal_theories": [],
-      "trigger_event": "General Texas residential-solar fraud climate coinciding with Texas AG Paxton's 2026 statewide solar-industry initiative (CIDs to Freedom Forever, Sunrun, Lone Star Solar Services, CAM Solar); the firm's page itself discusses the pattern under the Texas DTPA but does not name the AG action directly",
+      "trigger_event": "other",
       "source_urls": [
         "https://palkerlaw.com/areas/solar-panel-lawyers/",
         "https://palkerlaw.com/locations/",
         "https://palkerlaw.com/es/",
         "https://palkerlaw.com/locations/san-angelo/",
         "https://palkerlaw.com/blog/misleading-solar-companies/",
-        "https://palkerlaw.com/blog/solar-panel-scam-victim/"
+        "https://palkerlaw.com/blog/solar-panel-scam-victim/",
+        "https://palkerlaw.com/blog/texas-solar-energy-homeowners/",
+        "https://palkerlaw.com/post-sitemap.xml"
       ],
       "content_footprint": [
         "Multiple solar-specific blog posts ('5 Steps Victims of Solar Panel Scams in Texas Should Take,' 'Texas Homeowners vs. Misleading Solar Companies,' 'Why You Need a Specialized Solar Panel Lawyer in Texas'); full parallel Spanish-language site; Facebook, Instagram, Twitter, LinkedIn, YouTube presence referenced sitewide.",
+        "Three dedicated solar-fraud blog posts (general DTPA framing) from a firm with 10 South/Central Texas office locations (Edinburg, McAllen, Brownsville, Weslaco, Mission, Pharr, Harlingen, El Paso, Austin, Dallas, San Antonio); overall blog is actively maintained.",
         "General solar-fraud blog post; multi-city Texas service-area pages (Edinburg, McAllen, Brownsville, Austin, Dallas, San Antonio, etc.); no dedicated solar practice-area page observed",
         "dedicated solar panel lawyers page, blog post on misleading TX solar companies"
       ],
@@ -1063,11 +1093,13 @@
       "seo_weakness": "Firm claims service across 15+ Texas cities/regions spanning South, Central, and West Texas, but only the Edinburg office has a published street address or any localized page -- San Angelo (confirmed live) has zero local solar copy, and cities like San Antonio, Austin, and El Paso have no dedicated page at all despite being named as served markets.",
       "service_fit": [
         "AI_search_visibility -- firm claims an unusually wide multi-region footprint (RGV through West Texas) but has almost no city-specific content to support it outside Edinburg, leaving most claimed markets invisible to local/AI search",
+        "content_production, because the firm already invests in solar content but hasn't converted that into coverage of the specific 2026 trigger companies homeowners are actually searching for",
         "lead_generation (only firm with dedicated solar practice found based in the McAllen/RGV metro)"
       ],
       "confidence": "high",
       "lanes": [
         "tx-central-south",
+        "tx-freedomforever",
         "bankruptcy-ag",
         "content-footprint",
         "texas"
@@ -1076,7 +1108,7 @@
       "not_a_buyer": false,
       "raw_score": 100,
       "score": 100,
-      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; corroborated by 4 lanes +10; website +5; phone +5; Texas priority +10",
+      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; corroborated by 5 lanes +10; website +5; phone +5; Texas priority +10",
       "tier": "A",
       "exclude_reason": "",
       "already_known": false,
@@ -2198,6 +2230,7 @@
         "Files solar class actions primarily against installers and equipment makers rather than financiers directly: 2022 nationwide class action against Generac Power Systems (defective microinverter component), and suits against Better Earth, Inc. and Lumio HX, Inc. for failing to install operable systems, plus a 2023 suit against Vision Solar. Lender-specific litigation was not found on this firm's site.",
         "Firm states: \"As a law firm with a proven track record in handling class action lawsuits against solar companies for unethical business practices, Vargas Gonzalez Delombard are committed to securing rightful compensation for our clients.\" Maintains separate solar-lawsuit landing pages for both Miami and Orlando.",
         "Dedicated Dallas solar-lawsuits landing page plus a firm-wide solar-lawsuits page describe active, named litigation: 'In 2022, our firm initiated a nationwide class-action lawsuit against Generac Power Systems... we allege that Generac produced a defective component that significantly hinders energy production from residential solar energy systems.' Firm also names suits against Better Earth, Inc. (failure to install within the contractual 90-day period), Lumio HX, Inc. (inoperable installed systems), and Vision Solar, LLC (electrical-code/permit violations).",
+        "Dedicated blog post 'Freedom Forever Files for Bankruptcy' lists seven steps for affected homeowners: 'Save all contracts and records,' 'Take photos of your system,' 'Monitor your energy production,' 'Register equipment with manufacturers,' 'Keep records of service requests,' 'Review your financing agreement,' and 'Speak with an attorney about your rights.' The firm's own XML sitemap shows this exact page with lastmod 2026-08-13, about three weeks before this research was conducted.",
         "Page titled 'Solar Panel Fraud Attorney in Dallas, Texas | Vision Solar Fraud Lawyer' at a dedicated /dallas/solar-panel-lawsuits/ URL. On-page quote: 'We allege that Generac produced a defective component that significantly hinders energy production from residential solar energy systems.' Firm runs matching solar-lawsuit landing pages for Miami, Denver, and New York as well.",
         "Dedicated national and state-specific (FL, NY) solar panel lawsuit pages. Firm states it has filed class actions against Generac Power Systems (2022, defective components), Better Earth Inc. (2023, failure to install within contracted period), Lumio HX (failure to install operable systems), and Vision Solar LLC (2023, code/permit violations).",
         "Dedicated 'Solar Panel Lawsuits' page describing class actions against Generac Solar Power Systems (defective components), Better Earth Inc. (missed 90-day install deadlines), Lumio HX Inc. (non-functional installs), and Vision Solar LLC (code/permit failures); separate blog post 'What to Do After Sunnova Solar Declares Bankruptcy' and 'Freedom Forever Files for Bankruptcy' guidance post; also runs a Miami-specific solar-fraud landing page",
@@ -2216,7 +2249,7 @@
         "Home Improvement Contract Protections",
         "PACE disclosure standards"
       ],
-      "trigger_event": "Sunnova Energy Chapter 11 bankruptcy (2025); firm also has a dedicated Freedom Forever Chapter 11 (2026) blog post and names Vision Solar, Generac, Better Earth and Lumio HX in class-action content",
+      "trigger_event": "Freedom Forever Ch11",
       "source_urls": [
         "https://vargasgonzalez.com/solar-panel-lawsuits/",
         "https://vargasgonzalez.com/",
@@ -2224,6 +2257,8 @@
         "https://vargasgonzalez.com/orlando/solar-panel-lawsuits/",
         "https://vargasgonzalez.com/about/",
         "https://vargasgonzalez.com/dallas/solar-panel-lawsuits/",
+        "https://vargasgonzalez.com/blog/freedom-forever-files-for-bankruptcy/",
+        "https://vargasgonzalez.com/sitemap.xml",
         "https://vargasgonzalez.com/new-york/solar-panel-lawsuits/",
         "https://vargasgonzalez.com/blog/what-to-do-after-sunnova-solar-declares-bankruptcy/",
         "https://www.vargasgonzalez.com/practice-areas/solar-panel-lawsuits/"
@@ -2232,6 +2267,7 @@
         "Strong: dedicated solar panel lawsuits page, 50+ client testimonials (4.5-star average across 137 reviews cited), downloadable eBooks, and a blog/resources section - primarily a property-damage/insurance firm that has built out solar as a secondary vertical.",
         "multiple city-specific dedicated solar landing pages (Miami, Orlando, plus out-of-region offices), class-action-oriented messaging; no blog/YouTube confirmed",
         "Blog section, an eBooks resource library, and a client-testimonials block (137 reviews, 4.5 stars) linked from the solar page; no video or FAQ content found on the solar pages themselves.",
+        "Dedicated 'Solar Panel Lawsuits' practice page plus a separate Freedom Forever blog post and a Sunnova-bankruptcy blog post; also runs a Miami-specific solar-fraud landing page. Seven physical offices across six states each carry their own intake phone line.",
         "City-specific solar-lawsuit landing pages (Dallas, Miami, Denver, New York) targeting local keywords; a Resources section with a blog and downloadable eBooks.",
         "50+ client testimonials, seven-state office footprint, dedicated state-level solar landing pages",
         "Dedicated solar practice page, city-specific landing page (Miami), and multiple collapse-specific blog posts",
@@ -2241,7 +2277,9 @@
       "content_channels": [
         "blog",
         "ebooks",
-        "testimonials_page"
+        "testimonials_page",
+        "practice area page",
+        "city landing page"
       ],
       "content_examples": [
         "https://vargasgonzalez.com/solar-panel-lawsuits/",
@@ -2255,6 +2293,7 @@
       "service_fit": [
         "AI_search_visibility (firm already runs a programmatic city-page SEO strategy for solar - a natural extension into AI-answer visibility) and content_production",
         "content_production -- the firm's solar content is written for class-action intake (defendant-by-defendant) but has almost no content addressing individual homeowner contract-cancellation/DTPA questions, which is the larger and more consistent DFW search demand; building that layer out would open a second, steadier intake channel alongside the class actions.",
+        "AI_search_visibility, because the firm already has 7 state offices worth of geographic reach that isn't being captured in AI-assistant answers for the specific 2026 trigger-company searches",
         "lead_generation (class-action practice model is volume-dependent on qualified intake)",
         "lead_generation (class-action model runs on plaintiff volume — AI-driven intake/qualification could scale case sourcing in new markets); AI_search_visibility (existing solar page is a strong candidate for answer-engine optimization)"
       ],
@@ -2263,6 +2302,7 @@
         "litigation",
         "southeast",
         "tx-dfw",
+        "tx-freedomforever",
         "solar-practice",
         "holder-rule",
         "bankruptcy-ag",
@@ -2274,7 +2314,7 @@
       "not_a_buyer": false,
       "raw_score": 90,
       "score": 90,
-      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; corroborated by 9 lanes +10; website +5; phone +5",
+      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; corroborated by 10 lanes +10; website +5; phone +5",
       "tier": "A",
       "exclude_reason": "",
       "already_known": true,
@@ -6812,6 +6852,7 @@
       "evidence": [
         "TRLA's consumer protection team (manager Wayne Krause Yang) filed a counter-claim for an El Paso homeowner (Lorena Vargas) against Cross River Bank, Sunlight Financial LLC and Titan Asset Purchasing LLC, alleging a forged digital signature on a $100,000+ solar financing contract, seeking $250,000 in damages plus attorney's fees. Yang stated TRLA received 30+ solar-scam complaints in 2025.",
         "INTELLIGENCE ONLY, NOT A SALES TARGET. TRLA represents El Paso client Lorena Vargas in a countersuit against Cross River Bank, Sunlight Financial LLC, and Titan Asset Purchasing LLC, alleging a solar loan was fraudulently created in her name without consent (identity theft, negligence, unfair debt collection). TRLA's own site (trla.org, fetched directly) confirms: 'TRLA is a 501(c)(3) nonprofit' providing free legal services to income-eligible residents -- explicitly not a paid law firm and not a marketing buyer. Included here per task instructions solely as regional litigation intelligence (documents active Cross River Bank/Sunlight Financial exposure in El Paso).",
+        "KTEP (El Paso public radio) reported July 21, 2026 that TRLA is representing an El Paso grandmother in a fraud/identity-theft dispute tied to solar financing, quoting Wayne Krause Yang, manager of TRLA's consumer protection team: 'Cross River Bank, which is a multi-billion dollar corporation, has a documented history of ending up being owed thousands, tens of thousands, and even hundreds of thousands of dollars for loans for solar panels that the victims have no idea about.' The same article names all four companies under Texas AG investigation: Freedom Forever LLC ('Freedom Solar'), CAM Solar Inc., Sunrun Inc., and Lone Star Solar Services LLC.",
         "El Paso Times/KTSM reporting on an El Paso grandmother's solar-loan lawsuit quotes Wayne Krause Yang, manager of TRLA's consumer protection team, on a forged-signature loan claim: 'It is only a forged digital signature. She never talked to anybody... Cross River Bank and its co-conspirators are putting this document forth, in a court of law, as evidence she agreed to a loan she had never heard of before.'"
       ],
       "evidence_types": [
@@ -6819,7 +6860,7 @@
         "news_coverage"
       ],
       "legal_theories": [],
-      "trigger_event": "",
+      "trigger_event": "Paxton CID initiative",
       "source_urls": [
         "https://www.ktsm.com/news/el-paso-woman-fights-100k-charge-for-solar-panels-she-did-not-ask-for/amp/",
         "https://www.trla.org/community-preservation-empowerment",
@@ -6832,28 +6873,33 @@
       "content_footprint": [
         "Nonprofit legal aid organization funded by grants/IOLTA, not a fee-based law practice - general consumer-education content only, no solar-specific marketing. Important intelligence (directly litigating against a target lender) but NOT a realistic paid-marketing prospect; flagging for awareness rather than sales outreach.",
         "none observed -- nonprofit legal aid organization, not a marketing entity; no commercial content marketing found or expected.",
+        "none observed on trla.org itself for this wave; visibility comes entirely from earned local-news coverage of an active case rather than firm-published marketing content.",
         "none observed (nonprofit legal aid organization, not a marketing-driven practice)"
       ],
-      "content_channels": [],
+      "content_channels": [
+        "news_coverage"
+      ],
       "content_examples": [],
       "content_recency": "",
       "buyer_warmth": "",
-      "seo_weakness": "",
+      "seo_weakness": "No dedicated webpage exists on trla.org for this case or the broader Paxton solar initiative even though the org's own attorney is being quoted by name in regional press — a case-update page would let TRLA own that earned coverage instead of sending the visitor to KTEP.",
       "service_fit": [
         "N/A -- nonprofit legal aid organization, not a paid-marketing buyer; excluded from prospect scoring by design",
+        "content_production, because a named, quoted attorney with active regional press coverage currently has zero corresponding page on the firm's own site to convert that visibility into intake",
         "intake_automation (IMPORTANT CAVEAT: this is a grant-funded nonprofit serving only income-qualified clients, not a fee-paying law firm - it will not buy lead-generation or growth marketing services the way a private firm would, but may be a fit for intake/triage automation given high case volume relative to staff)"
       ],
       "confidence": "high",
       "lanes": [
         "litigation",
         "tx-central-south",
+        "tx-freedomforever",
         "texas"
       ],
-      "opportunity_type": "low_signal",
+      "opportunity_type": "warm_buyer",
       "not_a_buyer": true,
-      "raw_score": 45,
-      "score": 45,
-      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; corroborated by 3 lanes +10; website +5; phone +5; Texas priority +10; legal aid / nonprofit, no marketing budget -40",
+      "raw_score": 60,
+      "score": 60,
+      "score_breakdown": "direct solar evidence +30; dedicated solar page +15; already publishes content +15; corroborated by 4 lanes +10; website +5; phone +5; Texas priority +10; legal aid / nonprofit, no marketing budget -40",
       "tier": "X",
       "exclude_reason": "legal aid / nonprofit — no marketing budget, intelligence only",
       "already_known": false,

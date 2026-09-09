@@ -1,6 +1,6 @@
 # Solar-Exit Attorney Prospect List
 
-Generated 2026-09-09 · 116 unique firms from 216 raw records across 16 research lanes.
+Generated 2026-09-09 · 116 unique firms from 223 raw records across 17 research lanes.
 
 Every record is backed by at least one source URL that a researcher actually fetched and read. Blank fields mean unverified, never guessed. Nothing here has been contacted.
 
@@ -26,7 +26,7 @@ Every record is backed by at least one source URL that a researcher actually fet
 | 5 | **The Moster Law Firm** | Dallas | TX | email | warm buyer | Represents Texas homeowners for fraudulent/deficient solar installations under the Texas Deceptive Trade Practices Act (treble damages) and breach of contract, and explic |
 | 6 | **Defiant Law** | Rancho Cucamonga | CA | email | warm buyer | Markets a dedicated 'Solar Panel Litigation' practice targeting deceptive sales, misrepresentations, and unfair lending 'by solar companies and lenders.' Page describes h |
 | 7 | **Flitter Milz, P.C.** | Philadelphia | PA | email | warm buyer | Firm maintains a dedicated 'Solar Panel Fraud' practice page describing itself as 'a leading authority nationwide in representing victims of solar panel sales fraud.' The |
-| 8 | **Joshua Horton Law** |  | FL | email | warm buyer | Represents homeowners against Dividend Finance, citing an active case (Khan v. Affordable Solar Roof & Air LLC and Dividend Finance Inc.) and discussing the Minnesota AG  |
+| 8 | **Joshua Horton Law** | Jupiter | FL | email | warm buyer | Represents homeowners against Dividend Finance, citing an active case (Khan v. Affordable Solar Roof & Air LLC and Dividend Finance Inc.) and discussing the Minnesota AG  |
 | 9 | **Kemnitzer, Barron & Krieg, LLP** | San Francisco | CA | phone | warm buyer | Site reports winning denial of EnerBank's motion to compel arbitration (E.D. Cal., May 5, 2026) in a case alleging EnerBank financed a solar loan built on a forged signat |
 | 10 | **KGS Law Group PLLC (Kinard, Garcia & Saldaña)** | Houston | TX | phone | warm buyer | Dedicated 'Houston Solar Panel Lawyer' page walks through fraud elements under Texas Business & Commerce Code section 27.01 and treble damages available under the DTPA, a |
 | 11 | **Letona Law (Law Office of Balam O. Letona)** | Santa Cruz | CA | email | warm buyer | Dedicated solar panel fraud practice page and FAQ identifying five fraud red flags (unqualified contractors, deceptive government-incentive claims, rushed contract signin |
