@@ -29,6 +29,8 @@ export const batch9BlogPosts: BlogPost[] = [
     ],
     content: [
       { type: "p", content: "Direct answer: a Sunrun contract may have a cancellation, purchase, prepayment, transfer, or dispute path, but no single path applies to every customer. The fastest first step is to identify your agreement type, signing date and location, installation status, and the exact written notice requirements." },
+      { type: "h2", content: "How to get out of a Sunrun contract" },
+      { type: "p", content: "How to get out of a Sunrun contract depends on the signed paper, not on a single cancel button. If the panels are not installed, follow the written notice in the agreement, including any email address or mailing address it names, and keep proof you sent it. After installation, the written options are usually a purchase or prepayment quote, a home-sale transfer, or a documented dispute. Ask for the cancellation fee or buyout in writing and compare it to the contract section it cites. A phone call does not replace that written record." },
       { type: "callout", content: "Use the signed agreement as the source of truth. A website article cannot determine whether a cancellation right, breach, remedy, fee, deadline, or credit consequence applies to an individual account." },
       { type: "h2", content: "What should you check first in a Sunrun agreement?" },
       { type: "list", items: [
@@ -209,6 +211,8 @@ export const batch9BlogPosts: BlogPost[] = [
     ],
     content: [
       { type: "p", content: "Direct answer: first identify what you mean by cancel. An unfunded application, a funded GoodLeap loan payoff, a dispute about loan disclosures, and a dispute with the solar installer are not the same process. Do not assume that canceling installation work automatically cancels a separate financing obligation." },
+      { type: "h2", content: "How to get out of a GoodLeap solar loan" },
+      { type: "p", content: "How to get out of a GoodLeap solar loan is not the same as logging in to pay the bill. If the loan is not funded, ask whether the application can still be stopped and get that answer in writing. If the loan is funded, the usual path is a dated payoff quote, not a generic cancel form. Compare the quote to the signed note before you pay it or before a home sale. This page is not a GoodLeap login and it does not invent loan reviews." },
       { type: "callout", content: "GoodLeap's current public FAQ says it does not charge a prepayment fee or penalty. That makes the signed agreement and a current written payoff quote more reliable than generic claims about a standard cancellation fee." },
       { type: "h2", content: "Which GoodLeap documents should you collect first?" },
       { type: "list", items: [
