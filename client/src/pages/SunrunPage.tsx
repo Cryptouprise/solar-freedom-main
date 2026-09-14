@@ -483,11 +483,12 @@ export default function SunrunPage() {
               <h3 className="font-black text-white text-2xl uppercase" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>MORE SUNRUN RESOURCES</h3>
             </div>
           </Reveal>
-          <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {[
               { href: "/blog/sunrun-solar-contract-cancellation-2026", label: "Sunrun Cancellation Guide 2026", desc: "Full legal breakdown" },
               { href: "/blog/how-to-cancel-sunrun-solar-contract", label: "How to Cancel Sunrun Step-by-Step", desc: "Detailed process guide" },
               { href: "/cancel-sunrun-solar-contract", label: "Sunrun Complaint Database", desc: "2,500+ documented complaints" },
+              { href: "https://sunrun.breakyoursolarcontract.com", label: "Independent Help with Sunrun Solar Agreements", desc: "Explore the Sunrun Relief resource" },
             ].map(link => (
               <a key={link.href} href={link.href} className="block rounded-xl border border-white/10 hover:border-amber-500/40 bg-zinc-900/50 p-5 transition-all group">
                 <div className="text-white font-bold text-sm group-hover:text-amber-400 transition-colors mb-1">{link.label}</div>
