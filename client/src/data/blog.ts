@@ -86,6 +86,8 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
     relatedSlugs: ["solar-contract-rescission-rights", "cancel-solar-contract-after-installation", "sunrun-solar-contract-cancellation-2026", "goodleap-solar-loan-cancellation-hidden-fees-2026", "solar-payments-too-high-help"],
     content: [
       { type: "p", content: "Direct answer: you may have an exit, cancellation, payoff, transfer, purchase, or dispute option, but the correct path depends on the written agreement and facts. The most efficient approach is to identify the contract type and parties, check every notice and deadline, preserve evidence, and avoid actions that could create a default." },
+      { type: "h2", content: "Can you cancel a solar panel contract?" },
+      { type: "p", content: "Can you cancel a solar panel contract, and how to get out of a solar lease, depend on whether the panels are installed and who holds the paper. Before installation, follow the written cancellation notice if the agreement has one. After installation, look for a payoff, a transfer, or a documented problem with what was promised. Stopping payment is not a cancellation. Start with the signed agreement, then use the [cancellation letter](/free-cancellation-letter) if you want a written request on file." },
       { type: "callout", content: "This guide is a document-review framework, not a determination that a contract is cancelable or that a legal violation occurred. A qualified attorney should review any consequential legal step." },
       { type: "h2", content: "Step 1: What type of solar agreement do you have?" },
       { type: "list", items: [
