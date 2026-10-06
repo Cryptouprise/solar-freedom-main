@@ -241,6 +241,72 @@ Estimated build: 2–3 focused days for a working v1 if sources are GHL + a watc
 
 ---
 
+---
+
+## 11. Your one system (added 2026-10-06 after clarification: Android + WhatsApp + Zoom, one place to always know what's going on)
+
+**Decision: Plaud is the hub.** It is the only tool where Android cell calls, WhatsApp calls, Zoom calls (phone or computer), in-person conversations, and any stray audio file all land in one library, get the same report template, and are searchable together. Granola cannot import outside audio and cannot hear a call in your ear, so it cannot be the hub. GHL only sees calls on your business number.
+
+### Three doors, one library
+
+| Door | What it catches | Tool | Setting |
+|---|---|---|---|
+| **1. Your phone** | Cell calls, WhatsApp calls, Zoom on the phone, in-person (truck, kitchen table) | **Plaud Note Pro** on the back of the phone | Auto-detects calls and switches modes by itself. Rule: phone to ear or speakerphone. **No earbuds.** |
+| **2. Your computer** | Zoom, Google Meet, Teams, WhatsApp Desktop calls | **Plaud Desktop** (Windows + Mac, no device required) | Set to **"automatic recording when meetings start."** Syncs to the same workspace. |
+| **3. Everything else** | A Zoom cloud recording, a voicemail, a file someone sends you | **Plaud app → Import Audio** (MP3/MP4/WAV, up to 5 hours) | Processed exactly like a device recording. |
+
+### One template, zero effort
+- Set the **Deal Report** template (Section 8a) as the default summary template. AutoFlow transcribes and summarizes every recording without you touching it.
+- Plan: **Unlimited ($239.99/yr).** "Every damn call" will blow through the Pro plan's 1,200 min/mo (that is 40 min/day).
+
+### How you always know what you're doing (three views)
+1. **Ask Plaud** (in the app, across every conversation): "What did I promise this week?" "Where are we with the Hendersons?" "Who did I talk to about Sunrun in September?"
+2. **Plaud Agent** (new, uses credits): pulls action items with owners and deadlines, drafts the follow-up email through the **Gmail connector**, drops dates on **Google Calendar**, posts to **Slack/Notion**. Connectors at launch: Slack, Gmail, Google Docs, Google Calendar, Outlook, Notion, Linear, Zapier.
+3. **Zapier** (trigger: Plaud transcription completed) does the plumbing:
+   - → **GHL inbound webhook → workflow: Add Note on the contact + Add Task for the next step** (so the CRM is always current without you typing).
+   - → **Digest by Zapier → one 6 pm email: "Today's calls," each with next step.**
+   - Optional → ClickUp task per action item, Slack channel, Google Sheet log.
+
+### The daily rhythm (this is the whole habit)
+- **Before every call:** "Quick heads-up, I record my calls so I can send you accurate notes afterward, that cool?" Plaud does **not** announce for you.
+- **After the call:** nothing. If it's hot, tap Share (or let the Agent draft the email) and the report goes to them.
+- **6 pm:** read the digest, approve the follow-ups the Agent drafted. Ten minutes.
+- **Friday:** Ask Plaud "open commitments this week," close the loop.
+
+### Belts and suspenders (free, optional)
+- Pixel Call Notes / Samsung Call Transcript on cell calls: announced, on-device, a second copy for free.
+- GHL LC Phone recording + transcription for the business line: keeps those calls native in the CRM (Section 4D).
+- Zoom's own AI summary stays on as a backup for Zoom meetings.
+
+### Cost (year one)
+| Item | Cost |
+|---|---|
+| Plaud Note Pro | $189 list (~$151 on sale) |
+| Plaud Unlimited plan | $239.99/yr |
+| Plaud Desktop | included |
+| Zapier paid plan | ~$20–30/mo depending on tasks |
+| Plaud Agent credits | pay-as-you-go beyond the launch gift |
+| Later, if reps join: Plaud Team | $20/user/mo annual (launch), adds shared workspace, admin, Plaud MCP server (beta) |
+
+### Holes in this system (know them now)
+1. **Earbuds kill door 1.** The sensor reads the phone speaker. Habit change or it silently records only you.
+2. **Nothing announces recording except the free backups.** The consent line is on you, every call, especially into the 12 all-party states.
+3. **Plaud Desktop is new.** Expect rough edges; keep Zoom's own summary on until you trust it.
+4. **Agent credits are a meter.** Default transcription and summaries are unlimited; Agent actions (drafting emails, taking actions in tools) burn credits.
+5. **Lock-in.** Zapier → Google Drive archive of every transcript keeps you portable. Phase 2 below makes it yours outright.
+
+### Phase 2 (only if you want it inside Solar Freedom)
+Same Zapier trigger → a Solar Freedom endpoint → `conversations` table → the Deal Report rendered on an `/admin/calls` page with "Today," "Open commitments," and "Send report" buttons. Uses the existing transcription helper, OpenRouter, S3, and GHL client. Two to three focused days. Decide after two weeks on the Plaud system, not before.
+
+### Additional sources for Section 11
+- Plaud Desktop: https://www.plaud.ai/pages/plaud-desktop ; coverage: https://mightygadget.com/plaud-desktop-brings-ai-meeting-transcription-to-windows-and-mac-without-meeting-bots/
+- Plaud audio import: https://support.plaud.ai/hc/en-us/articles/50609466994713-Audio-import
+- Plaud Zapier integration: https://zapier.com/apps/plaud/integrations ; https://zapier.com/blog/automate-plaud
+- Plaud Intelligence / Agent connectors: https://www.plaud.ai/blogs/news/get-ready-new-plaud-intelligence-for-team
+- Plaud Team pricing: https://www.plaud.ai/pages/plaud-team
+- Granola cannot import audio: https://blog.buildbetter.ai/best-granola-alternatives-private-meeting-notes-2026/
+- LeadConnector on Zapier: https://help.zapier.com/hc/en-us/articles/8496037147789-How-to-Get-Started-with-LeadConnector-on-Zapier
+
 ## Sources
 
 - Pixel Call Notes help: https://support.google.com/phoneapp/answer/15257579
