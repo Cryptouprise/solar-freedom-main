@@ -12,7 +12,7 @@
 
 | Architecture | What it covers | What it misses | Effort |
 |---|---|---|---|
-| **A. Hardware recorder on the phone** (Plaud Note Pro) | Any call from any app: cell, WhatsApp, Zoom, Teams. Auto-detects calls. Both sides. Any Android. | Only works when the audio comes out of the phone itself (earpiece or speakerphone), not earbuds. One more thing to charge. | Buy it, stick it on the phone, done. |
+| **A. Hardware recorder on the phone** (Plaud Note Pro, or a rival in Section 12) | Any call from any app: cell, WhatsApp, Zoom, Teams. Auto-detects calls. Both sides. Any Android. | Phone must be at your ear. Earbuds of any kind defeat it. On speaker, take it off and set it beside the phone. One more thing to charge. | Buy it, stick it on the phone, done. |
 | **B. The phone's own dialer** (Pixel Call Notes, Samsung Call Transcript) | Regular cellular calls. Free, polished, on-device AI summary, legally announces recording. | WhatsApp and every other VoIP app. Samsung is manual per call. Only Pixel 10 can auto-run on *every* call. | Settings toggle. |
 | **C. Business phone system** (GoHighLevel LC Phone, which you already have; or Quo, Dialpad, Zoom Phone) | Every call on that business number: auto-record, transcript, AI summary, auto-post to CRM, workflow fires the report. This is the real "treat it like a Zoom call." | Calls on your personal cell number and personal WhatsApp. | Config in GHL + one workflow. |
 
@@ -26,15 +26,17 @@ Details, prices, and the holes in each option are below.
 
 ---
 
-## 2. What dealclose.cc probably is
+## 2. What DealClose actually is (verified 2026-10-07)
 
-I could not find it. The domain does not resolve from here (DNS lookup fails from two independent networks), and there is zero footprint in web, developer, or app-store indexes for "dealclose.cc" or "DealClose" as a call-recording product. That points to one of three things:
+**The real address is dealclose.co, not .cc.** The .cc registry has no record of dealclose.cc at all. dealclose.ai exists but was not serving pages when checked.
 
-- Your buddy built it himself (you suspected this) and it's a private tool, or
-- The domain is slightly different than you heard (dealclose.co, dealcloser, closedeal, etc.), or
-- It's a white-labeled wrapper around something below (CallRecap, Plaud, or a GHL/Twilio pipeline).
+- **What it does:** an AI quote and proposal generator. In its own words it "turns rough sales notes into polished, client-ready quotes and proposals." You fill in five inputs, it builds a branded proposal in about 60 seconds, and sends it as a live link or PDF with open tracking, e-signature, payment on signing, and AI follow-ups. HubSpot sync on Pro; Pipedrive and Salesforce on Team.
+- **What it does not do:** record or transcribe calls. Your buddy captures the call some other way (or from memory), then DealClose writes the thing that "goes out."
+- **Pricing:** Free (5 AI quotes/month), Pro $13/mo billed annually ($159/yr), Team $27/seat/mo billed annually.
+- **Business reality:** one founder, launched June 2026, bootstrapped. TrustMRR, which verifies revenue through Stripe, shows **$19 MRR and 1 active subscription**. The founder is openly shopping it for acquisition. Do not build your process on it.
+- **You already own the same "send" layer:** GoHighLevel Documents & Contracts does proposals and estimates with e-signature, payments, automatic sending from a workflow, and AI follow-ups on open estimates.
 
-**What it almost certainly is under the hood:** recording source → speech-to-text (Whisper/Deepgram) → an LLM prompt with a fixed "deal report" template → formatted email/PDF/SMS → CRM note. That is a weekend build on top of what Solar Freedom already has (see Section 8). **Ask him for a screenshot or the exact link** and I'll match it feature for feature.
+**So the buddy's button is two tools:** something that captures the call, plus something that writes and sends the proposal. Section 8 shows how to do both, and Section 12 stress-tests the capture side.
 
 ---
 
@@ -42,7 +44,7 @@ I could not find it. The domain does not resolve from here (DNS lookup fails fro
 
 - **Android 9 (2018)** removed the audio source third-party apps used to capture the other side of a call. **Google Play policy (May 2022)** then banned apps from using the Accessibility API as a workaround. Result: only the phone's *built-in dialer* (Google Phone, Samsung Phone) can legitimately record cell calls, and it's gated by region and carrier.
 - **WhatsApp and other VoIP apps** run their own audio path. Third-party recorders (Cube ACR, ACR Phone, CallRecap) hook Android's ConnectionService and need a sideloaded "Helper" app. ACR Phone's developer states plainly: *"Call recording might be one sided on phones that do not have a Qualcomm chipset."* Pixels (Tensor chips) and Exynos Samsungs are the problem devices. The Galaxy S25, S25+ and S25 Ultra are Snapdragon, so they are the most likely to work.
-- **Bluetooth earbuds** route call audio past the part of the system apps can read, so recordings become one-sided. **Speakerphone** is the universal fix for apps, and the only way the Plaud vibration sensor or a mic-based tool (Granola mobile) can hear both sides.
+- **Bluetooth earbuds** route call audio past the part of the system apps can read, so recordings become one-sided. **Speakerphone** is the universal fix for apps and mic-based tools (Granola mobile). Card recorders like Plaud read the phone's body at your ear instead, and earbuds defeat them too. Only an in-line device (HiDock P1) or recording earbuds can capture earbud calls; see Section 12.
 
 So any software-only Android recorder is "works on this phone, not on that one." Hardware (Plaud) and business phone systems (GHL/Quo/Zoom) sidestep the whole fight.
 
@@ -72,7 +74,7 @@ So any software-only Android recorder is "works on this phone, not on that one."
 
 | App | What it records | Auto? | AI report | Price | Catch |
 |---|---|---|---|---|---|
-| **CallRecap** (callrecap.app) | Cell calls via native dialer integration; WhatsApp/Telegram/VoIP via "CallRecap Connect" helper | Yes | Yes: key points, commitments, action items with dates, follow-ups; export PDF/DOC/CSV/TXT or email; Max tier adds objection detection, buying signals, coaching | Free 120 min first month; Pro $14.99/mo (600 min); Max $29.99/mo (1,800 min) | Newest player, no public reviews yet. Device-dependent for VoIP like everyone else. Closest off-the-shelf match to "dealclose." |
+| **CallRecap** (callrecap.app) | Cell calls via native dialer integration; WhatsApp/Telegram/VoIP via "CallRecap Connect" helper | Yes | Yes: key points, commitments, action items with dates, follow-ups; export PDF/DOC/CSV/TXT or email; Max tier adds objection detection, buying signals, coaching | Free 120 min first month; Pro $14.99/mo (600 min); Max $29.99/mo (1,800 min) | Newest player, no public reviews yet. Device-dependent for VoIP like everyone else. Closest off-the-shelf all-in-one call-recap app. |
 | **Cube ACR** | Cell + WhatsApp, Telegram, Signal, Viber, etc. | Yes | Basic; cloud backup to Google Drive/email | Free + Premium (price only shown in-app) | Needs sideloaded **Cube ACR Helper** on Android 9+; Android 13+ needs "Allow restricted settings." VoIP recording "if your device allows it." One-sided risk on Tensor/Exynos. |
 | **ACR Phone** (NLL Apps) | Cell + VoIP apps using ConnectionService (WhatsApp confirmed) | Yes | No | Free/Pro | Most honest dev: one-sided on non-Qualcomm phones. Needs ACR Phone Helper. |
 | **Truecaller Premium** | Cell calls, both sides, with beep | Manual/floating button | Transcript + summary (LLM) | ~$3.99/mo or $29.99/yr (last published) | Not WhatsApp. Also a huge spam-ID app you may not want as your dialer. |
@@ -83,12 +85,12 @@ So any software-only Android recorder is "works on this phone, not on that one."
 
 ### C. Hardware that records any call from any app
 
-**Plaud Note Pro** ($189 list, $150.99 on sale) — **the single most complete answer for "every call, including WhatsApp, on any Android."**
+**Plaud Note Pro** ($189 list, often ~20% off) — **the most complete answer I found for "every call, including WhatsApp, on any Android," if you hold the phone to your ear.** Rivals are compared in Section 12.
 - Credit-card-sized, magnets to the back of the phone. A vibration-conduction sensor reads the phone's speaker directly, so it captures both sides of *any* call from *any* app (Plaud confirms WhatsApp, Zoom, Teams) on any Android, no OS permission involved.
-- **Pro auto-detects a phone call and switches modes by itself**; the cheaper Plaud Note ($159) needs a manual switch each time. NotePin wearables do **not** do phone calls.
+- **Pro auto-detects a phone call and switches modes by itself**; the cheaper Plaud Note ($159) needs a manual switch each time. NotePin wearables do **not** do phone calls (Plaud support: no vibration sensor).
 - 4 mics, 16 ft pickup for in-person/truck/kitchen-table conversations, ~50 hr battery, AMOLED status display.
 - App: auto-transcribe + summarize ("AutoFlow"), role/industry templates, mind maps, shared workspace on mobile/desktop/web. Plans: Starter free (300 min/mo), **Pro $99.99/yr (1,200 min/mo)**, Unlimited $239.99/yr.
-- **Catch:** audio must come out of the phone (hold it to your ear or speakerphone). Earbuds/Bluetooth defeat it. It does not announce recording; you must. 1,200 min/mo is ~40 min/day of calls; heavy months need Unlimited.
+- **Catch:** hold the phone to your ear with call volume at 80% or higher. Earphones of any kind, wired or wireless, defeat it. On speakerphone, take it off and set it beside the phone, or it double-records and distorts. Thick cases reduce pickup. It does not announce recording; you must. 1,200 min/mo is ~40 min/day of calls; heavy months need Unlimited.
 
 **RecorderGear PR200** (~$109) — Bluetooth recorder that pairs as a headset and records both sides of GSM and VoIP (WhatsApp) calls to 8 GB. No AI; you'd drop files into Plaud/Granola/your own pipeline. Old-school but bulletproof.
 
@@ -100,7 +102,7 @@ Everything here records *automatically*, transcribes, writes an AI summary, and 
 
 **GoHighLevel LC Phone (you already have GHL wired into Solar Freedom)**
 - Call recording is standard on LC Phone. **Call transcription: $0.024 per recorded minute**, toggle at Settings → Phone System → Voice → Call Transcription. Applies to inbound and outbound.
-- **"Transcript Generated" workflow trigger** fires the moment a transcript exists, passing full transcript, duration, direction, contact, timestamps. Chain the **AI Agent workflow action** (your report prompt) → add note to contact → email you → SMS/email the prospect. That is the dealclose button, with zero clicks.
+- **"Transcript Generated" workflow trigger** fires the moment a transcript exists, passing full transcript, duration, direction, contact, timestamps. Chain the **AI Agent workflow action** (your report prompt) → add note to contact → email you → SMS/email the prospect. That is your buddy's "report goes out" button, with zero clicks.
 - Calls placed from the LeadConnector mobile app *through your LC number* are recorded. **Calls placed via "SIM-based calling" are not recorded or logged** (HighLevel is explicit). Once an LC number is active for the sub-account, the app uses LC Phone.
 - Ready-made n8n templates exist if you'd rather run the AI step outside GHL: "Transcribe and Summarize GoHighLevel Call Recordings" (n8n #10255) and "Summarize sales calls into GoHighLevel notes with Deepgram, Gemini and Sheets" (n8n #16337). (Your n8n MCP server failed to connect in this session, so I couldn't inspect your instance.)
 
@@ -114,7 +116,7 @@ Everything here records *automatically*, transcribes, writes an AI summary, and 
 
 ### E. WhatsApp calls specifically (the hard part)
 
-1. **Plaud Note Pro** — the only "set it and forget it" answer. Phone to ear or speaker.
+1. **A card recorder on the phone** (Plaud Note Pro, or a rival in Section 12) — the only "set it and forget it" answer. Phone at your ear, no earbuds. If you live in earbuds, see HiDock P1 in Section 12.
 2. **Business phone systems do not help** unless the WhatsApp call goes through the **WhatsApp Business Calling API** (available to all businesses via BSPs since July 15, 2025). The API records opt-in per call with a mandatory spoken disclosure and purpose, delivers the file by webhook (7-day retention), and added transcription June 30, 2026. **Wati** turns this into toggles: Auto Record All Calls, Auto Transcripts, Auto Summaries; first 1,000 recording min/mo free then $0.01/min; Pro $119/mo annual ($149 monthly), Business $279/$349. Twilio offers the same over Programmable Voice. **Catch:** only calls to/from your *business* WhatsApp number via the API, not your personal WhatsApp on your phone; Meta business verification and a messaging-limit tier of 2,000 conversations/day are prerequisites.
 3. **Android screen recorder with "media sounds + mic"** — works on many phones on speakerphone. Manual, clunky, you'll forget.
 4. **CallRecap / Cube ACR / ACR Phone with Helper** — works on some phones (Snapdragon best), one-sided on others. Test before trusting.
@@ -138,7 +140,7 @@ Everything here records *automatically*, transcribes, writes an AI summary, and 
 | Pixel 10 Call Notes | Yes | No | **Yes (every call)** | Yes | Yes (on-device) | No (share manually) | Free w/ phone |
 | Pixel 9 Call Notes | Yes | No | Partial (lists/non-contacts) | Yes | Yes | No | Free |
 | Samsung S24/S25 Call Transcript | Yes | No | No (tap each call) | Yes | Yes | No | Free |
-| **Plaud Note Pro** | **Yes** | **Yes** | **Yes** | **Yes** (phone/speaker audio) | Yes | Share link / export; Zapier-style automation limited | $189 + $99.99/yr |
+| **Plaud Note Pro** | **Yes** | **Yes** | **Yes** | **Yes** (phone at ear) | Yes | Share link / export; Zapier-style automation limited | $189 + $99.99/yr |
 | CallRecap | Yes | Device-dependent | Yes | Device-dependent | Yes, sales-oriented | Email/PDF export | $14.99–29.99/mo |
 | Cube ACR / ACR Phone + Helper | Yes | Device-dependent | Yes | One-sided on Tensor/Exynos | Minimal | No | Free–low |
 | Salestrail | Yes | Yes (Android) | Yes | Mostly | No | To CRM/webhook (audio + log) | ~$10.50/user/mo |
@@ -161,7 +163,7 @@ Everything here records *automatically*, transcribes, writes an AI summary, and 
 
 ## 7. Recommendation, with a decision tree by phone
 
-**Step 1: capture everything.** Buy a **Plaud Note Pro**. It's the only option that covers cell + WhatsApp + in-person on any Android with no per-call effort. Put it on Pro ($99.99/yr).
+**Step 1: capture everything.** Buy a **Plaud Note Pro**. It's the only one I verified that catches cell + WhatsApp + in-person on any Android with no tap and no switch. If you live in earbuds, read Section 12 first. Put it on Pro ($99.99/yr).
 
 **Step 2: make the business line do the work.** In GHL: turn on call recording and transcription; build one workflow on "Transcript Generated" → AI Agent (report prompt) → Note on contact → email to you (+ optional SMS/email to the prospect). Route all business calls through your LC number in the LeadConnector app (not SIM-based calling). Now every business call produces the report by itself.
 
@@ -177,7 +179,7 @@ Everything here records *automatically*, transcribes, writes an AI summary, and 
 
 ---
 
-## 8. The "one-click report": replicate dealclose, including the DIY option
+## 8. The "one-click report": replicate your buddy's button, including the DIY option
 
 ### 8a. The report template (use this everywhere)
 
@@ -208,7 +210,7 @@ Pipeline: **source → S3 → transcribe → LLM(template) → deliver.**
 - *Transcribe:* existing Whisper helper, or Deepgram Nova-3 (~$0.0043/min batch, speaker diarization) / AssemblyAI (~$0.15–0.21/hr). A 30-minute call costs under $0.20 to transcribe.
 - *LLM:* one prompt = the template above; ~$0.01–0.05 per call on OpenRouter.
 - *Deliver:* email to you, GHL contact note via `ghlClient`, optional SMS to prospect, and a `/admin/calls` page with search across all transcripts.
-- *UI:* a single "Send report" button on the call row = the dealclose button. Or no button: auto-send when confidence is high and the call is > 2 minutes.
+- *UI:* a single "Send report" button on the call row = your buddy's button. Or no button: auto-send when confidence is high and the call is > 2 minutes.
 
 Estimated build: 2–3 focused days for a working v1 if sources are GHL + a watched folder. Worth it only once Steps 1–2 above are live and you're sick of copying reports around.
 
@@ -217,7 +219,7 @@ Estimated build: 2–3 focused days for a working v1 if sources are GHL + a watc
 ## 9. Holes I'd poke (so you don't find them the hard way)
 
 1. **"Every damn call" is a firehose.** 40+ calls a day → 40 reports nobody reads. Gate it: auto-report only calls > 2 min or with a known contact; everything else gets a one-line log.
-2. **Earbuds break the universal option.** If you live in AirPods, Plaud won't hear the other side. Habit change required (phone to ear, or speaker in the truck).
+2. **Earbuds break the universal option.** If you live in AirPods, Plaud won't hear the other side. Habit change required: phone to your ear. Truck Bluetooth is untested for every device here, so test it before trusting it. Section 12 covers the earbud alternatives.
 3. **Software recorders are device roulette.** Test WhatsApp recording on your actual phone for a day before relying on any app. Tensor Pixels are the worst case for third-party VoIP capture.
 4. **Two recorders on one call** (Plaud + Pixel Call Notes) means duplicate reports. Pick a primary per channel: Plaud for WhatsApp/personal cell, GHL for business line, Pixel/Samsung as free backup.
 5. **Consent habit.** Three of your layers don't announce. Script it, say it every time, and store the recordings in one governed place.
@@ -230,7 +232,7 @@ Estimated build: 2–3 focused days for a working v1 if sources are GHL + a watc
 ## 10. Next steps (two weeks)
 
 **Week 1**
-- [ ] Get the exact dealclose link/screenshot from your buddy.
+- [ ] Ask your buddy what records his calls before DealClose writes the proposal. DealClose itself does not record.
 - [ ] Order Plaud Note Pro; set the Deal Report template in the Plaud app.
 - [ ] GHL: enable call recording + transcription; build the Transcript Generated → AI Agent → Note → Email workflow; confirm the LeadConnector app uses your LC number, not SIM calling.
 - [ ] Phone: enable Call Notes (Pixel) or learn the record tap (Samsung). Record a test WhatsApp call with Plaud and with CallRecap; listen for both sides.
@@ -245,13 +247,13 @@ Estimated build: 2–3 focused days for a working v1 if sources are GHL + a watc
 
 ## 11. Your one system (added 2026-10-06 after clarification: Android + WhatsApp + Zoom, one place to always know what's going on)
 
-**Decision: Plaud is the hub.** It is the only tool where Android cell calls, WhatsApp calls, Zoom calls (phone or computer), in-person conversations, and any stray audio file all land in one library, get the same report template, and are searchable together. Granola cannot import outside audio and cannot hear a call in your ear, so it cannot be the hub. GHL only sees calls on your business number.
+**Decision: Plaud is the hub, if you take calls with the phone at your ear.** It is the only tool I verified where Android cell calls, WhatsApp calls, Zoom calls (phone or computer), in-person conversations, and any stray audio file all land in one library with zero taps, get the same report template, and are searchable together. It is not the only recorder that can hear those calls; Section 12 has the rivals and the earbuds fork. Granola cannot import outside audio and cannot hear a call in your ear, so it cannot be the hub. GHL only sees calls on your business number.
 
 ### Three doors, one library
 
 | Door | What it catches | Tool | Setting |
 |---|---|---|---|
-| **1. Your phone** | Cell calls, WhatsApp calls, Zoom on the phone, in-person (truck, kitchen table) | **Plaud Note Pro** on the back of the phone | Auto-detects calls and switches modes by itself. Rule: phone to ear or speakerphone. **No earbuds.** |
+| **1. Your phone** | Cell calls, WhatsApp calls, Zoom on the phone, in-person (truck, kitchen table) | **Plaud Note Pro** on the back of the phone | Auto-detects calls and switches modes by itself. Rule: phone to your ear. On speaker, set it beside the phone. **No earbuds.** |
 | **2. Your computer** | Zoom, Google Meet, Teams, WhatsApp Desktop calls | **Plaud Desktop** (Windows + Mac, no device required) | Set to **"automatic recording when meetings start."** Syncs to the same workspace. |
 | **3. Everything else** | A Zoom cloud recording, a voicemail, a file someone sends you | **Plaud app → Import Audio** (MP3/MP4/WAV, up to 5 hours) | Processed exactly like a device recording. |
 
@@ -306,6 +308,53 @@ Same Zapier trigger → a Solar Freedom endpoint → `conversations` table → t
 - Plaud Team pricing: https://www.plaud.ai/pages/plaud-team
 - Granola cannot import audio: https://blog.buildbetter.ai/best-granola-alternatives-private-meeting-notes-2026/
 - LeadConnector on Zapier: https://help.zapier.com/hc/en-us/articles/8496037147789-How-to-Get-Started-with-LeadConnector-on-Zapier
+
+---
+
+## 12. Stress test (2026-10-07): is Plaud really the only thing that makes sense?
+
+**No.** Hardware is the only thing that reliably catches cell and WhatsApp calls on any Android. But Plaud is one of six brands that do it. One habit decides which one you buy: **do you hold the phone to your ear, or live in earbuds?**
+
+### Every rival, checked against its own website
+
+| Device | Price | How it hears the call | Taps per call | Earbuds | Ongoing cost | Zoom on the computer | Automation into GHL |
+|---|---|---|---|---|---|---|---|
+| **Plaud Note Pro** | $189 list | Vibration sensor, phone at ear | **Zero**, auto-detects calls | No | Free 300 min/mo; Pro $99.99/yr; Unlimited $239.99/yr | **Plaud Desktop**, no bot, auto-records (Windows + Mac) | **Zapier**, Agent connectors, MCP server |
+| **Comulytic Note Pro** | $158.99 list, $103.19 on sale | Vibration sensor, phone at ear | One press | No | Transcription + basic summaries free forever; Premium $120/yr | Not found | Not found. Groups calls by person ("Contact Insight Hub") |
+| **UMEVO Note Plus** | $149 | Vibration sensor. Flip to Call mode, then it auto-detects calls | Zero for calls if left in Call mode | No | 1 year unlimited free, then 400 min/mo free or about $30–70/yr | Not found | Not found |
+| **Notta Memo** | $149 | Bone-conduction mic | Manual mode switch. Memo Pro auto-detects but launches in Japan Oct 13, 2026; US not announced | No | Notta Pro $13.99/mo; Business $27.99/seat | Notta Bot joins Zoom/Meet/Teams (a visible bot) | HubSpot/Salesforce sync on Business; Zapier |
+| **Mobvoi TicNote** | US price not verified | Call mode | Not verified | No | Free 600 min/mo; Pro $12.99/mo | Not found | Not found |
+| **HiDock P1** | $169 list, $143.65 on sale | Sits between the phone (USB-C cable, Android with OTG) and your Bluetooth earbuds. Both sides. | One touch | **Yes, built for it.** Earbuds required for calls | **Transcription free for life**; Pro optional | **Yes**, same device between computer and earbuds, no bot | Not found. Recordings stay on the device and sync by USB-C |
+| **Viaim RecDot** (earbuds) | $199.99 | The earbuds are the recorder | Press to record | They are the earbuds | 10 hrs/mo included | Yes (Zoom/Teams/Meet) | Not found |
+| **Plaud One** (earbuds) | $249.99 preorder | Earbuds record calls; 4G eSIM case uploads | Not verified | They are the earbuds | Plaud plans | Plaud ecosystem | Plaud ecosystem. Ships Q4 2026, 2,000 units |
+
+"Not found" means it is not on the vendor's site, not proof it can never exist.
+
+### What changes and what doesn't
+
+- **Phone at your ear (the normal case): Plaud Note Pro stays the pick.** It is the only one verified to be zero-tap on calls, record Zoom on the computer without a bot, and push every summary into GHL through Zapier. That combination is the "always know what I'm doing" part. Its price is about $240/yr for Unlimited.
+- **Cheaper, and fine pressing once per call: Comulytic Note Pro.** $103 on sale with transcription free forever. A verified buyer on its store says the free plan makes you ask for each AI summary; Premium ($120/yr) makes them automatic. No computer recorder found, so lean on Zoom's built-in AI summary for meetings.
+- **You live in earbuds: HiDock P1.** It is the only shipping device that records through your own Bluetooth earbuds on both phone and computer, with transcription free for life. The trade-offs: a cable to your phone's USB-C port, a tap per recording, and recordings sync by cable rather than automatically. Viaim RecDot is the route if you'd rather replace your earbuds.
+- **Watch list: Plaud One earbuds.** They would close Plaud's one real hole, earbuds, inside the same hub. Preorder only, 2,000 units, shipping Q4 2026. Don't wait on it.
+- **Truck Bluetooth (calls through the stereo):** no vendor here documents it. Test before trusting any of them.
+- **DealClose is the send step, not a recorder** (Section 2). GHL Documents & Contracts already covers proposals, e-signature, payments, and workflow sending.
+
+### Corrections this stress test made to earlier sections
+- "Plaud is the only one that covers all three" was too strong. Accurate: it is the only one verified to be zero-tap on calls, botless on Zoom, and piped into GHL.
+- Plaud on speakerphone: take it off the phone and set it beside the phone. Attached, it records the call twice and distorts (Plaud support).
+- Earphones of any kind, wired or wireless, break every card recorder's call capture. It is not just a Bluetooth problem.
+
+### Sources for Sections 2 and 12
+- DealClose: https://www.dealclose.co/ ; acquisition page: https://www.dealclose.co/acquire ; Stripe-verified revenue: https://trustmrr.com/startup/dealclose-co
+- GHL Documents & Contracts: https://help.gohighlevel.com/support/solutions/articles/155000000594-how-to-use-documents-contracts- ; sending from workflows: https://help.gohighlevel.com/support/solutions/articles/155000001301-how-to-create-and-send-document-or-contract-templates-automatically-in-a-workflow
+- Plaud pricing: https://www.plaud.ai/pages/plaud-ai-plan-pricing ; Note Pro: https://www.plaud.ai/pages/plaud-note-pro ; WhatsApp calls: https://support.plaud.ai/hc/en-us/articles/50836949250073-Can-the-Plaud-Note-record-WhatsApp-calls ; call-capture rules (earphones, speakerphone, volume): https://support.plaud.ai/hc/en-us/articles/52155815616665-Low-volume-or-poor-sound-quality-on-Plaud-Note-Pro ; NotePin S has no call recording: https://support.plaud.ai/hc/en-us/articles/53788570826905-Can-Plaud-NotePin-S-record-phone-calls
+- Plaud One earbuds: https://engadget.com/2244839/plaud-made-earbuds-for-people-who-want-to-record-every-meeting-and-call/ ; https://www.channelinsider.com/ai/news-plaud-one-ai-earbuds-4g-esim/
+- Comulytic Note Pro: https://store.comu.com/products/comulytic-note-pro ; review: https://www.digitaltrends.com/computing/i-didnt-know-i-needed-an-ai-voice-recorder-until-i-tried-the-comulytic-note-pro/
+- UMEVO Note Plus: https://www.umevo.ai/pages/iphone-call-recording ; pricing: https://norfolkdailynews.com/online_features/press_releases/umevo-redefines-value-in-ai-hardware-with-1-year-free-unlimited-transcription-for-its-ai/article_cab2e22c-24a1-5f64-9178-5658f7540ad2.html
+- Notta Memo: https://www.techradar.com/pro/notta-memo-ai-voice-recorder-review ; Memo Pro launch: https://www.techno-edge.net/release/prtimes2/20260924/24676.html ; Notta on Zapier: https://zapier.com/apps/notta/integrations/salesforce
+- Mobvoi TicNote: https://www.voiceaispace.com/tool/mobvoi-ticnote ; https://bgr.com/1986362/mobvoi-ticnote-review/
+- HiDock P1: https://www.hidock.com/products/hidock-p1-ai-voice-recorder ; HiNotes plans: https://www.hidock.com/pages/hinotes
+- Viaim RecDot: https://www.tomsguide.com/audio/earbuds/viaim-recdot-review ; https://www.androidauthority.com/viaim-recdot-ai-earbuds-amazon-3567112/
 
 ## Sources
 
