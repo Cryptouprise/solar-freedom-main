@@ -78,6 +78,16 @@ Bucket 3 is harder than Bucket 2 (which is one assessor export plus an AVM) and 
 - The AI caller disclosure and DNC rules from the script PDF must be wired before any Bucket 3 calling, since these owners are the most likely to complain.
 - The spec says a 0 count for an unsourced distress type means "not sourced", not "none". Reports to Houston should say which sources were actually pulled.
 
+## Delivery (decided 2026-10-27)
+
+Three outputs from one Supabase table, no manual CSV step:
+
+1. **GHL push.** Each property upserts into the Cole Property Group GHL location by parcel ID. One contact per owner, properties attached as notes. Custom fields: distress_type, source, case_or_notice_number, sale_date, parcel_id, mailing_address, absentee_flag, score. A tag per stream (distress-foreclosure, distress-codes, distress-taxsale) drops the contact into the matching caller workflow. Tag is removed when the case closes or the sale date passes. DNC and suppression stay in GHL.
+2. **Dashboard.** The same table feeds the Cole dashboard: counts by stream and zip, new this week, upcoming sale dates, pipeline status from GHL.
+3. **CSV export.** A download button on the dashboard for anyone who wants the raw list. Not a scheduled email.
+
+Skip-trace sits between the pull and the GHL push, since the assessor only gives a mailing address.
+
 ## Suggested next step
 
-Build Phase 1 (code violations + assessor join + scoring) as a scheduled job writing to a Supabase table, with a weekly CSV to Houston Cole. Measure reply and appointment rate for 2 weeks before paying for ATTOM or PropertyRadar.
+Build Phase 1 (code violations + assessor join + scoring) as a scheduled job writing to a Supabase table, then the GHL upsert and dashboard view. Measure reply and appointment rate for 2 weeks before paying for ATTOM or PropertyRadar.
