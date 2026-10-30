@@ -32,7 +32,13 @@ Cole Property Group LLC (Houston Cole, Nashville, 615-640-4857) is a cash-offer 
 3. Skip-trace vendor.
 4. Which Supabase project hosts the Cole table (none of the 14 existing projects is named for it).
 
+## Read MACHINE.md for the full-pipeline plan (Chase now owns the account; Houston is out).
+
 ## Build status (2026-10-30)
+
+Stream 2 (Ledger) is also built: `python3 scripts/cole/bucket3_ledger.py --out out/cole --weeks 4 --details`.
+Last 4 Fridays: 220 foreclosure notices (Davidson 86, Montgomery 40, Rutherford 31, Maury 15, Sumner 14, Wilson 12), 212 upcoming, 129 auctions within 30 days. 187 probate notices (decedent, county, docket; no address, match to assessor Owner).
+Cole site backend found: Supabase project yazsmnsrwnkdazbeaidz (not in Chase's main org), React/TanStack on Cloudflare, GHL widget. Source code still not located.
 
 Phase 1 stream 1 is built and runs: `python3 scripts/cole/bucket3_codes.py --out out/cole` (stdlib only, ~11 s).
 Live result today: 2,467 open usable cases -> 2,339 properties -> 2,328 matched to assessor parcels (99.5%) -> 2,209 distinct owners.
