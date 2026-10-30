@@ -32,7 +32,18 @@ Cole Property Group LLC (Houston Cole, Nashville, 615-640-4857) is a cash-offer 
 3. Skip-trace vendor.
 4. Which Supabase project hosts the Cole table (none of the 14 existing projects is named for it).
 
-## First build task
+## Build status (2026-10-30)
+
+Phase 1 stream 1 is built and runs: `python3 scripts/cole/bucket3_codes.py --out out/cole` (stdlib only, ~11 s).
+Live result today: 2,467 open usable cases -> 2,339 properties -> 2,328 matched to assessor parcels (99.5%) -> 2,209 distinct owners.
+1,359 absentee owners. 784 properties score 7+. 85 owners hold more than one flagged property (top: 8 each).
+Outputs: s3_codes_properties.csv (one row per property, sorted by score), s3_codes_owners.csv (one row per owner), s3_codes_properties.json.
+Table DDL: scripts/cole/s3_distress.sql. Set SUPABASE_URL + SUPABASE_SERVICE_KEY and the script upserts into s3_distress.
+Data output is gitignored (out/) because this repo is public and the rows contain owner names and mailing addresses.
+
+Next: (1) create the Cole Supabase project and apply the SQL, (2) schedule the script daily, (3) GHL upsert with tag `distress-codes` once the location ID is known, (4) Ledger foreclosure scraper (Fridays), (5) dashboard view.
+
+## First build task (original plan, now done as described above)
 
 A scheduled job (daily) that:
 1. Queries the ArcGIS layer for Status='OPEN' and Subtype_Description in (Codes Housing Request, Codes High Grass and Weeds, CA Codes Case, Landlord Registration Violation).

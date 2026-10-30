@@ -140,3 +140,4 @@ docs/*.xlsx
 docs/*.xls
 *.ppm
 .project-config.json
+out/
