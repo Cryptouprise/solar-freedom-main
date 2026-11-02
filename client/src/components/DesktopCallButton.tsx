@@ -1,7 +1,11 @@
 import { Phone } from "lucide-react";
 import { trackPhoneClick } from "@/lib/analytics";
+import { useLocation } from "wouter";
+import { isVegasCityPath } from "@shared/vegasCampaign";
 
 export default function DesktopCallButton() {
+  const [location] = useLocation();
+  if (isVegasCityPath(location)) return null;
   return (
     <a
       href="tel:9049214971"

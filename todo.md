@@ -1308,3 +1308,17 @@
 - [x] Add direct GHL calendar access on Las Vegas and North Las Vegas, clean door-team campaign parameters, booking-open-only event, existing city-lead journey linkage, and immediate/font-stable QR anchor landing. Generate and decode-verify both downloadable QR codes and a field-team launch guide. No test lead, appointment or outreach was created.
 - [x] TypeScript clean; 53 test files passed, 309 tests passed, 3 opt-in provider probes skipped; production build passed. Desktop/mobile guides reviewed. Restore unrelated generated source-sitemap changes before checkpoint.
 - [ ] Verify provider-confirmed GHL appointments reconcile into Outcomes; keep unavailable attribution explicit and separate from calendar opens and durable city-form leads.
+
+## Vegas CTA visibility and operating-system audit — 2026-11-02
+- [x] Correct the prior misunderstanding: the owner's 80→100 result refers to the Manus internal checker, not Blog Studio. Do not equate scanner completion with Google rankings, conversion gains or verified AI visibility.
+- [x] Add direct booking buttons to the Las Vegas/North Las Vegas hero, mid-page and persistent action bar; move intake before the long guide on mobile. Prevent overlapping global call bars only on those two routes. Preserve metadata, index eligibility, redirects and other city layouts.
+- [x] Verify all four booking placements, above-fold hero visibility, persistent CTA, mobile layout, provider iframe URL and placement-specific booking-open telemetry on both routes at 390px and 1440px. No lead or appointment submitted.
+- [x] TypeScript clean; 53 test files, 311 tests passed, 3 live probes skipped; production build passed.
+- [x] Pull fresh final GSC comparison: Oct 4–31 vs Sep 6–Oct 3, 2026; property clicks 157 vs 175, impressions 15,336 vs 16,027, CTR 1.0237% vs 1.0919%, average position 10.3277 vs 10.3610. This predates today's changes and is not an effect measurement.
+- [x] Inspect actual heartbeat logs, not just cron definitions: identify frequent worker/executor timeouts and successful callbacks with zero created actions. Keep read-only evidence outside app.
+- [ ] Finish owner-readable operational findings from the current DB/agent audit, distinguishing proposals, queued work, real public effects and unknown SEO/AEO/GEO outcomes.
+
+## Separate Sunrun Solar Relief sub-site request — 2026-11-02
+- [ ] Verify the previously supplied external origin can support `/sunrun-solar-relief/` hosting with stripped-prefix routing and working assets, navigation, canonical/sitemap declarations and SSL.
+- [ ] Preserve or narrow the existing bare `/sunrun` redirect so it cannot intercept `/sunrun-solar-relief/`.
+- [ ] Serve the owner-provided IndexNow key file at the root; advertise the sub-site sitemap only once the proxied sitemap is valid.

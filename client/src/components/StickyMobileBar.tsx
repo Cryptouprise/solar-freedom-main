@@ -6,9 +6,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone } from "lucide-react";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { useLocation } from "wouter";
+import { isVegasCityPath } from "@shared/vegasCampaign";
 
 export default function StickyMobileBar() {
   const [visible, setVisible] = useState(false);
+  const [location] = useLocation();
   const { phoneDisplay, phoneHref, smsHref, assistantName, assistantTitle } = useSiteConfig();
 
   useEffect(() => {
@@ -18,6 +21,8 @@ export default function StickyMobileBar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (isVegasCityPath(location)) return null;
 
   return (
     <AnimatePresence>
