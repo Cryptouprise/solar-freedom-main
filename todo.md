@@ -1294,3 +1294,7 @@
 ## Phoenix meta keywords — 2026-11-02
 - [x] Add exactly five focused meta keywords to `/cancel-solar-contract/phoenix-az`, within the requested 3–8 limit. Preserve page content, other metadata, index policy, and existing Houston/Dallas keywords.
 - [x] Verify exactly one tag with consistent keywords in initial HTML, rendered browser DOM, and static/dynamic/build-time delivery. Update the no-keyword route fixture to the homepage because Phoenix now intentionally has keywords. TypeScript clean; 49 test files passed, 235 tests passed, 3 opt-in probes skipped.
+
+## Austin meta keywords — 2026-11-02
+- [x] Add exactly five focused meta keywords to `/cancel-solar-contract/austin-tx`, within the requested 3–8 limit, using the shared registry. Preserve page content, other metadata, index policy, and existing city keywords.
+- [x] Verify exactly one consistent keywords tag in initial HTML, rendered browser DOM, and static/dynamic/build-time delivery. TypeScript clean; 50 test files passed, 238 tests passed, 3 opt-in probes skipped.
