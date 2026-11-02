@@ -30,6 +30,7 @@ import * as cheerio from "cheerio";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
+import { renderPriorityCityBody } from "../shared/priority-city-render.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -40,6 +41,9 @@ const indexEligibility = JSON.parse(
 );
 const pageMetaKeywords = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/page-meta-keywords.json"), "utf-8")
+);
+const priorityCityContent = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/priority-city-content.json"), "utf-8")
 );
 const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
 const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
@@ -532,12 +536,15 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   for (const city of cityEntries) {
     const urlPath = `/cancel-solar-contract/${city.slug}`;
     const cityLabel = city.stateCode ? `${city.name}, ${city.stateCode}` : city.name;
+    const guide = priorityCityContent[urlPath];
     map[urlPath] = {
-      title: `Cancel a Solar Contract in ${cityLabel} | Solar Freedom`,
-      description: fitMetaDescription(`Solar contract records and consumer resources for ${cityLabel}. Options and timing depend on the agreement, facts, and jurisdiction.`),
+      title: guide?.title ?? `Cancel a Solar Contract in ${cityLabel} | Solar Freedom`,
+      description: guide?.description ?? fitMetaDescription(`Solar contract records and consumer resources for ${cityLabel}. Options and timing depend on the agreement, facts, and jurisdiction.`),
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
       geo: { city: city.name, region: city.stateCode || undefined },
+      faq: guide?.faq,
+      citations: guide?.sources.map(source => source.url),
       cityData: { state: city.state, stateCode: city.stateCode, stateLaw: city.stateLaw, population: city.population, solarActivity: city.solarActivity, companies: city.companies },
     };
   }
@@ -968,8 +975,8 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
     blocks.push(article);
   }
 
-  // FAQPage — strong answer-engine (AEO) signal. Only emitted when the page
-  // ships real question/answer pairs from the blog data.
+  // Describe only question/answer pairs visible on this page. This is not a
+  // guarantee of rankings, AI citations, or FAQ rich-result eligibility.
   if (Array.isArray(meta.faq) && meta.faq.length > 0) {
     blocks.push({
       "@context": "https://schema.org",
@@ -989,6 +996,8 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
 }
 
 function buildCityUniqueContent(meta, urlPath) {
+  const guide = priorityCityContent[urlPath];
+  if (guide) return renderPriorityCityBody(guide);
   const cd = meta.cityData;
   if (!cd) return '';
   const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';
@@ -1352,7 +1361,8 @@ function buildServiceUniqueContent(urlPath) {
 
 function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta);
   const pageType = classifyPath(urlPath);
-  const h1 = stripBrand(meta.title);
+  const guide = priorityCityContent[urlPath];
+  const h1 = guide ? `Solar contract help in ${guide.city}, ${guide.stateCode}` : stripBrand(meta.title);
   const contextLabel = pageType
     .replace(/_/g, " ")
     .replace(/\b\w/g, letter => letter.toUpperCase());

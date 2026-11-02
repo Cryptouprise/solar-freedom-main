@@ -8,6 +8,7 @@ import { getPublishedCityRecovery } from "./cityRecovery";
 import { rateLimit } from "express-rate-limit";
 import { isLegacyBlogSlug } from "./seo-redirects";
 import indexEligibility from "../shared/index-eligibility.json";
+import { applyPriorityCityGuide } from "./priorityCityDelivery";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 const INDEXABLE_BLOG_SLUGS = new Set(indexEligibility.blogSlugs);
@@ -293,7 +294,7 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
           }
         }
       }
-      response.status(200).send(injectPageMetaKeywords(markup, pagePath));
+      response.status(200).send(injectPageMetaKeywords(applyPriorityCityGuide(markup, pagePath), pagePath));
       return;
     }
 

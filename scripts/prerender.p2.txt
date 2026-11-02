@@ -75,12 +75,15 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   for (const city of cityEntries) {
     const urlPath = `/cancel-solar-contract/${city.slug}`;
     const cityLabel = city.stateCode ? `${city.name}, ${city.stateCode}` : city.name;
+    const guide = priorityCityContent[urlPath];
     map[urlPath] = {
-      title: `Cancel a Solar Contract in ${cityLabel} | Solar Freedom`,
-      description: fitMetaDescription(`Solar contract records and consumer resources for ${cityLabel}. Options and timing depend on the agreement, facts, and jurisdiction.`),
+      title: guide?.title ?? `Cancel a Solar Contract in ${cityLabel} | Solar Freedom`,
+      description: guide?.description ?? fitMetaDescription(`Solar contract records and consumer resources for ${cityLabel}. Options and timing depend on the agreement, facts, and jurisdiction.`),
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
       geo: { city: city.name, region: city.stateCode || undefined },
+      faq: guide?.faq,
+      citations: guide?.sources.map(source => source.url),
       cityData: { state: city.state, stateCode: city.stateCode, stateLaw: city.stateLaw, population: city.population, solarActivity: city.solarActivity, companies: city.companies },
     };
   }

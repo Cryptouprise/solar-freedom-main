@@ -303,8 +303,8 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
     blocks.push(article);
   }
 
-  // FAQPage — strong answer-engine (AEO) signal. Only emitted when the page
-  // ships real question/answer pairs from the blog data.
+  // Describe only question/answer pairs visible on this page. This is not a
+  // guarantee of rankings, AI citations, or FAQ rich-result eligibility.
   if (Array.isArray(meta.faq) && meta.faq.length > 0) {
     blocks.push({
       "@context": "https://schema.org",
@@ -324,6 +324,8 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
 }
 
 function buildCityUniqueContent(meta, urlPath) {
+  const guide = priorityCityContent[urlPath];
+  if (guide) return renderPriorityCityBody(guide);
   const cd = meta.cityData;
   if (!cd) return '';
   const cityName = meta.geo?.city || urlPath.split('/').pop()?.split('-').slice(0, -1).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || 'this city';

@@ -30,6 +30,7 @@ import * as cheerio from "cheerio";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
+import { renderPriorityCityBody } from "../shared/priority-city-render.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -40,6 +41,9 @@ const indexEligibility = JSON.parse(
 );
 const pageMetaKeywords = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/page-meta-keywords.json"), "utf-8")
+);
+const priorityCityContent = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/priority-city-content.json"), "utf-8")
 );
 const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
 const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);

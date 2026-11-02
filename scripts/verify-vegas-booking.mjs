@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import { chromium } from 'playwright';
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+try {
+  const page=await browser.newPage({viewport:{width:390,height:844}});
+  await page.route('**/api/journey/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{}'}));
+  await page.route('**/api/trpc/leads.*',r=>r.abort());
+  await page.goto('http://localhost:3000/cancel-solar-contract/las-vegas-nv?utm_source=door_knocking&utm_medium=offline&utm_campaign=las_vegas_field_team#city-form',{waitUntil:'domcontentloaded'});
+  await page.getByRole('button',{name:'Choose a call time'}).waitFor();
+  await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(700);
+  const anchor=await page.locator('#city-form').boundingBox();
+  const width=await page.evaluate(()=>document.documentElement.scrollWidth);
+  console.log('Booking section top:',anchor.y,'screen width:',width);
+  assert.ok(anchor.y>=50&&anchor.y<=200,'QR anchor should settle beneath the top navigation');assert.equal(width,390,'No horizontal mobile overflow');
+  await page.evaluate(()=>{window.gtag=(...args)=>{window.__capturedEvent=args;};});
+  await page.getByRole('button',{name:'Choose a call time'}).click();
+  const frame=page.locator('iframe[title="Las Vegas case-review booking calendar"]');await frame.waitFor();
+  const url=await frame.getAttribute('src');const event=await page.evaluate(()=>window.__capturedEvent);
+  assert.ok(url.startsWith('https://link.myinfinite.ai/widget/booking/Glvb9OZtDFHDMiwvHpli?'));
+  assert.equal(new URL(url).searchParams.get('utm_source'),'door_knocking');assert.equal(event[1],'booking_calendar_open');
+  console.log('Calendar URL:',url);console.log('Measured event:',event);
+  const bookingFrame=await (await frame.elementHandle()).contentFrame();
+  await bookingFrame.waitForURL(/link\.myinfinite\.ai\/widget\/booking/,{waitUntil:'domcontentloaded',timeout:30000});
+  await bookingFrame.waitForFunction(()=>document.body?.innerText.trim().length>10,{},{timeout:15000});
+  await page.waitForTimeout(500);
+  console.log('Booking frame loaded:',(await bookingFrame.locator('body').innerText()).slice(0,180));
+  await page.screenshot({path:'/home/ubuntu/solar-freedom-deliverables/las-vegas/mobile-booking-verification.png'});
+  await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+  await frame.waitFor({state:'detached'});
+  console.log('PASS: QR anchor, mobile width, booking modal, clean campaign query, booking-open-only event and modal close. No lead or appointment submitted.');
+} finally { await browser.close(); }

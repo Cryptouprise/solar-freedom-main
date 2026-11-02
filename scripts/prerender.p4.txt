@@ -298,7 +298,8 @@ function buildServiceUniqueContent(urlPath) {
 
 function buildSemanticShellContent(meta, urlPath) {
   const pageType = classifyPath(urlPath);
-  const h1 = stripBrand(meta.title);
+  const guide = priorityCityContent[urlPath];
+  const h1 = guide ? `Solar contract help in ${guide.city}, ${guide.stateCode}` : stripBrand(meta.title);
   const contextLabel = pageType
     .replace(/_/g, " ")
     .replace(/\b\w/g, letter => letter.toUpperCase());

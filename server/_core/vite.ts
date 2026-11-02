@@ -8,6 +8,7 @@ import viteConfig from "../../vite.config";
 import { buildMetaMap, injectPageMetaKeywords, renderDbBlogPost } from "../seo-meta";
 import { INDEXED_CITY_SLUGS } from "../../client/src/data/indexed-cities";
 import { getDbBlogPostStatus } from "../db";
+import { applyPriorityCityGuide } from "../priorityCityDelivery";
 import {
   CLIENT_ONLY_ROUTES,
   normalizePagePath,
@@ -101,7 +102,7 @@ export async function setupVite(app: Express, server: Server) {
           res.set("X-Robots-Tag", "noindex, follow");
         }
       }
-      res.status(200).type("html").end(injectPageMetaKeywords(page, pagePath));
+      res.status(200).type("html").end(injectPageMetaKeywords(applyPriorityCityGuide(page, pagePath), pagePath));
     } catch (error) {
       vite.ssrFixStacktrace(error as Error);
       next(error);

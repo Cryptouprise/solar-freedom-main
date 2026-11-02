@@ -32,6 +32,7 @@ import { runSeoScorecard } from "./scheduled/seoScorecard";
 import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
 import { enforcePublicMutationLimit } from "./security/rateLimit";
 import { isAllowedPressReleaseSetting, PRESS_RELEASE_OPERATIONAL_KEYS } from "./security/configPolicy";
+import { analyzeBlogSeo } from "./blogSeoAnalysis";
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
 async function sendToGHL(payload: Record<string, string | undefined>) {
@@ -1258,7 +1259,7 @@ Return ONLY valid JSON:
       }),
 
     /**
-     * Analyze a post's SEO quality and return suggestions
+     * Check supplied draft fields; does not verify published HTML or rankings.
      */
     analyzeSeo: protectedProcedure
       .input(z.object({
@@ -1266,53 +1267,13 @@ Return ONLY valid JSON:
         content: z.string(),
         targetKeyword: z.string().optional(),
         slug: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") throw new Error("Forbidden");
-        const { title, content, targetKeyword } = input;
-        // Strip HTML tags for text analysis
-        const text = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-        const wordCount = text.split(/\s+/).filter(Boolean).length;
-        const readingTime = Math.ceil(wordCount / 200);
-        // Count headings
-        const h2Count = (content.match(/<h2/gi) || []).length;
-        const h3Count = (content.match(/<h3/gi) || []).length;
-        // Count internal links
-        const internalLinks = (content.match(/href="\//g) || []).length;
-        const externalLinks = (content.match(/href="https?:\/\//g) || []).length;
-        // Keyword density
-        let keywordDensity = 0;
-        let keywordCount = 0;
-        if (targetKeyword && wordCount > 0) {
-          const kw = targetKeyword.toLowerCase();
-          keywordCount = (text.toLowerCase().match(new RegExp(kw, "g")) || []).length;
-          keywordDensity = parseFloat(((keywordCount / wordCount) * 100).toFixed(2));
-        }
-        // Build suggestions
-        const suggestions: Array<{ type: "warning" | "success" | "info"; message: string }> = [];
-        if (wordCount < 800) suggestions.push({ type: "warning", message: `Word count is ${wordCount} — aim for 1,200+ for competitive solar keywords` });
-        else if (wordCount >= 1500) suggestions.push({ type: "success", message: `Great word count: ${wordCount} words` });
-        else suggestions.push({ type: "info", message: `Word count: ${wordCount} — consider expanding to 1,500+ for better rankings` });
-        if (h2Count === 0) suggestions.push({ type: "warning", message: "No H2 headings found — add at least 3 H2s with keyword variations" });
-        else if (h2Count < 3) suggestions.push({ type: "info", message: `Only ${h2Count} H2 heading(s) — aim for 4-6 H2s to improve structure` });
-        else suggestions.push({ type: "success", message: `Good heading structure: ${h2Count} H2s, ${h3Count} H3s` });
-        if (internalLinks === 0) suggestions.push({ type: "warning", message: "No internal links — add links to city pages, state law pages, or company pages" });
-        else if (internalLinks < 3) suggestions.push({ type: "info", message: `${internalLinks} internal link(s) — aim for 5-8 internal links per post` });
-        else suggestions.push({ type: "success", message: `Good internal linking: ${internalLinks} internal links` });
-        if (externalLinks === 0) suggestions.push({ type: "info", message: "No external links — add 1-2 authoritative sources (FTC, CFPB, state AG) for E-E-A-T" });
-        if (targetKeyword) {
-          if (keywordDensity === 0) suggestions.push({ type: "warning", message: `Target keyword "${targetKeyword}" not found in content` });
-          else if (keywordDensity < 0.5) suggestions.push({ type: "info", message: `Keyword density ${keywordDensity}% — slightly low, aim for 0.8-1.5%` });
-          else if (keywordDensity > 3) suggestions.push({ type: "warning", message: `Keyword density ${keywordDensity}% — too high, risk of keyword stuffing` });
-          else suggestions.push({ type: "success", message: `Keyword density ${keywordDensity}% — in the ideal range` });
-          if (!title.toLowerCase().includes(targetKeyword.toLowerCase())) {
-            suggestions.push({ type: "warning", message: `Target keyword not in title — include "${targetKeyword}" in the title tag` });
-          }
-        }
-        if (title.length < 30) suggestions.push({ type: "warning", message: `Title is too short (${title.length} chars) — aim for 50-60 characters` });
-        else if (title.length > 65) suggestions.push({ type: "warning", message: `Title is too long (${title.length} chars) — keep under 65 characters to avoid truncation` });
-        else suggestions.push({ type: "success", message: `Title length is good: ${title.length} characters` });
-        return { wordCount, readingTime, h2Count, h3Count, internalLinks, externalLinks, keywordDensity, keywordCount, suggestions };
+        return analyzeBlogSeo(input);
       }),
 
     /**

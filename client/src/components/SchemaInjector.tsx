@@ -4,10 +4,13 @@ import { useEffect } from 'react';
 
 interface SchemaInjectorProps {
   schemas: object[];
+  /** Opt-in for a page whose server and client schema share one source. */
+  replaceExisting?: boolean;
 }
 
-export function SchemaInjector({ schemas }: SchemaInjectorProps) {
+export function SchemaInjector({ schemas, replaceExisting = false }: SchemaInjectorProps) {
   useEffect(() => {
+    if (replaceExisting) document.querySelectorAll('script[type="application/ld+json"]').forEach(script => script.remove());
     const injected: HTMLScriptElement[] = [];
     schemas.forEach((schema, i) => {
       const script = document.createElement('script');
@@ -20,6 +23,6 @@ export function SchemaInjector({ schemas }: SchemaInjectorProps) {
     return () => {
       injected.forEach(s => s.parentNode?.removeChild(s));
     };
-  }, [JSON.stringify(schemas)]);
+  }, [JSON.stringify(schemas), replaceExisting]);
   return null;
 }

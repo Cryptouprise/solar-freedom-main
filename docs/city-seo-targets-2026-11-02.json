@@ -1,0 +1,732 @@
+{
+  "capturedAt": "2026-11-02T23:05:14.106Z",
+  "source": "Google Search Console API, final page rows",
+  "property": "sc-domain:breakyoursolarcontract.com",
+  "window": {
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-30"
+  },
+  "selection": "20 approved city pages by observed impressions, retaining the four already fixed; inventory priority breaks ties and fills rows without demand",
+  "error": null,
+  "targets": [
+    {
+      "slug": "phoenix-az",
+      "path": "/cancel-solar-contract/phoenix-az",
+      "inventoryOrder": 1,
+      "metrics": {
+        "path": "/cancel-solar-contract/phoenix-az",
+        "clicks": 0,
+        "impressions": 106,
+        "ctr": 0,
+        "position": 8.235849056603772
+      }
+    },
+    {
+      "slug": "las-vegas-nv",
+      "path": "/cancel-solar-contract/las-vegas-nv",
+      "inventoryOrder": 9,
+      "metrics": {
+        "path": "/cancel-solar-contract/las-vegas-nv",
+        "clicks": 2,
+        "impressions": 97,
+        "ctr": 0.020618556701030927,
+        "position": 8.536082474226804
+      }
+    },
+    {
+      "slug": "hartford-ct",
+      "path": "/cancel-solar-contract/hartford-ct",
+      "inventoryOrder": 0,
+      "metrics": {
+        "path": "/cancel-solar-contract/hartford-ct",
+        "clicks": 1,
+        "impressions": 64,
+        "ctr": 0.015625,
+        "position": 7.34375
+      }
+    },
+    {
+      "slug": "denver-co",
+      "path": "/cancel-solar-contract/denver-co",
+      "inventoryOrder": 6,
+      "metrics": {
+        "path": "/cancel-solar-contract/denver-co",
+        "clicks": 0,
+        "impressions": 46,
+        "ctr": 0,
+        "position": 6.804347826086956
+      }
+    },
+    {
+      "slug": "houston-tx",
+      "path": "/cancel-solar-contract/houston-tx",
+      "inventoryOrder": 4,
+      "metrics": {
+        "path": "/cancel-solar-contract/houston-tx",
+        "clicks": 0,
+        "impressions": 36,
+        "ctr": 0,
+        "position": 9.63888888888889
+      }
+    },
+    {
+      "slug": "los-angeles-ca",
+      "path": "/cancel-solar-contract/los-angeles-ca",
+      "inventoryOrder": 15,
+      "metrics": {
+        "path": "/cancel-solar-contract/los-angeles-ca",
+        "clicks": 1,
+        "impressions": 35,
+        "ctr": 0.02857142857142857,
+        "position": 27.8
+      }
+    },
+    {
+      "slug": "dallas-tx",
+      "path": "/cancel-solar-contract/dallas-tx",
+      "inventoryOrder": 16,
+      "metrics": {
+        "path": "/cancel-solar-contract/dallas-tx",
+        "clicks": 0,
+        "impressions": 32,
+        "ctr": 0,
+        "position": 18.0625
+      }
+    },
+    {
+      "slug": "north-las-vegas-nv",
+      "path": "/cancel-solar-contract/north-las-vegas-nv",
+      "inventoryOrder": 3,
+      "metrics": {
+        "path": "/cancel-solar-contract/north-las-vegas-nv",
+        "clicks": 0,
+        "impressions": 30,
+        "ctr": 0,
+        "position": 7.3
+      }
+    },
+    {
+      "slug": "greenville-sc",
+      "path": "/cancel-solar-contract/greenville-sc",
+      "inventoryOrder": 5,
+      "metrics": {
+        "path": "/cancel-solar-contract/greenville-sc",
+        "clicks": 2,
+        "impressions": 29,
+        "ctr": 0.06896551724137931,
+        "position": 8.310344827586206
+      }
+    },
+    {
+      "slug": "little-rock-ar",
+      "path": "/cancel-solar-contract/little-rock-ar",
+      "inventoryOrder": 8,
+      "metrics": {
+        "path": "/cancel-solar-contract/little-rock-ar",
+        "clicks": 0,
+        "impressions": 29,
+        "ctr": 0,
+        "position": 6.068965517241379
+      }
+    },
+    {
+      "slug": "san-antonio-tx",
+      "path": "/cancel-solar-contract/san-antonio-tx",
+      "inventoryOrder": 7,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-antonio-tx",
+        "clicks": 0,
+        "impressions": 22,
+        "ctr": 0,
+        "position": 7.181818181818182
+      }
+    },
+    {
+      "slug": "shreveport-la",
+      "path": "/cancel-solar-contract/shreveport-la",
+      "inventoryOrder": 12,
+      "metrics": {
+        "path": "/cancel-solar-contract/shreveport-la",
+        "clicks": 2,
+        "impressions": 21,
+        "ctr": 0.09523809523809523,
+        "position": 6.238095238095238
+      }
+    },
+    {
+      "slug": "new-haven-ct",
+      "path": "/cancel-solar-contract/new-haven-ct",
+      "inventoryOrder": 14,
+      "metrics": {
+        "path": "/cancel-solar-contract/new-haven-ct",
+        "clicks": 0,
+        "impressions": 21,
+        "ctr": 0,
+        "position": 7.095238095238095
+      }
+    },
+    {
+      "slug": "cincinnati-oh",
+      "path": "/cancel-solar-contract/cincinnati-oh",
+      "inventoryOrder": 2,
+      "metrics": {
+        "path": "/cancel-solar-contract/cincinnati-oh",
+        "clicks": 0,
+        "impressions": 20,
+        "ctr": 0,
+        "position": 7.55
+      }
+    },
+    {
+      "slug": "miami-fl",
+      "path": "/cancel-solar-contract/miami-fl",
+      "inventoryOrder": 20,
+      "metrics": {
+        "path": "/cancel-solar-contract/miami-fl",
+        "clicks": 0,
+        "impressions": 12,
+        "ctr": 0,
+        "position": 11.416666666666666
+      }
+    },
+    {
+      "slug": "san-diego-ca",
+      "path": "/cancel-solar-contract/san-diego-ca",
+      "inventoryOrder": 17,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-diego-ca",
+        "clicks": 0,
+        "impressions": 11,
+        "ctr": 0,
+        "position": 6.7272727272727275
+      }
+    },
+    {
+      "slug": "west-valley-city-ut",
+      "path": "/cancel-solar-contract/west-valley-city-ut",
+      "inventoryOrder": 11,
+      "metrics": {
+        "path": "/cancel-solar-contract/west-valley-city-ut",
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 9.3
+      }
+    },
+    {
+      "slug": "nashville-tn",
+      "path": "/cancel-solar-contract/nashville-tn",
+      "inventoryOrder": 23,
+      "metrics": {
+        "path": "/cancel-solar-contract/nashville-tn",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 8.11111111111111
+      }
+    },
+    {
+      "slug": "savannah-ga",
+      "path": "/cancel-solar-contract/savannah-ga",
+      "inventoryOrder": 22,
+      "metrics": {
+        "path": "/cancel-solar-contract/savannah-ga",
+        "clicks": 0,
+        "impressions": 7,
+        "ctr": 0,
+        "position": 7.285714285714286
+      }
+    },
+    {
+      "slug": "austin-tx",
+      "path": "/cancel-solar-contract/austin-tx",
+      "inventoryOrder": 24,
+      "metrics": {
+        "path": "/cancel-solar-contract/austin-tx",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 7
+      }
+    }
+  ],
+  "allApprovedCities": [
+    {
+      "slug": "phoenix-az",
+      "path": "/cancel-solar-contract/phoenix-az",
+      "inventoryOrder": 1,
+      "metrics": {
+        "path": "/cancel-solar-contract/phoenix-az",
+        "clicks": 0,
+        "impressions": 106,
+        "ctr": 0,
+        "position": 8.235849056603772
+      }
+    },
+    {
+      "slug": "las-vegas-nv",
+      "path": "/cancel-solar-contract/las-vegas-nv",
+      "inventoryOrder": 9,
+      "metrics": {
+        "path": "/cancel-solar-contract/las-vegas-nv",
+        "clicks": 2,
+        "impressions": 97,
+        "ctr": 0.020618556701030927,
+        "position": 8.536082474226804
+      }
+    },
+    {
+      "slug": "hartford-ct",
+      "path": "/cancel-solar-contract/hartford-ct",
+      "inventoryOrder": 0,
+      "metrics": {
+        "path": "/cancel-solar-contract/hartford-ct",
+        "clicks": 1,
+        "impressions": 64,
+        "ctr": 0.015625,
+        "position": 7.34375
+      }
+    },
+    {
+      "slug": "denver-co",
+      "path": "/cancel-solar-contract/denver-co",
+      "inventoryOrder": 6,
+      "metrics": {
+        "path": "/cancel-solar-contract/denver-co",
+        "clicks": 0,
+        "impressions": 46,
+        "ctr": 0,
+        "position": 6.804347826086956
+      }
+    },
+    {
+      "slug": "houston-tx",
+      "path": "/cancel-solar-contract/houston-tx",
+      "inventoryOrder": 4,
+      "metrics": {
+        "path": "/cancel-solar-contract/houston-tx",
+        "clicks": 0,
+        "impressions": 36,
+        "ctr": 0,
+        "position": 9.63888888888889
+      }
+    },
+    {
+      "slug": "los-angeles-ca",
+      "path": "/cancel-solar-contract/los-angeles-ca",
+      "inventoryOrder": 15,
+      "metrics": {
+        "path": "/cancel-solar-contract/los-angeles-ca",
+        "clicks": 1,
+        "impressions": 35,
+        "ctr": 0.02857142857142857,
+        "position": 27.8
+      }
+    },
+    {
+      "slug": "dallas-tx",
+      "path": "/cancel-solar-contract/dallas-tx",
+      "inventoryOrder": 16,
+      "metrics": {
+        "path": "/cancel-solar-contract/dallas-tx",
+        "clicks": 0,
+        "impressions": 32,
+        "ctr": 0,
+        "position": 18.0625
+      }
+    },
+    {
+      "slug": "north-las-vegas-nv",
+      "path": "/cancel-solar-contract/north-las-vegas-nv",
+      "inventoryOrder": 3,
+      "metrics": {
+        "path": "/cancel-solar-contract/north-las-vegas-nv",
+        "clicks": 0,
+        "impressions": 30,
+        "ctr": 0,
+        "position": 7.3
+      }
+    },
+    {
+      "slug": "greenville-sc",
+      "path": "/cancel-solar-contract/greenville-sc",
+      "inventoryOrder": 5,
+      "metrics": {
+        "path": "/cancel-solar-contract/greenville-sc",
+        "clicks": 2,
+        "impressions": 29,
+        "ctr": 0.06896551724137931,
+        "position": 8.310344827586206
+      }
+    },
+    {
+      "slug": "little-rock-ar",
+      "path": "/cancel-solar-contract/little-rock-ar",
+      "inventoryOrder": 8,
+      "metrics": {
+        "path": "/cancel-solar-contract/little-rock-ar",
+        "clicks": 0,
+        "impressions": 29,
+        "ctr": 0,
+        "position": 6.068965517241379
+      }
+    },
+    {
+      "slug": "san-antonio-tx",
+      "path": "/cancel-solar-contract/san-antonio-tx",
+      "inventoryOrder": 7,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-antonio-tx",
+        "clicks": 0,
+        "impressions": 22,
+        "ctr": 0,
+        "position": 7.181818181818182
+      }
+    },
+    {
+      "slug": "shreveport-la",
+      "path": "/cancel-solar-contract/shreveport-la",
+      "inventoryOrder": 12,
+      "metrics": {
+        "path": "/cancel-solar-contract/shreveport-la",
+        "clicks": 2,
+        "impressions": 21,
+        "ctr": 0.09523809523809523,
+        "position": 6.238095238095238
+      }
+    },
+    {
+      "slug": "new-haven-ct",
+      "path": "/cancel-solar-contract/new-haven-ct",
+      "inventoryOrder": 14,
+      "metrics": {
+        "path": "/cancel-solar-contract/new-haven-ct",
+        "clicks": 0,
+        "impressions": 21,
+        "ctr": 0,
+        "position": 7.095238095238095
+      }
+    },
+    {
+      "slug": "cincinnati-oh",
+      "path": "/cancel-solar-contract/cincinnati-oh",
+      "inventoryOrder": 2,
+      "metrics": {
+        "path": "/cancel-solar-contract/cincinnati-oh",
+        "clicks": 0,
+        "impressions": 20,
+        "ctr": 0,
+        "position": 7.55
+      }
+    },
+    {
+      "slug": "miami-fl",
+      "path": "/cancel-solar-contract/miami-fl",
+      "inventoryOrder": 20,
+      "metrics": {
+        "path": "/cancel-solar-contract/miami-fl",
+        "clicks": 0,
+        "impressions": 12,
+        "ctr": 0,
+        "position": 11.416666666666666
+      }
+    },
+    {
+      "slug": "san-diego-ca",
+      "path": "/cancel-solar-contract/san-diego-ca",
+      "inventoryOrder": 17,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-diego-ca",
+        "clicks": 0,
+        "impressions": 11,
+        "ctr": 0,
+        "position": 6.7272727272727275
+      }
+    },
+    {
+      "slug": "west-valley-city-ut",
+      "path": "/cancel-solar-contract/west-valley-city-ut",
+      "inventoryOrder": 11,
+      "metrics": {
+        "path": "/cancel-solar-contract/west-valley-city-ut",
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 9.3
+      }
+    },
+    {
+      "slug": "nashville-tn",
+      "path": "/cancel-solar-contract/nashville-tn",
+      "inventoryOrder": 23,
+      "metrics": {
+        "path": "/cancel-solar-contract/nashville-tn",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 8.11111111111111
+      }
+    },
+    {
+      "slug": "savannah-ga",
+      "path": "/cancel-solar-contract/savannah-ga",
+      "inventoryOrder": 22,
+      "metrics": {
+        "path": "/cancel-solar-contract/savannah-ga",
+        "clicks": 0,
+        "impressions": 7,
+        "ctr": 0,
+        "position": 7.285714285714286
+      }
+    },
+    {
+      "slug": "murfreesboro-tn",
+      "path": "/cancel-solar-contract/murfreesboro-tn",
+      "inventoryOrder": 18,
+      "metrics": {
+        "path": "/cancel-solar-contract/murfreesboro-tn",
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 7.166666666666667
+      }
+    },
+    {
+      "slug": "youngstown-oh",
+      "path": "/cancel-solar-contract/youngstown-oh",
+      "inventoryOrder": 10,
+      "metrics": {
+        "path": "/cancel-solar-contract/youngstown-oh",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 19.6
+      }
+    },
+    {
+      "slug": "san-francisco-ca",
+      "path": "/cancel-solar-contract/san-francisco-ca",
+      "inventoryOrder": 19,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-francisco-ca",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 36
+      }
+    },
+    {
+      "slug": "san-jose-ca",
+      "path": "/cancel-solar-contract/san-jose-ca",
+      "inventoryOrder": 21,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-jose-ca",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 9
+      }
+    },
+    {
+      "slug": "santa-ana-ca",
+      "path": "/cancel-solar-contract/santa-ana-ca",
+      "inventoryOrder": 13,
+      "metrics": {
+        "path": "/cancel-solar-contract/santa-ana-ca",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 6.5
+      }
+    },
+    {
+      "slug": "austin-tx",
+      "path": "/cancel-solar-contract/austin-tx",
+      "inventoryOrder": 24,
+      "metrics": {
+        "path": "/cancel-solar-contract/austin-tx",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 7
+      }
+    }
+  ],
+  "rawCityRows": [
+    {
+      "path": "/cancel-solar-contract/greenville-sc",
+      "clicks": 2,
+      "impressions": 29,
+      "ctr": 0.06896551724137931,
+      "position": 8.310344827586206
+    },
+    {
+      "path": "/cancel-solar-contract/las-vegas-nv",
+      "clicks": 2,
+      "impressions": 97,
+      "ctr": 0.020618556701030927,
+      "position": 8.536082474226804
+    },
+    {
+      "path": "/cancel-solar-contract/shreveport-la",
+      "clicks": 2,
+      "impressions": 21,
+      "ctr": 0.09523809523809523,
+      "position": 6.238095238095238
+    },
+    {
+      "path": "/cancel-solar-contract/hartford-ct",
+      "clicks": 1,
+      "impressions": 64,
+      "ctr": 0.015625,
+      "position": 7.34375
+    },
+    {
+      "path": "/cancel-solar-contract/los-angeles-ca",
+      "clicks": 1,
+      "impressions": 35,
+      "ctr": 0.02857142857142857,
+      "position": 27.8
+    },
+    {
+      "path": "/cancel-solar-contract/austin-tx",
+      "clicks": 0,
+      "impressions": 2,
+      "ctr": 0,
+      "position": 7
+    },
+    {
+      "path": "/cancel-solar-contract/cincinnati-oh",
+      "clicks": 0,
+      "impressions": 20,
+      "ctr": 0,
+      "position": 7.55
+    },
+    {
+      "path": "/cancel-solar-contract/dallas-tx",
+      "clicks": 0,
+      "impressions": 32,
+      "ctr": 0,
+      "position": 18.0625
+    },
+    {
+      "path": "/cancel-solar-contract/denver-co",
+      "clicks": 0,
+      "impressions": 46,
+      "ctr": 0,
+      "position": 6.804347826086956
+    },
+    {
+      "path": "/cancel-solar-contract/houston-tx",
+      "clicks": 0,
+      "impressions": 36,
+      "ctr": 0,
+      "position": 9.63888888888889
+    },
+    {
+      "path": "/cancel-solar-contract/little-rock-ar",
+      "clicks": 0,
+      "impressions": 29,
+      "ctr": 0,
+      "position": 6.068965517241379
+    },
+    {
+      "path": "/cancel-solar-contract/miami-fl",
+      "clicks": 0,
+      "impressions": 12,
+      "ctr": 0,
+      "position": 11.416666666666666
+    },
+    {
+      "path": "/cancel-solar-contract/murfreesboro-tn",
+      "clicks": 0,
+      "impressions": 6,
+      "ctr": 0,
+      "position": 7.166666666666667
+    },
+    {
+      "path": "/cancel-solar-contract/nashville-tn",
+      "clicks": 0,
+      "impressions": 9,
+      "ctr": 0,
+      "position": 8.11111111111111
+    },
+    {
+      "path": "/cancel-solar-contract/new-haven-ct",
+      "clicks": 0,
+      "impressions": 21,
+      "ctr": 0,
+      "position": 7.095238095238095
+    },
+    {
+      "path": "/cancel-solar-contract/north-las-vegas-nv",
+      "clicks": 0,
+      "impressions": 30,
+      "ctr": 0,
+      "position": 7.3
+    },
+    {
+      "path": "/cancel-solar-contract/phoenix-az",
+      "clicks": 0,
+      "impressions": 106,
+      "ctr": 0,
+      "position": 8.235849056603772
+    },
+    {
+      "path": "/cancel-solar-contract/san-antonio-tx",
+      "clicks": 0,
+      "impressions": 22,
+      "ctr": 0,
+      "position": 7.181818181818182
+    },
+    {
+      "path": "/cancel-solar-contract/san-diego-ca",
+      "clicks": 0,
+      "impressions": 11,
+      "ctr": 0,
+      "position": 6.7272727272727275
+    },
+    {
+      "path": "/cancel-solar-contract/san-francisco-ca",
+      "clicks": 0,
+      "impressions": 4,
+      "ctr": 0,
+      "position": 36
+    },
+    {
+      "path": "/cancel-solar-contract/san-jose-ca",
+      "clicks": 0,
+      "impressions": 4,
+      "ctr": 0,
+      "position": 9
+    },
+    {
+      "path": "/cancel-solar-contract/santa-ana-ca",
+      "clicks": 0,
+      "impressions": 2,
+      "ctr": 0,
+      "position": 6.5
+    },
+    {
+      "path": "/cancel-solar-contract/savannah-ga",
+      "clicks": 0,
+      "impressions": 7,
+      "ctr": 0,
+      "position": 7.285714285714286
+    },
+    {
+      "path": "/cancel-solar-contract/west-valley-city-ut",
+      "clicks": 0,
+      "impressions": 10,
+      "ctr": 0,
+      "position": 9.3
+    },
+    {
+      "path": "/cancel-solar-contract/youngstown-oh",
+      "clicks": 0,
+      "impressions": 5,
+      "ctr": 0,
+      "position": 19.6
+    }
+  ]
+}

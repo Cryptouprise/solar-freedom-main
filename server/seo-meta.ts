@@ -30,6 +30,7 @@ import { isCanonicalBlogIndexed, isCompanyIndexed, isStateIndexed } from "../cli
 import { sanitizeStoredHtml } from "./security/html";  // server/security/html.ts
 import { findDuplicateCityMeta, generateCityMeta } from "./cityMeta";
 import { getPageMetaKeywords } from "../shared/pageMetaKeywords";
+import { getPriorityCityContent } from "../shared/priorityCityContent";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -266,7 +267,7 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   const cityMetaEntries: Array<{ slug: string; title: string; description: string }> = [];
   for (const city of cities) {
     const path = `/cancel-solar-contract/${city.slug}`;
-    const override = cityMetaOverrides[city.slug];
+    const override = getPriorityCityContent(path) ?? cityMetaOverrides[city.slug];
     const generated = generateCityMeta(city);
     const title = override?.title ?? generated.title;
     const description = override?.description ?? generated.description;

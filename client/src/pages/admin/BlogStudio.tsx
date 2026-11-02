@@ -7,6 +7,8 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { marked } from "marked";
 import { trpc } from "@/lib/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "../../../../server/routers";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,8 +101,8 @@ function SeoScoreBadge({ score }: { score: number }) {
   const color = score >= 80 ? "text-green-400" : score >= 50 ? "text-amber-400" : "text-red-400";
   const bg = score >= 80 ? "bg-green-500/10 border-green-500/30" : score >= 50 ? "bg-amber-500/10 border-amber-500/30" : "bg-red-500/10 border-red-500/30";
   return (
-    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-mono font-bold ${bg} ${color}`}>
-      SEO {score}/100
+    <div title="Supplied draft checklist only; not a Google/ranking score or published HTML verification." className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-mono font-bold ${bg} ${color}`}>
+      Draft checklist {score}/100
     </div>
   );
 }
@@ -151,10 +153,9 @@ export default function BlogStudio() {
   const [imageImportUrl, setImageImportUrl] = useState("");
 
   // SEO state
-  const [seoData, setSeoData] = useState<{
-    wordCount: number; readingTime: number; h2Count: number; h3Count: number;
-    internalLinks: number; externalLinks: number; keywordDensity: number;
-    suggestions: Array<{ type: "warning" | "success" | "info"; message: string }>;
+  const [seoResult, setSeoResult] = useState<{
+    analysis: inferRouterOutputs<AppRouter>["blogStudio"]["analyzeSeo"];
+    inputSnapshot: string;
   } | null>(null);
   const [seoLoading, setSeoLoading] = useState(false);
 
@@ -219,7 +220,7 @@ export default function BlogStudio() {
       TextStyle,
     ],
     content: "",
-    onUpdate: () => setIsDirty(true),
+    onUpdate: () => { setIsDirty(true); setSeoResult(null); },
     editorProps: {
       attributes: {
         class: "prose prose-invert prose-amber max-w-none min-h-[500px] focus:outline-none text-gray-200 leading-relaxed",
@@ -250,7 +251,7 @@ export default function BlogStudio() {
     editor.commands.setContent(postData.content || "");
     setIsDirty(false);
     setLastAutosaved(null);
-    setSeoData(null);
+    setSeoResult(null);
   }, [postData, editor]);
 
   // ─── Autosave ────────────────────────────────────────────────────────────────
@@ -481,21 +482,28 @@ export default function BlogStudio() {
   };
 
   // ─── SEO analysis ────────────────────────────────────────────────────────────
+  const draftChecklistInput = {
+    title,
+    content: editor?.getHTML() ?? "",
+    targetKeyword: targetKeyword.trim() || undefined,
+    slug,
+    metaTitle,
+    metaDescription,
+  };
+  const draftChecklistInputKey = JSON.stringify([selectedPostId, draftChecklistInput]);
+  // Never display a result for a different draft (including edits during analysis).
+  const seoData = seoResult?.inputSnapshot === draftChecklistInputKey ? seoResult.analysis : null;
+
   const handleAnalyzeSeo = async () => {
     if (!editor) return;
-    const effectiveKeyword = targetKeyword.trim() || selectedSlug?.replace(/-/g, " ").trim() || title.trim();
+    const input = { ...draftChecklistInput, content: editor.getHTML() };
+    setSeoResult(null);
     setSeoLoading(true);
     try {
-      const result = await analyzeSeo.mutateAsync({
-        title,
-        content: editor?.getHTML() ?? "",
-        targetKeyword: effectiveKeyword || undefined,
-        slug,
-      });
-      if (!targetKeyword.trim() && effectiveKeyword) setTargetKeyword(effectiveKeyword);
-      setSeoData(result);
+      const result = await analyzeSeo.mutateAsync(input);
+      setSeoResult({ analysis: result, inputSnapshot: JSON.stringify([selectedPostId, input]) });
     } catch (err: any) {
-      toast.error(err.message || "SEO analysis failed");
+      toast.error(err.message || "Draft checklist analysis failed");
     } finally {
       setSeoLoading(false);
     }
@@ -514,7 +522,7 @@ export default function BlogStudio() {
     setFixSeoChanges(null);
     setFixSeoStep("Analyzing content...");
     try {
-      setFixSeoStep("Rewriting for SEO perfection...");
+      setFixSeoStep("Preparing draft improvements...");
       const result = await fixSeoMutation.mutateAsync({
         slug,
         title,
@@ -525,13 +533,14 @@ export default function BlogStudio() {
         model: "openrouter/owl-alpha",
       });
       // Apply fixes to editor
+      setSeoResult(null);
       editor.commands.setContent(result.content);
       if (result.metaTitle) setMetaTitle(result.metaTitle);
       if (result.metaDescription) setMetaDescription(result.metaDescription);
       setFixSeoChanges(result.changes || []);
       setIsDirty(true);
       setFixSeoStep("");
-      toast.success(`SEO fixed! ${result.changes?.length || 0} improvements applied.`);
+      toast.success(`${result.changes?.length || 0} draft changes applied. Run the checklist again and review before saving.`);
     } catch (err: any) {
       setFixSeoStep("");
       toast.error(err.message || "Fix SEO failed");
@@ -674,7 +683,7 @@ export default function BlogStudio() {
               <span className="text-amber-400 text-xs font-mono">● Unsaved changes</span>
             )}
             <span className="text-gray-500 text-xs font-mono">{wordCount} words · {readingTime} min read</span>
-            {seoData && <SeoScoreBadge score={Math.min(100, seoData.suggestions.filter(s => s.type === "success").length * 20)} />}
+            {seoData && <SeoScoreBadge score={seoData.score} />}
             {/* Drafts button */}
             {selectedSlug && (
               <Button
@@ -1017,7 +1026,7 @@ export default function BlogStudio() {
             <div className="flex border-b border-white/10 sticky top-0 bg-[#0D0F14] z-10">
               {[
                 { id: "ai", icon: <Wand2 className="w-3.5 h-3.5" />, label: "AI" },
-                { id: "seo", icon: <Search className="w-3.5 h-3.5" />, label: "SEO" },
+                { id: "seo", icon: <Search className="w-3.5 h-3.5" />, label: "Draft checklist" },
                 { id: "media", icon: <ImageIcon className="w-3.5 h-3.5" />, label: "Images" },
                 { id: "podcast", icon: <Mic className="w-3.5 h-3.5" />, label: "Podcast" },
                 { id: "video", icon: <Video className="w-3.5 h-3.5" />, label: "Video" },
@@ -1165,7 +1174,7 @@ export default function BlogStudio() {
                     onClick={handleFixSeoTo100}
                     disabled={fixSeoLoading || !selectedPostId}
                     className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold text-sm"
-                    title="Auto-fix all SEO issues: keyword density, headings, internal links, meta, FAQ, CTA"
+                    title="Suggest draft changes; does not guarantee a full checklist score or rankings. Review before saving."
                   >
                     {fixSeoLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
                     Fix This Post
@@ -1173,8 +1182,8 @@ export default function BlogStudio() {
                 </div>
                 <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs">
                   <span className="font-semibold text-amber-300">Target keyword: </span>
-                  <span className="text-gray-300">{targetKeyword || suggestedTargetKeyword || "Select an article to begin"}</span>
-                  {!targetKeyword && selectedPostId && <span className="block mt-1 text-gray-500">Suggested from this article’s URL. You can change it in Post Settings & Meta, but Fix This Post will work now.</span>}
+                  <span className="text-gray-300">{targetKeyword || "Not selected — keyword checks unmeasured"}</span>
+                  {!targetKeyword && selectedPostId && <span className="block mt-1 text-gray-500">Suggested: {suggestedTargetKeyword}. Select your target in Post Settings & Meta to measure keyword checks. This is separate from the optional meta keywords tag.</span>}
                 </div>
                 {fixSeoLoading && fixSeoStep && (
                   <div className="flex items-center gap-2 text-xs text-amber-400 font-mono">
@@ -1203,6 +1212,8 @@ export default function BlogStudio() {
 
                 {seoData && (
                   <div className="space-y-3">
+                    <SeoScoreBadge score={seoData.score} />
+                    <p className="text-gray-400 text-xs">Fixed 100-point draft checklist. Failed and unmeasured checks earn no points. Meta keywords are optional and unscored.</p>
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-2">
                       {[
@@ -1216,6 +1227,14 @@ export default function BlogStudio() {
                         <div key={stat.label} className="bg-white/5 rounded-lg p-2 text-center">
                           <div className="text-white font-bold text-sm">{stat.value}</div>
                           <div className="text-gray-500 text-xs">{stat.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-1.5 text-xs">
+                      {seoData.criteria.map(criterion => (
+                        <div key={criterion.id} className="flex items-start justify-between gap-2 text-gray-300">
+                          <span>{criterion.label} <span className="text-gray-500">({criterion.status})</span></span>
+                          <span className="font-mono whitespace-nowrap">{criterion.earned}/{criterion.weight}</span>
                         </div>
                       ))}
                     </div>
@@ -1233,6 +1252,10 @@ export default function BlogStudio() {
                           <span className="leading-relaxed">{s.message}</span>
                         </div>
                       ))}
+                    </div>
+                    <div className="space-y-1 text-xs text-gray-500">
+                      <p className="font-semibold text-gray-400">Limitations</p>
+                      {seoData.limitations.map(limitation => <p key={limitation}>{limitation}</p>)}
                     </div>
                   </div>
                 )}

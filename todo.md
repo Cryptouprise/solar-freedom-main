@@ -1298,3 +1298,13 @@
 ## Austin meta keywords — 2026-11-02
 - [x] Add exactly five focused meta keywords to `/cancel-solar-contract/austin-tx`, within the requested 3–8 limit, using the shared registry. Preserve page content, other metadata, index policy, and existing city keywords.
 - [x] Verify exactly one consistent keywords tag in initial HTML, rendered browser DOM, and static/dynamic/build-time delivery. TypeScript clean; 50 test files passed, 238 tests passed, 3 opt-in probes skipped.
+
+## Priority city SEO and Las Vegas booking — 2026-11-02
+- [x] Select 20 approved city URLs from final GSC page rows for 2026-10-03 through 2026-10-30; retain previous keyword fixes and leave Austin content unchanged.
+- [x] Deliver exactly five focused meta keywords per selected URL with strict 3–8 quantity, uniqueness and nonempty-entry validation.
+- [x] Add 19 source-backed city answer guides with dated official consumer resources, three matching visible/schema FAQs, document checklist, truthful case-review CTA and existing distinct hero images. Preserve approved recoveries and index eligibility.
+- [x] Remove stale hidden homepage H1 from selected guide responses and deduplicate their FAQ schemas. Verify initial HTML, Chromium DOM and static build: all 20 keyword checks pass; all 19 refreshed guides score 100/100 on the labeled ten-check technical checklist, not rankings or an external scanner score.
+- [x] Repair Blog Studio's inflated draft score with fixed weights, no word/density/success-message bonuses, actual supplied metadata checks, unmeasured criteria earning no points, stale-result suppression and draft-only limitations. Add 26 focused regressions.
+- [x] Add direct GHL calendar access on Las Vegas and North Las Vegas, clean door-team campaign parameters, booking-open-only event, existing city-lead journey linkage, and immediate/font-stable QR anchor landing. Generate and decode-verify both downloadable QR codes and a field-team launch guide. No test lead, appointment or outreach was created.
+- [x] TypeScript clean; 53 test files passed, 309 tests passed, 3 opt-in provider probes skipped; production build passed. Desktop/mobile guides reviewed. Restore unrelated generated source-sitemap changes before checkpoint.
+- [ ] Verify provider-confirmed GHL appointments reconcile into Outcomes; keep unavailable attribution explicit and separate from calendar opens and durable city-form leads.

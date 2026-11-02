@@ -26,5 +26,117 @@
     "Texas solar contract rights",
     "Austin solar lease cancellation",
     "Austin solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/las-vegas-nv": [
+    "cancel solar contract Las Vegas",
+    "Las Vegas solar contract cancellation",
+    "Nevada solar contract rights",
+    "Las Vegas solar lease cancellation",
+    "Las Vegas solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/hartford-ct": [
+    "cancel solar contract Hartford",
+    "Hartford solar contract cancellation",
+    "Connecticut solar contract rights",
+    "Hartford solar lease cancellation",
+    "Hartford solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/denver-co": [
+    "cancel solar contract Denver",
+    "Denver solar contract cancellation",
+    "Colorado solar contract rights",
+    "Denver solar lease cancellation",
+    "Denver solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/los-angeles-ca": [
+    "cancel solar contract Los Angeles",
+    "Los Angeles solar contract cancellation",
+    "California solar contract rights",
+    "Los Angeles solar lease cancellation",
+    "Los Angeles solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/north-las-vegas-nv": [
+    "cancel solar contract North Las Vegas",
+    "North Las Vegas solar contract cancellation",
+    "Nevada solar contract rights",
+    "North Las Vegas solar lease cancellation",
+    "North Las Vegas solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/greenville-sc": [
+    "cancel solar contract Greenville",
+    "Greenville solar contract cancellation",
+    "South Carolina solar contract rights",
+    "Greenville solar lease cancellation",
+    "Greenville solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/little-rock-ar": [
+    "cancel solar contract Little Rock",
+    "Little Rock solar contract cancellation",
+    "Arkansas solar contract rights",
+    "Little Rock solar lease cancellation",
+    "Little Rock solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/san-antonio-tx": [
+    "cancel solar contract San Antonio",
+    "San Antonio solar contract cancellation",
+    "Texas solar contract rights",
+    "San Antonio solar lease cancellation",
+    "San Antonio solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/shreveport-la": [
+    "cancel solar contract Shreveport",
+    "Shreveport solar contract cancellation",
+    "Louisiana solar contract rights",
+    "Shreveport solar lease cancellation",
+    "Shreveport solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/new-haven-ct": [
+    "cancel solar contract New Haven",
+    "New Haven solar contract cancellation",
+    "Connecticut solar contract rights",
+    "New Haven solar lease cancellation",
+    "New Haven solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/cincinnati-oh": [
+    "cancel solar contract Cincinnati",
+    "Cincinnati solar contract cancellation",
+    "Ohio solar contract rights",
+    "Cincinnati solar lease cancellation",
+    "Cincinnati solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/miami-fl": [
+    "cancel solar contract Miami",
+    "Miami solar contract cancellation",
+    "Florida solar contract rights",
+    "Miami solar lease cancellation",
+    "Miami solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/san-diego-ca": [
+    "cancel solar contract San Diego",
+    "San Diego solar contract cancellation",
+    "California solar contract rights",
+    "San Diego solar lease cancellation",
+    "San Diego solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/west-valley-city-ut": [
+    "cancel solar contract West Valley City",
+    "West Valley City solar contract cancellation",
+    "Utah solar contract rights",
+    "West Valley City solar lease cancellation",
+    "West Valley City solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/nashville-tn": [
+    "cancel solar contract Nashville",
+    "Nashville solar contract cancellation",
+    "Tennessee solar contract rights",
+    "Nashville solar lease cancellation",
+    "Nashville solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/savannah-ga": [
+    "cancel solar contract Savannah",
+    "Savannah solar contract cancellation",
+    "Georgia solar contract rights",
+    "Savannah solar lease cancellation",
+    "Savannah solar PPA cancellation"
   ]
 }

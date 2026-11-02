@@ -28,6 +28,8 @@ import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
 import StickyMobileBar from "@/components/StickyMobileBar";
+import PriorityCityGuide from "@/components/PriorityCityGuide";
+import { getPriorityCityContent } from "@shared/priorityCityContent";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -94,6 +96,8 @@ function CityForm({ city, state }: { city: string; state: string }) {
   const handleSubmit = async () => {
     if (!form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.email.trim()) return;
     setError("");
+    let journeySessionId: string | undefined;
+    try { journeySessionId = window.localStorage.getItem("sf_session_id") || undefined; } catch { /* Tracking cannot block intake. */ }
     try {
       const result = await submitLead.mutateAsync({
         firstName: form.firstName.trim(),
@@ -107,6 +111,7 @@ function CityForm({ city, state }: { city: string; state: string }) {
         formName: "city_landing_case_review",
         sourcePage: typeof window !== "undefined" ? window.location.pathname : undefined,
         sourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
+        sessionId: journeySessionId,
       });
       const page = typeof window !== "undefined" ? window.location.pathname : "unknown";
       if (!recordLeadSubmission(result, "city_landing_case_review", page)) {
@@ -157,7 +162,7 @@ function CityForm({ city, state }: { city: string; state: string }) {
             className="block"
           />
         </div>
-        <p className="text-gray-600 text-xs text-center font-mono">Pick a time that works. Free 15-min case review call.</p>
+        <p className="text-gray-600 text-xs text-center font-mono">Follow the calendar’s booking steps for a no-obligation case review. Available times and appointment duration are shown by the calendar.</p>
       </div>
     );
   }
@@ -409,12 +414,13 @@ export default function CityPage() {
     { enabled: Boolean(slug && city), staleTime: 5 * 60 * 1000 },
   );
   const recovery = publishedRecovery as PublishedCityRecovery | null | undefined;
+  const priorityGuide = getPriorityCityContent(`/cancel-solar-contract/${slug}`);
 
   useSeoMeta({
-    title: recovery?.payload.metaTitle ?? (city
+    title: recovery?.payload.metaTitle ?? priorityGuide?.title ?? (city
       ? `Cancel Solar Contract in ${city.name}, ${city.state} | Solar Freedom`
       : 'Cancel Solar Contract | Solar Freedom'),
-    description: recovery?.payload.metaDescription ?? (city
+    description: recovery?.payload.metaDescription ?? priorityGuide?.description ?? (city
       ? `Exposed: How solar companies are trapping ${city.name}, ${city.state} homeowners with hidden fees and broken promises. Find out if you qualify to cancel your contract.`
       : 'Review solar contract terms and consumer resources. Options depend on your agreement, facts, and jurisdiction.'),
     canonical: `https://breakyoursolarcontract.com/cancel-solar-contract/${slug}`,
@@ -422,7 +428,15 @@ export default function CityPage() {
   });
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (priorityGuide && window.location.hash === '#city-form') {
+      let active = true;
+      const scrollToForm = () => { if (active) document.getElementById('city-form')?.scrollIntoView({ block: 'start', behavior: 'instant' }); };
+      requestAnimationFrame(scrollToForm);
+      void document.fonts.ready.then(scrollToForm);
+      return () => { active = false; };
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [slug]);
 
   if (!city) {
@@ -438,6 +452,10 @@ export default function CityPage() {
 
   if (recovery) {
     return <RecoveredCityPage city={city} recovery={recovery} />;
+  }
+
+  if (priorityGuide) {
+    return <PriorityCityGuide data={priorityGuide} heroImage={heroImage} form={<CityForm key={slug} city={city.name} state={city.state} />} />;
   }
 
   const faqItems = [

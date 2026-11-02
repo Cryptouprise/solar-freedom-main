@@ -335,9 +335,9 @@ describe("pre-render source parity", () => {
     const cityText = cheerio.load(city).text();
     expect(cityText).toContain(phoenix.name);
     expect(cityText).toContain(phoenix.state);
-    for (const listedCompany of phoenix.companies) {
-      expect(cityText).toContain(listedCompany);
-    }
+    expect(cityText).toContain("Can I cancel a solar contract in Phoenix?");
+    expect(cityText).toContain("Arizona DIFI");
+    expect(cityText).toContain("FTC — Solar Power for Your Home");
     expect(cityText).not.toContain("highest solar-complaint markets");
     expect(cityText).not.toContain("Homeowners in Phoenix are protected");
     expect(cityText).not.toContain("Most cases resolve in 30 to 90 days");

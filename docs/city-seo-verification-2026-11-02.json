@@ -1,0 +1,3947 @@
+{
+  "verifiedAt": "2026-11-02T23:20:27.789Z",
+  "base": "http://localhost:3000",
+  "source": "initial HTTP HTML + Chromium rendered DOM + static build output",
+  "rankingVerified": false,
+  "appointmentsCreated": 0,
+  "rows": [
+    {
+      "slug": "phoenix-az",
+      "path": "/cancel-solar-contract/phoenix-az",
+      "inventoryOrder": 1,
+      "metrics": {
+        "path": "/cancel-solar-contract/phoenix-az",
+        "clicks": 0,
+        "impressions": 106,
+        "ctr": 0,
+        "position": 8.235849056603772
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Phoenix, AZ | Solar Freedom",
+        "description": "Solar contract help in Phoenix, AZ. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/phoenix-az"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Phoenix",
+          "Phoenix solar contract cancellation",
+          "Arizona solar contract rights",
+          "Phoenix solar lease cancellation",
+          "Phoenix solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Phoenix, AZ"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Phoenix?",
+            "a": "Possibly, but cancellation is not automatic. For Phoenix homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Phoenix homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Arizona consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://difi.az.gov/node/268",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Phoenix, AZ | Solar Freedom",
+        "description": "Solar contract help in Phoenix, AZ. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/phoenix-az"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Phoenix",
+          "Phoenix solar contract cancellation",
+          "Arizona solar contract rights",
+          "Phoenix solar lease cancellation",
+          "Phoenix solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Phoenix, AZ"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Phoenix?",
+            "a": "Possibly, but cancellation is not automatic. For Phoenix homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Phoenix homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Arizona consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://difi.az.gov/node/268",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Phoenix, AZ | Solar Freedom",
+        "description": "Solar contract help in Phoenix, AZ. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/phoenix-az"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Phoenix",
+          "Phoenix solar contract cancellation",
+          "Arizona solar contract rights",
+          "Phoenix solar lease cancellation",
+          "Phoenix solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Phoenix, AZ"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Phoenix?",
+            "a": "Possibly, but cancellation is not automatic. For Phoenix homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Phoenix homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Arizona consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://difi.az.gov/node/268",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "las-vegas-nv",
+      "path": "/cancel-solar-contract/las-vegas-nv",
+      "inventoryOrder": 9,
+      "metrics": {
+        "path": "/cancel-solar-contract/las-vegas-nv",
+        "clicks": 2,
+        "impressions": 97,
+        "ctr": 0.020618556701030927,
+        "position": 8.536082474226804
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Las Vegas, NV | Solar Freedom",
+        "description": "Solar contract help in Las Vegas, NV. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/las-vegas-nv"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Las Vegas",
+          "Las Vegas solar contract cancellation",
+          "Nevada solar contract rights",
+          "Las Vegas solar lease cancellation",
+          "Las Vegas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Las Vegas, NV"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Las Vegas?",
+            "a": "Possibly, but not automatically. In Las Vegas, whether you can cancel depends on the agreement, how and where it was signed or sold, whether installation has begun, and applicable Nevada law. Review the contract and preserve communications, recordings, invoices, and financing papers. Nevada’s Attorney General identifies solar-specific consumer protections and a rescission process, but the result depends on the facts and contract. Follow the agreement’s notice instructions and consider qualified legal advice."
+          },
+          {
+            "q": "What should I gather before seeking cancellation?",
+            "a": "Gather the signed agreement, disclosures, financing papers, advertisements, texts or emails, call details, invoices, permits, installation timeline, and payment records. Compare promises with contract terms, then follow the agreement’s written-notice instructions. Keep copies and proof of delivery."
+          },
+          {
+            "q": "Where can I complain about a Nevada solar company?",
+            "a": "You can submit a formal complaint to the Nevada Attorney General with supporting documents. The AG says the Public Utilities Commission of Nevada handles complaints against solar companies. A complaint may prompt agency review, but it does not itself cancel a contract or provide legal representation."
+          }
+        ],
+        "sourceLinks": [
+          "https://ag.nv.gov/About/Consumer_Protection/Bureau_of_Consumer_Protection/",
+          "https://ag.nv.gov/Complaints/CSU_Complaints___FAQ/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Las Vegas, NV | Solar Freedom",
+        "description": "Solar contract help in Las Vegas, NV. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/las-vegas-nv"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Las Vegas",
+          "Las Vegas solar contract cancellation",
+          "Nevada solar contract rights",
+          "Las Vegas solar lease cancellation",
+          "Las Vegas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Las Vegas, NV"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Las Vegas?",
+            "a": "Possibly, but not automatically. In Las Vegas, whether you can cancel depends on the agreement, how and where it was signed or sold, whether installation has begun, and applicable Nevada law. Review the contract and preserve communications, recordings, invoices, and financing papers. Nevada’s Attorney General identifies solar-specific consumer protections and a rescission process, but the result depends on the facts and contract. Follow the agreement’s notice instructions and consider qualified legal advice."
+          },
+          {
+            "q": "What should I gather before seeking cancellation?",
+            "a": "Gather the signed agreement, disclosures, financing papers, advertisements, texts or emails, call details, invoices, permits, installation timeline, and payment records. Compare promises with contract terms, then follow the agreement’s written-notice instructions. Keep copies and proof of delivery."
+          },
+          {
+            "q": "Where can I complain about a Nevada solar company?",
+            "a": "You can submit a formal complaint to the Nevada Attorney General with supporting documents. The AG says the Public Utilities Commission of Nevada handles complaints against solar companies. A complaint may prompt agency review, but it does not itself cancel a contract or provide legal representation."
+          }
+        ],
+        "sourceLinks": [
+          "https://ag.nv.gov/About/Consumer_Protection/Bureau_of_Consumer_Protection/",
+          "https://ag.nv.gov/Complaints/CSU_Complaints___FAQ/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Las Vegas, NV | Solar Freedom",
+        "description": "Solar contract help in Las Vegas, NV. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/las-vegas-nv"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Las Vegas",
+          "Las Vegas solar contract cancellation",
+          "Nevada solar contract rights",
+          "Las Vegas solar lease cancellation",
+          "Las Vegas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Las Vegas, NV"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Las Vegas?",
+            "a": "Possibly, but not automatically. In Las Vegas, whether you can cancel depends on the agreement, how and where it was signed or sold, whether installation has begun, and applicable Nevada law. Review the contract and preserve communications, recordings, invoices, and financing papers. Nevada’s Attorney General identifies solar-specific consumer protections and a rescission process, but the result depends on the facts and contract. Follow the agreement’s notice instructions and consider qualified legal advice."
+          },
+          {
+            "q": "What should I gather before seeking cancellation?",
+            "a": "Gather the signed agreement, disclosures, financing papers, advertisements, texts or emails, call details, invoices, permits, installation timeline, and payment records. Compare promises with contract terms, then follow the agreement’s written-notice instructions. Keep copies and proof of delivery."
+          },
+          {
+            "q": "Where can I complain about a Nevada solar company?",
+            "a": "You can submit a formal complaint to the Nevada Attorney General with supporting documents. The AG says the Public Utilities Commission of Nevada handles complaints against solar companies. A complaint may prompt agency review, but it does not itself cancel a contract or provide legal representation."
+          }
+        ],
+        "sourceLinks": [
+          "https://ag.nv.gov/About/Consumer_Protection/Bureau_of_Consumer_Protection/",
+          "https://ag.nv.gov/Complaints/CSU_Complaints___FAQ/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "hartford-ct",
+      "path": "/cancel-solar-contract/hartford-ct",
+      "inventoryOrder": 0,
+      "metrics": {
+        "path": "/cancel-solar-contract/hartford-ct",
+        "clicks": 1,
+        "impressions": 64,
+        "ctr": 0.015625,
+        "position": 7.34375
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Hartford, CT | Solar Freedom",
+        "description": "Solar contract help in Hartford, CT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/hartford-ct"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Hartford",
+          "Hartford solar contract cancellation",
+          "Connecticut solar contract rights",
+          "Hartford solar lease cancellation",
+          "Hartford solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Hartford, CT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Hartford, Connecticut?",
+            "a": "Maybe, but cancellation is not automatic. The answer depends on the agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Connecticut law. Review the contract’s cancellation, notice, payment, and dispute terms and preserve your records. For a fact-specific decision, consider qualified legal advice."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel or filing a complaint?",
+            "a": "Gather the signed contract, sales materials, receipts, messages, installation records, and a short timeline of events. Keep copies of everything you submit."
+          },
+          {
+            "q": "How do I file a Connecticut solar-business complaint?",
+            "a": "First try to resolve the issue with the business. If that fails, file one complaint with DCP online, by mail, email, or fax, attaching relevant paperwork. DCP may review and contact the business, but it does not represent individuals or guarantee cancellation."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.ct.gov/dcp/file-a-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Hartford, CT | Solar Freedom",
+        "description": "Solar contract help in Hartford, CT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/hartford-ct"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Hartford",
+          "Hartford solar contract cancellation",
+          "Connecticut solar contract rights",
+          "Hartford solar lease cancellation",
+          "Hartford solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Hartford, CT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Hartford, Connecticut?",
+            "a": "Maybe, but cancellation is not automatic. The answer depends on the agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Connecticut law. Review the contract’s cancellation, notice, payment, and dispute terms and preserve your records. For a fact-specific decision, consider qualified legal advice."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel or filing a complaint?",
+            "a": "Gather the signed contract, sales materials, receipts, messages, installation records, and a short timeline of events. Keep copies of everything you submit."
+          },
+          {
+            "q": "How do I file a Connecticut solar-business complaint?",
+            "a": "First try to resolve the issue with the business. If that fails, file one complaint with DCP online, by mail, email, or fax, attaching relevant paperwork. DCP may review and contact the business, but it does not represent individuals or guarantee cancellation."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.ct.gov/dcp/file-a-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Hartford, CT | Solar Freedom",
+        "description": "Solar contract help in Hartford, CT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/hartford-ct"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Hartford",
+          "Hartford solar contract cancellation",
+          "Connecticut solar contract rights",
+          "Hartford solar lease cancellation",
+          "Hartford solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Hartford, CT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Hartford, Connecticut?",
+            "a": "Maybe, but cancellation is not automatic. The answer depends on the agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Connecticut law. Review the contract’s cancellation, notice, payment, and dispute terms and preserve your records. For a fact-specific decision, consider qualified legal advice."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel or filing a complaint?",
+            "a": "Gather the signed contract, sales materials, receipts, messages, installation records, and a short timeline of events. Keep copies of everything you submit."
+          },
+          {
+            "q": "How do I file a Connecticut solar-business complaint?",
+            "a": "First try to resolve the issue with the business. If that fails, file one complaint with DCP online, by mail, email, or fax, attaching relevant paperwork. DCP may review and contact the business, but it does not represent individuals or guarantee cancellation."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.ct.gov/dcp/file-a-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "denver-co",
+      "path": "/cancel-solar-contract/denver-co",
+      "inventoryOrder": 6,
+      "metrics": {
+        "path": "/cancel-solar-contract/denver-co",
+        "clicks": 0,
+        "impressions": 46,
+        "ctr": 0,
+        "position": 6.804347826086956
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Denver, CO | Solar Freedom",
+        "description": "Solar contract help in Denver, CO. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/denver-co"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Denver",
+          "Denver solar contract cancellation",
+          "Colorado solar contract rights",
+          "Denver solar lease cancellation",
+          "Denver solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Denver, CO"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Denver?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on the agreement, how and where it was signed or sold, whether installation has started or finished, and applicable Colorado law. Review the contract’s cancellation, payment, installation, and dispute terms, and keep communications in writing. Gather the agreement, sales materials, invoices, and project records before asking the company for its position or submitting a complaint."
+          },
+          {
+            "q": "What should I collect before seeking help with a solar contract?",
+            "a": "Collect the signed contract and addenda, sales messages, financing or payment papers, invoices, permits or installation records, and a dated timeline of calls, visits, and emails. Keep copies of every request and response."
+          },
+          {
+            "q": "How do I complain about a suspected solar sales problem in Colorado?",
+            "a": "Use the Colorado Attorney General’s online complaint page. Describe the conduct, attach relevant records, and explain what happened. The office says complaints help identify trends; selected matters may qualify for informal mediation, but filing does not itself cancel a contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://coag.gov/file-complaint/",
+          "https://coag.gov/office-sections/consumer-protection/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Denver, CO | Solar Freedom",
+        "description": "Solar contract help in Denver, CO. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/denver-co"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Denver",
+          "Denver solar contract cancellation",
+          "Colorado solar contract rights",
+          "Denver solar lease cancellation",
+          "Denver solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Denver, CO"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Denver?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on the agreement, how and where it was signed or sold, whether installation has started or finished, and applicable Colorado law. Review the contract’s cancellation, payment, installation, and dispute terms, and keep communications in writing. Gather the agreement, sales materials, invoices, and project records before asking the company for its position or submitting a complaint."
+          },
+          {
+            "q": "What should I collect before seeking help with a solar contract?",
+            "a": "Collect the signed contract and addenda, sales messages, financing or payment papers, invoices, permits or installation records, and a dated timeline of calls, visits, and emails. Keep copies of every request and response."
+          },
+          {
+            "q": "How do I complain about a suspected solar sales problem in Colorado?",
+            "a": "Use the Colorado Attorney General’s online complaint page. Describe the conduct, attach relevant records, and explain what happened. The office says complaints help identify trends; selected matters may qualify for informal mediation, but filing does not itself cancel a contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://coag.gov/file-complaint/",
+          "https://coag.gov/office-sections/consumer-protection/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Denver, CO | Solar Freedom",
+        "description": "Solar contract help in Denver, CO. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/denver-co"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Denver",
+          "Denver solar contract cancellation",
+          "Colorado solar contract rights",
+          "Denver solar lease cancellation",
+          "Denver solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Denver, CO"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Denver?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on the agreement, how and where it was signed or sold, whether installation has started or finished, and applicable Colorado law. Review the contract’s cancellation, payment, installation, and dispute terms, and keep communications in writing. Gather the agreement, sales materials, invoices, and project records before asking the company for its position or submitting a complaint."
+          },
+          {
+            "q": "What should I collect before seeking help with a solar contract?",
+            "a": "Collect the signed contract and addenda, sales messages, financing or payment papers, invoices, permits or installation records, and a dated timeline of calls, visits, and emails. Keep copies of every request and response."
+          },
+          {
+            "q": "How do I complain about a suspected solar sales problem in Colorado?",
+            "a": "Use the Colorado Attorney General’s online complaint page. Describe the conduct, attach relevant records, and explain what happened. The office says complaints help identify trends; selected matters may qualify for informal mediation, but filing does not itself cancel a contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://coag.gov/file-complaint/",
+          "https://coag.gov/office-sections/consumer-protection/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "houston-tx",
+      "path": "/cancel-solar-contract/houston-tx",
+      "inventoryOrder": 4,
+      "metrics": {
+        "path": "/cancel-solar-contract/houston-tx",
+        "clicks": 0,
+        "impressions": 36,
+        "ctr": 0,
+        "position": 9.63888888888889
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Houston, TX | Solar Freedom",
+        "description": "Solar contract help in Houston, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/houston-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Houston",
+          "Houston solar contract cancellation",
+          "Texas solar contract rights",
+          "Houston solar lease cancellation",
+          "Houston solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Houston, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Houston?",
+            "a": "Possibly, but cancellation is not automatic. For Houston homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Houston homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Texas consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Houston, TX | Solar Freedom",
+        "description": "Solar contract help in Houston, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/houston-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Houston",
+          "Houston solar contract cancellation",
+          "Texas solar contract rights",
+          "Houston solar lease cancellation",
+          "Houston solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Houston, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Houston?",
+            "a": "Possibly, but cancellation is not automatic. For Houston homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Houston homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Texas consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Houston, TX | Solar Freedom",
+        "description": "Solar contract help in Houston, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/houston-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Houston",
+          "Houston solar contract cancellation",
+          "Texas solar contract rights",
+          "Houston solar lease cancellation",
+          "Houston solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Houston, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Houston?",
+            "a": "Possibly, but cancellation is not automatic. For Houston homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Houston homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Texas consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "los-angeles-ca",
+      "path": "/cancel-solar-contract/los-angeles-ca",
+      "inventoryOrder": 15,
+      "metrics": {
+        "path": "/cancel-solar-contract/los-angeles-ca",
+        "clicks": 1,
+        "impressions": 35,
+        "ctr": 0.02857142857142857,
+        "position": 27.8
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Los Angeles, CA | Solar Freedom",
+        "description": "Solar contract help in Los Angeles, CA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/los-angeles-ca"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Los Angeles",
+          "Los Angeles solar contract cancellation",
+          "California solar contract rights",
+          "Los Angeles solar lease cancellation",
+          "Los Angeles solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Los Angeles, CA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Los Angeles?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable California law. Review the signed contract and disclosure documents for cancellation, termination, and notice terms, then communicate any request in writing and keep records."
+          },
+          {
+            "q": "What documents should I gather before requesting cancellation?",
+            "a": "Gather the signed contract, solar disclosure documents, financing or lease papers, installation records, and emails or messages. Check notice, termination, and early-end terms, and keep copies of any written request and response."
+          },
+          {
+            "q": "Where can I complain about a California solar provider?",
+            "a": "Use California DCA’s complaint page to select the relevant professional or business and follow that program’s instructions. Include your contract, disclosures, timeline, communications, and requested resolution. A complaint does not itself cancel the agreement."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/customer-generation/california-solar-consumer-protection-guide",
+          "https://www.dca.ca.gov/consumers/complaints/consumer.shtml",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Los Angeles, CA | Solar Freedom",
+        "description": "Solar contract help in Los Angeles, CA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/los-angeles-ca"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Los Angeles",
+          "Los Angeles solar contract cancellation",
+          "California solar contract rights",
+          "Los Angeles solar lease cancellation",
+          "Los Angeles solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Los Angeles, CA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Los Angeles?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable California law. Review the signed contract and disclosure documents for cancellation, termination, and notice terms, then communicate any request in writing and keep records."
+          },
+          {
+            "q": "What documents should I gather before requesting cancellation?",
+            "a": "Gather the signed contract, solar disclosure documents, financing or lease papers, installation records, and emails or messages. Check notice, termination, and early-end terms, and keep copies of any written request and response."
+          },
+          {
+            "q": "Where can I complain about a California solar provider?",
+            "a": "Use California DCA’s complaint page to select the relevant professional or business and follow that program’s instructions. Include your contract, disclosures, timeline, communications, and requested resolution. A complaint does not itself cancel the agreement."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/customer-generation/california-solar-consumer-protection-guide",
+          "https://www.dca.ca.gov/consumers/complaints/consumer.shtml",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Los Angeles, CA | Solar Freedom",
+        "description": "Solar contract help in Los Angeles, CA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/los-angeles-ca"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Los Angeles",
+          "Los Angeles solar contract cancellation",
+          "California solar contract rights",
+          "Los Angeles solar lease cancellation",
+          "Los Angeles solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Los Angeles, CA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Los Angeles?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable California law. Review the signed contract and disclosure documents for cancellation, termination, and notice terms, then communicate any request in writing and keep records."
+          },
+          {
+            "q": "What documents should I gather before requesting cancellation?",
+            "a": "Gather the signed contract, solar disclosure documents, financing or lease papers, installation records, and emails or messages. Check notice, termination, and early-end terms, and keep copies of any written request and response."
+          },
+          {
+            "q": "Where can I complain about a California solar provider?",
+            "a": "Use California DCA’s complaint page to select the relevant professional or business and follow that program’s instructions. Include your contract, disclosures, timeline, communications, and requested resolution. A complaint does not itself cancel the agreement."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/customer-generation/california-solar-consumer-protection-guide",
+          "https://www.dca.ca.gov/consumers/complaints/consumer.shtml",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "dallas-tx",
+      "path": "/cancel-solar-contract/dallas-tx",
+      "inventoryOrder": 16,
+      "metrics": {
+        "path": "/cancel-solar-contract/dallas-tx",
+        "clicks": 0,
+        "impressions": 32,
+        "ctr": 0,
+        "position": 18.0625
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Dallas, TX | Solar Freedom",
+        "description": "Solar contract help in Dallas, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/dallas-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Dallas",
+          "Dallas solar contract cancellation",
+          "Texas solar contract rights",
+          "Dallas solar lease cancellation",
+          "Dallas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Dallas, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Dallas?",
+            "a": "Possibly, but cancellation is not automatic. For Dallas homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Dallas homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Texas consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Dallas, TX | Solar Freedom",
+        "description": "Solar contract help in Dallas, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/dallas-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Dallas",
+          "Dallas solar contract cancellation",
+          "Texas solar contract rights",
+          "Dallas solar lease cancellation",
+          "Dallas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Dallas, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Dallas?",
+            "a": "Possibly, but cancellation is not automatic. For Dallas homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Dallas homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Texas consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Dallas, TX | Solar Freedom",
+        "description": "Solar contract help in Dallas, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/dallas-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Dallas",
+          "Dallas solar contract cancellation",
+          "Texas solar contract rights",
+          "Dallas solar lease cancellation",
+          "Dallas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Dallas, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Dallas?",
+            "a": "Possibly, but cancellation is not automatic. For Dallas homeowners, the answer depends on the signed agreement, sale circumstances, installation status and applicable law. A loan, lease and power purchase agreement can have different obligations. Review notice, early-termination and transfer terms and preserve written communications. Do not assume that a dispute with the installer ends a separate financing agreement."
+          },
+          {
+            "q": "What records should Dallas homeowners gather?",
+            "a": "Keep the signed agreement and addenda, loan or lease/PPA documents, sales proposals, bills, production records and messages. Write a dated timeline of the sale, installation and efforts to resolve the problem. Check the agreement for written-notice requirements."
+          },
+          {
+            "q": "Does a Texas consumer complaint cancel my agreement?",
+            "a": "No. Reporting a concern is separate from requesting cancellation or disputing financing. A complaint does not determine your individual rights or obligations. Review the contract and obtain qualified guidance before making payment or cancellation decisions."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "north-las-vegas-nv",
+      "path": "/cancel-solar-contract/north-las-vegas-nv",
+      "inventoryOrder": 3,
+      "metrics": {
+        "path": "/cancel-solar-contract/north-las-vegas-nv",
+        "clicks": 0,
+        "impressions": 30,
+        "ctr": 0,
+        "position": 7.3
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "North Las Vegas, NV Solar Contract Help | Solar Freedom",
+        "description": "Solar contract help in North Las Vegas, NV. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/north-las-vegas-nv"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract North Las Vegas",
+          "North Las Vegas solar contract cancellation",
+          "Nevada solar contract rights",
+          "North Las Vegas solar lease cancellation",
+          "North Las Vegas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in North Las Vegas, NV"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in North Las Vegas?",
+            "a": "Possibly, but cancellation is not automatic. It depends on the agreement, how and where it was signed or sold, the project’s installation status, and applicable Nevada law. Review the contract’s cancellation and notice terms, preserve records, and communicate in writing. If you suspect deceptive conduct, a complaint may be available, but it does not itself cancel the contract."
+          },
+          {
+            "q": "What documents should I gather before disputing a solar contract?",
+            "a": "Gather the signed contract, receipts, correspondence, advertisements, payment records, and notes documenting your communications with the business."
+          },
+          {
+            "q": "How do I file a Nevada consumer complaint about a solar company?",
+            "a": "First contact the business and document your efforts. If unresolved, submit Nevada Consumer Affairs’ online complaint with supporting documents and a signed form."
+          }
+        ],
+        "sourceLinks": [
+          "https://ag.nv.gov/About/Consumer_Protection/Bureau_of_Consumer_Protection/",
+          "https://consumeraffairs.nv.gov/About/File_a_complaint/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "North Las Vegas, NV Solar Contract Help | Solar Freedom",
+        "description": "Solar contract help in North Las Vegas, NV. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/north-las-vegas-nv"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract North Las Vegas",
+          "North Las Vegas solar contract cancellation",
+          "Nevada solar contract rights",
+          "North Las Vegas solar lease cancellation",
+          "North Las Vegas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in North Las Vegas, NV"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in North Las Vegas?",
+            "a": "Possibly, but cancellation is not automatic. It depends on the agreement, how and where it was signed or sold, the project’s installation status, and applicable Nevada law. Review the contract’s cancellation and notice terms, preserve records, and communicate in writing. If you suspect deceptive conduct, a complaint may be available, but it does not itself cancel the contract."
+          },
+          {
+            "q": "What documents should I gather before disputing a solar contract?",
+            "a": "Gather the signed contract, receipts, correspondence, advertisements, payment records, and notes documenting your communications with the business."
+          },
+          {
+            "q": "How do I file a Nevada consumer complaint about a solar company?",
+            "a": "First contact the business and document your efforts. If unresolved, submit Nevada Consumer Affairs’ online complaint with supporting documents and a signed form."
+          }
+        ],
+        "sourceLinks": [
+          "https://ag.nv.gov/About/Consumer_Protection/Bureau_of_Consumer_Protection/",
+          "https://consumeraffairs.nv.gov/About/File_a_complaint/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "North Las Vegas, NV Solar Contract Help | Solar Freedom",
+        "description": "Solar contract help in North Las Vegas, NV. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/north-las-vegas-nv"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract North Las Vegas",
+          "North Las Vegas solar contract cancellation",
+          "Nevada solar contract rights",
+          "North Las Vegas solar lease cancellation",
+          "North Las Vegas solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in North Las Vegas, NV"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in North Las Vegas?",
+            "a": "Possibly, but cancellation is not automatic. It depends on the agreement, how and where it was signed or sold, the project’s installation status, and applicable Nevada law. Review the contract’s cancellation and notice terms, preserve records, and communicate in writing. If you suspect deceptive conduct, a complaint may be available, but it does not itself cancel the contract."
+          },
+          {
+            "q": "What documents should I gather before disputing a solar contract?",
+            "a": "Gather the signed contract, receipts, correspondence, advertisements, payment records, and notes documenting your communications with the business."
+          },
+          {
+            "q": "How do I file a Nevada consumer complaint about a solar company?",
+            "a": "First contact the business and document your efforts. If unresolved, submit Nevada Consumer Affairs’ online complaint with supporting documents and a signed form."
+          }
+        ],
+        "sourceLinks": [
+          "https://ag.nv.gov/About/Consumer_Protection/Bureau_of_Consumer_Protection/",
+          "https://consumeraffairs.nv.gov/About/File_a_complaint/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "greenville-sc",
+      "path": "/cancel-solar-contract/greenville-sc",
+      "inventoryOrder": 5,
+      "metrics": {
+        "path": "/cancel-solar-contract/greenville-sc",
+        "clicks": 2,
+        "impressions": 29,
+        "ctr": 0.06896551724137931,
+        "position": 8.310344827586206
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Greenville, SC | Solar Freedom",
+        "description": "Solar contract help in Greenville, SC. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/greenville-sc"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Greenville",
+          "Greenville solar contract cancellation",
+          "South Carolina solar contract rights",
+          "Greenville solar lease cancellation",
+          "Greenville solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Greenville, SC"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Greenville, South Carolina?",
+            "a": "Possibly, but cancellation is not guaranteed. The result depends on your agreement, how and where it was signed or sold, whether installation occurred, and applicable South Carolina law. Review the contract and written disclosures, then contact the company in writing about your request and keep copies."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the contract, disclosures, invoices, financing or lease papers, installation records, messages, advertisements, and a dated timeline. Send any cancellation request in writing and keep proof of delivery."
+          },
+          {
+            "q": "How can a Greenville consumer file a South Carolina complaint?",
+            "a": "Contact the business first, then file through SCDCA’s online complaint portal or paper form. Explain the problem, attach relevant records, and identify the requested resolution. SCDCA may mediate or refer the matter; it does not guarantee cancellation."
+          }
+        ],
+        "sourceLinks": [
+          "https://consumer.sc.gov/thinking-about-solar-energy",
+          "https://consumer.sc.gov/consumer-resources/consumer-complaints",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Greenville, SC | Solar Freedom",
+        "description": "Solar contract help in Greenville, SC. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/greenville-sc"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Greenville",
+          "Greenville solar contract cancellation",
+          "South Carolina solar contract rights",
+          "Greenville solar lease cancellation",
+          "Greenville solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Greenville, SC"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Greenville, South Carolina?",
+            "a": "Possibly, but cancellation is not guaranteed. The result depends on your agreement, how and where it was signed or sold, whether installation occurred, and applicable South Carolina law. Review the contract and written disclosures, then contact the company in writing about your request and keep copies."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the contract, disclosures, invoices, financing or lease papers, installation records, messages, advertisements, and a dated timeline. Send any cancellation request in writing and keep proof of delivery."
+          },
+          {
+            "q": "How can a Greenville consumer file a South Carolina complaint?",
+            "a": "Contact the business first, then file through SCDCA’s online complaint portal or paper form. Explain the problem, attach relevant records, and identify the requested resolution. SCDCA may mediate or refer the matter; it does not guarantee cancellation."
+          }
+        ],
+        "sourceLinks": [
+          "https://consumer.sc.gov/thinking-about-solar-energy",
+          "https://consumer.sc.gov/consumer-resources/consumer-complaints",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Greenville, SC | Solar Freedom",
+        "description": "Solar contract help in Greenville, SC. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/greenville-sc"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Greenville",
+          "Greenville solar contract cancellation",
+          "South Carolina solar contract rights",
+          "Greenville solar lease cancellation",
+          "Greenville solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Greenville, SC"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Greenville, South Carolina?",
+            "a": "Possibly, but cancellation is not guaranteed. The result depends on your agreement, how and where it was signed or sold, whether installation occurred, and applicable South Carolina law. Review the contract and written disclosures, then contact the company in writing about your request and keep copies."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the contract, disclosures, invoices, financing or lease papers, installation records, messages, advertisements, and a dated timeline. Send any cancellation request in writing and keep proof of delivery."
+          },
+          {
+            "q": "How can a Greenville consumer file a South Carolina complaint?",
+            "a": "Contact the business first, then file through SCDCA’s online complaint portal or paper form. Explain the problem, attach relevant records, and identify the requested resolution. SCDCA may mediate or refer the matter; it does not guarantee cancellation."
+          }
+        ],
+        "sourceLinks": [
+          "https://consumer.sc.gov/thinking-about-solar-energy",
+          "https://consumer.sc.gov/consumer-resources/consumer-complaints",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "little-rock-ar",
+      "path": "/cancel-solar-contract/little-rock-ar",
+      "inventoryOrder": 8,
+      "metrics": {
+        "path": "/cancel-solar-contract/little-rock-ar",
+        "clicks": 0,
+        "impressions": 29,
+        "ctr": 0,
+        "position": 6.068965517241379
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Little Rock, AR | Solar Freedom",
+        "description": "Solar contract help in Little Rock, AR. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/little-rock-ar"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Little Rock",
+          "Little Rock solar contract cancellation",
+          "Arkansas solar contract rights",
+          "Little Rock solar lease cancellation",
+          "Little Rock solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Little Rock, AR"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Little Rock?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on the agreement, how and where it was signed or sold, the installation status, and applicable Arkansas law. Review the contract for cancellation terms and deadlines, preserve your records, and request the company’s position in writing. A complaint may help document a dispute, but it does not itself cancel the contract."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the signed agreement, financing or lease papers, disclosures, sales messages, installation records, bills, payment history, and a dated timeline. Keep copies and send any cancellation request in writing."
+          },
+          {
+            "q": "Where can a Little Rock consumer report a solar dispute?",
+            "a": "The Arkansas Attorney General’s Consumer Protection complaint service accepts reports involving deceptive practices, scams, or fraud. The Arkansas Public Service Commission also provides Consumer Services contact information for utility-related concerns."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.arkansas.gov/service/ar-consumer-complaint-form/",
+          "https://apsc.arkansas.gov/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Little Rock, AR | Solar Freedom",
+        "description": "Solar contract help in Little Rock, AR. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/little-rock-ar"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Little Rock",
+          "Little Rock solar contract cancellation",
+          "Arkansas solar contract rights",
+          "Little Rock solar lease cancellation",
+          "Little Rock solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Little Rock, AR"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Little Rock?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on the agreement, how and where it was signed or sold, the installation status, and applicable Arkansas law. Review the contract for cancellation terms and deadlines, preserve your records, and request the company’s position in writing. A complaint may help document a dispute, but it does not itself cancel the contract."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the signed agreement, financing or lease papers, disclosures, sales messages, installation records, bills, payment history, and a dated timeline. Keep copies and send any cancellation request in writing."
+          },
+          {
+            "q": "Where can a Little Rock consumer report a solar dispute?",
+            "a": "The Arkansas Attorney General’s Consumer Protection complaint service accepts reports involving deceptive practices, scams, or fraud. The Arkansas Public Service Commission also provides Consumer Services contact information for utility-related concerns."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.arkansas.gov/service/ar-consumer-complaint-form/",
+          "https://apsc.arkansas.gov/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Little Rock, AR | Solar Freedom",
+        "description": "Solar contract help in Little Rock, AR. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/little-rock-ar"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Little Rock",
+          "Little Rock solar contract cancellation",
+          "Arkansas solar contract rights",
+          "Little Rock solar lease cancellation",
+          "Little Rock solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Little Rock, AR"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Little Rock?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on the agreement, how and where it was signed or sold, the installation status, and applicable Arkansas law. Review the contract for cancellation terms and deadlines, preserve your records, and request the company’s position in writing. A complaint may help document a dispute, but it does not itself cancel the contract."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the signed agreement, financing or lease papers, disclosures, sales messages, installation records, bills, payment history, and a dated timeline. Keep copies and send any cancellation request in writing."
+          },
+          {
+            "q": "Where can a Little Rock consumer report a solar dispute?",
+            "a": "The Arkansas Attorney General’s Consumer Protection complaint service accepts reports involving deceptive practices, scams, or fraud. The Arkansas Public Service Commission also provides Consumer Services contact information for utility-related concerns."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.arkansas.gov/service/ar-consumer-complaint-form/",
+          "https://apsc.arkansas.gov/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "san-antonio-tx",
+      "path": "/cancel-solar-contract/san-antonio-tx",
+      "inventoryOrder": 7,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-antonio-tx",
+        "clicks": 0,
+        "impressions": 22,
+        "ctr": 0,
+        "position": 7.181818181818182
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in San Antonio, TX | Solar Freedom",
+        "description": "Solar contract help in San Antonio, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/san-antonio-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract San Antonio",
+          "San Antonio solar contract cancellation",
+          "Texas solar contract rights",
+          "San Antonio solar lease cancellation",
+          "San Antonio solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in San Antonio, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in San Antonio?",
+            "a": "Possibly, but not automatically. In San Antonio, whether you can cancel depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and which Texas or federal rules apply. Review the contract’s cancellation terms and send any required written notice using the stated method. Do not assume cancellation ends financing or other obligations; confirm with each relevant company."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Keep the signed contract, financing or lease papers, sales messages, receipts, installation records, and any cancellation notice. Note when and how the agreement was signed."
+          },
+          {
+            "q": "How can I file a Texas solar complaint?",
+            "a": "Use TDLR’s Residential Solar Retailers complaint process and attach your contract, timeline, communications, and supporting records. A complaint may prompt regulatory review but does not itself cancel the agreement."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.tdlr.texas.gov/residential-solar-retailers/pdf/residential-solar-consumer-brochure.pdf",
+          "https://www.puc.texas.gov/consumer-help/electricity/solar/Default.aspx",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in San Antonio, TX | Solar Freedom",
+        "description": "Solar contract help in San Antonio, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/san-antonio-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract San Antonio",
+          "San Antonio solar contract cancellation",
+          "Texas solar contract rights",
+          "San Antonio solar lease cancellation",
+          "San Antonio solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in San Antonio, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in San Antonio?",
+            "a": "Possibly, but not automatically. In San Antonio, whether you can cancel depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and which Texas or federal rules apply. Review the contract’s cancellation terms and send any required written notice using the stated method. Do not assume cancellation ends financing or other obligations; confirm with each relevant company."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Keep the signed contract, financing or lease papers, sales messages, receipts, installation records, and any cancellation notice. Note when and how the agreement was signed."
+          },
+          {
+            "q": "How can I file a Texas solar complaint?",
+            "a": "Use TDLR’s Residential Solar Retailers complaint process and attach your contract, timeline, communications, and supporting records. A complaint may prompt regulatory review but does not itself cancel the agreement."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.tdlr.texas.gov/residential-solar-retailers/pdf/residential-solar-consumer-brochure.pdf",
+          "https://www.puc.texas.gov/consumer-help/electricity/solar/Default.aspx",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in San Antonio, TX | Solar Freedom",
+        "description": "Solar contract help in San Antonio, TX. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/san-antonio-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract San Antonio",
+          "San Antonio solar contract cancellation",
+          "Texas solar contract rights",
+          "San Antonio solar lease cancellation",
+          "San Antonio solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in San Antonio, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in San Antonio?",
+            "a": "Possibly, but not automatically. In San Antonio, whether you can cancel depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and which Texas or federal rules apply. Review the contract’s cancellation terms and send any required written notice using the stated method. Do not assume cancellation ends financing or other obligations; confirm with each relevant company."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Keep the signed contract, financing or lease papers, sales messages, receipts, installation records, and any cancellation notice. Note when and how the agreement was signed."
+          },
+          {
+            "q": "How can I file a Texas solar complaint?",
+            "a": "Use TDLR’s Residential Solar Retailers complaint process and attach your contract, timeline, communications, and supporting records. A complaint may prompt regulatory review but does not itself cancel the agreement."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.tdlr.texas.gov/residential-solar-retailers/pdf/residential-solar-consumer-brochure.pdf",
+          "https://www.puc.texas.gov/consumer-help/electricity/solar/Default.aspx",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "shreveport-la",
+      "path": "/cancel-solar-contract/shreveport-la",
+      "inventoryOrder": 12,
+      "metrics": {
+        "path": "/cancel-solar-contract/shreveport-la",
+        "clicks": 2,
+        "impressions": 21,
+        "ctr": 0.09523809523809523,
+        "position": 6.238095238095238
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Shreveport, LA | Solar Freedom",
+        "description": "Solar contract help in Shreveport, LA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/shreveport-la"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Shreveport",
+          "Shreveport solar contract cancellation",
+          "Louisiana solar contract rights",
+          "Shreveport solar lease cancellation",
+          "Shreveport solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Shreveport, LA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Shreveport?",
+            "a": "Possibly, but there is no one-size-fits-all answer. It depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable law. Review cancellation, financing, and dispute terms, then contact the company in writing and keep records. Do not stop payments without understanding your contract and obligations."
+          },
+          {
+            "q": "What documents should I gather before disputing a solar contract?",
+            "a": "Gather the signed contract, financing or payment paperwork, proposals, messages, receipts, and installation records. Write a dated summary of what happened and submit relevant copies with a Louisiana Attorney General consumer-dispute form."
+          },
+          {
+            "q": "Can the Louisiana Public Service Commission cancel my solar contract?",
+            "a": "Its complaint process is for LPSC-regulated utilities and other listed services. It is not a general solar-contract cancellation process; check whether the company or issue falls within its jurisdiction before contacting the Commission."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.ag.state.la.us/Page/ConsumerDispute",
+          "https://lpsc.louisiana.gov/Complaints",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Shreveport, LA | Solar Freedom",
+        "description": "Solar contract help in Shreveport, LA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/shreveport-la"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Shreveport",
+          "Shreveport solar contract cancellation",
+          "Louisiana solar contract rights",
+          "Shreveport solar lease cancellation",
+          "Shreveport solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Shreveport, LA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Shreveport?",
+            "a": "Possibly, but there is no one-size-fits-all answer. It depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable law. Review cancellation, financing, and dispute terms, then contact the company in writing and keep records. Do not stop payments without understanding your contract and obligations."
+          },
+          {
+            "q": "What documents should I gather before disputing a solar contract?",
+            "a": "Gather the signed contract, financing or payment paperwork, proposals, messages, receipts, and installation records. Write a dated summary of what happened and submit relevant copies with a Louisiana Attorney General consumer-dispute form."
+          },
+          {
+            "q": "Can the Louisiana Public Service Commission cancel my solar contract?",
+            "a": "Its complaint process is for LPSC-regulated utilities and other listed services. It is not a general solar-contract cancellation process; check whether the company or issue falls within its jurisdiction before contacting the Commission."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.ag.state.la.us/Page/ConsumerDispute",
+          "https://lpsc.louisiana.gov/Complaints",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Shreveport, LA | Solar Freedom",
+        "description": "Solar contract help in Shreveport, LA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/shreveport-la"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Shreveport",
+          "Shreveport solar contract cancellation",
+          "Louisiana solar contract rights",
+          "Shreveport solar lease cancellation",
+          "Shreveport solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Shreveport, LA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Shreveport?",
+            "a": "Possibly, but there is no one-size-fits-all answer. It depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable law. Review cancellation, financing, and dispute terms, then contact the company in writing and keep records. Do not stop payments without understanding your contract and obligations."
+          },
+          {
+            "q": "What documents should I gather before disputing a solar contract?",
+            "a": "Gather the signed contract, financing or payment paperwork, proposals, messages, receipts, and installation records. Write a dated summary of what happened and submit relevant copies with a Louisiana Attorney General consumer-dispute form."
+          },
+          {
+            "q": "Can the Louisiana Public Service Commission cancel my solar contract?",
+            "a": "Its complaint process is for LPSC-regulated utilities and other listed services. It is not a general solar-contract cancellation process; check whether the company or issue falls within its jurisdiction before contacting the Commission."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.ag.state.la.us/Page/ConsumerDispute",
+          "https://lpsc.louisiana.gov/Complaints",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "new-haven-ct",
+      "path": "/cancel-solar-contract/new-haven-ct",
+      "inventoryOrder": 14,
+      "metrics": {
+        "path": "/cancel-solar-contract/new-haven-ct",
+        "clicks": 0,
+        "impressions": 21,
+        "ctr": 0,
+        "position": 7.095238095238095
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in New Haven, CT | Solar Freedom",
+        "description": "Solar contract help in New Haven, CT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/new-haven-ct"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract New Haven",
+          "New Haven solar contract cancellation",
+          "Connecticut solar contract rights",
+          "New Haven solar lease cancellation",
+          "New Haven solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in New Haven, CT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in New Haven, Connecticut?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed, the sale circumstances, whether installation has started, and applicable Connecticut law. Review the contract’s cancellation terms and keep your records. For a dispute, contact the company in writing and consider Connecticut’s Department of Consumer Protection complaint process; do not assume a complaint cancels the contract."
+          },
+          {
+            "q": "What documents should I gather before contacting Connecticut DCP?",
+            "a": "Gather the signed contract, financing or lease/PPA papers, receipts, proposals, permits or installation records, advertisements, and messages with the company. Keep copies and submit only one complaint method."
+          },
+          {
+            "q": "Does filing a DCP complaint cancel my solar contract?",
+            "a": "No. A complaint asks DCP to review or help address a business dispute; it does not itself cancel an agreement or provide individual legal representation. Review the contract and communicate with the company in writing."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.ct.gov/dcp/file-a-complaint",
+          "https://portal.ct.gov/-/media/DCP/TRADE_PRACTICES/SolarPanelBuyersGuide.pdf",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in New Haven, CT | Solar Freedom",
+        "description": "Solar contract help in New Haven, CT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/new-haven-ct"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract New Haven",
+          "New Haven solar contract cancellation",
+          "Connecticut solar contract rights",
+          "New Haven solar lease cancellation",
+          "New Haven solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in New Haven, CT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in New Haven, Connecticut?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed, the sale circumstances, whether installation has started, and applicable Connecticut law. Review the contract’s cancellation terms and keep your records. For a dispute, contact the company in writing and consider Connecticut’s Department of Consumer Protection complaint process; do not assume a complaint cancels the contract."
+          },
+          {
+            "q": "What documents should I gather before contacting Connecticut DCP?",
+            "a": "Gather the signed contract, financing or lease/PPA papers, receipts, proposals, permits or installation records, advertisements, and messages with the company. Keep copies and submit only one complaint method."
+          },
+          {
+            "q": "Does filing a DCP complaint cancel my solar contract?",
+            "a": "No. A complaint asks DCP to review or help address a business dispute; it does not itself cancel an agreement or provide individual legal representation. Review the contract and communicate with the company in writing."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.ct.gov/dcp/file-a-complaint",
+          "https://portal.ct.gov/-/media/DCP/TRADE_PRACTICES/SolarPanelBuyersGuide.pdf",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in New Haven, CT | Solar Freedom",
+        "description": "Solar contract help in New Haven, CT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/new-haven-ct"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract New Haven",
+          "New Haven solar contract cancellation",
+          "Connecticut solar contract rights",
+          "New Haven solar lease cancellation",
+          "New Haven solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in New Haven, CT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in New Haven, Connecticut?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed, the sale circumstances, whether installation has started, and applicable Connecticut law. Review the contract’s cancellation terms and keep your records. For a dispute, contact the company in writing and consider Connecticut’s Department of Consumer Protection complaint process; do not assume a complaint cancels the contract."
+          },
+          {
+            "q": "What documents should I gather before contacting Connecticut DCP?",
+            "a": "Gather the signed contract, financing or lease/PPA papers, receipts, proposals, permits or installation records, advertisements, and messages with the company. Keep copies and submit only one complaint method."
+          },
+          {
+            "q": "Does filing a DCP complaint cancel my solar contract?",
+            "a": "No. A complaint asks DCP to review or help address a business dispute; it does not itself cancel an agreement or provide individual legal representation. Review the contract and communicate with the company in writing."
+          }
+        ],
+        "sourceLinks": [
+          "https://portal.ct.gov/dcp/file-a-complaint",
+          "https://portal.ct.gov/-/media/DCP/TRADE_PRACTICES/SolarPanelBuyersGuide.pdf",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "cincinnati-oh",
+      "path": "/cancel-solar-contract/cincinnati-oh",
+      "inventoryOrder": 2,
+      "metrics": {
+        "path": "/cancel-solar-contract/cincinnati-oh",
+        "clicks": 0,
+        "impressions": 20,
+        "ctr": 0,
+        "position": 7.55
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Cincinnati, OH | Solar Freedom",
+        "description": "Solar contract help in Cincinnati, OH. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/cincinnati-oh"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Cincinnati",
+          "Cincinnati solar contract cancellation",
+          "Ohio solar contract rights",
+          "Cincinnati solar lease cancellation",
+          "Cincinnati solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Cincinnati, OH"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Cincinnati, Ohio?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Ohio or federal law. Review the contract’s cancellation, termination, notice, and dispute terms, then communicate with the company in writing and keep records."
+          },
+          {
+            "q": "What should I review before asking to cancel a solar contract?",
+            "a": "Gather the signed contract, disclosures, invoices, installation status, financing or lease papers, and messages. Check cancellation, termination, notice, and dispute provisions, then send a dated written request and retain proof."
+          },
+          {
+            "q": "How can Cincinnati consumers raise a solar-contract complaint?",
+            "a": "Use the Ohio Attorney General’s online consumer complaint form and describe the issue with supporting records. The process may help route a consumer complaint, but it does not itself cancel the contract or provide legal representation."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.ohioattorneygeneral.gov/Business/Services-for-Business/Business-Guide/Cancellation-Rights-of-Consumers",
+          "https://www.ohioattorneygeneral.gov/Individuals-and-Families/Consumers/File-A-Complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Cincinnati, OH | Solar Freedom",
+        "description": "Solar contract help in Cincinnati, OH. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/cincinnati-oh"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Cincinnati",
+          "Cincinnati solar contract cancellation",
+          "Ohio solar contract rights",
+          "Cincinnati solar lease cancellation",
+          "Cincinnati solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Cincinnati, OH"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Cincinnati, Ohio?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Ohio or federal law. Review the contract’s cancellation, termination, notice, and dispute terms, then communicate with the company in writing and keep records."
+          },
+          {
+            "q": "What should I review before asking to cancel a solar contract?",
+            "a": "Gather the signed contract, disclosures, invoices, installation status, financing or lease papers, and messages. Check cancellation, termination, notice, and dispute provisions, then send a dated written request and retain proof."
+          },
+          {
+            "q": "How can Cincinnati consumers raise a solar-contract complaint?",
+            "a": "Use the Ohio Attorney General’s online consumer complaint form and describe the issue with supporting records. The process may help route a consumer complaint, but it does not itself cancel the contract or provide legal representation."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.ohioattorneygeneral.gov/Business/Services-for-Business/Business-Guide/Cancellation-Rights-of-Consumers",
+          "https://www.ohioattorneygeneral.gov/Individuals-and-Families/Consumers/File-A-Complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Cincinnati, OH | Solar Freedom",
+        "description": "Solar contract help in Cincinnati, OH. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/cincinnati-oh"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Cincinnati",
+          "Cincinnati solar contract cancellation",
+          "Ohio solar contract rights",
+          "Cincinnati solar lease cancellation",
+          "Cincinnati solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Cincinnati, OH"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Cincinnati, Ohio?",
+            "a": "Maybe, but cancellation is not guaranteed. The result depends on your agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Ohio or federal law. Review the contract’s cancellation, termination, notice, and dispute terms, then communicate with the company in writing and keep records."
+          },
+          {
+            "q": "What should I review before asking to cancel a solar contract?",
+            "a": "Gather the signed contract, disclosures, invoices, installation status, financing or lease papers, and messages. Check cancellation, termination, notice, and dispute provisions, then send a dated written request and retain proof."
+          },
+          {
+            "q": "How can Cincinnati consumers raise a solar-contract complaint?",
+            "a": "Use the Ohio Attorney General’s online consumer complaint form and describe the issue with supporting records. The process may help route a consumer complaint, but it does not itself cancel the contract or provide legal representation."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.ohioattorneygeneral.gov/Business/Services-for-Business/Business-Guide/Cancellation-Rights-of-Consumers",
+          "https://www.ohioattorneygeneral.gov/Individuals-and-Families/Consumers/File-A-Complaint",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "miami-fl",
+      "path": "/cancel-solar-contract/miami-fl",
+      "inventoryOrder": 20,
+      "metrics": {
+        "path": "/cancel-solar-contract/miami-fl",
+        "clicks": 0,
+        "impressions": 12,
+        "ctr": 0,
+        "position": 11.416666666666666
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Miami, FL | Solar Freedom",
+        "description": "Solar contract help in Miami, FL. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/miami-fl"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Miami",
+          "Miami solar contract cancellation",
+          "Florida solar contract rights",
+          "Miami solar lease cancellation",
+          "Miami solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Miami, FL"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Miami, Florida?",
+            "a": "Maybe, but not automatically. Whether you can cancel a solar contract in Miami depends on the agreement, how and where it was signed or sold, the project’s installation status, and applicable law. Review the contract’s cancellation terms and contact the company in writing. Florida’s Attorney General warns consumers to understand cancellation policies, payment schedules, warranties, and fees; a complaint or warning sign does not guarantee cancellation."
+          },
+          {
+            "q": "What should I review before asking to cancel a Florida solar contract?",
+            "a": "Read the signed agreement, including cancellation policies, payment schedules, warranties, fees, and installation terms. Keep copies of the contract and related communications."
+          },
+          {
+            "q": "How can a Miami consumer report a suspected solar scam?",
+            "a": "Use the Florida Attorney General’s online complaint form or mail the form with copies, not originals, of relevant paperwork. Reporting does not itself cancel the contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.myfloridalegal.com/consumer-protection/consumer-complaint-form",
+          "https://www.myfloridalegal.com/newsrelease/video-ag-moody-releases-scams-glance-dark-side-solar-during-national-consumer",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Miami, FL | Solar Freedom",
+        "description": "Solar contract help in Miami, FL. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/miami-fl"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Miami",
+          "Miami solar contract cancellation",
+          "Florida solar contract rights",
+          "Miami solar lease cancellation",
+          "Miami solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Miami, FL"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Miami, Florida?",
+            "a": "Maybe, but not automatically. Whether you can cancel a solar contract in Miami depends on the agreement, how and where it was signed or sold, the project’s installation status, and applicable law. Review the contract’s cancellation terms and contact the company in writing. Florida’s Attorney General warns consumers to understand cancellation policies, payment schedules, warranties, and fees; a complaint or warning sign does not guarantee cancellation."
+          },
+          {
+            "q": "What should I review before asking to cancel a Florida solar contract?",
+            "a": "Read the signed agreement, including cancellation policies, payment schedules, warranties, fees, and installation terms. Keep copies of the contract and related communications."
+          },
+          {
+            "q": "How can a Miami consumer report a suspected solar scam?",
+            "a": "Use the Florida Attorney General’s online complaint form or mail the form with copies, not originals, of relevant paperwork. Reporting does not itself cancel the contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.myfloridalegal.com/consumer-protection/consumer-complaint-form",
+          "https://www.myfloridalegal.com/newsrelease/video-ag-moody-releases-scams-glance-dark-side-solar-during-national-consumer",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Miami, FL | Solar Freedom",
+        "description": "Solar contract help in Miami, FL. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/miami-fl"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Miami",
+          "Miami solar contract cancellation",
+          "Florida solar contract rights",
+          "Miami solar lease cancellation",
+          "Miami solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Miami, FL"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Miami, Florida?",
+            "a": "Maybe, but not automatically. Whether you can cancel a solar contract in Miami depends on the agreement, how and where it was signed or sold, the project’s installation status, and applicable law. Review the contract’s cancellation terms and contact the company in writing. Florida’s Attorney General warns consumers to understand cancellation policies, payment schedules, warranties, and fees; a complaint or warning sign does not guarantee cancellation."
+          },
+          {
+            "q": "What should I review before asking to cancel a Florida solar contract?",
+            "a": "Read the signed agreement, including cancellation policies, payment schedules, warranties, fees, and installation terms. Keep copies of the contract and related communications."
+          },
+          {
+            "q": "How can a Miami consumer report a suspected solar scam?",
+            "a": "Use the Florida Attorney General’s online complaint form or mail the form with copies, not originals, of relevant paperwork. Reporting does not itself cancel the contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.myfloridalegal.com/consumer-protection/consumer-complaint-form",
+          "https://www.myfloridalegal.com/newsrelease/video-ag-moody-releases-scams-glance-dark-side-solar-during-national-consumer",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "san-diego-ca",
+      "path": "/cancel-solar-contract/san-diego-ca",
+      "inventoryOrder": 17,
+      "metrics": {
+        "path": "/cancel-solar-contract/san-diego-ca",
+        "clicks": 0,
+        "impressions": 11,
+        "ctr": 0,
+        "position": 6.7272727272727275
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in San Diego, CA | Solar Freedom",
+        "description": "Solar contract help in San Diego, CA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/san-diego-ca"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract San Diego",
+          "San Diego solar contract cancellation",
+          "California solar contract rights",
+          "San Diego solar lease cancellation",
+          "San Diego solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in San Diego, CA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in San Diego?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed, the sales circumstances, whether installation has started or finished, and applicable California rules. Review the contract’s cancellation section and any financing or lease terms, preserve your records, and contact the provider in writing to ask what process applies. The California CPUC solar guide explains that contract terms and limited exceptions matter."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Keep the signed contract, financing or lease papers, disclosures, messages, proposals, payment records, and installation documents. Note when and where you signed and what was represented."
+          },
+          {
+            "q": "Where can I complain about a California solar provider?",
+            "a": "Use the Department of Consumer Affairs complaint portal. Choose the relevant business or professional category; if unsure, use its alternative complaint-routing option and attach supporting records."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/customer-generation/california-solar-consumer-protection-guide",
+          "https://www.dca.ca.gov/consumers/complaints/consumer.shtml",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in San Diego, CA | Solar Freedom",
+        "description": "Solar contract help in San Diego, CA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/san-diego-ca"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract San Diego",
+          "San Diego solar contract cancellation",
+          "California solar contract rights",
+          "San Diego solar lease cancellation",
+          "San Diego solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in San Diego, CA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in San Diego?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed, the sales circumstances, whether installation has started or finished, and applicable California rules. Review the contract’s cancellation section and any financing or lease terms, preserve your records, and contact the provider in writing to ask what process applies. The California CPUC solar guide explains that contract terms and limited exceptions matter."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Keep the signed contract, financing or lease papers, disclosures, messages, proposals, payment records, and installation documents. Note when and where you signed and what was represented."
+          },
+          {
+            "q": "Where can I complain about a California solar provider?",
+            "a": "Use the Department of Consumer Affairs complaint portal. Choose the relevant business or professional category; if unsure, use its alternative complaint-routing option and attach supporting records."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/customer-generation/california-solar-consumer-protection-guide",
+          "https://www.dca.ca.gov/consumers/complaints/consumer.shtml",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in San Diego, CA | Solar Freedom",
+        "description": "Solar contract help in San Diego, CA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/san-diego-ca"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract San Diego",
+          "San Diego solar contract cancellation",
+          "California solar contract rights",
+          "San Diego solar lease cancellation",
+          "San Diego solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in San Diego, CA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in San Diego?",
+            "a": "Possibly, but cancellation is not automatic. The result depends on your agreement, how and where it was signed, the sales circumstances, whether installation has started or finished, and applicable California rules. Review the contract’s cancellation section and any financing or lease terms, preserve your records, and contact the provider in writing to ask what process applies. The California CPUC solar guide explains that contract terms and limited exceptions matter."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Keep the signed contract, financing or lease papers, disclosures, messages, proposals, payment records, and installation documents. Note when and where you signed and what was represented."
+          },
+          {
+            "q": "Where can I complain about a California solar provider?",
+            "a": "Use the Department of Consumer Affairs complaint portal. Choose the relevant business or professional category; if unsure, use its alternative complaint-routing option and attach supporting records."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/customer-generation/california-solar-consumer-protection-guide",
+          "https://www.dca.ca.gov/consumers/complaints/consumer.shtml",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "west-valley-city-ut",
+      "path": "/cancel-solar-contract/west-valley-city-ut",
+      "inventoryOrder": 11,
+      "metrics": {
+        "path": "/cancel-solar-contract/west-valley-city-ut",
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 9.3
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "West Valley City, UT Solar Contract Help | Solar Freedom",
+        "description": "Solar contract help in West Valley City, UT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/west-valley-city-ut"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract West Valley City",
+          "West Valley City solar contract cancellation",
+          "Utah solar contract rights",
+          "West Valley City solar lease cancellation",
+          "West Valley City solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in West Valley City, UT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in West Valley City, Utah?",
+            "a": "Possibly, but there is no single answer for every West Valley City contract. It depends on the agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Utah law. Review the contract’s cancellation, notice, financing, and dispute terms, then ask the solar company in writing what options apply. Do not assume cancellation is available or stop payments without a clear contractual or legal basis."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the signed agreement, financing or lease papers, sales materials, installation records, invoices, and written communications. Keep dates and a concise timeline, and ask for the company’s response in writing."
+          },
+          {
+            "q": "How can I complain to Utah about a solar contract dispute?",
+            "a": "Use Utah’s Division of Consumer Protection complaint portal. Provide your contact details, the company’s information, the agreement, and a clear description of the alleged problem. The complaint process does not itself cancel the contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://services.commerce.utah.gov/dcp-complaint/",
+          "https://commerce.utah.gov/dcp/residential-solar-panel-retailer/residential-solar-panel-retailer-frequently-asked-questions/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "West Valley City, UT Solar Contract Help | Solar Freedom",
+        "description": "Solar contract help in West Valley City, UT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/west-valley-city-ut"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract West Valley City",
+          "West Valley City solar contract cancellation",
+          "Utah solar contract rights",
+          "West Valley City solar lease cancellation",
+          "West Valley City solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in West Valley City, UT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in West Valley City, Utah?",
+            "a": "Possibly, but there is no single answer for every West Valley City contract. It depends on the agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Utah law. Review the contract’s cancellation, notice, financing, and dispute terms, then ask the solar company in writing what options apply. Do not assume cancellation is available or stop payments without a clear contractual or legal basis."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the signed agreement, financing or lease papers, sales materials, installation records, invoices, and written communications. Keep dates and a concise timeline, and ask for the company’s response in writing."
+          },
+          {
+            "q": "How can I complain to Utah about a solar contract dispute?",
+            "a": "Use Utah’s Division of Consumer Protection complaint portal. Provide your contact details, the company’s information, the agreement, and a clear description of the alleged problem. The complaint process does not itself cancel the contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://services.commerce.utah.gov/dcp-complaint/",
+          "https://commerce.utah.gov/dcp/residential-solar-panel-retailer/residential-solar-panel-retailer-frequently-asked-questions/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "West Valley City, UT Solar Contract Help | Solar Freedom",
+        "description": "Solar contract help in West Valley City, UT. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/west-valley-city-ut"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract West Valley City",
+          "West Valley City solar contract cancellation",
+          "Utah solar contract rights",
+          "West Valley City solar lease cancellation",
+          "West Valley City solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in West Valley City, UT"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in West Valley City, Utah?",
+            "a": "Possibly, but there is no single answer for every West Valley City contract. It depends on the agreement, how and where it was signed or sold, whether installation has begun or finished, and applicable Utah law. Review the contract’s cancellation, notice, financing, and dispute terms, then ask the solar company in writing what options apply. Do not assume cancellation is available or stop payments without a clear contractual or legal basis."
+          },
+          {
+            "q": "What documents should I gather before asking to cancel?",
+            "a": "Gather the signed agreement, financing or lease papers, sales materials, installation records, invoices, and written communications. Keep dates and a concise timeline, and ask for the company’s response in writing."
+          },
+          {
+            "q": "How can I complain to Utah about a solar contract dispute?",
+            "a": "Use Utah’s Division of Consumer Protection complaint portal. Provide your contact details, the company’s information, the agreement, and a clear description of the alleged problem. The complaint process does not itself cancel the contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://services.commerce.utah.gov/dcp-complaint/",
+          "https://commerce.utah.gov/dcp/residential-solar-panel-retailer/residential-solar-panel-retailer-frequently-asked-questions/",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "nashville-tn",
+      "path": "/cancel-solar-contract/nashville-tn",
+      "inventoryOrder": 23,
+      "metrics": {
+        "path": "/cancel-solar-contract/nashville-tn",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 8.11111111111111
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Nashville, TN | Solar Freedom",
+        "description": "Solar contract help in Nashville, TN. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/nashville-tn"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Nashville",
+          "Nashville solar contract cancellation",
+          "Tennessee solar contract rights",
+          "Nashville solar lease cancellation",
+          "Nashville solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Nashville, TN"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Nashville, Tennessee?",
+            "a": "Maybe, but cancellation is not guaranteed. It depends on your agreement, how and where it was signed or sold, whether installation began, and applicable Tennessee law. Review the contract’s cancellation terms and keep records of what happened. Tennessee’s official solar guidance points consumers to the Home Solicitations Sales Act and Consumer Protection Act, but those references do not decide your individual contract."
+          },
+          {
+            "q": "What should I check before asking to cancel a solar contract?",
+            "a": "Check the signed agreement, addenda, financing or lease terms, signing or sales circumstances, installation status, and any written cancellation instructions. Keep copies of all communications and records."
+          },
+          {
+            "q": "Where can I complain about a Tennessee solar company?",
+            "a": "You can use the Tennessee Attorney General’s Division of Consumer Affairs complaint process for suspected unfair or deceptive practices. Include the agreement and supporting communications; a complaint does not itself cancel a contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.tn.gov/attorneygeneral/working-for-tennessee/consumer-affairs.html",
+          "https://www.tn.gov/environment/program-areas/energy/state-energy-office/solar-energy/residential-solar.html",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Nashville, TN | Solar Freedom",
+        "description": "Solar contract help in Nashville, TN. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/nashville-tn"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Nashville",
+          "Nashville solar contract cancellation",
+          "Tennessee solar contract rights",
+          "Nashville solar lease cancellation",
+          "Nashville solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Nashville, TN"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Nashville, Tennessee?",
+            "a": "Maybe, but cancellation is not guaranteed. It depends on your agreement, how and where it was signed or sold, whether installation began, and applicable Tennessee law. Review the contract’s cancellation terms and keep records of what happened. Tennessee’s official solar guidance points consumers to the Home Solicitations Sales Act and Consumer Protection Act, but those references do not decide your individual contract."
+          },
+          {
+            "q": "What should I check before asking to cancel a solar contract?",
+            "a": "Check the signed agreement, addenda, financing or lease terms, signing or sales circumstances, installation status, and any written cancellation instructions. Keep copies of all communications and records."
+          },
+          {
+            "q": "Where can I complain about a Tennessee solar company?",
+            "a": "You can use the Tennessee Attorney General’s Division of Consumer Affairs complaint process for suspected unfair or deceptive practices. Include the agreement and supporting communications; a complaint does not itself cancel a contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.tn.gov/attorneygeneral/working-for-tennessee/consumer-affairs.html",
+          "https://www.tn.gov/environment/program-areas/energy/state-energy-office/solar-energy/residential-solar.html",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Nashville, TN | Solar Freedom",
+        "description": "Solar contract help in Nashville, TN. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/nashville-tn"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Nashville",
+          "Nashville solar contract cancellation",
+          "Tennessee solar contract rights",
+          "Nashville solar lease cancellation",
+          "Nashville solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Nashville, TN"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Nashville, Tennessee?",
+            "a": "Maybe, but cancellation is not guaranteed. It depends on your agreement, how and where it was signed or sold, whether installation began, and applicable Tennessee law. Review the contract’s cancellation terms and keep records of what happened. Tennessee’s official solar guidance points consumers to the Home Solicitations Sales Act and Consumer Protection Act, but those references do not decide your individual contract."
+          },
+          {
+            "q": "What should I check before asking to cancel a solar contract?",
+            "a": "Check the signed agreement, addenda, financing or lease terms, signing or sales circumstances, installation status, and any written cancellation instructions. Keep copies of all communications and records."
+          },
+          {
+            "q": "Where can I complain about a Tennessee solar company?",
+            "a": "You can use the Tennessee Attorney General’s Division of Consumer Affairs complaint process for suspected unfair or deceptive practices. Include the agreement and supporting communications; a complaint does not itself cancel a contract."
+          }
+        ],
+        "sourceLinks": [
+          "https://www.tn.gov/attorneygeneral/working-for-tennessee/consumer-affairs.html",
+          "https://www.tn.gov/environment/program-areas/energy/state-energy-office/solar-energy/residential-solar.html",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "savannah-ga",
+      "path": "/cancel-solar-contract/savannah-ga",
+      "inventoryOrder": 22,
+      "metrics": {
+        "path": "/cancel-solar-contract/savannah-ga",
+        "clicks": 0,
+        "impressions": 7,
+        "ctr": 0,
+        "position": 7.285714285714286
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": 100,
+      "scoreLabel": "Measured technical city checklist; not rankings or an external scanner score",
+      "criteria": [
+        {
+          "id": "keywords",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "title_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "description_length",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "canonical",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "one_h1",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "json_ld_valid",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "faq_visible_and_aligned",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "official_sources",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "review_cta",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        },
+        {
+          "id": "index_policy",
+          "passed": true,
+          "weight": 10,
+          "earned": 10
+        }
+      ],
+      "initial": {
+        "title": "Cancel a Solar Contract in Savannah, GA | Solar Freedom",
+        "description": "Solar contract help in Savannah, GA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/savannah-ga"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Savannah",
+          "Savannah solar contract cancellation",
+          "Georgia solar contract rights",
+          "Savannah solar lease cancellation",
+          "Savannah solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Savannah, GA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Savannah, Georgia?",
+            "a": "Possibly, but there is no single answer for every Savannah solar contract. Whether you can end it depends on the agreement, how and where it was signed, any sale or transfer, whether installation has begun or finished, and applicable Georgia law. Review the termination, transfer, and dispute terms and communicate with the provider in writing. A consumer complaint may flag concerns, but it does not itself cancel the contract."
+          },
+          {
+            "q": "Could a signed solar contract still be cancelable?",
+            "a": "Possibly. Georgia guidance identifies limited consumer transactions with cancellation rights, and some solar-related transactions may qualify under statutory protections. Check the agreement and signing circumstances rather than assuming a right or result."
+          },
+          {
+            "q": "What should I gather for a Georgia consumer complaint?",
+            "a": "Keep the signed agreement, proposal, sales messages, payment records, installation timeline, and communication notes. Submit a factual complaint through the Attorney General’s online consumer-complaint route. A complaint is separate from asking the company to cancel."
+          }
+        ],
+        "sourceLinks": [
+          "https://consumer.georgia.gov/consumer-topics/canceling-contract",
+          "https://consumer.georgia.gov/solar-power-your-home",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      },
+      "rendered": {
+        "title": "Cancel a Solar Contract in Savannah, GA | Solar Freedom",
+        "description": "Solar contract help in Savannah, GA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/savannah-ga"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Savannah",
+          "Savannah solar contract cancellation",
+          "Georgia solar contract rights",
+          "Savannah solar lease cancellation",
+          "Savannah solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Savannah, GA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Savannah, Georgia?",
+            "a": "Possibly, but there is no single answer for every Savannah solar contract. Whether you can end it depends on the agreement, how and where it was signed, any sale or transfer, whether installation has begun or finished, and applicable Georgia law. Review the termination, transfer, and dispute terms and communicate with the provider in writing. A consumer complaint may flag concerns, but it does not itself cancel the contract."
+          },
+          {
+            "q": "Could a signed solar contract still be cancelable?",
+            "a": "Possibly. Georgia guidance identifies limited consumer transactions with cancellation rights, and some solar-related transactions may qualify under statutory protections. Check the agreement and signing circumstances rather than assuming a right or result."
+          },
+          {
+            "q": "What should I gather for a Georgia consumer complaint?",
+            "a": "Keep the signed agreement, proposal, sales messages, payment records, installation timeline, and communication notes. Submit a factual complaint through the Attorney General’s online consumer-complaint route. A complaint is separate from asking the company to cancel."
+          }
+        ],
+        "sourceLinks": [
+          "https://consumer.georgia.gov/consumer-topics/canceling-contract",
+          "https://consumer.georgia.gov/solar-power-your-home",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Savannah, GA | Solar Freedom",
+        "description": "Solar contract help in Savannah, GA. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/savannah-ga"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Savannah",
+          "Savannah solar contract cancellation",
+          "Georgia solar contract rights",
+          "Savannah solar lease cancellation",
+          "Savannah solar PPA cancellation"
+        ],
+        "h1": [
+          "Solar contract help in Savannah, GA"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "Can I cancel a solar contract in Savannah, Georgia?",
+            "a": "Possibly, but there is no single answer for every Savannah solar contract. Whether you can end it depends on the agreement, how and where it was signed, any sale or transfer, whether installation has begun or finished, and applicable Georgia law. Review the termination, transfer, and dispute terms and communicate with the provider in writing. A consumer complaint may flag concerns, but it does not itself cancel the contract."
+          },
+          {
+            "q": "Could a signed solar contract still be cancelable?",
+            "a": "Possibly. Georgia guidance identifies limited consumer transactions with cancellation rights, and some solar-related transactions may qualify under statutory protections. Check the agreement and signing circumstances rather than assuming a right or result."
+          },
+          {
+            "q": "What should I gather for a Georgia consumer complaint?",
+            "a": "Keep the signed agreement, proposal, sales messages, payment records, installation timeline, and communication notes. Submit a factual complaint through the Attorney General’s online consumer-complaint route. A complaint is separate from asking the company to cancel."
+          }
+        ],
+        "sourceLinks": [
+          "https://consumer.georgia.gov/consumer-topics/canceling-contract",
+          "https://consumer.georgia.gov/solar-power-your-home",
+          "https://consumer.ftc.gov/articles/solar-power-your-home"
+        ],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": true
+      }
+    },
+    {
+      "slug": "austin-tx",
+      "path": "/cancel-solar-contract/austin-tx",
+      "inventoryOrder": 24,
+      "metrics": {
+        "path": "/cancel-solar-contract/austin-tx",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 7
+      },
+      "status": 200,
+      "error": null,
+      "keywordPass": true,
+      "score": null,
+      "scoreLabel": "Austin unchanged; keyword check only",
+      "criteria": [],
+      "initial": {
+        "title": "Solar Freedom — Solar Contract Information and Case Review",
+        "description": "Solar contract information and case-review intake for homeowners evaluating a solar lease, loan, or power purchase agreement.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Austin",
+          "Austin solar contract cancellation",
+          "Texas solar contract rights",
+          "Austin solar lease cancellation",
+          "Austin solar PPA cancellation"
+        ],
+        "h1": [
+          "Cancel Your Solar Contract | Solar Freedom"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 0,
+        "faq": [],
+        "sourceLinks": [],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": false
+      },
+      "rendered": {
+        "title": "Cancel Solar Contract in Austin, Texas | Solar Freedom",
+        "description": "Exposed: How solar companies are trapping Austin, Texas homeowners with hidden fees and broken promises. Find out if you qualify to cancel your contract.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/austin-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Austin",
+          "Austin solar contract cancellation",
+          "Texas solar contract rights",
+          "Austin solar lease cancellation",
+          "Austin solar PPA cancellation"
+        ],
+        "h1": [
+          "Cancel Your Solar Contract | Solar Freedom",
+          "CANCEL YOUR SOLAR CONTRACTIN AUSTIN, TEXAS"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 1,
+        "faq": [
+          {
+            "q": "What records should I gather for a solar contract review in Austin, Texas?",
+            "a": "Gather the signed agreement, loan or lease documents, disclosures, sales proposals, utility bills, installation records, and communications with the seller, installer, servicer, or lender."
+          },
+          {
+            "q": "How long does a solar contract dispute take in Texas?",
+            "a": "Timing varies with the agreement, facts, parties involved, selected process, and applicable law. No result or timeline can be determined before an individual review."
+          },
+          {
+            "q": "Where can I verify solar-company complaint information for Austin?",
+            "a": "Check current records from the Texas attorney general, the Consumer Financial Protection Bureau, the Federal Trade Commission, and other official regulators. Third-party ratings and complaint totals can change."
+          },
+          {
+            "q": "What is the TDU delivery fee and why am I still paying it with solar?",
+            "a": "In deregulated Texas markets, the Transmission and Distribution Utility (TDU) charges a delivery fee of $40-55/month that solar panels cannot eliminate. Many solar sales reps fail to disclose this charge, leading homeowners to believe their electric bill will be $0."
+          },
+          {
+            "q": "Can I sue my solar lender (GoodLeap, Mosaic) directly?",
+            "a": "Under the FTC Holder Rule (16 CFR 433), you can assert claims against your lender for any violations committed by the solar dealer/installer. This includes TILA violations, misrepresentation, and fraud. The lender is liable up to the amount you have paid."
+          }
+        ],
+        "sourceLinks": [],
+        "robots": "index, follow",
+        "hasCaseReview": true
+      },
+      "build": {
+        "title": "Cancel a Solar Contract in Austin, TX | Solar Freedom",
+        "description": "Solar contract records and consumer resources for Austin, TX. Options and timing depend on the agreement, facts, and jurisdiction.",
+        "canonical": [
+          "https://breakyoursolarcontract.com/cancel-solar-contract/austin-tx"
+        ],
+        "keywordTagCount": 1,
+        "keywords": [
+          "cancel solar contract Austin",
+          "Austin solar contract cancellation",
+          "Texas solar contract rights",
+          "Austin solar lease cancellation",
+          "Austin solar PPA cancellation"
+        ],
+        "h1": [
+          "Cancel a Solar Contract in Austin, TX"
+        ],
+        "schemaValid": true,
+        "faqSchemaCount": 0,
+        "faq": [],
+        "sourceLinks": [],
+        "robots": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        "hasCaseReview": false
+      }
+    }
+  ]
+}
