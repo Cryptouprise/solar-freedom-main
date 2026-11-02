@@ -3,6 +3,7 @@
 // Also updates og:title, og:description, og:url, og:type, canonical URL, and robots directive.
 
 import { useEffect } from "react";
+import { getPageMetaKeywords } from "@shared/pageMetaKeywords";
 
 interface SeoMeta {
   title: string;
@@ -31,6 +32,17 @@ export function useSeoMeta({ title, description, canonical, ogImage, ogType, noi
       document.head.appendChild(descEl);
     }
     descEl.content = description;
+
+    // Keywords are configured per page, never inherited by another SPA route.
+    const keywords = getPageMetaKeywords(window.location.pathname);
+    let keywordsEl: HTMLMetaElement | undefined;
+    if (keywords) {
+      document.querySelectorAll('meta[name="keywords"]').forEach(el => el.remove());
+      keywordsEl = document.createElement("meta");
+      keywordsEl.name = "keywords";
+      keywordsEl.content = keywords;
+      document.head.appendChild(keywordsEl);
+    }
 
     // Canonical
     const canonicalUrl = canonical ?? `https://breakyoursolarcontract.com${window.location.pathname}`;
@@ -87,6 +99,7 @@ export function useSeoMeta({ title, description, canonical, ogImage, ogType, noi
 
     // Cleanup: restore defaults when component unmounts
     return () => {
+      keywordsEl?.remove();
       document.title = "Solar Freedom — Get Out of Your Solar Contract Today";
       const d = document.querySelector<HTMLMetaElement>('meta[name="description"]');
       if (d) d.content = "Review solar contract terms, gather the right records, and explore possible next steps. Options depend on your agreement, facts, and jurisdiction.";

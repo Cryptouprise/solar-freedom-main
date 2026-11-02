@@ -29,6 +29,7 @@ import { INDEXED_CITY_SLUGS } from "../client/src/data/indexed-cities";
 import { isCanonicalBlogIndexed, isCompanyIndexed, isStateIndexed } from "../client/src/data/indexEligibility";
 import { sanitizeStoredHtml } from "./security/html";  // server/security/html.ts
 import { findDuplicateCityMeta, generateCityMeta } from "./cityMeta";
+import { getPageMetaKeywords } from "../shared/pageMetaKeywords";
 
 const BASE_URL = "https://breakyoursolarcontract.com";
 
@@ -306,6 +307,17 @@ export function buildMetaMap(): Record<string, MetaEntry> {
   return map;
 }
 
+/** Add only the requested page-specific keywords; leave other documents untouched. */
+export function injectPageMetaKeywords(html: string, pagePath: string): string {
+  const keywords = getPageMetaKeywords(pagePath);
+  if (!keywords) return html;
+  const $ = cheerio.load(html);
+  $('meta[name="keywords"]').remove();
+  $("head").append('<meta name="keywords" />');
+  $('meta[name="keywords"]').attr("content", keywords);
+  return $.html();
+}
+
 export function injectMeta(html: string, path: string): string {
   const map = buildMetaMap();
   const normalizedPath =
@@ -326,7 +338,7 @@ export function injectMeta(html: string, path: string): string {
     $('meta[name="robots"]').remove();
     $('head').append('<meta name="robots" content="noindex, follow" />');
   }
-  return $.html();
+  return injectPageMetaKeywords($.html(), normalizedPath);
 }
 
 function escapeHtml(str: string): string {
@@ -516,7 +528,7 @@ export async function injectMetaDynamic(
     $('meta[name="robots"]').remove();
     $('head').append('<meta name="robots" content="noindex, follow" />');
   }
-  return $.html();
+  return injectPageMetaKeywords($.html(), normalizedPath);
 }
 
 export function applyDbOverlayToPrerendered(

@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import * as cheerio from "cheerio";
 import { getDbBlogPost, getDbBlogPostStatus, getDbBlogPosts } from "./db";
-import { applyCityRecoveryOverlay, applyDbOverlayToPrerendered, renderDbBlogPost } from "./seo-meta";
+import { applyCityRecoveryOverlay, applyDbOverlayToPrerendered, injectPageMetaKeywords, renderDbBlogPost } from "./seo-meta";
 import { getPublishedCityRecovery } from "./cityRecovery";
 import { rateLimit } from "express-rate-limit";
 import { isLegacyBlogSlug } from "./seo-redirects";
@@ -293,7 +293,7 @@ export function registerSeoPageDelivery(app: Express, publicDir: string) {
           }
         }
       }
-      response.status(200).send(markup);
+      response.status(200).send(injectPageMetaKeywords(markup, pagePath));
       return;
     }
 

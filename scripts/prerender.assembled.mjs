@@ -38,6 +38,9 @@ const BASE_URL = "https://breakyoursolarcontract.com";
 const indexEligibility = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/index-eligibility.json"), "utf-8")
 );
+const pageMetaKeywords = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/page-meta-keywords.json"), "utf-8")
+);
 const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
 const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
 const INDEXED_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
@@ -1404,6 +1407,7 @@ function buildShellHtml(meta, jsFile, cssFile, urlPath) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
   <title>${title}</title>
   <meta name="description" content="${desc}">
+  ${pageMetaKeywords[urlPath] ? `<meta name="keywords" content="${escapeHtml(pageMetaKeywords[urlPath].join(", "))}">` : ""}
   <link rel="canonical" href="${canonical}">
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${desc}">

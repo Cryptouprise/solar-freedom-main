@@ -1281,3 +1281,8 @@
 - [x] Verify and merge GitHub PR #46, synchronize the managed project, and validate the resulting preview
 - [x] Decide and implement the safe Houston SEO policy in PR #46: retain and improve a valuable page, or retire it with a relevant redirect and no stale agent targets
 - [x] Recheck the revised PR #46 at its latest commit for required CI, Houston routing, and Content/SEO agent file integrity
+
+## Houston meta keywords — 2026-11-02
+- [x] Add exactly five focused meta keywords to `/cancel-solar-contract/houston-tx`, within the requested 3–8 limit.
+- [x] Include one consistent tag in initial preview HTML, production city delivery, build-time prerendering, and hydrated client metadata. Preserve content, existing metadata, redirects, analytics, and index policy.
+- [x] Verify strict keyword quantity, uniqueness, deduplication, idempotence, static/dynamic/build-time delivery, and browser navigation cleanup. TypeScript clean; 47 test files passed, 229 tests passed, 3 opt-in probes skipped.
