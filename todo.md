@@ -1286,3 +1286,7 @@
 - [x] Add exactly five focused meta keywords to `/cancel-solar-contract/houston-tx`, within the requested 3–8 limit.
 - [x] Include one consistent tag in initial preview HTML, production city delivery, build-time prerendering, and hydrated client metadata. Preserve content, existing metadata, redirects, analytics, and index policy.
 - [x] Verify strict keyword quantity, uniqueness, deduplication, idempotence, static/dynamic/build-time delivery, and browser navigation cleanup. TypeScript clean; 47 test files passed, 229 tests passed, 3 opt-in probes skipped.
+
+## Dallas meta keywords — 2026-11-02
+- [x] Add exactly five focused meta keywords to `/cancel-solar-contract/dallas-tx` using the shared registry, within the requested 3–8 limit. No content, other metadata, or index-policy changes.
+- [x] Verify one tag containing the five Dallas keywords in initial HTML, rendered DOM, and build-time/server delivery; preserve Houston keywords. TypeScript clean; 48 test files passed, 232 tests passed, 3 opt-in probes skipped.
