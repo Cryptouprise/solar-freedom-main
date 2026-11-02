@@ -44,8 +44,8 @@ describe("Houston page meta keywords", () => {
 
   it("supports query strings and trailing slashes without affecting other routes", () => {
     expect(getPageMetaKeywords(`${pagePath}/?source=test`)).toBe(getPageMetaKeywords(pagePath));
-    expect(getPageMetaKeywords("/cancel-solar-contract/phoenix-az")).toBeUndefined();
-    expect(injectPageMetaKeywords(template, "/cancel-solar-contract/phoenix-az")).toBe(template);
+    expect(getPageMetaKeywords("/")).toBeUndefined();
+    expect(injectPageMetaKeywords(template, "/")).toBe(template);
     expect(getPageMetaKeywords(`${pagePath}-other`)).toBeUndefined();
   });
 
@@ -54,13 +54,13 @@ describe("Houston page meta keywords", () => {
     expectHoustonKeywords(await injectMetaDynamic(template, pagePath));
   });
 
-  it("includes Houston keywords in build-time HTML, but not another city", async () => {
+  it("includes Houston keywords in build-time HTML, but not the homepage", async () => {
     // @ts-expect-error The build-time module intentionally remains plain ESM.
     const prerender = await import("../scripts/prerender.mjs");
     const { cityEntries } = await prerender.loadData();
     const meta = prerender.buildMetaMap(cityEntries, [], [], {});
     expectHoustonKeywords(prerender.buildShellHtml(meta[pagePath], "app.js", "app.css", pagePath));
-    const otherPath = "/cancel-solar-contract/phoenix-az";
+    const otherPath = "/";
     const $ = cheerio.load(prerender.buildShellHtml(meta[otherPath], "app.js", "app.css", otherPath));
     expect($('meta[name="keywords"]')).toHaveLength(0);
   });

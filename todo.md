@@ -1290,3 +1290,7 @@
 ## Dallas meta keywords — 2026-11-02
 - [x] Add exactly five focused meta keywords to `/cancel-solar-contract/dallas-tx` using the shared registry, within the requested 3–8 limit. No content, other metadata, or index-policy changes.
 - [x] Verify one tag containing the five Dallas keywords in initial HTML, rendered DOM, and build-time/server delivery; preserve Houston keywords. TypeScript clean; 48 test files passed, 232 tests passed, 3 opt-in probes skipped.
+
+## Phoenix meta keywords — 2026-11-02
+- [x] Add exactly five focused meta keywords to `/cancel-solar-contract/phoenix-az`, within the requested 3–8 limit. Preserve page content, other metadata, index policy, and existing Houston/Dallas keywords.
+- [x] Verify exactly one tag with consistent keywords in initial HTML, rendered browser DOM, and static/dynamic/build-time delivery. Update the no-keyword route fixture to the homepage because Phoenix now intentionally has keywords. TypeScript clean; 49 test files passed, 235 tests passed, 3 opt-in probes skipped.
