@@ -1316,9 +1316,12 @@
 - [x] TypeScript clean; 53 test files, 311 tests passed, 3 live probes skipped; production build passed.
 - [x] Pull fresh final GSC comparison: Oct 4–31 vs Sep 6–Oct 3, 2026; property clicks 157 vs 175, impressions 15,336 vs 16,027, CTR 1.0237% vs 1.0919%, average position 10.3277 vs 10.3610. This predates today's changes and is not an effect measurement.
 - [x] Inspect actual heartbeat logs, not just cron definitions: identify frequent worker/executor timeouts and successful callbacks with zero created actions. Keep read-only evidence outside app.
-- [ ] Finish owner-readable operational findings from the current DB/agent audit, distinguishing proposals, queued work, real public effects and unknown SEO/AEO/GEO outcomes.
+- [x] Finish owner-readable operational findings from the current DB/agent audit: 56 live-change receipts across nine URLs in seven days; some timeout callbacks complete later in DB; false pipeline-published labels, zero-output completed runs and unmeasured change outcomes remain repair requirements. No claim that agents were fully repaired.
 
 ## Separate Sunrun Solar Relief sub-site request — 2026-11-02
-- [ ] Verify the previously supplied external origin can support `/sunrun-solar-relief/` hosting with stripped-prefix routing and working assets, navigation, canonical/sitemap declarations and SSL.
-- [ ] Preserve or narrow the existing bare `/sunrun` redirect so it cannot intercept `/sunrun-solar-relief/`.
-- [ ] Serve the owner-provided IndexNow key file at the root; advertise the sub-site sitemap only once the proxied sitemap is valid.
+- [x] Verify current external-origin behavior: root pages work, but assets/router links are root-relative and canonical/schema/sitemap URLs use the preview origin. A plain prefix-stripping proxy alone is not production-ready. Save an exact external-platform handoff.
+- [x] Confirm the existing `/sunrun` redirect matches exact Express routes and does not catch `/sunrun-solar-relief/`; retain the existing blog redirect without changing unrelated URLs.
+- [x] Add the owner-provided public IndexNow key file and verify HTTP 200 text/plain with matching content in preview.
+- [ ] Confirm the new public key file after production publication.
+- [ ] Configure an upstream public-base/router/asset contract, then implement and verify the scoped proxy; do not silently rewrite or hijack unrelated root paths.
+- [ ] Advertise the sub-site sitemap in root robots only once its public response and production-prefixed URLs are valid.
