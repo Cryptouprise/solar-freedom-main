@@ -486,6 +486,8 @@ function loadBlogData() {
     "blog-articles-batch16.ts",
     "blog-articles-batch17.ts",
     "blog-articles-batch18.ts",
+    "blog-articles-batch19.ts",
+    "blog-articles-batch20.ts",
   ];
   const blogEntries = {};
   for (const filename of blogFiles) {

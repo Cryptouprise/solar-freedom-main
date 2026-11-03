@@ -19,6 +19,8 @@ import { batch15BlogPosts } from './blog-articles-batch15';
 import { batch16BlogPosts } from './blog-articles-batch16';
 import { batch17BlogPosts } from './blog-articles-batch17';
 import { batch18BlogPosts } from './blog-articles-batch18';
+import { batch19BlogPosts } from './blog-articles-batch19';
+import { batch20BlogPosts } from './blog-articles-batch20';
 import type { QuoteVerification } from '@shared/contentGovernance';
 
 export interface BlogSection {
@@ -938,6 +940,8 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
   ...batch16BlogPosts,
   ...batch17BlogPosts,
   ...batch18BlogPosts,
+  ...batch19BlogPosts,
+  ...batch20BlogPosts,
 ]);
 // ─── Helper functions ──────────────────────────────────────────────────────────
 
