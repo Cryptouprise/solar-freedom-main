@@ -8,9 +8,9 @@ describe('Sunrun Solar Relief public key and route boundary',()=>{
     expect(key).toMatch(/^[a-f0-9]{32}$/);
     expect(fs.readFileSync(`client/public/${key}.txt`,'utf8')).toBe(`${key}\n`);
   });
-  it('preserves the existing exact Sunrun redirect without a sub-site prefix redirect',()=>{
+  it('preserves the existing exact Sunrun redirect and 301s the retired relief path',()=>{
     expect(PUBLIC_PATH_REDIRECTS['/sunrun']).toBe('/blog/sunrun-solar-contract-cancellation-2026');
-    for(const path of ['/sunrun-solar-relief','/sunrun-solar-relief/','/sunrun-solar-relief/sunrun-contract-cancellation']) expect(Object.hasOwn(PUBLIC_PATH_REDIRECTS,path)).toBe(false);
+    for(const path of ['/sunrun-solar-relief','/sunrun-solar-relief/']) expect(PUBLIC_PATH_REDIRECTS[path]).toBe('/blog/sunrun-solar-contract-cancellation-2026');
     const source=fs.readFileSync('server/_core/index.ts','utf8');
     expect(source).toContain('app.get(from, (_req, res) => res.redirect(301, to))');
   });
