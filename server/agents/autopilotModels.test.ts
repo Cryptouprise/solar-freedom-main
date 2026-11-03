@@ -57,6 +57,21 @@ describe("autopilot explicit model routing", () => {
     expect(mocks.invokeLLM).not.toHaveBeenCalled();
   });
 
+  it("never downgrades SEO to GPT Mini, even if fallback is explicitly enabled", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ error: "denied" }, 403)));
+    await expect(callAgentLLM({ agentSlug: "seo_intel", modelOverride: "google/gemini-4-argon", messages, allowFallback: true, executionMode: "scheduled" })).rejects.toThrow("403");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(mocks.invokeLLM).not.toHaveBeenCalled();
+  });
+
+  it("defaults SEO to Argon and rejects legacy GPT/Qwen overrides before a provider call", async () => {
+    expect(AGENT_DEFAULT_MODELS.seo_intel.modelId).toBe("google/gemini-4-argon");
+    for (const modelOverride of ["gpt-5-mini", "qwen/qwen3.7-plus"]) {
+      await expect(callAgentLLM({ agentSlug: "seo_intel", modelOverride, messages })).rejects.toThrow("Owner model policy");
+    }
+    expect(mocks.invokeLLM).not.toHaveBeenCalled();
+  });
+
   it.each(["deepseek/deepseek-v4.1-flash", "google/gemini-4-argon"])("routes exact ID %s to OpenRouter and includes actual usage.cost", async modelId => {
     const fetchMock = vi.fn().mockResolvedValue(response(completion(modelId, "OK", "stop", { cost: 0.0123 })));
     vi.stubGlobal("fetch", fetchMock);

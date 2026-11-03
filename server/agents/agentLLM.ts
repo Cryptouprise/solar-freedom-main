@@ -7,12 +7,12 @@ import { ENV } from "../_core/env";
 import { OPENROUTER_MODELS, estimateOpenRouterCost } from "./openRouterCatalog";
 export { AVAILABLE_MODELS, OPENROUTER_MODELS, OPENROUTER_MODEL_PRICING, getAvailableModels, estimateOpenRouterCost } from "./openRouterCatalog";
 
-// Keep existing defaults and production overrides unchanged until workload pilots pass.
+// Other roles retain their defaults. Owner approved Argon for SEO after workload validation.
 export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel: string }> = {
   manager:       { modelId: "qwen/qwen3-32b", modelLabel: "Qwen3-32B" },
   revenue_intel: { modelId: "deepseek/deepseek-v4-pro", modelLabel: "DeepSeek V4 Pro" },
   content:       { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
-  seo_intel:     { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
+  seo_intel:     { modelId: "google/gemini-4-argon", modelLabel: "Gemini 4 Argon (OpenRouter)" },
   editor:        { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
   money_maker:   { modelId: "qwen/qwen3.7-plus", modelLabel: "Qwen3.7 Plus (OpenRouter)" },
   infra:         { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
@@ -114,6 +114,9 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<AgentLLMResul
   };
   const modelId = opts.modelOverride ?? (opts.agentSlug
     ? await withTimeout(getAgentModel(opts.agentSlug), remaining(), "Agent model lookup") : FALLBACK_MODEL);
+  if (opts.agentSlug === "seo_intel" && !["google/gemini-4-argon", "deepseek/deepseek-v4.1-flash"].includes(modelId)) {
+    throw new Error("Owner model policy: SEO requires Gemini 4 Argon or DeepSeek V4.1 Flash; GPT Mini and other routes are not permitted.");
+  }
   const boundedRoleAttempt = scheduled && opts.totalTimeoutMs !== undefined
     ? opts.agentSlug === "content" || opts.agentSlug === "editor" ? 70_000 : opts.agentSlug === "seo_intel" ? 45_000 : profile.openRouterAttemptTimeoutMs
     : profile.openRouterAttemptTimeoutMs;
@@ -138,7 +141,8 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<AgentLLMResul
       await new Promise(resolve => setTimeout(resolve, backoff));
     }
   }
-  if (opts.allowFallback === false) throw lastError;
+  // Owner policy: SEO must not silently downgrade to GPT Mini.
+  if (opts.allowFallback === false || opts.agentSlug === "seo_intel") throw lastError;
   const fallbackBudget = Math.min(boundedBuiltInAttempt, remaining());
   console.error(`[agentLLM] Falling back from ${modelId} to ${FALLBACK_MODEL} within ${fallbackBudget}ms remaining budget.`);
   const result = await callBuiltIn(FALLBACK_MODEL, opts, fallbackBudget);

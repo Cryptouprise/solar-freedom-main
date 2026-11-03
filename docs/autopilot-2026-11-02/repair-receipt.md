@@ -41,3 +41,7 @@ The compact default scheduled SEO delivery completed as **run #52530001**, using
 The exact release checks passed **62 test files, 484 tests, with three opt-in live probes skipped**. The production build succeeded and the existing Outcomes UI was visually checked.
 
 Official reasoning-budget reference used for the truncation correction: https://openrouter.ai/docs/guides/best-practices/reasoning-tokens . Reasoning consumes completion budget; hiding reasoning is not the same as limiting it. Scheduled calls now use an explicit low-effort control for the verified model families, with output validation retained.
+
+## Subsequent owner-authorized SEO model change — November 2, 2026
+
+After the earlier checkpoint, the owner explicitly requested DeepSeek 4.1 or Argon and rejected GPT Mini for SEO. The saved SEO Intel model is now **`google/gemini-4-argon`**, re-read from the database to verify. The new code defaults SEO to Argon, rejects non-approved SEO routes before provider calls, and forbids GPT fallback even if a caller asks for it. Page-edit executors also use the SEO model regardless of which agent queued the action. Other roles were not changed. These enforcement changes require the new project checkpoint to be deployed; the saved model row takes effect immediately in runtimes that read it. Argon already passed the previously recorded fixture and full real-data delivery test. The updated full deterministic suite passed 501 tests in 63 files, with three opt-in probes skipped.

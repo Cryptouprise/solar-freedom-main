@@ -388,7 +388,9 @@ async function requestPatch(params: {
     );
   }
   const response = await callAgentLLM({
-    agentSlug: params.agentSlug,
+    // Page edits are SEO work regardless of which agent created the queue item.
+    agentSlug: "seo_intel",
+    allowFallback: false,
     executionMode: "scheduled",
     maxTokens: params.maxTokens ?? 900,
     messages: [

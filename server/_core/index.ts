@@ -26,6 +26,7 @@ import { registerJourneyEndpoint } from "../journeyRouter";
 import { registerGhlLifecycleWebhook } from "../ghlLifecycleWebhook";
 import { rateLimit } from "express-rate-limit";
 import { BLOG_SLUG_REDIRECTS, PUBLIC_PATH_REDIRECTS } from "../seo-redirects";
+import { registerSunrunReliefProxy } from "../sunrunReliefProxy";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -52,6 +53,8 @@ async function startServer() {
   // and behind sandbox/Vite proxy in development
   app.set('trust proxy', 1);
   const server = createServer(app);
+  // Preserve the external subsite's prefix before parent parsers/redirects/HTML.
+  registerSunrunReliefProxy(app);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
