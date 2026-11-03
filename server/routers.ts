@@ -33,6 +33,7 @@ import { decodeBase64Image, safeImageStem } from "./security/imageUpload";
 import { enforcePublicMutationLimit } from "./security/rateLimit";
 import { isAllowedPressReleaseSetting, PRESS_RELEASE_OPERATIONAL_KEYS } from "./security/configPolicy";
 import { analyzeBlogSeo } from "./blogSeoAnalysis";
+import { autopilotRouter } from "./autopilotRouter";
 
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
 async function sendToGHL(payload: Record<string, string | undefined>) {
@@ -89,6 +90,7 @@ export const appRouter = router({
   journey: journeyRouter,
   revenueIntel: revenueIntelRouter,
   cityRecovery: cityRecoveryRouter,
+  autopilot: autopilotRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

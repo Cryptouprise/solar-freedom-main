@@ -1325,3 +1325,14 @@
 - [ ] Confirm the new public key file after production publication.
 - [ ] Configure an upstream public-base/router/asset contract, then implement and verify the scoped proxy; do not silently rewrite or hijack unrelated root paths.
 - [ ] Advertise the sub-site sitemap in root robots only once its public response and production-prefixed URLs are valid.
+
+## Accountable SEO autopilot repair — November 2, 2026
+- [x] Atomic worker claims; callback replay protection; role-specific output/run budgets; malformed/truncated SEO replies fail closed. Correct model routing/token caps/cancellation and unknown-cost provenance; selectable verified DeepSeek V4.1 Flash and Gemini 4 Argon IDs; no production model promotion.
+- [x] Content actual word counts/fingerprinted artifacts, same-item Editor revision loop, full-draft approval verification, and Manager owner-controlled publication requests rather than false published flags.
+- [x] Transactional one-action executor; SQL readiness before limit; all-edit cooldown/measurement protection; FAQ cap 10; exact reversible receipts and safe manual rollback.
+- [x] Existing daily scorecard integrates bounded nonoverlapping seven-day GSC outcome writer. Fixed new rolling GSC windows to exactly 28 inclusive Pacific dates. Persisted one real mature historical outcome (change 660004); do not call its mixed results a new repair win.
+- [x] Existing Outcomes includes dated worker/change/measurement/competitor evidence. Three source-backed topics saved in siteConfig and supplied to SEO. No exact competitor Google positions/AI citations claimed.
+- [x] Argon full live delivery passed (run 52500001); default Qwen timed out then GPT-5 Mini fallback passed compact delivery (run 52530001). Both proposed Sunrun edits correctly blocked by prior unmeasured change, not described as live improvements. DeepSeek bounded fixture truncated.
+- [x] Exact release TypeScript clean; 62 test files / 484 passed / 3 opt-in live probes skipped; production build and preview visual checks passed. Generated sitemap/AI-index edits restored; eligibility, redirects, robots and analytics unchanged.
+- [ ] Daily competitor schedule awaits owner choice; do not overwrite the old indexing schedule.
+- [ ] Legacy FAQ/content cleanup and duplicate idea backlog triage still require review. Historic false publication labels exposed, not rewritten into fictional history. New long-form live publication acceptance and actual AI-citation monitoring remain unverified. Saved checkpoint requires Publish/auto-publish before claiming public rollout.

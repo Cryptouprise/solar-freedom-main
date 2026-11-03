@@ -1129,7 +1129,7 @@ function ModelSelectorView() {
 
   if (isLoading) return <div className="flex items-center justify-center h-32"><Loader2 className="w-6 h-6 animate-spin text-amber-400" /></div>;
 
-  const agentOrder = ["manager", "revenue_intel", "content", "seo_intel", "editor", "money_maker", "infra"];
+  const agentOrder = ["manager", "revenue_intel", "content", "seo_intel", "editor", "money_maker", "infra"] as const;
 
   return (
     <div className="space-y-4">
@@ -1140,7 +1140,7 @@ function ModelSelectorView() {
         </div>
         <Button variant="outline" size="sm" onClick={() => seedModels.mutate()} disabled={seedModels.isPending} className="text-xs border-white/10">
           {seedModels.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Settings className="w-3 h-3 mr-1" />}
-          Reset to Defaults
+          Fill missing defaults
         </Button>
       </div>
 

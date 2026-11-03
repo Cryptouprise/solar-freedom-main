@@ -9,6 +9,7 @@ import { createAction, getActionQueue } from "../agents/engine";
 import { refreshGscPageMetrics } from "../gscRefresh";
 import { comparisonDelta } from "../scorecardComparisons";
 import { buildAuthorityScorecardAlerts, buildLeadScorecardAlerts } from "../scorecardLeadHealth";
+import { measureSeoChangeOutcomes } from "../seoChangeOutcomes";
 
 async function readLeadScorecard(periodStart: string, periodEnd: string) {
   const db = await getDb();
@@ -179,7 +180,10 @@ export async function runSeoScorecard(now = new Date()) {
     });
   }
   const comparisons = await saveSnapshotAndComparisons({ now, scorecard, leadScorecard, geoReadiness: geoCoverage.score, alerts });
-  return { ok: true, scorecard, leadScorecard, geoCoverage, alerts, comparisons, refreshedAt: now.toISOString() };
+  // Two exact GSC page-window reads at most. No extra schedule or model call.
+  // Missing, immature or confounded outcomes stay unknown, never fabricated wins.
+  const outcomeMeasurement = await measureSeoChangeOutcomes({ now, limit: 1 });
+  return { ok: true, scorecard, leadScorecard, geoCoverage, alerts, comparisons, outcomeMeasurement, refreshedAt: now.toISOString() };
 }
 
 /** Refreshes source-of-truth GSC page metrics for the existing SEO agent and dashboard. */

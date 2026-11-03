@@ -22,9 +22,15 @@ export type GscScorecardAlert = {
 };
 
 function isoDate(daysAgo: number, now: Date): string {
-  const date = new Date(now);
+  const calendarDay = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+  const date = new Date(`${calendarDay}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() - daysAgo);
   return date.toISOString().slice(0, 10);
+}
+
+export function gscCoverageWindow(now = new Date()) {
+  // Google counts both boundary dates. now-31 through now-3 was 29 days.
+  return { startDate: isoDate(30, now), endDate: isoDate(3, now), days: 28, timeZone: "America/Los_Angeles" };
 }
 
 export function normalizeGscRows(rows: Array<{ keys?: string[]; clicks?: number; impressions?: number; ctr?: number; position?: number }>): GscPageMetric[] {
@@ -96,12 +102,15 @@ export async function refreshGscPageMetrics(now = new Date()) {
   const credentials = JSON.parse(rawCredentials);
   const auth = new GoogleAuth({ credentials, scopes: [SEARCH_CONSOLE_SCOPE] });
   const client = await auth.getClient();
+  const coverage = gscCoverageWindow(now);
   const response = await client.request<{ rows?: Array<{ keys?: string[]; clicks?: number; impressions?: number; ctr?: number; position?: number }> }>({
     url: `${SEARCH_CONSOLE_API}/${encodeURIComponent(PROPERTY)}/searchAnalytics/query`,
     method: "POST",
+    timeout: 15_000,
+    retry: false,
     data: {
-      startDate: isoDate(31, now),
-      endDate: isoDate(3, now),
+      startDate: coverage.startDate,
+      endDate: coverage.endDate,
       dimensions: ["page"],
       dataState: "final",
       rowLimit: 25_000,
@@ -147,8 +156,8 @@ export async function refreshGscPageMetrics(now = new Date()) {
   if (rows.length > 0) {
     await db.insert(seoPageMetricSnapshots).values(rows.map((row) => ({
       capturedAt: now,
-      periodStart: isoDate(31, now),
-      periodEnd: isoDate(3, now),
+      periodStart: coverage.startDate,
+      periodEnd: coverage.endDate,
       pageUrl: row.url,
       pageSlug: slugForUrl(row.url),
       clicks: Math.round(row.clicks),
@@ -160,8 +169,8 @@ export async function refreshGscPageMetrics(now = new Date()) {
 
   return {
     property: PROPERTY,
-    startDate: isoDate(31, now),
-    endDate: isoDate(3, now),
+    startDate: coverage.startDate,
+    endDate: coverage.endDate,
     rows: rows.length,
     clicks,
     impressions,

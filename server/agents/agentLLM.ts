@@ -1,78 +1,29 @@
-/**
- * agentLLM.ts
- * Universal LLM helper for agents.
- * Routes to OpenRouter for Qwen/DeepSeek models, built-in proxy for others.
- * Reads per-agent model config from DB; falls back to defaults if not set.
- * Has 3-retry logic with exponential backoff + fallback to built-in on OpenRouter failure.
- */
-
+/** Universal agent LLM dispatch. Existing selections are never changed by seeding. */
 import { getDb } from "../db";
 import { agentModelConfig } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { ENV } from "../_core/env";
+import { OPENROUTER_MODELS, estimateOpenRouterCost } from "./openRouterCatalog";
+export { AVAILABLE_MODELS, OPENROUTER_MODELS, OPENROUTER_MODEL_PRICING, getAvailableModels, estimateOpenRouterCost } from "./openRouterCatalog";
 
-// ─── Model Catalog ─────────────────────────────────────────────────────────────
-// Models available via OpenRouter (Qwen + DeepSeek)
-const OPENROUTER_MODELS = new Set([
-  "qwen/qwen3-235b-a22b-thinking-2507",
-  "qwen/qwen3-235b-a22b-2507",
-  "qwen/qwen3-32b",
-  "qwen/qwen3.7-flash",
-  "qwen/qwen3.7-plus",
-  "qwen/qwen3-max",
-  "qwen/qwen3-max-thinking",
-  "deepseek/deepseek-v4-pro",
-  "deepseek/deepseek-v4-flash",
-  "deepseek/deepseek-v3.2",
-  "deepseek/deepseek-r1",
-]);
-
-// Default model per agent slug
+// Keep existing defaults and production overrides unchanged until workload pilots pass.
 export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel: string }> = {
-  manager:       { modelId: "qwen/qwen3-32b",                     modelLabel: "Qwen3-32B" },
-  revenue_intel: { modelId: "deepseek/deepseek-v4-pro",           modelLabel: "DeepSeek V4 Pro" },
-  content:       { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
-  seo_intel:     { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
-  editor:        { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
-  money_maker:   { modelId: "qwen/qwen3.7-plus",                  modelLabel: "Qwen3.7 Plus (OpenRouter)" },
-  infra:         { modelId: "qwen/qwen3.7-flash",                 modelLabel: "Qwen3.7 Flash (OpenRouter)" },
+  manager:       { modelId: "qwen/qwen3-32b", modelLabel: "Qwen3-32B" },
+  revenue_intel: { modelId: "deepseek/deepseek-v4-pro", modelLabel: "DeepSeek V4 Pro" },
+  content:       { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
+  seo_intel:     { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
+  editor:        { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
+  money_maker:   { modelId: "qwen/qwen3.7-plus", modelLabel: "Qwen3.7 Plus (OpenRouter)" },
+  infra:         { modelId: "qwen/qwen3.7-flash", modelLabel: "Qwen3.7 Flash (OpenRouter)" },
 };
 
-// Fallback model when OpenRouter fails
-const FALLBACK_MODEL = "gpt-5-mini";
-export const OPENROUTER_MODEL_PRICING: Record<string, { inputPer1M: number; outputPer1M: number }> = {
-  "qwen/qwen3.7-flash": { inputPer1M: 0.03, outputPer1M: 0.13 },
-  "qwen/qwen3.7-plus": { inputPer1M: 0.32, outputPer1M: 1.28 },
-  "qwen/qwen3-32b": { inputPer1M: 0.08, outputPer1M: 0.28 },
-  "deepseek/deepseek-v4-pro": { inputPer1M: 0.44, outputPer1M: 0.87 },
-  "deepseek/deepseek-v4-flash": { inputPer1M: 0.14, outputPer1M: 0.28 },
-};
-
-export function estimateOpenRouterCost(modelId: string, usage?: { promptTokens: number; completionTokens: number }) {
-  const rate = OPENROUTER_MODEL_PRICING[modelId];
-  if (!rate || !usage) return 0;
-  return (usage.promptTokens / 1_000_000) * rate.inputPer1M + (usage.completionTokens / 1_000_000) * rate.outputPer1M;
-}
-const OPENROUTER_ATTEMPT_TIMEOUT_MS = 45_000;
-const BUILTIN_ATTEMPT_TIMEOUT_MS = 60_000;
-const SCHEDULED_OPENROUTER_ATTEMPT_TIMEOUT_MS = 18_000;
-const SCHEDULED_BUILTIN_ATTEMPT_TIMEOUT_MS = 24_000;
-
+export const FALLBACK_MODEL = "gpt-5-mini";
 export type AgentExecutionMode = "standard" | "scheduled";
-
 export function resolveAgentTimeoutProfile(mode: AgentExecutionMode = "standard") {
   return mode === "scheduled"
-    ? {
-        openRouterAttemptTimeoutMs: SCHEDULED_OPENROUTER_ATTEMPT_TIMEOUT_MS,
-        builtInAttemptTimeoutMs: SCHEDULED_BUILTIN_ATTEMPT_TIMEOUT_MS,
-        maxOpenRouterAttempts: 1,
-      }
-    : {
-        openRouterAttemptTimeoutMs: OPENROUTER_ATTEMPT_TIMEOUT_MS,
-        builtInAttemptTimeoutMs: BUILTIN_ATTEMPT_TIMEOUT_MS,
-        maxOpenRouterAttempts: 3,
-      };
+    ? { openRouterAttemptTimeoutMs: 18_000, builtInAttemptTimeoutMs: 24_000, maxOpenRouterAttempts: 1 }
+    : { openRouterAttemptTimeoutMs: 45_000, builtInAttemptTimeoutMs: 60_000, maxOpenRouterAttempts: 3 };
 }
 
 export async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string): Promise<T> {
@@ -81,7 +32,7 @@ export async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, l
     return await Promise.race([
       operation,
       new Promise<T>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`)), timeoutMs);
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`)), Math.max(0, timeoutMs));
       }),
     ]);
   } finally {
@@ -89,226 +40,195 @@ export async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, l
   }
 }
 
-// Full curated model list for the selector UI
-export const AVAILABLE_MODELS = [
-  // Qwen
-  { id: "qwen/qwen3-235b-a22b-thinking-2507", label: "Qwen3-235B Thinking 2507", provider: "qwen", costIn: 0.30, costOut: 3.00 },
-  { id: "qwen/qwen3-235b-a22b-2507",          label: "Qwen3-235B 2507",          provider: "qwen", costIn: 0.09, costOut: 0.55 },
-  { id: "qwen/qwen3-32b",                     label: "Qwen3-32B",                provider: "qwen", costIn: 0.08, costOut: 0.28 },
-  { id: "qwen/qwen3.7-flash",                 label: "Qwen3.7 Flash",            provider: "qwen", costIn: 0.03, costOut: 0.13 },
-  { id: "qwen/qwen3.7-plus",                  label: "Qwen3.7 Plus (OpenRouter)", provider: "qwen", costIn: 0.32, costOut: 1.28 },
-  { id: "qwen/qwen3-max-thinking",            label: "Qwen3 Max Thinking",       provider: "qwen", costIn: 0.78, costOut: 3.90 },
-  // DeepSeek
-  { id: "deepseek/deepseek-v4-pro",           label: "DeepSeek V4 Pro",          provider: "deepseek", costIn: 0.44, costOut: 0.87 },
-  { id: "deepseek/deepseek-v4-flash",         label: "DeepSeek V4 Flash",        provider: "deepseek", costIn: 0.14, costOut: 0.28 },
-  { id: "deepseek/deepseek-v3.2",             label: "DeepSeek V3.2",            provider: "deepseek", costIn: 0.27, costOut: 0.40 },
-  { id: "deepseek/deepseek-r1",               label: "DeepSeek R1",              provider: "deepseek", costIn: 0.70, costOut: 2.50 },
-  // Built-in (Manus proxy)
-  { id: "gpt-5-mini",                         label: "GPT-5 Mini",               provider: "openai",   costIn: 0.25, costOut: 2.00 },
-  { id: "gpt-5",                              label: "GPT-5",                    provider: "openai",   costIn: 1.25, costOut: 10.00 },
-  { id: "gemini-3-flash-preview",             label: "Gemini 3 Flash",           provider: "google",   costIn: 0.50, costOut: 3.00 },
-  { id: "gemini-3.1-pro-preview",             label: "Gemini 3.1 Pro",           provider: "google",   costIn: 2.00, costOut: 12.00 },
-  { id: "claude-haiku-4-5",                   label: "Claude Haiku 4.5",         provider: "anthropic",costIn: 1.00, costOut: 5.00 },
-  { id: "claude-sonnet-4-6",                  label: "Claude Sonnet 4.6",        provider: "anthropic",costIn: 3.00, costOut: 15.00 },
-];
-
-// ─── Get model for agent (reads DB, falls back to default) ─────────────────────
 export async function getAgentModel(agentSlug: string): Promise<string> {
   const db = await getDb();
   if (db) {
     try {
-      const [config] = await db
-        .select()
-        .from(agentModelConfig)
-        .where(eq(agentModelConfig.agentSlug, agentSlug))
-        .limit(1);
+      const [config] = await db.select().from(agentModelConfig).where(eq(agentModelConfig.agentSlug, agentSlug)).limit(1);
       if (config?.modelId) return config.modelId;
-    } catch (_) {
-      // Fall through to default
-    }
+    } catch { /* Fall through to the existing configured default. */ }
   }
   return AGENT_DEFAULT_MODELS[agentSlug]?.modelId ?? FALLBACK_MODEL;
 }
 
-// ─── Seed default model configs ────────────────────────────────────────────────
 export async function seedDefaultModelConfigs(): Promise<void> {
   const db = await getDb();
   if (!db) return;
   for (const [slug, cfg] of Object.entries(AGENT_DEFAULT_MODELS)) {
     try {
-      await db
-        .insert(agentModelConfig)
-        .values({ agentSlug: slug, modelId: cfg.modelId, modelLabel: cfg.modelLabel })
-        .onDuplicateKeyUpdate({ set: { modelId: cfg.modelId, modelLabel: cfg.modelLabel } });
-    } catch (_) {}
+      // INSERT IGNORE is atomic on the unique agentSlug key and does not touch
+      // modelId, modelLabel, or updatedAt on an existing administrator selection.
+      await db.insert(agentModelConfig).ignore().values({ agentSlug: slug, modelId: cfg.modelId, modelLabel: cfg.modelLabel });
+    } catch { /* Match startup seeding's existing best-effort semantics. */ }
   }
 }
 
-// ─── Universal LLM call ────────────────────────────────────────────────────────
 export interface AgentLLMMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
-
 export interface AgentLLMOptions {
   agentSlug?: string;
   modelOverride?: string;
   executionMode?: AgentExecutionMode;
+  /** Total wall-clock budget for lookup, attempts, backoff AND fallback. */
+  totalTimeoutMs?: number;
+  /** Critical callers may fail closed instead of allowing the existing fallback. */
+  allowFallback?: boolean;
   messages: AgentLLMMessage[];
   tools?: object[];
   responseFormat?: object;
   maxTokens?: number;
 }
-
-export async function callAgentLLM(opts: AgentLLMOptions): Promise<{
+export interface AgentLLMUsage {
+  promptTokens: number;
+  completionTokens: number;
+  /** Actual provider-reported USD cost; do not replace with a token estimate. */
+  costUsd?: number;
+}
+export interface AgentLLMResult {
   content: string;
   toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
-  usage?: { promptTokens: number; completionTokens: number };
+  usage?: AgentLLMUsage;
+  /** Response model when reported, otherwise the explicitly requested model. */
   modelId: string;
-}> {
-  const modelId = opts.modelOverride ?? (opts.agentSlug ? await getAgentModel(opts.agentSlug) : FALLBACK_MODEL);
-  const timeoutProfile = resolveAgentTimeoutProfile(opts.executionMode);
-
-  // Route to OpenRouter for Qwen/DeepSeek models — with retry + fallback
-  if (OPENROUTER_MODELS.has(modelId)) {
-    // Try OpenRouter up to 3 times with exponential backoff
-    const MAX_RETRIES = timeoutProfile.maxOpenRouterAttempts;
-    let lastError: Error | null = null;
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        const result = await callOpenRouter(modelId, opts, timeoutProfile.openRouterAttemptTimeoutMs);
-        // Validate we got actual content back
-        if (!result.content && !result.toolCalls?.length) {
-          throw new Error("OpenRouter returned empty content");
-        }
-        return { ...result, modelId };
-      } catch (err: any) {
-        lastError = err;
-        console.error(`[agentLLM] OpenRouter attempt ${attempt}/${MAX_RETRIES} failed for ${modelId}: ${err.message}`);
-        const nonRetryable = /\b(?:401|403)\b|access denied|security policy|invalid api key|model.*not found/i.test(err?.message ?? "");
-        if (nonRetryable) {
-          console.error(`[agentLLM] OpenRouter failure is non-retryable for ${modelId}; falling back immediately.`);
-          break;
-        }
-        if (attempt < MAX_RETRIES) {
-          // Exponential backoff: 2s, 4s, 8s
-          await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt - 1)));
-        }
-      }
-    }
-    // All retries exhausted — fall back to built-in LLM
-    console.error(`[agentLLM] OpenRouter failed after ${MAX_RETRIES} attempts for ${modelId}. Falling back to ${FALLBACK_MODEL}. Last error: ${lastError?.message}`);
-    return { ...(await callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs)), modelId: FALLBACK_MODEL };
-  }
-
-  // Use built-in proxy for everything else
-  return { ...(await callBuiltIn(opts, timeoutProfile.builtInAttemptTimeoutMs)), modelId };
+  requestedModelId: string;
+  fallbackFrom?: string;
+  costUsd?: number;
+  costSource: "provider" | "estimate" | "unverified";
 }
 
-// ─── Built-in LLM call (Manus proxy) ──────────────────────────────────────────
-async function callBuiltIn(opts: AgentLLMOptions, timeoutMs: number): Promise<{
-  content: string;
-  toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
-  usage?: { promptTokens: number; completionTokens: number };
-}> {
+export async function callAgentLLM(opts: AgentLLMOptions): Promise<AgentLLMResult> {
+  const profile = resolveAgentTimeoutProfile(opts.executionMode);
+  const scheduled = opts.executionMode === "scheduled";
+  const defaultTotal = scheduled ? 42_000 : 201_000;
+  const hardCeiling = scheduled ? 90_000 : defaultTotal;
+  if (opts.totalTimeoutMs !== undefined && (!Number.isFinite(opts.totalTimeoutMs) || opts.totalTimeoutMs <= 0)) {
+    throw new Error("Agent LLM totalTimeoutMs must be a finite positive budget");
+  }
+  const deadline = Date.now() + Math.min(opts.totalTimeoutMs ?? defaultTotal, hardCeiling);
+  const remaining = () => {
+    const ms = deadline - Date.now();
+    if (ms <= 0) throw new Error("Agent LLM total deadline exhausted; no further attempts or fallback permitted");
+    return ms;
+  };
+  const modelId = opts.modelOverride ?? (opts.agentSlug
+    ? await withTimeout(getAgentModel(opts.agentSlug), remaining(), "Agent model lookup") : FALLBACK_MODEL);
+  const boundedRoleAttempt = scheduled && opts.totalTimeoutMs !== undefined
+    ? opts.agentSlug === "content" || opts.agentSlug === "editor" ? 70_000 : opts.agentSlug === "seo_intel" ? 45_000 : profile.openRouterAttemptTimeoutMs
+    : profile.openRouterAttemptTimeoutMs;
+  const boundedBuiltInAttempt = scheduled && opts.totalTimeoutMs !== undefined && (opts.agentSlug === "content" || opts.agentSlug === "editor") ? 70_000 : profile.builtInAttemptTimeoutMs;
+  if (!OPENROUTER_MODELS.has(modelId)) {
+    return callBuiltIn(modelId, opts, Math.min(boundedBuiltInAttempt, remaining()));
+  }
+
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= profile.maxOpenRouterAttempts; attempt++) {
+    const attemptBudget = Math.min(boundedRoleAttempt, remaining());
+    try {
+      return await callOpenRouter(modelId, opts, attemptBudget);
+    } catch (error: any) {
+      lastError = error;
+      console.error(`[agentLLM] OpenRouter attempt ${attempt}/${profile.maxOpenRouterAttempts} failed for ${modelId}: ${error?.message}`);
+      const nonRetryable = /\b(?:400|401|402|403|404|422)\b|access denied|security policy|invalid api key|model.*not found|OPENROUTER_API_KEY not set/i.test(error?.message ?? "");
+      if (nonRetryable || attempt === profile.maxOpenRouterAttempts) break;
+      const backoff = 2000 * Math.pow(2, attempt - 1);
+      // Do not consume the rest of a short run sleeping before a doomed retry.
+      if (remaining() <= backoff) break;
+      await new Promise(resolve => setTimeout(resolve, backoff));
+    }
+  }
+  if (opts.allowFallback === false) throw lastError;
+  const fallbackBudget = Math.min(boundedBuiltInAttempt, remaining());
+  console.error(`[agentLLM] Falling back from ${modelId} to ${FALLBACK_MODEL} within ${fallbackBudget}ms remaining budget.`);
+  const result = await callBuiltIn(FALLBACK_MODEL, opts, fallbackBudget);
+  return { ...result, fallbackFrom: modelId };
+}
+
+/** Reject truncation/empty outputs before they can be recorded as successful work. */
+function parseResponse(data: any, requestedModelId: string): AgentLLMResult {
+  if (data?.error) throw new Error(`Model API error ${data.error.code ?? ""}: ${data.error.message ?? "Unknown model failure"}`);
+  const choice = data?.choices?.[0];
+  const message = choice?.message;
+  if (!message) throw new Error("Model returned no response message");
+  if (["length", "max_tokens", "content_filter", "error"].includes(choice.finish_reason)) {
+    throw new Error(`Model response incomplete: finish_reason=${choice.finish_reason}`);
+  }
+  const content = typeof message.content === "string" ? message.content
+    : Array.isArray(message.content) ? message.content.filter((part: any) => part?.type === "text" && typeof part.text === "string").map((part: any) => part.text).join("\n") : "";
+  const toolCalls = message.tool_calls?.map((tc: any) => {
+    if (typeof tc?.function?.name !== "string" || !tc.function.name.trim()) throw new Error("Invalid model tool call name");
+    const args = JSON.parse(tc.function.arguments || "{}");
+    if (!args || typeof args !== "object" || Array.isArray(args)) throw new Error("Invalid model tool call arguments");
+    return { name: tc.function.name, arguments: args };
+  });
+  if (!content.trim() && !toolCalls?.length) throw new Error("Model returned empty content");
+  const rawCost = data.usage?.cost;
+  const actualCost = rawCost !== null && rawCost !== undefined && rawCost !== "" && Number.isFinite(Number(rawCost)) && Number(rawCost) >= 0 ? Number(rawCost) : undefined;
+  const usage = data.usage ? {
+    promptTokens: Number(data.usage.prompt_tokens) || 0,
+    completionTokens: Number(data.usage.completion_tokens) || 0,
+    ...(actualCost !== undefined ? { costUsd: actualCost } : {}),
+  } : undefined;
+  const actualModelId = typeof data.model === "string" && data.model.trim() ? data.model : requestedModelId;
+  // A response's concrete provider version may differ from the requested alias;
+  // never substitute the alias on the receipt, but use its rate for estimates.
+  const costUsd = actualCost ?? estimateOpenRouterCost(requestedModelId, usage);
+  return {
+    content, toolCalls, usage, modelId: actualModelId, requestedModelId,
+    costUsd, costSource: actualCost !== undefined ? "provider" : costUsd !== undefined ? "estimate" : "unverified",
+  };
+}
+
+async function callBuiltIn(modelId: string, opts: AgentLLMOptions, timeoutMs: number): Promise<AgentLLMResult> {
+  const controller = new AbortController();
+  try {
   const res = await withTimeout(invokeLLM({
+    model: modelId,
     messages: opts.messages,
     ...(opts.tools ? { tools: opts.tools as any, tool_choice: "auto" } : {}),
     ...(opts.responseFormat ? { response_format: opts.responseFormat as any } : {}),
-    ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
-  }), timeoutMs, "Built-in agent model");
-
-  const msg = res.choices[0].message;
-  const toolCalls = msg.tool_calls?.map((tc: any) => ({
-    name: tc.function.name,
-    arguments: JSON.parse(tc.function.arguments || "{}"),
-  }));
-  const rawContent = msg.content;
-  const content = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent ?? "");
-
-  return {
-    content,
-    toolCalls,
-    usage: res.usage ? { promptTokens: res.usage.prompt_tokens, completionTokens: res.usage.completion_tokens } : undefined,
-  };
+    // IMPORTANT: core helper reads maxTokens, NOT max_tokens. Always bound it.
+    maxTokens: opts.maxTokens ?? 4000,
+    ...(opts.executionMode === "scheduled" && /^gpt-/i.test(modelId) ? { reasoning: { effort: "low" as const } } : {}),
+    signal: controller.signal,
+  }), timeoutMs, `Built-in agent model ${modelId}`);
+  return parseResponse(res, modelId);
+  } finally { controller.abort(); }
 }
 
-// ─── OpenRouter call ───────────────────────────────────────────────────────────
-async function callOpenRouter(
-  modelId: string,
-  opts: AgentLLMOptions,
-  timeoutMs: number,
-): Promise<{ content: string; toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>; usage?: { promptTokens: number; completionTokens: number } }> {
-  const apiKey = ENV.openRouterApiKey;
-  if (!apiKey) throw new Error("OPENROUTER_API_KEY not set");
-
+async function callOpenRouter(modelId: string, opts: AgentLLMOptions, timeoutMs: number): Promise<AgentLLMResult> {
+  if (!ENV.openRouterApiKey) throw new Error("OPENROUTER_API_KEY not set");
   const body: Record<string, unknown> = {
-    model: modelId,
-    messages: opts.messages,
+    model: modelId, messages: opts.messages, max_tokens: opts.maxTokens ?? 4000,
+    // Include actual billed USD usage when supported by OpenRouter.
+    usage: { include: true },
   };
-  if (opts.tools) {
-    body.tools = opts.tools;
-    body.tool_choice = "auto";
-  }
+  if (opts.tools) Object.assign(body, { tools: opts.tools, tool_choice: "auto" });
   if (opts.responseFormat) body.response_format = opts.responseFormat;
-  if (opts.maxTokens) body.max_tokens = opts.maxTokens;
-
+  if (opts.executionMode === "scheduled" && /^(qwen\/qwen3\.7-|deepseek\/deepseek-v4|google\/gemini-4-argon)/.test(modelId)) {
+    body.reasoning = { effort: "low" };
+  }
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://breakyoursolarcontract.com",
-        "X-Title": "Solar Freedom Agent System",
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`OpenRouter error ${res.status}: ${err}`);
-    }
-
-    // Keep the abort timer alive while the response body streams. A response can
-    // return headers quickly yet spend far longer streaming the body otherwise.
-    const rawText = await res.text();
-    if (!rawText || rawText.trim() === "") {
-      throw new Error("OpenRouter returned empty response body");
-    }
-
-    let data: any;
-    try {
-      data = JSON.parse(rawText);
-    } catch (e) {
-      throw new Error(`OpenRouter returned invalid JSON: ${rawText.substring(0, 200)}`);
-    }
-
-    if (data.error) {
-      throw new Error(`OpenRouter API error: ${data.error.message || JSON.stringify(data.error)}`);
-    }
-
-    const msg = data.choices?.[0]?.message;
-    if (!msg) throw new Error(`No message in OpenRouter response: ${JSON.stringify(data).substring(0, 200)}`);
-
-    const toolCalls = msg.tool_calls?.map((tc: any) => ({
-      name: tc.function.name,
-      arguments: JSON.parse(tc.function.arguments || "{}"),
-    }));
-
-    return {
-      content: msg.content ?? "",
-      toolCalls,
-      usage: data.usage ? { promptTokens: data.usage.prompt_tokens, completionTokens: data.usage.completion_tokens } : undefined,
-    };
-  } catch (error: any) {
-    if (error?.name === "AbortError") {
-      throw new Error(`OpenRouter attempt timed out after ${Math.round(timeoutMs / 1000)}s`);
-    }
-    throw error;
+    return await withTimeout((async () => {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${ENV.openRouterApiKey}`, "Content-Type": "application/json",
+          "HTTP-Referer": "https://breakyoursolarcontract.com", "X-Title": "Solar Freedom Agent System",
+        },
+        body: JSON.stringify(body), signal: controller.signal,
+      });
+      if (!res.ok) throw new Error(`OpenRouter error ${res.status}: ${(await res.text()).slice(0, 400)}`);
+      const raw = await res.text();
+      if (!raw.trim()) throw new Error("OpenRouter returned empty response body");
+      let data: unknown;
+      try { data = JSON.parse(raw); } catch { throw new Error("OpenRouter returned invalid JSON"); }
+      return parseResponse(data, modelId);
+    })(), timeoutMs, `OpenRouter model ${modelId}`);
   } finally {
-    clearTimeout(timeout);
+    // Abort includes body streaming, and also runs when the total/attempt race wins.
+    controller.abort();
   }
 }

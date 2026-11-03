@@ -8,6 +8,10 @@ import type { Request, Response } from "express";
 import { sdk } from "../_core/sdk";
 import { runAgent, seedAgents, sendMessage, type AgentSlug, type AgentThinkResult } from "../agents";
 import { ensureDailyChecklists, reviewWorkerRun, type WorkerSlug } from "../agents/managerQuality";
+import { AgentRunBusyError } from "../agents/engine";
+import { getDb } from "../db";
+import { agentRunLog } from "../../drizzle/schema";
+import { and, desc, eq, gte } from "drizzle-orm";
 
 export const SCHEDULED_AGENT_SLUGS = [
   "money_maker",
@@ -112,10 +116,21 @@ export async function agentRunHandler(req: Request, res: Response) {
 
     await seedAgents();
 
+    const db = await getDb();
+    if (!db) throw new Error("Run evidence database unavailable");
+    // Heartbeat retries must not create another model call after a completed
+    // delivery. This short retry window does not suppress the next 4-hour run.
+    const [recent] = await db.select().from(agentRunLog).where(and(
+      eq(agentRunLog.agentSlug, agentSlug), eq(agentRunLog.triggeredBy, `heartbeat:${user.taskUid}`),
+      eq(agentRunLog.status, "completed"), gte(agentRunLog.startedAt, new Date(Date.now() - 10 * 60_000)),
+    )).orderBy(desc(agentRunLog.startedAt)).limit(1);
+    if (recent) return res.json({ ok: true, replayed: true, agent: agentSlug, runId: recent.id, status: recent.status, summary: recent.summary, actionsCreated: recent.actionsCreated, messagesCreated: recent.messagesCreated });
+
     let result: AgentThinkResult;
     try {
       result = await runAgent(agentSlug, "cron", `heartbeat:${user.taskUid}`);
     } catch (error: any) {
+      if (error instanceof AgentRunBusyError) return res.json({ ok: true, skipped: "paused_or_already_running", agent: agentSlug, summary: error.message });
       const normalized = error instanceof Error ? error : new Error(String(error));
       await recordWorkerQuality(agentSlug, undefined, normalized, { isScheduledCallback: true });
       throw normalized;
@@ -128,6 +143,10 @@ export async function agentRunHandler(req: Request, res: Response) {
       summary: result.summary,
       actionsCreated: result.actionsCreated,
       messagesCreated: result.messagesCreated,
+      runId: result.runId ?? null,
+      status: result.status ?? "completed",
+      noOp: result.noOp ?? false,
+      modelId: result.modelId ?? null,
     });
   } catch (error: any) {
     console.error("[AgentRun] Error:", error);

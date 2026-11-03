@@ -14,7 +14,7 @@
  * 8. Runs again at 8:30pm to close out the day, record outcomes, write lessons
  *
  * DECISION AUTHORITY:
- * - Blog publishing: EXECUTE immediately if Editor approved (SEO ≥ 75, E-E-A-T ≥ 70)
+ * - Blog publishing: request an authenticated owner decision after verified Editor approval; never publish
  * - City-page publishing: NEVER execute; only an authenticated owner action may publish
  * - Agent re-triggering: EXECUTE if an agent failed or missed its goal
  * - Revenue actions < $5K: EXECUTE directly
@@ -58,6 +58,7 @@ import { monitorQwen37PlusPricing, QWEN37_PLUS_DAILY_SPEND_ALERT_USD } from "./o
 import {
   contentPipeline,
   blogPosts,
+  blogDrafts,
   revenueTracker,
   lawFirms,
   agentActions,
@@ -65,6 +66,8 @@ import {
   seoScorecardSnapshots,
 } from "../../drizzle/schema";
 import { desc, eq, and, sql, gte } from "drizzle-orm";
+import { assessEditorialSafety } from "./editorAgent";
+import { actualDraftWordCount, draftFingerprint } from "./contentAgent";
 
 // ─── Business Constants ───────────────────────────────────────────────────────
 const LEAD_VALUE = 275; // avg $ per delivered lead
@@ -102,14 +105,15 @@ GOAL-SETTING RULES:
 - Goals must connect to revenue (explain the $ path)
 
 EXAMPLES OF GOOD GOALS:
-- Content: "Publish 1 article targeting 'cancel sunrun contract california' | Target: 1 article published | Directive: Write 1,500 word article with H1 matching keyword, 3 CTAs, FAQ section, 2 interlinks to /sunrun page"
+- Content: "Save one complete verified draft targeting an existing Sunrun blog | Target: 1 pre-Editor QA-passed BlogStudio draft | Directive: Revise existing queued work first, with accurate laws, supplied evidence, FAQ, internal links and safe case-review CTA. Do not publish."
 - SEO Intel: "Identify top 3 ranking opportunities with position 11-20 | Target: 3 actionable opportunities | Directive: Pull GSC data, find keywords with impressions > 100 and position 11-20, estimate traffic gain if moved to top 10"
 - Money Maker: "Follow up on 5 overdue invoices | Target: $5,000 in payment confirmations | Directive: Email all law firms with invoices > 30 days overdue, include specific invoice numbers and amounts"
 - Editor: "Improve SEO score of 3 published posts to ≥ 85 | Target: 3 posts at SEO ≥ 85 | Directive: Run fixSeoTo100 on the 3 lowest-scoring published posts"
 - Revenue Intel: "Identify top 5 posts by revenue impact potential | Target: 5 posts with predicted $ impact > $500 | Directive: Analyze GSC + lead data, model CTA improvement impact"
 
 DECISION AUTHORITY — EXECUTE THESE WITHOUT ASKING:
-- Approve non-city content for publishing (Editor approved + SEO ≥ 75)
+- Request ONE owner-controlled publish decision for a verified Editor-approved non-city draft. Approval is NOT publication. Only an authenticated owner publish receipt proves publication; never label or timestamp unpublished content as published.
+- Never approve any action requiring owner approval, including publish_content. No outreach or city reindexing.
 - Re-trigger a failed agent
 - Send directives to agents
 - Create revenue actions < $5K
@@ -314,6 +318,8 @@ export async function runManagerAgent(
     // 10. Apply action decisions
     for (const decision of (parsed.decisions || [])) {
       if (!decision.actionId) continue;
+      const queuedAction = pendingActions.find(action => action.id === decision.actionId);
+      if (!queuedAction || queuedAction.requiresApproval === 1 || queuedAction.actionType === "publish_content") continue;
       const newStatus = decision.decision === "approve" ? "approved"
         : decision.decision === "reject" ? "rejected"
         : "blocked"; // 'blocked' = needs human review (escalated is not in DB enum)
@@ -328,37 +334,17 @@ export async function runManagerAgent(
 
     // 11. Handle publish approvals
     if (db) {
-      for (const pub of (parsed.publishApprovals || [])) {
-        if (!pub.pipelineId) continue;
-        const [pipelineItem] = await db.select({ contentType: contentPipeline.contentType })
-          .from(contentPipeline)
-          .where(eq(contentPipeline.id, pub.pipelineId))
-          .limit(1);
-        if (!pipelineItem || pipelineItem.contentType === "city_page") continue;
-        if (pub.decision === "publish") {
-          await db.update(contentPipeline).set({
-            stage: "published",
-            approvedBy: "manager",
-            managerFeedback: pub.reason,
-            publishedAt: new Date(),
-            updatedAt: new Date(),
-          }).where(eq(contentPipeline.id, pub.pipelineId));
-          await createAction({
-            agentSlug: "manager",
-            priority: "p1",
-            title: `[PUBLISH NOW] Pipeline #${pub.pipelineId}`,
-            description: `Manager approved for immediate publishing.\nReason: ${pub.reason}\nPipeline ID: ${pub.pipelineId}`,
-            actionType: "publish_content",
-            requiresApproval: 0,
-            payload: JSON.stringify({ pipelineId: pub.pipelineId }),
-          });
+      // The actual approved queue, never model-generated IDs, defines eligible work.
+      for (const item of awaitingPublish) {
+        const pub = (parsed.publishApprovals || []).find(p => p.pipelineId === item.id);
+        if (pub && ["hold", "reject"].includes(pub.decision)) {
+          await db.update(contentPipeline).set({ stage: "revision_needed",
+            managerFeedback: `Manager review required: ${pub.reason}`, updatedAt: new Date() })
+            .where(and(eq(contentPipeline.id, item.id), eq(contentPipeline.stage, "approved")));
+          continue;
+        }
+        if (await requestOwnerPublication(item.id, pub?.reason || "Verified editorial approval; owner-controlled publication decision required.")) {
           context.actionsCreated++;
-        } else if (pub.decision === "hold") {
-          await db.update(contentPipeline).set({
-            stage: "revision_needed",
-            managerFeedback: `Manager hold: ${pub.reason}`,
-            updatedAt: new Date(),
-          }).where(eq(contentPipeline.id, pub.pipelineId));
         }
       }
     }
@@ -447,14 +433,63 @@ export async function runManagerAgent(
     await setMemory("manager", "last_run_date", new Date().toISOString().slice(0, 10));
     await setMemory("manager", "last_briefing_summary", briefing?.todayPlan?.substring(0, 500) || "");
 
-    const summary = `${briefing?.todayPlan || "Daily management cycle completed"}\nQuality matrix: ${qaSummary.join(" | ")}`;
-    await completeRun(context, summary);
-    return { summary, actionsCreated: context.actionsCreated, messagesCreated: context.messagesCreated };
+    const summary = `Daily management cycle completed. No substantive pages were published or timestamped as published; publication remains an authenticated owner decision.\nQuality matrix: ${qaSummary.join(" | ")}`;
+    return await completeRun(context, summary);
 
   } catch (error: any) {
     await completeRun(context, `Error: ${error.message}`, "failed", error.message);
     throw error;
   }
+}
+
+export async function requestOwnerPublication(pipelineId: number, reason: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db || !Number.isSafeInteger(pipelineId)) return false;
+  const [item] = await db.select().from(contentPipeline).where(eq(contentPipeline.id, pipelineId)).limit(1);
+  if (!item || item.stage !== "approved" || item.contentType === "city_page") return false;
+  const safety = assessEditorialSafety(item.draft);
+  const [artifact] = await db.select().from(blogDrafts).where(eq(blogDrafts.postSlug, item.slug || ""))
+    .orderBy(desc(blogDrafts.updatedAt)).limit(1);
+  const receipts = await db.select().from(agentActions).where(and(
+    eq(agentActions.actionType, "editorial_review"), eq(agentActions.agentSlug, "editor"),
+    eq(agentActions.status, "completed"),
+    sql`JSON_VALID(${agentActions.payload}) AND JSON_EXTRACT(${agentActions.payload}, '$.pipelineId') = ${pipelineId}`,
+  )).orderBy(desc(agentActions.id)).limit(1);
+  const parse = (value: string | null) => { try { return JSON.parse(value || "{}"); } catch { return {}; } };
+  const receipt = parse(receipts[0]?.payload || null);
+  const review = parse(receipts[0]?.result || null);
+  const eligible = !safety.issues.length && !safety.hardFails.length && item.reviewedBy === "editor"
+    && artifact?.content === item.draft && artifact?.targetKeyword === item.targetKeyword
+    && receipt.draftId === artifact?.id && receipt.fullDraftReviewed === true
+    && receipt.fingerprint === draftFingerprint(item.draft) && receipt.wordCount === actualDraftWordCount(item.draft)
+    && item.wordCount === receipt.wordCount && review.decision === "approve" && review.stage === "approved"
+    && ["seoScore", "readabilityScore", "eatScore", "duplicateRisk"].every(key =>
+      typeof review[key] === "number" && Number.isFinite(review[key]) && review[key] >= 0 && review[key] <= 100
+      && review[key] === item[key as "seoScore" | "readabilityScore" | "eatScore" | "duplicateRisk"])
+    && !(review.hardFails?.length || 0) && !(review.issues?.length || 0)
+    && item.seoScore !== null && item.seoScore >= 75 && item.readabilityScore !== null && item.readabilityScore >= 70
+    && item.eatScore !== null && item.eatScore >= 70 && item.duplicateRisk !== null && item.duplicateRisk <= 30
+    && !/revision_needed|revision (?:needed|required)|cannot (?:approve|publish)/i.test(`${item.editorFeedback || ""} ${review.feedback || ""}`);
+  if (!eligible) {
+    await db.update(contentPipeline).set({ stage: "revision_needed", updatedAt: new Date(),
+      managerFeedback: "Owner publish request blocked: current full artifact, measured word count, and non-contradictory Editor approval receipt must match. Nothing was published." })
+      .where(and(eq(contentPipeline.id, pipelineId), eq(contentPipeline.stage, "approved")));
+    return false;
+  }
+  // Exact target query, not a recent-queue slice. A rejected/completed request is
+  // still one owner decision; scheduled runs must not silently recreate it.
+  const [existing] = await db.select({ id: agentActions.id }).from(agentActions).where(and(
+    eq(agentActions.actionType, "publish_content"),
+    sql`JSON_VALID(${agentActions.payload}) AND JSON_EXTRACT(${agentActions.payload}, '$.pipelineId') = ${pipelineId}`,
+  )).limit(1);
+  if (existing) return false;
+  await createAction({ agentSlug: "manager", actionType: "publish_content", requiresApproval: 1,
+    status: "queued", priority: "p1", title: `[OWNER PUBLISH REQUEST] Pipeline #${pipelineId}`,
+    description: `Editorial approval only; substantive publication requires an authenticated owner decision and publish receipt. No public page or publication timestamp was changed.\nReason: ${reason}`,
+    payload: JSON.stringify({ pipelineId, draftId: artifact!.id, fingerprint: receipt.fingerprint,
+      ownerControlled: true, requiresAuthenticatedOwner: true }),
+  });
+  return true;
 }
 
 async function enforceDailySeoRevenueGate(): Promise<{ actionCreated: boolean; summary: string }> {
@@ -552,7 +587,7 @@ async function gatherSystemState(): Promise<string> {
       stage: contentPipeline.stage,
       count: sql<number>`COUNT(*)`,
     }).from(contentPipeline).groupBy(contentPipeline.stage);
-    contentState = pipeline.map(p => `${p.stage}: ${p.count}`).join(" | ") || "Empty";
+    contentState = pipeline.map(p => `${p.stage === "published" ? "published-labelled (owner publication receipt not verified here)" : p.stage}: ${p.count}`).join(" | ") || "Empty";
 
     // Lead flow (last 7 days)
     const sevenDaysAgo = new Date();

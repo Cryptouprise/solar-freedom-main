@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useState } from "react";
+import AutopilotEvidence from "@/components/AutopilotEvidence";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -164,6 +165,8 @@ export default function OutcomeScorecard() {
 
         {isLoading && <p className="pt-4 text-center font-mono text-sm text-gray-400">Loading scorecard…</p>}
         {error && <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">The scorecard could not be loaded. It will not substitute zeroes for unavailable data.</p>}
+
+        <AutopilotEvidence enabled={!!user && user.role === "admin"} />
 
         {!error && <SeoTrendChart snapshots={data?.snapshots || []} pageMetrics={data?.pageMetrics || []} options={data?.pageTrendOptions || []} loading={isLoading} />}
 

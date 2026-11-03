@@ -391,12 +391,11 @@ export const agentRouter = router({
   getModelConfigs: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
     const db = await getDb();
-    if (!db) return [];
-    const configs = await db.select().from(agentModelConfig);
+    const configs = db ? await db.select().from(agentModelConfig) : [];
     const slugs = ["manager", "revenue_intel", "content", "seo_intel", "editor", "money_maker", "infra"] as const;
     return slugs.map(slug => {
       const saved = configs.find(c => c.agentSlug === slug);
-      const modelId = saved?.modelId ?? AGENT_DEFAULT_MODELS[slug as keyof typeof AGENT_DEFAULT_MODELS] ?? "gpt-5-mini";
+      const modelId = saved?.modelId ?? AGENT_DEFAULT_MODELS[slug]?.modelId ?? "gpt-5-mini";
       const catalog = AVAILABLE_MODELS.find((m: any) => m.id === modelId);
       return {
         agentSlug: slug,
@@ -412,14 +411,15 @@ export const agentRouter = router({
    */
   updateModelConfig: protectedProcedure
     .input(z.object({
-      agentSlug: z.string(),
-      modelId: z.string(),
+      agentSlug: z.string().refine(value => agentSlugSchema.safeParse(value).success, "Unknown agent slug"),
+      modelId: z.string().trim().min(1).max(128),
     }))
     .mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Forbidden");
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const catalog = AVAILABLE_MODELS.find((m: any) => m.id === input.modelId);
+      if (!catalog) throw new Error("Unknown model ID; select an exact supported catalog ID");
       const modelLabel = catalog?.label ?? input.modelId;
       await db.insert(agentModelConfig).values({
         agentSlug: input.agentSlug,
@@ -446,7 +446,8 @@ export const agentRouter = router({
    */
   getModelCatalog: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new Error("Forbidden");
-    return AVAILABLE_MODELS;
+    const { getAvailableModels } = await import("./agents/agentLLM");
+    return getAvailableModels();
   }),
 
   /**

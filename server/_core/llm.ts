@@ -63,6 +63,8 @@ export type InvokeParams = {
   tool_choice?: ToolChoice;
   maxTokens?: number;
   max_tokens?: number;
+  reasoning?: { effort: "low" | "medium" | "high" };
+  signal?: AbortSignal;
   outputSchema?: OutputSchema;
   output_schema?: OutputSchema;
   responseFormat?: ResponseFormat;
@@ -298,7 +300,10 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = params.maxTokens ?? 32768;
+  const tokenLimit = params.maxTokens ?? params.max_tokens ?? 32768;
+  if (model && /^gpt-/i.test(model)) payload.max_completion_tokens = tokenLimit;
+  else payload.max_tokens = tokenLimit;
+  if (params.reasoning) payload.reasoning = params.reasoning;
   if (!model) {
     payload.thinking = { budget_tokens: 128 };
   }
@@ -321,6 +326,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
       authorization: `Bearer ${ENV.forgeApiKey}`,
     },
     body: JSON.stringify(payload),
+    ...(params.signal ? { signal: params.signal } : {}),
   });
 
   if (!response.ok) {

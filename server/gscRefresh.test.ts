@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { buildGscScorecardAlerts, normalizeGscRows, summarizeGscMetrics } from "./gscRefresh";
+import { buildGscScorecardAlerts, gscCoverageWindow, normalizeGscRows, summarizeGscMetrics } from "./gscRefresh";
 
 describe("Search Console page refresh", () => {
+  it("uses exactly 28 inclusive Pacific calendar dates, including across DST", () => {
+    for (const now of [new Date("2026-11-03T00:00:00Z"), new Date("2026-03-09T00:00:00Z")]) {
+      const period = gscCoverageWindow(now);
+      expect((Date.parse(period.endDate) - Date.parse(period.startDate)) / 86_400_000 + 1).toBe(28);
+      expect(period.timeZone).toBe("America/Los_Angeles");
+    }
+    expect(gscCoverageWindow(new Date("2026-11-03T00:00:00Z"))).toMatchObject({ startDate: "2026-10-03", endDate: "2026-10-30" });
+  });
   it("keeps only canonical-domain rows and preserves their metrics", () => {
     expect(normalizeGscRows([
       { keys: ["https://breakyoursolarcontract.com/blog/goodleap-cancel-solar-loan-2026"], clicks: 12, impressions: 345, ctr: 0.034, position: 8.2 },

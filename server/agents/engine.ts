@@ -23,7 +23,7 @@ import {
   type InsertAgentMessage,
   type InsertAgentAction,
 } from "../../drizzle/schema";
-import { eq, desc, and, inArray, sql } from "drizzle-orm";
+import { eq, desc, and, inArray, sql, or, ne, lt, isNull } from "drizzle-orm";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,13 +42,31 @@ export type AgentRunContext = {
   modelId?: string;
   actionsCreated: number;
   messagesCreated: number;
+  deadlineAt?: number;
+  costSource?: "provider_reported" | "estimated" | "unavailable";
 };
 
 export type AgentThinkResult = {
   summary: string;
   actionsCreated: number;
   messagesCreated: number;
+  runId?: number;
+  status?: "completed" | "failed";
+  noOp?: boolean;
+  modelId?: string;
 };
+
+export const SCHEDULED_RUN_BUDGET_MS = 90_000;
+export class AgentRunBusyError extends Error {
+  constructor(public readonly agentSlug: string) {
+    super(`${agentSlug} is paused or another run is already active. No duplicate run was started.`);
+    this.name = "AgentRunBusyError";
+  }
+}
+
+export function scheduledOutputTokenCap(slug: AgentSlug): number {
+  return slug === "content" ? 6_000 : slug === "editor" ? 4_000 : slug === "seo_intel" ? 4_096 : 1_800;
+}
 
 // ─── Agent LLM Call (with cost tracking) ──────────────────────────────────────
 // Model selection: reads from agentModelConfig DB table (set via admin UI)
@@ -61,32 +79,39 @@ export async function agentLLM(params: {
   temperature?: number;
   maxTokens?: number;
   responseFormat?: object;
+  modelOverride?: string;
 }): Promise<string> {
   // Dynamically import to avoid circular deps
   const { callAgentLLM, estimateOpenRouterCost, getAgentModel } = await import("./agentLLM");
   const modelId = await getAgentModel(params.agentSlug);
 
   const isScheduledCallback = params.context.triggerType === "cron";
-  // Keep cron output bounded while leaving enough room for Flash's reasoning
-  // tokens and a compact actionable SEO decision.
-  const scheduledTokenCap = modelId === "qwen/qwen3.7-plus" ? 1_400 : modelId === "qwen/qwen3.7-flash" ? 2_400 : 900;
+  // A long-form draft cannot satisfy editorial QA inside the old 900-token cap.
+  // Use role-specific caps and a single total run budget, reserving DB time.
+  const scheduledTokenCap = scheduledOutputTokenCap(params.agentSlug);
   const maxTokens = isScheduledCallback ? Math.min(params.maxTokens ?? 4000, scheduledTokenCap) : (params.maxTokens ?? 4000);
+  const remaining = params.context.deadlineAt ? params.context.deadlineAt - Date.now() - 8_000 : undefined;
+  if (remaining !== undefined && remaining < 1_000) throw new Error("Agent run deadline reached before model call; rework deferred to next scheduled run.");
 
   const res = await callAgentLLM({
     agentSlug: params.agentSlug,
-    modelOverride: modelId,
+    modelOverride: params.modelOverride ?? modelId,
+    ...(params.modelOverride ? { allowFallback: false } : {}),
     messages: params.messages as any,
     maxTokens,
     executionMode: isScheduledCallback ? "scheduled" : "standard",
     responseFormat: params.responseFormat,
+    ...(remaining !== undefined ? { totalTimeoutMs: remaining } : {}),
   });
   params.context.llmCalls++;
   if (res.usage) {
     params.context.tokensIn += res.usage.promptTokens;
     params.context.tokensOut += res.usage.completionTokens;
-    params.context.costUsd += estimateOpenRouterCost(res.modelId, res.usage);
   }
+  const cost = res.costUsd ?? (res.usage ? estimateOpenRouterCost(res.modelId, res.usage) : undefined);
+  if (typeof cost === "number" && Number.isFinite(cost)) params.context.costUsd += cost;
   params.context.modelId = res.modelId;
+  params.context.costSource = res.costSource === "provider" ? "provider_reported" : res.costSource === "estimate" ? "estimated" : "unavailable";
   return res.content;
 }
 
@@ -127,6 +152,20 @@ export async function startRun(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  const claimTime = new Date();
+  const staleBefore = new Date(claimTime.getTime() - 15 * 60_000);
+  const claimed = await db.update(agents).set({
+    status: "active", lastRunAt: claimTime, updatedAt: claimTime,
+    totalRuns: sql`${agents.totalRuns} + 1`,
+  }).where(and(
+    eq(agents.slug, slug), ne(agents.status, "paused"),
+    or(ne(agents.status, "active"), isNull(agents.lastRunAt), lt(agents.lastRunAt, staleBefore)),
+  ));
+  if (Number((claimed as any)[0]?.affectedRows ?? 0) !== 1) throw new AgentRunBusyError(slug);
+
+  // A stale run is not a successful completion. Keep its prior receipt intact.
+  await db.update(agentRunLog).set({ status: "timeout", errorMessage: "Stale running receipt recovered by a later worker claim.", completedAt: claimTime })
+    .where(and(eq(agentRunLog.agentSlug, slug), eq(agentRunLog.status, "running"), lt(agentRunLog.startedAt, staleBefore)));
   const [result] = await db.insert(agentRunLog).values({
     agentSlug: slug,
     triggerType,
@@ -135,12 +174,6 @@ export async function startRun(
     startedAt: new Date(),
     model: slug, // model resolved dynamically per-call via agentLLM.ts
   }).$returningId();
-
-  await updateAgentStatus(slug, "active");
-  await db.update(agents).set({
-    lastRunAt: new Date(),
-    totalRuns: sql`${agents.totalRuns} + 1`,
-  }).where(eq(agents.slug, slug));
 
   return {
     agentSlug: slug,
@@ -154,6 +187,8 @@ export async function startRun(
     llmCalls: 0,
     actionsCreated: 0,
     messagesCreated: 0,
+    deadlineAt: triggerType === "cron" ? Date.now() + SCHEDULED_RUN_BUDGET_MS : undefined,
+    costSource: "unavailable",
   };
 }
 
@@ -162,9 +197,12 @@ export async function completeRun(
   summary: string,
   status: "completed" | "failed" = "completed",
   errorMessage?: string
-): Promise<void> {
+): Promise<AgentThinkResult> {
+  const noOp = status === "completed" && context.actionsCreated === 0 && context.messagesCreated === 0;
+  if (noOp && !summary.startsWith("No-op:")) summary = `No-op: ${summary} No action, draft, or message was created; no public change is claimed.`;
+  const receipt: AgentThinkResult = { summary, actionsCreated: context.actionsCreated, messagesCreated: context.messagesCreated, runId: context.runId, status, noOp, modelId: context.modelId };
   const db = await getDb();
-  if (!db) return;
+  if (!db) return receipt;
   const durationMs = Date.now() - context.startedAt;
 
   await db.update(agentRunLog).set({
@@ -174,7 +212,7 @@ export async function completeRun(
     messagesCreated: context.messagesCreated,
     tokensIn: context.tokensIn,
     tokensOut: context.tokensOut,
-    costUsd: context.costUsd.toFixed(6),
+    costUsd: context.costSource === "unavailable" ? null : context.costUsd.toFixed(6),
     llmCalls: context.llmCalls,
     model: context.modelId ?? context.agentSlug,
     completedAt: new Date(),
@@ -205,13 +243,17 @@ export async function completeRun(
       messagesCreated: context.messagesCreated,
       tokensIn: context.tokensIn,
       tokensOut: context.tokensOut,
-      costUsd: context.costUsd,
+      costUsd: context.costSource === "unavailable" ? null : context.costUsd,
       durationMs,
       status,
+      noOp,
+      modelId: context.modelId,
+      costSource: context.costSource ?? "unavailable",
     }),
     createdAt: new Date(),
     expiresAt,
   });
+  return receipt;
 }
 
 // ─── Inter-Agent Messaging ────────────────────────────────────────────────────
@@ -251,6 +293,13 @@ export async function markMessageActedOn(id: number): Promise<void> {
 export async function createAction(action: InsertAgentAction): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  // A repeated analysis or callback retry is not a new piece of work.
+  const [existing] = await db.select({ id: agentActions.id }).from(agentActions)
+    .where(and(
+      eq(agentActions.agentSlug, action.agentSlug), eq(agentActions.actionType, action.actionType),
+      eq(agentActions.title, action.title), inArray(agentActions.status, ["queued", "approved", "running"]),
+    )).limit(1);
+  if (existing) return existing.id;
   const [result] = await db.insert(agentActions).values(action).$returningId();
   return result.id;
 }
