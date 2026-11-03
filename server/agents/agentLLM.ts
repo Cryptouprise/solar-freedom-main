@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { ENV } from "../_core/env";
 import { OPENROUTER_MODELS, estimateOpenRouterCost } from "./openRouterCatalog";
+import { getAutonomousInvocation, remainingAutonomousBudgetMs, type AutonomousInvocation } from "../autonomousBudget";
 export { AVAILABLE_MODELS, OPENROUTER_MODELS, OPENROUTER_MODEL_PRICING, getAvailableModels, estimateOpenRouterCost } from "./openRouterCatalog";
 
 // Other roles retain their defaults. Owner approved Argon for SEO after workload validation.
@@ -19,6 +20,11 @@ export const AGENT_DEFAULT_MODELS: Record<string, { modelId: string; modelLabel:
 };
 
 export const FALLBACK_MODEL = "gpt-5-mini";
+export const AUTONOMOUS_LLM_MAX_MS = 16_000;
+export const AUTONOMOUS_DB_RESERVE_MS = 8_000;
+// Keyed by the request-local invocation, not jobId: a durable retry on a later
+// tick gets one new attempt, but nested/concurrent calls in this tick cannot.
+const attemptedInvocations = new WeakSet<AutonomousInvocation>();
 export type AgentExecutionMode = "standard" | "scheduled";
 export function resolveAgentTimeoutProfile(mode: AgentExecutionMode = "standard") {
   return mode === "scheduled"
@@ -75,6 +81,8 @@ export interface AgentLLMOptions {
   totalTimeoutMs?: number;
   /** Critical callers may fail closed instead of allowing the existing fallback. */
   allowFallback?: boolean;
+  /** Provider-specific, capability-verified override for short bounded tasks. */
+  openRouterReasoning?: { enabled?: boolean; effort?: "none" | "minimal" | "low"; max_tokens?: number };
   messages: AgentLLMMessage[];
   tools?: object[];
   responseFormat?: object;
@@ -99,14 +107,27 @@ export interface AgentLLMResult {
 }
 
 export async function callAgentLLM(opts: AgentLLMOptions): Promise<AgentLLMResult> {
+  const invocation = getAutonomousInvocation();
+  if (invocation) {
+    if (attemptedInvocations.has(invocation)) {
+      throw new Error("Autonomous step permits only one LLM call; persist continuation for the next worker tick.");
+    }
+    // Reserve synchronously, before any await, so Promise.all cannot bypass it.
+    attemptedInvocations.add(invocation);
+    opts = { ...opts, executionMode: "scheduled", allowFallback: false };
+  }
   const profile = resolveAgentTimeoutProfile(opts.executionMode);
   const scheduled = opts.executionMode === "scheduled";
   const defaultTotal = scheduled ? 42_000 : 201_000;
-  const hardCeiling = scheduled ? 90_000 : defaultTotal;
+  const hardCeiling = invocation ? AUTONOMOUS_LLM_MAX_MS : scheduled ? 90_000 : defaultTotal;
   if (opts.totalTimeoutMs !== undefined && (!Number.isFinite(opts.totalTimeoutMs) || opts.totalTimeoutMs <= 0)) {
     throw new Error("Agent LLM totalTimeoutMs must be a finite positive budget");
   }
-  const deadline = Date.now() + Math.min(opts.totalTimeoutMs ?? defaultTotal, hardCeiling);
+  const available = remainingAutonomousBudgetMs(AUTONOMOUS_DB_RESERVE_MS);
+  if (available !== undefined && (!Number.isFinite(available) || available < 1_000)) {
+    throw new Error("Autonomous deadline exhausted before model call; database receipt time is reserved.");
+  }
+  const deadline = Date.now() + Math.min(opts.totalTimeoutMs ?? defaultTotal, hardCeiling, available ?? Infinity);
   const remaining = () => {
     const ms = deadline - Date.now();
     if (ms <= 0) throw new Error("Agent LLM total deadline exhausted; no further attempts or fallback permitted");
@@ -117,10 +138,10 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<AgentLLMResul
   if (opts.agentSlug === "seo_intel" && !["google/gemini-4-argon", "deepseek/deepseek-v4.1-flash"].includes(modelId)) {
     throw new Error("Owner model policy: SEO requires Gemini 4 Argon or DeepSeek V4.1 Flash; GPT Mini and other routes are not permitted.");
   }
-  const boundedRoleAttempt = scheduled && opts.totalTimeoutMs !== undefined
+  const boundedRoleAttempt = invocation ? AUTONOMOUS_LLM_MAX_MS : scheduled && opts.totalTimeoutMs !== undefined
     ? opts.agentSlug === "content" || opts.agentSlug === "editor" ? 70_000 : opts.agentSlug === "seo_intel" ? 45_000 : profile.openRouterAttemptTimeoutMs
     : profile.openRouterAttemptTimeoutMs;
-  const boundedBuiltInAttempt = scheduled && opts.totalTimeoutMs !== undefined && (opts.agentSlug === "content" || opts.agentSlug === "editor") ? 70_000 : profile.builtInAttemptTimeoutMs;
+  const boundedBuiltInAttempt = invocation ? AUTONOMOUS_LLM_MAX_MS : scheduled && opts.totalTimeoutMs !== undefined && (opts.agentSlug === "content" || opts.agentSlug === "editor") ? 70_000 : profile.builtInAttemptTimeoutMs;
   if (!OPENROUTER_MODELS.has(modelId)) {
     return callBuiltIn(modelId, opts, Math.min(boundedBuiltInAttempt, remaining()));
   }
@@ -142,7 +163,7 @@ export async function callAgentLLM(opts: AgentLLMOptions): Promise<AgentLLMResul
     }
   }
   // Owner policy: SEO must not silently downgrade to GPT Mini.
-  if (opts.allowFallback === false || opts.agentSlug === "seo_intel") throw lastError;
+  if (invocation || opts.allowFallback === false || opts.agentSlug === "seo_intel") throw lastError;
   const fallbackBudget = Math.min(boundedBuiltInAttempt, remaining());
   console.error(`[agentLLM] Falling back from ${modelId} to ${FALLBACK_MODEL} within ${fallbackBudget}ms remaining budget.`);
   const result = await callBuiltIn(FALLBACK_MODEL, opts, fallbackBudget);
@@ -210,7 +231,9 @@ async function callOpenRouter(modelId: string, opts: AgentLLMOptions, timeoutMs:
   };
   if (opts.tools) Object.assign(body, { tools: opts.tools, tool_choice: "auto" });
   if (opts.responseFormat) body.response_format = opts.responseFormat;
-  if (opts.executionMode === "scheduled" && /^(qwen\/qwen3\.7-|deepseek\/deepseek-v4|google\/gemini-4-argon)/.test(modelId)) {
+  if (opts.openRouterReasoning) {
+    body.reasoning = opts.openRouterReasoning;
+  } else if (opts.executionMode === "scheduled" && /^(qwen\/qwen3\.7-|deepseek\/deepseek-v4|google\/gemini-4-argon)/.test(modelId)) {
     body.reasoning = { effort: "low" };
   }
   const controller = new AbortController();

@@ -48,6 +48,11 @@ import {
   INDEXABLE_CITY_PATHS,
 } from "../../client/src/data/indexEligibility";
 import { PUBLIC_PATH_REDIRECTS } from "../seo-redirects";
+import { remainingAutonomousBudgetMs } from "../autonomousBudget";
+import {
+  maintainAutonomousQueue,
+  type QueueMaintenanceReport,
+} from "../autonomousQueueMaintenance";
 
 // ─── Hard limits ──────────────────────────────────────────────────────────────
 // These are structural, not stylistic. A patch outside them is rejected.
@@ -66,6 +71,9 @@ export const EXECUTOR_LIMITS = {
   pageChangeCooldownMs: 14 * 24 * 60 * 60 * 1000,
   batchDeadlineMs: 55_000,
   modelCallBudgetMs: 45_000,
+  autonomousModelTimeoutMs: 16_000,
+  commitReserveMs: 3_000,
+  minimumModelTimeoutMs: 1_000,
   /** One provider-backed operation per callback, including reviewed batches. */
   defaultBatchSize: 1,
   maxBatchSize: 1,
@@ -137,6 +145,8 @@ export type ExecutorContext = {
   description: string;
   payload: Record<string, unknown>;
   deadlineAt?: number;
+  /** Explicitly bounded callbacks may use a shorter, genuinely awaited model call. */
+  boundedWork?: boolean;
 };
 
 export type ActionExecutor = {
@@ -378,10 +388,24 @@ async function requestPatch(params: {
   instruction: string;
   maxTokens?: number;
   deadlineAt?: number;
+  boundedWork?: boolean;
 }): Promise<Record<string, unknown> | null> {
+  const invocationBudget = remainingAutonomousBudgetMs(
+    EXECUTOR_LIMITS.commitReserveMs
+  );
+  const boundedWork = params.boundedWork || invocationBudget !== undefined;
+  const remaining = (params.deadlineAt ?? Infinity) - Date.now();
+  const totalTimeoutMs = boundedWork
+    ? Math.min(
+        EXECUTOR_LIMITS.autonomousModelTimeoutMs,
+        remaining - EXECUTOR_LIMITS.commitReserveMs,
+        invocationBudget ?? Infinity
+      )
+    : undefined;
   if (
-    params.deadlineAt !== undefined &&
-    params.deadlineAt - Date.now() < EXECUTOR_LIMITS.modelCallBudgetMs
+    boundedWork
+      ? totalTimeoutMs! < EXECUTOR_LIMITS.minimumModelTimeoutMs
+      : remaining < EXECUTOR_LIMITS.modelCallBudgetMs
   ) {
     throw new Error(
       "Callback budget is too small for a safe model call; nothing was changed."
@@ -392,6 +416,7 @@ async function requestPatch(params: {
     agentSlug: "seo_intel",
     allowFallback: false,
     executionMode: "scheduled",
+    ...(totalTimeoutMs !== undefined ? { totalTimeoutMs } : {}),
     maxTokens: params.maxTokens ?? 900,
     messages: [
       { role: "system", content: PATCH_SYSTEM_PROMPT },
@@ -431,6 +456,7 @@ async function executeMetadataRewrite(
   const patch = await requestPatch({
     agentSlug: ctx.agentSlug,
     deadlineAt: ctx.deadlineAt,
+    boundedWork: ctx.boundedWork,
     instruction: [
       `PAGE: ${pagePath}`,
       `REQUESTED CHANGE: ${ctx.title}\n${ctx.description}`.slice(0, 1500),
@@ -570,6 +596,7 @@ async function executeInternalLinks(
   const patch = await requestPatch({
     agentSlug: ctx.agentSlug,
     deadlineAt: ctx.deadlineAt,
+    boundedWork: ctx.boundedWork,
     instruction: [
       `PAGE: ${pagePath}`,
       `REQUESTED CHANGE: ${ctx.title}\n${ctx.description}`.slice(0, 1200),
@@ -765,6 +792,7 @@ async function executeFaqAddition(
   const patch = await requestPatch({
     agentSlug: ctx.agentSlug,
     deadlineAt: ctx.deadlineAt,
+    boundedWork: ctx.boundedWork,
     instruction: [
       `PAGE: ${pagePath}`,
       `REQUESTED CHANGE: ${ctx.title}\n${ctx.description}`.slice(0, 1200),
@@ -858,6 +886,10 @@ async function executeFaqAddition(
 async function executeResearchFirm(
   ctx: ExecutorContext
 ): Promise<ExecutionOutcome> {
+  if (ctx.boundedWork && (ctx.deadlineAt ?? 0) - Date.now() < 15_000)
+    return blocked(
+      "Insufficient callback budget for the bounded attorney provider request; no research or outreach was performed."
+    );
   const { executeAttorneyResearch } = await import("./attorneyResearch");
   const { JUSTIA_STATE_ROTATION } = await import("../justiaAttorneyResearch");
   const states = ctx.payload.states === undefined ? [] : ctx.payload.states;
@@ -1195,7 +1227,11 @@ async function applyPageProposal(
 export async function executeQueuedAction(
   actionId: number,
   actor: string,
-  options?: { deadlineAt?: number }
+  options?: {
+    deadlineAt?: number;
+    workBudgetMs?: number;
+    boundedWork?: boolean;
+  }
 ): Promise<ExecutionReport> {
   if (
     !Number.isSafeInteger(actionId) ||
@@ -1207,9 +1243,21 @@ export async function executeQueuedAction(
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   const startedAt = new Date();
+  if (
+    options?.workBudgetMs !== undefined &&
+    (!Number.isFinite(options.workBudgetMs) || options.workBudgetMs < 0)
+  )
+    throw new Error("Invalid callback work budget.");
+  const invocationBudget = remainingAutonomousBudgetMs();
+  const boundedWork =
+    options?.boundedWork ||
+    options?.workBudgetMs !== undefined ||
+    invocationBudget !== undefined;
   const deadlineAt = Math.min(
     options?.deadlineAt ?? Infinity,
-    startedAt.getTime() + EXECUTOR_LIMITS.batchDeadlineMs
+    startedAt.getTime() + EXECUTOR_LIMITS.batchDeadlineMs,
+    startedAt.getTime() + (options?.workBudgetMs ?? Infinity),
+    startedAt.getTime() + (invocationBudget ?? Infinity)
   );
   if (!Number.isFinite(deadlineAt) || deadlineAt <= Date.now())
     throw new Error("Callback deadline already exhausted.");
@@ -1245,6 +1293,7 @@ export async function executeQueuedAction(
             description: action.description ?? "",
             payload,
             deadlineAt,
+            boundedWork,
           });
 
     if (outcome.status === "blocked") {
@@ -1255,6 +1304,11 @@ export async function executeQueuedAction(
           result: JSON.stringify({
             reason: outcome.reason,
             changed: false,
+            ...(/cooldown|unmeasured public change|change history|change timestamp/i.test(
+              outcome.reason
+            )
+              ? { code: "pending_measurement_hold" }
+              : {}),
             executedBy: actor,
           }),
           completedAt: new Date(),
@@ -1367,6 +1421,9 @@ export type BatchReport = {
   blocked: number;
   failed: number;
   reports: ExecutionReport[];
+  /** Bounded queue transitions are separate from attempted provider operations. */
+  maintenance?: QueueMaintenanceReport;
+  deferredForBudget?: number;
 };
 
 /**
@@ -1378,14 +1435,28 @@ export async function runQueuedActionExecutions(options?: {
   limit?: number;
   actor?: string;
   deadlineAt?: number;
+  /** Cooperative wall-clock admission budget; all started operations are awaited. */
+  workBudgetMs?: number;
+  /** Defaults off inside a durable invocation; dispatcher schedules it separately. */
+  maintenance?: boolean;
 }): Promise<BatchReport> {
   const requested = options?.limit ?? EXECUTOR_LIMITS.defaultBatchSize;
   const limit = Number.isFinite(requested)
     ? Math.max(0, Math.min(Math.floor(requested), EXECUTOR_LIMITS.maxBatchSize))
     : 0;
+  if (
+    options?.workBudgetMs !== undefined &&
+    (!Number.isFinite(options.workBudgetMs) || options.workBudgetMs < 0)
+  )
+    throw new Error("Invalid callback work budget.");
+  const invocationBudget = remainingAutonomousBudgetMs();
+  const boundedWork =
+    options?.workBudgetMs !== undefined || invocationBudget !== undefined;
   const deadlineAt = Math.min(
     options?.deadlineAt ?? Infinity,
-    Date.now() + EXECUTOR_LIMITS.batchDeadlineMs
+    Date.now() + EXECUTOR_LIMITS.batchDeadlineMs,
+    Date.now() + (options?.workBudgetMs ?? Infinity),
+    Date.now() + (invocationBudget ?? Infinity)
   );
   if (!Number.isFinite(deadlineAt))
     throw new Error("Invalid callback deadline.");
@@ -1393,25 +1464,44 @@ export async function runQueuedActionExecutions(options?: {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
 
-  const candidates = await db
-    .select()
-    .from(agentActions)
-    .where(readyActionPredicate(new Date()))
-    .orderBy(
-      asc(agentActions.priority),
-      asc(agentActions.createdAt),
-      asc(agentActions.id)
-    )
-    .limit(200);
+  const candidates =
+    limit > 0 && Date.now() < deadlineAt
+      ? await db
+          .select()
+          .from(agentActions)
+          .where(readyActionPredicate(new Date()))
+          .orderBy(
+            asc(agentActions.priority),
+            asc(agentActions.createdAt),
+            asc(agentActions.id)
+          )
+          .limit(200)
+      : [];
+
+  const maintenance =
+    (options?.maintenance ?? invocationBudget === undefined)
+      ? await maintainAutonomousQueue({ db, candidates, actor, deadlineAt })
+      : undefined;
+  const transitioned = new Set(maintenance?.transitionedActionIds ?? []);
 
   const reports: ExecutionReport[] = [];
   const seen = new Set<string>();
+  let deferredForBudget = 0;
   for (const action of candidates) {
+    if (transitioned.has(action.id)) continue;
+    if (reports.length >= limit) break;
     if (
-      reports.length >= limit ||
-      deadlineAt - Date.now() < EXECUTOR_LIMITS.modelCallBudgetMs
-    )
+      deadlineAt - Date.now() <
+      (boundedWork
+        ? EXECUTOR_LIMITS.minimumModelTimeoutMs +
+          EXECUTOR_LIMITS.commitReserveMs
+        : EXECUTOR_LIMITS.modelCallBudgetMs)
+    ) {
+      deferredForBudget = candidates.filter(
+        row => !transitioned.has(row.id)
+      ).length;
       break;
+    }
     const payload = parseActionPayload(action.payload);
     const slug = payload
       ? resolveBlogSlug({
@@ -1431,7 +1521,9 @@ export async function runQueuedActionExecutions(options?: {
     if (key && seen.has(key)) continue;
     if (key) seen.add(key);
     try {
-      reports.push(await executeQueuedAction(action.id, actor, { deadlineAt }));
+      reports.push(
+        await executeQueuedAction(action.id, actor, { deadlineAt, boundedWork })
+      );
     } catch (error: any) {
       reports.push({
         actionId: action.id,
@@ -1450,6 +1542,8 @@ export async function runQueuedActionExecutions(options?: {
     blocked: reports.filter(r => r.status === "blocked").length,
     failed: reports.filter(r => r.status === "failed").length,
     reports,
+    maintenance,
+    deferredForBudget,
   };
 }
 
@@ -1574,19 +1668,17 @@ export async function revertExecutedAction(
       );
     if (!affectedOne(result))
       throw new Error("Rollback receipt ownership was lost.");
-    await tx
-      .insert(seoChangeLog)
-      .values({
-        changeType: "other",
-        title: `Reverted — /blog/${plan.slug}`,
-        description: summary,
-        pagesAffected: JSON.stringify([`/blog/${plan.slug}`]),
-        pageCount: 1,
-        beforeSnapshot: JSON.stringify(before),
-        afterSnapshot: JSON.stringify(patch),
-        madeBy: actor,
-        relatedActionId: actionId,
-      });
+    await tx.insert(seoChangeLog).values({
+      changeType: "other",
+      title: `Reverted — /blog/${plan.slug}`,
+      description: summary,
+      pagesAffected: JSON.stringify([`/blog/${plan.slug}`]),
+      pageCount: 1,
+      beforeSnapshot: JSON.stringify(before),
+      afterSnapshot: JSON.stringify(patch),
+      madeBy: actor,
+      relatedActionId: actionId,
+    });
     return { summary };
   });
 }

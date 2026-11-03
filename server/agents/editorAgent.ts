@@ -5,8 +5,9 @@ import {
 } from "./engine";
 import { getDb } from "../db";
 import { contentPipeline, blogDrafts } from "../../drizzle/schema";
-import { desc, eq, and, sql } from "drizzle-orm";
+import { desc, eq, and, inArray, sql } from "drizzle-orm";
 import { actualDraftWordCount, assessDraftReadiness, draftFingerprint } from "./contentAgent";
+import { getAutonomousInvocation } from "../autonomousBudget";
 
 export const MAX_EDITOR_DRAFT_CHARS = 32_000;
 const MAX_EDITOR_BATCH_CHARS = 48_000;
@@ -61,14 +62,25 @@ Do not generate independent messages or approvals outside the supplied queue.`;
 export async function runEditorAgent(
   triggerType: "cron" | "manual" | "directive" | "event" = "cron",
   triggeredBy = "system",
+  target?: { itemId: number },
 ): Promise<AgentThinkResult> {
+  const claimedPipelineId = getAutonomousInvocation()?.pipelineId;
+  if (claimedPipelineId !== undefined) {
+    if (target && target.itemId !== claimedPipelineId) throw new Error("Editor target differs from the claimed autonomous pipeline ID.");
+    target = { itemId: claimedPipelineId };
+  }
+  if (target && (!Number.isSafeInteger(target.itemId) || target.itemId <= 0)) {
+    throw new Error("Editor target must be an exact positive pipeline ID.");
+  }
   const context = await startRun("editor", triggerType, triggeredBy);
   try {
     const db = await getDb();
     if (!db) throw new Error("Database unavailable; editorial review blocked.");
     const draftsToReview = await db.select().from(contentPipeline)
-      .where(and(eq(contentPipeline.stage, "draft_complete"), sql`${contentPipeline.contentType} <> 'city_page'`))
-      .orderBy(desc(contentPipeline.updatedAt)).limit(5);
+      .where(and(inArray(contentPipeline.stage, ["draft_complete", "in_review"]),
+        sql`${contentPipeline.contentType} <> 'city_page'`,
+        target ? eq(contentPipeline.id, target.itemId) : undefined))
+      .orderBy(desc(contentPipeline.updatedAt)).limit(target ? 1 : 5);
     const inbox = await getUnreadMessages("editor");
     if (!draftsToReview.length) {
       // Inbox prose is not a reviewable artifact. Leave directives untouched for later.
@@ -139,7 +151,9 @@ export async function runEditorAgent(
       if (!review) continue;
       // Re-read the exact row before applying: changed/stale drafts never inherit approval.
       const [current] = await db.select().from(contentPipeline).where(eq(contentPipeline.id, draft.id)).limit(1);
-      if (!current || current.stage !== "draft_complete" || current.draft !== draft.draft
+      if (!current || current.stage !== draft.stage || !["draft_complete", "in_review"].includes(current.stage)
+        || current.draft !== draft.draft || current.slug !== draft.slug || current.title !== draft.title
+        || current.targetKeyword !== draft.targetKeyword || current.contentType !== draft.contentType
         || current.contentType === "city_page") continue;
       const safety = safetyById.get(draft.id)!;
       const decision = editorialDecision(review, safety);
@@ -155,9 +169,17 @@ export async function runEditorAgent(
         decision !== review.decision ? "Deterministic full-draft/metric gate overrode the proposed decision; revision or compliance work is required." : "",
       ].filter(Boolean).join(" ") || "Review requires actionable feedback before acceptance.";
       const wordCount = actualDraftWordCount(draft.draft);
-      await db.update(contentPipeline).set({ stage, ...scores, wordCount,
+      // Compare-and-set both pipeline identity and artifact at write time. A changed
+      // BlogStudio draft must not inherit a stale model approval after the re-read.
+      const [writeResult] = await db.update(contentPipeline).set({ stage, ...scores, wordCount,
+        finalContent: decision === "approve" ? draft.draft : null, approvedBy: null,
         editorFeedback: feedback, reviewedBy: "editor", updatedAt: new Date() })
-        .where(and(eq(contentPipeline.id, draft.id), eq(contentPipeline.stage, "draft_complete"), eq(contentPipeline.draft, draft.draft || "")));
+        .where(and(eq(contentPipeline.id, draft.id), eq(contentPipeline.stage, draft.stage),
+          sql`BINARY ${contentPipeline.draft} <=> BINARY ${draft.draft}`, sql`BINARY ${contentPipeline.slug} <=> BINARY ${draft.slug}`,
+          sql`BINARY ${contentPipeline.title} = BINARY ${draft.title}`, sql`BINARY ${contentPipeline.targetKeyword} <=> BINARY ${draft.targetKeyword}`,
+          eq(contentPipeline.contentType, draft.contentType),
+          decision === "approve" ? sql`EXISTS (SELECT 1 FROM ${blogDrafts} WHERE ${blogDrafts.id} = ${artifactById.get(draft.id)} AND BINARY ${blogDrafts.postSlug} = BINARY ${draft.slug} AND BINARY ${blogDrafts.targetKeyword} = BINARY ${draft.targetKeyword} AND BINARY ${blogDrafts.content} = BINARY ${draft.draft})` : undefined));
+      if (writeResult.affectedRows !== 1) continue; // No receipt/messages for a lost race.
       await createAction({ agentSlug: "editor", actionType: "editorial_review", status: "completed",
         title: `[EDITOR REVIEW] Run #${context.runId} Pipeline #${draft.id}`, requiresApproval: 0,
         payload: JSON.stringify({ runId: context.runId, pipelineId: draft.id, draftId: artifactById.get(draft.id),
@@ -168,11 +190,12 @@ export async function runEditorAgent(
       await sendMessage({ fromAgent: "editor", toAgent: decision === "approve" ? "manager" : "content",
         type: decision === "approve" ? "report" : "directive", priority: decision === "reject" ? "p1" : "p2",
         subject: `[${decision === "approve" ? "APPROVED" : decision === "reject" ? "REJECTED" : "REVISION NEEDED"}] "${draft.title}"`,
-        body: `Pipeline ID: ${draft.id}\nSlug: ${draft.slug}\nKeyword: ${draft.targetKeyword}\nDecision: ${decision}\nActual word count: ${wordCount}\nScores: ${JSON.stringify(scores)}\nFeedback: ${feedback}\n${decision === "approve" ? "Editorial approval only. Request an authenticated owner publish decision; nothing is published." : "Revise this exact linked draft, preserving title, slug and keyword, and resubmit."}` });
+        body: `Pipeline ID: ${draft.id}\nSlug: ${draft.slug}\nKeyword: ${draft.targetKeyword}\nDecision: ${decision}\nActual word count: ${wordCount}\nScores: ${JSON.stringify(scores)}\nFeedback: ${feedback}\n${decision === "approve" ? "Editorial finalContent is saved for owner review only. Nothing is published; no outreach or publish automation is authorized." : "Revise this exact linked draft, preserving title, slug and keyword, and resubmit."}` });
       context.messagesCreated++;
       decisions.push(`Pipeline #${draft.id}: ${stage}, ${wordCount} actual words`);
     }
-    for (const message of inbox) await markMessageActedOn(message.id);
+    // Exact dispatch must not consume directives for other queued articles.
+    if (!target) for (const message of inbox) await markMessageActedOn(message.id);
     const summary = `Editor saved ${decisions.length} full-draft gate results linked to run #${context.runId}: ${decisions.join("; ") || "no unchanged queue records remained"}. No publication performed.`;
     return await completeRun(context, summary);
   } catch (error: any) {

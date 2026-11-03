@@ -4,6 +4,10 @@ import { protectedProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { agentActions, agentRunLog, contentPipeline, seoChangeLog, siteConfig } from "../drizzle/schema";
 import { readSeoChangeOutcomeReport } from "./seoChangeOutcomes";
+import { readAutonomousStatus } from "./autonomousStatus";
+import { activateAutonomousSchedules } from "./autonomousActivation";
+import { parse as parseCookies } from "cookie";
+import { COOKIE_NAME } from "../shared/const";
 
 export const COMPETITOR_EVIDENCE_KEY = "seo_competitor_watch_latest";
 const competitor = z.object({ url: z.string().url().max(1000), title: z.string().min(1).max(500), evidence: z.string().min(1).max(4000) });
@@ -31,6 +35,21 @@ const admin = protectedProcedure.use(({ ctx, next }) => {
 });
 
 export const autopilotRouter = router({
+  pipelineDraft: admin.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
+    const db = await getDb(); if (!db) throw new Error("Draft database unavailable");
+    const [row] = await db.select().from(contentPipeline).where(eq(contentPipeline.id, input.id)).limit(1);
+    if (!row) throw new Error("Exact saved draft not found");
+    const [partial] = await db.select().from(siteConfig).where(eq(siteConfig.key, `autonomous_content_draft_v1_${input.id}`)).limit(1);
+    const state = readJson(partial?.value) as { sections?: string[]; completed?: boolean } | null;
+    const sections = Array.isArray(state?.sections) ? state.sections.filter((section): section is string => typeof section === "string") : [];
+    return { id: row.id, title: row.title, stage: row.stage, slug: row.slug, draft: row.draft,
+      feedback: row.editorFeedback, partialDraft: !state?.completed ? sections.join("\n\n") : null,
+      sectionsSaved: sections.length, partialCompleted: state?.completed === true };
+  }),
+  activate: admin.mutation(async ({ ctx }) => {
+    const cookies = parseCookies(ctx.req.headers?.cookie || "");
+    return activateAutonomousSchedules(cookies[COOKIE_NAME] || "");
+  }),
   status: admin.query(async () => {
     const db = await getDb();
     if (!db) throw new Error("Autopilot evidence database unavailable; no zeroes substituted.");
@@ -46,6 +65,7 @@ export const autopilotRouter = router({
     const outcomes = await readSeoChangeOutcomeReport();
     return {
       capturedAt: new Date(),
+      autonomy: await readAutonomousStatus(),
       outcomes: { status: outcomes.status, measured: outcomes.measured, pending: outcomes.pending, confounded: outcomes.confounded, unavailable: outcomes.unavailable, warning: outcomes.warning },
       policy: { changes: "Existing approved blog pages only; per-page cooldown and FAQ cap. New pages require owner publication.", measurement: "Equal nonoverlapping before/after windows; observations are not proof of causation.", aiVisibility: "Not measured: crawler access and schema are not ChatGPT, Grok or Perplexity citation results." },
       runs: runs.map(r => ({ id: r.id, agentSlug: r.agentSlug, status: r.status, summary: r.summary, startedAt: r.startedAt, completedAt: r.completedAt, model: r.model, noOp: r.summary?.startsWith("No-op:") ?? false })),

@@ -1,0 +1,1 @@
+ALTER TABLE `autonomousWorkItems` ADD CONSTRAINT `autonomousWorkItems_scheduleCronTaskUid_unique` UNIQUE(`scheduleCronTaskUid`);

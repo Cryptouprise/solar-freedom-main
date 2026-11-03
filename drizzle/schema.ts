@@ -1592,3 +1592,28 @@ export const agentChatThreads = mysqlTable("agentChatThreads", {
 });
 export type AgentChatThread = typeof agentChatThreads.$inferSelect;
 export type InsertAgentChatThread = typeof agentChatThreads.$inferInsert;
+
+/** Resumable autonomous work. One bounded step per HTTP callback; never an in-process scheduler. */
+export const autonomousWorkItems = mysqlTable("autonomousWorkItems", {
+  id: int("id").autoincrement().primaryKey(),
+  workKey: varchar("workKey", { length: 191 }).notNull().unique(),
+  kind: varchar("kind", { length: 32 }).notNull(),
+  agentSlug: varchar("agentSlug", { length: 50 }),
+  pipelineId: int("pipelineId"),
+  scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }).unique(),
+  status: mysqlEnum("status", ["queued", "leased", "completed", "blocked", "failed"]).default("queued").notNull(),
+  stateJson: text("stateJson"),
+  attempts: int("attempts").default(0).notNull(),
+  steps: int("steps").default(0).notNull(),
+  failures: int("failures").default(0).notNull(),
+  priority: int("priority").default(50).notNull(),
+  nextRunAt: timestamp("nextRunAt").defaultNow().notNull(),
+  leaseToken: varchar("leaseToken", { length: 64 }),
+  leaseUntil: timestamp("leaseUntil"),
+  resultSummary: text("resultSummary"),
+  errorMessage: text("errorMessage"),
+  finishedAt: timestamp("finishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AutonomousWorkItem = typeof autonomousWorkItems.$inferSelect;

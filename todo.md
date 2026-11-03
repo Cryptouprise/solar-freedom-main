@@ -1344,3 +1344,15 @@
 - [ ] Publish the proxy/no-GPT code checkpoint to production and verify the public prefix reaches the handler. Save does not prove rollout.
 - [ ] AI Studio origin currently rejects public Host with Cloudflare 403 and returns 404 on unconfigured prefixed routes. External platform must publish prefixed routes and resolve Host contract before the correct homepage/sitemap/robots can return 200. Do not claim 'proxy live' or generate a fake 200 while blocked.
 - [x] SEO default is now Argon; only Argon/DeepSeek V4.1 allowed for SEO at dispatch time; explicit/legacy GPT or Qwen SEO overrides rejected before provider calls. Final deterministic suite: 63 files / 501 passed / 3 skipped. Policy affects SEO Intel and page-edit executors, not unrelated agent roles.
+
+## Durable autonomous execution — November 2, 2026
+- [x] Additive autonomous_work_items ledger and indexed trusted schedule bindings applied; nine existing schedule identities bound with zero native schedule changes.
+- [x] Agent/executor cron handlers acknowledge durable work; worker uses one provider attempt, 24-second request budget, cancellation, leases, persisted retry/backoff and a 48-step UTC daily ceiling. No detached timers/processes.
+- [x] Existing scorecard dispatches daily SEO/content/execution/measurement work. Revenue Intel saves bounded source-grounded plans rather than nested drafting. Queue maintenance protects approvals and records verified duplicates/measurement holds.
+- [x] Exact-target finite Content sections → full artifact → Editor → same-target revisions; active-target coalescing and terminal exclusion prevent repeated stale selections. Publishing/outreach still requires owner approval.
+- [x] Live plan job 10 dispatched exact job 12 / real pipeline 30001. Corrected Qwen reasoning/output and heading issues from live tests; job 12 persisted section 1/6. Historical failures retained. Full live editorial acceptance not yet proven; no published-article claim.
+- [x] Existing Outcomes exposes saved steps, exact draft/partial-section review, last tick, failures, retry eligibility and a deployment gate. Argon-only SEO/no-GPT policy preserved.
+- [x] TypeScript clean; 68 files / 619 tests passed / 3 live probes skipped. Earlier exact worker production build passed; final read-only draft-review build must finish before checkpoint. Preview visually checked.
+- [ ] Publish checkpoint; public version proof gates activation. First bound schedule then bootstraps the native worker, or production Outcomes starts it sooner. No worker schedule activated before publication.
+- [ ] Verify first native callback and full real draft → Editor → owner-ready result after Publish. Appointment attribution, model-deal research, external competitor browsing and orphan-draft publishing UX remain separate unfinished work.
+- [x] Final exact draft-review production build completed successfully (574 prerendered pages); generated sitemap/AI-index edits restored. Pipeline drafts and saved partial sections have direct read-only review in Outcomes, without pretending an orphan draft can already be published from an existing-post selector.

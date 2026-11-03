@@ -13,14 +13,14 @@
  *    - Interlinking: +5-15% position improvement for target pages
  *    - FAQ addition: +20% impressions from featured snippets
  *    - Meta rewrite: +8-20% CTR
- * 4. Ranks ALL possible actions by predicted $ impact (highest first)
- * 5. Auto-executes top 5 actions that don't need human approval
+ * 4. Ranks candidate actions by scenario impact (not measured revenue)
+ * 5. Autonomous ticks queue at most three typed plans; later ticks execute them
  * 6. Creates P1 actions for Chase for anything > $5K impact
  * 7. Sends results to Manager for morning briefing
  *
  * PREDICTION MODEL:
- * - Lead value: $275 avg (150-500 range)
- * - Booking rate: 40.5%
+ * - Unverified scenario assumption: $275 lead value (not measured)
+ * - Unverified scenario assumption: 40.5% booking rate (not measured)
  * - Lead yield = (clicks / 1000) * conversion_rate
  * - Conversion rate estimated from page type and intent signals
  */
@@ -57,12 +57,17 @@ import { desc, eq, sql, and, gte, isNotNull } from "drizzle-orm";
 import { getGA4Report } from "../ga4";
 import { blogPosts as staticBlogPosts } from "../../client/src/data/blog";
 import { sanitizeStoredHtml } from "../security/html";
+import { getAutonomousInvocation } from "../autonomousBudget";
 
-// ─── Business Constants ───────────────────────────────────────────────────────
+// ─── Unverified scenario assumptions — NEVER measured business results ────────
 const LEAD_VALUE = 275;
 const BOOKING_RATE = 0.405;
-const REVENUE_PER_LEAD = LEAD_VALUE * BOOKING_RATE; // ~$111
+const REVENUE_PER_LEAD = LEAD_VALUE * BOOKING_RATE;
+export const REVENUE_ASSUMPTION_NOTICE = "Scenario estimate only: $275 lead value, 40.5% booking rate, page conversion rates, CTR curve and uplift rates are unverified assumptions, not measured revenue, bookings, conversions or ROI. Overlapping opportunities are not additive forecasts.";
+export const AUTONOMOUS_REVENUE_PLAN_LIMIT = 3;
+export const AUTONOMOUS_REVENUE_PREDICTION_LIMIT = 5;
 const MAX_AUTO_DRAFTS_PER_RUN = 2;
+const SAFE_REVENUE_ACTION_TYPES = new Set(["title_optimization", "meta_rewrite", "faq_addition", "interlink_injection"]);
 
 export function getMysqlInsertId(result: unknown): number {
   const row = Array.isArray(result) ? result[0] : result;
@@ -71,13 +76,37 @@ export function getMysqlInsertId(result: unknown): number {
   return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
 }
 
-type RevenueExecutionPlan = {
+export type RevenueExecutionPlan = {
   pageSlug: string;
   actionType: string;
   specificChange: string;
   predictedRevenueGain: number;
   reasoning: string;
+  priority?: string;
 };
+
+/** Model output cannot invent targets, inflate scenario dollars or widen tools. */
+export function selectAutonomousRevenuePlans(plans: unknown, candidates: readonly PredictedAction[]): RevenueExecutionPlan[] {
+  if (!Array.isArray(plans)) return [];
+  const selected: RevenueExecutionPlan[] = [];
+  const seen = new Set<string>();
+  for (const value of plans) {
+    if (!value || typeof value !== "object") continue;
+    const plan = value as Partial<RevenueExecutionPlan>;
+    const source = candidates.find(item => item.pageSlug === plan.pageSlug && item.actionType === plan.actionType);
+    if (!source || seen.has(source.pageSlug) || typeof plan.specificChange !== "string" || !plan.specificChange.trim()) continue;
+    if (!/^\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/.test(source.pageSlug)) continue;
+    if (!["auto_execute", "queue_for_review", "escalate_to_chase"].includes(plan.priority ?? "")) continue;
+    seen.add(source.pageSlug);
+    selected.push({ pageSlug: source.pageSlug, actionType: source.actionType,
+      specificChange: plan.specificChange.trim().slice(0, 4_000),
+      predictedRevenueGain: source.predictedRevenueGain,
+      reasoning: `${source.reasoning} ${REVENUE_ASSUMPTION_NOTICE}`,
+      priority: plan.priority });
+    if (selected.length === AUTONOMOUS_REVENUE_PLAN_LIMIT) break;
+  }
+  return selected;
+}
 
 function getBlogSlug(pageSlug: string) {
   const path = pageSlug.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/+/, "");
@@ -195,7 +224,7 @@ async function createRevenueDraft(params: {
   return true;
 }
 
-// CTR curve by position (Google industry average)
+// Illustrative CTR curve by position; not verified against this site's data.
 const CTR_BY_POSITION: Record<number, number> = {
   1: 0.278, 2: 0.152, 3: 0.110, 4: 0.080, 5: 0.064,
   6: 0.050, 7: 0.040, 8: 0.033, 9: 0.027, 10: 0.025,
@@ -218,7 +247,7 @@ function getCTR(position: number): number {
   return 0.002;
 }
 
-// Conversion rate by page type (leads per 100 clicks)
+// Unverified conversion-rate assumptions by page type (leads per 100 clicks).
 const CONVERSION_RATE: Record<string, number> = {
   homepage: 4.5,
   city: 6.2,
@@ -291,7 +320,7 @@ export function predictActions(metrics: PageMetrics): PredictedAction[] {
       pageSlug: slug,
       pageTitle: title,
       actionType: "cta_rewrite",
-        actionDetail: `Rewrite primary CTA on "${title}" to increase conversion rate by ~25%. Current: generic button. New: urgency-driven, benefit-specific CTA matching search intent.`,
+        actionDetail: `Review the primary CTA on "${title}". Test accurate, benefit-specific case-review copy matching search intent; a 25% conversion uplift is only a scenario assumption. Current button copy has not been verified.`,
         predictedClicksGain: 0,
       predictedLeadsGain: Math.round(leadsGain * 100) / 100,
       predictedRevenueGain: Math.round(revenueGain * 100) / 100,
@@ -313,7 +342,7 @@ export function predictActions(metrics: PageMetrics): PredictedAction[] {
       pageSlug: slug,
       pageTitle: title,
       actionType: "title_optimization",
-      actionDetail: `Optimize title tag of "${title}" to improve CTR from ${(currentCTR * 100).toFixed(1)}% to ${(improvedCTR * 100).toFixed(1)}%. Add power words: "Free", "Cancel", "Get Out", "Now". Include year if applicable.`,
+        actionDetail: `Test an accurate title tag for "${title}" matching the actual page content and search intent. The CTR scenario ${(currentCTR * 100).toFixed(1)}% to ${(improvedCTR * 100).toFixed(1)}% is an assumption, not an observed change. Avoid promises, false urgency or unsupported outcomes.`,
       predictedClicksGain: Math.round(clicksGain),
       predictedLeadsGain: Math.round(leadsGain * 100) / 100,
       predictedRevenueGain: Math.round(revenueGain * 100) / 100,
@@ -336,7 +365,7 @@ export function predictActions(metrics: PageMetrics): PredictedAction[] {
       pageSlug: slug,
       pageTitle: title,
       actionType: "position_push",
-      actionDetail: `Push "${title}" from position ${position.toFixed(0)} to ${targetPosition} via: (1) Add 500 words of E-E-A-T content, (2) Add 3 internal links from high-authority pages, (3) Add FAQ schema, (4) Improve keyword density to 1.5-2%.`,
+      actionDetail: `Advisory review for "${title}" at measured position ${position.toFixed(1)}: assess factual gaps and relevant existing internal links. Position ${targetPosition} is a modeling scenario, not a promised outcome. No keyword-density, word-count or schema addition guarantees rankings.`,
       predictedClicksGain: Math.round(clicksGain),
       predictedLeadsGain: Math.round(leadsGain * 100) / 100,
       predictedRevenueGain: Math.round(revenueGain * 100) / 100,
@@ -350,19 +379,19 @@ export function predictActions(metrics: PageMetrics): PredictedAction[] {
     const currentCTR = getCTR(position);
     const improvedCTR = currentCTR * 1.12;
     const clicksGain = impressions * (improvedCTR - currentCTR);
-    const leadsGain = (clicksGain / 100) * (convRate / 100) * 30;
+    const leadsGain = clicksGain * (convRate / 100);
     const revenueGain = leadsGain * REVENUE_PER_LEAD;
     if (revenueGain > 25) {
       actions.push({
         pageSlug: slug,
         pageTitle: title,
         actionType: "meta_rewrite",
-        actionDetail: `Rewrite meta description for "${title}" to include: (1) Primary keyword in first 10 words, (2) Specific benefit/outcome, (3) Call to action, (4) Social proof element. Max 155 chars.`,
-        predictedClicksGain: Math.round(clicksGain * 30),
+        actionDetail: `Test a factual meta description for "${title}" with the relevant search topic, an accurate page benefit and a safe case-review CTA. Use social proof only if supplied and verified; do not invent it. Max 155 chars.`,
+        predictedClicksGain: Math.round(clicksGain),
         predictedLeadsGain: Math.round(leadsGain * 100) / 100,
         predictedRevenueGain: Math.round(revenueGain * 100) / 100,
         confidenceScore: 65,
-        reasoning: `${impressions} impressions/day at pos ${position.toFixed(1)}. 12% CTR improvement = +${clicksGain.toFixed(1)} clicks/day = $${revenueGain.toFixed(0)}/month`,
+        reasoning: `${impressions} impressions in the current 28-day GSC window at position ${position.toFixed(1)}. An assumed 12% CTR improvement estimates +${clicksGain.toFixed(1)} clicks per window and $${revenueGain.toFixed(0)} scenario impact.`,
       });
     }
   }
@@ -372,24 +401,25 @@ export function predictActions(metrics: PageMetrics): PredictedAction[] {
     const impressionsGain = impressions * 0.20;
     const currentCTR = getCTR(position);
     const clicksGain = impressionsGain * currentCTR;
-    const leadsGain = (clicksGain / 100) * (convRate / 100) * 30;
+    const leadsGain = clicksGain * (convRate / 100);
     const revenueGain = leadsGain * REVENUE_PER_LEAD;
     if (revenueGain > 20) {
       actions.push({
         pageSlug: slug,
         pageTitle: title,
         actionType: "faq_addition",
-        actionDetail: `Add FAQ section to "${title}" with 5-7 questions targeting "People Also Ask" snippets. Include: "How do I cancel my solar contract?", "Can I get out of a solar lease?", "What are my rights with solar contracts?". Add FAQPage schema markup.`,
-        predictedClicksGain: Math.round(clicksGain * 30),
+        actionDetail: `Assess whether "${title}" needs useful, source-backed FAQ answers about solar contract options. Extend visible FAQs only within the typed executor's limits, verify jurisdiction-specific claims, and never promise rich results from FAQPage schema.`,
+        predictedClicksGain: Math.round(clicksGain),
         predictedLeadsGain: Math.round(leadsGain * 100) / 100,
         predictedRevenueGain: Math.round(revenueGain * 100) / 100,
         confidenceScore: 55,
-        reasoning: `FAQ schema typically adds 20% impressions via PAA boxes. ${impressions} × 20% = +${impressionsGain.toFixed(0)} impressions/day = $${revenueGain.toFixed(0)}/month`,
+        reasoning: `Hypothetical FAQ content test: an assumed 20% impression uplift on ${impressions} measured impressions per 28-day window estimates +${impressionsGain.toFixed(0)} impressions and $${revenueGain.toFixed(0)} scenario impact. FAQ schema does not guarantee rich results or ranking gains.`,
       });
     }
   }
 
-  return actions.sort((a, b) => b.predictedRevenueGain - a.predictedRevenueGain);
+  return actions.map(action => ({ ...action, reasoning: `${action.reasoning} ${REVENUE_ASSUMPTION_NOTICE}` }))
+    .sort((a, b) => b.predictedRevenueGain - a.predictedRevenueGain);
 }
 
 // ─── Main Execution ───────────────────────────────────────────────────────────
@@ -398,6 +428,7 @@ export async function runRevenueIntelAgent(
   triggerType: "cron" | "manual" | "directive" | "event" = "cron",
   triggeredBy: string = "system"
 ): Promise<AgentThinkResult> {
+  const autonomous = Boolean(getAutonomousInvocation());
   const context = await startRun("revenue_intel" as any, triggerType, triggeredBy);
   const startTime = Date.now();
   const db = await getDb();
@@ -455,16 +486,25 @@ export async function runRevenueIntelAgent(
     const totalPredictedRevenue = dedupedActions.reduce((s, a) => s + a.predictedRevenueGain, 0);
 
     // 6. Use LLM to refine top 20 actions and generate execution plans
-    const top20 = dedupedActions.slice(0, 20);
+    // Existing typed adapters get the scarce tick budget before broad advisory
+    // directives. Still retain their scenario ranking within each group.
+    const rankedCandidates = autonomous ? dedupedActions.slice().sort((a, b) =>
+      Number(SAFE_REVENUE_ACTION_TYPES.has(b.actionType)) - Number(SAFE_REVENUE_ACTION_TYPES.has(a.actionType))
+      || b.predictedRevenueGain - a.predictedRevenueGain) : dedupedActions;
+    const top20 = rankedCandidates.slice(0, autonomous ? AUTONOMOUS_REVENUE_PREDICTION_LIMIT : 20);
     const systemPrompt = `You are the Revenue Intelligence Agent for Solar Freedom (breakyoursolarcontract.com).
 
-Your job: analyze the top predicted revenue actions and determine which ones to EXECUTE NOW vs queue for human review.
+Your job: analyze scenario opportunities and prepare ${autonomous ? "at most 3 concise typed plans for later worker ticks" : "reviewable execution plans"}. Planning and queueing are not execution, publication or measured revenue.
 
 BUSINESS CONTEXT:
-- Lead value: $275 avg | Booking rate: 40.5% | Revenue per lead: ~$111
-- Every action must be justified by a specific dollar amount
-- Auto-execute: CTA rewrites, meta rewrites, FAQ additions, title optimizations (no human needed)
+- ${REVENUE_ASSUMPTION_NOTICE}
+- Only Search Console clicks, impressions and positions supplied below are measured. No measured lead or money attribution has been supplied.
+- Use scenario dollars only for prioritization, not performance claims. Confidence scores are heuristic, not measured probabilities.
+- Supported typed queue: meta rewrites, FAQ additions, title optimizations and contextual links on existing /blog/ targets; all executor policy and approval gates still apply.
+- CTA rewrites and position pushes are advisory; no automatic public mutation is authorized by this plan.
 - Escalate to Chase: anything requiring legal review, new page creation, or > $5K monthly impact
+- Never invent page targets or action types absent from the supplied candidates. Include pageSlug exactly as supplied.
+- Lessons from this planning run must be observations, never fabricated measured successes.
 
 LESSONS LEARNED:
 ${formatLessonsForContext(lessons)}
@@ -500,9 +540,9 @@ Respond ONLY with valid JSON:
         { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `TOP 20 REVENUE ACTIONS (ranked by predicted monthly $ impact):\n\n${top20.map((a, i) =>
-            `${i + 1}. [${a.actionType.toUpperCase()}] ${a.pageTitle}\n   Predicted: $${a.predictedRevenueGain.toFixed(0)}/month | Confidence: ${a.confidenceScore}%\n   Action: ${a.actionDetail}\n   Reasoning: ${a.reasoning}`
-          ).join("\n\n")}\n\nTotal pages analyzed: ${pages.length} | Total actions generated: ${dedupedActions.length} | Total predicted monthly revenue: $${totalPredictedRevenue.toFixed(0)}\n\nWhich actions should be auto-executed NOW? Which need Chase's review?`,
+          content: `TOP ${top20.length} SCENARIO OPPORTUNITIES (not measured money):\n\n${top20.map((a, i) =>
+            `${i + 1}. [${a.actionType.toUpperCase()}] ${a.pageTitle}\n   pageSlug: ${a.pageSlug}\n   Scenario impact: $${a.predictedRevenueGain.toFixed(0)} per 28-day baseline | Heuristic confidence: ${a.confidenceScore}/100\n   Action: ${a.actionDetail}\n   Reasoning: ${a.reasoning}`
+          ).join("\n\n")}\n\nPages analyzed: ${pages.length} | Candidate opportunities: ${dedupedActions.length}\n\n${autonomous ? "Queue at most 3 unique-page plans. No actions will be executed in this planning tick." : "Which supported changes should get reviewable drafts? Which need owner review?"}`,
         },
       ],
       context,
@@ -529,16 +569,17 @@ Respond ONLY with valid JSON:
       parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
     } catch { parsed = {}; }
 
-    // 7. Save all predictions to DB
+    // 7. Persist a bounded evidence shortlist, not every recommendation each tick.
     let actionsExecuted = 0;
+    const savedPredictions = rankedCandidates.slice(0, autonomous ? AUTONOMOUS_REVENUE_PREDICTION_LIMIT : 50);
     if (db) {
-      for (const action of dedupedActions.slice(0, 50)) {
+      for (const action of savedPredictions) {
         await db.insert(revenueIntelPredictions).values({
           pageSlug: action.pageSlug,
           pageTitle: action.pageTitle,
           actionType: action.actionType,
           actionDetail: action.actionDetail,
-          currentLeadsPerMonth: String(action.predictedLeadsGain),
+          currentLeadsPerMonth: String(modelPageMetrics(pages.find(page => page.slug === action.pageSlug)!).currentLeadsPerMonth),
           predictedClicksGain: action.predictedClicksGain,
           predictedLeadsGain: String(action.predictedLeadsGain),
           predictedRevenueGain: String(action.predictedRevenueGain),
@@ -554,7 +595,28 @@ Respond ONLY with valid JSON:
     // else remains transparently queued or blocked rather than being counted as
     // "auto-executed" without a concrete output.
     let draftsExecuted = 0;
-    for (const plan of (parsed.executionPlan || [])) {
+    const plans = autonomous ? selectAutonomousRevenuePlans(parsed.executionPlan, savedPredictions) : (parsed.executionPlan || []);
+    for (const plan of plans) {
+      if (autonomous) {
+        const safe = SAFE_REVENUE_ACTION_TYPES.has(plan.actionType);
+        const reviewRequired = !safe || plan.priority !== "auto_execute" || plan.predictedRevenueGain > 5_000;
+        await createAction({
+          agentSlug: "revenue_intel", priority: reviewRequired ? "p1" : "p2",
+          title: `[${reviewRequired ? "REVIEW" : "QUEUED"}] ${plan.actionType}: ${plan.pageSlug}`,
+          description: `Scenario impact estimate: $${plan.predictedRevenueGain}/28-day baseline; not measured revenue.\n\nProposed change:\n${plan.specificChange}\n\n${plan.reasoning}`,
+          // Advisory directives cannot accidentally enter a public typed adapter.
+          actionType: safe ? plan.actionType : "revenue_optimization",
+          status: "queued", requiresApproval: reviewRequired ? 1 : 0,
+          payload: JSON.stringify({ schemaVersion: 1, pageSlug: plan.pageSlug,
+            actionType: safe ? plan.actionType : "revenue_optimization", requestedActionType: plan.actionType,
+            change: plan.specificChange, sourceRunId: context.runId, revenueRunId: runId,
+            predictedRevenueGain: plan.predictedRevenueGain, impactBasis: "unverified_scenario",
+            assumptions: REVENUE_ASSUMPTION_NOTICE, publication: "not_requested" }),
+          costUsd: null,
+        });
+        context.actionsCreated++;
+        continue;
+      }
       if (plan.priority === "auto_execute") {
         const actionId = await createAction({
           agentSlug: "revenue_intel" as any,
@@ -593,12 +655,12 @@ Respond ONLY with valid JSON:
     }
 
     // 9. Record lessons
-    for (const lesson of (parsed.lessons || [])) {
+    for (const lesson of (parsed.lessons || []).slice(0, autonomous ? 1 : undefined)) {
       await addLesson({
         agentSlug: "revenue_intel" as any,
-        lessonType: lesson.lessonType as any,
+        lessonType: autonomous ? "observation" : lesson.lessonType as any,
         lesson: lesson.lesson,
-        impact: lesson.impact,
+        impact: autonomous ? "Planning observation only; no measured performance or revenue change." : lesson.impact,
       });
     }
 
@@ -607,12 +669,12 @@ Respond ONLY with valid JSON:
     if (db && runId) {
       await db.update(revenueIntelRuns).set({
         postsAnalyzed: pages.length,
-        actionsGenerated: dedupedActions.length,
+        actionsGenerated: savedPredictions.length,
         actionsExecuted,
         totalPredictedRevenueImpact: String(totalPredictedRevenue.toFixed(2)),
         topAction: dedupedActions[0]?.actionDetail?.substring(0, 500),
         topActionRevenue: String(dedupedActions[0]?.predictedRevenueGain?.toFixed(2) || "0"),
-        summary: parsed.topInsight,
+        summary: `${parsed.topInsight || "Scenario analysis complete."} ${REVENUE_ASSUMPTION_NOTICE}`,
         status: "completed",
         durationMs,
       }).where(eq(revenueIntelRuns.id, runId));
@@ -627,13 +689,13 @@ Respond ONLY with valid JSON:
     await recordOutcome({
       agentSlug: "revenue_intel" as any,
       goalType: "revenue_analysis",
-      actual: `${pages.length} pages analyzed, ${dedupedActions.length} actions generated, $${totalPredictedRevenue.toFixed(0)} predicted monthly impact`,
+      actual: `${pages.length} pages analyzed, ${savedPredictions.length} scenario predictions saved, ${context.actionsCreated} plans queued; ${actionsExecuted} reviewable drafts saved. No measured revenue gain is claimed.`,
       hit: pages.length > 0 && dedupedActions.length > 0,
       notes: parsed.topInsight,
     });
 
     // 13. Send summary to Manager
-    const topActions = dedupedActions.slice(0, 5).map((a, i) =>
+    const topActions = rankedCandidates.slice(0, 5).map((a, i) =>
       `${i + 1}. $${a.predictedRevenueGain.toFixed(0)}/mo — ${a.actionType} on ${a.pageTitle}`
     ).join("\n");
 
@@ -642,14 +704,13 @@ Respond ONLY with valid JSON:
       toAgent: "manager",
       type: "report",
       priority: "p1",
-      subject: `Revenue Intel Report: $${totalPredictedRevenue.toFixed(0)}/mo identified across ${pages.length} pages`,
-      body: `ANALYSIS COMPLETE\n\nPages analyzed: ${pages.length}\nActions generated: ${dedupedActions.length}\nAuto-executing: ${actionsExecuted}\nTotal predicted monthly revenue: $${totalPredictedRevenue.toFixed(0)}\n\nTOP 5 ACTIONS:\n${topActions}\n\nKEY INSIGHT: ${parsed.topInsight || "Analysis complete"}`,
+      subject: `Revenue Intel: ${savedPredictions.length} scenario opportunities across ${pages.length} pages`,
+      body: `ANALYSIS COMPLETE\n\nPages analyzed: ${pages.length}\nPredictions saved: ${savedPredictions.length}\nPlans queued: ${context.actionsCreated}\nReviewable drafts saved: ${actionsExecuted}\nPublic changes executed in this tick: 0\n\n${REVENUE_ASSUMPTION_NOTICE}\n\nTOP 5 SCENARIO OPPORTUNITIES:\n${topActions}\n\nKEY INSIGHT (model analysis, not a measured outcome): ${parsed.topInsight || "Analysis complete"}`,
     });
     context.messagesCreated++;
 
-    const summary = `Analyzed ${pages.length} pages. Generated ${dedupedActions.length} revenue actions. Total predicted impact: $${totalPredictedRevenue.toFixed(0)}/month. Auto-executing ${actionsExecuted} actions.`;
-    await completeRun(context, summary);
-    return { summary, actionsCreated: context.actionsCreated, messagesCreated: context.messagesCreated };
+    const summary = `Analyzed ${pages.length} pages. Saved ${savedPredictions.length} scenario predictions and queued ${context.actionsCreated} plans. Created ${actionsExecuted} reviewable drafts; no public changes or measured revenue gain claimed. ${REVENUE_ASSUMPTION_NOTICE}`;
+    return await completeRun(context, summary);
 
   } catch (error: any) {
     if (db && runId) {

@@ -24,6 +24,7 @@ import {
   type InsertAgentAction,
 } from "../../drizzle/schema";
 import { eq, desc, and, inArray, sql, or, ne, lt, isNull } from "drizzle-orm";
+import { getAutonomousInvocation, remainingAutonomousBudgetMs } from "../autonomousBudget";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,8 @@ export type AgentRunContext = {
   messagesCreated: number;
   deadlineAt?: number;
   costSource?: "provider_reported" | "estimated" | "unavailable";
+  /** Agent-row lease timestamp: a stale receipt must not release a newer run. */
+  claimedAt?: Date;
 };
 
 export type AgentThinkResult = {
@@ -82,28 +85,40 @@ export async function agentLLM(params: {
   modelOverride?: string;
 }): Promise<string> {
   // Dynamically import to avoid circular deps
-  const { callAgentLLM, estimateOpenRouterCost, getAgentModel } = await import("./agentLLM");
-  const modelId = await getAgentModel(params.agentSlug);
+  const { callAgentLLM, estimateOpenRouterCost, AUTONOMOUS_DB_RESERVE_MS } = await import("./agentLLM");
+  const invocation = getAutonomousInvocation();
+  if (invocation && params.context.llmCalls >= 1) {
+    throw new Error("Autonomous step permits only one LLM call; persist continuation for the next worker tick.");
+  }
 
-  const isScheduledCallback = params.context.triggerType === "cron";
+  const isScheduledCallback = Boolean(invocation) || params.context.triggerType === "cron";
   // A long-form draft cannot satisfy editorial QA inside the old 900-token cap.
   // Use role-specific caps and a single total run budget, reserving DB time.
   const scheduledTokenCap = scheduledOutputTokenCap(params.agentSlug);
   const maxTokens = isScheduledCallback ? Math.min(params.maxTokens ?? 4000, scheduledTokenCap) : (params.maxTokens ?? 4000);
-  const remaining = params.context.deadlineAt ? params.context.deadlineAt - Date.now() - 8_000 : undefined;
+  const runRemaining = params.context.deadlineAt ? params.context.deadlineAt - Date.now() - AUTONOMOUS_DB_RESERVE_MS : undefined;
+  const invocationRemaining = remainingAutonomousBudgetMs(AUTONOMOUS_DB_RESERVE_MS);
+  const remaining = runRemaining === undefined ? invocationRemaining : Math.min(runRemaining, invocationRemaining ?? Infinity);
   if (remaining !== undefined && remaining < 1_000) throw new Error("Agent run deadline reached before model call; rework deferred to next scheduled run.");
 
+  // Legacy role prompts contain static business numbers. Those are scenarios,
+  // never current measurements, even when an older prompt calls them metrics.
+  const evidencePolicy = "EVIDENCE POLICY: Static business figures in role prompts or memory (including $275 lead value, 40.5% booking rate, 220 leads, 89 bookings, or $130K invoiced/$0 collected) are unverified assumptions, not current facts. Only timestamped supplied measurement records may support measured leads, bookings, invoices, collections or ROI. Label assumptions and scenario estimates explicitly; never invent measured money or treat a prediction as realized revenue. Planning or queueing is not execution or publication.";
+  const priorCalls = params.context.llmCalls;
+  const priorCostSource = params.context.costSource;
+  // Count attempted calls too: a timeout may still incur unknown provider cost.
+  params.context.llmCalls++;
+  params.context.costSource = "unavailable";
   const res = await callAgentLLM({
     agentSlug: params.agentSlug,
-    modelOverride: params.modelOverride ?? modelId,
-    ...(params.modelOverride ? { allowFallback: false } : {}),
-    messages: params.messages as any,
+    ...(params.modelOverride ? { modelOverride: params.modelOverride } : {}),
+    ...(invocation || params.modelOverride ? { allowFallback: false } : {}),
+    messages: [...params.messages, { role: "system", content: evidencePolicy }] as any,
     maxTokens,
     executionMode: isScheduledCallback ? "scheduled" : "standard",
     responseFormat: params.responseFormat,
     ...(remaining !== undefined ? { totalTimeoutMs: remaining } : {}),
   });
-  params.context.llmCalls++;
   if (res.usage) {
     params.context.tokensIn += res.usage.promptTokens;
     params.context.tokensOut += res.usage.completionTokens;
@@ -111,7 +126,8 @@ export async function agentLLM(params: {
   const cost = res.costUsd ?? (res.usage ? estimateOpenRouterCost(res.modelId, res.usage) : undefined);
   if (typeof cost === "number" && Number.isFinite(cost)) params.context.costUsd += cost;
   params.context.modelId = res.modelId;
-  params.context.costSource = res.costSource === "provider" ? "provider_reported" : res.costSource === "estimate" ? "estimated" : "unavailable";
+  params.context.costSource = res.costSource === "unverified" || (priorCalls > 0 && (!priorCostSource || priorCostSource === "unavailable"))
+    ? "unavailable" : res.costSource === "estimate" || priorCostSource === "estimated" ? "estimated" : "provider_reported";
   return res.content;
 }
 
@@ -149,10 +165,16 @@ export async function startRun(
   triggerType: "cron" | "manual" | "directive" | "event",
   triggeredBy: string
 ): Promise<AgentRunContext> {
+  const invocation = getAutonomousInvocation();
+  if (invocation && (remainingAutonomousBudgetMs(8_000) ?? 0) < 1_000) {
+    throw new Error("Autonomous deadline reached before run claim; defer to the next worker tick.");
+  }
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const claimTime = new Date();
+  // MySQL TIMESTAMP uses seconds here; use the exact persisted precision when
+  // later checking ownership before releasing this particular claimed run.
+  const claimTime = new Date(Math.floor(Date.now() / 1000) * 1000);
   const staleBefore = new Date(claimTime.getTime() - 15 * 60_000);
   const claimed = await db.update(agents).set({
     status: "active", lastRunAt: claimTime, updatedAt: claimTime,
@@ -187,8 +209,9 @@ export async function startRun(
     llmCalls: 0,
     actionsCreated: 0,
     messagesCreated: 0,
-    deadlineAt: triggerType === "cron" ? Date.now() + SCHEDULED_RUN_BUDGET_MS : undefined,
+    deadlineAt: invocation?.deadlineAt ?? (triggerType === "cron" ? Date.now() + SCHEDULED_RUN_BUDGET_MS : undefined),
     costSource: "unavailable",
+    claimedAt: claimTime,
   };
 }
 
@@ -205,7 +228,7 @@ export async function completeRun(
   if (!db) return receipt;
   const durationMs = Date.now() - context.startedAt;
 
-  await db.update(agentRunLog).set({
+  const finalized = await db.update(agentRunLog).set({
     status,
     summary,
     actionsCreated: context.actionsCreated,
@@ -218,13 +241,18 @@ export async function completeRun(
     completedAt: new Date(),
     durationMs,
     errorMessage,
-  }).where(eq(agentRunLog.id, context.runId));
+  }).where(and(eq(agentRunLog.id, context.runId), eq(agentRunLog.agentSlug, context.agentSlug), eq(agentRunLog.status, "running")));
+  // A recovered/timed-out receipt is immutable; it cannot complete a newer run.
+  if (Number((finalized as any)[0]?.affectedRows ?? 0) !== 1) {
+    return { ...receipt, status: "failed", noOp: true, summary: `Stale run #${context.runId} was not finalized; its claimed receipt is no longer running.` };
+  }
 
-  await updateAgentStatus(
-    context.agentSlug,
-    status === "failed" ? "error" : "idle",
-    summary
-  );
+  if (context.claimedAt) {
+    await db.update(agents).set({ status: status === "failed" ? "error" : "idle", lastRunSummary: summary, updatedAt: new Date() })
+      .where(and(eq(agents.slug, context.agentSlug), eq(agents.status, "active"), eq(agents.lastRunAt, context.claimedAt)));
+  } else {
+    await updateAgentStatus(context.agentSlug, status === "failed" ? "error" : "idle", summary);
+  }
 
   // Preserve a short, reviewable evidence trail for every completed agent run.
   // These rows expire after 30 days; agentRunLog remains the permanent audit record.

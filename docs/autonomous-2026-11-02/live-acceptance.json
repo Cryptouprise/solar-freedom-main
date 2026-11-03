@@ -1,0 +1,55 @@
+{
+  "capturedAt": "2026-11-03T01:51:27.183Z",
+  "schedulesCreated": 0,
+  "publicArticlesPublished": 0,
+  "outreachSent": 0,
+  "first": {
+    "ok": true,
+    "status": "progress_saved",
+    "jobId": 12,
+    "summary": "Pipeline #30001: durably saved complete section 1/6; resume the same job. No full-draft or publication claim."
+  },
+  "second": {
+    "ok": true,
+    "status": "idle",
+    "summary": "No due persisted work; no model called."
+  },
+  "status": {
+    "configured": false,
+    "lastTickAt": null,
+    "workerReceipt": null,
+    "roleBindings": 8,
+    "dailyStepLimit": 48,
+    "usedStepsToday": 5,
+    "budgetTimeZone": "UTC",
+    "jobs": [
+      {
+        "id": 12,
+        "kind": "content_draft",
+        "role": "content",
+        "pipelineId": 30001,
+        "status": "queued",
+        "steps": 1,
+        "failures": 0,
+        "nextRunAt": "2026-11-03T01:52:27.000Z",
+        "summary": "Pipeline #30001: durably saved complete section 1/6; resume the same job. No full-draft or publication claim.",
+        "error": null,
+        "updatedAt": "2026-11-03T01:51:27.000Z"
+      },
+      {
+        "id": 10,
+        "kind": "content_plan",
+        "role": null,
+        "pipelineId": 30001,
+        "status": "completed",
+        "steps": 1,
+        "failures": 0,
+        "nextRunAt": "2026-11-03T01:46:43.000Z",
+        "summary": "Saved next step #12: Complete or repair this exact saved target; 3 revision attempts remain. No publication performed.",
+        "error": null,
+        "updatedAt": "2026-11-03T01:45:43.000Z"
+      }
+    ],
+    "acceptance": "A schedule binding is configuration, not proof of a successful worker delivery. Inspect the last tick and saved step receipt."
+  }
+}

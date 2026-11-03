@@ -18,5 +18,7 @@ describe("owner autopilot evidence contract", () => {
     await expect(ordinary.status()).rejects.toThrow("Forbidden");
     await expect(anonymous.status()).rejects.toThrow();
     await expect(ordinary.recordCompetitorEvidence({ capturedAt: "2026-11-02T00:00:00Z", topics: [topic] })).rejects.toThrow("Forbidden");
+    await expect(ordinary.pipelineDraft({ id: 30001 })).rejects.toThrow("Forbidden");
+    await expect(anonymous.pipelineDraft({ id: 30001 })).rejects.toThrow();
   });
 });

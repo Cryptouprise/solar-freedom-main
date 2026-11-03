@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import AutonomousWorkStatus from "@/components/AutonomousWorkStatus";
 
 const when = (value: Date | string | null) => value ? new Date(value).toLocaleString() : "Not recorded";
 export default function AutopilotEvidence({ enabled }: { enabled: boolean }) {
@@ -8,6 +9,7 @@ export default function AutopilotEvidence({ enabled }: { enabled: boolean }) {
     {state.isLoading && <p className="mt-4 animate-pulse text-sm text-gray-400">Reading durable run and change receipts…</p>}
     {state.error && <p className="mt-4 text-sm text-red-200">Evidence could not be loaded. No success counts or zeroes have been substituted.</p>}
     {state.data && <>
+      <AutonomousWorkStatus enabled={enabled} />
       <p className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-gray-300">Verified outcome receipts: {state.data.outcomes.measured} measured · {state.data.outcomes.pending} pending · {state.data.outcomes.confounded} affected by other recorded edits · {state.data.outcomes.unavailable} unavailable. Daily scorecard follow-up checks one eligible experiment; it does not rewrite a page every day.</p>
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <div><h3 className="text-sm font-semibold text-white">Latest page-change receipts</h3><p className="mt-1 text-xs text-gray-400">{state.data.policy.measurement}</p><div className="mt-3 space-y-2">{state.data.changes.length ? state.data.changes.map(c => {

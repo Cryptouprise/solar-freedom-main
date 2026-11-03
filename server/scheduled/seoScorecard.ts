@@ -10,6 +10,7 @@ import { refreshGscPageMetrics } from "../gscRefresh";
 import { comparisonDelta } from "../scorecardComparisons";
 import { buildAuthorityScorecardAlerts, buildLeadScorecardAlerts } from "../scorecardLeadHealth";
 import { measureSeoChangeOutcomes } from "../seoChangeOutcomes";
+import { queueDailyAutonomousCycle } from "../autonomousWorker";
 
 async function readLeadScorecard(periodStart: string, periodEnd: string) {
   const db = await getDb();
@@ -191,7 +192,9 @@ export async function seoScorecardHandler(req: Request, res: Response) {
   try {
     const user = await sdk.authenticateRequest(req);
     if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only endpoint" });
-    return res.json(await runSeoScorecard());
+    const report = await runSeoScorecard();
+    const work = await queueDailyAutonomousCycle();
+    return res.json({ ...report, continuation: { status: "saved", jobIds: work.map(item => item.id), note: "Saved work is not a completed public improvement." } });
   } catch (error: any) {
     const errorId = crypto.randomUUID();
     console.error(`[SeoScorecard:${errorId}]`, error);
