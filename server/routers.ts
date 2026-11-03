@@ -34,7 +34,7 @@ import { enforcePublicMutationLimit } from "./security/rateLimit";
 import { isAllowedPressReleaseSetting, PRESS_RELEASE_OPERATIONAL_KEYS } from "./security/configPolicy";
 import { analyzeBlogSeo } from "./blogSeoAnalysis";
 import { autopilotRouter } from "./autopilotRouter";
-
+import { deriveLeadAttribution } from "../shared/leadAttribution";
 // ─── GHL Webhook helper ────────────────────────────────────────────────────────
 async function sendToGHL(payload: Record<string, string | undefined>) {
   const webhookUrl = process.env.GHL_WEBHOOK_URL;
@@ -127,11 +127,13 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         enforcePublicMutationLimit(ctx.req, "lead-submit");
         // 1. Persist to database
+        const attribution = deriveLeadAttribution(input.sourceUrl, input.sourcePage);
         const leadId = await insertLead({
           ...input,
           formName: input.formName ?? "main_contact_form",
           status: "new",
           ghlWebhookSent: 0,
+          ...attribution,
         });
 
         const persisted = typeof leadId === "number" && leadId > 0;
@@ -211,6 +213,7 @@ export const appRouter = router({
         const firstName = (input.name?.trim().split(" ")[0] || "").trim();
         const lastName = input.name?.trim().split(" ").slice(1).join(" ") || "";
 
+        const attribution = deriveLeadAttribution(input.sourceUrl, input.sourcePage);
         const leadId = await insertLead({
           firstName: firstName || null,
           lastName: lastName || null,
@@ -222,6 +225,7 @@ export const appRouter = router({
           sourceUrl: input.sourceUrl,
           status: "new",
           ghlWebhookSent: 0,
+          ...attribution,
         });
 
         const persisted = typeof leadId === "number" && leadId > 0;

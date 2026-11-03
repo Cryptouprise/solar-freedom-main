@@ -1,7 +1,33 @@
 import { describe,expect,it } from 'vitest';
 import fs from 'node:fs';
-import { vegasFieldTeamUrl,vegasCampaignParams,VEGAS_BOOKING_URL,isVegasCityPath } from '../shared/vegasCampaign';
+import { vegasFieldTeamUrl,vegasCampaignParams,VEGAS_BOOKING_URL,isVegasCityPath,isVegasMetroPath,VEGAS_METRO_CITIES } from '../shared/vegasCampaign';
 describe('Las Vegas appointment campaign',()=>{
+  it('covers the whole metro the door team knocks without inventing routes',()=>{
+    const cities=fs.readFileSync('client/src/data/cities.ts','utf8');
+    for(const city of VEGAS_METRO_CITIES){
+      const url=new URL(vegasFieldTeamUrl(city.slug,'rep_test'));
+      expect(url.pathname).toBe(`/cancel-solar-contract/${city.slug}`);
+      // Every field-kit slug must exist as a real route. A slug that is absent
+      // from cities.ts renders as a 404, so a printed QR code would send a
+      // homeowner to a dead end. This check is deliberately unconditional.
+      expect(cities).toContain(`slug: "${city.slug}"`);
+    }
+    expect(isVegasMetroPath('/cancel-solar-contract/henderson-nv')).toBe(true);
+    expect(isVegasMetroPath('/cancel-solar-contract/houston-tx')).toBe(false);
+    expect(()=>vegasFieldTeamUrl('not-a-city' as never)).toThrow();
+    // The five metro cities that returned 404 on 3 Nov 2026 stay out of the
+    // field kit until their pages exist.
+    for(const slug of ['spring-valley-nv','enterprise-nv','summerlin-nv','boulder-city-nv','mesquite-nv']){
+      expect(VEGAS_METRO_CITIES.some(city=>city.slug===slug)).toBe(false);
+      expect(isVegasMetroPath(`/cancel-solar-contract/${slug}`)).toBe(false);
+    }
+  });
+  it('carries the representative through to durable server attribution',()=>{
+    const url=new URL(vegasFieldTeamUrl('paradise-nv','rep_marcus'));
+    expect(url.searchParams.get('utm_content')).toBe('rep_marcus');
+    expect(url.searchParams.get('utm_source')).toBe('door_knocking');
+    expect(url.searchParams.get('utm_medium')).toBe('offline');
+  });
   it('uses existing city URLs and a real booking URL without new routes or redirects',()=>{
     const url=new URL(vegasFieldTeamUrl('las-vegas-nv','rep_01'));
     expect(url.pathname).toBe('/cancel-solar-contract/las-vegas-nv');expect(url.hash).toBe('#city-form');
@@ -29,6 +55,18 @@ describe('Las Vegas appointment campaign',()=>{
     expect(guide).toContain('order-first');
     expect(guide).toContain('lg:order-last');
     expect(guide).toContain('data-vegas-sticky-actions');
+  });
+  it('does not hide a metro page call button before that page has a booking CTA',()=>{
+    // StickyMobileBar and DesktopCallButton hide themselves on isVegasCityPath.
+    // Widening that check without first giving the page a visible booking action
+    // would leave the visitor with no phone path at all.
+    const bookingLayouts=JSON.parse(fs.readFileSync('shared/priority-city-content.json','utf8'));
+    for(const city of VEGAS_METRO_CITIES){
+      const hasBookingLayout=Object.prototype.hasOwnProperty.call(bookingLayouts,`/cancel-solar-contract/${city.slug}`);
+      if(!hasBookingLayout){
+        expect(isVegasCityPath(`/cancel-solar-contract/${city.slug}`)).toBe(false);
+      }
+    }
   });
   it('records actual CTA placement rather than claiming a new lead or booking',()=>{
     const component=fs.readFileSync('client/src/components/VegasBookingCTA.tsx','utf8');

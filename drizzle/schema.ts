@@ -50,6 +50,18 @@ export const leads = mysqlTable("leads", {
   formName: varchar("formName", { length: 100 }),
   sourcePage: varchar("sourcePage", { length: 255 }),
   sourceUrl: text("sourceUrl"),
+
+  // Attribution captured at submission time. Derived server-side from the visit
+  // URL so the door team, paid campaigns and organic search stay distinguishable
+  // in reporting instead of being buried inside sourceUrl.
+  utmSource: varchar("utmSource", { length: 100 }),
+  utmMedium: varchar("utmMedium", { length: 100 }),
+  utmCampaign: varchar("utmCampaign", { length: 100 }),
+  /** Door representative identifier for field-team links (door_knocking source). */
+  utmContent: varchar("utmContent", { length: 100 }),
+  citySlug: varchar("citySlug", { length: 120 }),
+  channel: varchar("channel", { length: 40 }),
+
   status: mysqlEnum("status", ["new", "contacted", "qualified", "closed_won", "closed_lost"])
     .default("new")
     .notNull(),
