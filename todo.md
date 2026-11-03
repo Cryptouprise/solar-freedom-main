@@ -1383,10 +1383,10 @@
 ## Las Vegas open work (not yet done)
 
 - [ ] Build the five missing metro city pages (Spring Valley, Enterprise, Summerlin, Boulder City, Mesquite) to the same source-backed gate, then re-add them to the field kit.
-- [ ] Titan Solar Nevada cohort page.
-- [ ] Nevada 10-business-day senior rescission page with an age selector.
-- [ ] Nevada timeline-and-cost page from the four government clocks.
-- [ ] Nevada complaint-maze map (PUCN vs NSCB vs AG).
+- [x] Titan Solar Nevada cohort page — published as /blog/titan-solar-nevada-out-of-business-contract-help (2,524 Las Vegas permits, 70 counts, $400,000 fine, revoked 17 Jul 2024, no successor entity).
+- [x] Nevada 10-business-day senior rescission page — published as /blog/nevada-solar-contract-10-day-cancellation-seniors (NRS 598.982149(1); 3 days standard, 10 days for borrowers 60+).
+- [x] Nevada complaint timeline and cost page — published as /blog/nevada-solar-complaint-timeline-and-cost (which agency, 14-45 business days AG review, $40,000 Recovery Fund cap, NRS 624.331(1) 4-year window).
+- [x] Nevada complaint-maze map — folded into the timeline and cost page above (PUCN routes, NSCB adjudicates, AG BCP reviews in 14-45 business days).
 - [ ] Promote exactly one noindexed city page: Henderson.
 - [ ] January 2027 NV Energy demand-charge page, dated and hedged, live before 15 Dec 2026.
 - [ ] Nevada solar-exit calculator with a 20-case test matrix.
