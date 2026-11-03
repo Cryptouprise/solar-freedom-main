@@ -45,10 +45,12 @@ describe("city recovery governance", () => {
     expect(isRecoverableCitySlug("phoenix-az")).toBe(true);
     expect(isRecoverableCitySlug("houston-tx")).toBe(true);
     expect(isRecoverableCitySlug("henderson-nv")).toBe(true);
+    expect(isRecoverableCitySlug("summerlin-nv")).toBe(true);
     expect(isRecoverableCitySlug("made-up-city")).toBe(false);
-    // 26 as of 2026-11-03: Henderson was promoted as the single additional
-    // Las Vegas-metro page, passing the same source-backed gate as the other 25.
-    expect(recoverableCities()).toHaveLength(26);
+    // 27 as of 2026-11-03: Henderson was promoted from the existing pool and
+    // Summerlin was created as the one new city page the Vegas plan calls for.
+    // Both pass the same source-backed gate as the original 25.
+    expect(recoverableCities()).toHaveLength(27);
   });
 
   it("blocks Texas-only language on non-Texas pages", async () => {

@@ -1,0 +1,33 @@
+{
+  "slug": "summerlin-nv",
+  "city": "Summerlin",
+  "state": "Nevada",
+  "verified": true,
+  "verifiedOn": "2026-11-03",
+  "issue": "Parent verified the two official Nevada sources by direct request on 2026-11-03: the Nevada Attorney General consumer complaint route (HTTP 200) and the Nevada State Contractors Board homeowner complaint route (HTTP 200).",
+  "question": "Can I cancel a solar contract in Summerlin, Nevada?",
+  "answer": "Possibly, but cancellation is never automatic. Nevada allows a purchaser, lessee or power-purchase-agreement customer three business days to cancel by written notice, and ten business days if the borrower was 60 or older when they signed. Outside that window the most useful angle is usually licence status: if the installer was unlicensed or acting beyond its licence limit when you signed, the agreement is voidable for three years. That turns on the public licence record, not proof that anyone lied.",
+  "localNote": "Summerlin sits in Clark County, where roughly 11,091 homes hold a permit from an installer that later failed. Nevada complaints against solar companies go to the State Contractors Board, which runs a Solar Investigations Unit; the Attorney General takes consumer complaints separately. Either filing creates a record but does not cancel an agreement or pause payments.",
+  "sources": [
+    {
+      "label": "Nevada State Contractors Board — Homeowners",
+      "url": "https://www.nvcontractorsboard.com/Homeowners/",
+      "supports": "The Contractors Board is the agency that can act against a licensed contractor, operates a Solar Investigations Unit, and maintains a public Solar Watch List of companies it is tracking."
+    },
+    {
+      "label": "Nevada Attorney General — File a consumer complaint",
+      "url": "https://ag.nv.gov/Complaints/Consumer/",
+      "supports": "The Attorney General accepts consumer complaints and directs the public to its complaint process. A complaint creates a record; it does not cancel a contract or suspend a payment obligation."
+    }
+  ],
+  "faq": [
+    {
+      "q": "What should Summerlin homeowners gather before contacting anyone?",
+      "a": "Gather the signed agreement and every addendum, the separate loan, lease or power-purchase-agreement documents, the sales proposal and any promised-production estimate, utility and solar bills, monitoring data, and your written messages with the company. Then write a dated timeline of the sale, the installation and every attempt to resolve the problem. Check the agreement for a written-notice requirement, because missing a stated notice method can cost you a deadline."
+    },
+    {
+      "q": "Does a Nevada consumer complaint cancel my solar agreement?",
+      "a": "No. A complaint is separate from cancellation and from any financing dispute. It creates a dated record and may prompt a response or investigation, but it does not decide your individual rights and it does not pause a payment obligation. Review the contract and get qualified guidance before any payment or cancellation decision."
+    }
+  ]
+}

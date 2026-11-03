@@ -21,11 +21,15 @@ export const VEGAS_CITY_SLUGS = ['las-vegas-nv','north-las-vegas-nv'] as const;
  * summerlin-nv, boulder-city-nv and mesquite-nv returned 404 and were removed
  * from the field kit until their pages exist. Re-add a slug only after its route
  * returns 200 and a test enforces it.
+ *
+ * summerlin-nv was re-added on 3 Nov 2026 after its page was built and verified
+ * (HTTP 200, source-backed guide, own hero). The other four remain removed.
  */
 export const VEGAS_METRO_CITIES = [
   { slug: 'las-vegas-nv', name: 'Las Vegas', bookingControls: true },
   { slug: 'north-las-vegas-nv', name: 'North Las Vegas', bookingControls: true },
   { slug: 'henderson-nv', name: 'Henderson', bookingControls: false },
+  { slug: 'summerlin-nv', name: 'Summerlin', bookingControls: false },
   { slug: 'paradise-nv', name: 'Paradise', bookingControls: false },
   { slug: 'sunrise-manor-nv', name: 'Sunrise Manor', bookingControls: false },
 ] as const;

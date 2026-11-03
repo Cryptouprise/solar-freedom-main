@@ -145,5 +145,12 @@
     "Nevada solar contract rights",
     "Henderson solar lease cancellation",
     "Henderson solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/summerlin-nv": [
+    "cancel solar contract Summerlin NV",
+    "Summerlin Nevada solar contract cancellation",
+    "Nevada solar contract rights",
+    "Summerlin solar lease cancellation",
+    "Summerlin solar PPA cancellation"
   ]
 }

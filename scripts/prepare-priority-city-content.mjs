@@ -8,8 +8,14 @@ const scope = await read('../docs/city-seo-targets-2026-11-02.json');
 // city page, with its own verified official sources. See
 // docs/henderson-city-review-2026-11-03.json.
 const henderson = await read('../docs/henderson-city-review-2026-11-03.json');
-if (!scope.targets.some(target => target.slug === 'henderson-nv')) {
-  scope.targets.push({ path: '/cancel-solar-contract/henderson-nv', slug: 'henderson-nv' });
+// Summerlin is the one new city page the Las Vegas plan calls for. It is a
+// census-designated place inside Clark County with a Las Vegas mailing address,
+// so it needs its own page rather than sharing the Las Vegas one.
+const summerlin = await read('../docs/summerlin-city-review-2026-11-03.json');
+for (const extra of [henderson, summerlin]) {
+  if (!scope.targets.some(target => target.slug === extra.slug)) {
+    scope.targets.push({ path: `/cancel-solar-contract/${extra.slug}`, slug: extra.slug });
+  }
 }
 const { cityEntries } = await loadData();
 const ftc = { label: 'FTC — Solar Power for Your Home', url: 'https://consumer.ftc.gov/articles/solar-power-your-home', supports: 'Solar purchase, lease and PPA terms, early termination, utility costs, transfer questions and consumer complaint routes.' };
@@ -19,6 +25,7 @@ for (const {path,slug} of scope.targets) {
   const city = cityEntries.find(item => item.slug === slug);
   let review = reviews.results.find(item => item.slug === slug && item.ok)?.value;
   if (slug === 'henderson-nv') review = henderson;
+  if (slug === 'summerlin-nv') review = summerlin;
   if (slug === 'west-valley-city-ut' && review) {
     review = { ...review, verified: true, issue: 'Parent independently verified official Utah solar FAQ and complaint service on 2026-11-02.' };
   }

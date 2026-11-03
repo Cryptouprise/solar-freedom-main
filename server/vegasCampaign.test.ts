@@ -15,9 +15,11 @@ describe('Las Vegas appointment campaign',()=>{
     expect(isVegasMetroPath('/cancel-solar-contract/henderson-nv')).toBe(true);
     expect(isVegasMetroPath('/cancel-solar-contract/houston-tx')).toBe(false);
     expect(()=>vegasFieldTeamUrl('not-a-city' as never)).toThrow();
-    // The five metro cities that returned 404 on 3 Nov 2026 stay out of the
-    // field kit until their pages exist.
-    for(const slug of ['spring-valley-nv','enterprise-nv','summerlin-nv','boulder-city-nv','mesquite-nv']){
+    // summerlin-nv was re-added on 3 Nov 2026 after its page was built and
+    // verified. The other four that returned 404 stay out of the field kit
+    // until their pages exist.
+    expect(isVegasMetroPath('/cancel-solar-contract/summerlin-nv')).toBe(true);
+    for(const slug of ['spring-valley-nv','enterprise-nv','boulder-city-nv','mesquite-nv']){
       expect(VEGAS_METRO_CITIES.some(city=>city.slug===slug)).toBe(false);
       expect(isVegasMetroPath(`/cancel-solar-contract/${slug}`)).toBe(false);
     }

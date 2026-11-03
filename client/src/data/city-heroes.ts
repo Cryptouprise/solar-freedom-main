@@ -31,6 +31,7 @@ export const CITY_HEROES: Readonly<Record<string, string>> = {
   "savannah-ga": "/manus-storage/city-hero-savannah-ga-v2_086d9f1d.png",
   "nashville-tn": "/manus-storage/city-hero-nashville-tn-v2_7f5c8e43.png",
   "austin-tx": "/manus-storage/city-hero-austin-tx-v2_823430d2.png",
+  "summerlin-nv": "/manus-storage/city-hero-summerlin-nv-v2_edbd80b4.png",
 };
 
 export const GENERIC_CITY_HERO =

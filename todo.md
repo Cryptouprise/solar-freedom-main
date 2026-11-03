@@ -1382,7 +1382,8 @@
 
 ## Las Vegas open work (not yet done)
 
-- [ ] Build the five missing metro city pages (Spring Valley, Enterprise, Summerlin, Boulder City, Mesquite) to the same source-backed gate, then re-add them to the field kit.
+- [x] Summerlin built and re-added to the field kit. Created as the one new city page the Vegas plan calls for (110K, Clark County, Las Vegas mailing address), on the same two official Nevada sources verified by direct request on 2026-11-03 (Nevada State Contractors Board homeowners route, HTTP 200; Nevada Attorney General consumer complaint route, HTTP 200) plus the FTC solar guide. Passes the identical gate: 60-char title, 160-char description, 3 FAQs inside the word limits, all sources official. Own generated hero, index,follow, in the sitemap and AI inventories, rendering correctly in a browser. Eligible city pages 26 -> 27. Field kit now 6 cities / 12 QR codes; all six destinations verified HTTP 200 and all twelve QR codes decoded back to their exact campaign URL.
+- [ ] Build the four remaining missing metro city pages (Spring Valley, Enterprise, Boulder City, Mesquite) to the same source-backed gate, then re-add them to the field kit. Each needs its own verified official source and unique local evidence first; do not bulk-create them.
 - [x] Titan Solar Nevada cohort page — published as /blog/titan-solar-nevada-out-of-business-contract-help (2,524 Las Vegas permits, 70 counts, $400,000 fine, revoked 17 Jul 2024, no successor entity).
 - [x] Nevada 10-business-day senior rescission page — published as /blog/nevada-solar-contract-10-day-cancellation-seniors (NRS 598.982149(1); 3 days standard, 10 days for borrowers 60+).
 - [x] Nevada complaint timeline and cost page — published as /blog/nevada-solar-complaint-timeline-and-cost (which agency, 14-45 business days AG review, $40,000 Recovery Fund cap, NRS 624.331(1) 4-year window).

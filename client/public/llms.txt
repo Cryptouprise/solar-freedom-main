@@ -14,7 +14,7 @@ Solar Freedom helps homeowners understand and exercise their legal rights when i
 - **FTC Cooling-Off Rule** — the 3-business-day cancellation right that may apply to contracts signed at home
 - **State consumer protection laws** — 3 published state-law pages covering cooling-off periods and cited statutes
 - **Company-specific guides** — 0 published cancellation guides
-- **City-specific guides** — 26 published city pages with local context
+- **City-specific guides** — 27 published city pages with local context
 - **Case review intake** — homeowners can submit their situation for an individual review and possible referral to a consumer protection attorney
 - **Downloadable resources** — cancellation letter templates at https://breakyoursolarcontract.com/free-cancellation-letter
 - **Tools** — cancellation calculator at https://breakyoursolarcontract.com/calculator
@@ -97,7 +97,7 @@ Solar Freedom currently publishes 3 state-specific legal guides.
 
 ## City Pages
 
-Solar Freedom provides 26 city-specific cancellation pages with local content.
+Solar Freedom provides 27 city-specific cancellation pages with local content.
 
 - [Cancel Solar Contract — Dallas, TX](https://breakyoursolarcontract.com/cancel-solar-contract/dallas-tx)
 - [Cancel Solar Contract — Houston, TX](https://breakyoursolarcontract.com/cancel-solar-contract/houston-tx)
@@ -123,6 +123,7 @@ Solar Freedom provides 26 city-specific cancellation pages with local content.
 - [Cancel Solar Contract — New Haven, CT](https://breakyoursolarcontract.com/cancel-solar-contract/new-haven-ct)
 - [Cancel Solar Contract — Santa Ana, CA](https://breakyoursolarcontract.com/cancel-solar-contract/santa-ana-ca)
 - [Cancel Solar Contract — Shreveport, LA](https://breakyoursolarcontract.com/cancel-solar-contract/shreveport-la)
+- [Cancel Solar Contract — Summerlin, NV](https://breakyoursolarcontract.com/cancel-solar-contract/summerlin-nv)
 - [Cancel Solar Contract — West Valley City, UT](https://breakyoursolarcontract.com/cancel-solar-contract/west-valley-city-ut)
 - [Cancel Solar Contract — Youngstown, OH](https://breakyoursolarcontract.com/cancel-solar-contract/youngstown-oh)
 
