@@ -809,7 +809,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     slug: 'cancel-solar-contract-las-vegas-nv',
     title: 'Las Vegas Solar Contract Cancellation: Nevada\'s New Laws Are on Your Side',
     metaTitle: 'Cancel Your Solar Contract in Las Vegas, NV | Nevada Law 2026',
-    metaDescription: `Las Vegas homeowners: Nevada SB 440, AB 458, and NRS 598 give you powerful rights to cancel a predatory solar contract in 2026. Free case review.`,
+    metaDescription: `Las Vegas homeowners: Nevada SB 379 gives you 3 business days to cancel a solar contract, or 10 if you are 60 or older. Learn your rights under NRS 598.98216. Free case review.`,
     category: 'City Guides',
     readTime: '9 min read',
     publishDate: '2026-03-22',
@@ -817,7 +817,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&q=80',
     heroAlt: 'Las Vegas Nevada suburban home with solar panels in desert landscape',
     ctaText: 'Get Your Free Las Vegas Case Review',
-    ctaSubtext: 'Nevada SB 440 requires 16-point font disclosures -- find out if yours were missing.',
+    ctaSubtext: 'Nevada SB 379 requires a recorded verification call and a licensed installer -- find out if yours were done.',
     content: [
       {
         type: 'p',
@@ -842,19 +842,27 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'h3',
-        content: 'Senate Bill 440 and AB 458 (2025-2026)',
+        content: 'Senate Bill 379 (2025): The Nevada Renewable Energy Bill of Rights Update',
       },
       {
         type: 'p',
-        content: 'This legislation requires 16-point font disclosures on the cover page of every contract. It mandates that solar companies provide a recording of the "Welcome Call" to prove you actually understood the terms. If your company skipped these steps, your contract may be voidable.',
+        content: 'SB 379, effective 1 October 2025, requires the installer to record a verbal confirmation of your identity, the cover-page terms and your understanding of them — at signing or within 48 hours — and bars installation until that recording exists. It also requires the financier to verify the installer holds a valid Nevada contractor licence and is acting within that licence\u2019s monetary limit. If those steps were skipped, the agreement may be voidable under NRS 598.9822.',
       },
       {
         type: 'h3',
-        content: 'The 3-Day Right to Rescind (NRS 598.98213)',
+        content: 'The 3-Day Right to Rescind (NRS 598.98216) — and the 10-Day Right If You Are 60+',
       },
       {
         type: 'p',
-        content: 'You have a 3-business-day window to cancel. However, if the company failed to provide the mandatory "Notice of Right to Cancel" forms or misrepresented your utility savings, that window can often be legally pried back open.',
+        content: 'You have a 3-business-day window to cancel by written notice, and the notice may be emailed to the address printed on your contract cover page. If you were 60 or older when you signed, SB 379 extends that window to 10 business days. Separately, if a post-signing on-site survey would raise your price or change your equipment, that starts a fresh 3-business-day window.',
+      },
+      {
+        type: 'h3',
+        content: 'The Licence Loophole That Voids a Contract for Three Years (NRS 598.982148)',
+      },
+      {
+        type: 'p',
+        content: 'This is the cleanest route available in Nevada, because it does not require you to prove anyone lied. If the installer was unlicensed, or was working beyond the monetary limit of its licence, when you signed, the loan, lease or power purchase agreement is voidable for three years. The Nevada State Contractors Board publishes a free licence search, so the licence status and limit at signing are checkable facts rather than arguments.',
       },
       {
         type: 'h3',

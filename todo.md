@@ -1367,3 +1367,29 @@
 - [x] Final exact types/regressions: 73 files / 677 passed / 3 opt-in probes skipped. Chromium verified no horizontal overflow, teaser hidden, mobile launcher clearance, duplicate callback suppression and distinct headings. Final exact build in progress before checkpoint; earlier build passed.
 - [ ] Verify managed release publicly after checkpoint/publication. Recurring native-browser collection, per-article generated asset completion, full real content→Editor→owner-ready acceptance, appointment attribution and automatic competitor/AI citation measurement remain explicit follow-ups.
 - [x] Exact final production build completed successfully: 574 prerendered pages. TypeScript clean; 73 files / 677 tests passed / 3 opt-in live probes skipped; unrelated generated sitemap/AI-index changes restored.
+
+## Las Vegas campaign repair and owner plan — 3 Nov 2026
+
+- [x] Verified 10 metro field-kit cities against live routes. Five (spring-valley-nv, enterprise-nv, summerlin-nv, boulder-city-nv, mesquite-nv) returned 404 and were withdrawn.
+- [x] Removed the five dead slugs from shared/vegasCampaign.ts, deleted their QR images, regenerated the kit (5 cities, 10 QR codes) and re-verified every destination returns a working page.
+- [x] Added an unconditional regression so a metro slug cannot ship without a matching route.
+- [x] Verified AB 458 is the affordable-housing net-metering bill (Ch. 254), not a consumer-protection vehicle. Removed all references.
+- [x] Verified NRS 704.7801 is a definitions section imposing no disclosure duty. Replaced with NRS 598.9819 / 598.982183 / 598.9822.
+- [x] Corrected SB 440 references to SB 379 (the solar lending and leasing rewrite).
+- [x] Added the verified Nevada anchors: NRS 598.98216 (3 days, 10 for 60+), NRS 598.982148 (3-year licence-defect voidability).
+- [x] Added server/nevadaCitations.test.ts blocking all three wrong citations from returning.
+- [x] Saved the plain-English owner plan with the frozen GSC baseline, metric hierarchy and honest-claim windows.
+
+## Las Vegas open work (not yet done)
+
+- [ ] Build the five missing metro city pages (Spring Valley, Enterprise, Summerlin, Boulder City, Mesquite) to the same source-backed gate, then re-add them to the field kit.
+- [ ] Titan Solar Nevada cohort page.
+- [ ] Nevada 10-business-day senior rescission page with an age selector.
+- [ ] Nevada timeline-and-cost page from the four government clocks.
+- [ ] Nevada complaint-maze map (PUCN vs NSCB vs AG).
+- [ ] Promote exactly one noindexed city page: Henderson.
+- [ ] January 2027 NV Energy demand-charge page, dated and hedged, live before 15 Dec 2026.
+- [ ] Nevada solar-exit calculator with a 20-case test matrix.
+- [ ] Spanish translations of the two highest-intent pages, human-reviewed, with hreflang.
+- [ ] Prove GHL appointment reconciliation end-to-end before any appointment number is reported as fact.
+- [ ] 30-day GSC comparison (reliable from 5 Dec 2026) and 90-day comparison (reliable from 3 Feb 2027).
