@@ -1,0 +1,33 @@
+{
+  "slug": "henderson-nv",
+  "city": "Henderson",
+  "state": "Nevada",
+  "verified": true,
+  "verifiedOn": "2026-11-03",
+  "issue": "Parent verified two official Nevada government sources by direct request on 2026-11-03: the Nevada Attorney General consumer complaint route and the Nevada State Contractors Board homeowner complaint route. Both returned HTTP 200.",
+  "question": "Can I cancel a solar contract in Henderson, Nevada?",
+  "answer": "Possibly, but cancellation is never automatic. Nevada gives a purchaser, lessee or power-purchase-agreement customer three business days to cancel by written notice, and ten business days if the borrower was 60 or older when they signed. Outside that window, the strongest documented angle is usually licence status: if the installer was unlicensed or acting beyond its licence limit when you signed, the agreement is voidable for three years. That turns on the public licence record, not proof that anyone lied.",
+  "localNote": "Henderson sits in Clark County, where about 11,091 homes hold a permit from an installer that has since failed. Nevada complaints against solar companies go to the State Contractors Board, which runs a Solar Investigations Unit; the Attorney General accepts consumer complaints separately. Filing either one creates a record but does not itself cancel an agreement or pause payments.",
+  "sources": [
+    {
+      "label": "Nevada Attorney General — File a consumer complaint",
+      "url": "https://ag.nv.gov/Complaints/Consumer/",
+      "supports": "The Attorney General accepts consumer complaints and directs the public to its complaint process. A complaint creates a record; it does not cancel a contract or suspend a payment obligation."
+    },
+    {
+      "label": "Nevada State Contractors Board — Homeowners",
+      "url": "https://www.nvcontractorsboard.com/Homeowners/",
+      "supports": "The Contractors Board is the agency that can act against a licensed contractor, operates a Solar Investigations Unit, and maintains a public Solar Watch List of companies it is tracking."
+    }
+  ],
+  "faq": [
+    {
+      "q": "What records should Henderson homeowners gather first?",
+      "a": "Gather the signed agreement and every addendum, the separate loan, lease or power-purchase-agreement documents, the sales proposal and any promised-production estimate, utility and solar bills, monitoring data, and your written messages with the company. Then write a dated timeline of the sale, the installation and every attempt to resolve the problem. Check the agreement for any written-notice requirement, because missing a stated notice method can cost you a deadline."
+    },
+    {
+      "q": "Does filing a Nevada complaint cancel my solar contract?",
+      "a": "No. A complaint is separate from cancellation and from any dispute about financing. It creates a dated record and may prompt a response or an investigation, but it does not determine your individual rights and it does not pause a payment obligation. Review the contract and get qualified guidance before making any payment or cancellation decision."
+    }
+  ]
+}

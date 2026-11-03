@@ -14,7 +14,7 @@ Solar Freedom helps homeowners understand and exercise their legal rights when i
 - **FTC Cooling-Off Rule** — the 3-business-day cancellation right that may apply to contracts signed at home
 - **State consumer protection laws** — 3 published state-law pages covering cooling-off periods and cited statutes
 - **Company-specific guides** — 0 published cancellation guides
-- **City-specific guides** — 25 published city pages with local context
+- **City-specific guides** — 26 published city pages with local context
 - **Case review intake** — homeowners can submit their situation for an individual review and possible referral to a consumer protection attorney
 - **Downloadable resources** — cancellation letter templates at https://breakyoursolarcontract.com/free-cancellation-letter
 - **Tools** — cancellation calculator at https://breakyoursolarcontract.com/calculator
@@ -97,7 +97,7 @@ Solar Freedom currently publishes 3 state-specific legal guides.
 
 ## City Pages
 
-Solar Freedom provides 25 city-specific cancellation pages with local content.
+Solar Freedom provides 26 city-specific cancellation pages with local content.
 
 - [Cancel Solar Contract — Dallas, TX](https://breakyoursolarcontract.com/cancel-solar-contract/dallas-tx)
 - [Cancel Solar Contract — Houston, TX](https://breakyoursolarcontract.com/cancel-solar-contract/houston-tx)
@@ -110,6 +110,7 @@ Solar Freedom provides 25 city-specific cancellation pages with local content.
 - [Cancel Solar Contract — Phoenix, AZ](https://breakyoursolarcontract.com/cancel-solar-contract/phoenix-az)
 - [Cancel Solar Contract — Miami, FL](https://breakyoursolarcontract.com/cancel-solar-contract/miami-fl)
 - [Cancel Solar Contract — Las Vegas, NV](https://breakyoursolarcontract.com/cancel-solar-contract/las-vegas-nv)
+- [Cancel Solar Contract — Henderson, NV](https://breakyoursolarcontract.com/cancel-solar-contract/henderson-nv)
 - [Cancel Solar Contract — North Las Vegas, NV](https://breakyoursolarcontract.com/cancel-solar-contract/north-las-vegas-nv)
 - [Cancel Solar Contract — Denver, CO](https://breakyoursolarcontract.com/cancel-solar-contract/denver-co)
 - [Cancel Solar Contract — Savannah, GA](https://breakyoursolarcontract.com/cancel-solar-contract/savannah-ga)

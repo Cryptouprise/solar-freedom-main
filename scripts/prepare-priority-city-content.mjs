@@ -4,6 +4,13 @@ import { loadData } from './prerender.mjs';
 const read = async path => JSON.parse(await fs.readFile(new URL(path, import.meta.url), 'utf8'));
 const reviews = await read('../docs/city-seo-local-source-reviews-2026-11-02.json');
 const scope = await read('../docs/city-seo-targets-2026-11-02.json');
+// Henderson was promoted on 2026-11-03 as the single additional Las Vegas-metro
+// city page, with its own verified official sources. See
+// docs/henderson-city-review-2026-11-03.json.
+const henderson = await read('../docs/henderson-city-review-2026-11-03.json');
+if (!scope.targets.some(target => target.slug === 'henderson-nv')) {
+  scope.targets.push({ path: '/cancel-solar-contract/henderson-nv', slug: 'henderson-nv' });
+}
 const { cityEntries } = await loadData();
 const ftc = { label: 'FTC — Solar Power for Your Home', url: 'https://consumer.ftc.gov/articles/solar-power-your-home', supports: 'Solar purchase, lease and PPA terms, early termination, utility costs, transfer questions and consumer complaint routes.' };
 const registry = {};
@@ -11,6 +18,7 @@ for (const {path,slug} of scope.targets) {
   if (slug === 'austin-tx') continue; // Owner explicitly asked not to redo Austin.
   const city = cityEntries.find(item => item.slug === slug);
   let review = reviews.results.find(item => item.slug === slug && item.ok)?.value;
+  if (slug === 'henderson-nv') review = henderson;
   if (slug === 'west-valley-city-ut' && review) {
     review = { ...review, verified: true, issue: 'Parent independently verified official Utah solar FAQ and complaint service on 2026-11-02.' };
   }
@@ -62,7 +70,15 @@ for (const {path,slug} of scope.targets) {
   if (title.length>60 || description.length>160 || faq.length!==3) throw Error('Metadata limits failed '+slug);
   if (faq.some(item=>item.q.length>100 || item.a.trim().split(/\s+/).length>90)) throw Error('FAQ limits failed '+slug);
   if (review.localNote.trim().split(/\s+/).length>80) throw Error('Local note limit failed '+slug);
-  if (sources.some(source=>{const url=new URL(source.url);return url.protocol!=='https:' || !(url.hostname.endsWith('.gov') || ['www.ag.state.la.us','www.myfloridalegal.com'].includes(url.hostname));})) throw Error('Nonofficial source '+slug);
+  // Official state agencies that are not hosted on a .gov domain. Each entry was
+  // fetched and confirmed before being added:
+  //   www.ag.state.la.us       — Louisiana Attorney General
+  //   www.myfloridalegal.com   — Florida Attorney General
+  //   www.nvcontractorsboard.com — Nevada State Contractors Board, the state
+  //     licensing agency that operates the Solar Investigations Unit and the
+  //     public Solar Watch List. Verified 2026-11-03 (HTTP 200).
+  const officialNonGovDomains = ['www.ag.state.la.us','www.myfloridalegal.com','www.nvcontractorsboard.com'];
+  if (sources.some(source=>{const url=new URL(source.url);return url.protocol!=='https:' || !(url.hostname.endsWith('.gov') || officialNonGovDomains.includes(url.hostname));})) throw Error('Nonofficial source '+slug);
   registry[path]=data;
 }
 await fs.writeFile(new URL('../shared/priority-city-content.json',import.meta.url),JSON.stringify(registry,null,2)+'\n');

@@ -11,8 +11,10 @@ import { injectPageMetaKeywords } from './seo-meta';
 const template='<!doctype html><html><head><title>Old</title><meta name="description" content="Old"><link rel="canonical" href="https://example.com"><meta name="robots" content="index, follow"></head><body><div id="root"><main class="seo-prerender"><h1>Old</h1><p>Old body</p></main></div></body></html>';
 const keywordPaths=Object.keys(pageKeywords);
 describe('Priority city keywords and answer delivery',()=>{
-  it('limits the repair to 20 approved city keyword entries and 19 guides, leaving Austin content alone',()=>{
-    expect(keywordPaths).toHaveLength(20);expect(PRIORITY_CITY_PATHS).toHaveLength(19);
+  it('limits the repair to 21 approved city keyword entries and 20 guides, leaving Austin content alone',()=>{
+    // 2026-11-03: Henderson was promoted as the single additional Las
+    // Vegas-metro page on the same source-backed gate, so both counts moved by one.
+    expect(keywordPaths).toHaveLength(21);expect(PRIORITY_CITY_PATHS).toHaveLength(20);
     for(const path of keywordPaths) expect(eligibility.citySlugs).toContain(path.split('/').pop());
     expect(getPriorityCityContent('/cancel-solar-contract/austin-tx')).toBeUndefined();
     expect(getPageMetaKeywords('/cancel-solar-contract/austin-tx')?.split(',')).toHaveLength(5);

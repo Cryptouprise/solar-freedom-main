@@ -44,8 +44,11 @@ describe("city recovery governance", () => {
   it("limits recovery to canonical allowlisted city URLs", () => {
     expect(isRecoverableCitySlug("phoenix-az")).toBe(true);
     expect(isRecoverableCitySlug("houston-tx")).toBe(true);
+    expect(isRecoverableCitySlug("henderson-nv")).toBe(true);
     expect(isRecoverableCitySlug("made-up-city")).toBe(false);
-    expect(recoverableCities()).toHaveLength(25);
+    // 26 as of 2026-11-03: Henderson was promoted as the single additional
+    // Las Vegas-metro page, passing the same source-backed gate as the other 25.
+    expect(recoverableCities()).toHaveLength(26);
   });
 
   it("blocks Texas-only language on non-Texas pages", async () => {

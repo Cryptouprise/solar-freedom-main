@@ -10,6 +10,7 @@ export const CITY_HEROES: Readonly<Record<string, string>> = {
   "cincinnati-oh": "/manus-storage/city-hero-cincinnati-oh-v2_7c6ef17b.png",
   "north-las-vegas-nv": "/manus-storage/city-hero-north-las-vegas-nv-v2_82965605.png",
   "houston-tx": "/manus-storage/city-hero-houston-tx_1e5eeaa1.png",
+  "henderson-nv": "/manus-storage/city-hero-henderson-nv-v2_335d85a3.png",
   "greenville-sc": "/manus-storage/city-hero-greenville-sc-v2_36a07c75.png",
   "denver-co": "/manus-storage/city-hero-denver-co-v2_fdf50397.png",
   "san-antonio-tx": "/manus-storage/city-hero-san-antonio-tx-v2_b483a0ee.png",

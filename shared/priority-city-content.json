@@ -1498,5 +1498,85 @@
     ],
     "ctaHeading": "Start with a no-obligation case review",
     "ctaCopy": "Tell us what was promised, what is happening now and which documents you have. The initial review helps identify questions and missing records; it does not guarantee cancellation, savings or attorney acceptance."
+  },
+  "/cancel-solar-contract/henderson-nv": {
+    "slug": "henderson-nv",
+    "city": "Henderson",
+    "state": "Nevada",
+    "stateCode": "NV",
+    "title": "Cancel a Solar Contract in Henderson, NV | Solar Freedom",
+    "description": "Solar contract help in Henderson, NV. Review lease, loan or PPA terms, gather records, and explore fact-specific options. No guaranteed outcome.",
+    "question": "Can I cancel a solar contract in Henderson, Nevada?",
+    "answer": "Possibly, but cancellation is never automatic. Nevada gives a purchaser, lessee or power-purchase-agreement customer three business days to cancel by written notice, and ten business days if the borrower was 60 or older when they signed. Outside that window, the strongest documented angle is usually licence status: if the installer was unlicensed or acting beyond its licence limit when you signed, the agreement is voidable for three years. That turns on the public licence record, not proof that anyone lied.",
+    "localNote": "Henderson sits in Clark County, where about 11,091 homes hold a permit from an installer that has since failed. Nevada complaints against solar companies go to the State Contractors Board, which runs a Solar Investigations Unit; the Attorney General accepts consumer complaints separately. Filing either one creates a record but does not itself cancel an agreement or pause payments.",
+    "faq": [
+      {
+        "q": "Can I cancel a solar contract in Henderson, Nevada?",
+        "a": "Possibly, but cancellation is never automatic. Nevada gives a purchaser, lessee or power-purchase-agreement customer three business days to cancel by written notice, and ten business days if the borrower was 60 or older when they signed. Outside that window, the strongest documented angle is usually licence status: if the installer was unlicensed or acting beyond its licence limit when you signed, the agreement is voidable for three years. That turns on the public licence record, not proof that anyone lied."
+      },
+      {
+        "q": "What records should Henderson homeowners gather first?",
+        "a": "Gather the signed agreement and every addendum, the separate loan, lease or power-purchase-agreement documents, the sales proposal and any promised-production estimate, utility and solar bills, monitoring data, and your written messages with the company. Then write a dated timeline of the sale, the installation and every attempt to resolve the problem. Check the agreement for any written-notice requirement, because missing a stated notice method can cost you a deadline."
+      },
+      {
+        "q": "Does filing a Nevada complaint cancel my solar contract?",
+        "a": "No. A complaint is separate from cancellation and from any dispute about financing. It creates a dated record and may prompt a response or an investigation, but it does not determine your individual rights and it does not pause a payment obligation. Review the contract and get qualified guidance before making any payment or cancellation decision."
+      }
+    ],
+    "sources": [
+      {
+        "label": "Nevada Attorney General — File a consumer complaint",
+        "url": "https://ag.nv.gov/Complaints/Consumer/",
+        "supports": "The Attorney General accepts consumer complaints and directs the public to its complaint process. A complaint creates a record; it does not cancel a contract or suspend a payment obligation."
+      },
+      {
+        "label": "Nevada State Contractors Board — Homeowners",
+        "url": "https://www.nvcontractorsboard.com/Homeowners/",
+        "supports": "The Contractors Board is the agency that can act against a licensed contractor, operates a Solar Investigations Unit, and maintains a public Solar Watch List of companies it is tracking."
+      },
+      {
+        "label": "FTC — Solar Power for Your Home",
+        "url": "https://consumer.ftc.gov/articles/solar-power-your-home",
+        "supports": "Solar purchase, lease and PPA terms, early termination, utility costs, transfer questions and consumer complaint routes."
+      }
+    ],
+    "sourceCheckedOn": "2026-11-02",
+    "heroCopy": "If your solar payment, system performance or contract terms do not match what you expected, start with a clear record of what happened. This Henderson guide helps you organize the agreement and find relevant consumer resources before requesting an individual review.",
+    "documents": [
+      "Signed agreement and addenda, including separate loan, lease or PPA documents.",
+      "Sales proposal, promised-production estimates and advertisements or messages.",
+      "Utility bills, solar bills, monitoring data and installation or service records.",
+      "A dated timeline and copies of requests, responses and notices."
+    ],
+    "reviewSteps": [
+      {
+        "heading": "Identify which agreement is causing the problem",
+        "body": "A system purchase, solar loan, lease and power purchase agreement are different arrangements. List the installer, system owner, lender and servicer separately. Do not assume that ending one agreement ends another."
+      },
+      {
+        "heading": "Compare the promise with the written terms",
+        "body": "Check payment increases, production guarantees, maintenance, early-termination fees and home-sale transfer requirements. Compare bills and monitoring records with the actual contract, not an assumed savings estimate."
+      },
+      {
+        "heading": "Keep your next step documented",
+        "body": "Ask the relevant company for its written position and follow any notice requirements in your agreement. Keep proof of delivery. A consumer complaint can document a concern, but does not itself resolve cancellation or financing obligations."
+      }
+    ],
+    "links": [
+      {
+        "label": "Solar loan document checklist",
+        "url": "/blog/solar-loan-document-checklist"
+      },
+      {
+        "label": "Review solar contract exit options",
+        "url": "/solar-exit-options"
+      },
+      {
+        "label": "Solar payment calculator",
+        "url": "/calculator"
+      }
+    ],
+    "ctaHeading": "Start with a no-obligation case review",
+    "ctaCopy": "Tell us what was promised, what is happening now and which documents you have. The initial review helps identify questions and missing records; it does not guarantee cancellation, savings or attorney acceptance."
   }
 }
