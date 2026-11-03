@@ -16,9 +16,14 @@ Re-check the dated items before relying on them in copy.
   or 3 business days after receiving on-site survey results under NRS 598.982145.
   The 60+ window is the single clearest differentiator in this market.
 
-- **NRS 598.982148 / 598.982143** — a PPA is voidable for **3 years** if the installer
-  was unlicensed or was acting outside the monetary limit of its licence at signing.
-  The financier separately must verify the installer's licence and limit, failing which
+- **NRS 598.982148** — a **power purchase agreement** is voidable for **3 years** if the
+  installer was unlicensed or was acting outside the monetary limit of its licence at
+  signing. SCOPE NOTE (verified 2026-11-03): the statutory title is "Power purchase
+  agreement voidable by host customer if solar installation company is not properly
+  licensed or acting within monetary limit" — it is written for PPAs. Whether an
+  equivalent argument reaches a lease or a financed purchase is a legal question and
+  must NOT be stated as settled. The clause originated as SB 440 Sec. 14.4.
+  Separately, the financier must verify the installer's licence and limit, failing which
   the loan, lease or PPA is voidable for 3 years. This requires **no proof of fraud** —
   only licence status, which is publicly checkable.
 

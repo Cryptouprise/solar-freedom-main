@@ -391,7 +391,7 @@ export const stateLaws: StateLaw[] = [
       },
       {
         type: 'p',
-        content: 'First, a knowing failure to follow these rules does not just create a complaint — it makes the agreement voidable by the homeowner (NRS 598.9822). Second, and more useful, a licence problem voids the agreement on its own: if the installer was unlicensed or was working beyond the monetary limit of its licence when you signed, the loan, lease or power purchase agreement is voidable for three years (NRS 598.982148). That does not require you to prove anyone lied to you — only the licence status at signing, which is checkable in the public Nevada State Contractors Board licence search.',
+        content: 'First, a knowing failure to follow these rules does not just create a complaint — it makes the agreement voidable by the homeowner (NRS 598.9822). Second, a licence problem can void the agreement on its own. Under NRS 598.982148, a power purchase agreement is voidable for three years if the installer was unlicensed or was acting outside the monetary limit of its licence when you signed. That does not require you to prove anyone lied to you — only the licence status at signing, which is checkable in the public Nevada State Contractors Board licence search. One scope note worth knowing: that three-year provision is written for power purchase agreements. Whether an equivalent argument reaches a lease or a financed purchase is a legal question rather than an assumption, so ask specifically instead of treating it as settled.',
       },
       {
         type: 'h2',

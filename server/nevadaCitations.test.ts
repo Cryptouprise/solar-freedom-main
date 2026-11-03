@@ -72,4 +72,33 @@ describe('Nevada solar citations', () => {
     // The superseded April 2026 start date must not be presented as current.
     expect(text).not.toMatch(/Daily Demand Charge[s]? (is|are) (now )?in effect/i);
   });
+
+  it('does not overstate NRS 598.982148 beyond its power-purchase-agreement scope', () => {
+    // Verified 2026-11-03 against the statutory title and SB 440 Sec. 14.4:
+    // "Power purchase agreement voidable by host customer if solar installation
+    // company is not properly licensed or acting within monetary limit of
+    // license". The three-year licence-defect rule is written for PPAs.
+    //
+    // An earlier draft said "the loan, lease or power purchase agreement is
+    // voidable for three years", which extends a PPA-specific remedy to leases
+    // and financed purchases. That is a precision defect in customer-facing
+    // legal copy, and in this niche it is exactly the kind of overstatement that
+    // damages credibility with an attorney or a sharp homeowner.
+    const files = ['state-laws.ts', 'blog-articles-batch15.ts'];
+    const overstatements = [
+      /loan,\s*lease\s*or\s*power\s*purchase\s*agreement\s*is\s*voidable/i,
+      /loan,\s*lease\s*or\s*PPA\s*is\s*voidable/i,
+      /an\s+agreement\s+is\s+voidable\s+for\s+three\s+years/i,
+    ];
+    for (const file of files) {
+      const text = fs.readFileSync(path.join(DATA_DIR, file), 'utf8');
+      for (const pattern of overstatements) {
+        expect(text, `${file} overstates the NRS 598.982148 scope`).not.toMatch(pattern);
+      }
+      // The corrected copy must name the PPA scope explicitly.
+      expect(text, `${file} should name the PPA scope of 598.982148`).toMatch(
+        /power\s+purchase\s+agreement\s+is\s+voidable/i,
+      );
+    }
+  });
 });
