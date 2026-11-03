@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PhoneCall, X } from "lucide-react";
 import QuickCallbackForm from "@/components/QuickCallbackForm";
 import { trackCTAClick } from "@/lib/analytics";
+import { useLocation } from "wouter";
 
 const QUALIFY_INTENTS = [
   {
@@ -28,7 +29,11 @@ const QUALIFY_INTENTS = [
 export default function CallbackWidget() {
   const [open, setOpen] = useState(false);
   const [intentId, setIntentId] = useState<(typeof QUALIFY_INTENTS)[number]["id"]>("cancel_contract");
+  const [path] = useLocation();
   const selectedIntent = QUALIFY_INTENTS.find((intent) => intent.id === intentId) ?? QUALIFY_INTENTS[0];
+  // These layouts already expose an intake/side form. Keep the third-party chat,
+  // but avoid piling a second fixed callback pill beneath its prompt/launcher.
+  if (/^\/(?:blog|cancel-solar-contract)\/[a-z0-9-]+$/.test(path)) return null;
 
   return (
     <div className="fixed right-4 bottom-24 z-[9989] hidden md:block">

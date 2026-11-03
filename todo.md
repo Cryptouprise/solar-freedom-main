@@ -1356,3 +1356,14 @@
 - [ ] Publish checkpoint; public version proof gates activation. First bound schedule then bootstraps the native worker, or production Outcomes starts it sooner. No worker schedule activated before publication.
 - [ ] Verify first native callback and full real draft → Editor → owner-ready result after Publish. Appointment attribution, model-deal research, external competitor browsing and orphan-draft publishing UX remain separate unfinished work.
 - [x] Final exact draft-review production build completed successfully (574 prerendered pages); generated sitemap/AI-index edits restored. Pipeline drafts and saved partial sections have direct read-only review in Outcomes, without pretending an orphan draft can already be published from an existing-post selector.
+
+## Visual page quality and external AI control — November 3, 2026
+- [x] Scoped reading CSS, sentence-safe paragraphs, complete section-array rendering, responsive heroes, clear blog/city CTAs and scannable document/step cards; no misleading image-count inflation.
+- [x] Content/Editor deterministic presentation gate; exact-article revisions; Argon editorial override; honest draft-only evidence; owner approval/no-outreach safeguards retained.
+- [x] Real Argon native screenshot receipts #21030001/#21030002 found repairs rather than manufactured passes. Implemented overlap/redundant-control/footer/heading fixes; preserved required phone validation and explained disabled state.
+- [x] Owner DOM capture verified with three bounded regions; third-party exclusions/CDN-placeholder limits disclosed. Native screenshot API remains the full-image/overlay route.
+- [x] Limited revocable external-AI keys in Outcomes; exact source/fingerprint reads, managed media upload, review-only drafts, visual reviews, dated SEO/work summaries. No new key created; no live-post/publish/config/CRM permission granted.
+- [x] Exact Blog Studio draft links and exact City Recovery target links; hosted and portable external-AI instructions distinguish APIs, browser and code deployment.
+- [x] Final exact types/regressions: 73 files / 677 passed / 3 opt-in probes skipped. Chromium verified no horizontal overflow, teaser hidden, mobile launcher clearance, duplicate callback suppression and distinct headings. Final exact build in progress before checkpoint; earlier build passed.
+- [ ] Verify managed release publicly after checkpoint/publication. Recurring native-browser collection, per-article generated asset completion, full real content→Editor→owner-ready acceptance, appointment attribution and automatic competitor/AI citation measurement remain explicit follow-ups.
+- [x] Exact final production build completed successfully: 574 prerendered pages. TypeScript clean; 73 files / 677 tests passed / 3 opt-in live probes skipped; unrelated generated sitemap/AI-index changes restored.

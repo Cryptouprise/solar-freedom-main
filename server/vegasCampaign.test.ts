@@ -26,7 +26,8 @@ describe('Las Vegas appointment campaign',()=>{
     for(const path of ['/cancel-solar-contract/houston-tx','/blog/las-vegas-nv','/admin/outcomes','/']) expect(isVegasCityPath(path)).toBe(false);
     const guide=fs.readFileSync('client/src/components/PriorityCityGuide.tsx','utf8');
     for(const placement of ['hero','mid_page','sticky']) expect(guide).toContain(`placement="${placement}"`);
-    expect(guide).toContain('order-first lg:order-last');
+    expect(guide).toContain('order-first');
+    expect(guide).toContain('lg:order-last');
     expect(guide).toContain('data-vegas-sticky-actions');
   });
   it('records actual CTA placement rather than claiming a new lead or booking',()=>{

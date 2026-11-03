@@ -146,7 +146,7 @@ async function startServer() {
         markdownUrl: "https://breakyoursolarcontract.com/api/capabilities.md",
         adminApiBase: "https://breakyoursolarcontract.com/api/admin",
         trpcBase: "https://breakyoursolarcontract.com/api/trpc",
-        authHeader: "X-API-Key",
+        authHeader: "Authorization: Bearer <scoped-api-key>",
         sections: Object.keys(sections),
         markdown: md,
       });

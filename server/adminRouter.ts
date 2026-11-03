@@ -49,6 +49,7 @@ import {
 } from "./security/imageUpload";
 import { evaluateAdminAutomationRequest } from "./automationPolicy";
 import { rateLimit } from "express-rate-limit";
+import externalSeoRouter from "./externalSeoRouter";
 
 const router = Router();
 
@@ -77,6 +78,7 @@ const COMPANY_MUTABLE_FIELDS = [
 
 // ─── Apply auth to all admin routes ────────────────────────────────────────
 router.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }), adminAuthMiddleware);
+router.use(externalSeoRouter);
 
 // ─── STATUS / HEALTH CHECK ──────────────────────────────────────────────────
 router.get("/status", async (req: AdminRequest, res) => {

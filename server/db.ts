@@ -536,12 +536,12 @@ export async function upsertBlogDraft(data: {
       .where(eq(blogDrafts.id, existing[0].id));
     return { id: existing[0].id };
   } else {
-    const result = await db.insert(blogDrafts).values({
+    const [result] = await db.insert(blogDrafts).values({
       ...safeData,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
-    return { id: (result as any).insertId };
+    }).$returningId();
+    return { id: result.id };
   }
 }
 

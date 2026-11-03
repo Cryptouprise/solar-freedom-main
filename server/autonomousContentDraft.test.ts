@@ -21,7 +21,10 @@ function section(index: number, tail = "") {
   const special = index === 4 ? "## Frequently Asked Questions\n### What records help?\n### Who should review my documents?\n### What happens next?\n"
     : index === 5 ? "## From Trapped to Free\nRequest a no-obligation case review. Call (904) 921-4971. [Letter tool](/free-cancellation-letter). This is not legal advice.\n"
     : `${index === 0 ? "# Cancel Sunrun Contract" : `## Helpful section ${index}`}\n`;
-  return `${special}${`Useful practical guidance for homeowners in section ${index}. `.repeat(40)}${tail}`.trim();
+  const prose = Array.from({ length: 8 }, () =>
+    `Useful practical guidance for homeowners in section ${index}. `.repeat(5).trim(),
+  ).join("\n\n");
+  return `${special}${prose}${tail}`.trim();
 }
 const response = (index: number, text = section(index)) => JSON.stringify({ sectionIndex: index, complete: true, section: text });
 const db: any = {

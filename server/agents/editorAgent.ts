@@ -8,13 +8,16 @@ import { contentPipeline, blogDrafts } from "../../drizzle/schema";
 import { desc, eq, and, inArray, sql } from "drizzle-orm";
 import { actualDraftWordCount, assessDraftReadiness, draftFingerprint } from "./contentAgent";
 import { getAutonomousInvocation } from "../autonomousBudget";
+import { auditDraftPresentation, presentationAuditForModel, presentationAuditFeedback,
+  DRAFT_PRESENTATION_EVIDENCE, MANAGED_IMAGE_POLICY, type DraftPresentationAudit } from "../../shared/presentationQuality";
 
 export const MAX_EDITOR_DRAFT_CHARS = 32_000;
 const MAX_EDITOR_BATCH_CHARS = 48_000;
 
-export function assessEditorialSafety(draft?: string | null): { issues: string[]; hardFails: string[] } {
+export function assessEditorialSafety(draft?: string | null): { issues: string[]; hardFails: string[]; presentation: DraftPresentationAudit } {
   const text = draft || "";
-  const issues = assessDraftReadiness(text).issues;
+  const presentation = auditDraftPresentation(text);
+  const issues = [...assessDraftReadiness(text).issues, ...presentation.issues];
   if (text.length > MAX_EDITOR_DRAFT_CHARS) issues.push(`Full draft exceeds the ${MAX_EDITOR_DRAFT_CHARS}-character review bound; shorten and resubmit. Nothing was truncated or approved.`);
   const hardFails: string[] = [];
   if (/214[\s().-]*529[\s().-]*1631/.test(text)) hardFails.push("Remove the obsolete phone number 214-529-1631.");
@@ -22,7 +25,7 @@ export function assessEditorialSafety(draft?: string | null): { issues: string[]
   if (/\b(we are|we're|solar freedom is)\s+(?:an?\s+)?(?:attorneys?|law firm|lawyers?)\b/i.test(text)) hardFails.push("Solar Freedom is not an attorney or law firm.");
   if (/\b(you (?:will|are guaranteed to) win|guaranteed (?:cancellation|legal result|refund))\b/i.test(text)) hardFails.push("Remove guaranteed legal outcomes.");
   if (!/\b(not legal advice|not (?:a substitute for |providing )?legal advice|does not constitute legal advice)\b/i.test(text)) hardFails.push("Add the not-legal-advice disclaimer.");
-  return { issues, hardFails };
+  return { issues, hardFails, presentation };
 }
 
 type ModelReview = {
@@ -53,6 +56,10 @@ Readability: short paragraphs, H2/H3 structure, useful lists, explained jargon, 
 E-E-A-T: legally accurate jurisdiction-specific citations (+25), verified complaint evidence (+20), verifiable specific claims (+20), no fabricated testimonials/results (+20), not-legal-advice disclaimer (+15).
 Duplicate risk: 0-20 unique, 21-50 needs differentiation, 51-100 reject.
 Hard failures: claiming attorney/law firm status, fabricated testimonials/reviews/results, 214-529-1631, cancelyoursolar.co, guaranteed legal outcomes, unsupported defamatory claims, missing not-legal-advice disclaimer.
+PRESENTATION REVIEW IS REQUIRED, not just SEO text: assess short single-idea paragraphs, scannable descriptive sections, useful lists/callouts, existing image purpose and alt text, and a strong but accurate no-obligation case-review CTA with a clear next action. Use the supplied deterministic presentationAudit to locate defects in this exact article. Paragraph/run thresholds are internal editorial heuristics, NOT Google ranking rules. Do not treat an image's URL or alt text as evidence that its appearance or subject was viewed.
+${DRAFT_PRESENTATION_EVIDENCE}
+${MANAGED_IMAGE_POLICY}
+Feedback must explicitly discuss paragraph/section readability and CTA clarity; state draft-only evidence limits. If a useful visual is missing, provide a separate managed-asset brief (purpose, subject, placement, alt text) in feedback, not fake markup, and do not demand another text revision solely for missing generated imagery. Revise only this exact pipeline article; preserve title, slug and target keyword. Approval evaluates editorial structure, never claims pixel-level or vision verification.
 Never invent source data, statistics, sources, legal rights or outcomes. Verify jurisdiction and legal accuracy against supplied evidence; missing verification requires revision, not invented citations. Avoid unsupported claims that we helped hundreds or won cases. No fear-based urgency. Preserve an accurate no-obligation case-review CTA and the current phone. Do not invent city pages or links.
 APPROVE only when SEO>=75, readability>=70, E-E-A-T>=70, duplicateRisk<=30 and no hard fails. Otherwise give precise, actionable revision feedback; hard failures require reject. Editorial approval is NOT publication: only an authenticated owner can publish substantive pages.
 Respond ONLY with valid JSON:
@@ -116,12 +123,16 @@ export async function runEditorAgent(
 
     let returnedReviews: ModelReview[] = [];
     if (reviewQueue.length) {
+      // engine forwards a per-call override with allowFallback:false; no model
+      // config writes or scheduling changes. Its existing deadline/call caps apply.
       const response = await agentLLM({ agentSlug: "editor", context, temperature: 0.2, maxTokens: 4000,
+        modelOverride: "google/gemini-4-argon",
         messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content:
           `DRAFTS TO REVIEW (full bounded contents; no excerpts):\n${JSON.stringify(reviewQueue.map(d => ({
-            pipelineId: d.id, title: d.title, targetKeyword: d.targetKeyword,
+            pipelineId: d.id, title: d.title, slug: d.slug, targetKeyword: d.targetKeyword,
             wordCount: actualDraftWordCount(d.draft), revisionCount: d.revisionCount,
             contentBrief: d.contentBrief, draft: d.draft,
+            presentationAudit: presentationAuditForModel(safetyById.get(d.id)!.presentation),
           })))}` }] });
       try {
         const match = response.match(/\{[\s\S]*\}/);
@@ -167,6 +178,7 @@ export async function runEditorAgent(
         typeof review.rejectionReason === "string" ? review.rejectionReason : "",
         ...(Array.isArray(review.hardFails) ? review.hardFails.filter(f => typeof f === "string") : []),
         decision !== review.decision ? "Deterministic full-draft/metric gate overrode the proposed decision; revision or compliance work is required." : "",
+        presentationAuditFeedback(safety.presentation),
       ].filter(Boolean).join(" ") || "Review requires actionable feedback before acceptance.";
       const wordCount = actualDraftWordCount(draft.draft);
       // Compare-and-set both pipeline identity and artifact at write time. A changed
@@ -183,8 +195,9 @@ export async function runEditorAgent(
       await createAction({ agentSlug: "editor", actionType: "editorial_review", status: "completed",
         title: `[EDITOR REVIEW] Run #${context.runId} Pipeline #${draft.id}`, requiresApproval: 0,
         payload: JSON.stringify({ runId: context.runId, pipelineId: draft.id, draftId: artifactById.get(draft.id),
-          fingerprint: draftFingerprint(draft.draft), wordCount, fullDraftReviewed: true }),
-        result: JSON.stringify({ decision, stage, ...scores, feedback, issues: safety.issues, hardFails: safety.hardFails }),
+          fingerprint: draftFingerprint(draft.draft), wordCount, fullDraftReviewed: true, visualRenderVerified: false }),
+        result: JSON.stringify({ decision, stage, ...scores, feedback, issues: safety.issues, hardFails: safety.hardFails,
+          presentationAudit: safety.presentation }),
       });
       context.actionsCreated++;
       await sendMessage({ fromAgent: "editor", toAgent: decision === "approve" ? "manager" : "content",

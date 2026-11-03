@@ -17,6 +17,8 @@ import { SchemaInjector } from '@/components/SchemaInjector';
 import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { trackPhoneClick } from '@/lib/analytics';
 import { hasVerifiedQuoteEvidence, suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from '@shared/contentGovernance';
+import { ArticleContent, ArticleOutline } from '@/components/ArticlePresentation';
+import ArticleHero from '@/components/ArticleHero';
 
 const SITE_URL = 'https://breakyoursolarcontract.com';
 const ORGANIZATION_ENTITY = {
@@ -136,7 +138,7 @@ function VisibleFaq({ items }: { items: FaqItem[] }) {
         {governed.map((item, index) => (
           <details key={`${item.q}-${index}`} className="rounded-xl border border-white/10 bg-zinc-900/60 p-5" open={index === 0}>
             <summary className="cursor-pointer text-white font-bold leading-snug">{item.q}</summary>
-            <p className="mt-3 text-zinc-300 leading-relaxed">{renderInlineContent(item.a)}</p>
+            <ArticleContent content={item.a} />
           </details>
         ))}
       </div>
@@ -221,7 +223,7 @@ function renderSection(section: BlogSection, index: number) {
     case 'h2':
       return (
         <h2 key={index} className="font-black text-white mt-12 mb-4 leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.6rem, 3vw, 2.2rem)' }}>
-          {governedContent}
+          {renderInlineContent(governedContent)}
         </h2>
       );
     case 'h3':
@@ -232,21 +234,19 @@ function renderSection(section: BlogSection, index: number) {
       );
     case 'p':
       return (
-        <p key={index} className="text-zinc-300 leading-relaxed text-[1.05rem] mb-5">
-          {renderInlineContent(governedContent)}
-        </p>
+        <ArticleContent key={index} content={governedContent} />
       );
     case 'callout':
       return (
         <div key={index} className="my-8 rounded-xl bg-amber-500/10 border border-amber-500/30 p-6">
-          <p className="text-amber-200 leading-relaxed font-medium">{renderInlineContent(governedContent)}</p>
+          <ArticleContent content={governedContent} />
         </div>
       );
     case 'warning':
       return (
         <div key={index} className="my-8 rounded-xl bg-red-500/10 border border-red-500/30 p-6 flex gap-4">
           <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-          <p className="text-red-200 leading-relaxed font-medium">{renderInlineContent(governedContent)}</p>
+          <div className="min-w-0"><ArticleContent content={governedContent} /></div>
         </div>
       );
     case 'quote':
@@ -269,7 +269,7 @@ function renderSection(section: BlogSection, index: number) {
           {section.items?.map((item, i) => (
             <li key={i} className="flex gap-3 text-zinc-300 leading-relaxed">
               <span className="text-amber-500 font-black mt-0.5 shrink-0">&#8594;</span>
-              <span>{renderInlineContent(suppressUnverifiedFirstPartyClaims(item))}</span>
+              <div className="min-w-0"><ArticleContent content={suppressUnverifiedFirstPartyClaims(item)} /></div>
             </li>
           ))}
         </ul>
@@ -321,7 +321,7 @@ function renderSection(section: BlogSection, index: number) {
 function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
   return (
-    <div className="my-12 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800/80 border border-amber-500/40 p-8">
+    <div data-article-mid-cta className="my-12 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800/80 border border-amber-500/40 p-6 sm:p-8">
       <div className="text-amber-500 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
       <h3 className="font-black text-white text-2xl mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
         {text}
@@ -338,63 +338,17 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
           className="flex items-center justify-center gap-2 border border-white/20 hover:border-amber-500/60 text-white hover:text-amber-400 font-bold px-6 py-3.5 rounded-lg text-sm transition-colors"
           onClick={() => trackPhoneClick('blog_inline_cta', phoneDigits)}
         >
-          📞 Call {phoneDisplay}
+          Call {phoneDisplay}
         </a>
       </div>
-      <p className="text-zinc-600 text-xs mt-3 font-mono">Request a review. Options depend on your agreement, facts, and jurisdiction.</p>
+      <p className="text-zinc-400 text-xs mt-3 font-mono">Request a review. Options depend on your agreement, facts, and jurisdiction.</p>
     </div>
   );
 }
 
 function renderDbContentWithInlineCtas(content: string, ctaText: string, ctaSubtext: string): ReactElement[] {
-  content = suppressUnverifiedFirstPartyClaims(suppressUnverifiedQuoteMarkup(content));
-  const sections: ReactElement[] = [];
-  const paragraphRegex = /<p\b[\s\S]*?<\/p>/gi;
-  let paragraphCount = 0;
-  let cursor = 0;
-  let match: RegExpExecArray | null;
-  let key = 0;
-  let midpointCtaInserted = false;
-
-  // Count total paragraphs to find midpoint
-  const allMatches = Array.from(content.matchAll(/<p\b[\s\S]*?<\/p>/gi));
-  const totalParagraphs = allMatches.length;
-  const midpoint = Math.floor(totalParagraphs / 2);
-
-  while ((match = paragraphRegex.exec(content)) !== null) {
-    const end = match.index + match[0].length;
-    const chunk = content.slice(cursor, end);
-    if (chunk.trim()) {
-      sections.push(
-        <div
-          key={`db-chunk-${key++}`}
-          className="prose prose-invert max-w-none prose-headings:font-black prose-h2:text-white prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-amber-400 prose-h3:mt-8 prose-h3:mb-3 prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-5 prose-li:text-zinc-300 prose-a:text-amber-400 prose-a:no-underline hover:prose-a:text-amber-300 prose-strong:text-white"
-          dangerouslySetInnerHTML={{ __html: chunk }}
-        />
-      );
-    }
-
-    paragraphCount += 1;
-    // Insert exactly ONE inline CTA at the midpoint of the article
-    if (!midpointCtaInserted && paragraphCount >= midpoint && midpoint > 2) {
-      sections.push(<InlineCTA key={`db-cta-mid`} text={ctaText} subtext={ctaSubtext} />);
-      midpointCtaInserted = true;
-    }
-    cursor = end;
-  }
-
-  const tail = content.slice(cursor);
-  if (tail.trim()) {
-    sections.push(
-      <div
-        key={`db-tail-${key++}`}
-        className="prose prose-invert max-w-none prose-headings:font-black prose-h2:text-white prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-amber-400 prose-h3:mt-8 prose-h3:mb-3 prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-5 prose-li:text-zinc-300 prose-a:text-amber-400 prose-a:no-underline hover:prose-a:text-amber-300 prose-strong:text-white"
-        dangerouslySetInnerHTML={{ __html: tail }}
-      />
-    );
-  }
-
-  return sections;
+  const governed = suppressUnverifiedFirstPartyClaims(suppressUnverifiedQuoteMarkup(content));
+  return [<ArticleContent key="db-article" content={governed} midpoint={<InlineCTA text={ctaText} subtext={ctaSubtext} />} />];
 }
 
 // Converts a DB post (with HTML content string) into a BlogPost-compatible shape
@@ -498,10 +452,12 @@ export default function BlogPost() {
     const publishDate = rawPublishedAt
       ? new Date(String(rawPublishedAt)).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       : 'Date not available';
-    const dbHtmlContent = Array.isArray(dbPost.content)
-      ? (dbPost.content[0]?.content ?? '')
-      : String(dbPost.content ?? '');
-    const dbCitations = extractCitationsFromHtml(dbHtmlContent);
+    const dbStoredContent = (dbPostRaw as Record<string, unknown>).content;
+    const dbHtmlContent = typeof dbStoredContent === 'string' ? dbStoredContent : '';
+    const dbCitations = uniqueExternalUrls([
+      ...extractCitationsFromHtml(dbHtmlContent),
+      ...extractCitationsFromSections(dbPost.content),
+    ]);
     const dbPublishedAt = normalizeSchemaDate(
       (dbPostRaw as Record<string, unknown>)?.publishedAt
         ? String((dbPostRaw as Record<string, unknown>).publishedAt)
@@ -577,43 +533,7 @@ export default function BlogPost() {
         </nav>
 
         {/* HERO */}
-        <div className="relative pt-16 h-[50vh] min-h-[360px] max-h-[520px] overflow-hidden">
-          {dbPost.heroImage ? (
-            <>
-              <img
-                src={dbPost.heroImage}
-                alt={dbPost.title}
-                className="w-full h-full object-cover"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
-            </>
-          ) : (
-            <div className="w-full h-full bg-zinc-900" />
-          )}
-          <div className="absolute bottom-0 left-0 right-0 px-6 pb-10">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-3 mb-4">
-                {dbPost.category && (
-                  <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
-                    {dbPost.category}
-                  </span>
-                )}
-                {dbPost.readTime && (
-                  <span className="text-zinc-400 text-xs flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {dbPost.readTime}
-                  </span>
-                )}
-                <span className="text-zinc-500 text-xs">{publishDate}</span>
-              </div>
-              <h1 className="font-black text-white leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
-                {dbPost.title}
-              </h1>
-            </div>
-          </div>
-        </div>
+        <ArticleHero title={dbPost.title} image={dbPost.heroImage} alt={dbPost.heroAlt} category={dbPost.category} readTime={dbPost.readTime} date={publishDate} excerpt={dbPost.excerpt} />
 
         {/* BREADCRUMB */}
         <div className="px-6 py-4 border-b border-white/5">
@@ -629,7 +549,7 @@ export default function BlogPost() {
         {/* ARTICLE BODY */}
         <div className="px-6 py-12">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
-            <div>
+            <div className="min-w-0 w-full max-w-[70ch] mx-auto">
               {dbPost.excerpt && (
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -640,7 +560,10 @@ export default function BlogPost() {
                 </motion.p>
               )}
 
-              <DoIQualifyQuiz />
+              <details className="my-8 rounded-xl border border-white/10 bg-zinc-900/60 p-5">
+                <summary className="cursor-pointer font-semibold text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400">Want help organizing your situation? Try the quick questions</summary>
+                <DoIQualifyQuiz />
+              </details>
 
               <ArticleVideoAttachment
                 url={(dbPost as any).videoUrl}
@@ -651,18 +574,21 @@ export default function BlogPost() {
 
               {/* HTML content from database with inline CTA cadence */}
               <div className="article-content space-y-0">
-                {renderDbContentWithInlineCtas(
+                {typeof dbStoredContent === 'string' ? renderDbContentWithInlineCtas(
                   dbHtmlContent,
                   "Still Paying on a Solar Contract?",
                   "Request an individual review. Options depend on your agreement, facts, and jurisdiction."
-                )}
+                ) : dbPost.content.map((section, index) => <div key={index}>
+                  {renderSection(section, index)}
+                  {dbPost.content.length >= 6 && index === Math.ceil(dbPost.content.length / 2) - 1 && <InlineCTA text="Review Your Solar Contract" subtext="Request a review. Options depend on your agreement, facts, and jurisdiction." />}
+                </div>)}
               </div>
 
               <SourceList citations={dbCitations} />
               <VisibleFaq items={faq} />
 
               {/* Final CTA */}
-              <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
+              <div data-article-end-cta className="mt-16 rounded-2xl bg-amber-500 p-6 sm:p-10 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
                 <div className="relative">
                   <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
@@ -756,7 +682,7 @@ export default function BlogPost() {
           </section>
         )}
 
-        <footer className="border-t border-white/10 px-6 py-10">
+        <footer className="border-t border-white/10 px-6 pt-10 pb-36 md:pb-24">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-zinc-600 text-sm">&copy; 2026 Solar Freedom. All rights reserved.</div>
             <div className="flex gap-6">
@@ -830,7 +756,7 @@ export default function BlogPost() {
       paragraphCount += 1;
     }
     // Insert ONE CTA at midpoint only
-    if (!midpointCtaInserted && paragraphCount >= midpoint && midpoint > 2) {
+    if (section.type === 'p' && !midpointCtaInserted && paragraphCount >= midpoint && midpoint > 2) {
       sectionsWithCTAs.push(
         <InlineCTA key="cta-mid" text="Review Your Solar Contract" subtext="Request a review. Options depend on your agreement, facts, and jurisdiction." />
       );
@@ -862,31 +788,7 @@ export default function BlogPost() {
       </nav>
 
       {/* HERO */}
-      <div className="relative pt-16 h-[50vh] min-h-[360px] max-h-[520px] overflow-hidden">
-        <img
-          src={post.heroImage}
-          alt={post.heroAlt}
-          className="w-full h-full object-cover"
-          loading="eager" fetchPriority="high" decoding="async"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 px-6 pb-10">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
-                {post.category}
-              </span>
-              <span className="text-zinc-400 text-xs flex items-center gap-1">
-                <Clock className="w-3 h-3" /> {post.readTime}
-              </span>
-              <span className="text-zinc-500 text-xs">{post.publishDate}</span>
-            </div>
-            <h1 className="font-black text-white leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
-              {post.title}
-            </h1>
-          </div>
-        </div>
-      </div>
+      <ArticleHero title={post.title} image={post.heroImage} alt={post.heroAlt} category={post.category} readTime={post.readTime} date={post.publishDate} excerpt={post.excerpt} />
 
       {/* BREADCRUMB */}
       <div className="px-6 py-4 border-b border-white/5">
@@ -902,7 +804,7 @@ export default function BlogPost() {
       {/* ARTICLE BODY */}
       <div className="px-6 py-12">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
-          <div>
+          <div className="min-w-0 w-full max-w-[70ch] mx-auto">
           {/* Excerpt / lead paragraph */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -912,8 +814,11 @@ export default function BlogPost() {
             {suppressUnverifiedFirstPartyClaims(post.excerpt)}
           </motion.p>
 
-          {/* QUIZ — placed immediately after lead paragraph for maximum conversion */}
-          <DoIQualifyQuiz />
+          <ArticleOutline headings={post.content.filter(section => section.type === 'h2').map(section => suppressUnverifiedFirstPartyClaims(section.content ?? ''))} />
+          <details className="my-8 rounded-xl border border-white/10 bg-zinc-900/60 p-5">
+            <summary className="cursor-pointer font-semibold text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400">Want help organizing your situation? Try the quick questions</summary>
+            <DoIQualifyQuiz />
+          </details>
 
           {/* Article content */}
           <div className="article-content prose-invert max-w-none">
@@ -924,7 +829,7 @@ export default function BlogPost() {
           <VisibleFaq items={post.faq ?? []} />
 
           {/* Final CTA */}
-          <div className="mt-16 rounded-2xl bg-amber-500 p-10 relative overflow-hidden">
+          <div data-article-end-cta className="mt-16 rounded-2xl bg-amber-500 p-6 sm:p-10 relative overflow-hidden">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
             <div className="relative">
               <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
@@ -1020,7 +925,7 @@ export default function BlogPost() {
       )}
 
       {/* FOOTER */}
-      <footer className="border-t border-white/10 px-6 py-10">
+      <footer className="border-t border-white/10 px-6 pt-10 pb-36 md:pb-24">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-zinc-600 text-sm">&copy; 2026 Solar Freedom. All rights reserved.</div>
           <div className="flex gap-6">

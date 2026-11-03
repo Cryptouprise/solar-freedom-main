@@ -12,7 +12,11 @@ import { assessOwnerReadyContent, planAutonomousContentProgression, readAutonomo
 import { actualDraftWordCount, draftFingerprint } from "./agents/contentAgent";
 import { runEditorAgent } from "./agents/editorAgent";
 
-const draft = `${"Homeowners should keep records and ask qualified professionals about their options. ".repeat(150)}
+const draft = `${Array.from({ length: 5 }, (_, heading) =>
+  `### Practical guidance ${heading + 1}\n${Array.from({ length: 6 }, () =>
+    "Homeowners should keep records and ask qualified professionals about their options. ".repeat(5).trim(),
+  ).join("\n\n")}`,
+).join("\n\n")}
 ## Frequently Asked Questions
 ### How can I ask for help?
 [Useful guide](/free-cancellation-letter). Request a no-obligation case review. This is not legal advice.`;

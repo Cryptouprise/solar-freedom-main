@@ -12,6 +12,8 @@ import CallbackWidget from "./components/CallbackWidget";
 import DesktopCallButton from "./components/DesktopCallButton";
 import { trackPageView } from "./lib/analytics";
 import { useJourneyTracker } from "./hooks/useJourneyTracker";
+import OwnerVisualReview from "./components/OwnerVisualReview";
+import ArticleChatLayout from "./components/ArticleChatLayout";
 
 const CityPage = lazy(() => import("./pages/CityPage"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -108,6 +110,8 @@ function Router() {
       <LegacyCityRedirect />
       <AnalyticsPageViews />
       <JourneyPageTracker />
+      <OwnerVisualReview />
+      <ArticleChatLayout />
       <Suspense fallback={<div className="min-h-screen bg-background" />}>
         <Switch>
           <Route path={"/"} component={Home} />

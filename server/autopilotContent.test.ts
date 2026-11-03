@@ -29,7 +29,11 @@ import { runEditorAgent, MAX_EDITOR_DRAFT_CHARS } from "./agents/editorAgent";
 import { requestOwnerPublication } from "./agents/managerAgent";
 import { evaluateDailyQuality, reviewWorkerRun, validateLinkedContentEvidence, type LinkedContentEvidence } from "./agents/managerQuality";
 
-const fullDraft = `${"Homeowners should keep records and ask qualified professionals about their options. ".repeat(150)}
+const fullDraft = `${Array.from({ length: 5 }, (_, heading) =>
+  `### Practical guidance ${heading + 1}\n${Array.from({ length: 6 }, () =>
+    "Homeowners should keep records and ask qualified professionals about their options. ".repeat(5).trim(),
+  ).join("\n\n")}`,
+).join("\n\n")}
 ## Frequently Asked Questions
 ### How can I ask for help?
 [Useful guide](/free-cancellation-letter). Request a no-obligation case review. This is not legal advice.`;
@@ -147,10 +151,12 @@ describe("autopilot content: actual editorial queue", () => {
   });
 
   it("cannot apply an ID from the database queue that was not in the bounded model submission", async () => {
-    const long = `${fullDraft}${" useful factual guidance.".repeat(700)}`;
+    const long = `${fullDraft}\n\n### Additional guidance\n${Array.from({ length: 32 }, () =>
+      " useful factual guidance.".repeat(20).trim(),
+    ).join("\n\n")}`;
     expect(long.length).toBeLessThan(MAX_EDITOR_DRAFT_CHARS);
-    const p = row({ draft: long }), q = row({ id: 8, slug: "other", draft: long });
-    mocks.responses.push([p, q], [artifact(p)], [artifact(q)], [p]);
+    const p = row(), q = row({ id: 8, slug: "other", contentType: "city_page", draft: long });
+    mocks.responses.push([p, q], [artifact(p)], [artifact(q)], [p], [q]);
     mocks.agentLLM.mockResolvedValue(JSON.stringify({ reviews: [review(), review({ pipelineId: 8 })] }));
     await runEditorAgent();
     expect(mocks.agentLLM.mock.calls[0][0].messages[1].content).not.toContain('"pipelineId":8');

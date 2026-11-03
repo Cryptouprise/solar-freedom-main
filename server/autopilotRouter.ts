@@ -8,6 +8,8 @@ import { readAutonomousStatus } from "./autonomousStatus";
 import { activateAutonomousSchedules } from "./autonomousActivation";
 import { parse as parseCookies } from "cookie";
 import { COOKIE_NAME } from "../shared/const";
+import { pageVisualReviewSchema, readLatestVisualReviews, reviewPageAppearance } from "./pageVisualReview";
+import { createExternalAiKey, listExternalAiKeys, revokeExternalAiKey } from "./externalAiAccess";
 
 export const COMPETITOR_EVIDENCE_KEY = "seo_competitor_watch_latest";
 const competitor = z.object({ url: z.string().url().max(1000), title: z.string().min(1).max(500), evidence: z.string().min(1).max(4000) });
@@ -35,6 +37,11 @@ const admin = protectedProcedure.use(({ ctx, next }) => {
 });
 
 export const autopilotRouter = router({
+  externalKeys: admin.query(listExternalAiKeys),
+  createExternalKey: admin.input(z.object({ name: z.string().trim().min(1).max(80) })).mutation(({ input }) => createExternalAiKey(input.name)),
+  revokeExternalKey: admin.input(z.object({ id: z.number().int().positive() })).mutation(({ input }) => revokeExternalAiKey(input.id)),
+  reviewAppearance: admin.input(pageVisualReviewSchema).mutation(async ({ input, ctx }) => reviewPageAppearance(input, `owner:${ctx.user.id}`)),
+  visualReviews: admin.query(readLatestVisualReviews),
   pipelineDraft: admin.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
     const db = await getDb(); if (!db) throw new Error("Draft database unavailable");
     const [row] = await db.select().from(contentPipeline).where(eq(contentPipeline.id, input.id)).limit(1);

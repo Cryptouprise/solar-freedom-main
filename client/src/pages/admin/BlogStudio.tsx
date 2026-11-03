@@ -179,6 +179,7 @@ export default function BlogStudio() {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const autosaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const openedExternalDraft = useRef<number | null>(null);
 
   // tRPC
   const { data: posts = [] } = trpc.content.listAllPosts.useQuery({ limit: 500, offset: 0 });
@@ -253,6 +254,32 @@ export default function BlogStudio() {
     setLastAutosaved(null);
     setSeoResult(null);
   }, [postData, editor]);
+
+  // Exact review links select the canonical blog record, then restore only its matching draft.
+  useEffect(() => {
+    const target = new URLSearchParams(window.location.search).get("postSlug");
+    if (!target || selectedPostId !== null) return;
+    const post = posts.find(item => item.slug === target);
+    if (post) setSelectedPostId(post.id);
+  }, [posts, selectedPostId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = Number(params.get("draftId"));
+    if (!Number.isSafeInteger(id) || id <= 0 || openedExternalDraft.current === id || !editor || !postData || selectedSlug !== params.get("postSlug") || postData.slug !== selectedSlug) return;
+    const draft = drafts.find(item => item.id === id && item.postSlug === selectedSlug);
+    if (!draft) return;
+    openedExternalDraft.current = id;
+    if (draft.title != null) setTitle(draft.title);
+    if (draft.metaTitle != null) setMetaTitle(draft.metaTitle);
+    if (draft.metaDescription != null) setMetaDescription(draft.metaDescription);
+    if (draft.heroImage != null) setHeroImage(draft.heroImage);
+    if (draft.excerpt != null) setExcerpt(draft.excerpt);
+    if (draft.targetKeyword != null) setTargetKeyword(draft.targetKeyword);
+    editor.commands.setContent(draft.content || "");
+    setShowDraftPanel(true); setIsDirty(true); setSeoResult(null);
+    toast.info("Exact repair draft opened for review. The public article has not changed.");
+  }, [drafts, editor, postData, selectedSlug]);
 
   // ─── Autosave ────────────────────────────────────────────────────────────────
   const doAutosave = useCallback(async () => {

@@ -7,7 +7,10 @@ import { trpc } from "@/lib/trpc";
 export default function CityRecovery() {
   const utils = trpc.useUtils();
   const targets = trpc.cityRecovery.targets.useQuery();
-  const [slug, setSlug] = useState("");
+  const [slug, setSlug] = useState(() => {
+    const value = new URLSearchParams(window.location.search).get("slug") || "";
+    return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) ? value : "";
+  });
   const workspace = trpc.cityRecovery.workspace.useQuery(
     { slug },
     { enabled: Boolean(slug) },

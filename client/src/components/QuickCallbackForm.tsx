@@ -144,6 +144,7 @@ export default function QuickCallbackForm({
         >
           {callbackMutation.isPending ? "Submitting..." : buttonLabel}
         </button>
+        {!phone.trim() && <p className="text-xs leading-5 text-zinc-400">Enter your phone number to enable the callback request.</p>}
         {submissionError && (
           <p role="alert" className="text-red-400 text-xs text-center">{submissionError}</p>
         )}
