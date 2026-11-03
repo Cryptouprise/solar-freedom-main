@@ -1,0 +1,69 @@
+[
+  {
+    "submittedAt": "2026-11-03T18:11:22.545Z",
+    "accepted": 10,
+    "total": 10,
+    "results": [
+      {
+        "url": "https://breakyoursolarcontract.com/blog/nevada-solar-survey-price-increase-new-cancellation-window",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/nevada-solar-survey-price-increase-new-cancellation-window\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/blog/nevada-solar-payment-before-permission-to-operate",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/nevada-solar-payment-before-permission-to-operate\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/blog/selling-las-vegas-home-with-solar-lease-or-loan",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/selling-las-vegas-home-with-solar-lease-or-loan\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/blog/nevada-net-metering-tier-which-one-am-i",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/nevada-net-metering-tier-which-one-am-i\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/blog/nv-energy-demand-charge-solar-savings-2027",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/nv-energy-demand-charge-solar-savings-2027\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/blog/titan-solar-nevada-out-of-business-contract-help",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/titan-solar-nevada-out-of-business-contract-help\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/blog/nevada-solar-contract-10-day-cancellation-seniors",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/nevada-solar-contract-10-day-cancellation-seniors\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/blog/nevada-solar-complaint-timeline-and-cost",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/blog/nevada-solar-complaint-timeline-and-cost\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/cancel-solar-contract/henderson-nv",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/cancel-solar-contract/henderson-nv\"\n  }\n}\n"
+      },
+      {
+        "url": "https://breakyoursolarcontract.com/cancel-solar-contract/summerlin-nv",
+        "status": 200,
+        "ok": true,
+        "response": "{\n  \"urlNotificationMetadata\": {\n    \"url\": \"https://breakyoursolarcontract.com/cancel-solar-contract/summerlin-nv\"\n  }\n}\n"
+      }
+    ]
+  }
+]
