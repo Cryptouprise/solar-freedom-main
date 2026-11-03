@@ -5,6 +5,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
+import { reconcileAppointments } from "./appointmentReconciliation";
+import { GHL_LOCATION_ID } from "./ghlClient";
 import { blogPosts, ghlPipelineEvents, leads, seoIndexCoverageSnapshots, seoPageMetricSnapshots, seoPages, seoScorecardSnapshots } from "../drizzle/schema";
 import {
   getLeads,
@@ -357,6 +359,13 @@ export const appRouter = router({
         const [appointmentFeedCount] = await db
           .select({ value: count() })
           .from(ghlPipelineEvents);
+        // The lifecycle webhook has never delivered an event, so pull the
+        // calendar directly as well. This reports an honest state rather than a
+        // bare zero when the provider cannot be reached.
+        const directAppointments = await reconcileAppointments({
+          locationId: GHL_LOCATION_ID,
+          token: process.env.ghlapi,
+        });
         const latestSnapshot = snapshots[0] || null;
         let latestLeadReconciliation: null | {
           snapshotLeadCount: number;
@@ -396,6 +405,7 @@ export const appRouter = router({
           priorityPages,
           appointmentEvents,
           appointmentFeed: { receivingLifecycleEvents: Number(appointmentFeedCount?.value ?? 0) > 0 },
+          directAppointments,
           latestLeadReconciliation,
           measurementReady: snapshots.length > 0,
         };

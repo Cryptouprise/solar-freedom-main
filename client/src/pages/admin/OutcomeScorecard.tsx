@@ -4,6 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useState } from "react";
 import AutopilotEvidence from "@/components/AutopilotEvidence";
+import DirectAppointmentPanel from "@/components/DirectAppointmentPanel";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -203,6 +204,7 @@ export default function OutcomeScorecard() {
               </div>
             )}
             <IndexCoverageStrategyWidget coverage={data.indexCoverage} priorityPages={data.priorityPages || []} />
+            <DirectAppointmentPanel data={data.directAppointments ?? null} loading={isLoading} />
             <AppointmentTrendChart events={data.appointmentEvents || []} snapshots={data.snapshots || []} feedReceivingLifecycleEvents={data.appointmentFeed?.receivingLifecycleEvents ?? false} loading={isLoading} />
             <section className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h2 className="text-sm font-semibold text-white">What to act on</h2>
