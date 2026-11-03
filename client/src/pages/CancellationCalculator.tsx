@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
+import { computeRemainingPayments } from "@shared/remainingPayments";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface CalcState {
@@ -43,10 +44,6 @@ const INITIAL_STATE: CalcState = {
 function calculateResult(state: CalcState): CalcResult {
   let score = 0;
   const grounds: string[] = [];
-
-  const payment = parseFloat(state.monthlyPayment) || 0;
-  const years = parseFloat(state.yearsRemaining) || 0;
-  const totalRemaining = payment * years * 12;
 
   // FTC Cooling-Off / TILA rescission
   if (state.signedWhere === "home") {
@@ -99,10 +96,13 @@ function calculateResult(state: CalcState): CalcResult {
   score = Math.min(score, 100);
 
   // Remaining payments from the answers entered. Not a savings promise.
-  const estimatedSavings =
-    totalRemaining > 0
-      ? `$${Math.round(totalRemaining).toLocaleString()} remaining`
-      : "Add payment and years to see remaining payments";
+  // The arithmetic lives in shared/remainingPayments.ts so it is covered by the
+  // 20-case matrix in server/calculatorMatrix.test.ts rather than sitting
+  // untested inside this component.
+  const estimatedSavings = computeRemainingPayments({
+    monthlyPayment: state.monthlyPayment,
+    yearsRemaining: state.yearsRemaining,
+  }).label;
 
   // Urgency
   let urgency: "high" | "medium" | "low" = "low";

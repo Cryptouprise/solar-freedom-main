@@ -1389,7 +1389,7 @@
 - [x] Nevada complaint-maze map — folded into the timeline and cost page above (PUCN routes, NSCB adjudicates, AG BCP reviews in 14-45 business days).
 - [ ] Promote exactly one noindexed city page: Henderson.
 - [x] January 2027 NV Energy demand-charge page — published as /blog/nv-energy-demand-charge-solar-savings-2027. Dated and hedged (notes both prior delays and the pending Supreme Court appeal with no hearing scheduled). Covers the 15-minute peak mechanic, the 4.2% Clark County battery attach rate, the four net-metering tiers and the Tier 4 75% lock, the Northern-vs-Southern 15-minute confusion, and the NRS 598.9819 / 598.982183 rate-disclaimer angles. Live in the sitemap on 3 Nov 2026, ahead of the 15 Dec 2026 target.
-- [ ] Nevada solar-exit calculator with a 20-case test matrix.
+- [x] Calculator arithmetic extracted to shared/remainingPayments.ts and covered by a 20-case matrix in server/calculatorMatrix.test.ts (26 tests). Writing the matrix immediately caught a real crash on missing input, now fixed, and added a guard against absurd figures like the competitor's $1,051,200. CancellationCalculator now calls the tested module instead of computing inline.
 - [ ] Spanish translations of the two highest-intent pages, human-reviewed, with hreflang.
 - [ ] Prove GHL appointment reconciliation end-to-end before any appointment number is reported as fact.
 - [ ] 30-day GSC comparison (reliable from 5 Dec 2026) and 90-day comparison (reliable from 3 Feb 2027).
