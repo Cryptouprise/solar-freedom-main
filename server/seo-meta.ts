@@ -402,6 +402,8 @@ function extractExternalCitations(content: string): string[] {
   return Array.from(new Set(urls));
 }
 
+const MAX_FAQ_ITEMS = 5;
+
 function normalizeFaqItems(value: unknown): Array<{ q: string; a: string }> {
   if (!Array.isArray(value)) return [];
   return value
@@ -412,7 +414,10 @@ function normalizeFaqItems(value: unknown): Array<{ q: string; a: string }> {
         a: suppressUnverifiedFirstPartyClaims(String(candidate.a ?? candidate.answer ?? "").trim()),
       };
     })
-    .filter(item => item.q && item.a);
+    .filter(item => item.q && item.a)
+    // Show and mark up only the strongest few questions. A wall of near-duplicate
+    // questions buries the call to action and reads as filler to people and search engines.
+    .slice(0, MAX_FAQ_ITEMS);
 }
 
 export function renderDbBlogPost(
