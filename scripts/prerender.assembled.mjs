@@ -1409,6 +1409,14 @@ function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta
   </div>`;
 }
 
+// The chat and voice AI widget lives in index.html. Shell pages are generated
+// from scratch, so carry the same loader into them or guide pages ship without it.
+let chatWidgetSnippet = "";
+function extractChatWidgetSnippet(html) {
+  const match = String(html || "").match(/<!-- GHL AI Chat Widget -->\s*<script[\s\S]*?<\/script>/);
+  return match ? match[0] : "";
+}
+
 function buildShellHtml(meta, jsFile, cssFile, urlPath) {
   const title = escapeHtml(fitMetaTitle(meta.title));
   const desc = escapeHtml(meta.description);
@@ -1441,6 +1449,7 @@ function buildShellHtml(meta, jsFile, cssFile, urlPath) {
 <body>
   ${semanticContent}
   ${jsFile ? `<script type="module" crossorigin src="/assets/${jsFile}"></script>` : ""}
+  ${chatWidgetSnippet}
 </body>
 </html>`;
 }
@@ -1477,6 +1486,8 @@ async function loadDbBlogPosts() {
 async function main() {
   console.log("🔧 Pre-rendering static HTML files...");
   const indexHtml = fs.readFileSync(path.resolve(DIST, "index.html"), "utf-8");
+  chatWidgetSnippet = extractChatWidgetSnippet(indexHtml);
+  if (!chatWidgetSnippet) console.warn("  ⚠️  Chat widget loader not found in index.html; shell pages will ship without chat");
 
   // Extract hashed asset filenames from the built index.html
   // These are needed so shell pages can reference the correct versioned JS/CSS

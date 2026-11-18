@@ -71,8 +71,8 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
   {
     slug: "how-to-get-out-of-a-solar-contract",
     title: "How to Get Out of a Solar Contract: 7 Steps to Review",
-    metaTitle: "How to Get Out of a Solar Contract: 7 Steps",
-    metaDescription: "Want to cancel a solar loan, lease, or PPA? Identify the parties, check written cancellation terms, preserve records, compare exit paths, and report problems safely.",
+    metaTitle: "How to Cancel a Solar Contract: Before or After Install (2026)",
+    metaDescription: "Yes, you can sometimes cancel, even after installation. The deadlines by state, what to check in your lease, loan or PPA, and what it costs.",
     category: "Contract Guide",
     readTime: "10 min read",
     publishDate: "August 16, 2026",

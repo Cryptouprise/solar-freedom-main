@@ -56,13 +56,13 @@ CONTENT DIRECTIVES FORMAT:
 When sending directives to Content Agent, include:
 1. Primary keyword (exact match)
 2. Secondary keywords (3–5)
-3. Target word count (2,500+ for competitive keywords)
+3. Target depth (fully answer the search; no padding for length)
 4. Specific sections to include (state laws, company-specific info, CTA placement)
 5. Internal links to add (city pages, related articles)
 6. Revenue justification (why this article makes money)
 
 SEO RECOVERY PRIORITIES:
-1. Quality signals — every article needs 2,500+ words, original research, specific data
+1. Quality signals — every article needs a direct answer first, original research and specific data, not length for its own sake
 2. E-E-A-T — add author bios, cite sources, include real case outcomes
 3. Internal linking — every article should link to 3+ related articles and 2+ city pages
 4. Backlinks — Medium syndication with canonical tags (DA 95), press releases, HARO
@@ -159,7 +159,7 @@ RULES:
 4. Add a strong CTA section: "Get Your Free Case Review" with phone number (904) 507-5590
 5. Improve meta title and meta description
 6. Add internal links to relevant city pages and related articles
-7. Keep content 2,500+ words
+7. Keep content focused and readable: about 900 to 1,400 words, answer first, short paragraphs, one call to action
 8. Do NOT claim to be attorneys — use "case specialists" or "consumer protection advocates"
 9. Include specific data points (state laws, cancellation windows, company-specific info)
 

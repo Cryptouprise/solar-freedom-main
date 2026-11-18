@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'wouter';
 import { ArrowRight, Clock, FileText } from 'lucide-react';
 
 // Existing managed site asset, visually checked: solar panels only, no staff,
@@ -24,8 +23,8 @@ export default function ArticleHero({ title, image, alt, category, readTime, dat
       </div>
       <h1 className="max-w-3xl font-black leading-tight text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}>{title}</h1>
       <div className="mt-7 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-5">
-        <Link href="/#form" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-amber-500 px-5 py-3 text-sm font-bold text-black hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400">Request a case review <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-        <p className="max-w-sm text-xs leading-5 text-zinc-300">Options depend on your agreement, facts and jurisdiction. No guaranteed result.</p>
+        <a href="#case-review" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-amber-500 px-5 py-3 text-sm font-bold text-black hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400">Book my free case review <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
+        <p className="max-w-sm text-sm leading-5 text-zinc-200">15 minutes. Free. No obligation, just options.</p>
       </div>
     </div>
   </header>;

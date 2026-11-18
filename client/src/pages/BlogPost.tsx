@@ -6,7 +6,6 @@ import { getBlogPost, getRelatedPosts, BlogSection } from '@/data/blog';
 import { isBlogIndexed } from '@/data/indexEligibility';
 import { trpc } from '@/lib/trpc';
 import TopicClusterWidget from '@/components/TopicClusterWidget';
-import DoIQualifyQuiz from '@/components/DoIQualifyQuiz';
 import QuickCallbackForm from '@/components/QuickCallbackForm';
 import { Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, Quote, Share2 } from 'lucide-react';
 import StickyMobileBar from '@/components/StickyMobileBar';
@@ -119,8 +118,12 @@ function sourceLabel(url: string): string {
   }
 }
 
+// Show and mark up only the strongest few questions; long FAQ walls bury the call to action.
+const MAX_FAQ_ITEMS = 5;
+
 function VisibleFaq({ items }: { items: FaqItem[] }) {
   const governed = items
+    .slice(0, MAX_FAQ_ITEMS)
     .map((item) => ({
       q: suppressUnverifiedFirstPartyClaims(item.q).trim(),
       a: suppressUnverifiedFirstPartyClaims(item.a).trim(),
@@ -317,6 +320,39 @@ function renderSection(section: BlogSection, index: number) {
   }
 }
 
+// The single booking block every article CTA scrolls to. Keeps the reader on the
+// page: what the call is, what happens on it, the form, and one call link.
+function ArticleBookingBlock() {
+  const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
+  return (
+    <section id="case-review" data-article-end-cta aria-labelledby="case-review-heading" className="mt-16 scroll-mt-24 rounded-2xl bg-amber-500 p-6 sm:p-10">
+      <h2 id="case-review-heading" className="font-black text-black uppercase mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+        Book Your Free 15-Minute Case Review
+      </h2>
+      <p className="text-black/80 mb-4 max-w-xl text-base">No cost, no obligation, just options. On the call, a Solar Freedom case specialist will:</p>
+      <ul className="mb-6 max-w-xl space-y-2 text-black/80 text-base list-disc pl-5">
+        <li>Look at what you signed next to what you were told.</li>
+        <li>Check for the problems that open real options, like a missing cancellation notice, disclosure gaps or savings your bills don't show.</li>
+        <li>Tell you in plain English which options fit, or tell you if nothing is worth chasing.</li>
+      </ul>
+      <div className="max-w-md rounded-xl bg-zinc-950 p-1">
+        <QuickCallbackForm
+          formName="blog_case_review"
+          title="Book my free case review"
+          subtitle="Leave your name and number and we'll call you to set up the 15 minutes."
+          buttonLabel="Book My Free Case Review"
+          showSchedule
+        />
+      </div>
+      <p className="mt-5 text-black/80 text-sm">
+        Prefer to talk now?{' '}
+        <a href={phoneHref} className="font-bold underline" onClick={() => trackPhoneClick('blog_booking_block', phoneDigits)}>Call or text {phoneDisplay}</a>
+      </p>
+      <p className="text-black/60 text-xs mt-4">Free, no-obligation review. Solar Freedom is not a law firm and this page is not legal advice. Your options depend on your agreement, your facts and your state.</p>
+    </section>
+  );
+}
+
 // Inline CTA component — appears at midpoint of article
 function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
   const { phoneDisplay, phoneHref, phoneDigits } = useSiteConfig();
@@ -328,11 +364,11 @@ function InlineCTA({ text, subtext }: { text: string; subtext: string }) {
       </h3>
       <p className="text-zinc-400 text-sm mb-6 max-w-lg">{subtext}</p>
       <div className="flex flex-col sm:flex-row gap-3">
-        <Link href="/#form" className="flex-1">
+        <a href="#case-review" className="flex-1">
           <span className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest px-6 py-3.5 rounded-lg text-sm transition-colors cursor-pointer w-full">
-            Request Case Review →
+            Book My Free Case Review →
           </span>
-        </Link>
+        </a>
         <a
           href={phoneHref}
           className="flex items-center justify-center gap-2 border border-white/20 hover:border-amber-500/60 text-white hover:text-amber-400 font-bold px-6 py-3.5 rounded-lg text-sm transition-colors"
@@ -446,7 +482,7 @@ export default function BlogPost() {
       ? (rawFaqItems as Array<{question?: string; answer?: string; q?: string; a?: string}>).map(f => ({
           q: f.q ?? f.question ?? '',
           a: suppressUnverifiedFirstPartyClaims(f.a ?? f.answer ?? '')
-        }))
+        })).slice(0, MAX_FAQ_ITEMS)
       : [];
     const rawPublishedAt = (dbPostRaw as Record<string,unknown>)?.publishedAt;
     const publishDate = rawPublishedAt
@@ -524,11 +560,11 @@ export default function BlogPost() {
                 <span className="font-black text-white tracking-wider text-sm uppercase">Solar Freedom</span>
               </span>
             </Link>
-            <Link href="/#form">
+            <a href="#case-review">
               <span className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded cursor-pointer transition-colors">
                 Case Review
               </span>
-            </Link>
+            </a>
           </div>
         </nav>
 
@@ -548,7 +584,7 @@ export default function BlogPost() {
 
         {/* ARTICLE BODY */}
         <div className="px-6 py-12">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
+          <div className="max-w-3xl mx-auto">
             <div className="min-w-0 w-full max-w-[70ch] mx-auto">
               {dbPost.excerpt && (
                 <motion.p
@@ -559,11 +595,6 @@ export default function BlogPost() {
                   {suppressUnverifiedFirstPartyClaims(dbPost.excerpt)}
                 </motion.p>
               )}
-
-              <details className="my-8 rounded-xl border border-white/10 bg-zinc-900/60 p-5">
-                <summary className="cursor-pointer font-semibold text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400">Want help organizing your situation? Try the quick questions</summary>
-                <DoIQualifyQuiz />
-              </details>
 
               <ArticleVideoAttachment
                 url={(dbPost as any).videoUrl}
@@ -587,32 +618,9 @@ export default function BlogPost() {
               <SourceList citations={dbCitations} />
               <VisibleFaq items={faq} />
 
-              {/* Final CTA */}
-              <div data-article-end-cta className="mt-16 rounded-2xl bg-amber-500 p-6 sm:p-10 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
-                <div className="relative">
-                  <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
-                  <h2 className="font-black text-black uppercase mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-                    Review the Documents That Matter.
-                  </h2>
-                  <p className="text-black/70 mb-6 max-w-lg text-sm">Submit the agreement and supporting records for a fact-specific review. No representation, result, or timeline is guaranteed.</p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Link href="/#form">
-                      <span className="inline-flex items-center justify-center gap-2 bg-black text-white font-black uppercase tracking-widest px-8 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer">
-                        Request My Case Review →
-                      </span>
-                    </Link>
-                    <a
-                      href={phoneHref}
-                      className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
-                      onClick={() => trackPhoneClick('blog_final_cta', phoneDigits)}
-                    >
-                      📞 Call {phoneDisplay}
-                    </a>
-                  </div>
-                  <p className="text-black/50 text-xs mt-4 font-mono">Request a review. No result or timeline is guaranteed.</p>
-                </div>
-              </div>
+              {/* One booking block: every call to action on the page scrolls here */}
+
+              <ArticleBookingBlock />
 
               <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
                 <Link href="/blog">
@@ -628,16 +636,6 @@ export default function BlogPost() {
                 </button>
               </div>
             </div>
-
-            <aside className="hidden lg:block lg:sticky lg:top-24">
-              <QuickCallbackForm
-                formName="sticky_blog_sidebar"
-                title="Case Review"
-                subtitle="Skip the long form — leave your name and phone and we’ll call you back."
-                buttonLabel="Request Callback"
-                showSchedule
-              />
-            </aside>
           </div>
         </div>
 
@@ -688,7 +686,7 @@ export default function BlogPost() {
             <div className="flex gap-6">
               <Link href="/"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Home</span></Link>
               <Link href="/blog"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Blog</span></Link>
-              <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Case Review</span></Link>
+              <a href="#case-review"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Case Review</span></a>
             </div>
           </div>
         </footer>
@@ -734,7 +732,7 @@ export default function BlogPost() {
     schemas.push({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: post.faq.map(item => ({
+      mainEntity: post.faq.slice(0, MAX_FAQ_ITEMS).map(item => ({
         '@type': 'Question',
         name: item.q,
         acceptedAnswer: { '@type': 'Answer', text: suppressUnverifiedFirstPartyClaims(item.a) },
@@ -779,11 +777,11 @@ export default function BlogPost() {
               <span className="font-black text-white tracking-wider text-sm uppercase">Solar Freedom</span>
             </span>
           </Link>
-          <Link href="/#form">
+          <a href="#case-review">
             <span className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded cursor-pointer transition-colors">
               Case Review
             </span>
-          </Link>
+          </a>
         </div>
       </nav>
 
@@ -803,7 +801,7 @@ export default function BlogPost() {
 
       {/* ARTICLE BODY */}
       <div className="px-6 py-12">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
+        <div className="max-w-3xl mx-auto">
           <div className="min-w-0 w-full max-w-[70ch] mx-auto">
           {/* Excerpt / lead paragraph */}
           <motion.p
@@ -815,10 +813,6 @@ export default function BlogPost() {
           </motion.p>
 
           <ArticleOutline headings={post.content.filter(section => section.type === 'h2').map(section => suppressUnverifiedFirstPartyClaims(section.content ?? ''))} />
-          <details className="my-8 rounded-xl border border-white/10 bg-zinc-900/60 p-5">
-            <summary className="cursor-pointer font-semibold text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400">Want help organizing your situation? Try the quick questions</summary>
-            <DoIQualifyQuiz />
-          </details>
 
           {/* Article content */}
           <div className="article-content prose-invert max-w-none">
@@ -828,32 +822,9 @@ export default function BlogPost() {
           <SourceList citations={staticCitations} />
           <VisibleFaq items={post.faq ?? []} />
 
-          {/* Final CTA */}
-          <div data-article-end-cta className="mt-16 rounded-2xl bg-amber-500 p-6 sm:p-10 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }} />
-            <div className="relative">
-              <div className="text-black/60 text-xs font-mono uppercase tracking-widest mb-3">-- Individual review</div>
-              <h2 className="font-black text-black uppercase mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-                Review the Documents That Matter.
-              </h2>
-              <p className="text-black/70 mb-6 max-w-lg text-sm">Submit the agreement and supporting records for a fact-specific review. No representation, result, or timeline is guaranteed.</p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/#form">
-                  <span className="inline-flex items-center justify-center gap-2 bg-black text-white font-black uppercase tracking-widest px-8 py-4 rounded-lg text-sm hover:bg-zinc-900 transition-colors cursor-pointer">
-                    Request My Case Review →
-                  </span>
-                </Link>
-                <a
-                  href={phoneHref}
-                  className="inline-flex items-center justify-center gap-2 border-2 border-black/30 hover:border-black text-black font-bold px-8 py-4 rounded-lg text-sm transition-colors"
-                  onClick={() => trackPhoneClick('blog_final_cta', phoneDigits)}
-                >
-                  📞 Call {phoneDisplay}
-                </a>
-              </div>
-              <p className="text-black/50 text-xs mt-4 font-mono">Request a review. No result or timeline is guaranteed.</p>
-            </div>
-          </div>
+          {/* One booking block: every call to action on the page scrolls here */}
+
+          <ArticleBookingBlock />
 
           {/* Share + back */}
           <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
@@ -870,16 +841,6 @@ export default function BlogPost() {
             </button>
           </div>
           </div>
-
-          <aside className="hidden lg:block lg:sticky lg:top-24">
-            <QuickCallbackForm
-              formName="sticky_blog_sidebar"
-              title="Case Review"
-              subtitle="Skip the long form — leave your name and phone and we’ll call you back."
-              buttonLabel="Request Callback"
-              showSchedule
-            />
-          </aside>
         </div>
       </div>
 
@@ -931,7 +892,7 @@ export default function BlogPost() {
           <div className="flex gap-6">
             <Link href="/"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Home</span></Link>
             <Link href="/blog"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Blog</span></Link>
-            <Link href="/#form"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Case Review</span></Link>
+            <a href="#case-review"><span className="text-zinc-500 hover:text-white text-sm transition-colors cursor-pointer">Case Review</span></a>
           </div>
         </div>
       </footer>

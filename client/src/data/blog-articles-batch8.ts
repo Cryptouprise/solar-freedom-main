@@ -664,8 +664,8 @@ export const blogArticlesBatch8: BlogPost[] = [
   {
     slug: "blue-raven-solar-complaints",
     title: "Blue Raven Solar Complaints: Status, Support and Contract Help",
-    metaTitle: "Blue Raven Solar Complaints: Status & Support",
-    metaDescription: "Is Blue Raven Solar still in business? Check the SunPower acquisition timeline, project date, warranty route, lender, support number, records, and complaint options.",
+    metaTitle: "Is Blue Raven Solar Still in Business? Who to Call (2026)",
+    metaDescription: "What happened to Blue Raven Solar, who services its systems and warranties now, and your options if your system or loan is a problem.",
     category: "Company Guide",
     readTime: "8 min read",
     publishDate: "August 16, 2026",
