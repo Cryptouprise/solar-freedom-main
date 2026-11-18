@@ -56,7 +56,7 @@ export const batch20BlogPosts: BlogPost[] = [
       { type: 'h2', content: 'The rate classes, in plain terms' },
       { type: 'p', content: 'Nevada does not have one net metering rate. It has a set of them, and which one applies to you depends on when your system went through the interconnection process. NV Energy publishes the distinctions clearly, and they are worth reading directly rather than through a sales brochure.' },
       { type: 'list', items: [
-        'NMR-G — systems installed before 31 December 2015. Excess energy is credited one kilowatt-hour for one kilowatt-hour, and credits bank and roll forward. This is the original full net metering class, and it is closed.',
+        'NMR-G — systems installed before 31 December 2015. Excess energy is credited one kilowatt-hour for one kilowatt-hour, and credits bank and roll forward. This is the original full net metering class, and it no longer accepts new systems.',
         'NMR-A — southern Nevada systems installed between 1 January 2016 and 14 June 2017. Exported energy earns a monetary credit regardless of how much electricity was delivered, and anything left at year end is paid out by cheque.',
         'NMR-405 — systems of 25 kilowatts or less from 15 June 2017 onward. This is the default rate for southern Nevada, and it is the one with the tiers.',
         'NMR-2025 — northern Nevada only, default from 1 October 2025, using 15-minute netting.',
