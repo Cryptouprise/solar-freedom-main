@@ -131,89 +131,119 @@ export const stateLaws: StateLaw[] = [
   },
 
   // ─── TEXAS ────────────────────────────────────────────────────────────────────
+  // Nov 18, 2026 rewrite (ranking experiment, group D). Corrects the cancellation
+  // window: since Sept 1, 2025, Tex. Occ. Code ch. 1806 (SB 1036, 89th Leg.) requires
+  // a 5-business-day right to cancel a residential solar purchase or lease, and
+  // cancellation of an affiliated or referred lender's loan. Read Nov 18, 2026 from
+  // https://www.tdlr.texas.gov/residential-solar-retailers/effect.htm and
+  // https://statutes.capitol.texas.gov/Docs/OC/htm/OC.1806.htm
+  // Removed until sourced: export-rate cents, dealer-fee percentage, "TILA violation".
   {
     slug: 'texas',
     state: 'Texas',
     stateAbbr: 'TX',
-    metaTitle: 'Texas Solar Contract Rights: DTPA, Cooling-Off Rules & How to Fight Back (2026)',
-    metaDescription: `Texas DTPA protects homeowners from false solar savings, tax credit, and net metering claims. Learn your rights and get a free review.`,
-    heroHook: 'Texas Has Some of the Strongest Consumer Protection Laws in the Country. Your Solar Company Probably Hoped You\'d Never Find Out.',
-    heroSubhook: 'The Lone Star State\'s Deceptive Trade Practices Act has real teeth. If a solar rep lied to you — about anything — you have legal options most homeowners never explore.',
-    primaryStatute: 'Tex. Bus. & Com. Code § 17.46 (DTPA)',
-    primaryStatuteTitle: 'Texas Deceptive Trade Practices Act',
-    coolingOffDays: 3,
-    coolingOffNote: 'Under the FTC Cooling-Off Rule. Texas does not have a state-specific extended window, but DTPA violations can create independent grounds for cancellation regardless of when you signed.',
+    metaTitle: 'Texas Solar Contract Cancellation: New 5-Day Rule & DTPA (2026)',
+    metaDescription: `Since Sept 1, 2025, Texas gives solar buyers 5 business days to cancel a purchase or lease. Your rights after that, under the DTPA, and how to get out.`,
+    heroHook: 'How to Get Out of a Solar Contract in Texas',
+    heroSubhook: 'Texas changed the rules in 2025. Solar buyers now get 5 business days to cancel without penalty, and after that the Deceptive Trade Practices Act is the main tool if you were misled.',
+    primaryStatute: 'Tex. Occ. Code ch. 1806 (SB 1036)',
+    primaryStatuteTitle: 'Texas Residential Solar Retailers law',
+    coolingOffDays: 5,
+    coolingOffNote: 'Since Sept 1, 2025, Texas requires solar purchase and lease agreements to let you cancel without penalty by written notice on or before the fifth business day after you sign (Tex. Occ. Code § 1806.156). That is longer than the federal 3-business-day Cooling-Off Rule.',
     aggressivenessRating: 5,
     content: [
       {
         type: 'p',
-        content: 'Texas is the most deregulated energy market in the country. That complexity is exactly why solar sales teams love it — and exactly why so many Texans end up confused, overcharged, and trapped. The pitch sounds perfect: "Opt out of TXU\'s rate hikes. Lock in your energy costs forever. The sun is free." But in a deregulated market, the math is more complicated than any door-to-door rep is going to explain at your kitchen table. The good news? Texas law is built for exactly this situation.',
+        content: 'Short answer: if you signed a Texas solar purchase or lease in the last few days, you may cancel without penalty by sending written notice on or before the fifth business day after you signed. If a lender that is affiliated with or referred by the seller financed it, the contract must require that loan to be cancelled too. After the window closes, the realistic paths are a buyout or payoff, a transfer when you sell, the installer\'s breach or bankruptcy, or a claim under the Texas Deceptive Trade Practices Act (DTPA) if you were misled.',
       },
       {
-        type: 'stat-block',
-        stats: [
-          { value: 'DTPA', label: 'Texas\'s primary weapon against deceptive solar sales' },
-          { value: '3–4¢', label: 'Per kWh that most Texas REPs pay for solar export (vs. 12–15¢ retail)' },
-          { value: '3x', label: 'Damages available under DTPA for knowing violations' },
-          { value: '§ 17.46', label: 'The Texas code with 27 specific "laundry list" violations' },
-        ],
+        type: 'law-card',
+        statute: 'Tex. Occ. Code § 1806.156',
+        statuteTitle: 'Right to cancel a residential solar agreement',
+        statuteDescription: 'A solar retailer must allow a buyer or lessee to cancel the agreement without penalty or further obligation by written notice on or before the fifth business day after the buyer or lessee signs. The agreement must state the last calendar day of the cancellation period and the mailing or email address for the notice.',
       },
       {
         type: 'h2',
-        content: 'The Texas Net Metering Reality Nobody Told You About',
-      },
-      {
-        type: 'p',
-        content: 'Here is the thing about Texas solar that changes everything: Texas does not have mandatory statewide net metering. Each Retail Electric Provider (REP) sets its own buyback rate. Most pay 3–4 cents per kilowatt-hour for the power you send back to the grid — while charging you 12–15 cents for what you use at night. If your sales rep showed you a savings calculation based on 1:1 net metering, they either did not know this (incompetence) or did know it (fraud). Either way, the contract may be challengeable.',
-      },
-      {
-        type: 'h2',
-        content: 'What the Texas DTPA Actually Gives You',
-      },
-      {
-        type: 'p',
-        content: 'The Texas Deceptive Trade Practices Act is one of the most powerful consumer protection statutes in the country. Section 17.46 contains a "laundry list" of 27 specific prohibited acts — and solar sales teams routinely violate multiple items on that list in a single sales presentation.',
+        content: 'What changed in Texas in 2025',
       },
       {
         type: 'list',
         items: [
-          'Representing that goods or services have characteristics they do not have (§ 17.46(b)(5)) — like claiming panels will eliminate your electric bill',
-          'Representing that an agreement confers rights that it does not confer (§ 17.46(b)(12)) — like claiming you\'re in a "government program"',
-          'Failing to disclose information intended to induce a consumer into a transaction (§ 17.46(b)(24)) — like hiding the net metering buyback rate',
-          'Using false or misleading statements of fact (§ 17.46(b)(5)) — like overstating the federal tax credit',
-          'Unconscionable action or course of action (§ 17.50(a)(3)) — like targeting elderly homeowners with complex 25-year contracts',
+          'Sept 1, 2025: Senate Bill 1036 created the Residential Solar Retailers program at the Texas Department of Licensing and Regulation (TDLR). Required contract terms and the 5-business-day right to cancel apply from this date.',
+          'If the sale or lease involves a third-party lender that is affiliated with or referred by the solar retailer, the agreement must require that lender to cancel the accompanying loan when you cancel the agreement.',
+          'The contract must say a licensed electrical contractor will do the installation, name that contractor, and say who gets the permits and utility interconnection approval.',
+          'Sept 1, 2026: solar retailers and salespeople must be registered with TDLR to sell or lease residential solar, and listed prohibited acts become enforceable.',
         ],
       },
       {
         type: 'callout',
-        content: 'Under the DTPA, if a company\'s violation was "knowing" or "intentional," you can recover up to three times your actual damages. This is not just about getting out of the contract — it is about being made whole.',
+        content: 'Signed in the last few days? Find the last cancellation date printed in your agreement, send your written notice to the address or email it lists, and keep proof of when you sent it. If the agreement does not list an address, TDLR says you may cancel by any reasonable method.',
       },
       {
         type: 'h2',
-        content: 'The Hidden Dealer Fee That Inflated Your Loan',
+        content: 'How to cancel within the 5-business-day window',
       },
       {
-        type: 'p',
-        content: 'In Texas, the average solar loan includes a dealer fee of 20–30% of the total system cost. This fee is paid by the lender to the installer as a commission — but it is baked into your loan principal. So a system that costs $25,000 to install might result in a $35,000 loan balance on day one. If this fee was not clearly disclosed in your contract, that is a TILA violation at the federal level and potentially a DTPA violation at the state level.',
+        type: 'list',
+        items: [
+          'Count 5 business days from the date you signed. Do not wait for installation or a site survey.',
+          'Write a short notice: your name, address, the date you signed, the company name, and that you are cancelling the agreement.',
+          'Send it the way the contract says (mail or email). Keep a copy and proof of sending.',
+          'If a loan was arranged by the seller, send a copy to the lender as well and ask for written confirmation that the loan is cancelled.',
+        ],
       },
       {
         type: 'h2',
-        content: 'What Happens If Your Texas Solar Company Went Out of Business?',
+        content: 'Past the window: what the Texas DTPA covers',
       },
       {
         type: 'p',
-        content: 'Texas has seen a wave of solar installer bankruptcies and market exits — ADT Solar, Titan Solar, and others. If your installer is gone, you are still paying a lender like GoodLeap or Mosaic for a system that has no active warranty support. Texas law provides specific remedies when a contractor abandons a project or fails to perform promised services. The lender\'s security interest in your home does not disappear when the installer does — but your obligation to pay for a non-performing system is a very different legal question.',
+        content: 'The Deceptive Trade Practices Act (Tex. Bus. & Com. Code § 17.41 and following) prohibits false, misleading or deceptive acts in consumer sales. Section 17.46(b) lists specific prohibited practices. Solar complaints often fit items like these:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Representing that goods or services have characteristics or benefits they do not have (§ 17.46(b)(5)), such as saying panels will eliminate your electric bill',
+          'Representing that an agreement confers rights or obligations it does not (§ 17.46(b)(12)), such as calling it a free government program',
+          'Failing to disclose information to get you to sign that you would not have signed for had you known (§ 17.46(b)(24)), such as how your provider credits exported power',
+          'An unconscionable action or course of action (§ 17.50(a)(3)), such as pushing a complex 25-year agreement on a homeowner who could not follow it',
+        ],
+      },
+      {
+        type: 'p',
+        content: 'Where a violation was committed knowingly, the DTPA allows a court to award up to three times economic damages. Whether your facts support a claim is a question for a Texas attorney; a document review can tell you whether it is worth asking.',
+      },
+      {
+        type: 'h2',
+        content: 'Texas savings math: why the promises often miss',
+      },
+      {
+        type: 'p',
+        content: 'Most Texans in competitive areas buy power from a retail electric provider, and each provider sets its own terms for crediting the power your panels send back to the grid. Texas has no statewide net metering mandate. If your savings estimate assumed you would be credited at the full retail rate for everything you export, check what your provider actually pays. The difference is often the gap between the promised and the real bill.',
+      },
+      {
+        type: 'h2',
+        content: 'If your Texas installer went out of business',
+      },
+      {
+        type: 'p',
+        content: 'Several installers that sold in Texas have closed or left the market. If your installer is gone, your loan or lease usually continues with a separate lender or system owner. Find out who services the account now, check whether manufacturer warranties still apply, and keep records of every failed repair request. Those records matter if you later challenge the loan or the lease.',
+      },
+      {
+        type: 'p',
+        content: 'Sources, read Nov 18, 2026: Texas Department of Licensing and Regulation, Residential Solar Retailers information page (tdlr.texas.gov), and Texas Occupations Code chapter 1806 (statutes.capitol.texas.gov).',
       },
     ],
     faq: [
-      { q: 'Can I cancel my Texas solar contract after installation?', a: 'Yes, in many cases. DTPA violations, TILA violations, and breach of contract (system underperformance) all provide grounds for post-install cancellation in Texas.' },
-      { q: 'What is the Texas DTPA and how does it apply to solar?', a: 'The Deceptive Trade Practices Act prohibits false, misleading, or deceptive acts in commerce. Solar sales reps who lie about savings, tax credits, or net metering rates are violating this law.' },
-      { q: 'My Texas solar company went bankrupt. Do I still owe the loan?', a: 'The lender is separate from the installer. However, if the installer\'s failure means the system is not performing as promised, you have grounds to challenge the loan itself.' },
-      { q: 'Can I sue my solar company in Texas?', a: 'Yes. The DTPA allows individual consumers to sue for actual damages, and in cases of knowing violations, up to three times those damages plus attorney\'s fees.' },
-      { q: 'What if I was told the system would eliminate my electric bill?', a: 'That is a classic DTPA violation. No solar system in Texas can "eliminate" your bill because of fixed utility charges, demand fees, and the low buyback rate for exported power.' },
+      { q: 'How long do I have to cancel a solar contract in Texas?', a: 'For agreements covered by the Texas residential solar retailer law, you may cancel without penalty by written notice on or before the fifth business day after you sign. The rule took effect Sept 1, 2025. Your agreement must print the last cancellation date and where to send the notice.' },
+      { q: 'Does cancelling the solar contract cancel my solar loan in Texas?', a: 'If the lender is affiliated with or was referred by the solar retailer, the agreement must require that lender to cancel the loan when you cancel the agreement. If you found and chose the lender on your own, read the loan documents separately.' },
+      { q: 'Can I cancel my Texas solar contract after installation?', a: 'The 5-day window usually closes before installation. After that, the paths are a buyout or payoff, a transfer when you sell, the installer\'s breach or bankruptcy, or a DTPA claim if you were misled. Which applies depends on your documents and facts.' },
+      { q: 'What if I was told the system would eliminate my electric bill?', a: 'Representing that a product has benefits it does not have is on the DTPA list of prohibited practices. Save the proposal, texts and any recording of the pitch, and compare them with your actual bills.' },
+      { q: 'How do I check if a Texas solar company is registered?', a: 'From Sept 1, 2026, residential solar retailers and salespeople must be registered with the Texas Department of Licensing and Regulation. Check the seller and salesperson on TDLR\'s license search before you sign.' },
     ],
     relatedCities: ['houston-tx', 'dallas-tx', 'san-antonio-tx', 'austin-tx', 'fort-worth-tx'],
   },
+
 
   // ─── FLORIDA ──────────────────────────────────────────────────────────────────
   {

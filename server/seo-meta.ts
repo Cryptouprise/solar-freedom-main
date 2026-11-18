@@ -71,9 +71,9 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review.",
     },
     "/solar-panel-scam": {
-      title: "Solar Panel Scam Warning Signs | Solar Freedom",
+      title: "Solar Panel Scams: Warning Signs and What to Do If You Signed",
       description:
-        "Learn the solar panel scam warning signs, from fake tax credit promises to hidden loan fees and liens. Free solar contract review.",
+        "How solar panel scams work: the 5 most common sales tricks, how to check your contract, and what to do if you already signed. Save these records first.",
     },
     "/sunrun": {
       title:
@@ -92,14 +92,14 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review.",
     },
     "/solar-loan-help": {
-      title: "Solar Loan Help | Fight Back Against Predatory Solar Loans",
+      title: "How to Get Out of a Solar Loan (2026): Cancel, Dispute or Pay Off",
       description:
-        "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law.",
+        "The 5 real ways out of a solar loan: rescission, the FTC Holder Rule, payoff or refinance, paying it at sale, and installer bankruptcy. Plus lender guides.",
     },
     "/selling-house-with-solar": {
-      title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
+      title: "Selling a House With Solar Panels: Loan, Lease or Paid Off (2026)",
       description:
-        "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment.",
+        "Selling a house with solar panels? What happens with a solar loan, a lease or PPA, or owned panels, what holds up closing, and what to do before you list.",
     },
     "/solar-contract-laws": {
       title: "Solar Contract Laws by State | Your Legal Rights",
@@ -107,9 +107,9 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Every state has different solar contract laws. Find your state's cooling-off period, consumer protection statutes, and cancellation rights.",
     },
     "/solar-companies": {
-      title: "Solar Company Cancellation Guides 2026 | Sunrun, GoodLeap, SunPower & More",
+      title: "Worst Solar Companies? Bankruptcies, Complaints & Options (2026)",
       description:
-        "How to cancel contracts with Sunrun, SunPower, Vivint Solar, Freedom Forever, GoodLeap, Sunnova, Tesla Solar & more. BBB ratings, complaint data, and legal grounds explained.",
+        "Which solar companies went bankrupt or changed hands, with dated court sources, who services those contracts now, and your options for each company.",
     },
     "/media": {
       title: "Solar Contract Truth Hub — Watch & Listen | Solar Freedom",
@@ -132,9 +132,9 @@ export function buildMetaMap(): Record<string, MetaEntry> {
         "Download solar contract cancellation letter templates for cooling-off, pre-installation, and post-installation situations. Review your documents before sending anything.",
     },
     "/calculator": {
-      title: "Solar Contract Cancellation Calculator | Solar Freedom",
+      title: "Solar Cancellation Fee Calculator: What It Costs to Get Out",
       description:
-        "Estimate remaining payments, escalator growth, and buyout questions on a solar lease, PPA, or loan. Results are informational, not a quote or legal advice.",
+        "Estimate what it costs to get out of a solar contract: cancel in the window, lease buyout, loan payoff or transfer at sale. Free calculator plus what to check.",
     },
     "/compare": {
       title: "Compare Solar Company Contract Issues | Solar Freedom",

@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle, CheckCircle, XCircle, Phone, ArrowRight, Shield, FileText, DollarSign, Home, Zap } from "lucide-react";
 import DoIQualifyQuiz from "@/components/DoIQualifyQuiz";
 import StickyMobileBar from "@/components/StickyMobileBar";
+import { SchemaInjector } from "@/components/SchemaInjector";
 
 const SCAM_TACTICS = [
   {
@@ -78,15 +79,29 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   );
 }
 
+const SCAM_FAQS = [
+  { q: "What are the most common solar panel scams?", a: "The patterns homeowners report most are: a promise that the electric bill will disappear, a pitch that it is a free government or utility program, an overstated tax credit, pressure to sign the same day on a tablet, and a lender fee built into the loan amount without a clear explanation. A warning sign is not proof of fraud. It is a reason to compare the pitch with what you signed." },
+  { q: "I think I was misled. What should I do first?", a: "Find the date you signed and check whether you are still inside a cancellation window. Then save the proposal, texts, emails and any notes of what the salesperson said, and get your full contract and loan documents. Those records decide which options exist." },
+  { q: "Can I cancel a solar contract if I was misled?", a: "Sometimes. Inside the cooling-off window you can usually cancel by written notice. After that, options depend on the documents, the facts and your state's consumer protection law. A document review can tell you whether a claim is worth pursuing." },
+  { q: "Where do I report a solar scam?", a: "You can report suspected fraud to the FTC at ReportFraud.ftc.gov, file a financial-product complaint with the CFPB, and contact your state attorney general's consumer protection office. A complaint creates a record but does not cancel a contract by itself." },
+  { q: "What if the solar company that sold to me went out of business?", a: "Your loan or lease usually continues with a separate lender or system owner. Find out who services the account now, keep paying while you dispute in writing, and keep every repair request and reply." },
+];
+
 export default function SolarPanelScam() {
   useSeoMeta({
-    title: 'Solar Panel Scam — Were You Deceived? | Solar Freedom',
-    description: 'Learn common warning signs in solar sales and financing, which records to preserve, and where to verify consumer-protection information.',
+    title: 'Solar Panel Scams: Warning Signs and What to Do If You Signed',
+    description: 'How solar panel scams work: the 5 most common sales tricks, how to check your contract, and what to do if you already signed. Save these records first.',
     canonical: 'https://breakyoursolarcontract.com/solar-panel-scam',
   });
+  const scamSchemas = [{
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: SCAM_FAQS.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  }];
 
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.10 0.01 265)", color: "oklch(0.92 0.01 265)" }}>
+      <SchemaInjector schemas={scamSchemas} />
       <StickyMobileBar />
       {/* Nav */}
       <nav className="border-b border-white/8 sticky top-0 z-50 backdrop-blur-md" style={{ background: "oklch(0.10 0.01 265 / 0.95)" }}>
@@ -129,14 +144,17 @@ export default function SolarPanelScam() {
             >
               SOLAR PANEL
               <br />
-              <span style={{ color: "oklch(0.72 0.19 50)" }}>SCAMS ARE</span>
+              <span style={{ color: "oklch(0.72 0.19 50)" }}>SCAMS:</span>
               <br />
-              EVERYWHERE.
+              HOW TO SPOT ONE
             </h1>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="text-zinc-300 text-xl leading-relaxed max-w-2xl mb-8">
-              Millions of American homeowners were deceived by solar companies using fake tax credit promises, inflated savings projections, and high-pressure door-to-door tactics. If you were misled — <strong className="text-white">you may be able to cancel your contract and get your money back.</strong>
+              Short answer: the most common solar sales tricks are promising your bill will disappear, calling it a free government program, overstating the tax credit, rushing you to sign on a tablet, and hiding the lender's fee inside the loan amount. <strong className="text-white">If you already signed, check your cancel deadline today, save every text and email, and get your full contract and loan papers.</strong>
+            </p>
+            <p className="text-zinc-400 text-base leading-relaxed max-w-2xl mb-8">
+              Signed in the last few days? See <Link href="/blog/solar-contract-rescission-rights"><span className="text-amber-400 underline underline-offset-4 cursor-pointer">your right to cancel a solar contract</span></Link>. Already installed? See <Link href="/blog/how-to-get-out-of-a-solar-contract"><span className="text-amber-400 underline underline-offset-4 cursor-pointer">how to get out of a solar contract</span></Link>.
             </p>
           </Reveal>
           <Reveal delay={0.15}>
@@ -330,14 +348,7 @@ export default function SolarPanelScam() {
             </h2>
           </Reveal>
           <div className="space-y-4">
-            {[
-              { q: "Is the solar panel industry full of scams?", a: "Unfortunately, yes. The solar industry has been plagued by deceptive sales practices, including fake tax credit promises, inflated savings projections, and high-pressure door-to-door tactics. State attorneys general across the country have filed lawsuits against major solar companies for consumer fraud." },
-              { q: "What can I do if I believe a solar company misled me?", a: "Preserve the agreement, disclosures, proposals, bills, installation records, and communications. Report suspected misconduct through current official consumer-protection channels and request advice specific to your documents and jurisdiction." },
-              { q: "Can I cancel my solar contract if I was misled?", a: "Cancellation or another remedy may be possible, but it cannot be determined from general information. The agreement, representations, performance, financing, applicable law, and parties involved must be reviewed." },
-              { q: "What if my solar company went bankrupt?", a: "Bankruptcy does not automatically cancel every related agreement. The installer, seller, lender, servicer, completion status, and contract terms must be reviewed individually." },
-              { q: "How much does it cost to get help?", a: "Any fees, scope, and engagement terms must be disclosed and agreed before paid services begin. Submitting intake information does not guarantee representation." },
-              { q: "How long does the process take?", a: "Timing varies with the agreement, facts, parties, process, and jurisdiction. No result or timeline can be determined from general information alone." },
-            ].map((faq, i) => (
+            {SCAM_FAQS.map((faq, i) => (
               <Reveal key={faq.q} delay={i * 0.05}>
                 <div
                   className="p-6 rounded-xl"

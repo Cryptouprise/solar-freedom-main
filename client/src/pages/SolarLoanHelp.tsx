@@ -215,7 +215,12 @@ const PAGE_SCHEMAS = [
       {
         "@type": "Question",
         "name": "Can I cancel a solar loan?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Solar loans are harder to cancel than leases, but it's not impossible. If the loan was originated through misrepresentation, TILA violations, or failure to provide required disclosures, you may have legal grounds to challenge or reduce the obligation. We review solar loans for these violations and help homeowners negotiate with lenders." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Sometimes. If the loan is secured by your home, federal Truth in Lending rules give a 3-business-day right to rescind, extended up to 3 years when the required notice or key disclosures were not given. Many solar loans are unsecured, so that does not fit everyone. If the seller arranged the loan and it carries the FTC Holder Rule notice, you may be able to raise claims against the seller with the lender." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the FTC Holder Rule and does it apply to my solar loan?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The Holder Rule requires a notice in consumer credit contracts arranged by the seller. It lets you raise claims and defenses you have against the seller with whoever holds the loan, generally up to the amount you have paid. Look for the notice in your loan agreement." }
       },
       {
         "@type": "Question",
@@ -280,8 +285,8 @@ const LENDERS_DATA = [
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SolarLoanHelp() {
   useSeoMeta({
-    title: "Solar Loan Problems? Mosaic, GoodLeap, PACE Loan Help | Solar Freedom",
-    description: "Stuck in a solar loan? We help homeowners dispute Mosaic, GoodLeap, PACE, and other solar loans — reduce payments, cancel contracts, or clear liens. Free review.",
+    title: "How to Get Out of a Solar Loan (2026): Cancel, Dispute or Pay Off",
+    description: "The 5 real ways out of a solar loan: rescission, the FTC Holder Rule, payoff or refinance, paying it at sale, and installer bankruptcy. Plus lender guides.",
     canonical: "https://breakyoursolarcontract.com/solar-loan-help",
   });
 
@@ -322,13 +327,15 @@ export default function SolarLoanHelp() {
               </div>
 
               <h1 className="font-display text-5xl md:text-6xl lg:text-7xl leading-none mb-6 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>
-                TRAPPED IN A<br />
-                <span style={{ color: "#f97316" }}>SOLAR LOAN</span><br />
-                YOU REGRET?
+                HOW TO GET OUT<br />
+                OF A <span style={{ color: "#f97316" }}>SOLAR LOAN</span>
               </h1>
 
               <p className="text-lg text-slate-300 mb-4 leading-relaxed max-w-lg">
-                You bought solar panels with a loan — Mosaic, GoodLeap, PACE, or another lender. Now the payment is too high, the system doesn't perform, or you can't sell your home because of the debt.
+                Short answer: a solar loan is harder to escape than a lease because you owe the lender, not the installer. The main paths are: cancel within 3 business days if the loan is secured by your home (longer if the required notice was never given); hold the lender to the seller's misconduct when your loan carries the FTC Holder Rule notice; pay it off or refinance; pay it at closing when you sell; or use the installer's bankruptcy or breach.
+              </p>
+              <p className="text-base text-slate-400 mb-4 leading-relaxed max-w-lg">
+                Lender guides: <a href="/blog/mosaic-solar-loan-problems-bankruptcy-guide" className="text-amber-400 underline">Mosaic</a>, <a href="/blog/goodleap-solar-loan-cancellation-hidden-fees-2026" className="text-amber-400 underline">GoodLeap</a>, <a href="/blog/sunlight-financial-solar-loan-complaints" className="text-amber-400 underline">Sunlight Financial</a>. Selling? See <a href="/selling-house-with-solar" className="text-amber-400 underline">selling a house with solar panels</a>.
               </p>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
                 <strong className="text-white">We help homeowners challenge, reduce, and escape solar loans</strong> — using consumer protection law, TILA violations, and direct lender negotiation.

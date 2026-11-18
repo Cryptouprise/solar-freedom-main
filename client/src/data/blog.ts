@@ -19,6 +19,7 @@ import { batch15BlogPosts } from './blog-articles-batch15';
 import { batch16BlogPosts } from './blog-articles-batch16';
 import { batch17BlogPosts } from './blog-articles-batch17';
 import { batch18BlogPosts } from './blog-articles-batch18';
+import { batch21BlogPosts } from './blog-articles-batch21';
 import { batch19BlogPosts } from './blog-articles-batch19';
 import { batch20BlogPosts } from './blog-articles-batch20';
 import type { QuoteVerification } from '@shared/contentGovernance';
@@ -70,13 +71,13 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
   // ─────────────────────────────────────────────────────────────────────────────
   {
     slug: "how-to-get-out-of-a-solar-contract",
-    title: "How to Get Out of a Solar Contract: 7 Steps to Review",
+    title: "How to Get Out of a Solar Contract",
     metaTitle: "How to Cancel a Solar Contract: Before or After Install (2026)",
     metaDescription: "Yes, you can sometimes cancel, even after installation. The deadlines by state, what to check in your lease, loan or PPA, and what it costs.",
     category: "Contract Guide",
     readTime: "10 min read",
     publishDate: "August 16, 2026",
-    excerpt: "There is no universal solar-contract exit. The right process depends on the transaction, contract type, timing, parties, installation status, written terms, and applicable law.",
+    excerpt: "There are six realistic ways out of a solar contract: cancel inside the cooling-off window, dispute the loan with the lender, transfer it when you sell, buy out a lease or PPA, use the installer's breach or bankruptcy, or challenge misleading sales claims. Which one fits depends on your contract type and what happened.",
     heroImage: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80",
     heroAlt: "Homeowner organizing a solar contract, proposal, bills, and service records",
     ctaText: "Review Your Solar Contract",
@@ -89,9 +90,19 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
       { q: "Can a solar lease or PPA be transferred when I sell my home?", a: "Some agreements provide a transfer or prepayment process, often with company approval and buyer requirements. Start early, request the current procedure and amounts in writing, and coordinate with the buyer, lender, title company, and escrow professional." },
       { q: "Where can I report a solar loan or sales problem?", a: "Depending on the issue, consumers can contact the company, submit an eligible financial-product complaint to the CFPB, report suspected fraud to the FTC, and use a state attorney general or local consumer-protection channel. A complaint does not itself cancel an agreement." },
     ],
-    relatedSlugs: ["solar-contract-rescission-rights", "cancel-solar-contract-after-installation", "sunrun-solar-contract-cancellation-2026", "goodleap-solar-loan-cancellation-hidden-fees-2026", "solar-payments-too-high-help"],
+    relatedSlugs: ["solar-contract-rescission-rights", "how-to-get-out-of-a-solar-lease", "mosaic-solar-loan-problems-bankruptcy-guide", "sunrun-solar-contract-cancellation-2026", "goodleap-solar-loan-cancellation-hidden-fees-2026"],
     content: [
-      { type: "p", content: "Direct answer: you may have an exit, cancellation, payoff, transfer, purchase, or dispute option, but the correct path depends on the written agreement and facts. The most efficient approach is to identify the contract type and parties, check every notice and deadline, preserve evidence, and avoid actions that could create a default." },
+      { type: "p", content: "Short answer: there are six realistic ways out of a solar contract. Cancel inside the cooling-off window; dispute the loan with the lender; transfer the agreement when you sell the house; buy out or prepay a lease or PPA; use the installer's breach or bankruptcy; or challenge misleading sales claims under state consumer law. Which one fits depends on your contract type and what happened, so start with three facts: the date you signed, whether it is a loan, lease or PPA, and who you pay each month." },
+      { type: "h2", content: "The six ways out of a solar contract" },
+      { type: "list", items: [
+        "Cancel inside the cooling-off window. The FTC rule gives 3 business days for many sales made at your home, and some states give longer; Texas gives 5 business days for solar since Sept 1, 2025. See [your right to cancel a solar contract](/blog/solar-contract-rescission-rights) and [how to get out of a solar contract in Texas](/solar-contract-laws/texas).",
+        "Dispute the loan with the lender. If the seller arranged the loan, the lender may be subject to claims you have against the seller. See [how to get out of a solar loan](/solar-loan-help).",
+        "Transfer the agreement when you sell your home, or pay it off at closing. See [selling a house with solar panels](/selling-house-with-solar).",
+        "Buy out or prepay a lease or PPA using the terms in the agreement. See [how to get out of a solar lease](/blog/how-to-get-out-of-a-solar-lease).",
+        "Use the installer's breach or bankruptcy: unfinished work, a system that never worked, or a company that closed. See [what to do if your solar company went bankrupt](/blog/solar-company-went-bankrupt).",
+        "Challenge misleading sales claims under your state's consumer protection law, such as promised savings that were never possible. See [solar panel scams and warning signs](/solar-panel-scam)."
+      ] },
+      { type: "p", content: "Before you pick a path, estimate what each one costs with the [solar cancellation fee calculator](/calculator)." },
       { type: "callout", content: "This guide is a document-review framework, not a determination that a contract is cancelable or that a legal violation occurred. A qualified attorney should review any consequential legal step." },
       { type: "h2", content: "Step 1: What type of solar agreement do you have?" },
       { type: "list", items: [
@@ -940,6 +951,7 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
   ...batch16BlogPosts,
   ...batch17BlogPosts,
   ...batch18BlogPosts,
+  ...batch21BlogPosts,
   ...batch19BlogPosts,
   ...batch20BlogPosts,
 ]);

@@ -250,8 +250,8 @@ const PAGE_SCHEMAS = [
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SellingHouseWithSolar() {
   useSeoMeta({
-    title: "Selling a House With Solar Panels & a Loan | Solar Freedom",
-    description: "Solar loan blocking your home sale? We help homeowners pay off, negotiate, or legally challenge solar loans and liens so you can close. Free case review.",
+    title: "Selling a House With Solar Panels: Loan, Lease or Paid Off (2026)",
+    description: "Selling a house with solar panels? What happens with a solar loan, a lease or PPA, or owned panels, what holds up closing, and what to do before you list.",
     canonical: "https://breakyoursolarcontract.com/selling-house-with-solar",
   });
 
@@ -293,13 +293,16 @@ export default function SellingHouseWithSolar() {
               </div>
 
               <h1 className="font-display text-5xl md:text-6xl lg:text-7xl leading-none mb-6 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>
-                SOLAR LOAN<br />
-                <span style={{ color: "#f97316" }}>KILLING</span><br />
-                YOUR SALE?
+                SELLING A HOUSE<br />
+                <span style={{ color: "#f97316" }}>WITH SOLAR</span><br />
+                PANELS
               </h1>
 
               <p className="text-lg text-slate-300 mb-4 leading-relaxed max-w-lg">
-                You bought solar panels. Now you're trying to sell your home — and the solar loan is blocking the deal. The buyer's lender won't approve it. The title has a lien. The buyer won't assume the debt.
+                Short answer: what happens depends on how the panels were paid for. Paid off: they go with the house. Loan: the balance is usually paid at closing, and any filing the lender recorded has to be cleared. Lease or PPA: the buyer has to qualify and take over the agreement, or you buy it out before closing.
+              </p>
+              <p className="text-base text-slate-400 mb-4 leading-relaxed max-w-lg">
+                Solar loan killing your sale? Start the payoff or transfer request the day you list, not when you are under contract.
               </p>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
                 <strong className="text-white">We help homeowners with solar loans close their sale</strong> — by negotiating payoffs, challenging improper liens, and clearing title.

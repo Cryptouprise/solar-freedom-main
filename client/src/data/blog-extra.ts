@@ -54,9 +54,9 @@ export const extraBlogPosts: BlogPost[] = [
 
   {
     slug: 'solar-contract-rescission-rights',
-    title: 'Solar Contract Rescission Rights: Check the 3-Day Rule',
-    metaTitle: 'Solar Contract Rescission Rights: 3-Day Rule Checklist',
-    metaDescription: `Check whether the FTC Cooling-Off Rule covers your solar sale, find the notice, calculate the deadline, preserve delivery proof, and review other written procedures.`,
+    title: 'Your Right to Cancel a Solar Contract: 3-Day Rule, State Windows and Deadlines',
+    metaTitle: 'Right to Cancel a Solar Contract: 3-Day Rule & State Windows',
+    metaDescription: `How long you have to cancel a solar contract: the FTC 3-day rule, Texas's 5-day solar rule, how to count the deadline, and what to do before selling your house.`,
     category: 'Legal Rights',
     readTime: '7 min read',
     publishDate: 'August 16, 2026',
@@ -65,7 +65,7 @@ export const extraBlogPosts: BlogPost[] = [
     heroAlt: 'homeowner reviewing a written solar contract cancellation notice',
     ctaText: 'Request a Document Review',
     ctaSubtext: 'Submit the agreement, cancellation notice, financing records, and delivery proof for a fact-specific review. No result or deadline determination is guaranteed.',
-    relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'new-jersey-solar-contract-rights', 'sunrun-solar-contract-cancellation-2026', 'how-to-file-a-complaint-against-solar-company-attorney-general'],
+    relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'how-to-get-out-of-a-solar-lease', 'new-jersey-solar-contract-rights', 'how-to-file-a-complaint-against-solar-company-attorney-general'],
     faq: [
       { q: 'Does the FTC 3-day Cooling-Off Rule cover every solar contract?', a: 'No. The rule covers certain sales made at a home, workplace, dormitory, or temporary seller location and has important exclusions. Check the signing method, location, transaction, seller, and current official rule before relying on it.' },
       { q: 'How is the 3-business-day deadline calculated?', a: 'Use the dated contract and cancellation notice, then follow the official instructions for the covered transaction. Saturdays may count as business days; Sundays and federal holidays generally do not. Act promptly and preserve proof of timely delivery.' },
@@ -75,6 +75,14 @@ export const extraBlogPosts: BlogPost[] = [
     ],
     content: [
       { type: 'p', content: 'Direct answer: the FTC Cooling-Off Rule gives a short cancellation period for certain sales made away from a seller’s permanent place of business, including some in-home sales. It does not apply to every solar contract, loan, online transaction, or completed service. Start with the [FTC consumer guide](https://consumer.ftc.gov/articles/buyers-remorse-ftcs-cooling-rule-may-help) and the current [federal rule in 16 CFR Part 429](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-D/part-429).' },
+      { type: 'h2', content: 'How long you have to cancel: federal rule and state windows' },
+      { type: 'list', items: [
+        'Federal FTC Cooling-Off Rule: 3 business days for many sales made at your home or at a seller\'s temporary location, with exclusions. See the [FTC consumer guide](https://consumer.ftc.gov/articles/buyers-remorse-ftcs-cooling-rule-may-help).',
+        'Texas: 5 business days to cancel a residential solar purchase or lease without penalty, for agreements under the state\'s residential solar retailer law, which took effect Sept 1, 2025. If a lender affiliated with or referred by the seller financed it, the agreement must require that loan to be cancelled too. See [how to get out of a solar contract in Texas](/solar-contract-laws/texas) and the [TDLR summary](https://www.tdlr.texas.gov/residential-solar-retailers/effect.htm).',
+        'Loans secured by your home: federal Truth in Lending rules give a separate 3-business-day right to rescind, extended up to 3 years in some cases when the required notice or key disclosures were not given. Many solar loans are unsecured, so check your loan papers.',
+        'Other states set their own rules, and some give certain buyers longer. Check your state\'s consumer protection office and the cancellation notice in your contract.',
+      ] },
+      { type: 'p', content: 'Deadline example: under the FTC rule, if you signed on a Monday, the 3-business-day window usually ends at midnight on Thursday. Count from the date on your signed agreement and the notice, not the install date, and do not count Sundays or federal holidays.' },
       { type: 'h2', content: 'First Check Whether the Rule Covers the Transaction' },
       { type: 'p', content: 'Record where the sales presentation occurred, where and how the agreement was signed, the seller’s permanent business location, the transaction amount, whether work was requested as an emergency, and whether any exclusion appears relevant. A door-to-door presentation followed by electronic signatures still requires a fact-specific coverage review.' },
       { type: 'list', items: [
@@ -91,6 +99,8 @@ export const extraBlogPosts: BlogPost[] = [
       { type: 'p', content: 'If the transaction is covered and the deadline is still open, follow the cancellation form and official instructions. Use a delivery method that creates a reliable record, keep a complete copy, and save the receipt, tracking history, email headers, portal confirmation, or other proof. Do not rely on an unrecorded phone call.' },
       { type: 'h2', content: 'If the Stated Deadline Has Passed' },
       { type: 'p', content: 'Do not jump from a missed deadline to the conclusion that no options exist—or that cancellation is guaranteed. Review the written cancellation and termination sections, financing disclosures, installation status, permit and interconnection records, sales representations, production data, service history, company status, and dispute procedure.' },
+      { type: 'h2', content: 'Cancelling a solar contract before selling your house' },
+      { type: 'p', content: 'If you are about to sell, the cancel window has usually passed, so the practical choices are a payoff or buyout at closing, or a transfer to the buyer. Start the written request when you list, because transfers and lien releases take time. See [selling a house with solar panels](/selling-house-with-solar) and, for leases, [how to get out of a solar lease](/blog/how-to-get-out-of-a-solar-lease).' },
       { type: 'h2', content: 'Separate a Sales Cancellation Rule From Loan Rescission' },
       { type: 'p', content: 'The FTC Cooling-Off Rule and the Truth in Lending Act address different transactions and requirements. Whether a credit transaction is secured by a principal dwelling, what disclosures were delivered, and what exceptions apply are legal questions. Compare the signed loan disclosures and security documents, and do not send a legal rescission notice based only on a template or general article.' },
       { type: 'h2', content: 'Build a Reviewable Evidence File' },

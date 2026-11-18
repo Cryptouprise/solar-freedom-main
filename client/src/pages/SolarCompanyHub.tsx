@@ -21,8 +21,8 @@ function getBBBColor(rating: string) {
 
 export default function SolarCompanyHub() {
   useSeoMeta({
-    title: 'Solar Company Complaints & Cancellation Guide 2026 | Solar Freedom',
-    description: 'Complete guide to canceling contracts with Sunrun, SunPower, Vivint Solar, Freedom Forever, GoodLeap, Sunnova, Tesla Solar & more. BBB ratings, complaint data, and legal grounds for cancellation.',
+    title: 'Worst Solar Companies? Bankruptcies, Complaints & Options (2026)',
+    description: 'Which solar companies went bankrupt or changed hands, with dated court sources, who services those contracts now, and your options for each company.',
     canonical: 'https://breakyoursolarcontract.com/solar-companies',
     ogType: 'website',
   });
@@ -91,12 +91,15 @@ export default function SolarCompanyHub() {
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-1.5 mb-6">
             <AlertTriangle className="w-4 h-4 text-red-400" />
-            <span className="text-red-400 text-xs font-bold uppercase tracking-wider">13 Companies Investigated</span>
+            <span className="text-red-400 text-xs font-bold uppercase tracking-wider">Updated November 2026</span>
           </div>
           <h1 className="font-black text-white leading-none mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2.2rem, 5vw, 4rem)' }}>
-            SOLAR COMPANY COMPLAINTS &<br />
-            <span className="text-amber-500">CANCELLATION GUIDE 2026</span>
+            SOLAR COMPANIES WITH PROBLEMS:<br />
+            <span className="text-amber-500">BANKRUPTCIES, COMPLAINTS & YOUR OPTIONS</span>
           </h1>
+          <p className="text-zinc-300 text-lg max-w-3xl mx-auto leading-relaxed mb-4">
+            Short answer: the companies that leave homeowners stuck are usually the ones that went bankrupt, sold their contracts, or stopped servicing systems. The table below lists the major filings with dated court or regulator sources, and links to our guide for each company.
+          </p>
           <p className="text-zinc-400 text-lg max-w-3xl mx-auto leading-relaxed mb-8">
             Every major residential solar company investigated. BBB ratings, complaint counts, known fraud patterns, 
             and your legal grounds for cancellation — all in one place. Click any company below for a full case analysis.
@@ -107,12 +110,12 @@ export default function SolarCompanyHub() {
               <div className="text-zinc-500 text-xs">Companies</div>
             </div>
             <div className="rounded-xl bg-zinc-900 border border-white/10 p-4 text-center">
-              <div className="font-black text-red-400 text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>4</div>
-              <div className="text-zinc-500 text-xs">Bankrupt</div>
+              <div className="font-black text-red-400 text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>3</div>
+              <div className="text-zinc-500 text-xs">Major filings listed</div>
             </div>
             <div className="rounded-xl bg-zinc-900 border border-white/10 p-4 text-center">
-              <div className="font-black text-amber-500 text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>10K+</div>
-              <div className="text-zinc-500 text-xs">Complaints</div>
+              <div className="font-black text-amber-500 text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Dated</div>
+              <div className="text-zinc-500 text-xs">Court sources</div>
             </div>
             <div className="rounded-xl bg-zinc-900 border border-white/10 p-4 text-center">
               <div className="font-black text-green-400 text-2xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>50</div>
@@ -130,6 +133,43 @@ export default function SolarCompanyHub() {
           <span className="text-zinc-400">Solar Companies</span>
         </div>
       </div>
+
+      {/* SOURCED STATUS TABLE (Nov 18, 2026): every row links to a court, SEC or adviser source. */}
+      <section className="px-6 pt-12">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-white font-black text-3xl mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Major solar company bankruptcies and what changed</h2>
+          <p className="text-zinc-400 mb-6">Status as of November 18, 2026. A bankruptcy does not cancel your loan or lease; it usually changes who services it.</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border border-white/10">
+              <thead>
+                <tr className="text-left text-white bg-white/5">
+                  <th className="p-3">Company</th>
+                  <th className="p-3">What happened</th>
+                  <th className="p-3">Who to deal with now</th>
+                  <th className="p-3">Source</th>
+                  <th className="p-3">Our guide</th>
+                </tr>
+              </thead>
+              <tbody className="text-zinc-300">
+                {[
+                  { name: 'Solar Mosaic (lender)', what: 'Chapter 11 filed June 6, 2025, S.D. Texas; exited Sept 22, 2025', now: 'Solar Servicing, or the servicer named on your statement', src: 'https://www.paulhastings.com/news-and-recognitions/news/paul-hastings-advises-solar-mosaic-in-chapter-11-bankruptcy-exit-and-transition-to-solar-servicing', srcLabel: 'Paul Hastings', guide: '/blog/mosaic-solar-loan-problems-bankruptcy-guide' },
+                  { name: 'Sunnova', what: 'Chapter 11 filed June 8, 2025, S.D. Texas', now: 'The servicer named on your latest bill', src: 'https://restructuring.ra.kroll.com/Sunnova', srcLabel: 'Kroll case site', guide: '/blog/how-to-cancel-sunnova-solar-contract-2026' },
+                  { name: 'SunPower (incl. Blue Raven Solar)', what: 'Chapter 11 in 2024; Blue Raven, New Homes and dealer assets sold with court approval Sept 23, 2024', now: 'The company or lender named on your latest statement', src: 'https://www.sec.gov/Archives/edgar/data/1838987/000121390026004024/ea0272101-s1_sunpower.htm', srcLabel: 'SEC filing', guide: '/blog/blue-raven-solar-complaints' },
+                ].map((row) => (
+                  <tr key={row.name} className="border-t border-white/10 align-top">
+                    <td className="p-3 text-white font-semibold">{row.name}</td>
+                    <td className="p-3">{row.what}</td>
+                    <td className="p-3">{row.now}</td>
+                    <td className="p-3"><a href={row.src} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline">{row.srcLabel}</a></td>
+                    <td className="p-3"><Link href={row.guide}><span className="text-amber-400 underline cursor-pointer">Read guide</span></Link></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-zinc-500 text-sm mt-4">Not sure which way out fits your company? See <Link href="/blog/how-to-get-out-of-a-solar-contract"><span className="text-amber-400 underline cursor-pointer">how to get out of a solar contract</span></Link>.</p>
+        </div>
+      </section>
 
       {/* COMPANY GRID */}
       <section className="px-6 py-16">
