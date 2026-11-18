@@ -146,6 +146,9 @@ export default function Blog() {
           <p className="text-zinc-400 text-lg max-w-2xl leading-relaxed">
             Canonical guides organized around agreements, financing, company status, home sales, official complaint channels, and records to preserve before taking action.
           </p>
+          <p className="text-zinc-300 text-base max-w-2xl leading-relaxed mt-3">
+            Looking for the main guide? Start with <Link href="/blog/how-to-get-out-of-a-solar-contract"><span className="text-amber-400 underline underline-offset-4 cursor-pointer">how to get out of a solar contract</span></Link>, then <Link href="/blog/how-to-get-out-of-a-solar-lease"><span className="text-amber-400 underline underline-offset-4 cursor-pointer">how to get out of a solar lease</span></Link> or <Link href="/solar-loan-help"><span className="text-amber-400 underline underline-offset-4 cursor-pointer">how to get out of a solar loan</span></Link>.
+          </p>
 
           {/* Stats bar */}
           <div className="flex flex-wrap gap-8 mt-10 pt-10 border-t border-white/10">

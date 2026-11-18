@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
+import { SchemaInjector } from "@/components/SchemaInjector";
 import { computeRemainingPayments } from "@shared/remainingPayments";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -147,12 +148,33 @@ function calculateResult(state: CalcState): CalcResult {
   };
 }
 
+const CALCULATOR_SCHEMAS = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Solar Cancellation Fee Calculator',
+    url: 'https://breakyoursolarcontract.com/calculator',
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Any',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      { '@type': 'Question', name: 'Is there a fee to cancel a solar contract?', acceptedAnswer: { '@type': 'Answer', text: 'Inside the cooling-off window, cancelling usually costs nothing if you follow the notice instructions. After that, getting out usually means paying off the loan, buying out the lease or PPA, or prepaying the remaining payments, unless a buyer takes over the agreement when you sell.' } },
+      { '@type': 'Question', name: 'How do I find my solar buyout or payoff amount?', acceptedAnswer: { '@type': 'Answer', text: 'Ask the company you pay now for a written payoff or buyout quote, and compare it with the buyout schedule or prepayment section in your agreement.' } },
+      { '@type': 'Question', name: 'Is the calculator result a quote?', acceptedAnswer: { '@type': 'Answer', text: 'No. It estimates remaining payments from the numbers you enter. Only the company servicing your agreement can give a binding figure.' } },
+    ],
+  },
+];
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function CancellationCalculator() {
   useSeoMeta({
-    title: "Solar Contract Cancellation Calculator — What to Check | Solar Freedom",
+    title: "Solar Cancellation Fee Calculator: What It Costs to Get Out",
     description:
-      "Answer a few questions about your solar agreement and see which documents to gather before a review. Not a cancellation finding and not legal advice.",
+      "Estimate what it costs to get out of a solar contract: cancel in the window, lease buyout, loan payoff or transfer at sale. Free calculator plus what to check.",
     canonical: "https://breakyoursolarcontract.com/calculator",
   });
 
@@ -314,6 +336,7 @@ export default function CancellationCalculator() {
 
   return (
     <div className="min-h-screen bg-[#0D0F14] text-white">
+      <SchemaInjector schemas={CALCULATOR_SCHEMAS} />
       {/* ─── Header ─────────────────────────────────────────────────────────── */}
       <div className="border-b border-white/10 bg-[#0D0F14]/95 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -338,12 +361,12 @@ export default function CancellationCalculator() {
               <span className="text-amber-400 text-xs font-mono uppercase tracking-wider">Free — Takes 60 Seconds</span>
             </div>
             <h1 className="font-display text-5xl md:text-6xl text-white mb-4 leading-tight">
-              SOLAR CONTRACT<br />
-              <span className="text-amber-400">CANCELLATION</span><br />
+              SOLAR CANCELLATION<br />
+              <span className="text-amber-400">FEE</span><br />
               CALCULATOR
             </h1>
             <p className="text-gray-300 text-lg max-w-xl mx-auto">
-              Answer 10 questions about your solar agreement and see which documents to gather. This is not a cancellation finding and not legal advice.
+              Short answer: cancelling inside the cooling-off window usually costs nothing. After that, the cost of getting out is your loan payoff, your lease or PPA buyout, or the remaining payments, unless the buyer takes over the agreement when you sell. Answer 10 questions to estimate your remaining payments and see which documents to gather. It is an estimate, not a quote or legal advice.
             </p>
           </div>
         )}
@@ -515,6 +538,38 @@ export default function CancellationCalculator() {
               <p>
                 The score is not a finding. A low score does not mean you have no options, and a high score does not mean you can cancel. The signed agreement decides that.
               </p>
+            </div>
+
+            <div>
+              <h2 className="font-display text-2xl text-white mb-4">What It Costs to Get Out of a Solar Contract</h2>
+              <p className="text-sm mb-4">The real number is in your agreement and in a written quote from the company you pay. Use this table to know which number to ask for.</p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border border-white/10">
+                  <thead>
+                    <tr className="text-left text-white bg-white/5">
+                      <th className="p-3">Way out</th>
+                      <th className="p-3">What it usually costs</th>
+                      <th className="p-3">Where to find the number</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      ["Cancel in the cooling-off window", "Usually nothing; follow the notice instructions exactly", "Notice of cancellation in your contract (3 business days under the FTC rule, 5 in Texas for solar)"],
+                      ["Pay off a solar loan", "The payoff balance, which includes any dealer fee built into the loan", "A written payoff quote from your servicer"],
+                      ["Buy out a lease or PPA", "The buyout price from the agreement's schedule or a company quote", "Purchase option or early buyout section of the lease"],
+                      ["Prepay a lease", "Roughly the remaining payments, sometimes discounted", "Prepayment section of the lease, plus a written quote"],
+                      ["Transfer when you sell", "Often a transfer fee; the buyer must qualify", "Transfer or assignment section, and the company's transfer team"],
+                    ].map(([way, cost, where]) => (
+                      <tr key={way} className="border-t border-white/10 align-top">
+                        <td className="p-3 text-white font-semibold">{way}</td>
+                        <td className="p-3">{cost}</td>
+                        <td className="p-3">{where}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-sm mt-4">Example only: a lease at $150 a month with 15 years left is $27,000 in remaining payments before any escalator or discount. Your buyout quote may be lower or higher. Next steps: <Link href="/blog/how-to-get-out-of-a-solar-lease"><span className="text-amber-400 underline cursor-pointer">how to get out of a solar lease</span></Link>, <Link href="/solar-loan-help"><span className="text-amber-400 underline cursor-pointer">how to get out of a solar loan</span></Link>, <Link href="/blog/how-to-get-out-of-a-solar-contract"><span className="text-amber-400 underline cursor-pointer">all six ways out</span></Link>.</p>
             </div>
 
             <div>

@@ -295,7 +295,8 @@ describe("pre-render source parity", () => {
       "/blog/how-to-get-out-of-a-solar-contract"
     );
     expect(blog).toContain("Step 1: What type of solar agreement do you have?");
-    expect(blog).toContain("Direct answer: you may have an exit, cancellation, payoff, transfer, purchase, or dispute option");
+    expect(blog).toContain("Short answer: there are six realistic ways out of a solar contract");
+    expect(blog).toContain("The six ways out of a solar contract");
 
     const state = prerender.buildShellHtml(
       meta["/solar-contract-laws/texas"],
@@ -304,7 +305,9 @@ describe("pre-render source parity", () => {
       "/solar-contract-laws/texas"
     );
     expect(state).toContain("Texas Deceptive Trade Practices Act");
-    expect(state).toContain("The Texas Net Metering Reality Nobody Told You About");
+    expect(state).toContain("What changed in Texas in 2025");
+    expect(state).toContain("fifth business day");
+    expect(state).not.toContain("Texas does not have a state-specific extended window");
 
     const company = prerender.buildShellHtml(
       meta["/cancel-sunrun-solar-contract"],
