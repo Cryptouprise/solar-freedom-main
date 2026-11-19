@@ -139,7 +139,7 @@ describe("scheduled jobs reconcile with schedule monitoring", () => {
   });
 
   it("gives every registered job a scheduled endpoint that is mounted", () => {
-    const routes = fs.readFileSync(path.resolve(ROOT, "server/_core/index.ts"), "utf-8");
+    const routes = fs.readFileSync(path.resolve(ROOT, "server/_core/app.ts"), "utf-8");
     for (const job of DESIRED_AGENT_JOBS) {
       expect(routes).toContain(`"${job.path}"`);
     }

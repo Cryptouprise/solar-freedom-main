@@ -7,6 +7,7 @@
     "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
     "build": "node scripts/generate-sitemap.mjs && node scripts/generate-llms.mjs && vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && node scripts/prerender.mjs",
     "start": "NODE_ENV=production node dist/index.js",
+    "build:vercel": "pnpm run build && node scripts/vercel-build-output.mjs",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
