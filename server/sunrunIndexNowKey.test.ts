@@ -11,7 +11,7 @@ describe('Sunrun Solar Relief public key and route boundary',()=>{
   it('preserves the existing exact Sunrun redirect and 301s the retired relief path',()=>{
     expect(PUBLIC_PATH_REDIRECTS['/sunrun']).toBe('/blog/sunrun-solar-contract-cancellation-2026');
     for(const path of ['/sunrun-solar-relief','/sunrun-solar-relief/']) expect(PUBLIC_PATH_REDIRECTS[path]).toBe('/blog/sunrun-solar-contract-cancellation-2026');
-    const source=fs.readFileSync('server/_core/index.ts','utf8');
+    const source=fs.readFileSync('server/_core/app.ts','utf8');
     expect(source).toContain('app.get(from, (_req, res) => res.redirect(301, to))');
   });
 });
