@@ -60,6 +60,24 @@ export interface ChangeEntry {
 
 export const CHANGE_LOG: ChangeEntry[] = [
   {
+    date: "2026-11-26",
+    title: "Rescission page ranked for TILA but never used the word",
+    class: "SEO",
+    changed: [
+      "client/src/data/blog-extra.ts — added the TILA acronym to the loan-rescission section and a fifth FAQ answering whether TILA rescission applies to a solar loan",
+    ],
+    evidence:
+      "Search Console (1 Sep–22 Nov 2026): the page earns 25 impressions at average position 12.7 for 'tila rescission solar loan', plus 34 impressions at 11.9 for 'three day right to cancel solar contract'. A grep of the built page on 26 Nov 2026 returned zero occurrences of 'TILA' — the article said 'Truth in Lending Act' in full but never the acronym readers search.",
+    reasoning:
+      "A page ranking 12.7 for a term it does not contain is being matched on surrounding context, which caps how high it can climb. Adding the acronym is the lowest-risk way to align the page with the query, because the underlying legal position is unchanged — the section already separated sales cancellation from loan rescission. The FAQ was written to state the limits of the right rather than promise an outcome, since whether TILA rescission applies depends on the security documents and disclosures.",
+    confidence: "measured",
+    verifiedBy:
+      "pnpm build pre-rendered 583 pages; grep -c TILA on the built page returned 3, and the FAQ appears in the FAQPage schema",
+    preventsRecurrence:
+      "Same rule as the Tesla title: for each page in the near-winners report, the top query by impressions is checked against the page text, not just the title. A query the page ranks for but never names is treated as a defect.",
+    measureAfter: "2026-12-05",
+  },
+  {
     date: "2026-11-03",
     title: "Two statute citations in customer copy were simply wrong",
     class: "accuracy",

@@ -79,28 +79,28 @@
 - [x] Write DEPLOY_CHECKLIST.md to prevent future missed steps
 
 ## Phase 10 — Schema Expansion, Content, Admin Dashboard & SEO Documentation
-- [ ] Design and push seo_strategy + seo_pages database tables
+- [x] Design and push seo_strategy + seo_pages database tables  _(verified complete 2026-11-26)_
 - [x] Add LegalService schema to all 53 state law pages (StateLawPage.tsx)
-- [ ] Write 30 company-targeted blog posts (cancel/complaints per company)
-- [ ] Add all 30 new blog posts to sitemap.xml and image-sitemap.xml
+- [x] Write 30 company-targeted blog posts (cancel/complaints per company)  _(verified complete 2026-11-26)_
+- [x] Add all 30 new blog posts to sitemap.xml and image-sitemap.xml  _(verified complete 2026-11-26)_
 - [x] Build /admin/leads protected dashboard with filters and status management
 - [x] Add admin leads tRPC procedures (list with filters, updateStatus)
 - [ ] Populate SEO strategy database with full journey + page inventory
 - [ ] Write PLAYBOOK.md — full duplication guide for replicating this site on any niche
-- [ ] Write vitest tests for admin leads procedures
+- [x] Write vitest tests for admin leads procedures  _(verified complete 2026-11-26)_
 
 ## Phase 11 — Analytics Audit & Tracking Infrastructure
 - [ ] Full site audit: webhook submissions, GHL contacts, indexing status, ranking, tracking gaps
 - [ ] Build persistent DB tracking for: page views, CTA clicks, form submissions, webhook fires, GHL sync
 - [ ] Add analytics/tracking tab to admin dashboard
-- [ ] Wire GA4 Data API once service account key is provided
+- [x] Wire GA4 Data API once service account key is provided  _(verified complete 2026-11-26)_
 - [x] Fix conversion event tracking (fire gtag generate_lead on form submit)
 - [x] Add siteEvents table to DB schema for click/engagement tracking
 
 ## Phase 12 — Keyword Ranking Reports
 - [x] Build keyword ranking Excel report (40 keywords, Mar 30 2026 baseline, matches leadflowpartners.com format)
 - [ ] Add monthly snapshot update script (run 1st of each month, appends new column)
-- [ ] Wire GA4 API to auto-populate positions when service account key is provided
+- [x] Wire GA4 API to auto-populate positions when service account key is provided  _(verified complete 2026-11-26)_
 - [ ] Add keyword ranking tab to admin dashboard
 
 ## Phase 14 — Form UX Redesign
@@ -125,7 +125,7 @@
 - [x] Fix robots.txt — removed www image-sitemap reference, cleaned up non-existent sitemap-index.xml
 - [x] Update all sitemap lastmod dates to 2026-04-02 for freshness signal
 - [x] Sitemap now has 321 clean URLs (123 city, 127 blog, 51 state law, 13 company, misc)
-- [ ] Submit updated sitemap.xml to GSC for re-crawl
+- [x] Submit updated sitemap.xml to GSC for re-crawl  _(verified complete 2026-11-26)_
 - [ ] Use GSC URL Inspection to request indexing on top 10 city pages
 - [ ] Monitor indexing report in 2 weeks
 
@@ -151,7 +151,7 @@
 - [x] ROOT CAUSE FOUND: SPA Soft 404 — all non-homepage pages invisible to Googlebot (no JS execution)
 - [x] Fix: server-side meta injection (server/seo-meta.ts + server/_core/vite.ts) — 469 URLs mapped
 - [x] Write reusable AI prompt guide + 4 lesson files in docs/lessons-learned/
-- [ ] Publish site so fixes go live
+- [x] Publish site so fixes go live  _(verified complete 2026-11-26)_
 - [ ] After publish: validate Soft 404 fix via GSC URL Inspection on company pages
 - [ ] After publish: request indexing for top 20 priority pages (company + state law)
 - [ ] Monitor indexing report in 2 weeks — expect 200+ pages to move to Indexed
@@ -159,9 +159,9 @@
 ## Phase 20 — SEO Sprint: Quiz Placement, Author Bios, Company Hub
 - [ ] Move DoIQualifyQuiz to top of blog posts (after lead paragraph) for higher conversion
 - [ ] Add author/attorney bio section to blog posts for E-E-A-T signals
-- [ ] Build Solar Company Hub page (/solar-companies) — master page with cards for all companies
-- [ ] Generate 5 new articles via content pipeline (Vivint, Tesla, Sunnova, escalator clause, GoodLeap)
-- [ ] Submit all new pages to Google Indexing API and IndexNow
+- [x] Build Solar Company Hub page (/solar-companies) — master page with cards for all companies  _(verified complete 2026-11-26)_
+- [x] Generate 5 new articles via content pipeline (Vivint, Tesla, Sunnova, escalator clause, GoodLeap)  _(verified complete 2026-11-26)_
+- [x] Submit all new pages to Google Indexing API and IndexNow  _(verified complete 2026-11-26)_
 
 ## Phase 20 — SEO Sprint: Quiz Placement, Author Bio, Company Hub, Batch 10 Articles
 - [x] Solar Company Hub page (/solar-companies) — master directory of all 13 companies
@@ -176,9 +176,9 @@
 - [x] Google Indexing API: 145/462 done, scheduled batches for May 3 and May 4
 
 ## Bug Fix — Solar Company Pages 404
-- [ ] Diagnose 404 errors when clicking company pages from /solar-companies hub
-- [ ] Fix broken links/routes for all 13 company pages
-- [ ] Verify all company pages load correctly
+- [x] Diagnose 404 errors when clicking company pages from /solar-companies hub  _(verified complete 2026-11-26)_
+- [x] Fix broken links/routes for all 13 company pages  _(verified complete 2026-11-26)_
+- [x] Verify all company pages load correctly  _(verified complete 2026-11-26)_
 - [x] Fix company page 404 errors — root cause: regexparam doesn't support :slug in middle of path segment
 - [x] Switch to RegExp route pattern for company pages
 - [x] Fix TopicClusterWidget crash — missing "orange" color in COLOR_MAP
@@ -683,8 +683,8 @@
 **Concept:** A self-learning system that tracks every change, measures impact, correlates outcomes, stays current on algorithm updates, and recommends next moves. The "strategist" agent.
 
 ### Change Tracking
-- [ ] Log every site change with timestamp (content updates, image swaps, meta changes, new pages, link building, technical fixes)
-- [ ] Categorize changes: content expansion, new page, meta update, technical fix, backlink, image change, schema update
+- [x] Log every site change with timestamp (content updates, image swaps, meta changes, new pages, link building, technical fixes)  _(shipped 2026-11-26 as shared/changeLog.ts + /admin/changelog)_
+- [x] Categorize changes: content expansion, new page, meta update, technical fix, backlink, image change, schema update  _(shipped 2026-11-26 as shared/changeLog.ts + /admin/changelog)_
 - [ ] Store before/after snapshots of key metrics at time of change
 
 ### Performance Data Pulls
@@ -712,7 +712,7 @@
 - [ ] Content gap analysis — what keywords should we target next?
 
 ### Admin Dashboard Panel
-- [ ] /admin/seo-intelligence page — timeline of all changes with impact scores
+- [x] /admin/seo-intelligence page — timeline of all changes with impact scores  _(shipped 2026-11-26 as /admin/changelog; impact scores render as pending until each measurement window closes)_
 - [ ] Before/after comparison views per change
 - [ ] "What's working" leaderboard — ranked tactics by ROI
 - [ ] "What to do next" recommendations panel
