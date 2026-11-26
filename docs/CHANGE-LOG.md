@@ -1,4 +1,36 @@
 # Change Log — Solar Freedom / breakyoursolarcontract.com
+## 2026-11-26 — Two candidate defects were false positives created by the checking tools themselves
+
+**Class:** infrastructure
+
+**Changed:** No site change. Both findings were disproved before anything was edited.
+
+**Why:** Both false positives have the same cause, and it is worth naming: the tool reported a **substring match as a fact**. A robots directive is a token list, and testing whether one string contains another is not the same as testing whether the directive grants indexing. The failure mode is asymmetric and therefore dangerous — it **manufactures work rather than missing it**, and manufactured work looks like diligence. The cost is not only wasted edits; it is that the change log fills with entries describing fixes to things that were never broken.
+
+**How the conclusion was reached:** A scan reported 29 *indexable* pages with unterminated descriptions, including four cut at exactly 160 chars mid-word ("Hol", "effectivel", "transfe", "cancella"). The check tested for the substring `index` inside the robots directive — and **`noindex` contains `index`**, so every noindex page counted as indexable. Re-run testing `noindex` first: **all 29 are noindex, and the number of truly indexable pages with an unterminated description is ZERO.** Separately, four slugs listed as indexable that ship `noindex` turned out to be the redirect overlap fixed earlier the same day — each is a 301 source, and the build deliberately ORs the eligibility test with `isRedirectedPath` so the redirect wins. The list was left intact on purpose: removing a slug from it drops the page from the build entirely rather than simply de-indexing it.
+
+**Verified:** Corrected scan reports 0 truly indexable pages with an unterminated description out of 583 built pages. The four eligibility mismatches were matched against the existing redirect change-log entry and against `scripts/generate-sitemap.mjs:194`, which already excludes redirected slugs.
+
+**Recurrence guard:** A substring test on a token list must never be treated as a fact about the token list. Where a directive is checked, `noindex` is tested first. The wider rule, now used three times today: **a scan result is a hypothesis until one instance of it has been opened and read.**
+
+**Measure after:** 2026-12-05
+
+## 2026-11-26 — The first statistically real CTR defect on the site, found after fourteen that were noise
+
+**Class:** SEO
+
+**Changed:** `client/src/data/blog-articles-batch6.ts` — `metaTitle` and `metaDescription` for `adt-solar-complaints` rewritten to lead with the concrete review figures. `scripts/fix-1126-adt-reviews-snippet.py`.
+
+**Why:** The distinction that mattered was between a snippet problem and a ranking problem, and the **significance test is what separated them**. A page at position 13.3 with 881 impressions and no clicks looks like a snippet failure, and earlier work on this site treated several such pages that way. Most were noise. This one was real, so the snippet genuinely is losing clicks the position should be earning — rewriting it is the correct lever rather than chasing position the page already holds. Leading with the numbers rather than an editorial claim was deliberate: a review searcher wants figures, the figures are already sourced and dated in the body, and a snippet quoting them is both more useful and more defensible than one promising an answer. The rating is described as **absent** rather than quoted, because it genuinely is absent — the company is out of business and BBB publishes no rating — so no number that could go stale is placed in a snippet.
+
+**How the conclusion was reached:** `adt solar reviews` holds **881 impressions at average position 13.3 with ZERO clicks**, the largest single query mass on the page. Expected clicks at that position on the site's own CTR curve are **3.52**, so p(0) = **0.0295** — below 0.05, and the **first statistically real CTR defect found on this site**. The fourteen pages examined earlier the same day were all noise, p(0) between 0.1003 and 0.8420. The served title promised "Who Services It Now", a *service* question, while the searcher asked for *reviews*. The page's strongest asset is that it publishes concrete dated figures — 404 BBB complaints over three years, 29 over twelve months, 75 customer reviews, no rating because the business is out of business — and separates ADT's BBB file from Sunpro's separate accredited file (425 complaints, 80 reviews).
+
+**Verified:** `pnpm check` clean; `pnpm build` pre-rendered 583 pages; the built page carries a **61-character title and a 152-character description**, both measured in `dist/public`, with the terms present, no ellipsis, and ending in sentence punctuation. 92 test files, 883 tests passing.
+
+**Recurrence guard:** The standing rule is now stated **with a number** rather than as a judgement: a zero-click page is not a defect unless the significance test returns **p(0) < 0.05** against the site's own CTR curve. Fourteen pages were correctly left alone by that test today and one was correctly changed.
+
+**Measure after:** 2026-12-05
+
 ## 2026-11-26 — A page ranking position 6 for the lawsuit question never mentioned the word lawsuit
 
 **Class:** SEO
