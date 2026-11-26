@@ -1,4 +1,25 @@
 # Change Log — Solar Freedom / breakyoursolarcontract.com
+## 2026-11-26 — The homepage outranks its own articles on 25 queries and is still not the page to change
+
+**Class:** SEO
+
+**Changed:**
+- no site change — the measurement disproved the change that was being considered
+
+**Why:**
+Measured 26 Nov 2026 over the 90 days to 23 November by pulling every query-and-page pair and grouping by query. **Thirty-three queries** have BOTH the homepage and at least one article ranking. The homepage carries **123 impressions** across those queries and the best competing article carries **460**, and the homepage **outranks the article on 25 of the 33**. The largest overlaps are `how to get out of solar panel contract` with the homepage at **39.5** on 8 impressions against the article at **58.8** on 46, `how to get out of a solar contract` at **30.7** on 11 against **42.7** on 31, and `how can i get out of my solar panel contract` at **50.6** on 14 against **62.4** on 22. Separately, the homepage over the same 90 days holds **604 impressions, 12 clicks, 1.99% CTR, average position 14.2**, and the site's own CTR curve for position 12–20 is **0.4%**, so the homepage converts roughly **five times better** than its position predicts.
+
+**How the conclusion was reached:**
+The plan under consideration was to de-optimize the homepage so the dedicated articles could consolidate the query signal, which is the standard fix for a hub outranking its own detail pages. The measurement says that would be a **mistake** here, for a reason that only the position numbers reveal. On every one of those 25 queries **BOTH pages rank badly** — the homepage between 15 and 50 and the article between 36 and 62. Removing the homepage from the competition would therefore hand the article a position it cannot use, because the article is already worse than the homepage on the same query and neither is near page one. The homepage is not stealing a win from the article; it is winning a contest that neither page is winning. The second reason is that the homepage is performing **above** its position: at 1.99% CTR against a 0.4% curve for position 12–20, it is roughly five times better than the position predicts, which means real people arriving at that position are choosing it. Weakening the better-performing page to help the worse-performing one is the wrong direction. What the measurement actually identifies is that the **article** is the underperformer, at average position 45.3 on the site's largest impression mass below position 20 — and the article's title and description were already corrected earlier the same day to lead with the get-out vocabulary its queries use. So the conclusion is that the fix was already in the right place and no homepage change is warranted.
+
+**Verified:**
+Query-and-page pairs pulled directly from the Search Console API over 90 days and grouped in memory by query, which is the only way to see the overlap because Search Console reports page and query separately; homepage totals read from the same pull; the comparison baseline is the site's own measured CTR-by-position curve rather than an industry figure.
+
+**Recurrence guard:**
+Before de-optimizing a hub page to help its detail pages, check whether the hub is actually winning and whether the detail page could use the position if it were handed over. A hub that ranks 15 to 50 while the detail page ranks 36 to 62 is not cannibalizing a win, it is competing inside a losing bracket, and the correct target is the page that is underperforming rather than the one that is overperforming.
+
+**Measure after:** 2026-12-05
+
 ## 2026-11-26 — The two biggest ranking-loss queries have no cannibalization and no remaining content lever
 
 **Class:** infrastructure
