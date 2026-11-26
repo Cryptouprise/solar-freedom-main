@@ -48,7 +48,7 @@ export const stateLaws: StateLaw[] = [
     primaryStatute: 'Cal. Bus. & Prof. Code § 7159 / Civil Code § 1689.5',
     primaryStatuteTitle: 'Home Improvement Contract Law + Home Solicitation Sales Act',
     coolingOffDays: 3,
-    coolingOffNote: 'Extended to 5 days for seniors (65+) under SB 784 (2026). If the Notice of Cancellation was not provided in 10-point font, the window may be legally extended indefinitely.',
+    coolingOffNote: 'Three business days from signing, or five business days for a senior citizen (65+), under Civil Code 1689.6. If the seller did not comply with the notice requirements in Civil Code 1689.7, including the 10-point boldface statement and the detachable Notice of Cancellation, the buyer may cancel until that section is complied with.',
     aggressivenessRating: 5,
     content: [
       {
@@ -100,11 +100,19 @@ export const stateLaws: StateLaw[] = [
       },
       {
         type: 'h2',
-        content: 'SB 784: California\'s 2026 Solar Transparency Act',
+        content: 'Your Three-Day Right to Cancel, and How the Window Gets Extended',
       },
       {
         type: 'p',
-        content: 'Effective January 1, 2026, SB 784 requires lenders to conduct a live "Confirmation Call" before any solar loan is finalized. The purpose is to ensure you actually understood what you were signing. If your lender skipped this call, rushed through it, or conducted it in a language you don\'t speak fluently, the loan agreement may be rescindable under this new law. Additionally, SB 784 extends the cancellation window to 5 business days for homeowners over 65.',
+        content: 'Under Civil Code 1689.6, a home solicitation contract can be cancelled until midnight of the third business day after you sign, or the fifth business day if you are a senior citizen. The five-day senior rule has applied to contracts entered into on or after January 1, 2021, and the section was most recently amended by AB 1327 (Stats. 2025, Ch. 348), effective January 1, 2026. The window runs from the signing date, not from the installation date.',
+      },
+      {
+        type: 'p',
+        content: 'The extension most homeowners actually rely on is Civil Code 1689.7(g): until the seller has complied with the notice requirements in that section, the buyer may cancel. Those requirements are specific. The cancellation statement must appear in immediate proximity to the signature space in at least 10-point boldface type, and the agreement must be accompanied by an easily detachable Notice of Cancellation in type of at least 10-point. If the notice was missing, buried inside the body of the contract, or too small, the extended right is the argument to raise, and the notice itself is the first document to examine.',
+      },
+      {
+        type: 'p',
+        content: 'One caution about pending legislation. California SB 784 (2025-2026), titled Home improvement loans: right to cancel contracts, would require lenders to obtain a borrower\'s confirmation of loan terms before certain home improvement loans are executed. As of 26 November 2026 it is an active bill held in committee, not an enacted law, so it does not currently create a cancellation right or extend any deadline. Check the official bill status before relying on any summary of a pending bill, including this one.',
       },
       {
         type: 'h2',
@@ -227,7 +235,7 @@ export const stateLaws: StateLaw[] = [
     primaryStatute: 'Fla. Stat. § 501.201 (FDUTPA)',
     primaryStatuteTitle: 'Florida Deceptive and Unfair Trade Practices Act',
     coolingOffDays: 3,
-    coolingOffNote: 'Under Florida Statute § 501.021 (Home Solicitation Sales Act). The seller must provide a Home Solicitation Sales permit number and a written Notice of Right to Cancel. Missing either element may extend the cancellation window.',
+    coolingOffNote: 'Under Fla. Stat. § 501.025 (Home Solicitation Sales Act, §§ 501.021-501.055), the seller must give you written notice of your right to cancel, and you have until midnight of the third business day after signing to cancel. If that notice was missing, the window may still be open.',
     aggressivenessRating: 5,
     content: [
       {
@@ -239,7 +247,7 @@ export const stateLaws: StateLaw[] = [
         stats: [
           { value: '#3', label: 'Florida\'s rank in US solar installations' },
           { value: 'FDUTPA', label: 'Florida\'s primary consumer protection weapon' },
-          { value: '§ 501.021', label: 'The Home Solicitation Sales Act that protects kitchen-table signers' },
+          { value: '§ 501.025', label: 'The right to cancel a home solicitation sale' },
           { value: '3 days', label: 'Minimum cancellation window — often legally extendable' },
         ],
       },
@@ -257,7 +265,7 @@ export const stateLaws: StateLaw[] = [
       },
       {
         type: 'p',
-        content: 'Under Florida Statute § 501.021, any salesperson who comes to your home to sell goods or services worth more than $25 must hold a valid Home Solicitation Sales permit. They must provide you with a written "Notice of Right to Cancel" at the time of sale. The notice must be in the same language used during the sales presentation. If any of these requirements were not met, your cancellation window may still be legally open — even if you signed months ago.',
+        content: 'Under Florida\'s Home Solicitation Sales Act (Fla. Stat. §§ 501.021-501.055), a sale of goods or services over $25 made at a place other than the seller\'s fixed place of business is a home solicitation sale. The seller must give you written notice of your right to cancel, and Fla. Stat. § 501.025 gives you until midnight of the third business day after signing to cancel. If that written notice was missing, the cancellation window may still be legally open — even if you signed months ago.',
       },
       {
         type: 'h2',
@@ -440,7 +448,7 @@ export const stateLaws: StateLaw[] = [
       },
       {
         type: 'p',
-        content: 'Effective January 1, 2026, SB25-299 requires every solar company operating in Colorado to provide a standardized 4-page disclosure form before any contract is signed. The form must clearly state the total cost including all fees, the expected energy production based on the specific address (not a generic estimate), the identity of the actual installer (not just the sales company), and a plain-language explanation of the difference between the federal tax credit and a cash refund. If your company did not provide this form, your contract may be voidable under the Colorado Consumer Protection Act.',
+        content: 'Colorado SB25-299 became law on August 6, 2025, and its requirements apply to agreements entered into on or after July 1, 2026. From that date it requires every solar company operating in Colorado to provide a standardized disclosure form before any contract is signed. The form must clearly state the total cost including all fees, the expected energy production based on the specific address (not a generic estimate), the identity of the actual installer (not just the sales company), and a plain-language explanation of the difference between the federal tax credit and a cash refund. If your company did not provide this form, your contract may be voidable under the Colorado Consumer Protection Act.',
       },
       {
         type: 'h2',
@@ -692,27 +700,27 @@ export const stateLaws: StateLaw[] = [
     slug: 'oregon',
     state: 'Oregon',
     stateAbbr: 'OR',
-    metaTitle: 'Oregon Solar Contract Rights: HB 4029, Licensed Agent Rule & Your Options (2026)',
-    metaDescription: `Oregon solar laws include HB 4029, licensed-agent rules, and 3-day cancellation rights. Learn how to fight a predatory solar contract.`,
-    heroHook: 'Oregon\'s HB 4029 Took Effect January 1, 2026. If Your Contract Predates the Disclosures It Requires, You May Have New Legal Options.',
-    heroSubhook: 'The Residential Solar Disclosure Act targets the exact deceptions that flooded Portland and Eugene neighborhoods. Here is how to use it.',
-    primaryStatute: 'ORS 646.608 / HB 4029 (2026)',
-    primaryStatuteTitle: 'Oregon Unlawful Trade Practices Act + HB 4029 Solar Disclosure Act',
+    metaTitle: 'Oregon Solar Contract Rights: HB 4029 Disclosure & Licensing Rules',
+    metaDescription: `Oregon solar laws include HB 4029 disclosure and licensing rules plus a 3-day cancellation right. Learn how to fight a predatory solar contract.`,
+    heroHook: 'Oregon\'s HB 4029 Takes Effect June 5, 2026. If You Signed Before It, the Older Disclosure and Licensing Rules Still Govern Your Deal.',
+    heroSubhook: 'The law targets the exact deceptions that flooded Portland and Eugene neighborhoods. Here is how to use it, before and after the effective date.',
+    primaryStatute: 'ORS 646.608 / HB 4029 (2026 Laws, Ch. 11)',
+    primaryStatuteTitle: 'Oregon Unlawful Trade Practices Act + HB 4029 (solar disclosure and licensing)',
     coolingOffDays: 3,
-    coolingOffNote: 'Under ORS 83.710 (Home Solicitation Sales Act). HB 4029 adds additional disclosure requirements effective January 1, 2026.',
+    coolingOffNote: 'Under ORS 83.710 (Home Solicitation Sales Act). HB 4029 adds disclosure and licensing requirements for solar agreements entered into on or after June 5, 2026.',
     aggressivenessRating: 3,
     content: [
       {
         type: 'p',
-        content: 'Oregon passed HB 4029 because the legislature saw what was happening in Portland, Eugene, and Bend: out-of-state sales crews arriving in neighborhoods, claiming to represent "Energy Trust of Oregon" or "Pacific Power\'s solar program," and signing homeowners up for 25-year private loans without adequate disclosure. HB 4029 is the state\'s response — and it is specific, detailed, and enforceable.',
+        content: 'Oregon passed HB 4029 because the legislature saw what was happening in Portland, Eugene, and Bend: out-of-state sales crews arriving in neighborhoods, claiming to represent "Energy Trust of Oregon" or "Pacific Power\'s solar program," and signing homeowners up for 25-year private loans without adequate disclosure. HB 4029 is the state\'s response. Governor Kotek signed it on March 5, 2026; it became Chapter 11 of the 2026 Laws, and its requirements apply to solar agreements entered into on or after June 5, 2026.',
       },
       {
         type: 'h2',
-        content: 'The Licensed Agent Requirement: The Rule That Catches Fly-By-Night Operations',
+        content: 'The Licensing Requirement: The Rule That Catches Fly-By-Night Operations',
       },
       {
         type: 'p',
-        content: 'Under HB 4029, solar contracts in Oregon must be executed by licensed sales agents registered with the state. Many out-of-state solar companies use unlicensed door-to-door representatives who are not registered in Oregon. If your sales rep was not properly licensed, the validity of your contract is highly questionable — and this is one of the easiest violations to verify.',
+        content: 'Under HB 4029, a solar energy contractor or a person installing a solar energy system must hold a license appropriate to the scope of the work. Many out-of-state solar companies use door-to-door crews whose licensing does not match the installation they are selling. Checking whether the installer named on your contract held the right license is one of the easiest verifications to run.',
       },
       {
         type: 'h2',
@@ -724,9 +732,9 @@ export const stateLaws: StateLaw[] = [
       },
     ],
     faq: [
-      { q: 'What does HB 4029 require for Oregon solar contracts?', a: 'A plain-language disclosure form, a licensed sales agent, and a good-faith production estimate based on the specific address. Missing these elements may make the contract voidable.' },
+      { q: 'What does HB 4029 require for Oregon solar contracts?', a: 'Disclosures in the contract itself for purchase agreements, leases and power purchase agreements, plus a contractor or installer licensed for the work. It applies to agreements entered into on or after June 5, 2026, and a violation is an unlawful practice under the Unlawful Trade Practices Act.' },
       { q: 'What is the Energy Trust of Oregon and how does it affect my contract?', a: 'The Energy Trust offers modest cash rebates for qualifying installations. If a rep claimed it was a "free solar program" or "government funding," that is a material misrepresentation.' },
-      { q: 'Can I cancel my Oregon solar contract after installation?', a: 'Yes. HB 4029 violations, the Unlawful Trade Practices Act, and the licensed agent requirement all provide grounds for post-install cancellation.' },
+      { q: 'Can I cancel my Oregon solar contract after installation?', a: 'It depends on your facts rather than on one law. The Unlawful Trade Practices Act and the home solicitation cancellation rule can apply to a misrepresented sale, and HB 4029 adds disclosure and licensing requirements for agreements entered into on or after June 5, 2026. A contract review is how you find out which applies to you.' },
     ],
     relatedCities: ['portland-or', 'eugene-or', 'salem-or', 'bend-or'],
   },

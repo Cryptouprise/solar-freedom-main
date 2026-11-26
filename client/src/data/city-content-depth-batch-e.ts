@@ -19,17 +19,17 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
   {
     slug: "sacramento-ca",
     localHook:
-      "Sacramento was ground zero for California's solar boom — and for the predatory sales tactics that followed. SunPower, which filed for Chapter 11 bankruptcy in August 2024, had one of its largest dealer networks in the Sacramento Valley. GoodLeap, headquartered in Roseville just 20 miles away, financed tens of thousands of Sacramento-area contracts — many of which are now under federal scrutiny. If you signed a solar agreement in Sacramento and feel trapped, California's SB 784 Confirmation Call requirement and the CLRA give you more legal leverage than almost any other state.",
+      "Sacramento was ground zero for California's solar boom — and for the predatory sales tactics that followed. SunPower, which filed for Chapter 11 bankruptcy in August 2024, had one of its largest dealer networks in the Sacramento Valley. GoodLeap, headquartered in Roseville just 20 miles away, financed tens of thousands of Sacramento-area contracts — many of which are now under federal scrutiny. If you signed a solar agreement in Sacramento and feel trapped, California's CLRA, the Unfair Competition Law, and the disclosure duties in Civil Code 7159 and 1689.7 give you more leverage than almost any other state.",
     topComplaints: [
       "SunPower dealer installed system incorrectly — SunPower bankruptcy means warranty is now worthless",
       "GoodLeap loan balance far exceeds system value after installer went out of business",
       "Freedom Forever promised $0 electric bill — Sacramento homeowner paying $280/month combined",
       "Sunlight Financial (now bankrupt) sold loan to third-party servicer without proper notice",
-      "SB 784 Confirmation Call was never completed — loan may be legally voidable",
+      "Required disclosure documents and the detachable Notice of Cancellation were never provided",
       "Mosaic Solar Loans filed Chapter 11 in June 2025 — Sacramento borrowers left in limbo",
     ],
     stateLawExpanded:
-      "California offers the strongest solar consumer protections in the nation. The California Consumer Legal Remedies Act (CLRA) prohibits misrepresentation of savings, system performance, and government incentives. SB 784 requires a live Confirmation Call before any solar loan is finalized — if your lender skipped it, your contract may be void. The Unfair Competition Law (UCL) allows attorneys to pursue restitution of all payments made. California's AG has filed suit against multiple solar companies operating in Sacramento, including actions against door-to-door sales deception and inflated savings projections.",
+      "California offers the strongest solar consumer protections in the nation. The California Consumer Legal Remedies Act (CLRA) prohibits misrepresentation of savings, system performance, and government incentives. Pending California legislation (SB 784, still in committee as of 26 Nov 2026) would add a pre-loan confirmation call if enacted, but it is not law today and creates no rights. The Unfair Competition Law (UCL) allows attorneys to pursue restitution of all payments made. California's AG has filed suit against multiple solar companies operating in Sacramento, including actions against door-to-door sales deception and inflated savings projections.",
     companyProblems: [
       {
         company: "SunPower (Bankrupt Aug 2024)",
@@ -62,8 +62,8 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     ],
     localFaq: [
       {
-        q: "Does SB 784 apply to my Sacramento solar loan?",
-        a: "Yes. SB 784 requires a live Confirmation Call before any residential solar loan in California is finalized. If your lender (GoodLeap, Mosaic, Sunlight Financial, etc.) did not complete this call, your loan may be legally voidable. This is one of the strongest cancellation grounds available to Sacramento homeowners.",
+        q: "What California law actually lets me cancel a Sacramento solar loan?",
+        a: "California's home solicitation rules under Civil Code 1689.6 give three business days to cancel from the signing date, or five for a senior citizen, and Civil Code 1689.7(g) extends that until the seller complies with the notice requirements. A missing 10-point boldface cancellation statement or a missing detachable Notice of Cancellation is a defect worth examining. Pending California legislation (SB 784, still in committee as of 26 Nov 2026) would add a pre-loan confirmation call if enacted, but it is not law today and creates no rights.",
       },
       {
         q: "My SunPower system stopped working after their bankruptcy — what are my options?",
@@ -78,7 +78,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
   {
     slug: "san-francisco-ca",
     localHook:
-      "San Francisco homeowners who signed solar contracts are discovering a brutal reality: the city's dense housing stock, frequent fog, and HOA restrictions made many systems economically unviable from day one — but the salespeople never mentioned that. SunPower's Bay Area dealer network collapsed with the company's August 2024 bankruptcy, leaving hundreds of SF homeowners with dead monitoring apps, voided warranties, and active loan payments. California's SB 784 and the CLRA give you powerful legal tools to fight back.",
+      "San Francisco homeowners who signed solar contracts are discovering a brutal reality: the city's dense housing stock, frequent fog, and HOA restrictions made many systems economically unviable from day one — but the salespeople never mentioned that. SunPower's Bay Area dealer network collapsed with the company's August 2024 bankruptcy, leaving hundreds of SF homeowners with dead monitoring apps, voided warranties, and active loan payments. California's CLRA, the Unfair Competition Law and the Civil Code 1689.7 notice requirements give you real legal tools to examine.",
     topComplaints: [
       "SunPower bankruptcy left SF homeowners with no warranty service and non-functional monitoring",
       "System produces far less than projected due to fog and shading — savings projections were fraudulent",
@@ -88,7 +88,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       "Mosaic Solar Loans bankruptcy left SF borrowers with no servicer contact information",
     ],
     stateLawExpanded:
-      "California's CLRA and UCL provide broad remedies for SF homeowners who were misled about solar savings, system performance, or financing terms. SB 784's Confirmation Call requirement is particularly powerful — many Bay Area lenders skipped this step during the 2022–2023 rush. The California Solar Consumer Protection Guide (CPUC) also requires dealers to provide specific disclosures about shading, production estimates, and escalator clauses. Violations of these disclosure rules are actionable under the UCL.",
+      "California's CLRA and UCL provide broad remedies for SF homeowners who were misled about solar savings, system performance, or financing terms. The Civil Code 1689.7(g) extension is particularly worth checking — if the cancellation notice was missing or defective, the right to cancel can survive long past the signing date. The California Solar Consumer Protection Guide (CPUC) also requires dealers to provide specific disclosures about shading, production estimates, and escalator clauses. Violations of these disclosure rules are actionable under the UCL.",
     companyProblems: [
       {
         company: "SunPower (Bankrupt Aug 2024)",
@@ -103,7 +103,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       {
         company: "GoodLeap",
         issue:
-          "GoodLeap financed many SF-area SunPower and Freedom Forever installations. CFPB complaints from SF homeowners cite loan approval before system commissioning and failure to complete SB 784 Confirmation Calls.",
+          "GoodLeap financed many SF-area SunPower and Freedom Forever installations. CFPB complaints from SF homeowners cite loan approval before system commissioning and disclosures that were never delivered.",
       },
     ],
     whyItHappens:
@@ -124,8 +124,8 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
         a: "This is a strong cancellation argument. You're paying for a warranted, monitored system that is no longer supported. California courts have recognized failure of consideration as grounds to void a financing agreement when the underlying product is no longer functional.",
       },
       {
-        q: "What is the SB 784 Confirmation Call and did my lender skip it?",
-        a: "SB 784 requires your lender to conduct a live phone call with you before finalizing any solar loan in California. During the call, they must confirm you understand the loan terms. Many lenders skipped this during the 2022–2023 rush. If yours did, your loan may be voidable.",
+        q: "Does California law give me a way out after the three-day window has passed?",
+        a: "Possibly. The ordinary window is three business days from signing, five for a senior citizen, under Civil Code 1689.6. But Civil Code 1689.7(g) says the buyer may cancel until the seller has complied with that section's notice requirements, which include a 10-point boldface statement at the signature space and a detachable Notice of Cancellation. Examine the signed documents for those two items. Pending California legislation (SB 784, still in committee as of 26 Nov 2026) would add a pre-loan confirmation call if enacted, but it is not law today and creates no rights.",
       },
     ],
   },
@@ -138,16 +138,16 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       "GoodLeap loan approved before installation was complete — TILA violation",
       "SunPower dealer network collapsed — San Jose homeowners have no warranty service",
       "Freedom Forever promised net-zero electric bill — homeowner paying $320/month combined",
-      "SB 784 Confirmation Call never completed for multiple San Jose GoodLeap loans",
+      "Required cancellation notice and disclosure documents missing from multiple San Jose GoodLeap loans",
       "Sunrun door-to-door sales in Willow Glen used misleading government program language",
     ],
     stateLawExpanded:
-      "California's SB 784 is particularly relevant in San Jose, where Mosaic and GoodLeap processed loans at high volume with minimal oversight. The law requires a live Confirmation Call before loan finalization — a step frequently skipped in the app-based approval rush. The CLRA and UCL provide additional remedies for misrepresentation of savings, system output, and tax credit eligibility. Santa Clara County's DA has received hundreds of solar fraud complaints from San Jose homeowners.",
+      "California's disclosure rules are particularly relevant in San Jose, where Mosaic and GoodLeap processed loans at high volume with minimal oversight. Civil Code 1689.7 requires a 10-point boldface cancellation statement at the signature space and an easily detachable Notice of Cancellation, and 1689.7(g) keeps the right to cancel alive until that is done — steps frequently skipped in the app-based approval rush. The CLRA and UCL provide additional remedies for misrepresentation of savings, system output, and tax credit eligibility. Santa Clara County's DA has received hundreds of solar fraud complaints from San Jose homeowners.",
     companyProblems: [
       {
         company: "Mosaic Solar Loans (Bankrupt Jun 2025)",
         issue:
-          "Mosaic's app-based loan approval was popular with San Jose tech-savvy homeowners. The June 2025 Chapter 11 filing left borrowers with no clear servicer, no warranty support, and active payment obligations. Many SB 784 Confirmation Calls were never completed.",
+          "Mosaic's app-based loan approval was popular with San Jose tech-savvy homeowners. The June 2025 Chapter 11 filing left borrowers with no clear servicer, no warranty support, and active payment obligations. Many required cancellation notices and disclosure documents were never delivered.",
       },
       {
         company: "GoodLeap",
@@ -171,7 +171,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     localFaq: [
       {
         q: "Mosaic Solar Loans just filed bankruptcy — what happens to my San Jose loan?",
-        a: "Your loan obligation does not automatically disappear, but the bankruptcy creates significant leverage. If your system is underperforming, your installer is gone, or your SB 784 Confirmation Call was never completed, you may have grounds to void the loan entirely. Act quickly — bankruptcy proceedings move fast.",
+        a: "Your loan obligation does not automatically disappear, but the bankruptcy creates significant leverage. If your system is underperforming, your installer is gone, or the required cancellation notice was never delivered, you may have grounds to challenge the loan. Act quickly — bankruptcy proceedings move fast.",
       },
       {
         q: "Can I cancel if my installer went out of business but GoodLeap is still collecting payments?",
@@ -179,7 +179,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       },
       {
         q: "What solar companies have the most complaints in San Jose?",
-        a: "Based on CPUC, BBB, and Santa Clara County DA complaint data, the top companies are GoodLeap (lender), Mosaic (lender, now bankrupt), SunPower (installer, now bankrupt), Freedom Forever, and Sunrun. The lender complaints are particularly actionable under SB 784.",
+        a: "Based on CPUC, BBB, and Santa Clara County DA complaint data, the top companies are GoodLeap (lender), Mosaic (lender, now bankrupt), SunPower (installer, now bankrupt), Freedom Forever, and Sunrun. The lender complaints are particularly actionable where a required disclosure or cancellation notice was never delivered.",
       },
     ],
   },

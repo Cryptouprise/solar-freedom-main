@@ -1043,8 +1043,8 @@ You Deserve Financial Freedom and Peace of Mind` },
     
     
       Mandatory Disclosures
-      SB 293
-      Must provide a cover page with total costs and production estimates.
+      SB 293 (2023)
+      Must provide a cover page with total costs and production estimates. Effective January 1, 2024.
     
     
       Deceptive Trade Practices

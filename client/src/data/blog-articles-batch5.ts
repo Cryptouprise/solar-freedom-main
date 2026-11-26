@@ -386,7 +386,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'p',
-        content: 'Under Florida Statute  Section  501.021, home solicitors must have a permit and provide a specific "Notice of Right to Cancel." If they missed these steps, your window to cancel may still be legally open.',
+        content: 'Under Florida\'s Home Solicitation Sales Act (Fla. Stat. §§ 501.021-501.055), the seller must give you written notice of your right to cancel, and Fla. Stat. § 501.025 gives you until midnight of the third business day after signing to cancel. If the notice was missing, the cancellation window may still be legally open.',
       },
       {
         type: 'h3',
@@ -1085,21 +1085,21 @@ export const blogArticlesBatch5: BlogPost[] = [
   // ─── PORTLAND ──────────────────────────────────────────────────────────────
   {
     slug: 'cancel-solar-contract-portland-or',
-    title: 'Portland Solar Contract Exit: Oregon\'s 2026 HB 4029 Gives You New Rights',
+    title: 'Portland Solar Contract Exit: Oregon\'s New Solar Rights Under HB 4029',
     metaTitle: 'Cancel Your Solar Contract in Portland, OR | Oregon Law 2026',
-    metaDescription: `Portland homeowners: Oregon's HB 4029 Residential Solar Disclosure Act, licensed agent requirements, and 3-day cancellation rights give you new tools to exit a bad solar deal.`,
+    metaDescription: `Portland homeowners: Oregon's HB 4029 disclosure duties, licensed-installer rule and 3-day cancellation right give you new tools to exit a bad solar deal.`,
     category: 'City Guides',
     readTime: '8 min read',
     publishDate: '2026-03-22',
-    excerpt: 'Oregon\'s HB 4029 took effect January 1, 2026 -- and it specifically targets the deceptive sales tactics that flooded Portland neighborhoods. Here is how to use it.',
+    excerpt: 'Oregon\'s HB 4029 takes effect June 5, 2026 -- and it specifically targets the deceptive sales tactics that flooded Portland neighborhoods. Here is how to use it.',
     heroImage: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80',
     heroAlt: 'Portland Oregon home with solar panels and green Pacific Northwest surroundings',
     ctaText: 'Get Your Free Portland Case Review',
-    ctaSubtext: 'HB 4029 requires plain-language disclosures -- find out if yours were provided.',
+    ctaSubtext: 'Oregon law requires plain-language solar disclosures -- find out if your contract met the standard.',
     content: [
       {
         type: 'p',
-        content: 'In the Pacific Northwest, we know that solar only works when the math is as clear as a rare July day. From the bungalows of Southeast Portland to the newer builds in Beaverton and Hillsboro, homeowners have been inundated with the "Energy Independence" pitch: "Beat PGE and Pacific Power rate hikes with $0 down." As of March 2026, the landscape has shifted. The federal residential tax credit has expired, and Oregon\'s new HB 4029 consumer protection laws have just taken effect to combat the Wild West of out-of-state sales tactics.',
+        content: 'In the Pacific Northwest, we know that solar only works when the math is as clear as a rare July day. From the bungalows of Southeast Portland to the newer builds in Beaverton and Hillsboro, homeowners have been inundated with the "Energy Independence" pitch: "Beat PGE and Pacific Power rate hikes with $0 down." Oregon\'s HB 4029, signed on March 5, 2026 and effective June 5, 2026, was written to combat the Wild West of out-of-state sales tactics. It requires a licensed contractor, puts the disclosures in the contract itself, and treats a violation as an unlawful trade practice under ORS 646.608.',
       },
       {
         type: 'h2',
@@ -1120,11 +1120,11 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'h3',
-        content: 'HB 4029: The Residential Solar Disclosure Act',
+        content: 'HB 4029: What Oregon Solar Contracts Must Now Disclose',
       },
       {
         type: 'p',
-        content: 'This landmark 2026 law mandates that every solar contract must include a plain-language disclosure form clearly stating the full price including fees, the identity of the actual installer, and a good-faith estimate of utility savings based on your specific utility\'s rates. If you didn\'t get this form, the contract is likely in violation.',
+        content: 'Oregon HB 4029 (Chapter 11, 2026 Laws) requires disclosures in the contract itself for solar purchase agreements, leases and power purchase agreements, and requires the contractor or installer to hold a license appropriate to the work. It also prohibits deceptive statements about the contract\'s terms, and a violation is an unlawful practice under the Unlawful Trade Practices Act. The Act applies to agreements entered into on or after June 5, 2026. If you signed before that date, the pre-existing disclosure and licensing rules still apply to your deal, and a misrepresented savings figure is actionable on its own.',
       },
       {
         type: 'h3',
@@ -1178,21 +1178,21 @@ export const blogArticlesBatch5: BlogPost[] = [
   // ─── SACRAMENTO ────────────────────────────────────────────────────────────
   {
     slug: 'cancel-solar-contract-sacramento-ca',
-    title: 'Sacramento Solar Contract Cancellation: California\'s SB 784 Changes Everything in 2026',
-    metaTitle: 'Cancel Your Solar Contract in Sacramento, CA | California SB 784 2026',
-    metaDescription: `Sacramento homeowners: SB 784 & NEM 3.0 offer new ways to cancel solar contracts. Over 500 CA homeowners helped. Act now for a free case review.`,
+    title: 'Sacramento Solar Contract Cancellation: California\'s Three-Day Right to Cancel in 2026',
+    metaTitle: 'Cancel a Sacramento Solar Contract | California Cancel Rights',
+    metaDescription: `Sacramento solar contracts: California's three-day right to cancel, the notice defects that extend it, and the NEM 3.0 math that changed the deal.`,
     category: 'City Guides',
     readTime: '9 min read',
     publishDate: '2026-03-22',
-    excerpt: 'SB 784 requires a live Confirmation Call before any solar loan is finalized. If your lender skipped it, your Sacramento contract may already be voidable under California law.',
+    excerpt: 'California gives you three business days to cancel a home solicitation contract, and longer when the required notice was missing. Here is what to check in a Sacramento agreement.',
     heroImage: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80',
     heroAlt: 'Sacramento California home with solar panels in the Central Valley sun',
     ctaText: 'Get Your Free Sacramento Case Review',
-    ctaSubtext: 'SB 784 extends your cancellation window to 5 days -- find out if it applies to you.',
+    ctaSubtext: 'Three business days from signing, or five for seniors -- find out whether a notice defect extends your window.',
     content: [
       {
         type: 'p',
-        content: 'In the Capital City, the "Solar Dream" was sold as a way to beat the heat and declare independence from the grid. Whether you\'re in a leafy street in Land Park or a newer development in Elk Grove, you were likely told that Sacramento\'s abundant sun and local incentives made solar a "no-brainer." But as of 2026, the math has changed. With the federal residential tax credit officially expired and the implementation of SB 784, many Sacramento residents are finding that the high-pressure sales pitch they heard a year ago was built on outdated or misleading information.',
+        content: 'In the Capital City, the "Solar Dream" was sold as a way to beat the heat and declare independence from the grid. Whether you\'re in a leafy street in Land Park or a newer development in Elk Grove, you were likely told that Sacramento\'s abundant sun and local incentives made solar a "no-brainer." But as of 2026, the math has changed. With the federal residential tax credit expired for systems placed in service after December 31, 2025, and NEM 3.0 export credits far below what was promised, many Sacramento residents are finding that the high-pressure sales pitch they heard a year ago was built on outdated or misleading information.',
       },
       {
         type: 'h2',
@@ -1213,7 +1213,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         type: 'h3',
-        content: 'SB 784: The Solar Transparency Act',
+        content: 'California\'s Three-Day Right to Cancel, and What Extends It',
       },
       {
         type: 'p',
@@ -1257,7 +1257,7 @@ export const blogArticlesBatch5: BlogPost[] = [
       },
       {
         q: 'Can I cancel if the panels are already on my roof?',
-        a: 'Absolutely. If the contract violates SB 784 or California\'s strict disclosure laws, the physical installation does not make the debt permanent. We have successfully helped many homeowners have systems removed and debts wiped.',
+        a: 'The installation does not by itself make the debt permanent, but it does close the ordinary cancellation window, which runs from the signing date rather than the installation date. The arguments that survive installation are different ones: a missing or defective Notice of Cancellation under Civil Code 1689.7, a required disclosure that was never delivered, or a misrepresentation about savings, production or a government incentive. Which of those applies depends on the documents in the file.',
       },
       {
         q: 'What about the new SMUD battery rebates?',

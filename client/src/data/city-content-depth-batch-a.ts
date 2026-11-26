@@ -381,10 +381,10 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
   // ─── FLORIDA ──────────────────────────────────────────────────────────────────
   {
     slug: "jacksonville-fl",
-    localHook: "Jacksonville is Florida's largest city by area and has seen significant solar growth, with JEA customers being targeted by national solar sales companies. Florida's HB 741 net metering changes have left many Jacksonville homeowners with solar agreements that no longer deliver the promised savings. Florida law provides strong consumer protection remedies.",
+    localHook: "Jacksonville is Florida's largest city by area and has seen significant solar growth, with JEA customers being targeted by national solar sales companies. Florida\'s net metering rules never changed -- HB 741 was vetoed on April 27, 2022 -- so when a Jacksonville solar agreement fails to deliver the promised savings, the shortfall points at the savings projection itself. Florida law provides strong consumer protection remedies.",
     marketStats: [
       { label: "Jacksonville Solar Installs", value: "16,000+" },
-      { label: "JEA Net Metering Change", value: "2023 (HB 741)" },
+      { label: "Net Metering Change", value: "None -- HB 741 vetoed 2022" },
       { label: "Avg. Monthly Solar Payment", value: "$174" },
       { label: "FL AG Solar Complaints", value: "1,100+ statewide" },
     ],
@@ -396,15 +396,15 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
       "Company unreachable after installation",
     ],
     companyProblems: [
-      { company: "Sunrun", issue: "Jacksonville homeowners report Sunrun savings projections based on pre-HB 741 JEA net metering rates." },
+      { company: "Sunrun", issue: "Jacksonville homeowners report Sunrun savings projections that assumed net metering credits they never received." },
       { company: "Freedom Forever", issue: "Jacksonville complaints involve dealer fees and savings projections that did not account for Florida's net metering changes." },
       { company: "GoodLeap", issue: "Jacksonville homeowners report GoodLeap loan structures where the tax credit balloon payment was not clearly explained." },
       { company: "ADT Solar", issue: "Following ADT Solar's exit, Jacksonville customers are left without warranty support." },
     ],
-    whyItHappens: "Jacksonville's large geographic area and diverse homeowner base made it a target for solar sales companies operating across Northeast Florida. Florida's HB 741 changes in 2023 reduced the value of solar exports significantly. Jacksonville's hurricane risk also creates warranty and performance issues that were often not addressed in the sales process.",
+    whyItHappens: "Jacksonville's large geographic area and diverse homeowner base made it a target for solar sales companies operating across Northeast Florida. Florida\'s net metering rules did not change -- HB 741 was vetoed in 2022 -- so a savings shortfall traces back to the projection rather than to a change in the rules. Jacksonville's hurricane risk also creates warranty and performance issues that were often not addressed in the sales process.",
     stateLawExpanded: "Jacksonville homeowners are protected by Florida's FDUTPA and the Florida Home Solicitation Sales Act. FDUTPA provides strong remedies for deceptive sales practices including actual damages, attorney's fees, and injunctive relief. The Florida AG has specific authority to investigate and prosecute solar companies for deceptive practices.",
     localFaq: [
-      { q: "How did Florida's HB 741 affect my Jacksonville solar contract?", a: "HB 741, effective January 2024, changed how JEA compensates homeowners for excess solar production. Credits are now based on avoided cost rates rather than retail rates, significantly reducing the value of solar exports." },
+      { q: "Did Florida's net metering rules change for my Jacksonville solar contract?", a: "No. HB 741, the bill that would have moved credits to avoided-cost rates, was vetoed on April 27, 2022 and never took effect, so JEA still credits excess production under retail-rate rules. If your savings came in lower than promised, the projection is the place to look." },
       { q: "Can I cancel a solar contract in Jacksonville, Florida?", a: "Yes. Florida's FDUTPA provides strong remedies for deceptive sales practices. A free case review can identify whether misrepresentation, TILA violations, or failure to provide required disclosures apply to your specific situation." },
       { q: "What if my Jacksonville solar system was damaged by a hurricane?", a: "Storm damage coverage depends on your contract and homeowner's insurance. If the solar company is not responding to warranty claims, that may be a breach of contract." },
       { q: "What is the Florida 3-day cancellation rule for solar contracts?", a: "Florida law gives you 3 business days to cancel any contract signed at your home. If you did not receive a written Notice of Cancellation at signing, the cancellation window may never have legally started." },
@@ -412,10 +412,10 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
   },
   {
     slug: "fort-lauderdale-fl",
-    localHook: "Fort Lauderdale and Broward County have seen significant solar growth, with FPL customers being targeted by national solar sales companies. Florida's HB 741 net metering changes have left many Fort Lauderdale homeowners with solar agreements that no longer deliver the promised savings. Florida law provides strong consumer protection remedies.",
+    localHook: "Fort Lauderdale and Broward County have seen significant solar growth, with FPL customers being targeted by national solar sales companies. Florida\'s net metering rules never changed -- HB 741 was vetoed on April 27, 2022 -- so when a Fort Lauderdale solar agreement fails to deliver the promised savings, the shortfall points at the savings projection itself. Florida law provides strong consumer protection remedies.",
     marketStats: [
       { label: "Broward County Solar Installs", value: "24,000+" },
-      { label: "FPL Net Metering Change", value: "2023 (HB 741)" },
+      { label: "Net Metering Change", value: "None -- HB 741 vetoed 2022" },
       { label: "Avg. Monthly Solar Payment", value: "$179" },
       { label: "FL AG Solar Complaints", value: "1,100+ statewide" },
     ],
@@ -427,15 +427,15 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
       "Dealer fees hidden in loan balance",
     ],
     companyProblems: [
-      { company: "Sunrun", issue: "Fort Lauderdale homeowners report Sunrun savings projections based on pre-HB 741 FPL net metering rates." },
+      { company: "Sunrun", issue: "Fort Lauderdale homeowners report Sunrun savings projections that assumed net metering credits they never received." },
       { company: "Freedom Forever", issue: "Fort Lauderdale complaints involve dealer fees and savings projections that did not account for Florida's net metering changes." },
       { company: "GoodLeap", issue: "Fort Lauderdale homeowners report GoodLeap loan structures where the tax credit balloon payment was not clearly explained." },
       { company: "ADT Solar", issue: "Following ADT Solar's exit, Fort Lauderdale customers are left without warranty support." },
     ],
-    whyItHappens: "Fort Lauderdale's coastal location and high FPL rates made solar an attractive proposition. Florida's HB 741 changes in 2023 reduced the value of solar exports significantly. Fort Lauderdale's coastal environment — salt air, hurricane risk, high humidity — also creates warranty and performance issues that were often not addressed in the sales process.",
+    whyItHappens: "Fort Lauderdale's coastal location and high FPL rates made solar an attractive proposition. Florida\'s net metering rules did not change -- HB 741 was vetoed in 2022 -- so a savings shortfall traces back to the projection rather than to a change in the rules. Fort Lauderdale's coastal environment — salt air, hurricane risk, high humidity — also creates warranty and performance issues that were often not addressed in the sales process.",
     stateLawExpanded: "Fort Lauderdale homeowners are protected by Florida's FDUTPA and the Florida Home Solicitation Sales Act. FDUTPA provides strong remedies for deceptive sales practices. Florida courts have applied FDUTPA to solar contract disputes involving misrepresented savings projections and undisclosed net metering changes.",
     localFaq: [
-      { q: "How did Florida's HB 741 affect my Fort Lauderdale solar contract?", a: "HB 741 changed how FPL compensates homeowners for excess solar production. Credits are now based on avoided cost rates rather than retail rates, significantly reducing the value of solar exports." },
+      { q: "Did Florida\'s net metering rules change for my Fort Lauderdale solar contract?", a: "No. HB 741, the bill that would have moved credits to avoided-cost rates, was vetoed on April 27, 2022 and never took effect, so FPL still credits excess production under retail-rate rules. If your savings came in lower than promised, the projection is the place to look." },
       { q: "Does Fort Lauderdale's coastal environment affect solar performance?", a: "Yes. Salt air can corrode solar panel frames, inverters, and mounting hardware. If this was not disclosed during the sales process, it may be relevant to a warranty or performance claim." },
       { q: "Can I cancel a solar contract in Fort Lauderdale, Florida?", a: "Yes. Florida's FDUTPA provides strong remedies for deceptive sales practices. A free case review identifies whether misrepresentation, TILA violations, or disclosure failures apply to your situation." },
       { q: "What are my options if my Fort Lauderdale solar company went out of business?", a: "Contact the financing company directly. File complaints with the Florida AG, FTC, and CFPB." },
@@ -443,10 +443,10 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
   },
   {
     slug: "cape-coral-fl",
-    localHook: "Cape Coral has one of the highest solar adoption rates in Southwest Florida, with FPL customers being targeted by national solar sales companies. Florida's HB 741 net metering changes and Cape Coral's hurricane exposure have left many homeowners with solar agreements that no longer deliver the promised savings. Florida law provides strong remedies.",
+    localHook: "Cape Coral has one of the highest solar adoption rates in Southwest Florida, with FPL customers being targeted by national solar sales companies. Florida's net metering rules never changed -- HB 741 was vetoed on April 27, 2022 -- and Cape Coral's hurricane exposure has left many homeowners with solar agreements that do not deliver the promised savings. Florida law provides strong remedies.",
     marketStats: [
       { label: "Cape Coral Solar Installs", value: "12,000+" },
-      { label: "FPL Net Metering Change", value: "2023 (HB 741)" },
+      { label: "Net Metering Change", value: "None -- HB 741 vetoed 2022" },
       { label: "Hurricane Ian Impact", value: "2022 — significant damage" },
       { label: "Typical Resolution Time", value: "45–75 Days" },
     ],
@@ -458,16 +458,16 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
       "Company unreachable for post-hurricane repairs",
     ],
     companyProblems: [
-      { company: "Sunrun", issue: "Cape Coral homeowners report Sunrun savings projections based on pre-HB 741 FPL net metering rates." },
+      { company: "Sunrun", issue: "Cape Coral homeowners report Sunrun savings projections that assumed net metering credits they never received." },
       { company: "Freedom Forever", issue: "Cape Coral complaints involve dealer fees and post-hurricane warranty response failures." },
       { company: "GoodLeap", issue: "Cape Coral homeowners report GoodLeap loan structures where the tax credit implications were not clearly explained." },
       { company: "ADT Solar", issue: "Following ADT Solar's exit, Cape Coral customers are left without warranty support." },
     ],
-    whyItHappens: "Cape Coral's rapid growth and high FPL rates made solar an attractive proposition. Florida's HB 741 changes in 2023 reduced the value of solar exports significantly. Hurricane Ian in 2022 caused significant damage to solar installations across Cape Coral, exposing warranty gaps that were not disclosed during the sales process.",
+    whyItHappens: "Cape Coral's rapid growth and high FPL rates made solar an attractive proposition. Florida\'s net metering rules did not change -- HB 741 was vetoed in 2022 -- so a savings shortfall traces back to the projection rather than to a change in the rules. Hurricane Ian in 2022 caused significant damage to solar installations across Cape Coral, exposing warranty gaps that were not disclosed during the sales process.",
     stateLawExpanded: "Cape Coral homeowners are protected by Florida's FDUTPA and the Florida Home Solicitation Sales Act. FDUTPA provides strong remedies for deceptive sales practices including actual damages, attorney's fees, and injunctive relief.",
     localFaq: [
       { q: "What are my options if my Cape Coral solar system was damaged by Hurricane Ian?", a: "Storm damage coverage depends on your contract and homeowner's insurance. If the solar company is not responding to warranty claims for hurricane damage, that may be a breach of contract. If the salesperson told you the system was covered for storm damage and it is not, that may be a misrepresentation claim." },
-      { q: "How did Florida's HB 741 affect my Cape Coral solar contract?", a: "HB 741 changed how FPL compensates homeowners for excess solar production. Credits are now based on avoided cost rates rather than retail rates, significantly reducing the value of solar exports." },
+      { q: "Did Florida\'s net metering rules change for my Cape Coral solar contract?", a: "No. HB 741 was vetoed on April 27, 2022 and never became law, so FPL still credits excess production under retail-rate rules. A savings shortfall therefore points at the projection rather than at a change in the rules." },
       { q: "Can I cancel a solar contract in Cape Coral, Florida?", a: "Yes. Florida's FDUTPA provides strong remedies for deceptive sales practices. A free case review identifies whether misrepresentation, TILA violations, or disclosure failures apply to your situation." },
       { q: "What should I do if my Cape Coral solar company is not responding?", a: "Document all contact attempts. File complaints with the Florida AG, FTC, and CFPB. Contact the financing company directly." },
     ],

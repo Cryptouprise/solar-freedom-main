@@ -263,7 +263,7 @@ export const blogArticlesBatch2: BlogPost[] = [
     faq: [
       { q: 'Can I get out of a solar contract in Orlando, Florida?', a: 'Yes. Florida has strong consumer protections under FDUTPA and the Florida Home Solicitation Sales Act. If your solar deal involved misrepresentation, you may have legal options.' },
       { q: 'What is FDUTPA and how does it apply to solar contracts in Florida?', a: 'The Florida Deceptive and Unfair Trade Practices Act prohibits unfair or deceptive acts in consumer transactions. It allows consumers to recover actual damages, attorney fees, and court costs.' },
-      { q: 'How did Florida net metering changes affect solar savings in Orlando?', a: 'Florida HB 741 in 2023 changed net metering rules, reducing credits for excess solar production. If your savings projections were based on old rates, they may now be significantly overstated.' },
+      { q: 'Did Florida net metering rules actually change for solar owners?', a: 'No. HB 741, the 2022 bill that would have phased down net metering credits, was vetoed by Governor DeSantis on April 27, 2022 and never became law. Retail-rate net metering is still in effect for Florida\'s major utilities. That distinction matters: if your savings fell short, the cause is the savings projection itself rather than a change in the rules.' },
     ],
     relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'solar-payments-too-high-help', 'get-out-of-solar-contract-by-state'],
     content: [
@@ -277,7 +277,7 @@ export const blogArticlesBatch2: BlogPost[] = [
       { type: 'p', content: 'Because curiosity searches are one thing. Pain searches are another. Pain searches come from urgency, and urgency is what turns readers into leads. If you are searching "Orlando solar regret" at 11pm, you are not casually browsing. You are looking for someone who understands your situation and can tell you whether there is a way out.' },
       { type: 'h2', content: 'Florida-Specific Solar Protections' },
       { type: 'p', content: 'Florida has a 3-day right of rescission for home solicitation sales under the Florida Home Solicitation Sales Act. FDUTPA provides broad protection against deceptive trade practices. Florida also has specific solar contractor licensing requirements -- if your installer was not properly licensed, that may affect the enforceability of your contract.' },
-      { type: 'warning', content: '⚠ Florida\'s net metering rules changed in 2023 under HB 741. If your salesperson quoted savings based on the old net metering rates, those projections may now be significantly overstated -- which could be grounds for a FDUTPA claim.' },
+      { type: 'warning', content: '⚠ Florida\'s net metering rules did not change: HB 741 was vetoed on April 27, 2022, and retail-rate net metering is still in effect. If your savings fell short anyway, the projection itself is the issue -- and an overstated savings projection can be grounds for a FDUTPA claim.' },
     ],
   },
   {
