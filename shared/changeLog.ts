@@ -199,7 +199,84 @@ export const CHANGE_LOG: ChangeEntry[] = [
       "img tags now present on homepage, blog posts and city pages in the built output and live",
     preventsRecurrence:
       "server/prerenderImages.test.ts asserts every emitted img has alt text and a real source, and that the city hero survives the runtime rebuild.",
+  },  {
+    date: "2026-11-26",
+    title: "Five company statuses were factually wrong, two contradicting our own articles",
+    class: "accuracy",
+    changed: [
+      "client/src/data/companies.ts — corrected Titan Solar (Active to Bankrupt), Freedom Forever (Active to Bankrupt), Sunnova (Active to Bankrupt), Mosaic (Active to Bankrupt) and Sunlight Financial (Active to Acquired)",
+      "client/src/data/companies.ts — added statusNote and statusSource to the CompanyData interface so every corrected status carries why it is what it is and a primary source URL",
+      "client/src/pages/CompanyPage.tsx — renders the status note and a source link under the company quick facts panel",
+      "server/companyStatus.test.ts — new file, 21 tests locking the corrected statuses, the evidence requirement, and a guard against any Active company carrying a shutdown note",
+    ],
+    evidence:
+      "An audit on 26 Nov 2026 compared all 19 company records against primary sources and found five wrong. Freedom Forever was the worst: companies.ts said Active while our own article at /blog/freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026 described its bankruptcy. Verified the same day — Freedom Forever filed Chapter 11 on 15 April 2026 and converted to Chapter 7 on 7 August 2026 (ElevenFlo case No. 26-10522, D. Del., citing Dkt. 533). Titan ceased operations 13 June 2024 (pv-tech). Sunnova filed Chapter 11 on 8 June 2025 and its own site states it has ceased independent operations with SunStrong Management servicing accounts. Mosaic confirmed a plan effective 22 September 2025 (cases.ra.kroll.com/MOSAIC). Sunlight Financial emerged from its December 2023 prepackaged Chapter 11 and still services loans, so Bankrupt was wrong in the other direction.",
+    reasoning:
+      "Four of the five errors made a dead company look alive, which understates the homeowner's problem, and one made a live servicer look dead, which overstates it. Both directions damage credibility in a niche where the reader is checking whether the company that took their money still exists. The test suite was written before the fix could be considered done because this is the fourth defect class where the site asserted something the sources did not support — the earlier three were statute citations. A status with no source is a guess with a deadline, so statusNote and statusSource are now part of the type.",
+    confidence: "verified",
+    verifiedBy:
+      "pnpm vitest run server/companyStatus.test.ts — 21 tests passed",
+    preventsRecurrence:
+      "server/companyStatus.test.ts asserts the five corrected statuses, requires a substantive statusNote plus an http(s) statusSource on each, rejects any status value outside the four known ones, and fails if any company marked Active carries a note describing a shutdown. That last assertion is the exact contradiction that triggered the audit.",
   },
+  {
+    date: "2026-11-26",
+    title: "Homepage ranked 10.7 for 'solar contracts voidable' and never used the word",
+    class: "SEO",
+    changed: [
+      "shared/home-faq.json — added an eighth FAQ, 'Can a solar contract be voidable?', written from verified Nevada statutory text",
+    ],
+    evidence:
+      "Search Console (1 Sep-22 Nov 2026): the homepage earns 9 impressions at average position 10.7 for 'solar contracts voidable'. A grep of the built homepage HTML on 26 Nov 2026 returned zero occurrences of 'voidable'. The only occurrence anywhere in the page source is inside Home.tsx, which is replaced at pre-render time by buildSemanticShellContent, so the word never reaches the served HTML.",
+    reasoning:
+      "This is the same defect as the TILA and Tesla title cases: the page is matched on surrounding context rather than on the term, which caps how high it can rank. The homepage shell emits only the FAQ block as unique body content, so the FAQ is the correct and lowest-risk place to put the term. The answer was written to define voidable as a legal status rather than a marketing claim, cite NRS 624.875 and NRS 598.9822, and state that whether a specific agreement is voidable depends on comparing the signed documents against the statute where the reader signed. It deliberately avoids promising an outcome, because the standing accuracy rule forbids that.",
+    confidence: "verified",
+    verifiedBy:
+      "pnpm build pre-rendered 583 pages; grep -c voidable on dist/public/index.html returned a non-zero count",
+    preventsRecurrence:
+      "server/changeLog.test.ts requires any entry with a repeated class to name a specific guard. For this class the standing rule is that a query earning impressions at position 20 or better must appear in the built page — check with grep against dist/public, not against the React source, because the shell replaces the component tree.",
+    measureAfter: "2026-12-05",
+  },
+  {
+    date: "2026-11-26",
+    title: "Two Sunrun cancellation pages were split across the same queries",
+    class: "SEO",
+    changed: [
+      "client/src/data/blog-articles-batch9.ts — added a scope-boundary paragraph to sunrun-solar-contract-cancellation-2026 naming its full-lifecycle remit and pointing pre-installation readers to the dedicated guide",
+      "client/src/data/blog-articles-batch9.ts — converted the pre-installation section on that page into a summary plus a link, so it no longer competes with the dedicated page",
+      "client/src/data/blog-articles-batch9.ts — added the matching scope paragraph to cancel-sunrun-solar-contract-before-installation, naming the pre-installation window and linking to the full-lifecycle page",
+    ],
+    evidence:
+      "Search Console (1 Sep-22 Nov 2026): the two pages split the same intent. 'how to cancel sunrun contract' went 188 impressions to the before-installation page at position 13.7 and 131 to the 2026 page at position 13.7. 'how to cancel sunrun contract before installation' went 142 to the before-installation page and 133 to the 2026 page. The 2026 page holds 9,343 total impressions against 1,936 for the other, so both have real weight and neither can simply be retired.",
+    reasoning:
+      "Neither page can win a query it only half-owns, because Google has to choose between two similar answers on the same domain. The fix is not to delete either page but to make each one unambiguously about a different stage, and to link between them so the pair reads as a sequence rather than a duplicate. The dedicated pre-installation page keeps the letter template, the state windows and the deadline math; the 2026 page keeps after-installation, transfer-on-sale and the fee analysis. Cross-links were added in both directions so a reader who lands on the wrong stage is one click from the right one.",
+    confidence: "measured",
+    verifiedBy:
+      "pnpm build pre-rendered 583 pages with both scope paragraphs present in the output; the link targets resolve to real slugs",
+    preventsRecurrence:
+      "The rule now standing: before adding or rewriting a page on a topic the site already covers, check whether an existing page already earns impressions for the target query, and if so differentiate rather than duplicate. The signal to check is the per-URL query breakdown, where two URLs on the same domain showing impressions for the same query means the site is competing with itself. Both pages now carry an explicit stage boundary and a link to the other, so a future edit that blurs them is visible in review.",
+    measureAfter: "2026-12-05",
+  },
+  {
+    date: "2026-11-26",
+    title: "Freedom Forever article speculated about a bankruptcy that had already happened",
+    class: "content",
+    changed: [
+      "client/src/data/blog-articles-batch9.ts — rewrote freedom-forever-solar-bankruptcy-what-homeowners-can-do-2026 from conditional to past tense with the verified Chapter 7 record: the 15 April 2026 petition, the 7 August 2026 conversion, the trustee, the 16 October 2026 claim deadline, and the 3 February 2027 government deadline",
+      "client/src/data/blog-articles-batch9.ts — added the finance-partner list that can step in to complete open installations, the SolarEdge and Tesla secured debt figures, and seven FAQs replacing six conditional ones",
+    ],
+    evidence:
+      "Search Console (1 Sep-22 Nov 2026): the page earns 97 impressions across 28 queries, and every high-volume one is bankruptcy-intent — 'freedom bankruptcy' 22 at position 15.1, 'freedom forever bankruptcy' 21 at 17.8, 'freedom forever out of business' 4 at 19.5, 'is freedom forever going out of business' 4 at 20.5. It earned 1 click. The published article said 'If Freedom Forever files for bankruptcy' throughout, seven months after it filed, and never mentioned Chapter 7, the trustee or the claim deadline.",
+    reasoning:
+      "A page written in the conditional cannot satisfy a reader who already knows the company failed, which is consistent with 1 click from 97 impressions. The facts were read on 26 Nov 2026 from the ElevenFlo case analysis of No. 26-10522, which cites docket numbers for every claim, rather than from secondary commentary. The rewrite keeps the honest core of the original argument — the installer failing does not cancel a loan held by a separate lender — and adds the operational detail readers actually need: who may finish an incomplete install, why the warranty is effectively unenforceable, and that the claim deadline has passed. A new image and a stat block were added to break up what was a wall of text.",
+    confidence: "verified",
+    verifiedBy:
+      "pnpm build pre-rendered 583 pages; grep confirms the built page contains Chapter 7, 7 August 2026 and the seven new FAQs",
+    preventsRecurrence:
+      "Any article whose subject is an event must be checked for tense before it is left alone: if the event the page is written about has already occurred, the conditional phrasing is a defect, not a style choice. The specific detector is a grep for 'if <company> files', 'if the company enters', 'might attempt', and 'faces significant financial headwinds' across the article data files. The rule is written into this entry rather than only into a test because the failure was editorial judgement, not a code path, so a reviewer reading the change log is the guard.",
+    measureAfter: "2026-12-05",
+  },
+
 ];
 
 /** Entries grouped by class, for the admin view. */

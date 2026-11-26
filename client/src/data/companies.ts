@@ -14,6 +14,8 @@ export interface CompanyData {
   avgMonthlyPayment: string;
   stockSymbol?: string;
   status: string; // "Active" | "Bankrupt" | "Acquired"
+  statusNote?: string; // why the status is what it is, dated by statusSource
+  statusSource?: string; // primary source URL for the status
   tagline: string; // Our SEO hook headline
   summary: string;
   topComplaints: string[];
@@ -237,7 +239,9 @@ export const companies: CompanyData[] = [
     complaintCount: "900+",
     avgContractLength: "25 years",
     avgMonthlyPayment: "$140–$240",
-    status: "Active",
+    status: "Bankrupt",
+    statusNote: "Filed Chapter 11 on 15 April 2026 and converted to Chapter 7 liquidation on 7 August 2026 after its sale fell through. A trustee administers the estate; general claims were due 16 October 2026.",
+    statusSource: "https://elevenflo.com/cases/freedom-forever-llc-13674/analysis",
     tagline: "Freedom Forever Promised Freedom — But Your Loan Has You Trapped",
     summary: "Freedom Forever markets itself as the solar company that gives homeowners 'freedom' from utility bills. The reality for many customers is a 25-year loan with no meaningful exit clause, systems that underperform their projections, and a dealer network that varies wildly in installation quality. Freedom Forever uses third-party lenders like GoodLeap and Mosaic, which means your loan obligation survives even if Freedom Forever goes out of business.",
     topComplaints: [
@@ -333,7 +337,9 @@ export const companies: CompanyData[] = [
     avgContractLength: "25 years",
     avgMonthlyPayment: "$130–$230",
     stockSymbol: "NOVA",
-    status: "Active",
+    status: "Bankrupt",
+    statusNote: "Filed Chapter 11 on 8 June 2025 and sold substantially all assets. Sunnova has ceased independent operations; SunStrong Management services most in-service systems. Payment terms did not change for existing customers.",
+    statusSource: "https://www.sunnova.com/",
     tagline: "Sunnova's 25-Year Contracts Are Designed to Be Impossible to Exit — We Know the Way Out",
     summary: "Sunnova operates through a dealer network model, which means the company that sold you your system may be entirely different from Sunnova itself. This creates a convenient blame-shifting dynamic when things go wrong. Sunnova's 25-year agreements — whether lease, PPA, or loan — are structured to maximize long-term revenue extraction, with escalator clauses, buyout penalties, and transfer requirements that make home sales complicated.",
     topComplaints: [
@@ -478,7 +484,9 @@ export const companies: CompanyData[] = [
     complaintCount: "900+",
     avgContractLength: "25 years",
     avgMonthlyPayment: "$140–$230",
-    status: "Active",
+    status: "Bankrupt",
+    statusNote: "Ceased operations 13 June 2024 and filed Chapter 7. The Nevada State Contractors Board suspended its licence on 18 June 2024 and later revoked it.",
+    statusSource: "https://www.pv-tech.org/us-residential-installer-titan-solar-power-shuts-down-business/",
     tagline: "Titan Solar Locked You In — We Break You Free",
     summary: "Titan Solar Power operates primarily in the Southwest and has grown rapidly through aggressive sales and subcontractor installer networks. Customers frequently report system underperformance, billing disputes, and being misled about the terms of their solar loan agreements. The use of subcontractors creates additional legal leverage for cancellation due to contractor licensing violations.",
     topComplaints: [
@@ -779,7 +787,9 @@ export const companies: CompanyData[] = [
     complaintCount: "800+",
     avgContractLength: "25 years",
     avgMonthlyPayment: "$150–$230",
-    status: "Active",
+    status: "Bankrupt",
+    statusNote: "Mosaic Sustainable Finance Corporation filed Chapter 11 on 6 June 2025. The plan took effect 22 September 2025 and loan servicing moved to Solar Servicing LLC, a Forbright Bank unit. The loans themselves were not cancelled.",
+    statusSource: "https://cases.ra.kroll.com/MOSAIC",
     tagline: "Mosaic Solar Loan Complaints: Dealer Fees, Misrepresentation, and Your Cancellation Rights",
     summary: "Mosaic is one of the largest solar loan providers in the United States, financing installations through a network of solar dealers including Pink Energy, Freedom Forever, and dozens of regional installers. While Mosaic is a lender rather than an installer, thousands of homeowners have filed complaints about undisclosed dealer fees, inflated loan amounts, and Mosaic's refusal to cancel loans even when the installer committed fraud. Under TILA and state consumer protection laws, you may have the right to rescind your Mosaic loan if the dealer engaged in deceptive practices.",
     topComplaints: [
@@ -829,7 +839,9 @@ export const companies: CompanyData[] = [
     complaintCount: "600+",
     avgContractLength: "25 years",
     avgMonthlyPayment: "$140–$210",
-    status: "Active",
+    status: "Acquired",
+    statusNote: "Completed a prepackaged Chapter 11 restructuring in December 2023 and emerged under new ownership. Sunlight Financial LLC still operates and still services the loans; the bankruptcy did not cancel them.",
+    statusSource: "https://www.bankruptcydata.com/feeds/blog/bankrupt-solar-companies",
     tagline: "Sunlight Financial Solar Loan: Complaints, Dealer Fees, and How to Cancel",
     summary: "Sunlight Financial is a solar-specific lender that funds installations through a network of contractors and dealers. Like GoodLeap and Mosaic, Sunlight uses a dealer fee model where the lender pays the installer a markup above the actual installation cost — a fee that is rolled into your loan without clear disclosure. Homeowners who discover this markup after signing have successfully argued TILA violations and deceptive practices to cancel or reduce their loans.",
     topComplaints: [

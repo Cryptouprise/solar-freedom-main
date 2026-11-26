@@ -26,5 +26,9 @@
   {
     "q": "I already tried to cancel and was told I couldn't. Can you still help?",
     "a": "A prior denial does not answer every legal or contractual question. Preserve the denial, agreement, disclosures, and communications for an independent, fact-specific review."
+  },
+  {
+    "q": "Can a solar contract be voidable?",
+    "a": "Voidable is a legal status rather than a marketing claim, and it depends on the facts and the state where you signed. Several states make a solar agreement voidable when a required step was skipped. Nevada makes a non-compliant residential photovoltaic contract voidable by the owner under NRS 624.875, and a knowing failure to follow the SB 379 verification and licensing requirements makes the agreement voidable under NRS 598.9822. Other states attach voidability to a required disclosure form that was never delivered, or to a contract that was never provided in the language the sale was actually conducted in. Whether your own agreement is voidable requires comparing the signed documents against the specific statute that applies where you signed."
   }
 ]

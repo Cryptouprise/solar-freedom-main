@@ -167,6 +167,11 @@ async function loadData() {
     const complaintCount = findStringProp(chunk, "complaintCount")?.value;
     const bbRating = findStringProp(chunk, "bbRating")?.value;
     const summary = findStringProp(chunk, "summary")?.value;
+    // statusNote / statusSource carry the evidence for a corrected company status.
+    // Emitted into the shell so crawlers and readers see why the status is what it
+    // is, and can check the primary source rather than taking our word for it.
+    const statusNote = findStringProp(chunk, "statusNote")?.value;
+    const statusSource = findStringProp(chunk, "statusSource")?.value;
     const topComplaints = parseStringArray(chunk, "topComplaints");
     const cancellationGrounds = parseStringArray(chunk, "cancellationGrounds");
     const knownIssues = parseStringArray(chunk, "knownIssues");
@@ -176,6 +181,8 @@ async function loadData() {
       slug: slugM2[1],
       name: nameM[1],
       status: status || 'Active',
+      statusNote: statusNote || '',
+      statusSource: statusSource || '',
       complaintCount: complaintCount || '',
       bbRating: bbRating || '',
       summary: summary || '',
@@ -612,7 +619,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       description: `Review ${companyLabel} contract terms, complaint resources, and records to gather before requesting an individual case review.`,
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_COMPANY_SLUGS.has(company.slug),
-      companyData: { status: company.status, complaintCount: company.complaintCount, bbRating: company.bbRating, summary: company.summary, topComplaints: company.topComplaints, cancellationGrounds: company.cancellationGrounds, knownIssues: company.knownIssues, lawsuits: company.lawsuits },
+      companyData: { status: company.status, statusNote: company.statusNote, statusSource: company.statusSource, complaintCount: company.complaintCount, bbRating: company.bbRating, summary: company.summary, topComplaints: company.topComplaints, cancellationGrounds: company.cancellationGrounds, knownIssues: company.knownIssues, lawsuits: company.lawsuits },
     };
   }
   for (const state of stateEntries) {
@@ -1117,6 +1124,9 @@ function buildCompanyUniqueContent(meta) {
   return `
       <h2>About ${escapeHtml(companyName)}</h2>
       ${cd.summary ? `<p>${escapeHtml(suppressUnverifiedFirstPartyClaims(cd.summary))}</p>` : ''}
+      ${cd.status ? `<h2>Current status of ${escapeHtml(companyName)}</h2>
+      <p><strong>Status: ${escapeHtml(cd.status)}</strong>${cd.statusNote ? ` — ${escapeHtml(suppressUnverifiedFirstPartyClaims(cd.statusNote))}` : ""}</p>
+      ${cd.statusSource ? `<p>Source: <a href="${escapeHtml(cd.statusSource)}" rel="noopener noreferrer">${escapeHtml(cd.statusSource)}</a></p>` : ""}` : ''}
       ${complaintsText ? `<h2>Complaints listed on this page</h2><ul>${complaintsText}</ul>` : ''}
       ${knownIssuesText ? `<h2>Issues listed on this page</h2><ul>${knownIssuesText}</ul>` : ''}
       ${groundsText ? `<h2>Cancellation grounds listed on this page</h2><ul>${groundsText}</ul>` : ''}

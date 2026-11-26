@@ -498,6 +498,25 @@ export default function CompanyPage() {
                       </div>
                     ))}
                   </div>
+                  {company.statusNote && (
+                    <p className="mt-4 pt-4 border-t border-white/8 text-gray-400 text-xs leading-relaxed">
+                      <span className="text-gray-500 font-mono">STATUS NOTE — </span>
+                      {company.statusNote}
+                      {company.statusSource && (
+                        <>
+                          {" "}
+                          <a
+                            href={company.statusSource}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-amber-400 underline decoration-amber-400/40 hover:decoration-amber-400"
+                          >
+                            Source
+                          </a>
+                        </>
+                      )}
+                    </p>
+                  )}
                 </div>
               </Reveal>}
               {!companyEvidenceAvailable && (
