@@ -152,5 +152,61 @@
     "Nevada solar contract rights",
     "Summerlin solar lease cancellation",
     "Summerlin solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/murfreesboro-tn": [
+    "cancel solar contract Murfreesboro",
+    "Murfreesboro solar contract cancellation",
+    "Tennessee solar contract rights",
+    "Murfreesboro solar lease cancellation",
+    "Murfreesboro solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/san-francisco-ca": [
+    "cancel solar contract San Francisco",
+    "San Francisco solar contract cancellation",
+    "California solar contract rights",
+    "San Francisco solar lease cancellation",
+    "San Francisco solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/san-jose-ca": [
+    "cancel solar contract San Jose",
+    "San Jose solar contract cancellation",
+    "California solar contract rights",
+    "San Jose solar lease cancellation",
+    "San Jose solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/santa-ana-ca": [
+    "cancel solar contract Santa Ana",
+    "Santa Ana solar contract cancellation",
+    "California solar contract rights",
+    "Santa Ana solar lease cancellation",
+    "Santa Ana solar PPA cancellation"
+  ],
+  "/cancel-solar-contract/youngstown-oh": [
+    "cancel solar contract Youngstown",
+    "Youngstown solar contract cancellation",
+    "Ohio solar contract rights",
+    "Youngstown solar lease cancellation",
+    "Youngstown solar PPA cancellation"
+  ],
+  "/solar-contract-laws/arizona": [
+    "Arizona solar contract cancellation",
+    "cancel solar contract Arizona",
+    "Arizona solar contract rights",
+    "Arizona solar lease cancellation",
+    "Arizona solar PPA cancellation"
+  ],
+  "/solar-contract-laws/california": [
+    "California solar contract cancellation",
+    "cancel solar contract California",
+    "California solar contract rights",
+    "California solar lease cancellation",
+    "California solar PPA cancellation"
+  ],
+  "/solar-contract-laws/texas": [
+    "Texas solar contract cancellation",
+    "cancel solar contract Texas",
+    "Texas solar contract rights",
+    "Texas solar lease cancellation",
+    "Texas solar PPA cancellation"
   ]
 }

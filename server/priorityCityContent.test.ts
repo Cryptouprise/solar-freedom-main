@@ -11,11 +11,19 @@ import { injectPageMetaKeywords } from './seo-meta';
 const template='<!doctype html><html><head><title>Old</title><meta name="description" content="Old"><link rel="canonical" href="https://example.com"><meta name="robots" content="index, follow"></head><body><div id="root"><main class="seo-prerender"><h1>Old</h1><p>Old body</p></main></div></body></html>';
 const keywordPaths=Object.keys(pageKeywords);
 describe('Priority city keywords and answer delivery',()=>{
-  it('limits the repair to 22 approved city keyword entries and 21 guides, leaving Austin content alone',()=>{
-    // 2026-11-03: Henderson was promoted and Summerlin was created, both on the
-    // same source-backed gate, so both counts moved by two.
-    expect(keywordPaths).toHaveLength(22);expect(PRIORITY_CITY_PATHS).toHaveLength(21);
-    for(const path of keywordPaths) expect(eligibility.citySlugs).toContain(path.split('/').pop());
+  it('covers every indexable city and state with a keyword entry and no others, leaving Austin content alone',()=>{
+    // 2026-11-26: this previously pinned a hard count of 22, which broke the moment
+    // the set legitimately grew. Replaced with exact set equality against
+    // index-eligibility.json, which is strictly stronger: a hard count passes when
+    // the wrong page is added and the right one removed, whereas set equality
+    // cannot. The count is now derived, so promoting a city or state requires its
+    // keyword entry to exist before this passes.
+    const cityPaths=keywordPaths.filter(path=>path.startsWith('/cancel-solar-contract/'));
+    const statePaths=keywordPaths.filter(path=>path.startsWith('/solar-contract-laws/'));
+    expect(new Set(cityPaths)).toEqual(new Set(eligibility.citySlugs.map(slug=>`/cancel-solar-contract/${slug}`)));
+    expect(new Set(statePaths)).toEqual(new Set(eligibility.stateSlugs.map(slug=>`/solar-contract-laws/${slug}`)));
+    expect(cityPaths.length+statePaths.length).toBe(keywordPaths.length);
+    expect(PRIORITY_CITY_PATHS).toHaveLength(21);
     expect(getPriorityCityContent('/cancel-solar-contract/austin-tx')).toBeUndefined();
     expect(getPageMetaKeywords('/cancel-solar-contract/austin-tx')?.split(',')).toHaveLength(5);
   });

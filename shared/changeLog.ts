@@ -863,6 +863,26 @@ export const CHANGE_LOG: ChangeEntry[] = [
       "The same STATE_OF_MIND guard covers this page and every other file in client/src/data, so a third instance fails the build without anyone having to remember this one existed.",
     measureAfter: "2026-12-05",
   },
+  {
+    date: "2026-11-26",
+    title: "Eight indexable pages served no meta-keywords tag while the other twenty-two did",
+    class: "SEO",
+    changed: [
+      "shared/page-meta-keywords.json — 5 indexable city entries added (murfreesboro-tn, san-francisco-ca, san-jose-ca, santa-ana-ca, youngstown-oh) and 3 indexable state entries added (arizona, california, texas); 22 to 30 keys",
+      "server/cityKeywordCoverage.test.ts — new guard, 4 tests",
+      "scripts/add-1126-city-keywords.py — idempotent fixer for the city entries",
+    ],
+    evidence:
+      "Measured 26 Nov 2026 against dist/public: of the 27 INDEXABLE city pages, 22 served a meta name=keywords tag and 5 did not — murfreesboro-tn, san-francisco-ca, san-jose-ca, santa-ana-ca, youngstown-oh. The 22 that did all carried exactly 5 keywords in one consistent pattern. The tag is emitted by scripts/prerender.assembled.mjs line 1684 from shared/page-meta-keywords.json, so a missing key means a missing tag. The guard written for the city gap then found a second one on its first run: all 3 INDEXABLE state pages (arizona, california, texas) were also missing. After the fix, all 27 city pages and all 3 state pages serve a tag with 5 keywords each, and the JSON diff is a pure addition — 0 keys removed, 0 keys modified, 22 to 30.",
+    reasoning:
+      "Recorded honestly: Google has publicly ignored the keywords meta tag for ranking for over a decade, so this change does not raise rankings and is not claimed to. It is done for two real reasons. First, the owner asked for this tag on specific city pages four separate times, each time with an explicit constraint of 3 to 8 keywords, and answering only the four named pages left the set inconsistent in a way nobody had measured. Second, an inconsistent set is a maintenance trap: any checker that reports no keywords detected keeps flagging these pages, and the next person to read that report cannot distinguish a real omission from a deliberate choice, which is how a false alarm becomes noise that gets ignored. The five city entries follow the existing pattern exactly rather than inventing a new one, using city and state names read from client/src/data/cities.ts rather than typed by hand. The owner\'s 3-to-8 bound is enforced on every entry by the guard because it was stated, and duplicate keywords within an entry are rejected too.",
+    confidence: "measured",
+    verifiedBy:
+      "npx vitest run server/cityKeywordCoverage.test.ts (4 tests, including one that removes a key and confirms the checker reports it); pnpm check clean; pnpm build pre-rendered 583 pages; a direct scan of dist/public confirms 27 of 27 indexable city pages and 3 of 3 indexable state pages serve a tag with 5 keywords each and 0 are missing or out of range",
+    preventsRecurrence:
+      "The guard fails the build if any indexable city or state page has no keywords entry, if any entry falls outside 3 to 8 keywords, or if any entry repeats a keyword. Because it reads shared/index-eligibility.json rather than a hard-coded list, promoting a new city to indexable automatically requires a keywords entry before the build passes.",
+    measureAfter: "2026-12-05",
+  },
 ];
 
 /** Entries grouped by class, for the admin view. */
