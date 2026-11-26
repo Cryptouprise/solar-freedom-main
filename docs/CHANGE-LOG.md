@@ -1,4 +1,36 @@
 # Change Log — Solar Freedom / breakyoursolarcontract.com
+## 2026-11-26 — Added window-comparison reporting, which showed the site is down 10 percent and named the four pages responsible
+
+**Class:** infrastructure
+
+**Changed:** `scripts/gsc-site-trend.mjs`, `scripts/gsc-page-delta.mjs`, `scripts/gsc-query-delta.mjs`, `scripts/gsc-exact-page-queries.mjs` — all new.
+
+**Why:** The owner has asked repeatedly whether rankings and impressions are going up. No script in the repository could answer it, because every existing script was per-page. A page-level tool was being used to answer a site-level question.
+
+**How the conclusion was reached:** Recent window 25 Oct to 23 Nov against prior window 25 Sep to 24 Oct, both 30 days. Impressions 15,072 against 16,821, down 10.4%. Clicks 100 against 178, down 43.8%. CTR 0.66% against 1.06%. Clicks fell about four times faster than impressions — the most important fact here, because a smaller market cannot explain it. 14 pages lost 3,216 impressions; 31 gained 2,003. Four blog pages account for 78% of the loss. Query-level classification shows 14 demand losses (position held, volume fell — rewriting would achieve nothing), 14 ranking losses totalling -512, and exactly one click loss at stable position. The largest gain on the site is `/blog`, up 738 impressions, which is the routing table added earlier the same day.
+
+**Verified:** All three scripts run against Search Console directly and write nothing. The per-page losses reconcile against the site total: 3,216 lost minus 2,003 gained equals the 1,213 net shortfall.
+
+**Recurrence guard:** A site-level question can no longer be answered with a page-level tool, and a declining page can no longer be rewritten before its cause is classified. Any future claim about rankings or traffic must cite a window comparison with both dates.
+
+**Measure after:** 2026-12-05
+
+## 2026-11-26 — The homepage served two h1 elements, one of them hidden
+
+**Class:** defect
+
+**Changed:** `client/index.html` — the screen-reader-only `<h1>` is now a `<p>` with the same text and styling. `server/headingStructure.test.ts` — new guard, 5 tests, reads the built output.
+
+**Why:** Two `<h1>` elements are not penalised in themselves. The problem is narrower: the hidden heading duplicated the visible one almost word for word. A duplicate heading deliberately hidden from users is the pattern search engines treat as manipulation, and it was placed there for crawlers that do not run JavaScript — exactly the audience most likely to read it and least likely to see the visible one.
+
+**How the conclusion was reached:** Measured on the built output: `dist/public/index.html` contained two `<h1>` elements, one visible reading "Cancel Your Solar Contract" and one hidden with `clip:rect(0,0,0,0)` reading "Cancel Your Solar Contract | Solar Freedom". A scan of all 584 built pages found this was the only page with more than one `<h1>`, and that the only page with none is Google's site-verification file, which is correct. The cause is two files each reasonable alone: `client/index.html` line 99 carried the hidden heading, and `scripts/prerender.assembled.mjs` line 1648 injects a real `<h1>` into every built page. Neither file is wrong on its own, so neither would ever have been reviewed as the cause. Demoting rather than deleting was deliberate — deleting would have removed the only heading text from the un-pre-rendered homepage.
+
+**Verified:** The guard was first run against the **unfixed** build and failed on `/` with the exact two headings, then passed after the rebuild, so it has been seen to fail. `pnpm check` clean; `pnpm build` pre-rendered 583 pages; the homepage now has 1 `<h1>` and 583 of 584 pages have exactly 1.
+
+**Recurrence guard:** The guard reads the built output, so it catches any future interaction between the template and the pre-renderer regardless of which file changes. A separate assertion reads `client/index.html` directly and fails if any `<h1>` reappears there, naming the cause rather than only the symptom.
+
+**Measure after:** 2026-12-05
+
 ## 2026-11-26 — Eight indexable pages served no meta-keywords tag while the other twenty-two did
 **Class:** SEO
 **Changed:**

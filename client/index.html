@@ -95,8 +95,12 @@
   <meta name="msvalidate.01" content="97B81D930FF78131D36566C661D8A98B" />
   </head>
   <body>
-    <!-- Semantic H1 for crawlers that do not execute JavaScript -->
-    <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Cancel Your Solar Contract | Solar Freedom</h1>
+    <!-- Semantic heading text for crawlers that do not execute JavaScript.
+         Deliberately a <p>, not an <h1>: scripts/prerender.assembled.mjs injects a real
+         <h1> into every built page, so an <h1> here produced TWO <h1> elements on the
+         homepage — one visible, one hidden. The text is kept because the dev server and
+         any non-prerendered route still benefit from it. -->
+    <p class="visually-hidden-heading" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Cancel Your Solar Contract | Solar Freedom</p>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <!-- GHL Widget Brand Color Override -->
