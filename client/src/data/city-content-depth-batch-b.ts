@@ -11,7 +11,7 @@ export const cityContentDepthBatchB: CityContentDepth[] = [
       { label: "Savannah Solar Installs", value: "4,200+" },
       { label: "Georgia Power Rate", value: "$0.13/kWh avg" },
       { label: "Avg. Monthly Solar Payment", value: "$162" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "Payment higher than pre-solar Georgia Power bill",
@@ -32,7 +32,7 @@ export const cityContentDepthBatchB: CityContentDepth[] = [
       { q: "Can I cancel a solar contract in Savannah, Georgia?", a: "Yes. Georgia's Fair Business Practices Act provides remedies for deceptive sales practices. A free case review can identify whether misrepresentation, TILA violations, or disclosure failures apply to your specific situation." },
       { q: "Does Savannah's coastal environment affect solar performance?", a: "Yes. Salt air, high humidity, and Savannah's significant tree canopy can all reduce solar production. If these factors were not disclosed during the sales process, they may be relevant to a performance claim." },
       { q: "What are my options if my Savannah solar company went out of business?", a: "Contact the financing company directly. File complaints with the Georgia AG, FTC, and CFPB." },
-      { q: "How long does it take to resolve a solar contract dispute in Georgia?", a: "Depending on the path taken, resolution typically takes 45–75 days." },
+      { q: "How long does it take to resolve a solar contract dispute in Georgia?", a: "Timing varies with the agreement, the facts, the parties involved, and the process selected. No result or timeline can be determined before an individual review." },
     ],
   },
   // ─── NORTH CAROLINA ───────────────────────────────────────────────────────────
@@ -325,7 +325,7 @@ export const cityContentDepthBatchB: CityContentDepth[] = [
       { label: "Nashville Solar Installs", value: "7,200+" },
       { label: "TVA Net Metering", value: "Limited — Green Power Providers" },
       { label: "Avg. Monthly Solar Payment", value: "$164" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "TVA's Green Power Providers program limitations not disclosed",
@@ -346,7 +346,7 @@ export const cityContentDepthBatchB: CityContentDepth[] = [
       { q: "How does TVA's Green Power Providers program affect my Nashville solar savings?", a: "TVA's Green Power Providers program has capacity limits and different compensation rates than standard net metering. If your savings projections assumed standard net metering rates, they may have been overstated." },
       { q: "Can I cancel a solar contract in Nashville, Tennessee?", a: "Yes. Tennessee's Consumer Protection Act provides remedies for deceptive sales practices. A free case review identifies whether these apply to your situation." },
       { q: "What are my options if my Nashville solar company went out of business?", a: "Contact the financing company directly. File complaints with the Tennessee AG, FTC, and CFPB." },
-      { q: "How long does it take to resolve a solar contract dispute in Nashville?", a: "Depending on the path taken, resolution typically takes 45–75 days." },
+      { q: "How long does it take to resolve a solar contract dispute in Nashville?", a: "Timing varies with the agreement, the facts, the parties involved, and the process selected. No result or timeline can be determined before an individual review." },
     ],
   },
   {

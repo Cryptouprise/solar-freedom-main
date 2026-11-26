@@ -32,7 +32,7 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
       { q: "Can I cancel a solar contract in Austin, Texas?", a: "Yes. Austin homeowners have several options depending on their contract type: legal cancellation based on misrepresentation or TILA violations, negotiated buyout, or transfer to a home buyer. A free case review identifies which options apply to your specific agreement." },
       { q: "Did Austin Energy's net metering capacity limits affect my solar savings?", a: "Possibly yes. Austin Energy's net metering program has a capacity cap. If your savings projections assumed full net metering availability and the program was near or at capacity when you signed, those projections may have been inaccurate. This may be grounds for a misrepresentation claim." },
       { q: "What if my Austin solar system is underperforming due to tree shading?", a: "If the site assessment did not properly account for Austin's tree canopy and shading, and your system is producing significantly less than projected, you may have a breach of contract or misrepresentation claim. Document the underperformance and compare it to the written projections." },
-      { q: "How long does it take to cancel a solar contract in Austin?", a: "Depending on the path taken, resolution typically takes 30–90 days. Legal cancellation based on misrepresentation can sometimes be resolved in 30–45 days with an attorney demand letter." },
+      { q: "How long does it take to cancel a solar contract in Austin?", a: "Timing varies with the agreement, the facts, the parties involved, and the process selected. No result or timeline can be determined before an individual review." },
     ],
   },
   {
@@ -480,7 +480,7 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
       { label: "Henderson Solar Installs", value: "18,000+" },
       { label: "NV Energy Net Metering Change", value: "2015, 2017, 2023" },
       { label: "Avg. Monthly Solar Payment", value: "$179" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "NV Energy net metering changes eliminated promised savings",
@@ -511,7 +511,7 @@ export const cityContentDepthBatchA: CityContentDepth[] = [
       { label: "North Las Vegas Solar Installs", value: "9,000+" },
       { label: "NV Energy Net Metering Change", value: "2015, 2017, 2023" },
       { label: "Avg. Monthly Solar Payment", value: "$176" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "NV Energy net metering changes eliminated promised savings",

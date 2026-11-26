@@ -22,7 +22,7 @@ export const cityContentDepth: CityContentDepth[] = [
       { label: "Houston Solar Installs (2023)", value: "14,200+" },
       { label: "Avg. Monthly Solar Payment", value: "$187" },
       { label: "BBB Complaints (TX Solar)", value: "1,400+" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "Monthly payment higher than pre-solar electric bill",
@@ -53,7 +53,7 @@ export const cityContentDepth: CityContentDepth[] = [
       { label: "DFW Solar Installs (2023)", value: "11,800+" },
       { label: "Avg. Monthly Solar Payment", value: "$192" },
       { label: "TX AG Solar Complaints", value: "800+" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "Payment higher than the electric bill it was supposed to replace",
@@ -73,7 +73,7 @@ export const cityContentDepth: CityContentDepth[] = [
     localFaq: [
       { q: "Can I get out of a solar contract in Dallas, Texas?", a: "Yes. Dallas homeowners have several options depending on their contract type and circumstances: legal cancellation based on misrepresentation or TILA violations, negotiated buyout, or transfer to a home buyer. A free case review identifies which options apply to your specific agreement." },
       { q: "What solar companies have the most complaints in Dallas?", a: "Based on BBB and Texas AG complaint data, the most complained-about companies in the DFW area include Sunrun, Freedom Forever, Tesla Solar, and ADT Solar. Common issues include undisclosed escalator clauses, dealer fees, and savings projections that did not materialize." },
-      { q: "How long does it take to cancel a solar contract in Texas?", a: "Depending on the path taken, resolution typically takes 30–90 days. Legal cancellation based on misrepresentation can sometimes be resolved in 30–45 days with an attorney demand letter. Negotiated buyouts typically take 45–75 days." },
+      { q: "How long does it take to cancel a solar contract in Texas?", a: "Timing varies with the agreement, the facts, the parties involved, and the process selected. No result or timeline can be determined before an individual review." },
       { q: "Will canceling my solar contract hurt my credit?", a: "A properly pursued legal cancellation or negotiated settlement typically does not affect your credit. Stopping payments unilaterally without legal guidance can cause credit damage. Always pursue legal options through proper channels before stopping payments." },
     ],
   },
@@ -84,7 +84,7 @@ export const cityContentDepth: CityContentDepth[] = [
       { label: "San Antonio Solar Installs", value: "8,400+" },
       { label: "CPS Energy Net Metering Rate", value: "Reduced 2023" },
       { label: "Avg. Monthly Solar Payment", value: "$178" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "CPS Energy net metering rates changed — savings projections no longer accurate",
@@ -116,7 +116,7 @@ export const cityContentDepth: CityContentDepth[] = [
       { label: "LA County Solar Installs", value: "180,000+" },
       { label: "NEM 3.0 Impact on Savings", value: "Up to 75% reduction" },
       { label: "CA AG Solar Complaints", value: "3,200+" },
-      { label: "Typical Resolution Time", value: "30–60 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "NEM 3.0 changes eliminated the savings that were promised at signing",
@@ -149,7 +149,7 @@ export const cityContentDepth: CityContentDepth[] = [
       { label: "SDG&E Average Rate", value: "$0.47/kWh (highest in US)" },
       { label: "San Diego Solar Installs", value: "95,000+" },
       { label: "NEM 3.0 Export Credit Reduction", value: "Up to 75%" },
-      { label: "Typical Resolution Time", value: "30–60 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "SDG&E rates increased faster than solar savings — net cost higher than before",

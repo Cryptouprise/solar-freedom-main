@@ -111,7 +111,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     marketStats: [
       { label: "City Population", value: "874K" },
       { label: "Solar Market", value: "High Activity" },
-      { label: "Avg. Resolution", value: "30–90 Days" },
+      { label: "Case Review", value: "Free" },
       { label: "Case Review", value: "FREE" },
     ],
     localFaq: [
@@ -165,7 +165,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     marketStats: [
       { label: "City Population", value: "1.0M" },
       { label: "Solar Market", value: "High Activity" },
-      { label: "Avg. Resolution", value: "30–90 Days" },
+      { label: "Case Review", value: "Free" },
       { label: "Case Review", value: "FREE" },
     ],
     localFaq: [
@@ -551,7 +551,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     marketStats: [
       { label: "City Population", value: "121K" },
       { label: "Solar Market", value: "High Activity" },
-      { label: "Avg. Resolution", value: "30–90 Days" },
+      { label: "Case Review", value: "Free" },
       { label: "Case Review", value: "FREE" },
     ],
     localFaq: [
@@ -1109,7 +1109,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     marketStats: [
       { label: "City Population", value: "202K" },
       { label: "Solar Market", value: "Emerging Market" },
-      { label: "Avg. Resolution", value: "30–90 Days" },
+      { label: "Case Review", value: "Free" },
       { label: "Case Review", value: "FREE" },
     ],
     localFaq: [

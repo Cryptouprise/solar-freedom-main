@@ -136,7 +136,7 @@ export const cityContentDepthBatchC: CityContentDepth[] = [
       { label: "Cincinnati Solar Installs", value: "4,200+" },
       { label: "Ohio Sunshine Hours", value: "178/year" },
       { label: "Avg. Monthly Solar Payment", value: "$160" },
-      { label: "Typical Resolution Time", value: "45–75 Days" },
+      { label: "Case Review", value: "Free" },
     ],
     topComplaints: [
       "Savings projections based on unrealistic sunshine hours",
@@ -157,7 +157,7 @@ export const cityContentDepthBatchC: CityContentDepth[] = [
       { q: "Can I cancel a solar contract in Cincinnati, Ohio?", a: "Yes. Ohio's Consumer Sales Practices Act provides remedies for deceptive sales practices. A free case review identifies whether these apply to your situation." },
       { q: "Does Ohio's cloud cover affect solar performance in Cincinnati?", a: "Yes. Ohio is one of the cloudiest states in the US. If your savings projections assumed significantly more sunshine, they may have been inaccurate." },
       { q: "What are my options if my Cincinnati solar company went out of business?", a: "Contact the financing company directly. File complaints with the Ohio AG, FTC, and CFPB." },
-      { q: "How long does it take to resolve a solar contract dispute in Cincinnati?", a: "Depending on the path taken, resolution typically takes 45–75 days." },
+      { q: "How long does it take to resolve a solar contract dispute in Cincinnati?", a: "Timing varies with the agreement, the facts, the parties involved, and the process selected. No result or timeline can be determined before an individual review." },
     ],
   },
   // ─── PENNSYLVANIA ─────────────────────────────────────────────────────────────

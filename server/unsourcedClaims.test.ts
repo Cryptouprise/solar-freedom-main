@@ -203,4 +203,86 @@ describe('unsourced claim guard', () => {
     // The timeline promise that actually shipped must be caught.
     expect(filter).toContain('with legal help');
   });
+
+  /**
+   * LATENT RUNTIME PROMISES -- fifth occurrence of this defect class.
+   *
+   * Measured 26 Nov 2026: 16 of the 27 INDEXABLE city pages carried a
+   * resolution-time promise in the legacy depth files. Every one of the 23
+   * strings sat in `localFaq` or `marketStats`, and a repository-wide grep
+   * proved NO component renders either field:
+   *
+   *     grep -rn "\.localFaq|marketStats" client/src --include=*.tsx
+   *     -> CityPage.tsx:517 builds its OWN local `marketStats` literal
+   *     -> no consumer of depth.localFaq or depth.marketStats anywhere
+   *
+   * So none of it was live. But the assertion above could not see it, for two
+   * independent reasons, and both are the point of this test:
+   *
+   *   1. ALLOWED exempts the depth files by WHOLE FILE. An indexable city
+   *      inside an allow-listed file is therefore never scanned.
+   *   2. The dist/public assertion can never see this path at all. These files
+   *      feed the runtime React component CityPage.tsx, not the pre-rendered
+   *      shell, so the string does not exist in the built HTML.
+   *
+   * A page cannot be protected by a scan that structurally cannot see it. This
+   * test scans SOURCE, scopes to indexable cities only, and does not consult
+   * ALLOWED, so the allow-list cannot be used to hide an indexable defect.
+   */
+  it('no INDEXABLE city carries a resolution-time promise in any depth field', () => {
+    const eligibility = JSON.parse(
+      fs.readFileSync(path.join(ROOT, 'shared/index-eligibility.json'), 'utf-8'),
+    ) as { citySlugs: string[] };
+    const indexable = new Set(eligibility.citySlugs);
+
+    // Scope guard: if the approved indexable set ever changes size, this test
+    // must be re-read rather than silently covering a different set of pages.
+    expect(indexable.size, 'indexable city set changed -- re-verify scope').toBe(27);
+
+    const PROMISE =
+      /30[–-]90|45[–-]75|30[–-]60|Typical Resolution|Avg\. Resolution|resolution typically takes/i;
+
+    const offenders: string[] = [];
+    for (const file of fs.readdirSync(DATA_DIR)) {
+      if (!file.startsWith('city-content-depth')) continue;
+      const src = fs.readFileSync(path.join(DATA_DIR, file), 'utf-8');
+      // Split on the slug boundary so a match is attributed to exactly one city.
+      const blocks = src.split(/\n\s*\{\s*\n\s*slug:\s*"/);
+      for (const block of blocks.slice(1)) {
+        const slug = /^([a-z0-9-]+)"/.exec(block)?.[1];
+        if (!slug || !indexable.has(slug)) continue;
+        const m = PROMISE.exec(block);
+        if (m) {
+          offenders.push(`${file} :: ${slug} :: "${m[0]}"`);
+        }
+      }
+    }
+
+    expect(
+      offenders,
+      `Indexable city pages carry a resolution-time promise. These fields are\n` +
+        `currently unrendered, so the string is latent rather than live -- but\n` +
+        `wiring the field up would publish it instantly. Fix the copy:\n${offenders.join('\n')}`,
+    ).toEqual([]);
+  });
+
+  it('the latent-promise guard actually fires when the defect is reintroduced', () => {
+    // A guard that has never been seen to fail is not a guard. This reproduces
+    // the exact pre-fix string shape on an indexable city and asserts the same
+    // regex the test above uses catches it.
+    const PROMISE =
+      /30[–-]90|45[–-]75|30[–-]60|Typical Resolution|Avg\. Resolution|resolution typically takes/i;
+    const injected = [
+      '{ label: "Avg. Resolution", value: "30\u201390 Days" },',
+      '{"label":"Typical Resolution","value":"30-90 days"}',
+      'a: "Depending on the path taken, resolution typically takes 45\u201375 days."',
+      '{ label: "Typical Resolution Time", value: "30\u201360 Days" }',
+    ];
+    for (const s of injected) {
+      expect(PROMISE.test(s), `guard missed: ${s}`).toBe(true);
+    }
+    // And it must not fire on the approved replacement wording.
+    expect(PROMISE.test('a: "Timing varies with the agreement, the facts."')).toBe(false);
+    expect(PROMISE.test('{ label: "Case Review", value: "Free" }')).toBe(false);
+  });
 });
