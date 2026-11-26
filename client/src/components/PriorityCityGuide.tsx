@@ -6,6 +6,7 @@ import { ArticleContent } from './ArticlePresentation';
 import { buildPriorityCitySchemas, type PriorityCityContent } from '@shared/priorityCityContent';
 import { isVegasCityPath } from '@shared/vegasCampaign';
 import VegasBookingCTA from './VegasBookingCTA';
+import { BookingButton } from './ConversionActions';
 
 export default function PriorityCityGuide({ data, heroImage, form }: { data: PriorityCityContent; heroImage: string; form: ReactNode }) {
   const path = `/cancel-solar-contract/${data.slug}`;
@@ -31,9 +32,16 @@ export default function PriorityCityGuide({ data, heroImage, form }: { data: Pri
             <p className="mb-3 font-semibold text-white">Talk through your situation in a no-obligation case review.</p>
             <VegasBookingCTA city={data.city} path={path} placement="hero" />
             <a href="#city-form" className="mt-4 inline-flex items-center gap-2 font-medium text-amber-300 underline underline-offset-4">Prefer to send your details? Start your case review <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
-          </div> : <div className="mt-7 flex flex-col items-start gap-3 sm:flex-row">
-            <a href="#city-form" className={reviewLinkClass}>Request a no-obligation review <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
-            <a href="#city-answer" className="inline-flex min-h-12 items-center rounded-lg border border-white/20 px-5 py-3 text-sm text-zinc-200 hover:border-amber-500/60">Understand your next step</a>
+          </div> : <div className="mt-6 max-w-xl" data-city-hero-actions>
+            {/* Every priority city now offers a real booking. Before this, only the
+                two Las Vegas pages had a calendar; every other priority city could
+                only send a visitor down the page to a form. */}
+            <p className="mb-3 font-semibold text-white">Talk through your situation in a no-obligation case review.</p>
+            <BookingButton path={path} placement="city_hero" label="Book a 15-minute call" context={data.city} />
+            <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row">
+              <a href="#city-form" className={reviewLinkClass}>Prefer to send your details? <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
+              <a href="#city-answer" className="inline-flex min-h-12 items-center text-sm text-zinc-300 underline underline-offset-4 hover:text-amber-300">Understand your next step</a>
+            </div>
           </div>}
           <p className="mt-4 text-xs leading-5 text-zinc-300">Educational information—not legal advice. No guaranteed result.</p>
         </div>
@@ -65,7 +73,8 @@ export default function PriorityCityGuide({ data, heroImage, form }: { data: Pri
           <section className="rounded-2xl border border-amber-500/40 bg-[#171A21] p-5 sm:p-7" data-city-mid-cta data-vegas-mid-cta={vegas || undefined}>
             <h2 className="font-display text-3xl leading-tight">You do not have to work this out alone</h2>
             <p className="mb-5 mt-3 text-sm leading-7 text-zinc-300">Tell us what was promised and what is going wrong. A case review can help identify the documents and questions to address next. It does not guarantee that you can cancel.</p>
-            {vegas ? <VegasBookingCTA city={data.city} path={path} placement="mid_page" /> : <a href="#city-form" className={reviewLinkClass}>Request a case review <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>}
+            {vegas ? <VegasBookingCTA city={data.city} path={path} placement="mid_page" /> : <div className="max-w-sm"><BookingButton path={path} placement="city_mid" label="Book a 15-minute call" context={data.city} /></div>}
+            <a href="#city-form" className={`mt-4 ${reviewLinkClass}`}>Or leave your number for a callback <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
           </section>
           <div className="space-y-4">
             {data.reviewSteps.map((section, index) => <section key={section.heading} className="rounded-xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
@@ -101,7 +110,7 @@ export default function PriorityCityGuide({ data, heroImage, form }: { data: Pri
           <p className="mb-4 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-amber-400"><ShieldCheck className="h-4 w-4" aria-hidden="true" />No obligation</p>
           <h2 className="font-display text-3xl leading-tight">Request your {data.city} contract review</h2>
           <p className="mb-6 mt-4 text-sm leading-7 text-zinc-300">{data.ctaCopy}</p>
-          {vegas && <VegasBookingCTA city={data.city} path={path} />}
+          {vegas ? <VegasBookingCTA city={data.city} path={path} /> : <div className="mb-5"><BookingButton path={path} placement="city_form" label="Choose a call time" context={data.city} /></div>}
           {form}
         </aside>
       </div>

@@ -29,6 +29,8 @@ import { trpc } from "@/lib/trpc";
 import { recordLeadSubmission } from "@/lib/analytics";
 import StickyMobileBar from "@/components/StickyMobileBar";
 import PriorityCityGuide from "@/components/PriorityCityGuide";
+import ConversionActions, { BookingButton, LeadCaptureForm } from "@/components/ConversionActions";
+import { isVegasCityPath } from "@shared/vegasCampaign";
 import { getPriorityCityContent } from "@shared/priorityCityContent";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
@@ -76,7 +78,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 }
 
 // Compact multi-step form for city pages
-function CityForm({ city, state }: { city: string; state: string }) {
+function CityForm({ city, state, path, bookingOffered = false }: { city: string; state: string; path?: string; bookingOffered?: boolean }) {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -170,7 +172,18 @@ function CityForm({ city, state }: { city: string; state: string }) {
   if (step < steps.length) {
     const current = steps[step];
     return (
-      <div className="space-y-5">
+      <div className="space-y-5" data-lead-form="city_multistep" data-lead-form-state="step">
+        {/* Booking offered up front. The calendar used to be reachable only after
+            all three questions plus name, phone and email were completed, which
+            put a five-field gate in front of a visitor who was already ready to
+            talk. Answering the questions remains a valid path. */}
+        {!bookingOffered && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+            <p className="text-white font-semibold text-sm">Ready to talk it through?</p>
+            <p className="text-gray-400 text-xs mt-1 mb-3 leading-relaxed">Pick a time for a no-obligation case-review call, or answer the questions below first.</p>
+            <BookingButton path={path || (typeof window !== 'undefined' ? window.location.pathname : '/cancel-solar-contract')} placement="city_form" label="Choose a call time" context={city} />
+          </div>
+        )}
         <div className="flex gap-1 mb-6">
           {steps.map((_, i) => (
             <div key={i} className="h-1 flex-1 rounded-full" style={{ background: i <= step ? "#f97316" : "oklch(0.3 0.01 265)" }} />
@@ -202,7 +215,7 @@ function CityForm({ city, state }: { city: string; state: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-lead-form="city_multistep" data-lead-form-state="contact">
       <div className="flex gap-1 mb-6">
         {steps.map((_, i) => (
           <div key={i} className="h-1 flex-1 rounded-full" style={{ background: "#f97316" }} />
@@ -393,7 +406,11 @@ function RecoveredCityPage({
               <h2 className="font-display text-2xl">{recovery.payload.ctaHeading}</h2>
               <p className="mt-3 text-sm leading-relaxed text-zinc-300">{recovery.payload.ctaCopy}</p>
               <div className="mt-6">
-                <CityForm city={city.name} state={city.state} />
+                {/* Recovered city pages carry a form but had no way to book a call. */}
+                <div className="mb-5">
+                  <BookingButton path={path} placement="city_form" label="Choose a call time" context={city.name} />
+                </div>
+                <CityForm city={city.name} state={city.state} path={path} />
               </div>
             </div>
           </aside>
@@ -415,6 +432,9 @@ export default function CityPage() {
   );
   const recovery = publishedRecovery as PublishedCityRecovery | null | undefined;
   const priorityGuide = getPriorityCityContent(`/cancel-solar-contract/${slug}`);
+  // Single canonical path for this city page, used for lead attribution and for
+  // the booking action so every layout reports the same source page.
+  const cityPath = `/cancel-solar-contract/${slug}`;
 
   useSeoMeta({
     title: recovery?.payload.metaTitle ?? priorityGuide?.title ?? (city
@@ -455,7 +475,7 @@ export default function CityPage() {
   }
 
   if (priorityGuide) {
-    return <PriorityCityGuide data={priorityGuide} heroImage={heroImage} form={<CityForm key={slug} city={city.name} state={city.state} />} />;
+    return <PriorityCityGuide data={priorityGuide} heroImage={heroImage} form={<CityForm key={slug} city={city.name} state={city.state} path={cityPath} bookingOffered={isVegasCityPath(cityPath)} />} />;
   }
 
   const faqItems = [
@@ -565,6 +585,12 @@ export default function CityPage() {
             </p>
           </Reveal>
           <Reveal delay={0.15}>
+            {/* The hero previously offered only "DO I QUALIFY?", an anchor to the
+                form far down the page. A visitor ready to talk now has a real
+                booking action above the fold. */}
+            <div className="mb-4 max-w-sm">
+              <BookingButton path={cityPath} placement="city_hero" label="Book a 15-minute call" context={city.name} />
+            </div>
             <div className="flex flex-wrap gap-4">
               <a href="#city-form" className="px-8 py-4 rounded font-bold text-black text-lg" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
                 DO I QUALIFY? →
@@ -893,7 +919,7 @@ export default function CityPage() {
                     </h2>
                     <p className="text-gray-400 text-sm mt-2">Answer 3 quick questions about your {city.name} solar contract.</p>
                   </div>
-                  <CityForm city={city.name} state={city.state} />
+                  <CityForm city={city.name} state={city.state} path={cityPath} />
                 </div>
               </Reveal>
             </div>
@@ -901,6 +927,21 @@ export default function CityPage() {
         </div>
       </section>
 
+      {/* MID-PAGE CONVERSION — booking + callback, in normal flow.
+          Placed after the evidence sections and before the FAQ, which is where a
+          reader who is persuaded but not yet ready to fill a long form will act. */}
+      <section className="py-10" style={{ background: "oklch(0.11 0.01 265)" }}>
+        <div className="container max-w-5xl">
+          <ConversionActions
+            path={cityPath}
+            placement="city_mid"
+            formName={`city_mid_${slug}`}
+            context={city.name}
+            heading={`Talk through your ${city.name} solar agreement`}
+            subheading={`A short call to walk through what you signed and what you were told. Nothing is decided on the call, and there is no obligation.`}
+          />
+        </div>
+      </section>
       {/* LOCAL FAQ */}
       <section className="py-16 border-t border-white/8" style={{ background: "oklch(0.11 0.01 265)" }}>
         <div className="container max-w-3xl mx-auto">

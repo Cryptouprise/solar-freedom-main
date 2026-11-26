@@ -251,6 +251,33 @@ describe("leads.quickCallback", () => {
     expect(markLeadGhlSent).toHaveBeenCalledWith(42);
   });
 
+  it("persists and forwards an optional email without making it required", async () => {
+    // The phone-first form on articles and city pages offers an optional email.
+    // It must be stored when supplied and never silently dropped, while a
+    // phone-only submission must keep working exactly as before.
+    const caller = createCaller(makePublicCtx());
+    await caller.leads.quickCallback({
+      phone: "9049214971",
+      name: "Grace Hopper",
+      email: "grace@example.com",
+      sourcePage: "/blog/example",
+      formName: "article_top_example",
+    });
+    expect(insertLead).toHaveBeenCalledWith(
+      expect.objectContaining({ email: "grace@example.com", phone: "9049214971" })
+    );
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ body: expect.stringContaining("grace@example.com") })
+    );
+  });
+  it("rejects a malformed optional email rather than persisting it", async () => {
+    const caller = createCaller(makePublicCtx());
+    await expect(
+      caller.leads.quickCallback({ phone: "9049214971", email: "not-an-email" })
+    ).rejects.toThrow();
+    expect(insertLead).not.toHaveBeenCalled();
+  });
   it("accepts callback requests with only phone number", async () => {
     const caller = createCaller(makePublicCtx());
 

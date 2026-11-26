@@ -204,6 +204,14 @@ export const appRouter = router({
         z.object({
           phone: z.string().min(7).max(40),
           name: z.string().max(200).optional(),
+          /**
+           * Optional email for the phone-first form on articles and city pages.
+           *
+           * The same shape the client validates is enforced here so a malformed
+           * value can never be persisted and later used for outreach. Absent or
+           * blank means the lead is phone-only, which is the common case.
+           */
+          email: z.string().trim().email().max(320).optional(),
           intent: z.string().max(200).optional(),
           sourcePage: z.string().max(500).optional(),
           sourceUrl: z.string().max(2_000).optional(),
@@ -220,7 +228,7 @@ export const appRouter = router({
           firstName: firstName || null,
           lastName: lastName || null,
           phone: input.phone,
-          email: null,
+          email: input.email ?? null,
           formName: input.formName ?? "quick_callback_request",
           intent: input.intent,
           sourcePage: input.sourcePage ?? "unknown",
@@ -248,6 +256,7 @@ export const appRouter = router({
           first_name: firstName || "Website",
           last_name: lastName || "Visitor",
           full_name: input.name?.trim() || "Website Visitor",
+          email: input.email,
           source: input.sourcePage ?? "solar-freedom",
           form_name: input.formName ?? "quick_callback_request",
           intent: input.intent,
