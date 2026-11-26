@@ -11,8 +11,8 @@ export const batch14BlogPosts: BlogPost[] = [
   {
     slug: 'goodleap-tila-violation-cancel-solar-loan',
     title: 'GoodLeap TILA Violations: How Federal Law Lets You Cancel Your Solar Loan',
-    metaTitle: 'GoodLeap TILA Violation — Cancel Your Solar Loan Under Federal Law',
-    metaDescription: `GoodLeap hid dealer fees in your loan documents — that's a federal TILA violation. Attorneys are using it to cancel GoodLeap loans right now. Free case review.`,
+    metaTitle: 'GoodLeap Solar Loans and TILA: How to Check the Disclosures',
+    metaDescription: `TILA requires a solar lender to disclose the true cost of credit. What a GoodLeap loan review checks, the dealer-fee question, and the rescission window.`,
     category: 'Contract Help',
     readTime: '11 min read',
     publishDate: 'July 21, 2026',

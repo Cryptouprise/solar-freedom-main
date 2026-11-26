@@ -108,6 +108,19 @@ const LEGACY_NOINDEX_BLOGS = [
   'blog-articles-batch7.ts',
 ];
 
+/**
+ * A named company followed by a knowledge verb — an assertion about a company's
+ * state of mind, which is a finding a court makes, not something this site can
+ * state as fact. Deliberately does NOT match the legitimate hedge
+ * "depends on what it knew", but DOES match "knew (or should have known)".
+ */
+const STATE_OF_MIND = new RegExp(
+  '(?:Sunrun|SunPower|Sunnova|GoodLeap|Mosaic|Tesla|SolarCity|Blue Raven|ADT|' +
+    'Freedom Forever|Titan|Sunlight Financial|Vivint|SunStrong)' +
+    '\\s+(?:knew|knowingly|intentionally|deliberately|willfully|concealed|hid|lied)',
+  'i',
+);
+
 function articleFiles(): string[] {
   return fs
     .readdirSync(DATA_DIR)
@@ -284,5 +297,72 @@ describe('unsourced claim guard', () => {
     // And it must not fire on the approved replacement wording.
     expect(PROMISE.test('a: "Timing varies with the agreement, the facts."')).toBe(false);
     expect(PROMISE.test('{ label: "Case Review", value: "Free" }')).toBe(false);
+  });
+
+  /**
+   * STATE-OF-MIND CLAIMS ABOUT A NAMED COMPANY.
+   *
+   * Found 26 Nov 2026 on /blog/sunrun-complaints-california, which is INDEXABLE
+   * and earned 214 impressions across 45 queries at average position 12.6:
+   *
+   *   metaTitle:       "... NEM 3.0 Fraud & Legal Options"
+   *   metaDescription: "... NEM 3.0 wiped out your savings and Sunrun knew."
+   *
+   * The second sentence asserts, as established fact, that a named company knew
+   * it was harming customers. No source for Sunrun's state of mind exists
+   * anywhere in this repository, and none could exist, because intent is the
+   * thing a court decides. This site is also not a law firm, so it cannot plead
+   * a claim it is not making.
+   *
+   * WHY THIS IS THE MOST EXPENSIVE SENTENCE THE SITE CAN PUBLISH
+   * A provably false statement of fact about a named company is the core of a
+   * defamation claim, and the "of and concerning" element is satisfied by
+   * naming the company in a meta description served to every searcher. It is
+   * simultaneously a conversion problem: a homeowner who is unsure whether they
+   * were misled is told their case is already proven, which is exactly the kind
+   * of promise this site's own trust governance exists to prevent.
+   *
+   * The pattern is deliberately narrow. It targets a COMPANY-NAME subject
+   * followed by a knowledge verb, and it deliberately DOES flag the hedge
+   * "knew (or should have known)", because asserting what a sales rep knew is
+   * the same problem with a softer verb. It does not touch genuine hedging of
+   * the form "depends on what it knew", which is how these pages should read.
+   */
+  it('no indexable page asserts what a named company knew, as established fact', () => {
+    const offenders: string[] = [];
+    for (const file of fs.readdirSync(DATA_DIR)) {
+      if (!file.endsWith('.ts')) continue;
+      const lines = fs.readFileSync(path.join(DATA_DIR, file), 'utf-8').split('\n');
+      lines.forEach((line, i) => {
+        // Scope to the meta fields: those are what a searcher actually sees, and
+        // they are what makes the statement "of and concerning" the company to
+        // the whole world rather than one reader's private reading.
+        if (!/metaDescription:|metaTitle:/.test(line)) return;
+        const m = STATE_OF_MIND.exec(line);
+        if (m) offenders.push(`${file}:${i + 1}  "${m[0]}"`);
+      });
+    }
+    expect(
+      offenders,
+      `Meta copy asserts what a named company knew, with no source. Intent is a\n` +
+        `finding a court makes, not something this site can state. Rewrite to\n` +
+        `describe the verifiable mechanism instead:\n${offenders.join('\n')}`,
+    ).toEqual([]);
+  });
+
+  it('the state-of-mind guard fires on the exact shipped sentence', () => {
+    // The exact sentence that shipped, reproduced verbatim.
+    expect(
+      STATE_OF_MIND.test(
+        'metaDescription: `California Sunrun customers: NEM 3.0 wiped out your savings and Sunrun knew. If you were misled, you may have a fraud claim.`',
+      ),
+      'guard missed the sentence that actually shipped',
+    ).toBe(true);
+    // It must NOT fire on the legitimate hedging this site is supposed to use.
+    expect(
+      STATE_OF_MIND.test(
+        'a: `depends on what it knew about the installer and what your documents say`',
+      ),
+    ).toBe(false);
   });
 });

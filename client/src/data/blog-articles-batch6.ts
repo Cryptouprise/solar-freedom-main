@@ -1790,8 +1790,8 @@ You Have the Power to Fight Back` },
   {
     slug: `sunrun-complaints-california`,
     title: `Sunrun Complaints in California: Common Issues & Your Legal Rights`,
-    metaTitle: `Sunrun Complaints California 2026 — NEM 3.0 Fraud & Legal Options`,
-    metaDescription: `California Sunrun customers: NEM 3.0 wiped out your savings and Sunrun knew. If you were misled, you may have a fraud claim. Free case review — no obligation.`,
+    metaTitle: `Sunrun Complaints California 2026: NEM 3.0 and Your Options`,
+    metaDescription: `The most common Sunrun complaints in California, what NEM 3.0 changed on 15 April 2023, how to file with the CSLB, and what to check in your agreement.`,
     excerpt: `Discover the most common Sunrun complaints in California and how state consumer protection laws can help you escape a predatory solar contract. From deceptive sales tactics to roof leaks, learn your rights and the steps you can take to reclaim your financial freedom.`,
     category: `State Specific`,
     heroImage: `https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80`,
@@ -1823,7 +1823,52 @@ You Have the Power to Fight Back` },
       { type: 'h2', content: `Gather Your Documents: Find your original contract, any emails from the salesperson, and your utility bills from both before and after the installation. Documentation is your strongest weapon.Document the Issues: If your system isn't producing what was promised, take screenshots of your monitoring app. If you have a leak, take photos and keep a log of every time you've contacted customer service.Check the Language: Was your contract explained in your native language but signed in English? This could be a vital legal lever.File a Formal Complaint: Don't just call Sunrun. File a complaint with the Contractors State License Board and the California Attorney General's office. These agencies track patterns of abuse.Seek Expert Guidance: You don't have to fight a multi-billion dollar corporation alone. Visit our guide on how to get out of a solar contract for a deeper dive into your options.
 
 Reclaiming Your Home and Your Future` },
-      { type: 'p', content: `The stress of a predatory solar contract can feel like a heavy weight, but remember: you were targeted because you are a responsible homeowner who wanted to save money and help the environment. The deception lies with the seller, not the buyer. By understanding the specific Sunrun complaints in California and leveraging the state's robust consumer protection law, you can move from a place of victimhood to a place of empowerment. You deserve a home that provides shelter and security, not a mounting pile of debt and unkept promises. At Break Your Solar Contract, we are dedicated to helping you find the exit strategy you need. For more information on your specific rights in the Golden State, visit our California solar laws page and let us help you turn the lights back on for your financial future. You are not alone, and there is a way out. Visit breakyoursolarcontract.com today to start your journey toward freedom.` }
+      { type: 'p', content: `The stress of a predatory solar contract can feel like a heavy weight, but remember: you were targeted because you are a responsible homeowner who wanted to save money and help the environment. The deception lies with the seller, not the buyer. By understanding the specific Sunrun complaints in California and leveraging the state's robust consumer protection law, you can move from a place of victimhood to a place of empowerment. You deserve a home that provides shelter and security, not a mounting pile of debt and unkept promises. At Break Your Solar Contract, we are dedicated to helping you find the exit strategy you need. For more information on your specific rights in the Golden State, visit our California solar laws page and let us help you turn the lights back on for your financial future. You are not alone, and there is a way out. Visit breakyoursolarcontract.com today to start your journey toward freedom.` },
+
+      {
+        type: 'h2',
+        content: `The Most Common Sunrun Complaints in California, Ranked`,
+      },
+      {
+        type: 'p',
+        content: `If you want the short answer, here it is. These are the complaints California homeowners report most often, in rough order of how frequently they come up in an intake review. The order is a summary of what homeowners describe to us, not a finding about any company.`,
+      },
+      {
+        type: 'list',
+        items: [
+          'Savings projections that did not account for NEM 3.0 export compensation — the homeowner was shown NEM 2.0-era numbers on a system that would be billed under the Net Billing Tariff.',
+          'Escalator clauses on leases and PPAs that raise the payment every year, which the homeowner says was never explained at signing.',
+          'A monthly payment higher than the electricity bill it was supposed to replace.',
+          'Production below the written estimate, often with shading or roof orientation that a proper site assessment should have caught.',
+          'A federal tax credit treated as cash in the sales pitch, leaving a balloon payment in year two when the credit went to the lender instead.',
+          'Difficulty reaching a human who can change anything, especially after servicing moved to a third party.',
+          'A transfer or buyout requirement that surfaces only when the homeowner tries to sell the house.',
+        ],
+      },
+      {
+        type: 'h3',
+        content: `Sunrun Consumer Affairs: Who Actually Takes the Complaint`,
+      },
+      {
+        type: 'p',
+        content: `This is where most homeowners go to the wrong place first. The phrase "consumer affairs" leads many California homeowners to the CPUC Consumer Affairs Branch, and that is the wrong door for a solar contract dispute. The CPUC regulates the utility, not the solar contractor, so a complaint about how a system was sold or installed is not theirs to resolve.`,
+      },
+      {
+        type: 'p',
+        content: `The correct California body for a contractor complaint is the Contractors State License Board. The CSLB runs a dedicated solar complaint form and can act against a contractor's license. CSLB also states a four-year window for filing a construction complaint, so the date on your contract matters. Before you file, pull the contract, the payment record, any change orders and your written demand letter, because the board asks for documents rather than a narrative. A complaint to CSLB runs on a different track from a civil claim, and filing one does not by itself cancel your agreement.`,
+      },
+      {
+        type: 'h3',
+        content: `NEM 2.0, NEM 3.0 and What Actually Changed in California`,
+      },
+      {
+        type: 'p',
+        content: `The California Public Utilities Commission states that since 15 April 2023, customers applying for interconnection have taken service on the new net billing tariff, known as NEM 3.0, under decision D.22-12-056. It replaced NEM 2.0 for new applications from that date. Customers who were already on NEM 2.0 keep it.`,
+      },
+      {
+        type: 'p',
+        content: `The distinction that matters, and the one most sales conversations blurred, is between the credit you earn for exporting power and the value of the power your home uses directly. NEM 3.0 changed the export credit. It did not remove the benefit of self-consumption. So "NEM 3.0 wiped out my savings" is often really two separate problems: a projection built on NEM 2.0 export rates that no longer applied, and a system whose actual production never matched the written estimate. Those are different claims with different evidence, and a review should separate them rather than blend them.`,
+      },
     ],
     faq: [
           { q: `Can I cancel my Sunrun solar lease or PPA in California if the system or billing is not what I was promised?`, a: `You should first review the terms of your Sunrun contract and any disclosure documents you received at sale. You may have grounds to cancel or seek remedies if Sunrun materially misrepresented savings, failed to install as agreed, created safety issues, or violated California consumer protection or contractor disclosure rules. Gather contracts, invoices, monitoring data, and communications so a consumer advocacy organization or a legal review can determine next steps.` },
