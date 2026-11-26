@@ -2114,6 +2114,24 @@ Take Back Your Command` },
       { type: "callout", content: "Treat the project, financing, equipment warranties, workmanship warranty, monitoring, and service obligations as separate records. The company named on one document may not control the others." },
       { type: "h2", content: "Did ADT Solar shut down or file bankruptcy?" },
       { type: "p", content: "ADT's official [solar business update](https://newsroom.adt.com/corporate-news/adt-provides-solar-business-update-and-advances-capital-allocation-strategy) says the company approved an exit from residential solar and could transfer components to other parties. The announcement describes a business exit, not a statement that all customer contracts or warranties were voided." },
+      { type: "h2", content: "What do ADT Solar reviews and complaints actually show?" },
+      { type: "p", content: "The most complete public record is the [Better Business Bureau profile for ADT Solar](https://www.bbb.org/us/la/mandeville/profile/solar-energy-design/adt-solar-0985-90006391). It carries an alert reading \"Out-of-Business known or suspected\" and states that the business \"has no rating because it is out of business.\" ADT Solar is not BBB accredited. These figures were read from that profile on 25 November 2026 and will move over time." },
+      { type: "stat-block", stats: [
+        { value: "404", label: "BBB complaints, last 3 years" },
+        { value: "29", label: "BBB complaints, last 12 months" },
+        { value: "75", label: "BBB customer reviews on file" },
+        { value: "Not Rated", label: "BBB rating (out of business)" }
+      ] },
+      { type: "p", content: "BBB cautions readers to weigh those numbers against the company's size and transaction volume, and notes that how a company responds to complaints often matters more than the raw count. That context is relevant here: BBB lists 101 ADT Solar locations, and the profile covers the headquarters and corporate-owned branches only." },
+      { type: "h2", content: "Sunpro Solar has a separate BBB file with different numbers" },
+      { type: "p", content: "Sunpro Solar sits in a separate BBB profile in Saint Louis, and that file is BBB accredited, since 1 July 2021. It lists 425 complaints over the last three years and 80 customer reviews. Because the ADT Solar profile names Sunpro Solar as an alternate name, the two sets of figures are often added together online. They are distinct files covering distinct records and should be read separately." },
+      { type: "h2", content: "The same three complaints come up again and again" },
+      { type: "list", items: [
+        "The warranty was the selling point, and now nobody honors it. One reviewer praised the installation and the promised 25-year warranty on the install, then reported a roof leak a few years later. Another wrote that their system was installed four years earlier and the company is not honoring the warranty.",
+        "There is no one left to call. One reviewer wrote that they have a contract and \"can't find them to get help with my problem\" -- no service address and no working number.",
+        "The Sunpro-to-ADT transfer was never explained. One customer wrote that they bought through Sunpro in June 2020 and that \"Sunpro sold to ADT with no notification by phone, text, letter or email.\""
+      ] },
+      { type: "callout", content: "That last point decides most files. If your system was sold by Sunpro and later serviced under the ADT Solar name, the party responsible for a specific warranty or workmanship claim depends on which legal entity signed your documents, not on which brand answered the phone. Pull the signature page before deciding who to pursue." },
       { type: "h2", content: "Who should an ADT Solar or Sunpro customer identify?" },
       { type: "list", items: [
         "The legal seller and installer named in the original ADT Solar or Sunpro contract.",

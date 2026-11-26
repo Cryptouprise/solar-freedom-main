@@ -45,6 +45,36 @@ const pageMetaKeywords = JSON.parse(
 const priorityCityContent = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/priority-city-content.json"), "utf-8")
 );
+// Approved per-city hero images live in a TS module used by the client. Parse the
+// literal map so the pre-rendered shell can emit the same hero the hydrated page
+// renders. Without this a crawler saw text-only city pages, which is the "wall of
+// text" problem the owner reported.
+const cityHeroes = (() => {
+  const heroes = {};
+  const generic = { value: "" };
+  try {
+    const source = fs.readFileSync(
+      path.resolve(ROOT, "client/src/data/city-heroes.ts"),
+      "utf-8"
+    );
+    const mapBody = source.match(/CITY_HEROES[^=]*=\s*\{([\s\S]*?)\n\};/);
+    if (mapBody) {
+      for (const m of mapBody[1].matchAll(/"([a-z0-9-]+)"\s*:\s*"([^"]+)"/g)) {
+        heroes[m[1]] = m[2];
+      }
+    }
+    const genericMatch = source.match(
+      /GENERIC_CITY_HERO\s*=\s*\n?\s*"([^"]+)"/
+    );
+    if (genericMatch) generic.value = genericMatch[1];
+  } catch {
+    // Fall through: pages simply ship without a hero rather than failing the build.
+  }
+  return { heroes, generic: generic.value };
+})();
+function cityHeroFor(slug) {
+  return cityHeroes.heroes[slug] || cityHeroes.generic || "";
+}
 const INDEXED_CITY_SLUGS = new Set(indexEligibility.citySlugs);
 const INDEXED_STATE_SLUGS = new Set(indexEligibility.stateSlugs);
 const INDEXED_COMPANY_SLUGS = new Set(indexEligibility.companySlugs);
@@ -327,8 +357,13 @@ function parseContentSections(content) {
         value: findStringProp(stat, "value")?.value || "",
         label: findStringProp(stat, "label")?.value || "",
       })),
+      // Media blocks were being dropped entirely, so a crawler saw text only and
+      // the served HTML contained no <img> at all. Capture them so they can render.
+      src: findStringProp(object, "src")?.value || "",
+      alt: findStringProp(object, "alt")?.value || "",
+      caption: findStringProp(object, "caption")?.value || "",
     }))
-    .filter(section => section.content || section.items.length || section.stats.length);
+    .filter(section => section.content || section.items.length || section.stats.length || section.src);
 }
 
 // ─── FAQ + date extraction for richer structured data ────────────────────────
@@ -515,6 +550,10 @@ function loadBlogData() {
         dateModified: toIsoDate(updatedDate) || toIsoDate(publishDate),
         citations: parseExternalCitations(chunk),
         relatedSlugs: parseRelatedSlugs(chunk),
+        // Carried so the shell can emit a real hero <img>; without it a crawler
+        // saw no images at all on article pages.
+        heroImage: findStringProp(chunk, "heroImage")?.value || "",
+        heroAlt: findStringProp(chunk, "heroAlt")?.value || "",
       };
     }
   }
@@ -538,6 +577,8 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     description: "Stuck in a solar lease, loan, or PPA? See which records to gather and what options may apply. Individual review. Solar Freedom is not a law firm.",
     canonical: `${BASE_URL}/`,
     faq: HOME_FAQS,
+    heroImage: cityHeroes.generic,
+    heroAlt: "Homeowners reviewing a solar contract with a specialist",
   };
   for (const city of cityEntries) {
     const urlPath = `/cancel-solar-contract/${city.slug}`;
@@ -549,6 +590,8 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_CITY_SLUGS.has(city.slug),
       geo: { city: city.name, region: city.stateCode || undefined },
+      heroImage: cityHeroFor(city.slug),
+      heroAlt: `Solar contract help for homeowners in ${cityLabel}`,
       faq: guide?.faq,
       citations: guide?.sources.map(source => source.url),
       cityData: { state: city.state, stateCode: city.stateCode, stateLaw: city.stateLaw, population: city.population, solarActivity: city.solarActivity, companies: city.companies },
@@ -592,6 +635,8 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       contentSections: data.contentSections,
       excerpt: suppressUnverifiedFirstPartyClaims(data.excerpt),
       category: data.category,
+      heroImage: data.heroImage,
+      heroAlt: data.heroAlt,
     };
   }
   const staticPages = [
@@ -1104,6 +1149,16 @@ function renderContentSections(sections) {
           .map(stat => `<dt>${escapeHtml(stat.value)}</dt><dd>${escapeHtml(stat.label)}</dd>`)
           .join("")}</dl>`;
       }
+      // Emit real <img> markup for image blocks. Previously these were dropped,
+      // so the served HTML had zero images on every page even though the article
+      // data contained them. Only http(s) URLs are emitted.
+      if (section.type === "image" && section.src && /^https?:\/\//i.test(section.src)) {
+        const alt = escapeHtml(section.alt || section.caption || "Solar Freedom article illustration");
+        const caption = section.caption
+          ? `<figcaption>${escapeHtml(suppressUnverifiedFirstPartyClaims(section.caption))}</figcaption>`
+          : "";
+        return `<figure><img src="${escapeHtml(section.src)}" alt="${alt}" loading="lazy" decoding="async">${caption}</figure>`;
+      }
       return "";
     })
     .join("\n");
@@ -1140,8 +1195,14 @@ function buildBlogUniqueContent(meta) {
   const sources = (meta.citations || [])
     .map(url => `<li><a href="${escapeHtml(url)}" rel="noopener noreferrer">${escapeHtml(url)}</a></li>`)
     .join("");
+  // Lead the article with its hero image so crawlers and readers get a visual
+  // immediately instead of a wall of text. Only http(s) URLs are emitted.
+  const hero = meta.heroImage && /^https?:\/\//i.test(meta.heroImage)
+    ? `<figure><img src="${escapeHtml(meta.heroImage)}" alt="${escapeHtml(meta.heroAlt || meta.title || "Solar Freedom article illustration")}" loading="eager" decoding="async"></figure>`
+    : "";
   return `
     ${meta.category ? `<p>${escapeHtml(meta.category)}</p>` : ""}
+    ${hero}
     ${meta.excerpt ? `<p>${escapeHtml(meta.excerpt)}</p>` : ""}
     ${sections}
     ${sources ? `<section class="article-sources"><h2>Primary sources and official procedures</h2><ul>${sources}</ul></section>` : ""}
@@ -1375,6 +1436,13 @@ function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta
   const sourceDescription = ["city_page", "company_page"].includes(pageType)
     ? ""
     : `<p>${escapeHtml(meta.description)}</p>`;
+  // Emit the page hero as real <img> markup. Accepts both absolute CDN URLs and
+  // site-relative /manus-storage paths, which resolve against the canonical origin.
+  const heroSrc = meta.heroImage || "";
+  const heroIsSafe = /^https?:\/\//i.test(heroSrc) || /^\/[a-z0-9/_.-]+$/i.test(heroSrc);
+  const heroFigure = heroIsSafe
+    ? `<figure><img src="${escapeHtml(heroIsSafe && /^https?:\/\//i.test(heroSrc) ? heroSrc : `${BASE_URL}${heroSrc}`)}" alt="${escapeHtml(meta.heroAlt || h1)}" loading="eager" decoding="async"></figure>`
+    : "";
 
   // Build page-type-specific unique body content
   let uniqueBody = '';
@@ -1397,6 +1465,7 @@ function buildSemanticShellContent(meta, urlPath) { meta = qualifyTrustTree(meta
     <main class="seo-prerender" data-page-type="${pageType}" style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 960px; margin: 0 auto; padding: 32px 20px; color: #111827;">
       <p style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f97316; font-weight: 700;">Solar Freedom ${escapeHtml(contextLabel)}</p>
       <h1>${escapeHtml(h1)}</h1>
+      ${heroFigure}
       ${sourceDescription}
       ${uniqueBody}
       <nav aria-label="Related Solar Freedom resources">

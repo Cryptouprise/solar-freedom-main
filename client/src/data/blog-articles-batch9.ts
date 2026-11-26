@@ -7,7 +7,7 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: "sunrun-solar-contract-cancellation-2026",
     title: "How to Cancel a Sunrun Contract: Before or After Installation",
-    metaTitle: "How to Get Out of a Sunrun Contract (2026): Fees & Steps",
+    metaTitle: "Sunrun Contract Cancellation: Email, Fees & Steps (2026)",
     metaDescription: "The cancellation window, what Sunrun charges to exit, transfer and buyout options when you sell, and how to put it in writing. Free 15-minute review.",
     category: "Contract Help",
     readTime: "9 min read",
@@ -64,7 +64,17 @@ export const batch9BlogPosts: BlogPost[] = [
       ] },
       { type: "warning", content: "Do not stop paying, disable equipment, remove panels, sign a release, or agree to new terms based only on general internet guidance. Those actions can have contract, property, safety, and credit consequences." },
       { type: "h2", content: "Where can you contact Sunrun or report a problem?" },
-      { type: "p", content: "Sunrun's official [customer-support page](https://www.sunrun.com/contact-us) currently lists 855-478-6786 for existing customers. For a financial-product complaint, the [CFPB complaint portal](https://www.consumerfinance.gov/complaint/) may be relevant. The FTC accepts fraud reports at [ReportFraud.ftc.gov](https://reportfraud.ftc.gov/), and state attorneys general maintain consumer-complaint channels. Filing a complaint does not itself cancel a contract." },
+      { type: "p", content: "These details were read from Sunrun's own [contact page](https://www.sunrun.com/contact-us) on 25 November 2026. Hours are Pacific time. Confirm them on the official page before you rely on them, since contact details change." },
+      { type: "stat-block", stats: [
+        { value: "855-478-6786", label: "Existing customers" },
+        { value: "833-324-5886", label: "New solar inquiries" },
+        { value: "Mon-Fri 5am-7pm", label: "Customer support (PT)" },
+        { value: "Sat 6am-4pm", label: "Support, Sunday closed" }
+      ] },
+      { type: "h2", content: "Is there a Sunrun cancellation email address?" },
+      { type: "p", content: "This is one of the most common questions, and the honest answer is that Sunrun does not publish a general cancellation email address. Its contact page lists only phone numbers for customers, and the single email address published there is press@sunrun.com, which is for media inquiries and is not a customer-service channel. Anyone who hands you a \"cancellations@sunrun.com\" style address is guessing, and a notice sent to the wrong address can fail to satisfy a contractual deadline." },
+      { type: "callout", content: "The address that counts is the one printed in your own agreement. Open the notice, cancellation, or termination section and use the exact address and delivery method it names -- whether that is an email address, a mailing address, or both. If your agreement permits email notice, send to the address stated there and keep the sent copy and any delivery confirmation." },
+      { type: "p", content: "For a financial-product complaint, the [CFPB complaint portal](https://www.consumerfinance.gov/complaint/) may be relevant. The FTC accepts fraud reports at [ReportFraud.ftc.gov](https://reportfraud.ftc.gov/), and state attorneys general maintain consumer-complaint channels. Filing a complaint does not itself cancel a contract, but it creates a dated record that runs alongside your written notice." },
             { type: "p", content: "Related pages on this site: the [free cancellation letter](/free-cancellation-letter), the [payment calculator](/calculator), [compare exit options](/compare), and the [Texas](/solar-contract-laws/texas), [California](/solar-contract-laws/california), and [Arizona](/solar-contract-laws/arizona) contract-law pages. For a financed system, see [how to cancel a GoodLeap solar loan](/blog/goodleap-solar-loan-cancellation-hidden-fees-2026)." },
       { type: "h2", content: "Bottom line" },
       { type: "p", content: "For the fastest accurate answer, assemble the agreement, cancellation notice, proposal, communications, bills, production data, and service record. Then compare the written options with current information from Sunrun and obtain qualified review for any disputed legal or credit issue." },
@@ -187,7 +197,7 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: "goodleap-solar-loan-cancellation-hidden-fees-2026",
     title: "Stuck in a GoodLeap Solar Loan? Here's What You Can Actually Do",
-    metaTitle: "Can You Cancel a GoodLeap Solar Loan? Payoff & Options (2026)",
+    metaTitle: "Cancel a GoodLeap Solar Loan? Payoff, Fees & Reviews (2026)",
     metaDescription: "Short answer: sometimes. When a GoodLeap loan can be cancelled or disputed, how to request a payoff, and the fees borrowers report. Free 15-minute review.",
     category: "Contract Help",
     readTime: "6 min read",
@@ -234,6 +244,24 @@ export const batch9BlogPosts: BlogPost[] = [
         "Write down what you were told: savings, tax credit, monthly payment, who said it and when. Texts and emails count."
       ] },
       { type: "warning", content: "Don't stop paying before you know your options; it can hurt your credit and your case. Don't sign anything new from the installer or lender until someone has read it with you." },
+      { type: "h2", content: "GoodLeap reviews: what borrowers report" },
+      { type: "p", content: "Search results for \"GoodLeap reviews\" mostly surface either marketing pages or unrelated lending complaints, so it helps to know what you are actually reading. GoodLeap displays a BBB A+ badge on its own site. Separately, the [CFPB's issue spotlight on solar financing](https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/) documents the pattern that shows up most often in borrower complaints nationally: lender fees, commonly called dealer fees, built into the financed price. That is a regulator's finding about the product category, not a review of your account." },
+      { type: "p", content: "Read the pattern in your own file rather than the star rating. Three things decide whether a GoodLeap complaint has somewhere to go, and all three are document comparisons:" },
+      { type: "list", items: [
+        "Did the payment change after month 18 in a way the sales conversation did not prepare you for? Compare the original disclosure with the current statement.",
+        "Does the amount financed exceed the cash price on your proposal by a large margin? That gap is where dealer fees sit.",
+        "Was a specific savings figure promised, and do 12 months of power bills support it?",
+        "Was the tax credit represented as a payment reduction when your tax liability could not absorb it in 18 months?"
+      ] },
+      { type: "h2", content: "How to reach GoodLeap directly" },
+      { type: "p", content: "These details come from GoodLeap's own [contact page](https://www.goodleap.com/contact-us/), read on 25 November 2026. Hours are Pacific time. GoodLeap, LLC was formerly known as Loanpal, and it operates under NMLS #30336." },
+      { type: "stat-block", stats: [
+        { value: "1-800-345-9372", label: "Account support: payments, balances, payoffs" },
+        { value: "1-844-562-6725", label: "Application support: documents, funding" },
+        { value: "customerservice@goodleapsupport.com", label: "Account email" },
+        { value: "consumercomplaints@goodleap.com", label: "Formal complaint email" }
+      ] },
+      { type: "p", content: "GoodLeap also publishes a specific escalation route for formal complaints: Maria Mellott, Vice President and Deputy Chief Compliance Officer, 8781 Sierra College Blvd., Roseville, CA 95661, telephone 916-475-1255. Using that channel rather than a general support queue creates a record with a named recipient, which matters if you later need to show you raised the issue in writing." },
       { type: "h2", content: "Why a 15-minute call helps" },
       { type: "p", content: "The hard part isn't the paperwork. It's knowing which of those paths you're actually on, and whether you have something worth pushing. That's what the free case review is for. It costs nothing, you're not signing up for anything, and every case depends on its own facts, so no one can promise a result. You'll get a straight answer." },
       { type: "p", content: "Sources: [GoodLeap's FAQ](https://www.goodleap.com/faq) (payment change after month 18, prepayment, home sale, UCC-1) and the CFPB's [issue spotlight on solar financing](https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/) (dealer fees)." }

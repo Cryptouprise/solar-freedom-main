@@ -343,7 +343,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     title:
       "Sunlight Financial Solar Loan Complaints: How to Fight Back and Protect Your Home",
     metaTitle:
-      "Sunlight Financial Solar Loan Complaints 2026 — How to Fight Back",
+      "Sunlight Financial Solar Loan Complaints & Reviews (2026)",
     metaDescription: `Sunlight Financial loan inflated by $10,000+? Expose hidden fees, TILA violations & tax credit traps. Cancel your solar contract now. Free case review.`,
     category: "Loan Problems",
     readTime: "12 min read",
@@ -386,6 +386,48 @@ export const blogArticlesBatch8: BlogPost[] = [
         type: "p",
         content:
           'Another major point of contention is the lack of transparency regarding dealer fees. In many cases, Sunlight Financial charges solar installers a "dealer fee" to buy down the interest rate, which can add $10,000 or more to the total principal of the loan. This cost is almost always passed directly to the homeowner, hidden within the total system price. Homeowners often discover too late that they are paying significantly more for their solar panels than the actual market value, leaving them "underwater" on a loan for equipment that may not even be performing as promised.',
+      },
+      { type: "h2", content: "What do Sunlight Financial reviews and complaints show?" },
+      {
+        type: "p",
+        content:
+          "Sunlight Financial's corporate history is the single most important fact for anyone reviewing their loan, and it is widely misunderstood. The company filed voluntary Chapter 11 bankruptcy petitions on 30 October 2023 to implement an acquisition, and it emerged from that restructuring in December 2023 under new ownership by an investor consortium.",
+      },
+      {
+        type: "p",
+        content:
+          'What that means in practice: the bankruptcy did not erase the loan, and it did not cancel the obligation. It changed who owns and services the account. This is the detail most borrowers miss. When they search for "Sunlight Financial reviews," they are usually trying to work out who to call and whether the debt still counts. The debt counts, and the correct contact is whoever is servicing the account now -- which you can confirm from your most recent statement or by requesting written confirmation of the current servicer and account holder.',
+      },
+      {
+        type: "callout",
+        content:
+          "Do not stop paying in the belief that the 2023 bankruptcy voided the loan. A missed payment creates collection and credit consequences even while you are disputing fees, the installer's work, or the original sales representations.",
+      },
+      { type: "h2", content: "The three complaint patterns worth checking in your own file" },
+      {
+        type: "list",
+        items: [
+          "The re-amortization shock. Payments were presented as staying low on the assumption the federal tax credit would be applied to principal within 18 months. Where that did not happen, the loan re-amortized and the payment rose sharply. Compare your original disclosure with your current statement and find the month the payment changed.",
+          "The dealer fee baked into principal. If the amount financed is far above the cash price quoted in the proposal, the difference is where buy-down fees and dealer costs sit. Compare the two documents side by side; that gap is a number, not an opinion.",
+          "The unclaimed tax credit. If the credit was represented as a guaranteed payment reduction without anyone checking your actual tax liability, the shortfall lands on you. Keep whatever was said in writing about the credit and how it would be applied.",
+        ],
+      },
+      { type: "h2", content: "Who to contact about a Sunlight Financial loan now" },
+      {
+        type: "p",
+        content:
+          "Start with the servicer named on your most recent statement, and ask in writing for three things: the current owner of the loan, the current servicer, and a written payoff quote. A payoff quote costs nothing and tells you the real number you are dealing with. If your installer is also defunct, that is a separate problem from the loan, and it is handled through separate channels.",
+      },
+      {
+        type: "p",
+        content:
+          "For a financing complaint, the [CFPB complaint portal](https://www.consumerfinance.gov/complaint/) accepts submissions about solar lending and servicing. State attorneys general and state financial regulators also take complaints, and several states have pursued solar lending practices directly. A complaint does not cancel the loan, but it creates a dated record alongside your written dispute.",
+      },
+      { type: "h2", content: "How to tell whether you have grounds to challenge the loan" },
+      {
+        type: "p",
+        content:
+          "The question is not whether solar loans in general have problems. It is whether your specific file shows a documented gap between what you were told and what you signed. Gather four things: the loan agreement and Truth in Lending disclosure, the sales proposal with its savings figures, your last 12 months of power bills, and any written or recorded sales representations. Where a promised savings figure, an undisclosed fee, or a misrepresented tax-credit benefit can be matched to a document, that comparison is what a qualified reviewer needs. Where it cannot be matched, the file is a service or warranty problem instead, and it takes a different path.",
       },
     ],
     faq: [
@@ -664,7 +706,7 @@ export const blogArticlesBatch8: BlogPost[] = [
   {
     slug: "blue-raven-solar-complaints",
     title: "Blue Raven Solar Complaints: Status, Support and Contract Help",
-    metaTitle: "Is Blue Raven Solar Still in Business? Who to Call (2026)",
+    metaTitle: "Blue Raven Solar: Still in Business? Phone & Reviews (2026)",
     metaDescription: "What happened to Blue Raven Solar, who services its systems and warranties now, and your options if your system or loan is a problem.",
     category: "Company Guide",
     readTime: "8 min read",
@@ -690,6 +732,15 @@ export const blogArticlesBatch8: BlogPost[] = [
       ] },
       { type: "h2", content: "Where should a Blue Raven customer start?" },
       { type: "p", content: "The current SunPower FAQ lists **800-377-4480** for Blue Raven Solar. It directs customers with pre-acquisition cash or loan purchases to their lender, and customers with leases or PPAs to their financier or SunStrong Management. Verify the current routing on the official page and keep the case number and written response." },
+      { type: "h2", content: "What do Blue Raven Solar reviews and complaints show?" },
+      { type: "p", content: "Blue Raven Solar holds an A+ BBB rating and has been BBB accredited since 23 October 2015. The same profile records 555 complaints over the last three years and 877 customer reviews, read on 25 November 2026. That combination is worth understanding: a strong letter grade alongside a substantial complaint volume is common in residential solar, because BBB ratings weigh how a company engages with complaints, not only how many are filed." },
+      { type: "stat-block", stats: [
+        { value: "A+", label: "BBB rating" },
+        { value: "555", label: "BBB complaints, last 3 years" },
+        { value: "877", label: "BBB customer reviews" },
+        { value: "800-377-4480", label: "Support number on file" }
+      ] },
+      { type: "callout", content: "The phone number alone will not tell you who is responsible for your system. BBB now routes the Blue Raven profile to SunPower, and the support line is shared across entities. Before you call, write down your completion date and the legal name on your contract, because those two facts determine which company the representative can actually act for." },
       { type: "h2", content: "What if the system, roof, rebate, or service was not delivered as expected?" },
       { type: "p", content: "Build a factual record before assigning legal conclusions. Match each disputed promise to a contract, proposal, email, text, advertisement, or witness. Preserve system-production data, utility bills, photos, inspection findings, warranty requests, rebate terms, payment history, and responses from Blue Raven, SunPower, the lender, and equipment manufacturer." },
       { type: "h2", content: "Does the SunPower bankruptcy cancel a Blue Raven contract or loan?" },
