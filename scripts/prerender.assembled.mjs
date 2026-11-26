@@ -1403,6 +1403,19 @@ function buildServiceUniqueContent(urlPath) {
     "/blog": `      <h2>How to use the solar contract guides</h2>
       <p>The blog is the long-form library: cancellation procedures, company complaint files, document checklists, and consumer-agency walkthroughs. It is not a substitute for reading your own agreement. Articles are educational. Solar Freedom is not a law firm, and a guide that describes a process used in some files does not mean the same process applies to yours. Start with the article that matches the brand or the problem, then gather the records that article lists before requesting an individual review.</p>
       <p>Guides are grouped loosely around getting out of a contract, disputing sales or billing issues, and selling or refinancing with solar still attached. Company pieces (Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, Tesla, Blue Raven, Complete Solaria) sit beside issue pieces (rescission, installer out of business, attorney-general complaints). City allowlist pages and the Texas, California, and Arizona law pages are linked from relevant posts when those locations are in scope. Thin city URLs and quarantined state-law pages are not restored here.</p>
+      <h2>Which guide answers which question</h2>
+      <p>This page is the index, not the answer. Search Console for 1 September to 22 November 2026 shows this hub appearing for 149 questions and earning 2 clicks, while the guides below it hold the actual procedures. If you arrived here from a search, the table below routes the most common questions to the guide that answers them. The impression figure beside each question is how many times that exact search reached this site in that window, so the list is ordered by real demand rather than by preference.</p>
+      <ul>
+        <li><strong>Can you cancel a solar panel contract before installation?</strong> (154 impressions) — <a href="/blog/how-to-get-out-of-a-solar-contract">how to get out of a solar contract</a> and <a href="/blog/cancel-sunrun-solar-contract-before-installation">cancelling before installation</a>.</li>
+        <li><strong>How do I cancel a solar contract?</strong> (91 impressions) — <a href="/blog/how-to-get-out-of-a-solar-contract">the general cancellation walkthrough</a>.</li>
+        <li><strong>How do I cancel a Sunrun contract?</strong> (60 impressions) — <a href="/blog/sunrun-solar-contract-cancellation-2026">the Sunrun cancellation guide</a>.</li>
+        <li><strong>How do I get out of a GoodLeap solar loan?</strong> — <a href="/blog/goodleap-solar-loan-cancellation-hidden-fees-2026">the GoodLeap guide</a>.</li>
+        <li><strong>How do I cancel a Sunnova contract?</strong> — <a href="/blog/how-to-cancel-sunnova-solar-contract-2026">the Sunnova guide</a>.</li>
+        <li><strong>My installer went out of business. Now what?</strong> — <a href="/blog/solar-installer-out-of-business">the installer failure guide</a>.</li>
+        <li><strong>What are my cancellation rights in the first days?</strong> — <a href="/blog/solar-contract-rescission-rights">rescission and the three-day rule</a>.</li>
+        <li><strong>How do I sell a house with solar attached?</strong> — <a href="/blog/selling-house-with-solar-loan">selling with a loan</a>, <a href="/blog/selling-home-with-solar-ppa-panels-transfer-or-cancel">selling with a PPA</a>, and <a href="/blog/sell-house-with-solar-panels">selling with owned panels</a>.</li>
+      </ul>
+      <p>Each guide is written to be read against your own agreement: it names the documents to pull, the notice clause to find, and the official channel to use. Start with the question that matches your situation, then gather the records before requesting an individual review.</p>
       <h2>Records that make a guide usable</h2>
       <ul>
         <li>The contract type and the legal names, so you open the matching company guide.</li>

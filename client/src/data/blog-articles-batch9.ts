@@ -223,7 +223,7 @@ export const batch9BlogPosts: BlogPost[] = [
     slug: "goodleap-solar-loan-cancellation-hidden-fees-2026",
     title: "Stuck in a GoodLeap Solar Loan? Here's What You Can Actually Do",
     metaTitle: "Cancel a GoodLeap Solar Loan? Payoff, Fees & Reviews (2026)",
-    metaDescription: "Short answer: sometimes. When a GoodLeap loan can be cancelled or disputed, how to request a payoff, and the fees borrowers report. Free 15-minute review.",
+    metaDescription: "Can you cancel a GoodLeap solar loan? How to request a payoff quote, dispute dealer fees, and reach account support at 1-800-345-9372. Free case review.",
     category: "Contract Help",
     readTime: "6 min read",
     publishDate: "August 16, 2026",
@@ -238,6 +238,7 @@ export const batch9BlogPosts: BlogPost[] = [
       { q: "Why did my GoodLeap payment go up?", a: "GoodLeap's FAQ says many of its solar loans re-amortize after month 18 based on how much you paid down. If less was paid down, often because the tax credit never went to the loan, the payment can rise." },
       { q: "Does GoodLeap charge a prepayment penalty?", a: "GoodLeap's FAQ says it never charges a fee or penalty for paying early. Check your own agreement and get a written payoff quote before you act on it." },
       { q: "Is a GoodLeap UCC-1 a lien on my house?", a: "GoodLeap says its UCC-1 is a lien on the solar equipment, not your home, though a fixture filing will show up in your county's property records. Your title company can tell you what it means for your sale." },
+      { q: "How do I make a payment or request a payoff quote from GoodLeap?", a: "Call GoodLeap account support at 1-800-345-9372, or email customerservice@goodleapsupport.com. That is the line GoodLeap's own contact page lists for payments, balances and payoffs. Ask for the payoff quote in writing and ask what date it is valid through, because a payoff figure only holds for a stated window and a home sale can close on a different day." },
       { q: "Do I keep paying if my installer went out of business?", a: "In most cases the loan stands on its own, so keep paying while you sort it out. Missing payments can damage your credit and weaken your position." },
     ],
     content: [
@@ -269,6 +270,11 @@ export const batch9BlogPosts: BlogPost[] = [
         "Write down what you were told: savings, tax credit, monthly payment, who said it and when. Texts and emails count."
       ] },
       { type: "warning", content: "Don't stop paying before you know your options; it can hurt your credit and your case. Don't sign anything new from the installer or lender until someone has read it with you." },
+      { type: "h2", content: "How to make a payment or get a payoff quote" },
+      { type: "p", content: "Most people who land here are not trying to cancel anything yet. They are trying to pay, to find out what they owe, or to get a number in writing. All three are account questions, and GoodLeap handles them on one line: 1-800-345-9372, or customerservice@goodleapsupport.com." },
+      { type: "p", content: "GoodLeap's own contact page, read on 26 November 2026, lists account support as the route for payments, balances and payoffs, and application support separately at 1-844-562-6725 for approvals, document signing and funding. If your question is about a loan you already have, use the account line. GoodLeap, LLC was formerly known as Loanpal and operates under NMLS #30336." },
+      { type: "p", content: "For a payoff quote, ask for it in writing and ask what date the figure is good through. A payoff number is only accurate for a stated window, and if a home sale is closing you want the quote to cover the closing date. If the figure moves between the quote and the closing, you want to be able to show which date you were quoted." },
+      { type: "callout", content: "Do not pay a third party to obtain a payoff quote or to \"negotiate\" a GoodLeap loan. The account holder can request both directly at no cost, and GoodLeap's own FAQ states it charges no prepayment fee or penalty." },
       { type: "h2", content: "GoodLeap reviews: what borrowers report" },
       { type: "p", content: "Search results for \"GoodLeap reviews\" mostly surface either marketing pages or unrelated lending complaints, so it helps to know what you are actually reading. GoodLeap displays a BBB A+ badge on its own site. Separately, the [CFPB's issue spotlight on solar financing](https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/) documents the pattern that shows up most often in borrower complaints nationally: lender fees, commonly called dealer fees, built into the financed price. That is a regulator's finding about the product category, not a review of your account." },
       { type: "p", content: "Read the pattern in your own file rather than the star rating. Three things decide whether a GoodLeap complaint has somewhere to go, and all three are document comparisons:" },

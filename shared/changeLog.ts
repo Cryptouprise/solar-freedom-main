@@ -61,6 +61,45 @@ export interface ChangeEntry {
 export const CHANGE_LOG: ChangeEntry[] = [
   {
     date: "2026-11-26",
+    title: "Blog hub was outranking the guides that answer its queries on 1,248 impressions",
+    class: "SEO",
+    changed: [
+      "scripts/prerender.assembled.mjs — added a 'Which guide answers which question' routing table to the /blog served content, naming eight question clusters and linking each to the guide that answers it with the query words in the anchor text",
+      "Verified every anchor before shipping: two slugs in the first draft did not resolve to an indexable page, so they were replaced rather than shipped broken",
+    ],
+    evidence:
+      "Search Console (1 Sep–22 Nov 2026): /blog holds 2,571 impressions across 149 queries and earned 2 clicks. 119 of those 149 queries are also ranked by a dedicated article, and those 119 carry 2,356 of the 2,571 impressions. On 61 of them — 1,248 impressions — the HUB outranks the best article: 'can you cancel solar panel contract before installation' hub position 15.1 on 154 impressions against /blog/how-to-get-out-of-a-solar-contract at position 36.8; 'how to cancel solar contract' hub 18.3 on 91 against the article at 55.4; 'cancel solar contract before installation' hub 16.8 on 83 against 52.8; 'how to cancel sunrun contract before installation' hub 17.8 on 68 against /blog/sunrun-solar-contract-cancellation-2026 at 10.4 on 133. The hub's served content was 879 words of index prose — how to use the guides, what records to gather, editorial limits — containing no cancellation procedure, no notice window and no company contact. Its CTR at position 11 to 20 is 0.08% on 1,182 impressions.",
+    reasoning:
+      "A hub cannot answer a procedure question. Where the hub wins one of these queries the searcher lands on a directory and has to search a second time, which is the worst outcome for a distressed visitor and is exactly what a 0.08% CTR looks like. The hub was competing with its own library rather than organising it. The fix routes rather than duplicates: naming the question clusters and pointing each at the answering guide gives the crawler an unambiguous statement that this page is a directory whose job is to route, and passes descriptive internal links — with the query words themselves in the anchor — to the articles that should own those queries. The impression figure beside each question is the measured count from the same window, so the table is a prioritised reading list rather than decoration. What would have falsified the diagnosis: if the hub's impressions sat on queries no article ranked for, the hub would be adding reach rather than absorbing it. 2,356 of 2,571 do overlap, so it is absorbing.",
+    confidence: "measured",
+    verifiedBy:
+      "python3 -c on near-winners.json comparing the hub query set against every article query set; node scripts/find-orphan-pages.mjs; every href in the routing table checked against dist/public for existence and robots; pnpm build pre-rendered 583 pages",
+    preventsRecurrence:
+      "Any index or hub page must be checked for query overlap with the pages it links to before its content is expanded. An index page that ranks for procedure questions is a cannibalization defect, not a ranking win. The overlap check is one comparison of the hub query set against the article query sets and should be run whenever a hub gains content.",
+    measureAfter: "2026-12-05",
+  },
+  {
+    date: "2026-11-26",
+    title: "GoodLeap: answers the payment and payoff questions it already ranked for",
+    class: "content",
+    changed: [
+      "client/src/data/blog-articles-batch9.ts — added a 'How to make a payment or get a payoff quote' section naming 1-800-345-9372 and customerservice@goodleapsupport.com inline, plus the separate application line 1-844-562-6725 and what a payoff quote is actually good for",
+      "client/src/data/blog-articles-batch9.ts — rewrote the meta description to 152 characters so it names the support number and the payoff quote",
+      "client/src/data/blog-articles-batch9.ts — added a payment/payoff FAQ at the front of the array, since BlogPost.tsx renders only the first five positionally",
+    ],
+    evidence:
+      "Search Console (1 Sep–22 Nov 2026): the page holds 10,365 impressions at average position 7.5 with 92 clicks, a 0.89% CTR. That is the largest impression mass on the site and its largest CTR gap — site-wide CTR at position 7 to 11 is 1.01%, so the page converts below the site's own average while sitting at the best position of any page above 1,000 impressions. 128 impressions sit on literal phone-number queries at zero clicks: '800-345-9372' 72 impressions at position 9.6, '8003459372' 34 at 9.4, '1-800-345-9372' 22 at 9.5. Another 57 sit on 'goodleap payoff request' at 15.4 and 37 on 'goodleap solar payments' at 26.5, also zero clicks. A grep of the built page on 26 Nov 2026 returned zero occurrences of 'payment portal', 'make a payment' or 'payoff request', and exactly one occurrence of the phone number, inside a styled stat-block. 153 of the page's 157 queries earn zero clicks, carrying 1,082 impressions, 71% of its total.",
+    reasoning:
+      "This is the fourth instance of a class already named in this log, after Freedom Forever, Tesla and Sunnova: a page ranking for a question it never answers. The page was not losing on relevance — position 7.5 on 10,365 impressions is the strongest combination on the site — so title and body match were already doing their job. What was missing was the answer. Phone-number and payoff-request queries are the most transactional kind a distressed borrower types, and the page had no payment path at all, so it was matched on surrounding context and the snippet answered nothing. The description was rewritten rather than only the body because the snippet is the only thing a searcher sees before deciding; naming the number there is what turns a position-7 impression into a click. What would have falsified the diagnosis: if site-wide CTR at the same position band were below 0.89%, the page would be performing normally and the gap would be a site-wide snippet problem rather than a page defect. It is 1.01%, so the page is below its own peer group.",
+    confidence: "measured",
+    verifiedBy:
+      "Built page before the fix: 1 occurrence of 345-9372, 0 of pay-goodleap, 0 of 'customer service', 0 of 'make a payment' (grep on dist/public/blog/goodleap-solar-loan-cancellation-hidden-fees-2026/index.html, 26 Nov 2026). GoodLeap contact page read 26 Nov 2026 for 1-800-345-9372 account support, 1-844-562-6725 application support, customerservice@goodleapsupport.com, consumercomplaints@goodleap.com, Maria Mellott VP and Deputy Chief Compliance Officer at 916-475-1255, NMLS #30336, formerly Loanpal. After the fix the block contains 4 occurrences of 1-800-345-9372, exactly 1 stat-block, and 0 forward references to a number the reader has not yet seen.",
+    preventsRecurrence:
+      "Before planning any change to a near-winner page, grep the built HTML for the core noun of each of its top five query clusters, not just the title. A phone-number query needs the number in the description; a payoff query needs the phrase 'payoff' in a heading. Zero occurrences of a term the page ranks for is a defect, not an accident.",
+    measureAfter: "2026-12-05",
+  },
+  {
+    date: "2026-11-26",
     title: "Sunnova page ranked position 2 for a bankruptcy question it never answered",
     class: "content",
     changed: [
