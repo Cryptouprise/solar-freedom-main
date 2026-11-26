@@ -1,4 +1,50 @@
 # Change Log — Solar Freedom / breakyoursolarcontract.com
+## 2026-11-26 — A Texas delivery fee was asserted on all 302 city pages and a first-party claim sat one render away
+**Class:** accuracy
+**Changed:**
+- `shared/texasElectricMarket.ts` — new shared helper that answers whether a city slug is inside the competitive Texas retail electric market, and fails closed on an unknown slug
+- `client/src/pages/CityPage.tsx` — the hidden-fee section, the TDU FAQ item and the fallback reason list are now gated on `isCompetitiveTexasCity` instead of asserting a Texas fact on every city
+- `client/src/pages/CityPage.tsx` — non-priority cities now render their own `localFaq` array, which had been sitting unused, instead of one hardcoded five-question list shared by all 281 of them
+- `client/src/pages/CityPage.tsx` — `localFaq` now passes through `suppressUnverifiedFirstPartyClaims`, the same governance the blog already used; this renderer previously had none
+- `shared/contentGovernance.ts` — added a first-party outcome pattern anchored on the adverb *successfully*, which none of the eleven existing patterns matched
+- `client/src/data/city-content-depth-batch-e.ts` — 7 first-party outcome answers rewritten as statements about the law rather than about this site's results
+- `client/src/data/blog-articles-batch5.ts`, `client/src/data/blog-articles-batch7.ts` — 2 more first-party outcome answers rewritten on indexable pages
+- `server/cityMarketAccuracy.test.ts` — new guard with 8 tests covering both defect classes
+
+**Why:**
+Measured 26 Nov 2026: `client/src/pages/CityPage.tsx` rendered the sentence *In the state's deregulated energy market, the TDU charges 40 to 55 dollars per month* on all **302** built city pages, and placed an infographic on all 302 printing *CenterPoint Energy TDU rate 6.001 cents per kWh plus a 4.90 dollar monthly base charge*, a Texas utility. The sentence was correct and bounded when first written: `docs/city-seo-verification-2026-11-02.json` still holds it as *In deregulated Texas markets*, and commit **68b64aa** dated **26 July 2026** replaced the word *Texas* with the state template variable. On the FAQ side, **281 of 281** non-priority built cities carry a usable `localFaq` array of 3 to 6 questions and none of it reached a reader, and **7** depth answers plus **2** blog answers asserted a first-party outcome beginning with the words *we have successfully*, none of which the shared filter caught. Verified against primary sources on 26 Nov 2026: the CPUC records that California suspended residential Direct Access on **20 September 2001**; Austin Energy and CPS Energy are municipal utilities that never opted into retail competition; El Paso Electric serves outside ERCOT and Amarillo is Xcel Energy Southwestern Public Service territory, also outside ERCOT; Lubbock Power and Light opted into competition with competitive retail service beginning **4 March 2024** per ERCOT market notice M-B022724-01.
+
+**How the conclusion was reached:**
+Two separate defects surfaced while checking an unrelated request, and both share one cause: a claim that is true in one place was applied everywhere. The TDU sentence began life correctly scoped to Texas and was made universal by a template variable during a July 2026 redesign, which is the kind of error a redesign produces because the goal at the time was visual consistency rather than factual scoping. A Texas delivery fee is not merely irrelevant outside Texas, it is wrong in a specific way: California households cannot choose an electricity supplier at all, Austin and San Antonio are served by municipal utilities, El Paso and Amarillo sit outside ERCOT, and no state outside Texas has a TDU or CenterPoint Energy. Ohio is the instructive counter-example, because Ohio does have retail electric choice and still has no TDU, so a blanket claim that deregulation is Texas-only would have been wrong in the other direction. That is why the fix is a per-city list with a fail-closed default rather than a state check. The second defect is the more dangerous of the two because it was **one render away from publication**: the only reason those nine first-party outcome claims were not live on indexable pages is that this renderer never displayed `localFaq`, and the same change that starts displaying it would have published all nine. The renderer now runs the shared governance and the pattern gap that let them through is closed, so the two fixes have to land together or neither is safe.
+
+**Verified:**
+Counted the state-templated sentence and the CenterPoint rate card in the built output and in the shipped bundle; traced the original bounded wording to `docs/city-seo-verification-2026-11-02.json` and the regression to commit 68b64aa; verified each electricity-market fact against the CPUC, ERCOT, PUCO and utility sources and recorded them in `docs/sources-verified-2026-11-26.md`; counted `localFaq` coverage across all 281 non-priority built cities; confirmed the shared filter did not fire on the pre-fix sentences before the pattern was added. Guard proven by injection: restoring the pre-fix JSX sentence failed the market-accuracy test, reverting the FAQ item to its unconditional state-templated form failed the gating test, and removing the new pattern failed the filter test, with all three passing again after restore. One guard was found to be ineffective by that injection and repaired: the first pattern set matched only the template-literal form of the state variable and passed with the pre-fix JSX sentence restored, so it now matches both interpolation forms.
+
+**Recurrence guard:**
+A market fact must be scoped by the thing that actually varies, not by the largest thing that contains it. Deregulation varies by utility territory, not by state and not by country, so the check is a per-city list and an unknown city withholds the claim rather than inheriting it. Two standing rules follow. First, when a redesign turns a specific sentence into a template variable, the variable is a claim that the fact is universal, and that has to be verified rather than assumed. Second, a guard must be shown to fail on the exact pre-fix string before it can be trusted; this session's guard passed its first injection because it searched for the wrong interpolation syntax, which is the fourth time a check has reported safety that did not exist.
+
+**Measure after:** 2026-12-05
+
+## 2026-11-26 — The four fixed pages already shipped FAQ schema and Google deprecated the rich result in May 2026
+**Class:** SEO
+**Changed:**
+- `docs/sources-verified-2026-11-26.md` — recorded Google's deprecation of the FAQ rich result and the measured state of all four pages
+- no site change — the requested markup was already shipped and the feature it targets no longer exists
+
+**Why:**
+Verified 26 Nov 2026 in `dist/public`: `goodleap-solar-loan-cancellation-hidden-fees-2026` carries **8** FAQPage questions, `sunrun-solar-contract-cancellation-2026` carries **7**, `blue-raven-solar-complaints` carries **7** and `adt-solar-complaints` carries **6**, and every count matches the rendered `<h3>` count on the same page, so shell markup and visible content are in exact parity. Each page's single `application/ld+json` block carries `WebPage`, `BreadcrumbList`, `Article` and `FAQPage`. Google's Search Central documentation changelog records two entries: **May 2026**, *Deprecating the FAQ rich result feature*, and **June 2026**, *Removing documentation for the FAQ rich result feature*. A site-wide scan of all **583** built pages found **269** carrying FAQPage and **314** not, and all **45** indexable blog pages carry it.
+
+**How the conclusion was reached:**
+The request assumed the four pages lacked FAQ schema and that adding it would produce rich results and lift click-through. Both halves are false as of 26 Nov 2026. The schema has been present on all four since the FAQ parity fix earlier the same day, and the rich result it targets was withdrawn by Google in May 2026 and its documentation removed in June 2026, so no markup change can produce the stated outcome. The markup is deliberately **kept** rather than removed: it remains valid JSON-LD and remains consumable by Bing and by the AI answer engines this site is explicitly targeting, where the value is machine comprehension rather than a Google SERP enhancement. The scan also produced a genuine finding that the request did not ask for — **6 of the 27 indexable city pages** ship no FAQPage and no visible FAQ at all, because they are the only indexable cities outside the 21 priority guides and the prerender builder sources city FAQs from the guide record alone. That is recorded here as a separate, still-open observation rather than actioned under a request about four other pages.
+
+**Verified:**
+Counted FAQPage `mainEntity` entries and rendered `<h3>` elements directly in `dist/public` for all four pages; read the deprecation entries from Google's own Search Central documentation changelog; scanned all 583 built pages for FAQPage presence and cross-referenced the 27-city indexable set against the 21 priority-guide keys.
+
+**Recurrence guard:**
+Before adding structured data because it should produce a rich result, check two things in this order: whether the page already emits that markup, and whether the search engine still renders that rich result. Google deprecates rich result types on its own schedule and removes the documentation afterwards, so the presence of a documentation page is not evidence that the feature is live.
+
+**Measure after:** 2026-12-05
+
 ## 2026-11-26 — The homepage outranks its own articles on 25 queries and is still not the page to change
 
 **Class:** SEO

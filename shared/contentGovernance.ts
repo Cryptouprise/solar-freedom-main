@@ -56,6 +56,19 @@ const unsupportedFirstPartyClaimPatterns = [
   /limited number of new cases/i,
   /Contract cancelled\. No more payments/i,
   /(?:Solar Freedom|\bwe\b|\bour (?:team|attorneys)\b)[^.!?]{0,160}(?:no upfront cost|contingency basis|all 50 states)/i,
+  /*
+   * A first-party outcome claim: "We've successfully argued this in multiple SF
+   * cases", "We've successfully canceled GoodLeap loans in exactly this
+   * situation". Measured 26 Nov 2026: seven such sentences sat in
+   * `city-content-depth-batch-e.ts` and none of the patterns above caught any
+   * of them, because none contained one of the enumerated phrases. Two of the
+   * seven name an indexable city page (San Francisco, San Jose). They were
+   * latent rather than live only because `CityPage.tsx` never rendered
+   * `localFaq`; the same commit that started rendering it added this pattern.
+   * "successfully" is what makes it a claim about a result rather than about
+   * the law, so the verb is the anchor and the outcome word is not enumerated.
+   */
+  /\bwe(?:'ve|’ve| have)?\s+successfully\b/i,
 ];
 
 /**

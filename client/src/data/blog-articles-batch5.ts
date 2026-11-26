@@ -789,7 +789,7 @@ export const blogArticlesBatch5: BlogPost[] = [
     faq: [
       {
         q: 'Can I cancel if the panels are already on my roof?',
-        a: 'Yes. Fraud in the inducement or a violation of Colorado\'s strict disclosure laws can lead to a post-install rescission. We have successfully helped homeowners have systems removed and debts wiped.',
+        a: 'Yes. Fraud in the inducement or a violation of Colorado\'s strict disclosure laws can lead to a post-install rescission. A post-install rescission claim turns on the disclosures and the conduct, not on the fact that the panels are already on the roof.',
       },
       {
         q: 'What about the 30% Federal Tax Credit?',

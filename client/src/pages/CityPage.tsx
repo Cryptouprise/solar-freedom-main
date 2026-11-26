@@ -32,6 +32,8 @@ import PriorityCityGuide from "@/components/PriorityCityGuide";
 import ConversionActions, { BookingButton, LeadCaptureForm } from "@/components/ConversionActions";
 import { isVegasCityPath } from "@shared/vegasCampaign";
 import { getPriorityCityContent } from "@shared/priorityCityContent";
+import { isCompetitiveTexasCity } from "@shared/texasElectricMarket";
+import { suppressUnverifiedFirstPartyClaims } from "@shared/contentGovernance";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663287718525/46qo2AwgwNWJ4wJwr8EnH8/hero-bg-FmKRyibRwC4JGhU5naV2R2.webp";
 
@@ -478,12 +480,45 @@ export default function CityPage() {
     return <PriorityCityGuide data={priorityGuide} heroImage={heroImage} form={<CityForm key={slug} city={city.name} state={city.state} path={cityPath} bookingOffered={isVegasCityPath(cityPath)} />} />;
   }
 
-  const faqItems = [
+  /*
+   * Market facts are not universal. The TDU delivery fee, the competitive
+   * retail market, and the CenterPoint rate in the infographic below are all
+   * Texas-only. Before 26 Nov 2026 this page asserted "In ${city.state}'s
+   * deregulated energy market, the TDU ... charges $40-55/month" on all 302
+   * city pages and showed a CenterPoint Energy Texas rate card on all of them,
+   * so a San Francisco or Youngstown reader was told a Texas fact about their
+   * own utility. Verified 26 Nov 2026: California suspended residential direct
+   * access in 2001; Austin, San Antonio, El Paso and Amarillo are municipal,
+   * non-ERCOT or SPS territory with no retail choice; Ohio has retail choice
+   * but no TDU and no CenterPoint. See docs/sources-verified-2026-11-26.md.
+   */
+  const competitiveTexas = isCompetitiveTexasCity(city.slug);
+  /*
+   * Every city that is not a priority guide had a localFaq array sitting unused
+   * in its depth record while this page rendered one hardcoded five-question
+   * list for all 281 of them. Measured 26 Nov 2026: 281 of 281 non-priority
+   * built cities carry a usable localFaq (3 to 6 questions) and none of it
+   * reached a reader. The fallback list is kept for any city without one, but
+   * it now runs through the same governance the blog does: CityPage.tsx was the
+   * only public renderer with no trust suppression at all, and two depth FAQ
+   * answers asserted a first-party outcome ("We've successfully argued this in
+   * multiple SF cases", "We've successfully canceled GoodLeap loans") that the
+   * shared pattern list did not catch. Rendering localFaq without governance
+   * would have published those on indexable pages, so the renderer is fixed
+   * here and the pattern is fixed in shared/contentGovernance.ts.
+   */
+  const governedLocalFaq = (depth?.localFaq ?? []).map(item => ({
+    q: suppressUnverifiedFirstPartyClaims(item.q).trim(),
+    a: suppressUnverifiedFirstPartyClaims(item.a).trim(),
+  }));
+  const faqItems = governedLocalFaq.length > 0 ? governedLocalFaq : [
     { q: `What records should I gather for a solar contract review in ${city.name}, ${city.state}?`, a: 'Gather the signed agreement, loan or lease documents, disclosures, sales proposals, utility bills, installation records, and communications with the seller, installer, servicer, or lender.' },
     { q: `How long does a solar contract dispute take in ${city.state}?`, a: 'Timing varies with the agreement, facts, parties involved, selected process, and applicable law. No result or timeline can be determined before an individual review.' },
     { q: `Where can I verify solar-company complaint information for ${city.name}?`, a: `Check current records from the ${city.state} attorney general, the Consumer Financial Protection Bureau, the Federal Trade Commission, and other official regulators. Third-party ratings and complaint totals can change.` },
-    { q: `What is the TDU delivery fee and why am I still paying it with solar?`, a: `In deregulated ${city.state} markets, the Transmission and Distribution Utility (TDU) charges a delivery fee of $40-55/month that solar panels cannot eliminate. Many solar sales reps fail to disclose this charge, leading homeowners to believe their electric bill will be $0.` },
-    { q: `Can I sue my solar lender (GoodLeap, Mosaic) directly?`, a: `Under the FTC Holder Rule (16 CFR 433), you can assert claims against your lender for any violations committed by the solar dealer/installer. This includes TILA violations, misrepresentation, and fraud. The lender is liable up to the amount you have paid.` },
+    ...(competitiveTexas
+      ? [{ q: `What is the TDU delivery fee and why am I still paying it with solar?`, a: `In competitive Texas markets the Transmission and Distribution Utility (TDU) still delivers power to the home, and its delivery charge is not something solar panels remove. Ask the utility that delivers to your address for its current delivery tariff rather than relying on a quoted figure, because the charge varies by utility and by usage.` }]
+      : []),
+    { q: `Can I sue my solar lender (GoodLeap, Mosaic) directly?`, a: `Under the FTC Holder Rule (16 CFR 433), you can assert claims against your lender for any violations committed by the solar dealer or installer. This includes TILA violations, misrepresentation, and fraud. The lender is liable up to the amount you have paid.` },
   ];
 
   // Emit only page-verifiable navigation and FAQ data as structured data.
@@ -637,7 +672,12 @@ export default function CityPage() {
         </div>
       </div>
 
-      {/* THE PROBLEM — Infographic Section */}
+      {/* THE PROBLEM — Infographic Section
+          Texas-only. The heading, the body copy and the infographic all assert
+          a TDU delivery fee and print a CenterPoint Energy Texas rate card, so
+          the whole section is withheld outside competitive Texas rather than
+          reworded, because there is no equivalent claim to make elsewhere. */}
+      {competitiveTexas && (
       <section id="the-problem" className="py-16 border-b border-white/8" style={{ background: "oklch(0.10 0.01 265)" }}>
         <div className="container">
           <Reveal>
@@ -645,14 +685,14 @@ export default function CityPage() {
               THE HIDDEN FEE THEY NEVER TOLD {city.name.toUpperCase()} HOMEOWNERS ABOUT
             </h2>
             <p className="text-gray-400 text-center max-w-2xl mx-auto mb-10 text-lg">
-              Solar reps in {city.name} told you your electric bill would be $0. They didn't mention the TDU delivery fee — a mandatory charge that <strong className="text-white">never goes away</strong>, even with solar panels.
+              Solar reps in {city.name} told you your electric bill would be $0. They didn't mention the TDU delivery fee — a charge that <strong className="text-white">survives the panels</strong>, because it pays to deliver power to the home.
             </p>
           </Reveal>
           <Reveal delay={0.1}>
             <div className="max-w-lg mx-auto rounded-xl overflow-hidden border border-red-500/20 shadow-2xl">
               <img
                 src={IMG_HIDDEN_FEE}
-                alt={`Hidden TDU delivery fee that solar companies in ${city.name}, ${city.state} never disclosed — showing the real cost breakdown`}
+                alt={`TDU delivery fee that solar companies in ${city.name}, ${city.state} did not explain — showing the real cost breakdown`}
                 className="w-full h-auto"
                 loading="lazy"
               />
@@ -660,12 +700,12 @@ export default function CityPage() {
           </Reveal>
           <Reveal delay={0.15}>
             <p className="text-gray-400 text-center text-sm mt-6 max-w-xl mx-auto">
-              In {city.state}'s deregulated energy market, the TDU (Transmission and Distribution Utility) charges $40–55/month that solar cannot eliminate. Most {city.name} homeowners were never told this before signing.
+              In competitive Texas markets the TDU still delivers power to the home and charges for it, and solar does not remove that charge. The rate card above is CenterPoint Energy's published Texas delivery rate — check your own utility's tariff, because the charge differs by utility and by usage.
             </p>
           </Reveal>
         </div>
       </section>
-
+      )}
       {/* PROBLEM vs SOLUTION — Wide Infographic */}
       <section className="py-16 border-b border-white/8" style={{ background: "oklch(0.09 0.01 265)" }}>
         <div className="container">
@@ -772,7 +812,9 @@ export default function CityPage() {
                 ) : (
                   <div className="space-y-4">
                     {[
-                      "Hidden TDU delivery fees adding $45-55/month that solar never eliminates",
+                      ...(competitiveTexas
+                        ? ["A delivery charge that solar does not remove — ask the utility that delivers to your address for its current tariff"]
+                        : []),
                       "Federal tax credit ($8,000-$12,000) never applied to reduce loan balance",
                       "System producing 25-40% less energy than the sales proposal promised",
                       "2.9% annual escalator clause turning $180/mo into $310/mo by year 10",

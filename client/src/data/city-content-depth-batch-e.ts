@@ -117,7 +117,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     localFaq: [
       {
         q: "Can I cancel my solar contract if my system underperforms due to SF fog?",
-        a: "Yes. If your dealer provided savings projections without accounting for San Francisco's fog patterns and shading, those projections constitute misrepresentation under California's CLRA. We've successfully argued this in multiple SF cases.",
+        a: "Yes. If your dealer provided savings projections without accounting for San Francisco's fog patterns and shading, those projections constitute misrepresentation under California's CLRA. Whether a particular projection crossed that line depends on the disclosures and the facts, and California's CLRA is enforced through a private right of action rather than by this site.",
       },
       {
         q: "My SunPower system has been offline since their bankruptcy — do I still have to pay?",
@@ -175,7 +175,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       },
       {
         q: "Can I cancel if my installer went out of business but GoodLeap is still collecting payments?",
-        a: "Yes. This is one of the most actionable scenarios in California. If your installer is defunct and your system is not performing as promised, GoodLeap may be held liable as the financier under California's CLRA. We've successfully canceled GoodLeap loans in exactly this situation.",
+        a: "Yes. This is one of the most actionable scenarios in California. If your installer is defunct and your system is not performing as promised, GoodLeap may be held liable as the financier under California's CLRA. Whether a lender can be held liable on those facts is a question for an individual review; California's CLRA and the FTC Holder Rule (16 CFR 433) are the provisions most often raised.",
       },
       {
         q: "What solar companies have the most complaints in San Jose?",
@@ -723,7 +723,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     localFaq: [
       {
         q: "Can I cancel my solar contract if my dealer overstated Vermont net metering benefits?",
-        a: "Yes. Misrepresentation of net metering benefits — including claiming they are permanent when they are subject to change — is actionable under Vermont's Consumer Fraud Act. We've successfully argued this in Vermont cases.",
+        a: "Yes. Misrepresentation of net metering benefits — including claiming they are permanent when they are subject to change — is actionable under Vermont's Consumer Fraud Act. Whether a particular projection crossed that line is a question for an individual review.",
       },
       {
         q: "What solar companies operate in Burlington, Vermont?",
@@ -839,7 +839,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       },
       {
         q: "Can I cancel my solar contract if my dealer overstated Maine net metering benefits?",
-        a: "Yes. Misrepresentation of net metering benefits is actionable under Maine's Unfair Trade Practices Act. We've successfully argued this in Maine cases where dealers used net metering rates to inflate projected savings.",
+        a: "Yes. Misrepresentation of net metering benefits is actionable under Maine's Unfair Trade Practices Act. Whether inflated net metering projections crossed that line is a question for an individual review.",
       },
       {
         q: "What is the FTC Cooling-Off Rule and does it apply to my Portland solar contract?",
@@ -891,7 +891,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
     localFaq: [
       {
         q: "Sunlight Financial went bankrupt and my loan was sold — what are my rights?",
-        a: "If Sunlight Financial sold your loan to a third-party servicer without proper TILA notice, you may have grounds for cancellation. TILA requires that loan transfers be disclosed to borrowers within a specific timeframe. We've successfully used this argument in Delaware cases.",
+        a: "If Sunlight Financial sold your loan to a third-party servicer without proper TILA notice, you may have grounds for cancellation. TILA requires that loan transfers be disclosed to borrowers within a specific timeframe. Whether the notice requirement was met is a question for an individual review.",
       },
       {
         q: "What solar companies have the most complaints in Wilmington?",
@@ -955,7 +955,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       },
       {
         q: "Can I cancel my solar contract if my DC row house has significant shading?",
-        a: "Yes. If your dealer provided savings projections without accounting for DC's urban shading and row house roofline constraints, those projections constitute misrepresentation under DC's CPPA. We've successfully argued this in DC cases.",
+        a: "Yes. If your dealer provided savings projections without accounting for DC's urban shading and row house roofline constraints, those projections constitute misrepresentation under DC's CPPA. Whether a particular projection crossed that line is a question for an individual review.",
       },
     ],
   },
@@ -1063,7 +1063,7 @@ export const CITY_DEPTH_BATCH_E: CityDepthData[] = [
       },
       {
         q: "Does solar even make economic sense in Jackson given Mississippi's low electricity rates?",
-        a: "For many Jackson homeowners, the economics are challenging. If your dealer promised savings that were based on electricity rates far higher than what Entergy Mississippi actually charges, that constitutes misrepresentation. We've successfully argued this in Mississippi cases.",
+        a: "For many Jackson homeowners, the economics are challenging. If your dealer promised savings that were based on electricity rates far higher than what Entergy Mississippi actually charges, that constitutes misrepresentation. Whether the projections were inaccurate enough to be actionable is a question for an individual review.",
       },
       {
         q: "Can I cancel my solar contract in Mississippi if my dealer used false urgency tactics?",

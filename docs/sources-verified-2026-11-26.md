@@ -230,3 +230,46 @@ a lawsuit is not a finding; a regulator suing a lender is not relief for an
 individual borrower and creates no claim form; and a lender in litigation is not
 a lender in bankruptcy. A bankruptcy by an installer is likewise not one by the
 lender.
+
+---
+
+## FAQ rich results — deprecated by Google (verified 26 Nov 2026)
+
+**The FAQ rich result feature is dead.** Google's own Search Central documentation
+changelog records, in order:
+
+- **May 2026** — *"Deprecating the FAQ rich result feature"*
+- **June 2026** — *"Removing documentation for the FAQ rich result feature"*
+
+Source: `developers.google.com/search/updates` (Search Central documentation
+updates), read 26 Nov 2026. The FAQPage documentation page still resolves but the
+feature it describes is no longer a rich result Google renders.
+
+**What this means, and what it does not mean.**
+
+- It does **not** mean FAQPage markup is a violation. Google deprecated the
+  *display* of the feature; it did not make the markup spam, and accurate markup
+  is still accurate markup.
+- It **does** mean no amount of FAQPage schema will produce a rich result in
+  Google Search, so it cannot lift Google CTR. Any plan whose stated mechanism is
+  "add FAQ schema -> rich results -> more clicks" is unsound in Google as of
+  mid-2026.
+- It **does not** make the markup worthless. FAQPage remains valid JSON-LD and
+  remains consumable by non-Google systems, including Bing and the AI answer
+  engines the owner has named as targets (Perplexity, ChatGPT, Google AI
+  Overviews). Structured Q&A is machine-readable content, and the value now sits
+  in machine comprehension rather than in a Google SERP enhancement.
+
+**State of the site, measured 26 Nov 2026.** All four of the pages in question
+already ship FAQPage schema with exact shell/rendered parity:
+
+| page | FAQPage questions | shell h3 | parity |
+|---|---|---|---|
+| goodleap-solar-loan-cancellation-hidden-fees-2026 | 8 | 8 | OK |
+| sunrun-solar-contract-cancellation-2026 | 7 | 7 | OK |
+| blue-raven-solar-complaints | 7 | 7 | OK |
+| adt-solar-complaints | 6 | 6 | OK |
+
+Each page's single `application/ld+json` block carries `WebPage`,
+`BreadcrumbList`, `Article` and `FAQPage`. Nothing was missing. The only reason
+these four pages did not already have it is that none of them lacked it.

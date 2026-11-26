@@ -691,7 +691,7 @@ export const blogArticlesBatch7: BlogPost[] = [
     },
     {
       type: 'p',
-      content: "Yes, in many cases. If the company violated disclosure laws or committed fraud, the fact that the panels are installed does not necessarily end your right to rescind. We have successfully helped homeowners get systems removed and contracts voided post-installation."
+      content: "Yes, in many cases. If the company violated disclosure laws or committed fraud, the fact that the panels are installed does not necessarily end your right to rescind. Whether installation ends the right to rescind depends on the disclosures and the conduct, and is a question for an individual review."
     },
     {
       type: 'h3',
