@@ -60,7 +60,63 @@ describe("pre-rendered shell carries real image markup", () => {
     expect(homepageBlock).toMatch(/heroImage:/);
   });
 
+  it("never emits a doubled company name such as Cancel ADT Solar Solar Contract", () => {
+    // Six company names already end in "Solar", which produced titles and H1s
+    // reading "Cancel ADT Solar Solar Contract". The generator now drops the
+    // trailing word when the name already carries it.
+    expect(source).toContain("test(company.name.trim())");
+  });
+
   describe("built output", () => {
+    it("contains no doubled Solar wording on any page", () => {
+      if (!fs.existsSync(DIST)) return;
+      const offenders: string[] = [];
+      const walk = (dir: string) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) walk(full);
+          else if (entry.name === "index.html") {
+            // Match the readable form only. The legacy path segment is hyphenated
+            // (/cancel-adt-solar-solar-contract) and is covered by the test below.
+            const html = fs.readFileSync(full, "utf-8");
+            if (/Solar Solar/i.test(html)) offenders.push(path.relative(DIST, full));
+          }
+        }
+      };
+      walk(DIST);
+      expect(offenders).toEqual([]);
+    });
+
+    it("keeps the nine legacy doubled company URLs out of the index", () => {
+      if (!fs.existsSync(DIST)) return;
+      // These nine URLs were generated with a doubled slug before the title
+      // generator was fixed. Renaming them would throw away whatever history they
+      // carry, so they are deliberately kept, noindexed, kept out of the sitemap
+      // and 301-redirected on the live domain to the correct article. This test
+      // exists so that state stays intentional rather than accidental.
+      const legacy = [
+        "adt",
+        "vivint",
+        "blue-raven",
+        "everbright",
+        "momentum",
+        "palmetto",
+        "titan",
+        "tesla",
+        "mosaic",
+      ].map(slug => `cancel-${slug}-solar-solar-contract`);
+
+      const sitemap = path.join(DIST, "sitemap.xml");
+      const sitemapXml = fs.existsSync(sitemap) ? fs.readFileSync(sitemap, "utf-8") : "";
+
+      for (const slug of legacy) {
+        const html = readPage(path.join(slug, "index.html"));
+        if (html === null) continue;
+        expect(html).toMatch(/name="robots" content="noindex/);
+        expect(sitemapXml).not.toContain(`/${slug}<`);
+      }
+    });
+
     const cases: Array<[string, string]> = [
       ["index.html", "homepage"],
       ["blog/adt-solar-complaints/index.html", "blog post"],

@@ -599,9 +599,17 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
   }
   for (const company of companyEntries) {
     const urlPath = `/cancel-${company.slug}-solar-contract`;
+    // Six company names already end in "Solar" (Vivint Solar, ADT Solar,
+    // Momentum Solar, Palmetto Solar, EverBright Solar, Blue Raven Solar), which
+    // produced "Cancel ADT Solar Solar Contract" in titles and "ADT Solar solar
+    // contract" in descriptions. Drop the trailing word when the name already
+    // carries it, and use one label so title and description cannot drift apart.
+    const companyLabel = /\bsolar$/i.test(company.name.trim())
+      ? company.name.trim()
+      : `${company.name.trim()} Solar`;
     map[urlPath] = {
-      title: `Cancel ${company.name} Solar Contract | Solar Freedom`,
-      description: `Review ${company.name} solar contract terms, complaint resources, and records to gather before requesting an individual case review.`,
+      title: `Cancel ${companyLabel} Contract | Solar Freedom`,
+      description: `Review ${companyLabel} contract terms, complaint resources, and records to gather before requesting an individual case review.`,
       canonical: `${BASE_URL}${urlPath}`,
       noindex: !INDEXED_COMPANY_SLUGS.has(company.slug),
       companyData: { status: company.status, complaintCount: company.complaintCount, bbRating: company.bbRating, summary: company.summary, topComplaints: company.topComplaints, cancellationGrounds: company.cancellationGrounds, knownIssues: company.knownIssues, lawsuits: company.lawsuits },
