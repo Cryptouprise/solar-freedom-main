@@ -41,6 +41,7 @@ export const CLIENT_ONLY_ROUTES = new Set([
   "/admin/revenue-intel",
   "/admin/city-recovery",
   "/admin/attorneys",
+  "/admin/changelog",
 ]);
 
 export function normalizePagePath(originalUrl: string): string | null {

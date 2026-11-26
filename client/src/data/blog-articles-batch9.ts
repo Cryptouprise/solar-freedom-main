@@ -127,11 +127,14 @@ export const batch9BlogPosts: BlogPost[] = [
       { type: 'p', content: 'If you cancel within the 3-day window and send proper written notice, Sunrun is legally required to: (1) honor the cancellation immediately, (2) return your deposit within 10 business days, and (3) cancel any financing or lien within 20 business days. If Sunrun delays beyond these timeframes, they are in violation of federal law and you should consult an attorney immediately.' },
       { type: 'h2', content: 'State-Specific Sunrun Cancellation Rights' },
       { type: 'list', items: [
-        'California: 3-day right under Cal. Civ. Code Section 1689.5. File AG complaint at oag.ca.gov/consumers/general/solar if Sunrun refuses. California has the strongest solar consumer protection laws in the country.',
-        'Florida: 3-day right under Fla. Stat. Section 501.021. File FDUTPA complaint at myfloridalegal.com. Florida courts have been particularly favorable to homeowners challenging Sunrun contracts.',
-        'Texas: 3-day right under Tex. Bus. & Com. Code Section 601. File DTPA complaint at texasattorneygeneral.gov. Texas allows triple damages for deceptive trade practices.',
-        'Arizona: 3-day right under A.R.S. Section 44-5001. File with Arizona AG at azag.gov/complaints/consumer. Arizona has seen a high volume of Sunrun complaints.',
-        'Nevada: 3-day right under NRS 598.2821. File with Nevada AG at ag.nv.gov/Bureaus/BCPF/Consumer_Complaints.',
+        // Citations read from the official statute text on 26 Nov 2026. Four of
+        // the five were previously wrong (definitions sections cited instead of
+        // the operative sections). See docs/CHANGE-LOG.md, 26 Nov 2026.
+        'California: the right to cancel a home solicitation contract runs until midnight of the third business day, or the fifth business day if the buyer is a senior citizen, under Cal. Civ. Code Section 1689.6. File a complaint with the AG at oag.ca.gov/consumers/general/solar if Sunrun refuses.',
+        'Florida: the buyer may cancel a home solicitation sale until midnight of the third business day after signing, under Fla. Stat. Section 501.025. File an FDUTPA complaint at myfloridalegal.com.',
+        'Texas: cancellation rights for personal solicitation sales sit in Tex. Bus. & Com. Code Chapter 601. File a DTPA complaint at texasattorneygeneral.gov.',
+        'Arizona: the cancellation period is set by A.R.S. Section 44-5002 (Section 44-5001 is the definitions section). File with the Arizona AG at azag.gov/complaints/consumer.',
+        'Nevada: solar agreements are governed by NRS 598.98216, which allows rescission by written notice delivered or emailed not later than midnight of the third business day after signing. If the borrower was 60 or older at signing, NRS 598.982149(1) extends that to the tenth business day. File with the Nevada AG at ag.nv.gov/Bureaus/BCPF/Consumer_Complaints.',
       ] },
     ],
   },

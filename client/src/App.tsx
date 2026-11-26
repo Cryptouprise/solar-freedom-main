@@ -191,3 +191,5 @@ function App() {
 }
 
 export default App;
+const ChangeLog = lazy(() => import("@/pages/admin/ChangeLog"));
+          <Route path={"/admin/changelog"} component={ChangeLog} />

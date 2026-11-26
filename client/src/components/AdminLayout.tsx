@@ -24,6 +24,7 @@ import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -70,6 +71,7 @@ const NAV_SECTIONS = [
       { label: "SEO Command Center", href: "/seo-command-center", icon: Target, description: "SEO tasks & strategy" },
       { label: "City Recovery", href: "/admin/city-recovery", icon: TrendingUp, description: "Governed local page recovery" },
       { label: "Backlinks", href: "/admin/press-releases#backlinks", icon: Link2, description: "Link acquisition tracker" },
+      { label: "Change Log", href: "/admin/changelog", icon: History, description: "Every change, why, and how it was proven" },
     ],
   },
 ];

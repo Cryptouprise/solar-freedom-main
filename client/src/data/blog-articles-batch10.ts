@@ -79,7 +79,10 @@ export const batch10BlogPosts: BlogPost[] = [
     slug: 'solar-escalator-clause-what-it-is-how-to-fight',
     title: 'Solar Escalator Clause: What It Is and How to Fight It',
     metaTitle: 'Solar Escalator Clause Explained — How to Fight Annual Payment Increases',
-    metaDescription: `Signed a Sunrun contract? Cancel before installation to avoid penalties! Leverage your 3-day rescission rights for a no-buyout exit. Free case review.`,
+    // This description was copy-pasted from a Sunrun cancellation article and
+    // described a completely different topic, so the snippet never matched the
+    // escalator queries this page ranks for. Rewritten to describe this page.
+    metaDescription: `How a solar escalator clause raises your payment every year, how to find the rate in your lease or PPA, and the contract terms to compare before you sign anything else.`,
     category: 'Legal Guide',
     readTime: '9 min read',
     publishDate: 'May 2, 2026',
@@ -224,8 +227,13 @@ export const batch10BlogPosts: BlogPost[] = [
   {
     slug: 'tesla-solar-solarcity-complaints-cancel-2026',
     title: 'Tesla Solar and SolarCity: Contract, Billing, Service, and Home-Sale Checklist',
-    metaTitle: 'Tesla Solar / SolarCity Contract, Billing and Transfer Checklist',
-    metaDescription: `Find your Tesla Solar or SolarCity agreement, identify the contract type, retrieve billing and service records, follow Tesla’s transfer process, and preserve a dispute file.`,
+    // The page already ranks 10.5 for "tesla ucc termination" and 11.5 for
+    // "tesla ucc termination request", but the title never mentioned UCC, so the
+    // query and the snippet did not match. The UCC-1 answer is already in the body,
+    // including Tesla's own statement that a UCC-1 fixture filing is a notice of
+    // interest and not itself a lien on the home, so the title now surfaces it.
+    metaTitle: 'Tesla Solar / SolarCity: UCC-1, PPA, Billing & Transfer',
+    metaDescription: `Tesla Solar and SolarCity accounts: what a UCC-1 fixture filing does and does not mean, how to find your PPA or lease terms, and the records needed for billing, service, or a home sale.`,
     category: 'Company Guide',
     readTime: '10 min read',
     publishDate: 'August 16, 2026',
