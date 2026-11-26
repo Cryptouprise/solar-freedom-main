@@ -1060,7 +1060,7 @@ You Deserve Financial Freedom and Peace of Mind` },
 
 
 What You Can Do Right Now` },
-      { type: 'p', content: `If you feel trapped in a contract that isn't what you were promised, don't wait for the situation to fix itself. Taking proactive steps today can save you thousands of dollars and years of stress. Here is your immediate action plan:` },
+      { type: 'p', content: `If you feel trapped in a contract that isn't what you were promised, don't wait for the situation to fix itself. Taking proactive steps today, while the notice windows are still open, matters more than waiting. Here is your immediate action plan:` },
       { type: 'h2', content: `Gather Your Documents: Find your original contract, the "Estimated Savings" sheet, and all correspondence with the solar company. Look for the mandatory Nevada disclosure cover page.Audit Your Bills: Compare your current NV Energy bills with the "guaranteed" savings promised in your contract. Document every month where the system failed to meet its targets.Check the Installation Date: If your system hasn't been installed yet, or was installed within the last few days, you may still be within your right of rescission window.File a Formal Complaint: Contact the Nevada State Contractors Board and the Bureau of Consumer Protection. These agencies need to hear from you to take action against predatory installers.Seek Expert Guidance: You don't have to fight this battle alone. There are resources available specifically for homeowners in your position.
 
 Take Back Your Financial Freedom` },
@@ -1174,7 +1174,7 @@ You Are Not Alone in This Fight` },
     slug: "new-jersey-solar-contract-rights",
     title: "New Jersey Solar Contract Rights: Cancellation and Complaints",
     metaTitle: "New Jersey Solar Contract Rights & Complaints",
-    metaDescription: "Review a New Jersey solar contract safely: written cancellation terms, contractor registration, financing documents, evidence, official complaints, and next steps.",
+    metaDescription: "New Jersey solar contracts: the written cancellation terms to check, the contractor registration to verify, and where an official complaint actually goes.",
     excerpt: "New Jersey homeowners should start with the signed cancellation notice, contractor registration, financing documents, and official complaint procedures—not a universal promise that every solar deal can be canceled.",
     category: "State Guide",
     heroImage: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80",
@@ -2028,7 +2028,7 @@ The "villain" in your story isn't the solar panels on your roof--it's the decept
     slug: `solar-contract-military-families`,
     title: `The Hidden Battle: How Military Families Can Cancel Solar Contracts`,
     metaTitle: `Military Families: How to Cancel Solar Contracts with SCRA`,
-    metaDescription: `Active military families: Leverage SCRA to cancel predatory solar contracts, save thousands, and safeguard your VA loan eligibility. Urgent help available! Free case review.`,
+    metaDescription: `Active military families: the SCRA can end a solar lease or PPA on a permanent change of station, and it protects VA loan eligibility. See what the statute requires.`,
     excerpt: `Military families are often targeted by predatory solar sales tactics that clash with the reality of PCS moves. Learn how the Servicemembers Civil Relief Act (SCRA) can help you cancel a solar contract and regain your financial freedom.`,
     category: `Legal Rights`,
     heroImage: `https://images.unsplash.com/photo-1508612761958-e931d843bdd5?w=1200&q=80`,

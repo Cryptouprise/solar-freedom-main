@@ -23,7 +23,7 @@ export const batch19BlogPosts: BlogPost[] = [
     slug: 'selling-las-vegas-home-with-solar-lease-or-loan',
     title: 'Selling a Las Vegas Home With Solar: The Transfer Problem Nobody Explains',
     metaTitle: 'Selling a Las Vegas Home With Solar Lease or Loan: What to Check',
-    metaDescription: `Selling a Las Vegas home with leased or financed solar? Here is where the UCC filing actually sits in Nevada, what stalls escrow, and what to check before you list.`,
+    metaDescription: `Selling a Las Vegas home with leased or financed solar? Where the UCC filing sits in Nevada, what stalls escrow, and what to check before you list.`,
     category: 'Nevada',
     readTime: '11 min read',
     publishDate: 'November 3, 2026',

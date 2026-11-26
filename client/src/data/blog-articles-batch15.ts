@@ -138,7 +138,7 @@ export const batch15BlogPosts: BlogPost[] = [
     slug: 'nevada-solar-complaint-timeline-and-cost',
     title: 'Filing a Solar Complaint in Nevada: Which Agency, How Long, and What It Costs',
     metaTitle: 'Nevada Solar Complaint: Which Agency, Timeline and Cost (2026)',
-    metaDescription: `Nevada's three solar complaint routes point at each other. Here is which agency does what, the real timelines, the $40,000 Recovery Fund limit, and what it costs you.`,
+    metaDescription: `Nevada has three solar complaint routes and they point at each other. Which agency does what, the real timelines, and the $40,000 Recovery Fund limit.`,
     category: 'Consumer Guide',
     readTime: '12 min read',
     publishDate: 'November 3, 2026',

@@ -42,7 +42,7 @@ export const blogArticlesBatch4: BlogPost[] = [
     slug: 'solar-payment-shock-help',
     title: 'Solar Payment Shock: Why Your Bill Is Higher Than Expected',
     metaTitle: 'Solar Payment Shock: Why Your Solar Bill Is Higher Than Expected (2026)',
-    metaDescription: 'Shocked by your solar bill? Fight back against high payments & escalator clauses. Explore legal options to save thousands. Free case review.',
+    metaDescription: 'Shocked by your solar bill? Escalator clauses raise lease and PPA payments on a schedule. See how the increase compounds, what the agreement actually allows, and what to review before you act.',
     category: 'Consumer Guide',
     readTime: '7 min read',
     publishDate: 'March 22, 2026',

@@ -234,7 +234,7 @@ export const batch10BlogPosts: BlogPost[] = [
     // including Tesla's own statement that a UCC-1 fixture filing is a notice of
     // interest and not itself a lien on the home, so the title now surfaces it.
     metaTitle: 'Tesla Solar / SolarCity: UCC-1, PPA, Billing & Transfer',
-    metaDescription: `Tesla Solar and SolarCity accounts: what a UCC-1 fixture filing does and does not mean, how to find your PPA or lease terms, and the records needed for billing, service, or a home sale.`,
+    metaDescription: `Tesla Solar and SolarCity accounts: what a UCC-1 fixture filing means, how to find your PPA or lease terms, and what to gather for billing or a home sale.`,
     category: 'Company Guide',
     readTime: '10 min read',
     publishDate: 'August 16, 2026',
@@ -353,7 +353,7 @@ export const batch10BlogPosts: BlogPost[] = [
     slug: 'solar-loan-document-checklist',
     title: 'Solar Loan Document Checklist: What to Collect Before You Act',
     metaTitle: 'Solar Loan Document Checklist: What to Collect Before You Act',
-    metaDescription: 'Use this solar-loan document checklist to organize your agreement, payment schedule, proposal, statements, closing records, and sales communications before a qualified review.',
+    metaDescription: 'A solar-loan document checklist: the agreement, payment schedule, proposal, statements, closing records, and sales communications to gather before a review.',
     category: 'Consumer Resource',
     readTime: '8 min read',
     publishDate: 'August 14, 2026',
