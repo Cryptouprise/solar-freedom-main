@@ -717,7 +717,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     slug: "blue-raven-solar-complaints",
     title: "Blue Raven Solar Complaints: Status, Support and Contract Help",
     metaTitle: "Blue Raven Solar: Still in Business? Phone & Reviews (2026)",
-    metaDescription: "What happened to Blue Raven Solar, who services its systems and warranties now, and your options if your system or loan is a problem.",
+    metaDescription: "Blue Raven Solar reviews, complaints and customer service: the (800) 377-4480 support line, who services your system now, and your options if it fails.",
     category: "Company Guide",
     readTime: "8 min read",
     publishDate: "August 16, 2026",
