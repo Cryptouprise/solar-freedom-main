@@ -25,8 +25,13 @@ export function applyPriorityCityGuide(html:string,pagePath:string):string {
   let main=$('main.seo-prerender');
   if(!main.length) { $('#root').empty().append('<main class="seo-prerender" data-page-type="city_page"></main>');main=$('main.seo-prerender'); }
   if(main.length) {
+    // The pre-rendered shell carries the approved city hero. Capture it before
+    // .empty() so the rebuilt guide still ships an image to crawlers instead of
+    // reverting to a text-only page.
+    const heroFigure = main.find('figure').first().toString();
     main.attr('data-priority-city-guide',data.slug).empty();
     main.append('<h1></h1>');main.find('h1').text(`Solar contract help in ${data.city}, ${data.stateCode}`);
+    if(heroFigure) main.append(heroFigure);
     main.append(renderPriorityCityBody(data));
     const nav=$('<nav aria-label="Related solar contract resources"><h2>Related resources</h2><ul></ul></nav>');
     for(const link of data.links){const a=$('<a></a>').attr('href',link.url).text(link.label);nav.find('ul').append($('<li></li>').append(a));}

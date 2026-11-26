@@ -51,6 +51,21 @@ describe('Priority city keywords and answer delivery',()=>{
     expect(applyPriorityCityGuide(recovery,'/cancel-solar-contract/phoenix-az')).toBe(recovery);
     expect(getPageMetaKeywords('/constructor')).toBeUndefined();
   });
+  it('keeps the approved city hero image when the guide body is rebuilt',()=>{
+    // The shell emits the hero as a <figure>. This transform empties and rebuilds
+    // the guide body, which previously discarded that figure and reverted the
+    // crawler-visible page to text only.
+    const hero='<figure><img src="https://breakyoursolarcontract.com/manus-storage/city-hero-phoenix-az-v2_b3f1cf97.png" alt="Solar contract help for homeowners in Phoenix, AZ" loading="eager" decoding="async"></figure>';
+    const withHero=template.replace('<h1>Old</h1>',`<h1>Old</h1>${hero}`);
+    const result=applyPriorityCityGuide(withHero,'/cancel-solar-contract/phoenix-az');
+    const $=cheerio.load(result);
+    expect($('main img')).toHaveLength(1);
+    expect($('main img').attr('src')).toContain('city-hero-phoenix-az');
+    expect($('main img').attr('alt')).toBeTruthy();
+    // The rebuild must still leave exactly one h1 and one guide container.
+    expect($('h1')).toHaveLength(1);
+    expect($('[data-priority-city-guide]')).toHaveLength(1);
+  });
   it('bakes keywords, answers and matching FAQ data into the static city build',async()=>{
     // @ts-expect-error Static build intentionally uses plain ESM.
     const renderer=await import('../scripts/prerender.mjs');

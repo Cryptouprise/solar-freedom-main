@@ -640,7 +640,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     };
   }
   const staticPages = [
-    { path: "/blog", title: "Solar Contract Guides: Cancel, Dispute, Sell | Solar Freedom", desc: "Expert articles on how to cancel solar contracts, fight solar fraud, and understand your legal rights as a homeowner." },
+    { path: "/blog", title: "All Solar Contract Guides & Articles | Solar Freedom", desc: "Browse every Solar Freedom guide by topic: cancellation, financing, complaints, liens, and selling a home with solar." },
     { path: "/how-it-works", title: "How Solar Contract Cancellation Works | Solar Freedom", desc: "See how Solar Freedom reviews solar contracts, gathers records, and prepares an individual case review. Not a law firm. Outcomes depend on the documents and facts." },
     { path: "/solar-contract-help", title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom", desc: "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review." },
     { path: "/solar-panel-scam", title: "Solar Panel Scam Warning Signs | Solar Freedom", desc: "Learn common solar-sales warning signs and which records to keep." },
