@@ -8,7 +8,7 @@ export const batch9BlogPosts: BlogPost[] = [
     slug: "sunrun-solar-contract-cancellation-2026",
     title: "How to Cancel a Sunrun Contract: Before or After Installation",
     metaTitle: "Sunrun Contract Cancellation: Email, Fees & Steps (2026)",
-    metaDescription: "The cancellation window, what Sunrun charges to exit, transfer and buyout options when you sell, and how to put it in writing. Free 15-minute review.",
+    metaDescription: "Cancel or get out of a Sunrun contract: the cancellation window, the exit fee, how to cancel an appointment, and no public cancellation email. Free review.",
     category: "Contract Help",
     readTime: "9 min read",
     publishDate: "August 16, 2026",
