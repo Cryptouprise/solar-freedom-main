@@ -232,6 +232,7 @@ async function loadData() {
     }))
     .filter((entry) => entry.slug && entry.state);
 
+  registerStateLawSlugs(stateEntries);
   return { cityEntries, companyEntries, stateEntries };
 }
 
@@ -1147,6 +1148,26 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
   return JSON.stringify(blocks).replace(/</g, "\\u003c");
 }
 
+/**
+ * State name -> published state-law slug.
+ *
+ * Why this exists: every city page carries a "<State> consumer-law reference"
+ * section that tells the reader to "review the dedicated <State> law resource"
+ * and then never links to it. The section therefore competes with the state page
+ * for state-level queries instead of routing to it, which is measurable: the San
+ * Francisco page earns 46 impressions in the last 30 days on state-level
+ * queries like "cancel solar lease california" at position 35.1 with zero
+ * clicks, while the California state page sits at position 10.4 on 25. Only
+ * published state pages are linked, so an unpublished state gets no link rather
+ * than a 404.
+ */
+const STATE_LAW_SLUG_BY_NAME = new Map();
+/** Populated once stateEntries is parsed, so city pages can link to their state page. */
+function registerStateLawSlugs(stateEntries) {
+  for (const state of stateEntries) {
+    if (INDEXED_STATE_SLUGS.has(state.slug)) STATE_LAW_SLUG_BY_NAME.set(state.state, state.slug);
+  }
+}
 function buildCityUniqueContent(meta, urlPath) {
   const guide = priorityCityContent[urlPath];
   if (guide) return renderPriorityCityBody(guide);
@@ -1160,6 +1181,21 @@ function buildCityUniqueContent(meta, urlPath) {
   const companies = (cd.companies || [])
     .map(company => `<li>${escapeHtml(company)}</li>`)
     .join('');
+  /*
+   * Link the state-law section to the published state page instead of only
+   * naming it. The section previously told the reader to "review the dedicated
+   * <State> law resource" with no anchor, so the city page competed with the
+   * state page for state-level queries rather than routing to it. Measured on
+   * 26 Nov 2026: the San Francisco page earns 46 impressions in 30 days on
+   * state-level queries such as "cancel solar lease california" at position
+   * 35.1 with zero clicks, while the California state page sits at position
+   * 10.4 on 25. Only published states are linked, so an unpublished state gets
+   * no link rather than a 404.
+   */
+  const stateSlug = STATE_LAW_SLUG_BY_NAME.get(stateName);
+  const stateLawLink = stateSlug
+    ? `<a href="/solar-contract-laws/${stateSlug}">${escapeHtml(stateName)} solar contract law resource</a>`
+    : `dedicated ${escapeHtml(stateName)} law resource`;
 
   return `
       <h2>Solar contract questions in ${escapeHtml(cityName)}</h2>
@@ -1175,7 +1211,8 @@ function buildCityUniqueContent(meta, urlPath) {
       </ul>
 
       <h2>${escapeHtml(stateName)} consumer-law reference</h2>
-      ${stateLaw ? `<p>The state-law reference associated with this location is <strong>${stateLaw}</strong>. Whether a statute applies, whether a deadline exists, and what options may be available depend on the actual agreement and facts. Review the official statutory text and seek appropriate professional guidance before acting.</p>` : `<p>Consumer-protection rules and contract remedies vary by state and by the facts of the transaction. Review the dedicated ${escapeHtml(stateName)} law resource for a starting point.</p>`}
+      ${stateLaw ? `<p>The state-law reference associated with this location is <strong>${stateLaw}</strong>. Whether a statute applies, whether a deadline exists, and what options may be available depend on the actual agreement and facts. Review the official statutory text and seek appropriate professional guidance before acting.</p>` : `<p>Consumer-protection rules and contract remedies vary by state and by the facts of the transaction. Review the ${stateLawLink} for a starting point.</p>`}
+      ${stateLaw ? `<p>State-level rules, deadlines and citations for ${escapeHtml(stateName)} are collected on the ${stateLawLink}.</p>` : ''}
 
       <h2>Companies researched in this location</h2>
       <p>The following names are included in Solar Freedom’s research library for ${escapeHtml(cityName)}. Their appearance here is not a statement that they currently operate in the city or that any individual has a claim against them.</p>

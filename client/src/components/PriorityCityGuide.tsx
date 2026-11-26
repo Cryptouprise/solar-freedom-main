@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { ArrowRight, FileCheck2, FileText, MapPin, ShieldCheck } from 'lucide-react';
 import { SchemaInjector } from './SchemaInjector';
 import { ArticleContent } from './ArticlePresentation';
-import { buildPriorityCitySchemas, type PriorityCityContent } from '@shared/priorityCityContent';
+import { buildPriorityCitySchemas, getStateLawPath, type PriorityCityContent } from '@shared/priorityCityContent';
 import { isVegasCityPath } from '@shared/vegasCampaign';
 import VegasBookingCTA from './VegasBookingCTA';
 import { BookingButton } from './ConversionActions';
@@ -12,6 +12,7 @@ export default function PriorityCityGuide({ data, heroImage, form }: { data: Pri
   const path = `/cancel-solar-contract/${data.slug}`;
   const vegas = isVegasCityPath(path);
   const reviewLinkClass = 'inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-amber-500 px-5 py-3 text-sm font-bold text-black transition-colors hover:bg-amber-400';
+  const stateLawPath = getStateLawPath(data.state);
   return <div className={`min-h-screen bg-[#0D0F14] text-white [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-4 [&_a]:focus-visible:outline-amber-400 [&_summary]:focus-visible:outline-2 [&_summary]:focus-visible:outline-offset-4 [&_summary]:focus-visible:outline-amber-400 ${vegas ? 'pb-28' : ''}`}>
     <SchemaInjector schemas={buildPriorityCitySchemas(data, path)} replaceExisting />
     <nav className="sticky top-0 z-40 border-b border-white/10 bg-[#0D0F14]/95 backdrop-blur">
@@ -88,6 +89,7 @@ export default function PriorityCityGuide({ data, heroImage, form }: { data: Pri
             <ArticleContent content={data.localNote} />
             <ul className="mt-6 space-y-4">{data.sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="break-words text-amber-400 underline underline-offset-4 hover:text-amber-300">{source.label}</a></li>)}</ul>
             <p className="mt-5 text-xs leading-6 text-zinc-400">Sources checked: {data.sourceCheckedOn}. Official guidance can change.</p>
+            {stateLawPath && <p className="mt-6 text-sm leading-7 text-zinc-300">State-level rules, deadlines and citations for {data.state} are collected on the <Link href={stateLawPath} className="text-amber-400 underline underline-offset-4 hover:text-amber-300">{data.state} solar contract law resource</Link>.</p>}
           </section>
           <section id="city-faq" className="scroll-mt-24">
             <h2 className="font-display text-3xl leading-tight">Frequently asked questions</h2>

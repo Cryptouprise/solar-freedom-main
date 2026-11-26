@@ -17,4 +17,4 @@ export function getPriorityCityContent(pagePath:string): PriorityCityContent | u
   const path = pagePath.split(/[?#]/,1)[0].replace(/\/+$/, '') || '/';
   return Object.prototype.hasOwnProperty.call(registry,path) ? registry[path] : undefined;
 }
-export { renderPriorityCityBody, buildPriorityCitySchemas } from './priority-city-render.mjs';
+export { renderPriorityCityBody, buildPriorityCitySchemas, getStateLawPath } from './priority-city-render.mjs';

@@ -662,6 +662,48 @@ export const CHANGE_LOG: ChangeEntry[] = [
       "server/firstPartyClaims.test.ts now scans the BUILT output for first-party claim patterns and for descriptions that do not end in a sentence, so the check runs against what Google actually receives rather than against the source. This is the second defect class found only by reading the built output, after the 74 pages of ellipsis-terminated snippets, which is why the standing practice is now to scan dist/public after every build rather than trusting the source.",
     measureAfter: "2026-12-05",
   },
+  {
+    date: "2026-11-26",
+    title: "None of the fourteen zero-click near-winners was a real defect, and the noindex suppression was already working",
+    class: "infrastructure",
+    changed: [
+      "scripts/ctr-significance.py added: computes expected clicks per page from the site's own CTR-by-position curve and reports a one-tailed Poisson probability, so a zero-click page is only treated as a defect when the shortfall cannot be explained by volume",
+      "scripts/gsc-page-trend.mjs added: compares a page across two Search Console windows so a cached impression count can be separated from current demand before any index-status change is made",
+      "No content or index-status change was made. This entry records two negative findings and the tooling that produced them.",
+    ],
+    evidence:
+      "Two investigations on 26 Nov 2026, both of which ended in NOT making a change. (1) Eight near-winner URLs ship noindex yet appeared to be ranking, including four in the top ten: goodleap-solar-loan-problems at position 8.6 with 214 impressions, solar-contract-cancellation-cost at 7.7 with 94, solar-lien-on-house-removal-guide at 9.0 with 54, and solar-escalator-clause-what-it-is-how-to-fight at 8.7 with 57. Direct requests confirmed five of the eight serve HTTP 200 with a noindex directive and are absent from the sitemap, which is the strongest suppression signal the site can send. scripts/gsc-page-trend.mjs then compared the recent 14 days against the preceding 45: all five returned ZERO impressions in the recent window against 28, 38, 8 and 15 in the older one, and SunPower zero in both. The suppression is working exactly as designed and the cached impressions are historical. (2) Fourteen near-winner pages had zero clicks at positions 6.2 to 18.1, which reads as fourteen CTR defects in a flat table. scripts/ctr-significance.py computed expected clicks from the site's own CTR-by-position curve: expected values were 0.2 to 2.3 clicks, and the probability of observing zero purely by chance ranged from 0.10 to 0.84. ZERO of the fourteen was statistically real.",
+    reasoning:
+      "Both findings are the same mistake in different clothes, which is treating a table row as a diagnosis. The index-status case nearly produced a change that would have promoted five pages into the index on the strength of impressions that had already stopped arriving — the suppression was correct, the pages are thin (317 and 311 words for the two company hubs), and Dividend Finance has zero recent query demand site-wide while the lien topic is already covered by the indexable /solar-lien-removal page. The CTR case would have produced fourteen rewrites to chase roughly one expected click each, and worse, it would have taught the wrong lesson from random variation. The discipline this establishes: before treating a page as a defect, check whether its demand is current, and check whether its shortfall is larger than chance. The high-volume pages remain the real opportunities and those were already worked today — GoodLeap at 10,365 impressions, Sunrun at 9,343 and Blue Raven at 4,488 are 81 percent of the page-1 near-winner impression mass, and all three were fixed earlier in the same session.",
+    confidence: "measured",
+    verifiedBy:
+      "node scripts/gsc-page-trend.mjs --recent 14 --older 45 on the five suppressed pages returned 0 impressions in every recent window. curl against all eight live URLs confirmed five HTTP 200 with noindex and three HTTP 301. python3 scripts/ctr-significance.py over the 45-item near-winners list reported 14 zero-click pages, 0 statistically real, 14 noise, with p(0) from 0.1003 to 0.8420.",
+    preventsRecurrence:
+      "scripts/ctr-significance.py is now the required first pass over any near-winners list: a zero-click page is not a defect unless p(0) is below 0.05, so low-volume pages can no longer consume a change. scripts/gsc-page-trend.mjs is now required before any index-status change, because the near-winners dataset spans 1 Sep to 22 Nov and an impression count inside it says nothing about whether the demand is still there. Both are read-only and both are cheap enough to run before every batch.",
+    measureAfter: "2026-12-05",
+  },
+  {
+    date: "2026-11-26",
+    title:
+      "Every city page now routes state-level questions to the state law page instead of competing with it",
+    class: "SEO",
+    changed: [
+      "`scripts/prerender.assembled.mjs` gains `STATE_LAW_SLUG_BY_NAME` and `registerStateLawSlugs()`, populated from the state entries during `loadData()`, so the city renderer knows which state-law pages actually exist before it writes a link.",
+      "`buildCityUniqueContent` now emits a real anchor in the state-law paragraph (\"the <State> solar contract law resource\") and adds a routing sentence: \"State-level rules, deadlines and citations for <State> are collected on the <State> solar contract law resource.\"",
+      "`shared/priority-city-render.mjs` gains `getStateLawPath()` and the same routing sentence inside the `city-local-resources` section, which the 21 priority city guides render through a separate code path that had no state link at all.",
+      "`client/src/components/PriorityCityGuide.tsx` renders the same sentence, importing `getStateLawPath` from the shared module rather than reimplementing the state map, so the shell and the hydrated page cannot drift apart.",
+    ],
+    evidence:
+      "Measured 26 Nov 2026. Before the change, the state-law paragraph on every city page read \"review the dedicated <State> law resource\" with NO anchor, so the city page was competing for state-level queries instead of routing to the page that answers them. `/cancel-solar-contract/san-francisco-ca` earned 46 impressions in the recent 30-day window at average position 35.1 with ZERO clicks, while the California state page held its own state-level queries at position 10.4. The 21 priority city guides were worse: a JSON scan found ZERO references to `/solar-contract-laws/` anywhere in `shared/priority-city-content.json`, so Phoenix, Houston, Dallas, Los Angeles, San Diego and San Antonio — the six highest-value city pages — had no route to their own state page at all. The routing sentence also said \"for this location\" rather than naming the state, which tells a crawler nothing, so it now names it. After the change, measured on the 583-page build: 77 city pages carry a correct state-law link (71 templated plus the 6 highest-value priority guides), 0 mismatched, 0 broken targets, and 225 correctly omitted because their state has no published page; all 21 priority guides verified, 6 with the correct link and 15 correctly omitted.",
+    reasoning:
+      "The San Francisco numbers are the whole argument. A page at position 35.1 with zero clicks is not losing to better content, it is losing to a page on the same site that already answers the query at position 10.4, and Google has no way to know which one the searcher wants when the weaker page never points at the stronger one. The state-law page is the canonical answer for state-level rules; the city page's job is local relevance plus a route out. Leaving the sentence unlinked made the city page a competitor for a query it is not the best answer for, which splits the site's own authority and wastes the local page's impressions. The priority-city gap was the same defect in a second code path, which is why it survived the templated fix: the guides render through `shared/priority-city-render.mjs` rather than `buildCityUniqueContent`, so a fix in one place does nothing for the other. Both were fixed together and the state map is now a single shared export so a third renderer cannot reintroduce the divergence. Only published states are linked, because a link to an unbuilt or `noindex` state page is worse than no link: it spends crawl budget and passes authority to a page Google is being told to ignore.",
+    confidence: "verified",
+    verifiedBy:
+      "python3 on the 583-page build confirmed 77 city pages with a correct state-law link and 225 correctly omitted, 0 linking an unpublished state, 0 where the anchor text disagreed with its target. node /tmp/verify-statelaw.mjs confirmed all 21 priority guides: 6 correct links, 15 correctly omitted, 0 problems, with the existing `city-local-resources` external source links, the `#city-form` CTA anchor and the `noopener noreferrer` attributes all still present. `pnpm check` clean and the production build pre-rendered 583 pages.",
+    preventsRecurrence:
+      "The state-law slug map now lives in exactly one place, `STATE_LAW_SLUG_BY_NAME` for the templated renderer and `getStateLawPath()` in `shared/priority-city-render.mjs` for the priority guides, and the client imports the shared helper instead of copying it. The recurring lesson is recorded here: this site renders city pages through TWO independent code paths, so any fix to city-page output must be checked against both.",
+    measureAfter: "2026-12-05",
+  },
 ];
 
 /** Entries grouped by class, for the admin view. */
