@@ -160,7 +160,16 @@ describe("snippet completeness", () => {
     }
     // Informational: the fitter handles these, but they must end in a sentence
     // end so the cut lands cleanly. Assert the count is not growing.
-    expect(over.length).toBeLessThan(60);
+    // Pinned at the measured value rather than left as a loose bound, so a new
+    // over-limit description forces a decision instead of being absorbed by
+    // headroom. Measured 26 Nov 2026: 34. The real protection is the built-output
+    // test above, which asserts no INDEXABLE page serves a description that ends
+    // mid-phrase; this one exists so the source list cannot grow unnoticed.
+    expect(
+      over.length,
+      `Source descriptions over 160 chars grew to ${over.length} (was 34 on 26 Nov 2026). ` +
+        `Each must still end in sentence punctuation after the fitter runs: ${over.join(" | ")}`,
+    ).toBeLessThanOrEqual(34);
   });
 });
 
