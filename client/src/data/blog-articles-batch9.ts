@@ -359,7 +359,7 @@ export const batch9BlogPosts: BlogPost[] = [
     slug: 'solar-contract-escalator-clause-explained-how-to-fight-it',
     title: 'Solar Contract Escalator Clause Explained: How to Fight It in 2026',
     metaTitle: 'Solar Contract Escalator Clause Explained: Fight It in 2026',
-    metaDescription: `Act now to fight 2.9%-3.9% solar escalator clauses! Secure your savings by exploring legal mechanisms to exit predatory contracts. Free case review.`,
+    metaDescription: `Solar escalator clause raising your payment every year? See how a 2.9% or 3.9% increase compounds, whether it can be removed or capped, and how to get out.`,
     category: 'Contract Help',
     readTime: '10 min read',
     publishDate: 'April 19, 2026',
@@ -367,7 +367,7 @@ export const batch9BlogPosts: BlogPost[] = [
     heroImage: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1200&q=80',
     heroAlt: 'solar energy system on house roof',
     ctaText: 'Review My Solar Contract',
-    ctaSubtext: 'Don\'t let rising solar payments drain your savings. Get expert legal help today.',
+    ctaSubtext: 'Request a review of your escalator terms, disclosures and payment history. No result or timeline is guaranteed.',
     relatedSlugs: ['solar-payments-too-high-help', 'how-to-get-out-of-a-solar-contract', 'solar-fraud-warning-signs', 'cancel-solar-loan-or-lease-early', 'get-out-of-solar-contract-by-state'],
     faq: [
       { q: 'What is a solar contract escalator clause and how does it affect my payments?', a: 'A solar contract escalator clause is a provision, typically found in Power Purchase Agreements (PPAs) and leases, that automatically increases your monthly solar payment by a fixed percentage each year. Common rates are 2.9% or 3.9%, meaning your payments will be significantly higher after just a few years, often exceeding traditional utility rates.' },
@@ -379,9 +379,9 @@ export const batch9BlogPosts: BlogPost[] = [
     ],
     content: [
       { type: 'stat-block', stats: [
-        { value: '3M+', label: 'U.S. homeowners with solar contracts' },
-        { value: '68%', label: 'Report higher-than-expected costs' },
-        { value: '30-90', label: 'Days to resolution with legal help' },
+        { value: '2.9-3.9%', label: 'Typical annual escalator in a lease or PPA' },
+        { value: '$150 -> $328', label: 'Monthly payment by year 20 at a 3.9% escalator' },
+        { value: '20-25 yrs', label: 'Typical term the escalator compounds over' },
         { value: 'Free', label: 'Initial case review' },
       ]},
       { type: 'h2', content: 'Solar Contract Escalator Clause Explained: Understanding the Hidden Costs' },
@@ -439,10 +439,10 @@ export const batch9BlogPosts: BlogPost[] = [
     ],
     content: [
       { type: 'stat-block', stats: [
-        { value: '3M+', label: 'U.S. homeowners with solar contracts' },
-        { value: '68%', label: 'Report higher-than-expected costs' },
-        { value: '30-90', label: 'Days to resolution with legal help' },
-        { value: 'Free', label: 'Initial case review' },
+        { value: 'CFPB', label: 'Federal complaint channel for financing issues' },
+        { value: 'FTC', label: 'Channel for deceptive sales reports' },
+        { value: 'State AG', label: 'Channel that varies by jurisdiction' },
+        { value: 'Free', label: 'Filing a complaint costs nothing' },
       ]},
       { type: 'h2', content: 'Understanding Your Rights: How to File a Complaint Against Solar Company Attorney General' },
       { type: 'p', content: 'Homeowners across the United States are increasingly facing challenges with predatory solar contracts and deceptive sales practices. If you find yourself in this situation, knowing how to file a complaint against a solar company with your state\'s Attorney General is a critical step towards protecting your rights and seeking recourse. This guide provides a direct, authoritative roadmap for navigating this process in 2026, focusing on concrete actions and legal realities.' },
@@ -542,9 +542,9 @@ export const batch9BlogPosts: BlogPost[] = [
     ],
     content: [
       { type: 'stat-block', stats: [
-        { value: '3M+', label: 'U.S. homeowners with solar contracts' },
-        { value: '68%', label: 'Report higher-than-expected costs' },
-        { value: '30-90', label: 'Days to resolution with legal help' },
+        { value: '20-25 yrs', label: 'Typical lease or PPA term the buyer must assume' },
+        { value: '30-60 days', label: 'Typical added transfer time before closing' },
+        { value: 'Buyout', label: 'The alternative to a transfer, priced from remaining payments' },
         { value: 'Free', label: 'Initial case review' },
       ]},
       { type: 'h2', content: 'Selling Home with Solar PPA Panels: Understanding Your Options' },

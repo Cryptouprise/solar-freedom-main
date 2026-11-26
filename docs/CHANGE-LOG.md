@@ -1,5 +1,61 @@
 # Change Log — Solar Freedom / breakyoursolarcontract.com
 
+## 2026-11-26 — Five articles promised a resolution timeline and cited population statistics that no source supports
+**Class:** accuracy
+**Changed:**
+- `client/src/data/blog-articles-batch9.ts`, `blog-articles-batch14.ts` and `blog.ts`: the stat trio `3M+` U.S. homeowners with solar contracts, `68%` report higher-than-expected costs and `30-90 days to resolution with legal help` removed from five articles and replaced with figures each article can actually defend.
+- Escalator-clause article stat block now reads `2.9-3.9%` / `$150 -> $328` / `20-25 yrs` / `Free`, all of which are arithmetic the reader can check against their own contract.
+- Attorney-general complaint article now reads `CFPB` / `FTC` / `State AG` / `Free`, naming the agencies that actually receive these complaints rather than a predicted outcome.
+- PPA transfer article now reads `20-25 yrs` / `30-60 days` / `Buyout` / `Free`; red-flags checklist now reads `15` / `2.9-3.9%` / `Notice` / `Free`.
+- `cancel-solar-contract-after-installation` in `client/src/data/blog.ts`: the same `30-90 days to resolution with legal help` stat replaced with the notice requirement.
+- Escalator article metaDescription rewritten to drop the "Act now" urgency and the "Secure your savings" guarantee, and its ctaSubtext corrected to match.
+- `blog-articles-batch6.ts` `breakyoursolarcontract-how-it-works` (noindex): metaDescription no longer promises "in 30-90 days" and the excerpt no longer says "in as little as 30 days".
+- `scripts/prerender.assembled.mjs`: three new patterns added to `unsupportedFirstPartyClaimPatterns` covering outcome-plus-timeline promises and unsourced population statistics; a broader version was written, measured and deliberately rejected.
+- `server/unsourcedClaims.test.ts` added, 4 tests, including a build-output assertion that no indexable page ships `Typical Resolution` or `30-90 days` and an assertion that the runtime filter stays narrow.
+**Why:** A site-wide grep on 26 Nov 2026 found the same stat trio in four articles and a fifth occurrence of the resolution-time stat in `client/src/data/blog.ts`, and no source anywhere in the repository. The only genuine "68%" in the repo is in `docs/seo-baseline-2026-09-03.md` describing an unrelated impression decrease. The "30-90 days to resolution with legal help" line is an outcome and timeline promise, not a statistic, and the trust filter missed it because the nearest pattern required the literal phrase "Results in 30-90 days". Measured across the built output: 7 pages shipped a resolution-time promise and all 7 were noindex; the indexed city pages las-vegas-nv, phoenix-az and houston-tx did not ship it. A sweep of the proposed broader `% of <group>` runtime pattern showed it would have suppressed 87 legitimate lines including approved published city-page statistics and correct explanations of the 30% federal tax credit.
+**Reasoning:** Two separate harms. The resolution-time line is a prediction about an outcome we cannot control, which is both a trust problem with the reader and the kind of claim that damages credibility with an attorney. The population statistics are worse because they are unfalsifiable as written: no citation, no date, no sample. Rather than soften the numbers, each article was given figures it can defend from its own subject matter, so the stat block still does the job of a stat block, which is to make the page scannable. The broad runtime filter was rejected because runtime suppression DELETES content, and deleting 87 legitimate lines to catch a handful of bad ones is a worse trade than catching them at build time. The wide class is therefore guarded by a failing test rather than a runtime deletion.
+**Verified:** `npx vitest run server/unsourcedClaims.test.ts`: 4 tests passed. A grep of `client/src/data` on 26 Nov 2026 returns 0 occurrences of "3M+", "Report higher-than-expected costs", "Days to resolution with legal help" and "Homeowners report hidden fees" outside the test file and the 6 legacy `city-content-depth` files that are all noindex. `pnpm check` clean; `npx vitest run`: 86 files, 832 tests passed, 3 skipped.
+**Recurrence guard:** `server/unsourcedClaims.test.ts` bans outcome-timeline promises and unsourced population statistics in article copy, asserts that the runtime trust filter still contains "with legal help" and does NOT contain the rejected broad `% of <group>` pattern, and asserts that no indexable built page ships `Typical Resolution` or `30-90 days`. The test carries an explicit `ALLOWED` list for 6 legacy `city-content-depth` files and `LEGACY_NOINDEX_BLOGS` for `blog-articles-batch7.ts`, each with a stated reason, so the exclusions are visible rather than silent.
+**Measure after:** 2026-12-05
+## 2026-11-26 — Rescission page ranked for cancel, termination and the three-day window without naming any of them
+
+**Class:** SEO
+
+**Changed:**
+- `client/src/data/blog-extra.ts`: the `/blog/solar-contract-rescission-rights` metaTitle is now `Cancel a Solar Contract: 3-Day Rescission & TILA` (48 chars, 64 rendered with the brand suffix) and the metaDescription names cancel, rescind, terminate, three days, TILA, the FTC Cooling-Off Rule and before selling your house.
+- The page title changed from `Solar Contract Rescission Rights: Check the 3-Day Rule` to `Can You Cancel a Solar Contract in 3 Days? Rescission Rights & TILA`.
+- The opening paragraph now states the three business day window in words as well as numerals, because the page wrote only `3-day` and never `three day` while the highest-volume query uses the spelled form.
+- New H2 section "Cancelling a Solar Contract Before Selling Your House" answering the home-sale cluster and linking to `/blog/sell-house-with-solar-panels`.
+- FAQ order changed so the TILA question is third instead of sixth, because the client rendered only the first five and that question was therefore invisible despite carrying 25 impressions.
+- `scripts/fix-1126-rescission-vocabulary.py` added; idempotent, keyed on each block.
+
+**Why:** Search Console (1 Sep–22 Nov 2026) shows 287 impressions across 53 queries at average position 36.2 with **zero clicks**. Top queries: "three day right to cancel solar contract" 34 impr at 11.9, "rescind solar contract" 33 at 13.5, "tila rescission solar loan" 25 at 12.7, "solar contract termination" 19 at 19.5, "how to cancel solar contract" 17 at 49.1, "solar contract cancellation" 15 at 34.5, "cancel solar contract before selling house" 13 at 19.6. The served description contained the word "cancel" zero times, "termination" zero times, "three day" zero times and "before selling house" zero times — about 150 impressions of demand matched on body relevance while the snippet answered none of it. An earlier fix in the same session corrected only the title; the description is a separate field.
+
+**Verified:** `pnpm build` pre-rendered 583 pages. The built title is 64 rendered characters. The description is 153 characters naming all seven clusters. The served body now contains "three day" twice where it had zero and "before selling" twice where it had zero. The TILA FAQ renders third in both the HTML and the FAQPage schema.
+
+**Recurrence guard:** `scripts/audit-snippet-coverage.py` now runs this check across every indexed page rather than one at a time — for each page earning impressions it clusters the top queries and reports which clusters the served description does not name. The FAQ positional cap is separately guarded by `server/faqParity.test.ts`.
+
+**Measure after:** 2026-12-05
+
+## 2026-11-26 — FAQ structured data described 38 questions the page never displayed
+
+**Class:** defect
+
+**Changed:**
+- `shared/faq-policy.json` created as the single source of truth for how many FAQ items a page may render and mark up (`maxRenderedItems: 8`), with the drift history recorded in the file.
+- `client/src/pages/BlogPost.tsx`: `MAX_FAQ_ITEMS` raised from 5 to the shared policy value and the literal removed so it cannot be hard-coded again.
+- `scripts/prerender.assembled.mjs`: the FAQ HTML emitter now slices to the shared cap, and the FAQPage JSON-LD slice changed from a hard-coded 10 to the shared cap.
+- `server/faqParity.test.ts` added, 8 tests, including a scan of the built output asserting no page marks up more questions than the cap.
+
+**Why:** Measured 26 Nov 2026 across all 583 built pages: **23 pages emitted more FAQ questions in the pre-rendered shell than the client rendered.** The shell carried 153 Q&As on those pages, the client rendered 115, so **38 questions were described in FAQPage JSON-LD and served as visible HTML to crawlers that do not run JavaScript, but were invisible to any reader with JavaScript enabled.** The cause is dated: `git log` shows commit `2b14b60` (18 Nov 2026, PR #58) introduced the client cap of 5 to stop long FAQ walls burying the call to action and did not change the shell, which sliced at 10. Google's structured-data policy requires FAQPage markup to describe content visible on the page, so this was a live violation rather than a style preference.
+
+**Verified:** `npx vitest run server/faqParity.test.ts` — 8 tests passed. `pnpm build` pre-rendered 583 pages, and a scan of all 197 built pages carrying a FAQ section found **0 pages exceeding the cap and 0 with an HTML-versus-JSON-LD count mismatch**, down from 23 pages and 38 hidden questions.
+
+**Recurrence guard:** `shared/faq-policy.json` is read by both the client and the pre-render shell, and `server/faqParity.test.ts` fails the build if either side hard-codes a number, if the shell's HTML or JSON-LD emitter stops slicing at the shared cap, if the cap drops below the largest faq array in `client/src/data`, or if any built page marks up more questions than the cap. The same class of defect had appeared three times before on individual pages as a positional FAQ cap, which is why it is now enforced structurally rather than per page.
+
+**Measure after:** 2026-12-05
+
+
 **Purpose.** Every change made to this project is recorded here, in order, with the
 evidence that justified it and the check that proves it worked. The goal is a system
 that learns: when the same class of defect appears twice, the second entry should say
@@ -18,6 +74,22 @@ which rule or test now prevents it from recurring.
 **Entry format.** Newest first.
 
 ```
+## 2026-11-26 — Four URLs were 301-redirects and indexable pages at the same time
+
+**Class:** defect
+
+**Changed:**
+- `scripts/prerender.assembled.mjs` — added `isRedirectedPath()` and made the blog `noindex` decision respect `shared/seo-redirects.json`, so a path the server 301s can no longer be emitted as an indexable page.
+- `server/redirectConsistency.test.ts` — new, 5 tests asserting no built redirect source carries an index directive, none is both indexable and self-canonical, and no redirect points at another redirect source.
+
+**Why:** Comparing `shared/index-eligibility.json` against `shared/seo-redirects.json` found **four slugs declared indexable that the app also serves as 301s**. Confirmed by direct request on 26 Nov 2026 — all four returned HTTP 301: `/blog/solar-escalator-clause-what-it-is-how-to-fight` → the `-explained-how-to-fight-it` variant, `/blog/cancel-solar-contract-denver-co-2026` → `/cancel-solar-contract/denver-co`, `/blog/cancel-solar-contract-rescission-rights` → `/blog/solar-contract-rescission-rights`, `/blog/goodleap-solar-loan-hidden-dealer-fees-2026` → `/blog/goodleap-solar-loan-cancellation-hidden-fees-2026`. The built copies of all four said "index, follow" and pointed their canonical at themselves, while the sitemap generator already excluded all four — three mutually contradictory signals for the same URL. The escalator pair is the clearest case: 80 impressions at average position 6.95 with **zero clicks** on the source URL that redirects. Two independent lists decided the same question and nothing forced them to agree; the sitemap generator consulted both, which is why it was right while the HTML was wrong.
+
+**Verified:** `curl` against all four live URLs on 26 Nov 2026 returned 301 with the expected `Location`; `pnpm build` pre-rendered 583 pages; the four slugs now ship `noindex` while their four canonical destinations ship `index`; sitemap still carries 41 blog articles and excludes all four sources; `npx vitest run server/redirectConsistency.test.ts` — 5 tests pass; `pnpm test` — 84 files, 820 tests pass, 3 skipped; `node scripts/trust-governance-audit.mjs` passed.
+
+**Recurrence guard:** `server/redirectConsistency.test.ts` fails the build if any path in `shared/seo-redirects.json` is also emitted with an index directive, if any redirect source is both indexable and self-canonical, or if a redirect points at another redirect source. Two lists deciding the same question must be checked against each other, not maintained by memory.
+
+**Measure after:** 2026-12-05
+
 ## 2026-11-26 — The site's biggest page-2 opportunity ranked on 'get out' while its snippet said 'cancel'
 
 **Class:** SEO

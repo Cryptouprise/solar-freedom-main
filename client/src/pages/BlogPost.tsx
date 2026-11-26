@@ -18,7 +18,7 @@ import { trackPhoneClick } from '@/lib/analytics';
 import { hasVerifiedQuoteEvidence, suppressUnverifiedFirstPartyClaims, suppressUnverifiedQuoteMarkup } from '@shared/contentGovernance';
 import { ArticleContent, ArticleOutline } from '@/components/ArticlePresentation';
 import ArticleHero from '@/components/ArticleHero';
-
+import FAQ_POLICY from '@shared/faq-policy.json';
 const SITE_URL = 'https://breakyoursolarcontract.com';
 const ORGANIZATION_ENTITY = {
   '@type': 'Organization',
@@ -119,7 +119,18 @@ function sourceLabel(url: string): string {
 }
 
 // Show and mark up only the strongest few questions; long FAQ walls bury the call to action.
-const MAX_FAQ_ITEMS = 5;
+//
+// This cap MUST match shared/faq-policy.json, because the pre-rendered shell
+// (scripts/prerender.assembled.mjs) emits EVERY faq item as visible <h3>/<p>
+// rows AND as FAQPage JSON-LD, for crawlers that do not run JavaScript. If the
+// client renders fewer than the shell marked up, the page ships structured data
+// describing content the rendered page does not show, which is a documented
+// Google structured-data violation. Measured 26 Nov 2026: the shell carried 153
+// Q&As across 23 pages while the client rendered 115, hiding 38 of them, because
+// PR #58 capped only the client. server/faqParity.test.ts now fails the build if
+// either side drifts from the shared number again. The section renders as
+// collapsed <details> accordions, so the cap does not create a wall of text.
+const MAX_FAQ_ITEMS = FAQ_POLICY.maxRenderedItems;
 
 function VisibleFaq({ items }: { items: FaqItem[] }) {
   const governed = items

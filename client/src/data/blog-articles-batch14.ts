@@ -95,9 +95,9 @@ export const batch14BlogPosts: BlogPost[] = [
     ],
     content: [
       { type: 'stat-block', stats: [
-        { value: '15', label: 'Red flags to check' },
-        { value: '68%', label: 'Homeowners report hidden fees' },
-        { value: '2.9%', label: 'Typical annual escalator' },
+        { value: '15', label: 'Red flags this checklist covers' },
+        { value: '2.9-3.9%', label: 'Typical annual escalator in a lease or PPA' },
+        { value: 'Notice', label: 'The cancellation deadline that decides most cases' },
         { value: 'Free', label: 'Contract review' },
       ]},
       { type: 'h2', content: 'Red Flag #1: Annual Payment Escalator Clause' },

@@ -54,9 +54,9 @@ export const extraBlogPosts: BlogPost[] = [
 
   {
     slug: 'solar-contract-rescission-rights',
-    title: 'Solar Contract Rescission Rights: Check the 3-Day Rule',
-    metaTitle: 'Solar Contract Rescission Rights: 3-Day Rule & TILA',
-    metaDescription: `Check whether the FTC Cooling-Off Rule or TILA covers your solar sale, how to rescind, the deadline, and how to preserve your delivery proof.`,
+    title: 'Can You Cancel a Solar Contract in 3 Days? Rescission Rights & TILA',
+    metaTitle: 'Cancel a Solar Contract: 3-Day Rescission & TILA',
+    metaDescription: `Cancel, rescind or terminate a solar contract in three days? Check if TILA or the FTC Cooling-Off Rule applies, and what to do before selling your house.`,
     category: 'Legal Rights',
     readTime: '7 min read',
     publishDate: 'August 16, 2026',
@@ -67,18 +67,18 @@ export const extraBlogPosts: BlogPost[] = [
     ctaSubtext: 'Submit the agreement, cancellation notice, financing records, and delivery proof for a fact-specific review. No result or deadline determination is guaranteed.',
     relatedSlugs: ['how-to-get-out-of-a-solar-contract', 'new-jersey-solar-contract-rights', 'sunrun-solar-contract-cancellation-2026', 'how-to-file-a-complaint-against-solar-company-attorney-general'],
     faq: [
-      { q: 'Does the FTC 3-day Cooling-Off Rule cover every solar contract?', a: 'No. The rule covers certain sales made at a home, workplace, dormitory, or temporary seller location and has important exclusions. Check the signing method, location, transaction, seller, and current official rule before relying on it.' },
-      { q: 'How is the 3-business-day deadline calculated?', a: 'Use the dated contract and cancellation notice, then follow the official instructions for the covered transaction. Saturdays may count as business days; Sundays and federal holidays generally do not. Act promptly and preserve proof of timely delivery.' },
-      { q: 'What if I cannot find the required cancellation notice?', a: 'A missing or defective notice is important evidence, but it does not justify assuming that an unlimited cancellation window exists. Preserve the full contract file and obtain qualified, transaction-specific guidance.' },
-      { q: 'What if the stated cancellation deadline has passed?', a: 'Review the agreement, financing disclosures, installation status, sales records, service history, state-specific rules, and written dispute procedures. Different issues may create different options, but none can be determined from a general article.' },
-      { q: 'Should I stop loan or lease payments while disputing the contract?', a: 'Do not change payments or other obligations based only on general online information. Check the account status and obtain advice specific to the agreement and dispute before acting.' },
       // This page ranks around position 12.7 for "tila rescission solar loan" but
       // never used the acronym readers actually search for. The full statute name
       // was already present; this adds the common name and answers the question.
+      { q: 'Does the FTC 3-day Cooling-Off Rule cover every solar contract?', a: 'No. The rule covers certain sales made at a home, workplace, dormitory, or temporary seller location and has important exclusions. Check the signing method, location, transaction, seller, and current official rule before relying on it.' },
+      { q: 'How is the 3-business-day deadline calculated?', a: 'Use the dated contract and cancellation notice, then follow the official instructions for the covered transaction. Saturdays may count as business days; Sundays and federal holidays generally do not. Act promptly and preserve proof of timely delivery.' },
       { q: 'Does TILA rescission apply to a solar loan?', a: 'It can, but only in specific circumstances. The Truth in Lending Act (TILA) rescission right generally applies to certain credit transactions secured by the borrower\u2019s principal dwelling, and it has exceptions. Whether it covers your loan depends on the security documents, the disclosures actually delivered, the transaction type, and when it closed. Compare the signed loan disclosures and security agreement, and do not send a rescission notice based on a template.' },
-    ],
+      { q: 'What if I cannot find the required cancellation notice?', a: 'A missing or defective notice is important evidence, but it does not justify assuming that an unlimited cancellation window exists. Preserve the full contract file and obtain qualified, transaction-specific guidance.' },
+      { q: 'Should I stop loan or lease payments while disputing the contract?', a: 'Do not change payments or other obligations based only on general online information. Check the account status and obtain advice specific to the agreement and dispute before acting.' },
+      { q: 'What if the stated cancellation deadline has passed?', a: 'Review the agreement, financing disclosures, installation status, sales records, service history, state-specific rules, and written dispute procedures. Different issues may create different options, but none can be determined from a general article.' },
+        ],
     content: [
-      { type: 'p', content: 'Direct answer: the FTC Cooling-Off Rule gives a short cancellation period for certain sales made away from a seller’s permanent place of business, including some in-home sales. It does not apply to every solar contract, loan, online transaction, or completed service. Start with the [FTC consumer guide](https://consumer.ftc.gov/articles/buyers-remorse-ftcs-cooling-rule-may-help) and the current [federal rule in 16 CFR Part 429](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-D/part-429).' },
+      { type: 'p', content: 'Direct answer: the FTC Cooling-Off Rule gives most covered buyers three business days — commonly called the three day right to cancel — to cancel certain sales made away from a seller’s permanent place of business, including some in-home sales. It does not apply to every solar contract, loan, online transaction, or completed service. Start with the [FTC consumer guide](https://consumer.ftc.gov/articles/buyers-remorse-ftcs-cooling-rule-may-help) and the current [federal rule in 16 CFR Part 429](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-D/part-429).' },
       { type: 'h2', content: 'First Check Whether the Rule Covers the Transaction' },
       { type: 'p', content: 'Record where the sales presentation occurred, where and how the agreement was signed, the seller’s permanent business location, the transaction amount, whether work was requested as an emergency, and whether any exclusion appears relevant. A door-to-door presentation followed by electronic signatures still requires a fact-specific coverage review.' },
       { type: 'list', items: [
@@ -97,6 +97,8 @@ export const extraBlogPosts: BlogPost[] = [
       { type: 'p', content: 'Do not jump from a missed deadline to the conclusion that no options exist—or that cancellation is guaranteed. Review the written cancellation and termination sections, financing disclosures, installation status, permit and interconnection records, sales representations, production data, service history, company status, and dispute procedure.' },
       { type: 'h2', content: 'Separate a Sales Cancellation Rule From Loan Rescission' },
       { type: 'p', content: 'The FTC Cooling-Off Rule and the Truth in Lending Act (TILA) address different transactions and requirements. Cancelling a sale and rescinding a loan are separate actions with separate deadlines, so a timely sales cancellation does not automatically undo the financing, and a loan rescission argument does not automatically cancel the installation contract. Whether a credit transaction is secured by a principal dwelling, what disclosures were delivered, and what exceptions apply are legal questions. Compare the signed loan disclosures and security documents, and do not send a legal rescission notice based only on a template or general article.' },
+      { type: 'h2', content: 'Cancelling a Solar Contract Before Selling Your House' },
+      { type: 'p', content: 'A home sale adds a second, separate deadline problem. A solar lease, PPA or financed system normally has to be transferred to the buyer, bought out, or otherwise resolved before closing, and that process runs on its own timeline rather than on the cancellation window. A missed rescission deadline does not by itself prevent a sale, but it does remove the fastest option, which is why the transfer and buyout terms in the agreement are worth reading before the home is listed rather than after an offer is accepted. The transfer, buyout and disclosure steps are set out in order in our guide to [selling a house with solar panels](/blog/sell-house-with-solar-panels).' },
       { type: 'h2', content: 'Build a Reviewable Evidence File' },
       { type: 'list', items: [
         'Signed contract, addenda, and cancellation forms',

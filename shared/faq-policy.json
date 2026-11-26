@@ -1,0 +1,17 @@
+{
+  "_comment": "Single source of truth for how many FAQ items a page may render and mark up. Both the client (client/src/pages/BlogPost.tsx MAX_FAQ_ITEMS) and the pre-render shell (scripts/prerender.assembled.mjs buildBlogUniqueContent + buildSchemaBlocks) must respect this number. They drifted apart once: PR #58 capped the client at 5 while the shell emitted up to 8, so 23 pages shipped FAQPage structured data for 38 questions the rendered page never displayed. server/faqParity.test.ts enforces this file.",
+  "maxRenderedItems": 8,
+  "_history": [
+    {
+      "date": "2026-11-18",
+      "change": "PR #58 set the client cap to 5 to stop long FAQ walls burying the call to action, without changing the pre-render shell cap of 8/10.",
+      "effect": "23 pages shipped more marked-up Q&As than visible Q&As. Google requires FAQPage markup to describe content visible on the page.",
+      "measured": "26 Nov 2026: shell carried 153 Q&As across 23 pages, client rendered 115, 38 hidden."
+    },
+    {
+      "date": "2026-11-26",
+      "change": "Cap unified at 8 on both sides. The section renders as collapsed <details> accordions, so the wall-of-text concern that motivated 5 does not apply.",
+      "effect": "Schema and visible content match again; no question is marked up but unrenderable."
+    }
+  ]
+}

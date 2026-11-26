@@ -519,7 +519,7 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
           { value: '3 Days', label: 'FTC cooling-off window' },
           { value: '25 yrs', label: 'Typical contract length' },
           { value: '$0', label: 'Cost for initial case review' },
-          { value: '30–90', label: 'Days to resolution with legal help' },
+          { value: 'Notice', label: 'Required before most cancellations' },
         ],
       },
       {

@@ -87,9 +87,32 @@ const REDIRECT_SOURCE_PATHS = new Set([
   ...Object.keys(redirectLedger.public),
   ...Object.keys(redirectLedger.blog),
 ]);
+/**
+ * A path listed in shared/seo-redirects.json is served as a 301 by the app, so it
+ * must never also be emitted as an indexable page. Declaring it indexable while the
+ * server redirects it is a contradiction: the sitemap omits it, the served HTML says
+ * "index, follow", and the canonical points at the URL that redirects. Measured
+ * 26 Nov 2026 on four slugs, all four live 301s still carrying self-canonical
+ * indexable copies in dist/public.
+ */
+function isRedirectedPath(urlPath) {
+  return REDIRECT_SOURCE_PATHS.has(urlPath);
+}
+
 const HOME_FAQS = JSON.parse(
   fs.readFileSync(path.resolve(ROOT, "shared/home-faq.json"), "utf-8")
 );
+/**
+ * How many FAQ items a blog page may render and mark up. Read from the shared
+ * policy file so the pre-render shell and the client cannot drift apart again.
+ * On 26 Nov 2026 the shell was emitting up to 8 while the client rendered 5,
+ * which put FAQPage structured data for 38 questions on 23 pages that never
+ * displayed them. Google requires FAQ markup to describe visible content.
+ */
+const FAQ_POLICY = JSON.parse(
+  fs.readFileSync(path.resolve(ROOT, "shared/faq-policy.json"), "utf-8")
+);
+const MAX_FAQ_ITEMS = FAQ_POLICY.maxRenderedItems;
 
 // ─── Load city/company/state data ────────────────────────────────────────────
 async function loadData() {
@@ -687,7 +710,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
       title: data.title,
       description: suppressUnverifiedFirstPartyClaims(data.description),
       canonical: `${BASE_URL}${urlPath}`,
-      noindex: !INDEXED_BLOG_SLUGS.has(slug),
+      noindex: !INDEXED_BLOG_SLUGS.has(slug) || isRedirectedPath(urlPath),
       faq: data.faq?.map(item => ({ ...item, a: suppressUnverifiedFirstPartyClaims(item.a) })),
       datePublished: data.datePublished,
       dateModified: data.dateModified,
@@ -730,6 +753,22 @@ const unsupportedFirstPartyClaimPatterns = [
   /Results in 30[–-]90 days/i, /within 24 hours/i, /licensed counsel/i, /nationwide coverage/i,
   /limited number of new cases/i, /Contract cancelled\. No more payments/i,
   /(?:Solar Freedom|\bwe\b|\bour (?:team|attorneys)\b)[^.!?]{0,160}(?:no upfront cost|contingency basis|all 50 states)/i,
+  // Outcome and timeline promises. Measured 26 Nov 2026: four articles published
+  // a stat reading "30-90 Days to resolution with legal help" and every one passed
+  // this filter, because the only timeline pattern required the exact phrase
+  // "Results in 30-90 days". Broadened to the "resolution time" and
+  // "with legal help" forms that the defect actually used.
+  //
+  // Deliberately NOT broadened to every "<number>% of <group>" shape: a sweep of
+  // client/src/data on 26 Nov 2026 showed that would suppress 87 legitimate lines,
+  // including city-page stats already approved and published, and correct
+  // explanations of the 30% federal tax credit. Runtime suppression deletes
+  // content, so it must stay narrow. The wider class of unsourced claim is guarded
+  // by server/unsourcedClaims.test.ts, which fails the build instead of silently
+  // removing published copy.
+  /\b\d{1,3}\s*[–-]\s*\d{1,3}\s*(?:days?|weeks?|months?)\b[^.!?]{0,30}\b(?:to resolution|with legal help|with our team|with an attorney)\b/i,
+  /\b(?:typical\s+)?resolution\s+time\b[^.!?]{0,40}\b\d{1,3}\s*[–-]\s*\d{1,3}\s*(?:days?|weeks?|months?)\b/i,
+  /\b\d{1,3}%\s+(?:of\s+)?(?:homeowners|Americans)\s+(?:report|say|see|experience|face|struggle)\b/i,
 ];
 
 function suppressUnverifiedFirstPartyClaims(input) {
@@ -1088,11 +1127,13 @@ function buildSchemaBlocks(meta, urlPath, pageType) {
 
   // Describe only question/answer pairs visible on this page. This is not a
   // guarantee of rankings, AI citations, or FAQ rich-result eligibility.
+  // The slice is the shared policy cap, so the JSON-LD never describes a
+  // question the rendered page does not show. See shared/faq-policy.json.
   if (Array.isArray(meta.faq) && meta.faq.length > 0) {
     blocks.push({
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: meta.faq.slice(0, 10).map((item) => ({
+      mainEntity: meta.faq.slice(0, MAX_FAQ_ITEMS).map((item) => ({
         "@type": "Question",
         name: item.q,
         acceptedAnswer: {
@@ -1252,7 +1293,10 @@ function buildHomeUniqueContent() {
 
 function buildBlogUniqueContent(meta) {
   const sections = renderContentSections(meta.contentSections);
+  // Cap at the shared policy number so the shell never marks up more questions
+  // than the hydrated client renders. See shared/faq-policy.json.
   const faq = (meta.faq || [])
+    .slice(0, MAX_FAQ_ITEMS)
     .map(item => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(suppressUnverifiedFirstPartyClaims(item.a))}</p>`)
     .join("");
   const sources = (meta.citations || [])
