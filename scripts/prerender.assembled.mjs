@@ -492,12 +492,57 @@ function cleanBlogDescription(slug, description, title) {
   return fitMetaDescription(expanded);
 }
 
-function fitMetaDescription(description) {
-  const normalized = String(description ?? "")
-    .replace(/\s+/g, " ")
+/**
+ * Fits text into `limit` characters WITHOUT leaving a dangling ellipsis or a
+ * half-finished clause. A search snippet that visibly stops mid-thought reads as
+ * broken and suppresses clicks, so every cut lands on a real boundary instead:
+ * a sentence end, a strong clause mark, a coordinating conjunction, or a whole
+ * word with any trailing function word removed. Each candidate boundary must sit
+ * at or past half the limit so a snippet is never cut to something uselessly short.
+ */
+function fitSnippet(text, limit) {
+  const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
+  if (normalized.length <= limit) return normalized;
+
+  const window = normalized.slice(0, limit + 1);
+  const floor = Math.floor(limit * 0.5);
+
+  // 1. A complete sentence is the cleanest possible ending.
+  const sentence = Math.max(
+    window.lastIndexOf(". "),
+    window.lastIndexOf("! "),
+    window.lastIndexOf("? ")
+  );
+  if (sentence >= floor) return window.slice(0, sentence + 1).trim();
+
+  // 2. Then any strong clause mark, cut before the mark itself.
+  for (const mark of ["; ", ": ", " \u2014 ", " \u2013 ", ", "]) {
+    const at = window.lastIndexOf(mark);
+    if (at >= floor) {
+      return window.slice(0, at).replace(/[\s,;:\u2013\u2014&|-]+$/, "").trim();
+    }
+  }
+
+  // 3. Then a coordinating conjunction, cut before it so no clause is left hanging.
+  for (const word of [" and ", " or ", " but ", " so ", " & ", " | "]) {
+    const at = window.lastIndexOf(word);
+    if (at >= floor) return window.slice(0, at).trim();
+  }
+
+  // 4. Finally a plain word boundary, dropping a dangling function word.
+  return window
+    .slice(0, limit)
+    .replace(/\s+\S*$/, "")
+    .replace(/[\s,;:\u2013\u2014&|-]+$/, "")
+    .replace(
+      /\s+(?:and|or|the|a|an|of|to|for|with|in|on|at|by|from|as|that|which|your|you|is|are|be|it|its|their|this|these|those|how|what|when|why)$/i,
+      ""
+    )
     .trim();
-  if (normalized.length <= 165) return normalized;
-  return `${normalized.slice(0, 162).replace(/\s+\S*$/, "")}...`;
+}
+
+function fitMetaDescription(description) {
+  return fitSnippet(description, 160);
 }
 
 /** Hand-curated editorial relatedness already present in the article data. */
@@ -704,7 +749,7 @@ function fitMetaTitle(title) {
   if (withoutBrand.length <= 70) return withoutBrand;
   const tightened = withoutBrand.replace(/\s+\((?:2026|2026 Guide|Complete Guide)\)/gi, "").replace(/\s+[–—-]\s+(?:Free Case Review|Legal Help|Solar Freedom).*$/i, "").replace(/\s+&(?:amp;)?\s+Your\s+Legal.*$/i, "").replace(/:\s+[A-Z][^,]+,\s+[A-Z][^&]+&.*$/, "").trim();
   if (tightened.length <= 70) return tightened;
-  return `${tightened.slice(0, 67).replace(/\s+\S*$/, "")}...`;
+  return fitSnippet(tightened, 70);
 }
 
 function classifyPath(urlPath) {

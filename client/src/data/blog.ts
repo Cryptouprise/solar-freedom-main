@@ -71,8 +71,8 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
   {
     slug: "how-to-get-out-of-a-solar-contract",
     title: "How to Get Out of a Solar Contract: 7 Steps to Review",
-    metaTitle: "How to Cancel a Solar Contract: Before or After Install (2026)",
-    metaDescription: "Yes, you can sometimes cancel, even after installation. The deadlines by state, what to check in your lease, loan or PPA, and what it costs.",
+    metaTitle: "How to Get Out of a Solar Contract: Loan, Lease or PPA",
+    metaDescription: "How to get out of a solar contract, loan or lease: the deadlines by state, what to check in your agreement, and what an exit can cost.",
     category: "Contract Guide",
     readTime: "10 min read",
     publishDate: "August 16, 2026",
@@ -93,6 +93,15 @@ export const blogPosts: BlogPost[] = dedupeBlogPosts([
     content: [
       { type: "p", content: "Direct answer: you may have an exit, cancellation, payoff, transfer, purchase, or dispute option, but the correct path depends on the written agreement and facts. The most efficient approach is to identify the contract type and parties, check every notice and deadline, preserve evidence, and avoid actions that could create a default." },
       { type: "callout", content: "This guide is a document-review framework, not a determination that a contract is cancelable or that a legal violation occurred. A qualified attorney should review any consequential legal step." },
+      { type: "h2", content: "Getting out of a solar lease, a solar loan, or a PPA" },
+      { type: "p", content: "Most people searching this question are trying to get out of one specific type of agreement. The mechanics differ enough that the distinction is worth stating plainly before the steps below." },
+      { type: "list", items: [
+        "Getting out of a solar lease: the system is not yours, so an exit usually runs through the agreement's own buyout, prepayment, transfer or early-termination provisions, and the company has to approve any transfer to a home buyer.",
+        "Getting out of a solar loan: the loan is separate from the installation, so cancelling the installer's contract does not by itself cancel the debt. An exit usually means paying it off, selling the home with an agreed transfer, or raising a documented dispute about how the loan was originated or sold.",
+        "Getting out of a PPA: you are buying power rather than equipment, so the rate schedule, the escalator and the production guarantee are the terms that decide whether the agreement is worth keeping or worth exiting."
+      ] },
+      { type: "p", content: "For each one, the first two questions are the same: does the agreement set a written window for cancellation or notice, and has that window already closed? If it has closed, the available routes are contractual or fact-specific rather than automatic." },
+      { type: "p", content: "State law sets different windows and remedies. Start with your own state: see our state solar-contract law guides for the statutory notice periods and the regulator that takes complaints." },
       { type: "h2", content: "Step 1: What type of solar agreement do you have?" },
       { type: "list", items: [
         "Loan: you generally own the equipment and owe a lender under separate financing documents.",

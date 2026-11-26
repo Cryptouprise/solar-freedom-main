@@ -118,3 +118,49 @@ day of the change and updating `statusNote` / `statusSource` on that record.
 - `client/src/data/blog-articles-batch15.ts` — Titan Nevada article
 - `scripts/prerender.assembled.mjs` — `/solar-companies` hub carries the sourced failure
   list; company shells emit a "Current status of …" section
+
+---
+
+## ADT Solar — corrected 26 Nov 2026
+
+**The defect:** `client/src/data/companies.ts` said ADT "shut down entirely in June
+2023 after losing over $200 million" and carried a timeline entry "ADT Inc. shut
+down solar division in June 2023". The ADT article on the same site correctly says
+January 2024. **The site contradicted itself.** The record also carried
+`bbRating: "C+"` and `complaintCount: "700+"`, neither of which matches the BBB
+profile or our own article.
+
+**Verified facts:**
+
+| Fact | Value | Source |
+|---|---|---|
+| Exit announced | **24 January 2024** | ADT newsroom release, dated 24 Jan 2024 |
+| Headline of release | "ADT exits the residential solar business" | same |
+| Loss figure | **$89 million** Adjusted EBITDA loss, solar segment, first 9 months of 2023 | same |
+| Operations ceased | substantially all by **30 June 2024** | secondary sources; consistent with the release |
+| BBB rating | **Not Rated** — the profile states the business "has no rating because it is out of business"; not accredited | BBB profile, read 25 Nov 2026 |
+| BBB complaints | **404** over 3 years; **29** over 12 months; **75** customer reviews | BBB profile, read 25 Nov 2026 |
+| Predecessor | Sunpro Solar, acquired 2021 for ~$825M incl. debt | WSJ, 9 Nov 2021 |
+| Sunpro BBB file | separate profile, accredited since 1 Jul 2021, **425** complaints/3yr, **80** reviews | BBB, read 25 Nov 2026 |
+
+**Primary source URL (read 26 Nov 2026):**
+https://newsroom.adt.com/corporate-news/adt-provides-solar-business-update-and-advances-capital-allocation-strategy
+
+**BBB profile URL:**
+https://www.bbb.org/us/la/mandeville/profile/solar-energy-design/adt-solar-0985-90006391
+
+**Court filings noted (existence only — NOT a certified class):**
+- Stemke v. SunPro Solar, LLC, 5:2021cv00274 (M.D. Fla. 2021)
+- Souder v. ADT Solar LLC, 3:2024cv02883 (D.S.C., filed 8 May 2024; voluntary dismissal)
+Several dockets show voluntary dismissal or individual claims. **Never imply a
+pending class action or that a settlement covers any reader.**
+
+**Why the tagline was changed:** it read "Shut Down in 2023 — Your Warranty Is
+Gone." The exit announcement describes a business exit and does not state that
+customer warranties were voided. Now reads "ADT Solar Exited Solar in 2024 — Your
+Warranty Is Uncertain. Your Loan Isn't."
+
+**Standing lesson:** a company record and that company's own article are edited
+independently and can state different dates or figures for the same fact. Read them
+against each other before either ships. This is the same cross-check that caught
+Freedom Forever contradicting itself.

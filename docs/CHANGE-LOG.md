@@ -18,6 +18,42 @@ which rule or test now prevents it from recurring.
 **Entry format.** Newest first.
 
 ```
+## 2026-11-26 — The site's biggest page-2 opportunity ranked on 'get out' while its snippet said 'cancel'
+
+**Class:** SEO
+
+**Changed:**
+- `client/src/data/blog.ts` — `/blog/how-to-get-out-of-a-solar-contract`: `metaTitle` now leads with "How to Get Out of a Solar Contract: Loan, Lease or PPA" instead of "How to Cancel a Solar Contract: Before or After Install (2026)"; `metaDescription` now names "get out", "loan" and "lease" instead of "cancel" alone.
+- `client/src/data/blog.ts` — added a section answering the lease variant, the loan variant and the PPA variant separately in the searcher's own words, routing to the state solar-contract law guides for the statutory windows. It states no outcome and promises nothing.
+- `scripts/fix-1126-get-out-vocabulary.py` — idempotent, scoped to the one article slice.
+
+**Why:** Search Console (1 Sep–22 Nov 2026): **1,255 impressions at average position 45.3 with 1 click** — the largest single impression mass below position 20 on the site. Every top query uses "get out" or "get rid" phrasing and **not one contains the word "cancel"**: "how to get out of a solar contract" 31 impr at 42.7, "how to get out of a solar loan" 31 at 26.7, "how to get out of solar lease" 40 at 47.0, "get out of solar lease" 35 at 46.9, "how do i get out of my solar lease" 26 at 58.9. The page slug, its H1 and its `title` field all said "Get Out"; only the `metaTitle` Google displays said "Cancel". Measured on the built page before the fix: 1,248 words containing "lease" 4 times and "loan" 3 times, with no place answering either variant directly; and 49 of its 51 inbound internal links used the raw title as anchor text. The two pages that do target lease phrasing are both `noindex`, so the indexed page has to carry that vocabulary itself.
+
+**Verified:** `pnpm check` clean; `pnpm build` pre-rendered 583 pages; built page now serves a 70-character title leading with "How to Get Out of a Solar Contract", a 134-character description naming loan and lease, and 1,490 served words with the new heading present; `pnpm test` 83 files, 815 tests pass, 3 skipped; `node scripts/trust-governance-audit.mjs` passed.
+
+**Recurrence guard:** Before tuning a snippet, check the page's own top queries for vocabulary the snippet does not contain. A page whose slug, H1 and visible title agree but whose `metaTitle` disagrees is contradicting itself in exactly the field the searcher reads first. Also check whether the pages that already target a variant are indexable before redirecting a title at that variant, or the fix creates cannibalization instead of removing it.
+
+**Measure after:** 2026-12-05
+
+## 2026-11-26 — 74 pages shipped Google a snippet that stopped mid-phrase
+
+**Class:** defect
+
+**Changed:**
+- `scripts/prerender.assembled.mjs` — replaced the ellipsis-appending slicers in `fitMetaTitle` and `fitMetaDescription` with `fitSnippet`, which cuts only on a sentence end, a strong clause mark, a coordinating conjunction or a whole word, and drops a trailing function word so nothing dangles.
+- `scripts/fix-1126-baked-ellipsis-descriptions.py` — repaired 20 article records whose `metaDescription` already contained a literal `...` baked into the source string while the same record held a complete `excerpt`.
+- `client/src/data/blog-articles-batch6.ts` — Colorado `metaTitle` read "How to Cancel & Protect Your", missing the word "self".
+- `client/src/data/blog-articles-batch11.ts` — the lease-vs-loan `metaTitle` was cut by the 70-character fitter to "(And Why", leaving an open parenthetical.
+- `server/metaSnippet.test.ts` — new, 10 tests locking in both halves of the defect.
+
+**Why:** Measured on `dist/public` on 26 Nov 2026 across all 583 built pages: **37 titles and 56 descriptions ended in a literal ellipsis**, 19 pages had both, so **74 pages — 12.7% of the site — showed a mid-phrase cut-off**. Examples from the built output: "Titan Solar Power Complaints: How to Get Out of Your Contract...", "Solar Escalator Clause Explained — How to Fight Annual Payment...". The page `/blog/solar-escalator-clause-what-it-is-how-to-fight` held 80 impressions at average position 6.95 with **zero clicks** and its title was one of the truncated 37. Two independent causes: the build-time fitter appended `...` after slicing mid-phrase, and 20 records had been truncated by hand and saved that way. The build-time cause is why the defect was invisible in review — the source data looked fine and the damage happened during generation.
+
+**Verified:** Scan of all 583 built pages for a trailing ellipsis: 37 titles and 56 descriptions before, **0 and 0 after**. `pnpm build` pre-rendered 583 pages; `npx vitest run server/metaSnippet.test.ts` — 10 tests pass; `pnpm test` — 83 files, 815 tests pass, 3 skipped; `node scripts/trust-governance-audit.mjs` — passed.
+
+**Recurrence guard:** `server/metaSnippet.test.ts` fails the build if any built page ships a title or description ending in an ellipsis, if either meta fitter reintroduces a slicing pattern, or if any article source record carries a `...` inside `metaTitle` or `metaDescription`. A snippet is a finished sentence, not a place to show that text was cut.
+
+**Measure after:** 2026-12-05
+
 ## 2026-11-26 — ADT: four defects, including a shutdown year that contradicted our own article
 **Class:** accuracy
 **Changed:** `client/src/data/companies.ts` — corrected the shutdown date from **June 2023** to the announced exit of **24 January 2024** with operations substantially ceased by 30 June 2024, in both the summary and the timeline entry; corrected the loss figure from "over $200 million" to the **$89 million** Adjusted EBITDA loss over the first nine months of 2023; corrected `bbRating` from C+ to **Not Rated (out of business)** and `complaintCount` from 700+ to **404 (BBB, last 3 years, read 25 Nov 2026)**; softened the tagline from "Shut Down in 2023 — Your Warranty Is Gone" to "Exited Solar in 2024 — Your Warranty Is Uncertain". `client/src/data/blog-articles-batch6.ts` — added an **"ADT Solar customer service: what still works"** section and an **"ADT Solar lawsuits and complaints: what is actually documented"** section, and replaced the 132-character description with a 152-character one naming reviews, complaints, customer service, the 2024 shutdown, Sunpro and warranty.

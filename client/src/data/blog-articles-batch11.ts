@@ -318,8 +318,8 @@ export const batch11BlogPosts: BlogPost[] = [
   {
     slug: `solar-loan-vs-solar-lease-which-is-harder-to-cancel`,
     title: `Solar Loan vs Solar Lease: Which Is Harder to Cancel (And Why It Matters)`,
-    metaTitle: `Solar Loan vs Solar Lease: Which Is Harder to Cancel (And Why It Matters) | Solar Freedom`,
-    metaDescription: `Solar Loan vs Solar Lease: Which Is Harder to Cancel (And Why It Matters) — Understand your rights and get a free case review from a consumer protection atto...`,
+    metaTitle: `Solar Loan vs Solar Lease: Which Is Harder to Cancel and Why`,
+    metaDescription: `Solar loan vs solar lease: which is harder to cancel, and why it matters. Compare the exit routes, costs and notice requirements for each.`,
     category: 'Legal Guide',
     readTime: '9 min read',
     publishDate: 'July 2026',

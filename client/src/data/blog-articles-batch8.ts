@@ -11,7 +11,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "GoodLeap Solar Loan Problems: How to Fight Back Against Predatory Financing",
     metaTitle:
       "GoodLeap Solar Loan Problems: How to Fight Back Against Predatory Financing",
-    metaDescription: `Discover the truth about GoodLeap solar loan problems, from hidden fees to deceptive sales tactics. Learn how to protect your rights and fight back against p...`,
+    metaDescription: `Discover the truth about GoodLeap solar loan problems, from hidden fees to deceptive sales tactics.`,
     category: "Loan Problems",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -232,7 +232,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "GreenSky Solar Financing Complaints: Your Legal Options to Break the Contract",
     metaTitle:
       "GreenSky Solar Financing Complaints: Your Legal Options to Break the Contract",
-    metaDescription: `Are you struggling with a GreenSky solar loan you didn't authorize or hidden fees that inflated your project cost? Learn about your legal rights and how to f...`,
+    metaDescription: `Are you struggling with a GreenSky solar loan you didn't authorize or hidden fees that inflated your project cost?`,
     category: "Loan Problems",
     readTime: "9 min read",
     publishDate: "March 2026",
@@ -290,7 +290,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Dividend Finance Solar Loan Problems: What Homeowners Can Do to Break Free",
     metaTitle:
       "Dividend Finance Solar Loan Problems: What Homeowners Can Do to Break Free",
-    metaDescription: `Struggling with a Dividend Finance solar loan? Learn about the common complaints, legal challenges, and actionable steps homeowners can take to cancel predat...`,
+    metaDescription: `Struggling with a Dividend Finance solar loan? Learn about the common complaints, legal challenges`,
     category: "Loan Problems",
     readTime: "12 min read",
     publishDate: "March 2026",
@@ -556,7 +556,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Titan Solar Power Complaints: How to Get Out of Your Contract After Bankruptcy",
     metaTitle:
       "Titan Solar Power Complaints: How to Get Out of Your Contract After Bankruptcy",
-    metaDescription: `Thousands of homeowners are stuck with non-functional systems and massive loans after Titan Solar Power's 2024 bankruptcy. Learn how to use the FTC Holder Ru...`,
+    metaDescription: `Thousands of homeowners are stuck with non-functional systems and massive loans after Titan Solar Power's 2024 bankruptcy.`,
     category: "Company Complaints",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -604,7 +604,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Palmetto Solar Complaints: How to Cancel Your Contract and Protect Your Home",
     metaTitle:
       "Palmetto Solar Complaints: How to Cancel Your Contract and Protect Your Home",
-    metaDescription: `Struggling with Palmetto Solar complaints or a predatory contract? Learn your legal rights for cancellation and how to handle roof damage or billing issues e...`,
+    metaDescription: `Struggling with Palmetto Solar complaints or a predatory contract? Learn your legal rights for cancellation`,
     category: "Company Complaints",
     readTime: "12 min read",
     publishDate: "March 2026",
@@ -649,7 +649,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Ion Solar Complaints: How to Cancel Your Contract and Protect Your Home",
     metaTitle:
       "Ion Solar Complaints: How to Cancel Your Contract and Protect Your Home",
-    metaDescription: `Dealing with Ion Solar complaints or a predatory contract? Learn the specific steps to cancel your Ion Solar agreement, avoid $1,500 fees, and regain control...`,
+    metaDescription: `Dealing with Ion Solar complaints or a predatory contract? Learn the specific steps to cancel your Ion Solar agreement, avoid $1,500 fees`,
     category: "Company Complaints",
     readTime: "9 min read",
     publishDate: "March 2026",
@@ -838,7 +838,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "SolarCity Contract Problems and Tesla Solar Transition Issues: What Homeowners Need to Know",
     metaTitle:
       "SolarCity Contract Problems and Tesla Solar Transition Issues: What Homeowners Need to Know",
-    metaDescription: `Trapped in an old SolarCity lease or PPA? Discover how the Tesla transition has impacted legacy customers and learn your rights for contract cancellation or ...`,
+    metaDescription: `Trapped in an old SolarCity lease or PPA? Discover how the Tesla transition has impacted legacy customers`,
     category: "Company Complaints",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -922,7 +922,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Verengo Solar Bankruptcy: What Homeowners Need to Know to Protect Their Investment",
     metaTitle:
       "Verengo Solar Bankruptcy: What Homeowners Need to Know to Protect Their Investment",
-    metaDescription: `If you are one of the 20,000 homeowners affected by the Verengo Solar bankruptcy, your warranty and contract rights may be at risk. Learn how to navigate the...`,
+    metaDescription: `If you are one of the 20,000 homeowners affected by the Verengo Solar bankruptcy, your warranty and contract rights may be at risk.`,
     category: "Bankruptcy",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -969,7 +969,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     slug: "sunrun-solar-loan-vs-lease-cancellation",
     title: "Sunrun Solar Loan vs. Lease: Which is Worse for Cancellation?",
     metaTitle: "Sunrun Solar Loan vs. Lease: Which is Worse for Cancellation?",
-    metaDescription: `Struggling to get out of a Sunrun solar agreement? Discover the critical differences between cancelling a solar loan versus a lease and why one is significan...`,
+    metaDescription: `Struggling to get out of a Sunrun solar agreement? Discover the critical differences between cancelling a solar loan versus a lease`,
     category: "Contract Help",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -1097,7 +1097,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     title: "Freedom Forever Warranty Problems: How to Escalate and Get Results",
     metaTitle:
       "Freedom Forever Warranty Problems: How to Escalate and Get Results",
-    metaDescription: `Dealing with Freedom Forever warranty issues? Learn how to navigate their 25-year production guarantee, handle service delays, and escalate your claim to get...`,
+    metaDescription: `Dealing with Freedom Forever warranty issues? Learn how to navigate their 25-year production guarantee, handle service delays`,
     category: "Company Complaints",
     readTime: "9 min read",
     publishDate: "March 2026",
@@ -1139,7 +1139,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "SunPower System Not Working? Your Legal Options and Rights Explained",
     metaTitle:
       "SunPower System Not Working? Your Legal Options and Rights Explained",
-    metaDescription: `Is your SunPower solar system underperforming or completely dead? Learn about your legal rights, the impact of the 2024 bankruptcy, and how the FTC Holder Ru...`,
+    metaDescription: `Is your SunPower solar system underperforming or completely dead? Learn about your legal rights, the impact of the 2024 bankruptcy`,
     category: "Legal Rights",
     readTime: "9 min read",
     publishDate: "March 2026",
@@ -1194,7 +1194,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Sunnova Solar Contract Transfer Problems: How to Sell Your Home Without the Headache",
     metaTitle:
       "Sunnova Solar Contract Transfer Problems: How to Sell Your Home Without the Headache",
-    metaDescription: `Selling a home with a Sunnova solar lease can be a nightmare if you aren't prepared for the transfer process. Learn how to navigate UCC-1 liens, FICO require...`,
+    metaDescription: `Selling a home with a Sunnova solar lease can be a nightmare if you aren't prepared for the transfer process.`,
     category: "Contract Help",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -1318,7 +1318,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Momentum Solar Complaints: How to Cancel Your Contract and Protect Your Home",
     metaTitle:
       "Momentum Solar Complaints: How to Cancel Your Contract and Protect Your Home",
-    metaDescription: `Dealing with Momentum Solar complaints or a predatory contract? Learn how to navigate the cancellation process, understand your legal rights, and get out of ...`,
+    metaDescription: `Dealing with Momentum Solar complaints or a predatory contract? Learn how to navigate the cancellation process, understand your legal rights`,
     category: "Company Complaints",
     readTime: "12 min read",
     publishDate: "March 2026",
@@ -1366,7 +1366,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Solar Loan Prepayment Penalty: How to Avoid and Fight Back Against Predatory Fees",
     metaTitle:
       "Solar Loan Prepayment Penalty: How to Avoid and Fight Back Against Predatory Fees",
-    metaDescription: `Learn how to identify hidden solar loan prepayment penalties and dealer fees that can trap you in debt. Discover strategies to fight back and protect your fi...`,
+    metaDescription: `Learn how to identify hidden solar loan prepayment penalties and dealer fees that can trap you in debt.`,
     category: "Loan Problems",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -1484,7 +1484,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Solar Installer Went Out of Business? Here is Your Step-by-Step Recovery Guide",
     metaTitle:
       "Solar Installer Went Out of Business? Here is Your Step-by-Step Recovery Guide",
-    metaDescription: `Discover exactly what to do if your solar installer goes out of business. Learn how to protect your warranties, manage your loan, and keep your system runnin...`,
+    metaDescription: `Discover exactly what to do if your solar installer goes out of business. Learn how to protect your warranties, manage your loan, and keep your system running.`,
     category: "Legal Rights",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -1541,7 +1541,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Solar System Underperforming? Your Legal Options and Compensation Guide",
     metaTitle:
       "Solar System Underperforming? Your Legal Options and Compensation Guide",
-    metaDescription: `Is your solar system producing less energy than promised? Learn about your legal rights, potential compensation, and how to hold predatory solar companies ac...`,
+    metaDescription: `Is your solar system producing less energy than promised? Learn about your legal rights, potential compensation`,
     category: "Legal Rights",
     readTime: "12 min read",
     publishDate: "March 2026",
@@ -1597,7 +1597,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Solar Contract Door-to-Door Sales Rescission Rights: Your 3-Day Escape Hatch",
     metaTitle:
       "Solar Contract Door-to-Door Sales Rescission Rights: Your 3-Day Escape Hatch",
-    metaDescription: `Discover your legal rights to cancel a predatory door-to-door solar contract. Learn how the FTC Cooling-Off Rule protects homeowners from high-pressure sales...`,
+    metaDescription: `Discover your legal rights to cancel a predatory door-to-door solar contract. Learn how the FTC Cooling-Off Rule protects homeowners from high-pressure sales`,
     category: "Legal Rights",
     readTime: "8 min read",
     publishDate: "March 2026",
@@ -1658,7 +1658,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     slug: "goodleap-vs-mosaic-solar-loan-comparison",
     title: "GoodLeap vs Mosaic: Which Solar Loan is Harder to Cancel?",
     metaTitle: "GoodLeap vs Mosaic: Which Solar Loan is Harder to Cancel?",
-    metaDescription: `Comparing GoodLeap and Mosaic solar loans reveals a complex web of hidden fees and cancellation hurdles. Learn how to navigate these predatory contracts and ...`,
+    metaDescription: `Comparing GoodLeap and Mosaic solar loans reveals a complex web of hidden fees and cancellation hurdles.`,
     category: "Loan Problems",
     readTime: "8 min read",
     publishDate: "March 2026",
@@ -1700,7 +1700,7 @@ export const blogArticlesBatch8: BlogPost[] = [
     slug: "sunrun-stock-homeowner-contract-rights",
     title: "Sunrun IPO and What It Means for Homeowners Trying to Cancel",
     metaTitle: "Sunrun IPO and What It Means for Homeowners Trying to Cancel",
-    metaDescription: `The 2015 Sunrun IPO shifted the company's focus to Wall Street investors, making it harder for homeowners to cancel predatory solar contracts. Learn your rig...`,
+    metaDescription: `The 2015 Sunrun IPO shifted the company's focus to Wall Street investors, making it harder for homeowners to cancel predatory solar contracts.`,
     category: "Company Complaints",
     readTime: "10 min read",
     publishDate: "March 2026",
@@ -1770,7 +1770,7 @@ export const blogArticlesBatch8: BlogPost[] = [
       "Solar Contract Red Flags Checklist: 10 Things to Spot Before You Sign",
     metaTitle:
       "Solar Contract Red Flags Checklist: 10 Things to Spot Before You Sign",
-    metaDescription: `Don't get trapped in a predatory solar agreement. Use our comprehensive checklist to identify hidden fees, misleading promises, and legal traps before you si...`,
+    metaDescription: `Don't get trapped in a predatory solar agreement. Use our comprehensive checklist to identify hidden fees, misleading promises`,
     category: "Contract Help",
     readTime: "12 min read",
     publishDate: "March 2026",

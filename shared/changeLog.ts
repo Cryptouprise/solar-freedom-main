@@ -61,6 +61,48 @@ export interface ChangeEntry {
 export const CHANGE_LOG: ChangeEntry[] = [
   {
     date: "2026-11-26",
+    title: "The site's biggest page-2 opportunity ranked on 'get out' while its snippet said 'cancel'",
+    class: "SEO",
+    changed: [
+      "client/src/data/blog.ts — /blog/how-to-get-out-of-a-solar-contract: metaTitle now leads with 'How to Get Out of a Solar Contract: Loan, Lease or PPA' instead of 'How to Cancel a Solar Contract: Before or After Install (2026)'; metaDescription now names 'get out', 'loan' and 'lease' instead of 'cancel' alone",
+      "client/src/data/blog.ts — added a section answering the lease variant, the loan variant and the PPA variant separately in the searcher's own words, and routing to the state solar-contract law guides for the statutory windows. It states no outcome and promises nothing",
+      "scripts/fix-1126-get-out-vocabulary.py — idempotent, scoped to the one article slice",
+    ],
+    evidence:
+      "Search Console (1 Sep–22 Nov 2026) for /blog/how-to-get-out-of-a-solar-contract: 1,255 impressions at average position 45.3 with 1 click — the largest single impression mass below position 20 on the site. Every one of its top queries uses 'get out' or 'get rid' phrasing and NOT ONE contains the word 'cancel': 'how to get out of a solar contract' 31 impr at 42.7, 'how to get out of a solar loan' 31 at 26.7, 'how to get out of solar lease' 40 at 47.0, 'get out of solar lease' 35 at 46.9, 'how do i get out of my solar lease' 26 at 58.9, 'how to get out of a solar lease' 26 at 48.4, 'how can i get out of my solar panel contract' 22 at 62.4, 'get out of solar contract' 21 at 45.0, 'how to get out of a solar panel lease' 21 at 51.9. The page slug, its H1 and its `title` field all said 'Get Out'; only the metaTitle Google displays said 'Cancel'. Measured on the built page before the fix: 1,248 words containing 'lease' 4 times and 'loan' 3 times, with no place answering either variant directly; and 49 of its 51 inbound internal links used the raw title as anchor text, an over-optimized pattern containing none of the query phrases. The two pages that do target lease phrasing, /blog/how-to-get-out-of-solar-lease-2026 and /blog/how-to-get-out-of-solar-lease-2026-complete-guide, are both noindex, so the indexed page has to carry that vocabulary itself.",
+    reasoning:
+      "The near-winners report ranked this page fourth by CTR gap, but its position 45.3 rules out snippet tuning alone as a fix — a snippet change cannot move a page 40 places. Splitting its query list by vocabulary showed the split is not positional: the lease variants average about position 48 and the loan variants about position 27, so the page is being matched on topic rather than on any single term, which is what a page whose visible title says 'cancel' while its slug says 'get out' looks like to a search engine. The correction is therefore to stop contradicting itself: lead the snippet with the phrase the searcher typed, and give the page a place that actually answers the lease and loan variants instead of mentioning them in passing. The two lease-specific pages being noindex was the deciding factor — had either been indexable, changing this page's title to target lease phrasing would have created a new cannibalization problem rather than fixing one. What would have falsified the diagnosis: any top query containing 'cancel'. There are none. The title was kept to 70 characters because that is the hard limit the build's fitter enforces; the meaningful 55 characters complete before Google's near-60 truncation, so the brand suffix is what gets dropped and the promise survives.",
+    confidence: "measured",
+    verifiedBy:
+      "pnpm check clean; pnpm build pre-rendered 583 pages; built page now serves a 70-character title leading with 'How to Get Out of a Solar Contract', a 134-character description naming loan and lease, and 1,490 served words with the new 'Getting out of a solar lease, a solar loan, or a PPA' heading present; pnpm test 83 files, 815 tests pass, 3 skipped; node scripts/trust-governance-audit.mjs passed",
+    preventsRecurrence:
+      "Before tuning a snippet, check the page's own top queries for vocabulary the snippet does not contain. A page whose slug, H1 and visible title agree but whose metaTitle disagrees is contradicting itself in exactly the field the searcher reads first. Also check whether the pages that already target a variant are indexable before redirecting a title at that variant, or the fix creates cannibalization instead of removing it.",
+    measureAfter: "2026-12-05",
+  },
+  {
+    date: "2026-11-26",
+    title: "74 pages shipped Google a snippet that stopped mid-phrase",
+    class: "defect",
+    changed: [
+      "scripts/prerender.assembled.mjs — replaced the ellipsis-appending slicers in fitMetaTitle and fitMetaDescription with fitSnippet, which cuts only on a sentence end, a strong clause mark, a coordinating conjunction or a whole word, and drops a trailing function word so nothing dangles",
+      "scripts/fix-1126-baked-ellipsis-descriptions.py — repaired 20 article records whose metaDescription already contained a literal '...' baked into the source string while the same record held a complete excerpt; the build-time fitter could not repair these because the ellipsis arrived as content",
+      "client/src/data/blog-articles-batch6.ts — Colorado metaTitle read 'How to Cancel & Protect Your', missing the word 'self', so the served title ended mid-word",
+      "client/src/data/blog-articles-batch11.ts — the lease-vs-loan metaTitle was cut by the 70-character fitter to '(And Why', leaving an open parenthetical; the trailing clause was dropped so the phrase completes",
+      "server/metaSnippet.test.ts — new, 10 tests locking in both halves of the defect",
+    ],
+    evidence:
+      "Measured on dist/public on 26 Nov 2026 across all 583 built pages: 37 titles and 56 descriptions ended in a literal ellipsis, 19 pages had both, so 74 pages — 12.7% of the site — showed a mid-phrase cut-off. Examples from the built output: 'Titan Solar Power Complaints: How to Get Out of Your Contract...', 'Solar Escalator Clause Explained — How to Fight Annual Payment...', 'Sunnova Filed for Bankruptcy: What Happens to Your Solar Contract?...'. The page /blog/solar-escalator-clause-what-it-is-how-to-fight held 80 impressions at average position 6.95 with ZERO clicks and its title was one of the truncated 37. A separate grep of client/src/data found 20 metaDescription values with a '...' baked into the source string, e.g. '...keep your system runnin...'.",
+    reasoning:
+      "The defect was found by scanning the built output for titles and descriptions whose final characters are an ellipsis, which is a shape a correct snippet should never have. Tracing those strings back to source showed two independent causes: the build-time fitter appended '...' after slicing mid-phrase, and 20 records had been truncated by hand and saved that way. The build-time cause is the larger one and is the reason the defect was invisible in review — the source data looked fine and the damage happened during generation. The hand-edited cause was provable rather than a guess because every affected record carries a complete `excerpt` field holding the full sentence the description was cut from. Fixing only the fitter would have left the 20 baked-in ellipses shipping, and fixing only the data would have let the fitter re-break every future long title, so both were fixed and both are now tested. The cut-boundary rules were chosen so a shortened snippet still reads as a finished thought; the half-the-limit floor exists so a snippet is never reduced to a stub. What would have falsified the diagnosis: a title or description ending in an ellipsis that was not produced by these two code paths. A scan for that found none — after the fix the count is zero.",
+    confidence: "measured",
+    verifiedBy:
+      "python3 scan of all 583 built pages for a trailing ellipsis: 37 titles and 56 descriptions before, 0 and 0 after; pnpm build pre-rendered 583 pages; npx vitest run server/metaSnippet.test.ts — 10 tests pass; pnpm test — 83 files, 815 tests pass, 3 skipped; node scripts/trust-governance-audit.mjs — passed",
+    preventsRecurrence:
+      "server/metaSnippet.test.ts fails the build if any built page ships a title or description ending in an ellipsis, if either meta fitter reintroduces a slicing pattern, or if any article source record carries a '...' inside metaTitle or metaDescription. A snippet is a finished sentence, not a place to show that text was cut.",
+    measureAfter: "2026-12-05",
+  },
+  {
+    date: "2026-11-26",
     title: "ADT: four defects, including a shutdown year that contradicted our own article",
     class: "accuracy",
     changed: [

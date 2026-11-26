@@ -957,7 +957,7 @@ Take Back Your Power and Your Peace of Mind` },
   {
     slug: `colorado-solar-contract-rights`,
     title: `Colorado Solar Contract Rights: How to Cancel & Protect Yourself`,
-    metaTitle: `Colorado Solar Contract Rights: How to Cancel & Protect Your`,
+    metaTitle: `Colorado Solar Contract Rights: How to Cancel & Protect Yourself`,
     metaDescription: `Learn about Colorado homeowner rights for solar contracts, state consumer protection laws, AG Phil Weiser's actions, and how to cancel a solar contract in CO.`,
     excerpt: `Discover your rights as a Colorado homeowner to cancel predatory solar contracts and protect your family from deceptive sales tactics. Learn how the Colorado Consumer Protection Act and new state laws like SB25-299 provide a path to financial freedom and peace of mind.`,
     category: `State Specific`,
