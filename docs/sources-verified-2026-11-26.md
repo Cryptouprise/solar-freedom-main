@@ -116,3 +116,64 @@ the report.
 **Coverage after the 26 Nov 2026 fix:** 27 of 27 indexable city pages and 3 of 3
 indexable state pages serve a tag, 5 keywords each (owner's stated bound is
 3–8). 30 keys total in the file.
+
+---
+
+## Blue Raven Solar — litigation and ownership
+
+**Verified 26 November 2026.** Used on `/blog/blue-raven-solar-complaints`.
+
+**Sources**
+
+- Blue Raven Solar Holdings, LLC bankruptcy, D. Del. **case 1:24-bk-11660**,
+  filed **5 August 2024**, member case of the SunPower lead case
+  **1:24-bk-11649** (Chapter 11, Judge Craig T. Goldblatt).
+  https://www.pacermonitor.com/public/case/54575660/Blue_Raven_Solar_Holdings,_LLC
+- *Seeley et al v. Blue Raven Solar LLC et al*, No. **3:25-cv-06032**,
+  U.S. District Court for the Western District of Washington, opened
+  **17 November 2025** on a petition for removal; nature of suit 371
+  (Torts – Personal Property – Truth in Lending).
+  https://www.pacermonitor.com/public/case/61256050/Seeley_et_al_v_Blue_Raven_Solar_LLC_et_al
+- Idaho Attorney General voluntary agreement (Assurance of Voluntary
+  Compliance), **October 2020**; investigated from spring 2020; Blue Raven
+  **denied violating any law**; paid **$7,500** for legal and investigative
+  costs; ran through **31 December 2025**.
+  https://idahocapitalsun.com/2022/03/28/that-deal-on-solar-panels-could-be-a-scam-warns-idaho-attorney-general/
+- Ownership: SunPower acquired Blue Raven **October 2021** (announced
+  5 Oct 2021, up to **$165M**). SunPower Chapter 11 **5 August 2024**; sale of
+  the Blue Raven business to Complete Solaria **approved 23 September 2024**,
+  **closed 30 September 2024** for **$45M**. Complete Solaria now files as
+  SunPower Inc. The buyer assumed only the liabilities defined in the purchase
+  agreement, so projects completed **on or before 30 September 2024** are the
+  stranded ones.
+  https://www.prnewswire.com/news-releases/sunpower-announces-stalking-horse-asset-purchase-agreement-with-complete-solaria-to-sell-blue-raven-solar-new-homes-and-its-non-installing-dealer-network-302214943.html
+
+**Key findings**
+
+- **There is NO class action, NO settlement, NO fund, NO claim form and NO claim
+  deadline for Blue Raven customers** as of November 2026. What exists is
+  individual litigation.
+- Older individual federal suits were brought under the **Telephone Consumer
+  Protection Act**: *Johansen v. Blue Raven Solar, LLC*, No. 2:20-cv-02930
+  (S.D. Ohio, filed 5 June 2020) and *Costa v. Blue Raven Solar, LLC*,
+  No. 2:24-cv-00265 (D. Utah, filed 11 April 2024). Both complaints included
+  **class allegations** but **no class was certified**, so neither produced a
+  payment for other people who received calls.
+- *Torre v. Blue Raven Solar, LLC*, No. 1:25-cv-12988 (N.D. Ill., filed
+  24 October 2025), consumer credit. Docket not opened — **state only its
+  existence, never its outcome.**
+- The Idaho agreement paid the **state**, not homeowners, and was **not a court
+  judgment**.
+
+**Standing warning recorded with these facts:** a **change of owner is not a
+court order cancelling a contract**, and a **bankruptcy is not a lawsuit against
+the company and not a settlement for customers**. Any offer to "void" a Blue
+Raven agreement for a fee on the strength of the bankruptcy is wrong, and the
+site says so explicitly.
+
+**Why this mattered:** `/blog/blue-raven-solar-complaints` ranked **position 6.0**
+for `blue raven solar lawsuit` while containing **zero** occurrences of the word
+"lawsuit". It was ranking on surrounding context alone. The competing pages for
+that query are lead-capture funnels that imply a settlement exists; answering
+"no, and here is exactly what does exist" is both the honest answer and the
+differentiator.

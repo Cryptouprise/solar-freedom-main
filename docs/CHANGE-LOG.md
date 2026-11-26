@@ -1,4 +1,20 @@
 # Change Log — Solar Freedom / breakyoursolarcontract.com
+## 2026-11-26 — A page ranking position 6 for the lawsuit question never mentioned the word lawsuit
+
+**Class:** SEO
+
+**Changed:** `client/src/data/blog-articles-batch8.ts` — new section "Is there a Blue Raven Solar lawsuit or class action?", five paragraphs plus a callout, and a new first FAQ entry. `scripts/fix-1126-blue-raven-lawsuit-query.py`. `docs/sources-verified-2026-11-26.md` — every case number, date and finding recorded with its source URL.
+
+**Why:** This is the fifth instance of the defect class the change log already names, after Freedom Forever, Tesla, Sunnova and GoodLeap — a page ranking highly for a question it never answers, matched on surrounding context alone. It is the strongest instance yet: position **6.0** is the highest any of them held. The deeper reason is what the searcher wants. Someone typing that query does not want litigation news, they want to know whether money is available, and the honest answer is no. The pages currently ranking for it are lead-capture funnels that imply a settlement exists.
+
+**How the conclusion was reached:** Measured 26 Nov 2026 — position 6.0 for `blue raven solar lawsuit` on 36 impressions in the prior window, falling to 11 impressions at position 7.5 in the recent window, while a grep of the built page returned **zero** occurrences of the word "lawsuit". Every fact was verified the same day: Blue Raven Solar Holdings filed Chapter 11 on 5 Aug 2024 (D. Del. 1:24-bk-11660, member case of SunPower's 1:24-bk-11649); *Seeley v. Blue Raven Solar LLC*, No. 3:25-cv-06032 (W.D. Wash., opened 17 Nov 2025); *Johansen* (S.D. Ohio 2020) and *Costa* (D. Utah 2024) were TCPA cases with class allegations but **no certified class**; and the Idaho AG voluntary agreement (Oct 2020, $7,500 to the state, through 31 Dec 2025). Three distinctions protect readers from real mistakes: a bankruptcy is not a lawsuit and not a settlement; a change of owner is not a court order cancelling a contract; and a demand is not an award. *Torre* (N.D. Ill. 2025) is stated as existing only, because its docket could not be opened — stating an outcome we could not read would repeat the exact error this session has been correcting.
+
+**Verified:** `pnpm check` clean; `pnpm build` pre-rendered 583 pages; the page went 1,132 → 1,652 words with "lawsuit" 0 → 3 and both case numbers present; FAQPage schema and rendered `<h3>` elements both carry 7 questions in the same order; 92 test files, 883 tests passing.
+
+**Recurrence guard:** The standing rule now reads **top 10** rather than top 3, since this page held position 6. Every case number, date and figure on the page is recorded with its source URL, so a later edit is checked against the record rather than re-researched and answered differently.
+
+**Measure after:** 2026-12-05
+
 ## 2026-11-26 — Added window-comparison reporting, which showed the site is down 10 percent and named the four pages responsible
 
 **Class:** infrastructure
