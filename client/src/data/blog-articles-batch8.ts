@@ -358,6 +358,16 @@ export const blogArticlesBatch8: BlogPost[] = [
       "We review your agreement at no cost. Find out your options in 48 hours.",
     content: [
       {
+        type: "callout",
+        content:
+          "Short answer: Sunlight Financial is a real, licensed solar lender — not a scam — but it is not a company to trust blindly. It filed a prepackaged Chapter 11 on 30 October 2023, emerged under new ownership on 6 December 2023, and still services solar loans today. The complaints are about the terms, not the company's existence.",
+      },
+      {
+        type: "p",
+        content:
+          "That distinction matters more than it sounds. Because Sunlight Financial still exists and still holds the note, the loan does not disappear just because the original installer misled you. Nothing about the bankruptcy filing cancelled a single customer balance. What it did change is who you are dealing with: servicing moved after the restructuring, and the entity collecting your payment today may not be the one named on your original paperwork. Before you argue about anything else, confirm who actually owns your loan and who is reporting it to the credit bureaus — that is the fact that determines every option below.",
+      },
+      {
         type: "h2",
         content: "The Growing Crisis of Sunlight Financial Solar Loans",
       },

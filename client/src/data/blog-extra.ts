@@ -55,8 +55,8 @@ export const extraBlogPosts: BlogPost[] = [
   {
     slug: 'solar-contract-rescission-rights',
     title: 'Solar Contract Rescission Rights: Check the 3-Day Rule',
-    metaTitle: 'Solar Contract Rescission Rights: 3-Day Rule Checklist',
-    metaDescription: `Check whether the FTC Cooling-Off Rule covers your solar sale, find the notice, calculate the deadline, preserve delivery proof, and review other written procedures.`,
+    metaTitle: 'Solar Contract Rescission Rights: 3-Day Rule & TILA',
+    metaDescription: `Check whether the FTC Cooling-Off Rule or TILA covers your solar sale, how to rescind, the deadline, and how to preserve your delivery proof.`,
     category: 'Legal Rights',
     readTime: '7 min read',
     publishDate: 'August 16, 2026',

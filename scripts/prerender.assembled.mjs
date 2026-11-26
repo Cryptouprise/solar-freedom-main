@@ -659,7 +659,7 @@ function buildMetaMap(cityEntries, companyEntries, stateEntries, blogEntries) {
     { path: "/how-it-works", title: "How Solar Contract Cancellation Works | Solar Freedom", desc: "See how Solar Freedom reviews solar contracts, gathers records, and prepares an individual case review. Not a law firm. Outcomes depend on the documents and facts." },
     { path: "/solar-contract-help", title: "Solar Contract Help | Legal Options to Cancel | Solar Freedom", desc: "Review solar contract terms, rescission information, financing disputes, UCC filings, and records to gather before requesting an individual review." },
     { path: "/solar-panel-scam", title: "Solar Panel Scam Warning Signs | Solar Freedom", desc: "Learn common solar-sales warning signs and which records to keep." },
-    { path: "/solar-companies", title: "Solar Company Complaints & Cancellation Guide | Solar Freedom", desc: "Compare complaints and cancellation options for Sunrun, Sunnova, GoodLeap, SunPower, Freedom Forever, Tesla Solar, and more." },
+    { path: "/solar-companies", title: "Worst Solar Companies & Complaints List (2026) | Solar Freedom", desc: "Which solar companies failed, which are in bankruptcy, and where to check complaints. Sourced status for Sunrun, Sunnova, Freedom Forever, Titan and Mosaic." },
     { path: "/solar-lien-removal", title: "Solar Lien Removal | Remove a UCC-1 Solar Lien | Solar Freedom", desc: "Learn how a UCC-1 fixture filing may affect a home sale or refinance and which records to gather before requesting an individual review." },
     { path: "/solar-loan-help", title: "Solar Loan Help | Fight Predatory Solar Loans | Solar Freedom", desc: "Review solar loan terms, disclosures, dealer fees, and consumer resources. Available options depend on the documents and applicable law." },
     { path: "/selling-house-with-solar", title: "Selling a House With Solar Panels & a Loan | Solar Freedom", desc: "Review transfer, payoff, financing, and UCC-filing questions that may arise when selling a home with solar equipment." },
@@ -1360,7 +1360,31 @@ function buildServiceUniqueContent(urlPath) {
 
       <h2>Official sources beat summaries</h2>
       <p>When you use a published Texas, California, or Arizona page on this site, treat it as a map to statutes, agencies, and document lists. Verify the current official text before relying on any summary, including ours. For states that are not published here, use the state attorney general consumer page, contractor licensing lookup, and the federal cooling-off materials if the sale channel might be covered. Do not invent a Florida or Nevada law URL, and do not treat a Miami or Las Vegas city page as a stand-in for a quarantined state-law article. Request an individual review if you want help lining your documents up with the published pages that actually exist.</p>`,
-    "/solar-companies": `      <h2>Company research lives on the blogs, not on hub URLs</h2>
+    "/solar-companies": `      <h2>Which solar companies have failed?</h2>
+      <p>There is no single official ranking of the worst solar companies, and any list that claims to be one should be treated with suspicion. What can be checked is status: which companies have ceased operations, filed bankruptcy, or been acquired, and on what date. That is the question most people are actually asking when they search for the worst solar companies, because a company that no longer exists cannot honour a workmanship warranty or service a system.</p>
+      <p>The table below lists the status changes that matter most to homeowners, each with the event that caused it. Everything here is a matter of public record and can be verified independently.</p>
+      <h2>Solar company failures and status changes</h2>
+      <ul>
+        <li><strong>Pink Energy</strong> (formerly Power Home Solar) — bankrupt. Failed in 2022, leaving thousands of homeowners with unfinished or faulty systems.</li>
+        <li><strong>SunPower</strong> — bankrupt. Filed Chapter 11 on 5 August 2024 and wound down operations; selected assets including Blue Raven Solar were bought by Complete Solaria.</li>
+        <li><strong>ADT Solar</strong> (formerly Sunpro Solar) — exited residential solar. ADT's board voted on 19 January 2024 to leave the business and operations had ceased by 30 June 2024.</li>
+        <li><strong>Titan Solar Power</strong> — bankrupt. Ceased operations 13 June 2024 and filed Chapter 7; the Nevada State Contractors Board suspended its licence on 18 June 2024 and later revoked it.</li>
+        <li><strong>Sunnova</strong> — bankrupt. Filed Chapter 11 on 8 June 2025 and sold substantially all assets; Sunnova has ceased independent operations and SunStrong Management services most in-service systems.</li>
+        <li><strong>Mosaic</strong> — bankrupt. Mosaic Sustainable Finance filed Chapter 11 on 6 June 2025; the plan took effect 22 September 2025 and loan servicing moved to a Forbright Bank unit.</li>
+        <li><strong>Freedom Forever</strong> — bankrupt. Filed Chapter 11 on 15 April 2026 and converted to Chapter 7 liquidation on 7 August 2026 after its sale fell through.</li>
+        <li><strong>Sungevity</strong> — bankrupt. Filed in 2017; assets were acquired and eventually became part of Complete Solaria.</li>
+        <li><strong>Sunlight Financial</strong> — restructured, still operating. Completed a prepackaged Chapter 11 in December 2023, emerged under new ownership, and still services the loans.</li>
+      </ul>
+      <p>Two distinctions decide most of these files. First, an installer failing does not cancel a loan or lease held by a separate lender, and that lender is usually still collecting. Second, a company that changed hands is not the same as one that failed, which is why Sunlight Financial appears above as restructured rather than bankrupt.</p>
+      <h2>How to check a solar company yourself</h2>
+      <ul>
+        <li>Search the state contractor licensing board for the licence number and its monetary limit, and whether the licence is current, suspended or revoked.</li>
+        <li>Check the Better Business Bureau profile for the complaint count and whether complaints are answered.</li>
+        <li>Search the Consumer Financial Protection Bureau complaint database for the lender, not the installer.</li>
+        <li>Look for a bankruptcy docket, which is a court record rather than a news summary.</li>
+        <li>Read the legal names on your own documents, because the salesperson's brand, the installer, the system owner and the lender are frequently four different companies.</li>
+      </ul>
+      <h2>Company research lives on the blogs, not on hub URLs</h2>
       <p>Homeowners often type a brand plus "cancel" and land on a generated company path. On this site, those company hubs 301 to existing blogs. Use the blog guides for Sunrun, GoodLeap, Sunnova, Freedom Forever, ADT, and Tesla rather than /cancel-*-solar-contract URLs. The blogs are where complaint themes, acquisition timelines, and document checklists are maintained. Solar Freedom is not a law firm, and a brand page is not a finding that any company broke the law in your case.</p>
       <p>Status changes (bankruptcy, acquisition, rebrand) are especially easy to mix up. ADT exiting residential solar, Tesla servicing SolarCity-era accounts, or a lender remaining after an installer closes are separate facts. The signed names still control who bills you and who answers warranty tickets. Compare the blog for that brand with your own papers before assuming the public story matches your account.</p>
       <h2>Records that identify the real parties</h2>
