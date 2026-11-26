@@ -7,8 +7,8 @@ export const batch9BlogPosts: BlogPost[] = [
   {
     slug: "sunrun-solar-contract-cancellation-2026",
     title: "How to Cancel a Sunrun Contract: Before or After Installation",
-    metaTitle: "Sunrun Contract Cancellation: Email, Fees & Steps (2026)",
-    metaDescription: "Cancel or get out of a Sunrun contract: the cancellation window, the exit fee, how to cancel an appointment, and no public cancellation email. Free review.",
+    metaTitle: "Sunrun Contract Cancellation: Appointment, Email & Fees (2026)",
+    metaDescription: "Cancel a Sunrun appointment or get out of a Sunrun contract: exit fees, the cancellation window, and why there is no public cancellation email. Free review.",
     category: "Contract Help",
     readTime: "9 min read",
     publishDate: "August 16, 2026",
@@ -223,7 +223,7 @@ export const batch9BlogPosts: BlogPost[] = [
     slug: "goodleap-solar-loan-cancellation-hidden-fees-2026",
     title: "Stuck in a GoodLeap Solar Loan? Here's What You Can Actually Do",
     metaTitle: "Cancel a GoodLeap Solar Loan? Payoff, Fees & Reviews (2026)",
-    metaDescription: "Can you cancel a GoodLeap solar loan? How to request a payoff quote, dispute dealer fees, and reach account support at 1-800-345-9372. Free case review.",
+    metaDescription: "Can you cancel a GoodLeap solar loan? Request a payoff quote, dispute hidden dealer fees, and see the state lawsuits against GoodLeap. Free review.",
     category: "Contract Help",
     readTime: "6 min read",
     publishDate: "August 16, 2026",
@@ -240,6 +240,8 @@ export const batch9BlogPosts: BlogPost[] = [
       { q: "Is a GoodLeap UCC-1 a lien on my house?", a: "GoodLeap says its UCC-1 is a lien on the solar equipment, not your home, though a fixture filing will show up in your county's property records. Your title company can tell you what it means for your sale." },
       { q: "How do I make a payment or request a payoff quote from GoodLeap?", a: "Call GoodLeap account support at 1-800-345-9372, or email customerservice@goodleapsupport.com. That is the line GoodLeap's own contact page lists for payments, balances and payoffs. Ask for the payoff quote in writing and ask what date it is valid through, because a payoff figure only holds for a stated window and a home sale can close on a different day." },
       { q: "Do I keep paying if my installer went out of business?", a: "In most cases the loan stands on its own, so keep paying while you sort it out. Missing payments can damage your credit and weaken your position." },
+      { q: "Is GoodLeap going bankrupt?", a: "No. GoodLeap is not in bankruptcy and has not filed. It closed a $389 million securitization on 2 October 2026, its 26th, and continues to originate and service loans. A lender in litigation is not a lender in bankruptcy, and a bankruptcy filing by an installer is not one by the lender. Keep paying while you review." },
+      { q: "Has GoodLeap been sued by any state attorney general?", a: "Yes, twice. Minnesota Attorney General Keith Ellison sued GoodLeap, Sunlight Financial, Solar Mosaic and Dividend Solar Finance on 8 March 2024 over $35 million in hidden fees on nearly 5,000 Minnesota loans. Virginia sued GoodLeap and others on 3 February 2026, alleging hidden loan fees of 5-33% on over $200 million in loans to more than 4,000 Virginians. Both are allegations; neither is a finding of liability, and neither creates a claim form for you." },
     ],
     content: [
       { type: "h2", content: "Sound familiar?" },
@@ -284,6 +286,13 @@ export const batch9BlogPosts: BlogPost[] = [
         "Was a specific savings figure promised, and do 12 months of power bills support it?",
         "Was the tax credit represented as a payment reduction when your tax liability could not absorb it in 18 months?"
       ] },
+      { type: "h2", content: "Has GoodLeap been sued? What the public record shows" },
+      { type: "p", content: "Two state attorneys general have sued GoodLeap. Both are public record, and both are about the fees this page is about." },
+      { type: "p", content: "On 8 March 2024, Minnesota Attorney General Keith Ellison sued GoodLeap, Sunlight Financial, Solar Mosaic and Dividend Solar Finance in Hennepin County. The attorney general alleges the lenders charged $35 million in hidden fees on nearly 5,000 Minnesota loans since 2017, that most of those fees raised what borrowers paid by 15% to 30%, and that some borrowers paid up to 54% more than if they had paid cash. The claims are deceptive trade practices, deceptive lending and illegally high rates of interest." },
+      { type: "p", content: "Virginia filed against GoodLeap and others on 3 February 2026 in the Eastern District of Virginia, No. 3:26-cv-00039-REP. That complaint alleges hidden loan fees of 5% to 33% on more than $200 million in loans to over 4,000 Virginia consumers, and names GoodLeap against 1,682 Virginia loans made between 2018 and 2022. It seeks contract rescission or reformation, restitution and civil penalties. The case names the former Power Home Solar executives as well as the lenders." },
+      { type: "p", content: "GoodLeap is not bankrupt. It closed a $389 million securitization on 2 October 2026, its 26th, and continues to originate and service loans. A lender being sued is not a lender in bankruptcy, and a lender in bankruptcy would not automatically cancel your loan either." },
+      { type: "callout", content: "A lawsuit is not a finding. A regulator suing a lender is not relief for you, and it does not create a claim form, a deadline or a payout for any individual borrower. What a filed case does give you is a documented, official description of the fee practice, which is useful when you raise the same issue about your own account." },
+      { type: "p", content: "The practical use of both cases is the same. They describe how dealer fees were built into financed prices in a way regulators consider deceptive. If your own proposal shows a financed amount well above the cash price, that gap is where those fees sit, and the [CFPB issue spotlight on solar financing](https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/) describes the same pattern nationally." },
       { type: "h2", content: "How to reach GoodLeap directly" },
       { type: "p", content: "These details come from GoodLeap's own [contact page](https://www.goodleap.com/contact-us/), read on 25 November 2026. Hours are Pacific time. GoodLeap, LLC was formerly known as Loanpal, and it operates under NMLS #30336." },
       { type: "stat-block", stats: [
@@ -295,7 +304,7 @@ export const batch9BlogPosts: BlogPost[] = [
       { type: "p", content: "GoodLeap also publishes a specific escalation route for formal complaints: Maria Mellott, Vice President and Deputy Chief Compliance Officer, 8781 Sierra College Blvd., Roseville, CA 95661, telephone 916-475-1255. Using that channel rather than a general support queue creates a record with a named recipient, which matters if you later need to show you raised the issue in writing." },
       { type: "h2", content: "Why a 15-minute call helps" },
       { type: "p", content: "The hard part isn't the paperwork. It's knowing which of those paths you're actually on, and whether you have something worth pushing. That's what the free case review is for. It costs nothing, you're not signing up for anything, and every case depends on its own facts, so no one can promise a result. You'll get a straight answer." },
-      { type: "p", content: "Sources: [GoodLeap's FAQ](https://www.goodleap.com/faq) (payment change after month 18, prepayment, home sale, UCC-1) and the CFPB's [issue spotlight on solar financing](https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/) (dealer fees)." }
+      { type: "p", content: "Sources: [GoodLeap's FAQ](https://www.goodleap.com/faq) (payment change after month 18, prepayment, home sale, UCC-1), the CFPB's [issue spotlight on solar financing](https://www.consumerfinance.gov/data-research/research-reports/issue-spotlight-solar-financing/) (dealer fees), the [Minnesota Attorney General's release of 8 March 2024](https://www.ag.state.mn.us/Office/Communications/2024/03/08_SolarLending.asp), and the [Virginia complaint of 3 February 2026](https://www.oag.state.va.us/consumer-protection/files/Lawsuits/Com-v-Waller-First-Amended-Complaint.pdf)." }
     ],
   },
 

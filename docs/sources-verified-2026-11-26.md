@@ -177,3 +177,56 @@ for `blue raven solar lawsuit` while containing **zero** occurrences of the word
 that query are lead-capture funnels that imply a settlement exists; answering
 "no, and here is exactly what does exist" is both the honest answer and the
 differentiator.
+
+---
+
+## GoodLeap — corporate status and litigation (verified 26 Nov 2026)
+
+**Not bankrupt.** GoodLeap closed a **$389 million securitization on 2 October
+2026**, its **26th** to date, backed solely by home improvement loans it
+originated. A company in Chapter 11 does not close securitizations. This is the
+primary evidence for the answer to the site's highest-traffic GoodLeap query,
+`is goodleap going bankrupt`, which the page previously did not answer at all.
+
+Source: GoodLeap press release, 2 October 2026 —
+`goodleap.com/press-releases/goodleap-announces-closing-of-389-million-securitization-bringing-the-company-s-total-to-26`
+(also distributed via PR Newswire and Morningstar, same date).
+
+**Minnesota Attorney General — filed 8 March 2024, Hennepin County.**
+Defendants: **GoodLeap, Sunlight Financial, Solar Mosaic and Dividend Solar
+Finance.** Alleged **$35 million in hidden fees on nearly 5,000 Minnesota loans
+since 2017**. Most of the fees **raised what borrowers paid by 15% to 30%**; some
+borrowers paid **up to 54% more** than paying cash or obtaining their own credit.
+Claims: deceptive trade practices, deceptive lending, illegally high rates of
+interest. Relief sought: accurate disclosure, civil penalties, remediation.
+The release also documents a **2022 action against Avolta Power** ending in the
+company ceasing Minnesota operations, and a **$310K restitution judgment** in 2023.
+
+Source: Minnesota Attorney General's Office, 8 March 2024 —
+`ag.state.mn.us/Office/Communications/2024/03/08_SolarLending.asp`
+
+**Virginia — amended complaint filed 3 February 2026.**
+*Commonwealth of Virginia ex rel. Attorney General v. Waller, Klink, Cross River
+Bank, GoodLeap, LLC, Solar Mosaic LLC, Sunlight Financial LLC and Technology
+Credit Union*, **No. 3:26-cv-00039-REP** (E.D. Va., Richmond Division).
+Alleges **over $200 million in loans to more than 4,000 Virginia consumers**,
+**hidden loan fees of 5% to 33%**, and that GoodLeap **extended loans to over
+1,000 Virginia households**, named against **1,682 Virginia loans 2018–2022**.
+Counts under the **federal Consumer Financial Protection Act** (12 U.S.C.
+§§ 5536(a), 5552, 5565) and the **Virginia Consumer Protection Act** (Va. Code
+§ 59.1-196 et seq.). Relief sought includes **contract rescission or
+reformation, restitution, disgorgement, civil penalties**.
+**Allegation stage. No finding of liability.** Named individual defendants are
+Power Home Solar / Pink Energy's former CEO and CFO. Power Home filed Chapter 7
+on 7 October 2022, *In re: Power Home Solar, LLC*, No. 22-50228 (Bankr. W.D.N.C.).
+Mosaic is named through its bankruptcy plan administrator after *In re: Mosaic
+Sustainable Finance Corp.*, No. 25-90156 (Bankr. S.D. Tex.).
+
+Source: Virginia Office of the Attorney General —
+`oag.state.va.us/consumer-protection/files/Lawsuits/Com-v-Waller-First-Amended-Complaint.pdf`
+
+**Three distinctions recorded on the page because each prevents a real error:**
+a lawsuit is not a finding; a regulator suing a lender is not relief for an
+individual borrower and creates no claim form; and a lender in litigation is not
+a lender in bankruptcy. A bankruptcy by an installer is likewise not one by the
+lender.
