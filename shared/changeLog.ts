@@ -1020,6 +1020,25 @@ export const CHANGE_LOG: ChangeEntry[] = [
       "A loose upper bound is not a guard, it is a tolerance. Any bound that exists to catch growth must be pinned at the measured value so the next occurrence forces a decision. And an inherited claim about a defect is a hypothesis like any other: it is disproved by reading the code, not confirmed by acting on it.",
     measureAfter: "2026-12-05",
   },
+  {
+    date: "2026-11-26",
+    title: "The two biggest ranking-loss queries have no cannibalization and no remaining content lever",
+    class: "infrastructure",
+    changed: [
+      "scripts/gsc-query-pages.mjs — new read-only tool that answers query to pages, which neither gsc-page-queries.mjs nor gsc-exact-page-queries.mjs could do",
+      "no site change — the check found nothing to fix, which is the finding",
+    ],
+    evidence:
+      "Measured 26 Nov 2026 over the 90 days to 23 November, the two largest ranking losses on the site are adt solar reviews at 881 impressions and average position 13.3 with zero clicks, and blue raven solar reviews at 471 impressions and average position 16.0 with zero clicks. Running the new query-to-pages check on each returned exactly ONE page: /blog/adt-solar-complaints and /blog/blue-raven-solar-complaints respectively. Neither query is split between competing pages, so there is no cannibalization to resolve. A third check on is goodleap going bankrupt returned one page at position 6.1, which is already page one. A site-wide anchor-diversity measurement found that 31 of the 41 blog pages with any inbound internal link, 76 per cent, receive identical anchor text from every link, and that pattern is not specific to these two pages, so it cannot be the differentiator between pages that slipped and pages that held.",
+    reasoning:
+      "Three candidate explanations for a ranking loss were tested and all three were eliminated, which leaves the honest answer rather than a manufactured fix. Cannibalization is eliminated by direct measurement. A snippet problem is eliminated because both pages have had their snippets rewritten and the ADT page in particular now leads with the exact figures the query asks for, 404 BBB complaints and no rating. A missing-answer problem is eliminated because both pages already carry a dedicated section on reviews and complaints and the GoodLeap page now answers its bankruptcy question outright. What remains is position, and position on a query where the page already answers the question and holds the query alone is a function of authority rather than of content. Recording that is more useful than inventing a fourth change, because the alternative is a change log that fills with edits to pages that were never the problem. The anchor-diversity measurement was run specifically to stop a plausible-looking fix: the two pages do show a suspicious single-anchor pattern, but so do 29 other pages, so patching only the two slipping pages would have been treating a symptom of site-wide template behaviour as if it were a cause.",
+    confidence: "measured",
+    verifiedBy:
+      "Query-to-pages run directly against the Search Console API for all three queries, each returning a single row; anchor diversity computed across all 583 built pages by parsing every internal blog link and grouping by target slug, which is what showed the pattern is site-wide rather than local; the new script is read-only and writes nothing",
+    preventsRecurrence:
+      "Before treating a ranking loss as a content problem, test cannibalization first with a query-to-pages pull, because a query split between two of our pages is fixable by routing and a query held by one page is not. And before patching a suspicious pattern on the two pages that happen to be slipping, measure whether the pattern is site-wide; if it is, it is template behaviour and not the cause.",
+    measureAfter: "2026-12-05",
+  },
 ];
 
 /** Entries grouped by class, for the admin view. */
