@@ -788,6 +788,22 @@ export const CHANGE_LOG: ChangeEntry[] = [
     preventsRecurrence: "server/billStatusClaims.test.ts asserts the page never says 'AB 1070 (2023)' and does say 'AB 1070 (Stats. 2017, Ch. 662)'. AB 1070 is also in the ENACTED_BILLS allowlist with its session law recorded inline, so it cannot be mistaken for a pending bill.",
     measureAfter: "2026-12-05",
   },
+  {
+    date: "2026-11-26",
+    title: "California state page ranked position 10.4 for lease and Sunrun queries without naming either",
+    class: "SEO",
+    changed: [
+      "client/src/data/state-laws.ts — the California entry gained a section titled 'Solar Leases and PPAs in California: The Same Rights, a Different Target', three paragraphs, and two contextual links",
+      "scripts/fix-1126-ca-lease-vocabulary.py — idempotent fixer",
+      "server/statePageVocabulary.test.ts — new guard, 4 tests",
+    ],
+    evidence: "Search Console (1 Sep-22 Nov 2026): /solar-contract-laws/california is indexable and holds 'cancel solar lease california' at position 10.4 on 18 impressions and 'cancel sunrun contract california' at position 10.4 on 18 impressions. Measured on the 583-page build on 26 Nov 2026, its rendered text contained 0 occurrences of 'lease', 0 of 'Sunrun' and 0 of 'power purchase', while 'PPA' appeared 3 times. After the fix: lease 7, Sunrun 4, PPA 11, power purchase agreement 1, third-party 3, and the page grew from 1,411 to 1,747 words.",
+    reasoning: "A page at position 10.4 for a query it never names is matched on surrounding context, which caps how far it can climb, and this is the fourth instance of the class already recorded for the rescission page (ranked for 'TILA', never used the word), Blue Raven (ranked for 'customer service' and 'phone number', description named neither) and Sunrun (ranked for 'appointment', zero occurrences). The gap was easy to miss because the page did discuss third-party ownership - it had 3 'PPA' mentions - just never in the words the searcher used. The added section also fixes a real reader misunderstanding rather than only a keyword gap: cancelling the agreement does not remove the equipment, and a homeowner who stops paying without knowing that trades a payment problem for a lien or a credit problem. Naming Sunrun and SunPower as the two largest third-party owners is sourced from each company's own site and asserts nothing about either company's conduct. Both links were checked indexable before shipping; the two lease-exit guides are noindex and were deliberately NOT linked, because linking a noindex page spends crawl equity on a page that cannot rank.",
+    confidence: "measured",
+    verifiedBy: "pnpm build pre-rendered 583 pages; the built California page now shows lease 7, Sunrun 4, PPA 11, both anchors present, and the page is still indexable; npx vitest run server/statePageVocabulary.test.ts - 4 passed, and the guard was proven by injecting a regression that removed the vocabulary, which failed it, then restoring, which passed it",
+    preventsRecurrence: "server/statePageVocabulary.test.ts holds a list of pages with MEASURED query demand and the vocabulary that demand requires, and each entry must cite the impressions and position that justify it so the list cannot grow into a wish list. It also asserts that any page linked from the California state page is indexable, which blocks the opposite mistake of spending internal links on noindex pages.",
+    measureAfter: "2026-12-05",
+  },
 ];
 
 /** Entries grouped by class, for the admin view. */

@@ -126,6 +126,22 @@ export const stateLaws: StateLaw[] = [
         type: 'warning',
         content: 'IMPORTANT: The federal residential solar tax credit (26 USC § 25D) expired for homeowners on December 31, 2025. If a sales rep promised you a 30% tax credit in 2026, they committed fraud. Full stop.',
       },
+          {
+        type: 'h2',
+        content: 'Solar Leases and PPAs in California: The Same Rights, a Different Target',
+      },
+      {
+        type: 'p',
+        content: 'Most California solar complaints are not about a purchase. They are about a lease or a power purchase agreement (PPA), where a third-party owner keeps the panels and sells you the output for 20 to 25 years. If your agreement is a lease or a PPA, the protections above still apply to you: the home solicitation rules in Civil Code 1689.6 and the compliance-based extension in 1689.7(g) turn on how the agreement was sold and what notice you were given, not on whether you bought the system or leased it. The disclosure requirements under Business and Professions Code § 7159 and the CSLB Solar Energy System Disclosure Document likewise apply to the agreement you actually signed.',
+      },
+      {
+        type: 'p',
+        content: 'One distinction matters more than any other, and it is where most people get stuck: cancelling the agreement does not remove the equipment. A lease or PPA exit and a system removal are two separate transactions. If the panels are already on your roof and you stop paying, the third-party owner\'s remedy is against you, not the roof — and a lien or a credit hit is a worse outcome than the payment you were trying to escape. That is why the order of operations matters: establish your grounds first, then negotiate the agreement, then deal with the hardware.',
+      },
+      {
+        type: 'p',
+        content: 'Sunrun and SunPower are the two largest residential third-party solar owners operating in California, according to each company\'s own site. If your lease or PPA is with one of them, the questions to bring to a review are the same ones the law cares about: what the salesperson said about your utility rate, whether you received the disclosure document and the cancellation notice, and whether the production estimate was tied to your actual address and utility. For the Sunrun-specific process, see [Sunrun solar contract cancellation](/blog/sunrun-solar-contract-cancellation-2026). If the question is what happens to a lease or PPA when you sell the house, see [selling a home with solar PPA panels](/blog/selling-home-with-solar-ppa-panels-transfer-or-cancel).',
+      },
     ],
     faq: [
       { q: 'Can I cancel my California solar contract after installation?', a: 'Yes, in many cases. If the contract is missing required disclosures under § 7159, if the system was sold under false pretenses, or if the NEM 3.0 transition was misrepresented, you may have grounds for a post-install rescission.' },
